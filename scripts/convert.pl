@@ -8,6 +8,7 @@ my ($input_file, $ini_file) = @ARGV;
 if (!$input_file || !$ini_file) {
     die "Usage: perl convert.pl XML_FILE INI_FILE\n";
 }
+my $noclose = 0;
 my %our_pos = (
     с => 'сущ',
     п => 'прил',
@@ -79,6 +80,11 @@ sub start_tag {
         print "{{СинВар|";
     }
     elsif ($tag_name eq 'word') {
+        if ($attr{'lemma'}=~ /^(\.|:|,)$/) {
+            print $attr{'lemma'}.' ';
+            $noclose = 1;
+            return;
+        }
         my $pos = lc $attr{'pos'};
         my $gram = $attr{'grm'};
         $gram =~ s/;\s*$//;
@@ -106,7 +112,7 @@ sub start_tag {
         }
         #additions for short adj & part
         if ($pos =~ /^кр_/) {
-            print "|кр=да"
+            print "|кр=да";
         }
     }
 }
@@ -122,7 +128,11 @@ sub end_tag {
         print " }}\n";
     }
     elsif ($tag_name eq 'word') {
-        print "}}";
+        if ($noclose) {
+            $noclose = 0;
+        } else {
+            print "}}";
+        }
     }
 }
 sub parse_ini {
