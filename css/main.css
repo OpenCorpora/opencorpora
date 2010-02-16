@@ -1,0 +1,11 @@
+body {
+    font-family: Georgia, Times, serif;
+    margin: 0px;
+    padding: 0px;
+}
+div#header {
+    padding: 5px 10px;
+    background-color: #CCCCCC;
+    text-align: right;
+    font-size: small;
+}

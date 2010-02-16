@@ -1,15 +1,20 @@
-CREATE TABLE IF NOT EXISTS `authors` (
-     `author_id`   INTEGER PRIMARY KEY AUTOINCREMENT,
-     `author_name` VARCHAR(255) NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS `books` (
     `book_id`   INTEGER PRIMARY KEY AUTOINCREMENT,
-    `author_id` INT UNSIGNED NOT NULL DEFAULT 0,
     `parent_id` INT UNSIGNED NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS `books_parent` ON `books`(`parent_id`);
-CREATE INDEX IF NOT EXISTS `books_author` ON `books`(`author_id`);
+
+CREATE TABLE IF NOT EXISTS `book_tagnames` (
+    `tag_id`   INTEGER PRIMARY KEY AUTOINCREMENT,
+    `tag_name` VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `book_tags` (
+    `book_id` INT UNSIGNED NOT NULL,
+    `tag_id`  INT UNSIGNED NOT NULL
+);
+CREATE INDEX IF NOT EXISTS `book_tags_bid` ON `book_tags`(`book_id`);
+CREATE INDEX IF NOT EXISTS `book_tags_tid` ON `book_tags`(`tag_id`);
 
 CREATE TABLE IF NOT EXISTS `paragraphs` (
     `par_id`       INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `text_forms` (
     `sent_id` INT UNSIGNED NOT NULL,
     `pos`     SMALLINT UNSIGNED NOT NULL,
     `tf_text` VARCHAR(100) NOT NULL
+    `status`  SMALLINT UNSIGNED NOT NULL
 );
 CREATE INDEX IF NOT EXISTS `tf_sent` ON `text_forms`(`sent_id`);
 CREATE INDEX IF NOT EXISTS `tf_pos`  ON `text_forms`(`pos`);
