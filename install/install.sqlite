@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `text_forms` (
     `tf_id`   INTEGER PRIMARY KEY AUTOINCREMENT,
     `sent_id` INT UNSIGNED NOT NULL,
     `pos`     SMALLINT UNSIGNED NOT NULL,
-    `tf_text` VARCHAR(100) NOT NULL
+    `tf_text` VARCHAR(100) NOT NULL,
     `status`  SMALLINT UNSIGNED NOT NULL
 );
 CREATE INDEX IF NOT EXISTS `tf_sent` ON `text_forms`(`sent_id`);

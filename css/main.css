@@ -1,11 +1,23 @@
-body {
+* {
     font-family: Georgia, Times, serif;
+}
+body {
     margin: 0px;
     padding: 0px;
+}
+p {
+    padding: 5px;
 }
 div#header {
     padding: 5px 10px;
     background-color: #CCCCCC;
     text-align: right;
     font-size: small;
+}
+.small {
+    font-size: small;
+}
+/* FORMS */
+form#login_form {
+    margin: 10px;
 }

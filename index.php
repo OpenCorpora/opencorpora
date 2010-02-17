@@ -1,6 +1,5 @@
 <?php
 require('lib/header.php');
-//phpinfo();
 ?>
 <html>
 <head>
@@ -9,6 +8,5 @@ require('lib/header.php');
 </head>
 <body>
 <?php require('include/_header.php'); ?>
-<?php phpinfo(); ?>
 </body>
 </html>
