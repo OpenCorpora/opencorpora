@@ -1,0 +1,69 @@
+CREATE TABLE IF NOT EXISTS `books` (
+    `book_id`   INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `parent_id` INT UNSIGNED NOT NULL DEFAULT 0
+);
+CREATE INDEX `books_parent` ON `books`(`parent_id`);
+
+CREATE TABLE IF NOT EXISTS `book_tagnames` (
+    `tag_id`   INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `tag_name` VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `book_tags` (
+    `book_id` INT UNSIGNED NOT NULL,
+    `tag_id`  INT UNSIGNED NOT NULL
+);
+CREATE INDEX `book_tags_bid` ON `book_tags`(`book_id`);
+CREATE INDEX `book_tags_tid` ON `book_tags`(`tag_id`);
+
+CREATE TABLE IF NOT EXISTS `paragraphs` (
+    `par_id`       INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `book_id`      INT UNSIGNED NOT NULL,
+    `pos`          SMALLINT UNSIGNED NOT NULL
+);
+CREATE INDEX `par_pos` ON `paragraphs`(`pos`);
+CREATE INDEX `par_book` ON `paragraphs`(`book_id`);
+
+CREATE TABLE IF NOT EXISTS `sentences` (
+    `sent_id`      INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `par_id`       INT UNSIGNED NOT NULL,
+    `pos`          SMALLINT UNSIGNED NOT NULL
+);
+CREATE INDEX `sent_par` ON `sentences`(`par_id`);
+CREATE INDEX `sent_pos` ON `sentences`(`pos`);
+
+CREATE TABLE IF NOT EXISTS `text_forms` (
+    `tf_id`   INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `sent_id` INT UNSIGNED NOT NULL,
+    `pos`     SMALLINT UNSIGNED NOT NULL,
+    `tf_text` VARCHAR(100) NOT NULL,
+    `status`  SMALLINT UNSIGNED NOT NULL
+);
+CREATE INDEX `tf_sent` ON `text_forms`(`sent_id`);
+CREATE INDEX `tf_pos`  ON `text_forms`(`pos`);
+
+CREATE TABLE IF NOT EXISTS `users` (
+    `user_id`     INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `user_name`   VARCHAR(50) NOT NULL,
+    `user_passwd` VARCHAR(32) NOT NULL,
+    `user_group`  SMALLINT UNSIGNED NOT NULL,
+    `user_email`  VARCHAR(100) NOT NULL,
+    `user_reg`    INT UNSIGNED NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `revisions` (
+    `rev_id`   INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `set_id`   INT UNSIGNED NOT NULL,
+    `tf_id`    INT UNSIGNED NOT NULL,
+    `rev_text` TEXT NOT NULL
+);
+CREATE INDEX `rev_tf`  ON `revisions`(`tf_id`);
+CREATE INDEX `rev_set` ON `revisions`(`set_id`);
+
+CREATE TABLE IF NOT EXISTS `rev_sets` (
+    `set_id`    INTEGER PRIMARY KEY AUTO_INCREMENT,
+    `timestamp` INT UNSIGNED NOT NULL,
+    `user_id`   INT UNSIGNED NOT NULL
+);
+CREATE INDEX `revset_uid` ON `rev_sets`(`user_id`);
+CREATE INDEX `revset_ts`  ON `rev_sets`(`timestamp`);
