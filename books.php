@@ -1,0 +1,34 @@
+<?php
+require('lib/header.php');
+require('lib/lib_books.php');
+$action = $_GET['act'];
+if($action=='add') {
+    $book_name = mysql_real_escape_string($_POST['book_name']);
+    $book_parent = (int)$_POST['book_parent'];
+    books_add($book_name, $book_parent);
+}
+?>
+<html>
+<head>
+<meta http-equiv='content' content='text/html;charset=utf-8'/>
+<link rel='stylesheet' type='text/css' href='css/main.css'/>
+</head>
+<body>
+<?php require('include/_header.php'); ?>
+<div id='content'>
+<?php
+//административные опции
+if (is_admin()) {
+    if($book_id = (int)$_GET['book_id']) {
+        #nothing yet
+    } else {
+        print books_mainpage();
+    }
+} else {
+    print $config['msg_notadmin'];
+}
+?>
+</div>
+<div id='rightcol'><?php require('include/_right.php'); ?></div>
+</body>
+</html>
