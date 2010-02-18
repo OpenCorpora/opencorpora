@@ -18,11 +18,12 @@ if ($action=='login') {
 <link rel='stylesheet' type='text/css' href='css/main.css'/>
 </head>
 <body>
+<?php require('include/_header.php'); ?>
+<div id='content'>
 <?php
-require('include/_header.php');
 switch ($action) {
     case 'error':
-        print "<p>Пользователь с указанной комбинацией логина и пароля не найден. Попробуйте, пожалуйста, <a href='?'>ещё раз</a>.</p>";
+        print "Пользователь с указанной комбинацией логина и пароля не найден. Попробуйте, пожалуйста, <a href='?'>ещё раз</a>.";
         break;
     case 'register':?>
 <form action="?act=reg_done" method='post' id='login_form'>
@@ -38,14 +39,14 @@ switch ($action) {
         break;
     case 'reg_done':
         if ($_POST['passwd'] != $_POST['passwd_re']) {
-            print "<p>Введённые пароли не совпадают. Попробуйте, пожалуйста, <a href='?act=register'>ещё раз</a>.</p>";
+            print "Введённые пароли не совпадают. Попробуйте, пожалуйста, <a href='?act=register'>ещё раз</a>.";
             break;
         }
         $name = mysql_real_escape_string($_POST['login']);
         $passwd = md5(md5($_POST['passwd']).substr($name, 0, 2));
         $email = mysql_real_escape_string($_POST['email']);
         if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '1', '$email', '".time()."')")) {
-            print "<p>Спасибо, регистрация успешно завершена. Теперь вы можете <a href='?'>войти</a> под своим именем пользователя.</p>";
+            print "Спасибо, регистрация успешно завершена. Теперь вы можете <a href='?'>войти</a> под своим именем пользователя.";
         } else {
             print "<p>Ошибка :(</p>";
         }
@@ -59,9 +60,10 @@ switch ($action) {
 <tr><td colspan='2'>или <a href='?act=register'>зарегистрироваться</a></tr>
 </table>
 </form>
+</div>
 <?
 }
 ?>
-
+<div id='rightcol'><?php require('include/_right.php'); ?></div>
 </body>
 </html>

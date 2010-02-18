@@ -8,5 +8,17 @@ require('lib/header.php');
 </head>
 <body>
 <?php require('include/_header.php'); ?>
+<div id='content'>
+<?php
+//административные опции
+if (is_admin()) {
+    ?>
+    <a href='books.php'>Редактор источников</a><br/>
+    <a href='#'>Редактор словаря</a>
+    <?
+}
+?>
+</div>
+<div id='rightcol'><?php require('include/_right.php'); ?></div>
 </body>
 </html>

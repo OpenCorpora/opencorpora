@@ -5,17 +5,28 @@ body {
     margin: 0px;
     padding: 0px;
 }
-p {
-    padding: 5px;
-}
 div#header {
     padding: 5px 10px;
     background-color: #CCCCCC;
     text-align: right;
     font-size: small;
 }
+div#content {
+    width: 80%;
+    float: left;
+    padding: 10px;
+}
+div#rightcol {
+    margin-left: 19%;
+    padding: 10px;
+    font-size: small;
+}
 .small {
     font-size: small;
+}
+a.toggle {
+    border-bottom: 1px black dashed;
+    text-decoration: none;
 }
 /* FORMS */
 form#login_form {

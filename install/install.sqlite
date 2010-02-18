@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS `books` (
     `book_id`   INTEGER PRIMARY KEY AUTOINCREMENT,
+    `book_name` VARCHAR(100) NOT NULL,
     `parent_id` INT UNSIGNED NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS `books_parent` ON `books`(`parent_id`);
