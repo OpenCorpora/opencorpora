@@ -10,6 +10,10 @@ if($action=='add' && is_admin()) {
     $name = mysql_real_escape_string($_POST['new_name']);
     $book_id = (int)$_POST['book_id'];
     books_rename($book_id, $name);
+} elseif ($action=='move' && is_admin()) {
+    $book_id = (int)$_POST['book_id'];
+    $book_to = (int)$_POST['book_to'];
+    books_move($book_id, $book_to);
 }
 ?>
 <html>
