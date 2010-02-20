@@ -2,10 +2,14 @@
 require('lib/header.php');
 require('lib/lib_books.php');
 $action = $_GET['act'];
-if($action=='add') {
+if($action=='add' && is_admin()) {
     $book_name = mysql_real_escape_string($_POST['book_name']);
     $book_parent = (int)$_POST['book_parent'];
     books_add($book_name, $book_parent);
+} elseif ($action=='rename' && is_admin()) {
+    $name = mysql_real_escape_string($_POST['new_name']);
+    $book_id = (int)$_POST['book_id'];
+    books_rename($book_id, $name);
 }
 ?>
 <html>
@@ -20,7 +24,7 @@ if($action=='add') {
 //административные опции
 if (is_admin()) {
     if($book_id = (int)$_GET['book_id']) {
-        #nothing yet
+        print books_page($book_id);
     } else {
         print books_mainpage();
     }

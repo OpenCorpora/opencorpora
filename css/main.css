@@ -21,6 +21,9 @@ div#rightcol {
     padding: 10px;
     font-size: small;
 }
+.inline {
+    display: inline;
+}
 .small {
     font-size: small;
 }

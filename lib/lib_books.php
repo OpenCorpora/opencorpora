@@ -10,6 +10,13 @@ function books_mainpage() {
     $out .= '</ul>';
     return $out;
 }
+function books_page($book_id) {
+    $r = sql_fetch_array(sql_query("SELECT * FROM `books` WHERE `book_id`=$book_id"));
+    $out = '<h2>'.$r['book_name']."</h2>\n";
+    $out .= "<form action='?act=rename' method='post' class='inline'>Rename to: <input type='hidden' name='book_id' value='$book_id'/><input name='new_name' value='".htmlspecialchars($r['book_name'])."'/>&nbsp;&nbsp;<input type='submit' value='Rename'/></form>\n";
+    $out .= "OR <form action='?act=move' method='post' class='inline'>Move to: <input type='hidden' name='book_id' value='$book_id'/><select name='book_to' onChange='this.parent.submit()'>\n<option value='0'>&lt;root&gt;</option>\n".books_get_select()."</select></form>";
+    return $out;
+}
 function books_add($name, $parent_id=0) {
     #TODO: check if the name is empty
     if (sql_query("INSERT INTO `books` VALUES(NULL, '$name', '$parent_id')")) {
@@ -19,10 +26,30 @@ function books_add($name, $parent_id=0) {
     }
 }
 function books_move($book_id, $to_id) {
+    if ($book_id == $to_id) {
+        header("Location:books.php?book_id=$book_id");
+        return;
+    }
     if (sql_query("UPDATE `books` SET `parent_id`='$to_id' WHERE `book_id`=$book_id LIMIT 1")) {
         header("Location:books.php?book_id=$to_id");
     } else {
         #some error message
     }
+}
+function books_rename($book_id, $name) {
+    #TODO: check if the name is empty
+    if (sql_query("UPDATE `books` SET `book_name`='$name' WHERE `book_id`=$book_id LIMIT 1")) {
+        header("Location:books.php?book_id=$book_id");
+    } else {
+        #some error meassage
+    }
+}
+function books_get_select() {
+    $out = '';
+    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` ORDER BY `book_name`");
+    while($r = sql_fetch_array($res)) {
+        $out .= "<option value='".$r['book_id']."'>".$r['book_name']."</option>\n";
+    }
+    return $out;
 }
 ?>
