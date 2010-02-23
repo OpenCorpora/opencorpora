@@ -1,28 +1,13 @@
 <?php
 #sql wrappers
 function sql_query($q) {
-    global $config;
-    if ($config['db_type']=='mysql') {
-        return mysql_query($q);
-    } elseif ($config['db_type']=='sqlite') {
-        return sqlite_query($q);
-    }
+    return mysql_query($q);
 }
 function sql_fetch_array($q) {
-    global $config;
-    if ($config['db_type']=='mysql') {
-        return mysql_fetch_array($q);
-    } elseif ($config['db_type']=='sqlite') {
-        return sqlite_fetch_array($q);
-    }
+    return mysql_fetch_array($q);
 }
 function sql_num_rows($q) {
-    global $config;
-    if ($config['db_type']=='mysql') {
-        return mysql_num_rows($q);
-    } elseif ($config['db_type']=='sqlite') {
-        return sqlite_num_rows($q);
-    }
+    return mysql_num_rows($q);
 }
 #other
 function user_login($login, $passwd) {

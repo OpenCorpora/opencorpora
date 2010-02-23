@@ -23,7 +23,7 @@ if ($action=='login') {
 <?php
 switch ($action) {
     case 'error':
-        print "Пользователь с указанной комбинацией логина и пароля не найден. Попробуйте, пожалуйста, <a href='?'>ещё раз</a>.";
+        print $config['msg_loginerror'];
         break;
     case 'register':?>
 <form action="?act=reg_done" method='post' id='login_form'>
@@ -48,7 +48,7 @@ switch ($action) {
         if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '1', '$email', '".time()."')")) {
             print "Спасибо, регистрация успешно завершена. Теперь вы можете <a href='?'>войти</a> под своим именем пользователя.";
         } else {
-            print "<p>Ошибка :(</p>";
+            print "Ошибка :(";
         }
         break;
     default:?>
@@ -60,10 +60,9 @@ switch ($action) {
 <tr><td colspan='2'>или <a href='?act=register'>зарегистрироваться</a></tr>
 </table>
 </form>
-</div>
 <?
 }
 ?>
-<div id='rightcol'><?php require('include/_right.php'); ?></div>
+</div><div id='rightcol'><?php require('include/_right.php'); ?></div>
 </body>
 </html>

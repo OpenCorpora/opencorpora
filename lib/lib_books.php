@@ -13,8 +13,8 @@ function books_mainpage() {
 function books_page($book_id) {
     $r = sql_fetch_array(sql_query("SELECT * FROM `books` WHERE `book_id`=$book_id"));
     $out = '<h2>'.$r['book_name']."</h2>\n";
-    $out .= "<form action='?act=rename' method='post' class='inline'>Rename to: <input type='hidden' name='book_id' value='$book_id'/><input name='new_name' value='".htmlspecialchars($r['book_name'])."'/>&nbsp;&nbsp;<input type='submit' value='Rename'/></form>\n";
-    $out .= "OR <form action='?act=move' method='post' class='inline'>Move to: <input type='hidden' name='book_id' value='$book_id'/><select name='book_to' onChange='document.forms[1].submit()'>\n<option value='0'>&lt;root&gt;</option>\n".books_get_select()."</select></form>";
+    $out .= "<form action='?act=rename' method='post' class='inline'>Переименовать в: <input type='hidden' name='book_id' value='$book_id'/><input name='new_name' value='".htmlspecialchars($r['book_name'])."'/>&nbsp;&nbsp;<input type='submit' value='Переименовать'/></form>\n";
+    $out .= "ИЛИ <form action='?act=move' method='post' class='inline'>Переместить в: <input type='hidden' name='book_id' value='$book_id'/><select name='book_to' onChange='document.forms[1].submit()'>\n<option value='0'>&lt;root&gt;</option>\n".books_get_select()."</select></form>";
     return $out;
 }
 function books_add($name, $parent_id=0) {
