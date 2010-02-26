@@ -1,9 +1,9 @@
 CREATE TABLE IF NOT EXISTS `books` (
     `book_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `book_name` VARCHAR(100) NOT NULL,
-    `parent_id` INT UNSIGNED NOT NULL DEFAULT 0
+    `parent_id` INT UNSIGNED NOT NULL DEFAULT 0,
+    INDEX (`parent_id`)
 );
-CREATE INDEX `books_parent` ON `books`(`parent_id`);
 
 CREATE TABLE IF NOT EXISTS `book_tagnames` (
     `tag_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -12,36 +12,36 @@ CREATE TABLE IF NOT EXISTS `book_tagnames` (
 
 CREATE TABLE IF NOT EXISTS `book_tags` (
     `book_id` INT UNSIGNED NOT NULL,
-    `tag_id`  INT UNSIGNED NOT NULL
+    `tag_id`  INT UNSIGNED NOT NULL,
+    INDEX (`book_id`),
+    INDEX (`tag_id`)
 );
-CREATE INDEX `book_tags_bid` ON `book_tags`(`book_id`);
-CREATE INDEX `book_tags_tid` ON `book_tags`(`tag_id`);
 
 CREATE TABLE IF NOT EXISTS `paragraphs` (
     `par_id`       INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `book_id`      INT UNSIGNED NOT NULL,
-    `pos`          SMALLINT UNSIGNED NOT NULL
+    `pos`          SMALLINT UNSIGNED NOT NULL,
+    INDEX (`book_id`),
+    INDEX (`pos`)
 );
-CREATE INDEX `par_pos` ON `paragraphs`(`pos`);
-CREATE INDEX `par_book` ON `paragraphs`(`book_id`);
 
 CREATE TABLE IF NOT EXISTS `sentences` (
     `sent_id`      INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `par_id`       INT UNSIGNED NOT NULL,
     `pos`          SMALLINT UNSIGNED NOT NULL,
-    `check_status` SMALLINT UNSIGNED NOT NULL
+    `check_status` SMALLINT UNSIGNED NOT NULL,
+    INDEX (`par_id`),
+    INDEX (`pos`)
 );
-CREATE INDEX `sent_par` ON `sentences`(`par_id`);
-CREATE INDEX `sent_pos` ON `sentences`(`pos`);
 
 CREATE TABLE IF NOT EXISTS `text_forms` (
     `tf_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `sent_id` INT UNSIGNED NOT NULL,
     `pos`     SMALLINT UNSIGNED NOT NULL,
-    `tf_text` VARCHAR(100) NOT NULL
+    `tf_text` VARCHAR(100) NOT NULL,
+    INDEX (`sent_id`),
+    INDEX (`pos`)
 );
-CREATE INDEX `tf_sent` ON `text_forms`(`sent_id`);
-CREATE INDEX `tf_pos`  ON `text_forms`(`pos`);
 
 CREATE TABLE IF NOT EXISTS `users` (
     `user_id`     INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -56,36 +56,51 @@ CREATE TABLE IF NOT EXISTS `tf_revisions` (
     `rev_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `set_id`   INT UNSIGNED NOT NULL,
     `tf_id`    INT UNSIGNED NOT NULL,
-    `rev_text` TEXT NOT NULL
+    `rev_text` TEXT NOT NULL,
+    INDEX (`set_id`),
+    INDEX (`tf_id`)
 );
-CREATE INDEX `tf_rev_tf`  ON `tf_revisions`(`tf_id`);
-CREATE INDEX `tf_rev_set` ON `tf_revisions`(`set_id`);
 
 CREATE TABLE IF NOT EXISTS `rev_sets` (
     `set_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `timestamp` INT UNSIGNED NOT NULL,
-    `user_id`   INT UNSIGNED NOT NULL
+    `user_id`   INT UNSIGNED NOT NULL,
+    INDEX (`timestamp`),
+    INDEX (`user_id`)
 );
-CREATE INDEX `revset_uid` ON `rev_sets`(`user_id`);
-CREATE INDEX `revset_ts`  ON `rev_sets`(`timestamp`);
 
 CREATE TABLE IF NOT EXISTS `dict_lex` (
     `lex_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `parent_id` INT UNSIGNED NOT NULL,
-    `lex_text`  VARCHAR(50) NOT NULL
+    `lex_text`  VARCHAR(50) NOT NULL,
+    INDEX (`parent_id`)
 );
-CREATE INDEX `lex_parent` ON `dict_lex`(`parent_id`);
 
 CREATE TABLE IF NOT EXISTS `lex_notes` (
     `lex_id`    INT UNSIGNED NOT NULL,
-    `note_text` TEXT NOT NULL
+    `note_text` TEXT NOT NULL,
+    INDEX (`lex_id`)
 );
 
 CREATE TABLE IF NOT EXISTS `dict_revisions` (
     `rev_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `set_id`   INT UNSIGNED NOT NULL,
     `lex_id`   INT UNSIGNED NOT NULL,
-    `rev_text` TEXT NOT NULL
+    `rev_text` TEXT NOT NULL,
+    INDEX (`set_id`),
+    INDEX (`lex_id`)
 );
-CREATE INDEX `dict_rev_lex` ON `dict_revisions`(`lex_id`);
-CREATE INDEX `dict_rev_set` ON `dict_revisions`(`set_id`);
+
+CREATE TABLE IF NOT EXISTS `gram_types` (
+    `type_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `type_name` VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `gram` (
+    `gram_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `gram_type`  INT UNSIGNED NOT NULL,
+    `aot_id`     VARCHAR(20) NOT NULL,
+    `gram_name`  VARCHAR(20) NOT NULL,
+    `gram_descr` VARCHAR(50) NOT NULL,
+    INDEX (`gram_type`)
+);

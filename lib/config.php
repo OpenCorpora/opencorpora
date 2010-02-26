@@ -1,4 +1,6 @@
 <?php
+$config['web_prefix'] = '/corpus'; # '' or '/dir'
+
 $config['mysql_host']   = 'localhost';
 $config['mysql_dbname'] = 'corpora';
 $config['mysql_user']   = 'corpora';
