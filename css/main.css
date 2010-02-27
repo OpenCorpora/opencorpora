@@ -37,6 +37,15 @@ a.toggle {
     border-bottom: 1px black dashed;
     text-decoration: none;
 }
+span.debug {
+    font-size: small;
+    background-color: yellow;
+}
+span.debug_error {
+    font-size: small;
+    background-color: #CC0000;
+    color: yellow;
+}
 /* FORMS */
 form#login_form {
     margin: 10px;

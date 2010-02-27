@@ -14,7 +14,7 @@ require('lib/header.php');
 if (is_admin()) {
     ?>
     <a href='<?=$config['web_prefix']?>/books.php'>Редактор источников</a><br/>
-    <a href='#'>Редактор словаря</a>
+    <a href='<?=$config['web_prefix']?>/dict.php'>Редактор словаря</a>
     <?
 }
 ?>

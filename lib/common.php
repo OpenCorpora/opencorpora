@@ -1,7 +1,14 @@
 <?php
 #sql wrappers
 function sql_query($q) {
-    return mysql_query($q);
+    $res = mysql_query($q);
+    if ($_SESSION['debug_mode']) {
+        print "<span class='debug'>SQL: ".htmlspecialchars($q)."</span><br/>\n";
+        if ($err = mysql_error()) {
+            print "<span class='debug_error'>$err</span><br/>\n";
+        }
+    }
+    return $res;
 }
 function sql_fetch_array($q) {
     return mysql_fetch_array($q);

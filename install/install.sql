@@ -93,7 +93,9 @@ CREATE TABLE IF NOT EXISTS `dict_revisions` (
 
 CREATE TABLE IF NOT EXISTS `gram_types` (
     `type_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `type_name` VARCHAR(30) NOT NULL
+    `type_name` VARCHAR(30) NOT NULL,
+    `orderby`   SMALLINT NOT NULL,
+    INDEX (`orderby`)
 );
 
 CREATE TABLE IF NOT EXISTS `gram` (
