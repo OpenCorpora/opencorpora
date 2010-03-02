@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (!headers_sent()) {
+	session_start();
+}
 require_once('config.php');
 require_once('common.php');
 
