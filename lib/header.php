@@ -7,8 +7,8 @@ require_once('common.php');
 
 #database connect
 $db = mysql_connect($config['mysql_host'], $config['mysql_user'], $config['mysql_passwd']) or die ("Unable to open mysql database");
-sql_query("USE corpora");
-sql_query("SET CHARACTER SET utf8");
+sql_query("USE corpora", 0);
+sql_query("SET CHARACTER SET utf8", 0);
 
 #debug mode
 if ($debug = $_GET['debug']) {

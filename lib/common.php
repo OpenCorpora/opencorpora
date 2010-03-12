@@ -1,8 +1,8 @@
 <?php
 #sql wrappers
-function sql_query($q) {
+function sql_query($q, $debug=1) {
     $res = mysql_query($q);
-    if ($_SESSION['debug_mode']) {
+    if ($_SESSION['debug_mode'] && $debug) {
         print "<span class='debug'>SQL: ".htmlspecialchars($q)."</span><br/>\n";
         if ($err = mysql_error()) {
             print "<span class='debug_error'>$err</span><br/>\n";
