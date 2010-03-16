@@ -69,17 +69,16 @@ CREATE TABLE IF NOT EXISTS `rev_sets` (
     INDEX (`user_id`)
 );
 
-CREATE TABLE IF NOT EXISTS `dict_lex` (
-    `lex_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `parent_id` INT UNSIGNED NOT NULL,
-    `lex_text`  VARCHAR(50) NOT NULL,
-    INDEX (`parent_id`)
+CREATE TABLE IF NOT EXISTS `dict_lemmata` (
+    `lemma_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `lemma_text`  VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS `lex_notes` (
-    `lex_id`    INT UNSIGNED NOT NULL,
-    `note_text` TEXT NOT NULL,
-    INDEX (`lex_id`)
+CREATE TABLE IF NOT EXISTS `dict_lex` (
+    `lex_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `lemma_id`  INT UNSIGNED NOT NULL,
+    `lex_descr` TEXT NOT NULL,
+    INDEX (`lemma_id`)
 );
 
 CREATE TABLE IF NOT EXISTS `dict_revisions` (

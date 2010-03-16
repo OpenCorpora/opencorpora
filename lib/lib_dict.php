@@ -4,11 +4,11 @@ function dict_page() {
 	$cnt_gt = $r['cnt_gt'];
 	$r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_g FROM `gram`"));
 	$cnt_g = $r['cnt_g'];
-	$r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_l FROM `dict_lex`"));
+	$r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_l FROM `dict_lemmata`"));
 	$cnt_l = $r['cnt_l'];
     $out = sprintf("<p>Всего %d граммем в %d группах и %d лемм.</p>", $cnt_g, $cnt_gt, $r['cnt_l']);
     $out .= '<p><a href="?act=gram">Редактор граммем</a><br/>';
-	$out .= '<a href="?act=lex">Редактор лемм</a></p>';
+	$out .= '<a href="?act=lemmata">Редактор лемм</a></p>';
     return $out;
 }
 function dict_page_gram() {
