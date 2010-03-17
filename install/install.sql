@@ -84,10 +84,10 @@ CREATE TABLE IF NOT EXISTS `dict_lex` (
 CREATE TABLE IF NOT EXISTS `dict_revisions` (
     `rev_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `set_id`   INT UNSIGNED NOT NULL,
-    `lex_id`   INT UNSIGNED NOT NULL,
+    `lemma_id` INT UNSIGNED NOT NULL,
     `rev_text` TEXT NOT NULL,
     INDEX (`set_id`),
-    INDEX (`lex_id`)
+    INDEX (`lemma_id`)
 );
 
 CREATE TABLE IF NOT EXISTS `gram_types` (

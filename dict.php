@@ -32,6 +32,13 @@ if (is_admin()) {
         case 'gram':
             print dict_page_gram();
             break;
+        case 'lemmata':
+            print dict_page_lemmata();
+            break;
+        case 'edit':
+            $lid = (int)$_GET['id'];
+            print dict_page_lemma_edit($lid);
+            break;
         default:
             print dict_page();
     }

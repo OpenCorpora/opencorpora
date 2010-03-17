@@ -1,4 +1,5 @@
 <?php
+require_once('lib_xml.php');
 function dict_page() {
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_gt FROM `gram_types`"));
 	$cnt_gt = $r['cnt_gt'];
@@ -32,6 +33,43 @@ function dict_page_gram() {
     $out .= '</table>';
     return $out;
 }
+function dict_page_lemmata() {
+    $out = '<h2>Редактор морфологического словаря</h2>';
+    $out .= "<form action='?act=lemmata' method='post'>Поиск леммы: <input name='search_lemma' size='25' maxlength='40' value='".(isset($_POST['search_lemma'])?htmlspecialchars($_POST['search_lemma']):'')."'/> <input type='submit' value='Искать'/></form>";
+    if (isset($_POST['search_lemma'])) {
+        $out .= dict_block_search_lemma($_POST['search_lemma']);
+    }
+    return $out;
+}
+function dict_page_lemma_edit($id) {
+    $r = sql_fetch_array(sql_query("SELECT l.`lemma_text`, d.`rev_id`, d.`rev_text` FROM `dict_lemmata` l LEFT JOIN `dict_revisions` d ON (l.lemma_id = d.lemma_id) WHERE l.`lemma_id`=$id ORDER BY d.rev_id DESC LIMIT 1"));
+    $out = '<p><a href="?act=lemmata">&lt;&lt;&nbsp;к поиску</a></p>';
+    $arr = parse_dict_rev($r['rev_text']);
+    $out .= '<form action="" method="post"><b>Лемма</b>:<br/><input name="lemma_text" value="'.$arr['lemma']['_a']['text'].'"/><br/><b>Формы:</b><br/><table cellpadding="3">';
+    foreach($arr['form'] as $n=>$farr) {
+        $out .= "<tr><td>".$farr['_a']['text']."<td>";
+        foreach($farr['_c']['grm'] as $k=>$garr) {
+            $out .= $garr['_a']['val'].', ';
+        }
+        $out .= '</tr>';
+    }
+    $out .= '</table></form>';
+    $out .= '<b>Plain xml:</b><br/><textarea class="small" disabled cols="60" rows="10">'.htmlspecialchars($r['rev_text']).'</textarea>';
+    //print ('<pre>');
+    //print_r($arr);
+    //print ('</pre>');
+    return $out;
+}
+function dict_block_search_lemma($q) {
+    $q = mysql_real_escape_string($q);
+    $out = '';
+    $res = sql_query("SELECT lemma_id FROM `dict_lemmata` WHERE `lemma_text`='$q'");
+    if (sql_num_rows($res) == 0) return "Ничего не найдено.";
+    while($r = sql_fetch_array($res)) {
+        $out .= '<a href="?act=edit&id='.$r['lemma_id']."\">[".$r['lemma_id']."] $q</a><br/>";
+    }
+    return $out;
+}
 function add_gramtype($name) {
     $r = sql_fetch_array(sql_query("SELECT MAX(`orderby`) AS `m` FROM `gram_types`"));
     if (sql_query("INSERT INTO `gram_types` VALUES(NULL, '$name', '".($r['m']+1)."')")) {
@@ -54,5 +92,9 @@ function dict_get_select_gramtype() {
         $out .= '<option value="'.$r['type_id'].'">'.$r['type_name'].'</option>';
     }
     return $out;
+}
+function parse_dict_rev($text) {
+    $arr = xml2ary($text);
+    return $arr['dict_rev']['_c'];
 }
 ?>
