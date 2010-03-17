@@ -18,12 +18,16 @@ div#header div#rblock {
     font-size: small;
 }
 div#content {
-    width: 80%;
-    float: left;
+    position: relative;
+    margin-right: 205px;
     padding: 10px;
 }
 div#rightcol {
-    margin-left: 19%;
+    position: absolute;
+    top: 30px;
+    right: 0px;
+    width: 200px;
+    float: right;
     padding: 10px;
     font-size: small;
 }
