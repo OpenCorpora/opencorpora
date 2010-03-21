@@ -19,7 +19,7 @@ div#header div#rblock {
 }
 div#content {
     position: relative;
-    margin-right: 205px;
+    margin-right: 235px;
     padding: 10px;
 }
 div#rightcol {
@@ -53,4 +53,12 @@ span.debug_error {
 /* FORMS */
 form#login_form {
     margin: 10px;
+}
+/* WORDS HIGHLIGHTING */
+span.check_unpos {
+    color: #CCC;
+}
+span.check_noword {
+    background-color: #C00;
+    color: yellow;
 }

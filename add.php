@@ -1,5 +1,11 @@
 <?php
 require('lib/header.php');
+require('lib/lib_dict.php');
+$action = $_GET['act'];
+if (is_admin()) {
+    switch($action) {
+    }
+}
 ?>
 <html>
 <head>
@@ -10,13 +16,16 @@ require('lib/header.php');
 <?php require('include/_header.php'); ?>
 <div id='content'>
 <?php
-//административные опции
 if (is_admin()) {
-    ?>
-    <a href='<?=$config['web_prefix']?>/books.php'>Редактор источников</a><br/>
-    <a href='<?=$config['web_prefix']?>/dict.php'>Редактор словаря</a><br/><br/>
-    <a href='<?=$config['web_prefix']?>/add.php'>Добавить текст</a>
-    <?
+    switch($action) {
+        case 'check':
+            print addtext_check($_POST['txt']);
+            break;
+        default:
+            print addtext_page();
+    }
+} else {
+    print $config['msg_notadmin'];
 }
 ?>
 </div>

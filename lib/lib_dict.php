@@ -7,7 +7,11 @@ function dict_page() {
 	$cnt_g = $r['cnt_g'];
 	$r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_l FROM `dict_lemmata`"));
 	$cnt_l = $r['cnt_l'];
-    $out = sprintf("<p>Всего %d граммем в %d группах и %d лемм.</p>", $cnt_g, $cnt_gt, $r['cnt_l']);
+	$r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_f FROM `form2lemma`"));
+	$cnt_f = $r['cnt_f'];
+	$r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_r FROM `dict_revisions` WHERE f2l_check=0"));
+	$cnt_r = $r['cnt_r'];
+    $out = sprintf("<p>Всего %d граммем в %d группах, %d лемм, %d форм в индексе (не проверено %d ревизий).</p>", $cnt_g, $cnt_gt, $cnt_l, $cnt_f, $cnt_r);
     $out .= '<p><a href="?act=gram">Редактор граммем</a><br/>';
 	$out .= '<a href="?act=lemmata">Редактор лемм</a></p>';
     return $out;
@@ -36,8 +40,11 @@ function dict_page_gram() {
 function dict_page_lemmata() {
     $out = '<h2>Редактор морфологического словаря</h2>';
     $out .= "<form action='?act=lemmata' method='post'>Поиск леммы: <input name='search_lemma' size='25' maxlength='40' value='".(isset($_POST['search_lemma'])?htmlspecialchars($_POST['search_lemma']):'')."'/> <input type='submit' value='Искать'/></form>";
+    $out .= "<form action='?act=lemmata' method='post'>Поиск формы: <input name='search_form' size='25' maxlength='40' value='".(isset($_POST['search_form'])?htmlspecialchars($_POST['search_form']):'')."'/> <input type='submit' value='Искать'/></form>";
     if (isset($_POST['search_lemma'])) {
         $out .= dict_block_search_lemma($_POST['search_lemma']);
+    } elseif (isset($_POST['search_form'])) {
+        $out .= dict_block_search_form($_POST['search_form']);
     }
     return $out;
 }
@@ -55,9 +62,36 @@ function dict_page_lemma_edit($id) {
     }
     $out .= '</table></form>';
     $out .= '<b>Plain xml:</b><br/><textarea class="small" disabled cols="60" rows="10">'.htmlspecialchars($r['rev_text']).'</textarea>';
-    //print ('<pre>');
-    //print_r($arr);
-    //print ('</pre>');
+    return $out;
+}
+function addtext_page() {
+    $out = '<h3>Добавляем текст</h3>';
+    $out .= '<form action="?act=check" method="post"><textarea cols="70" rows="20" name="txt" onClick="this.innerHTML=\'\'; this.onClick=\'\'">Товарищ, помни! Абзацы разделяются двойным переводом строки, предложения - одинарным; предложение должно быть токенизировано.</textarea><br/><input type="submit" value="Проверить"/></form>';
+    return $out;
+}
+function addtext_check($txt) {
+    $out = '<p><a href="?">Обратно к форме</a></p><ol type="I"';
+    $pars = preg_split('/\r?\n\r?\n\r?/', $txt);
+    foreach ($pars as $par) {
+        $out .= '<li><ol>';
+        $sents = preg_split('/[\r\n]+/', $par);
+        foreach ($sents as $sent) {
+            $out .= '<li>';
+            $tokens = explode(' ', $sent);
+            foreach ($tokens as $token) {
+                $ex = form_exists($token);
+                if ($ex == -1) {
+                    $out .= "<span class='check_unpos'>$token</span> ";
+                } elseif (!$ex) {
+                    $out .= "<span class='check_noword'>$token</span> ";
+                } else {
+                    $out .= "$token ";
+                }
+            }
+            $out .= '</li>';
+        }
+        $out .= "</ol></li>\n";
+    }
     return $out;
 }
 function dict_block_search_lemma($q) {
@@ -67,6 +101,16 @@ function dict_block_search_lemma($q) {
     if (sql_num_rows($res) == 0) return "Ничего не найдено.";
     while($r = sql_fetch_array($res)) {
         $out .= '<a href="?act=edit&id='.$r['lemma_id']."\">[".$r['lemma_id']."] $q</a><br/>";
+    }
+    return $out;
+}
+function dict_block_search_form($q) {
+    $q = mysql_real_escape_string($q);
+    $out = '';
+    $res = sql_query("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE fl.`form_text`='$q'");
+    if (sql_num_rows($res) == 0) return "Ничего не найдено.";
+    while($r = sql_fetch_array($res)) {
+        $out .= '<a href="?act=edit&id='.$r['lemma_id']."\">[".$r['lemma_id']."] ".$r['lemma_text']."</a><br/>";
     }
     return $out;
 }
@@ -96,5 +140,12 @@ function dict_get_select_gramtype() {
 function parse_dict_rev($text) {
     $arr = xml2ary($text);
     return $arr['dict_rev']['_c'];
+}
+function form_exists($f) {
+    $f = lc($f);
+    if (!preg_match('/[А-Яа-я]/u', $f)) {
+        return -1;
+    }
+    return sql_num_rows(sql_query("SELECT lemma_id FROM form2lemma WHERE form_text='".mysql_real_escape_string($f)."' LIMIT 1"));
 }
 ?>

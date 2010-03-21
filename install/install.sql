@@ -82,11 +82,21 @@ CREATE TABLE IF NOT EXISTS `dict_lex` (
 );
 
 CREATE TABLE IF NOT EXISTS `dict_revisions` (
-    `rev_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `set_id`   INT UNSIGNED NOT NULL,
-    `lemma_id` INT UNSIGNED NOT NULL,
-    `rev_text` TEXT NOT NULL,
+    `rev_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `set_id`    INT UNSIGNED NOT NULL,
+    `lemma_id`  INT UNSIGNED NOT NULL,
+    `rev_text`  TEXT NOT NULL,
+    `f2l_check` TINYINT(1) UNSIGNED NOT NULL,
     INDEX (`set_id`),
+    INDEX (`lemma_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `form2lemma` (
+    `form_text`  VARCHAR(50) NOT NULL,
+    `lemma_id`   INT UNSIGNED NOT NULL,
+    `lemma_text` VARCHAR(50) NOT NULL,
+    `grammems`   TEXT NOT NULL,
+    INDEX (`form_text`),
     INDEX (`lemma_id`)
 );
 

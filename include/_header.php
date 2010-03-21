@@ -6,7 +6,7 @@ if (isset($_SESSION['user_id'])) {
     print "Вы &ndash; <b>".$_SESSION['user_name']."</b>";
     if (is_admin()) {
         print ", администратор";
-        if ($_SESSION['debug_mode']) {
+        if (isset($_SESSION['debug_mode'])) {
             print " [<a href='?debug=off'>debug off</a>]";
         } else {
             print " [<a href='?debug=on'>debug on</a>]";
