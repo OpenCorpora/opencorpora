@@ -1,5 +1,7 @@
 <?php
 require_once('lib_xml.php');
+require_once('lib_books.php');
+
 function dict_page() {
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_gt FROM `gram_types`"));
 	$cnt_gt = $r['cnt_gt'];
@@ -17,7 +19,8 @@ function dict_page() {
     return $out;
 }
 function dict_page_gram() {
-    $out = '<h2>Группы граммем</h2>';
+    $out = '<p><a href="?">&lt;&lt;&nbsp;назад</a></p>';
+    $out .= '<h2>Группы граммем</h2>';
     $out .= '<b>Добавить группу</b>: <form action="?act=add_gg" method="post" class="inline"><input name="g_name" value="&lt;Название&gt;">&nbsp;<input type="submit" value="Добавить"/></form><br/><br/>';
     $out .= '<b>Добавить граммему</b>:<br/><form action="?act=add_gram" method="post" class="inline">ID <input name="g_name" value="grm" size="10" maxlength="20"/>, AOT_ID <input name="aot_id" value="грм" size="10" maxlength="20"/>, группа <select name="group">'.dict_get_select_gramtype().'</select>,<br/>полное название <input name="descr" size="40"/> <input type="submit" value="Добавить"/></form><br/>';
     $out .= '<br/><table border="1" cellspacing="0" cellpadding="2"><tr><th>Название<th>AOT_id<th>Описание</tr>';
@@ -38,7 +41,8 @@ function dict_page_gram() {
     return $out;
 }
 function dict_page_lemmata() {
-    $out = '<h2>Редактор морфологического словаря</h2>';
+    $out = '<p><a href="?">&lt;&lt;&nbsp;назад</a></p>';
+    $out .= '<h2>Редактор морфологического словаря</h2>';
     $out .= "<form action='?act=lemmata' method='post'>Поиск леммы: <input name='search_lemma' size='25' maxlength='40' value='".(isset($_POST['search_lemma'])?htmlspecialchars($_POST['search_lemma']):'')."'/> <input type='submit' value='Искать'/></form>";
     $out .= "<form action='?act=lemmata' method='post'>Поиск формы: <input name='search_form' size='25' maxlength='40' value='".(isset($_POST['search_form'])?htmlspecialchars($_POST['search_form']):'')."'/> <input type='submit' value='Искать'/></form>";
     if (isset($_POST['search_lemma'])) {
@@ -64,13 +68,14 @@ function dict_page_lemma_edit($id) {
     $out .= '<b>Plain xml:</b><br/><textarea class="small" disabled cols="60" rows="10">'.htmlspecialchars($r['rev_text']).'</textarea>';
     return $out;
 }
-function addtext_page() {
+function addtext_page($txt) {
     $out = '<h3>Добавляем текст</h3>';
-    $out .= '<form action="?act=check" method="post"><textarea cols="70" rows="20" name="txt" onClick="this.innerHTML=\'\'; this.onClick=\'\'">Товарищ, помни! Абзацы разделяются двойным переводом строки, предложения - одинарным; предложение должно быть токенизировано.</textarea><br/><input type="submit" value="Проверить"/></form>';
+    $out .= '<form action="?act=check" method="post"><textarea cols="70" rows="20" name="txt"'.(!$txt?' onClick="this.innerHTML=\'\'; this.onClick=\'\'">':'>').($txt?$txt:'Товарищ, помни! Абзацы разделяются двойным переводом строки, предложения &ndash; одинарным; предложение должно быть токенизировано.').'</textarea><br/>';
+    $out .= '<br/><input type="submit" value="Проверить"/></form>';
     return $out;
 }
 function addtext_check($txt) {
-    $out = '<p><a href="?">Обратно к форме</a></p><ol type="I"';
+    $out = '<form action="?" method="post" class="inline"><textarea style="display: none" name="txt">'.htmlspecialchars($txt).'</textarea><a href="#" onClick="document.forms[0].submit()">Обратно к форме</a></form><ol type="I">';
     $pars = preg_split('/\r?\n\r?\n\r?/', $txt);
     foreach ($pars as $par) {
         $out .= '<li><ol>';
@@ -92,6 +97,10 @@ function addtext_check($txt) {
         }
         $out .= "</ol></li>\n";
     }
+    $out .= '</ol>';
+    $out .= 'Добавляем в <select id="book0" name="book[]" onChange="changeSelectBook(0)"><option value="0">-- Не выбрано --</option>'.books_get_select(0).'</select>&nbsp;';
+    $out .= '<select id="book1" name="book[]" disabled="disabled" onChange="changeSelectBook(1)"><option value="0">-- Не выбрано --</option></select>';
+    $out .= '<br/><p id="lastpar_info">Надо выбрать книгу.</p>';
     return $out;
 }
 function dict_block_search_lemma($q) {

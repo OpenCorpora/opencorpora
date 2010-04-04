@@ -2,7 +2,7 @@
 function books_mainpage() {
     $res = sql_query("SELECT `book_id`, `book_name` FROM `books` WHERE `parent_id`=0 ORDER BY `book_name`");
     $num = sql_num_rows($res);
-    $out = "Всего книг: <b>$num</b>, <a href='#' class='toggle' onClick='document.getElementById(\"book_add\").style.display=\"block\"; return false;'>добавить</a>: <form id='book_add' style='display:none' method='post' action='?act=add'><input name='book_name' size='30' maxlength='100' value='&lt;Название&gt;'/><input type='hidden' name='book_parent' value='0'/><br/><input type='submit' value='Добавить'/></form>";
+    $out = "Всего книг: <b>$num</b>, <a href='#' class='toggle' onClick='show(byid(\"book_add\")); return false;'>добавить</a>: <form id='book_add' style='display:none' method='post' action='?act=add'><input name='book_name' size='30' maxlength='100' value='&lt;Название&gt;'/><input type='hidden' name='book_parent' value='0'/><br/><input type='submit' value='Добавить'/></form>";
     $out .= "<ul>\n";
     while ($r = sql_fetch_array($res)) {
        $out .= "<li><a href='?book_id=".$r['book_id']."'>".$r['book_name']."</a></li>\n";
@@ -54,11 +54,12 @@ function books_rename($book_id, $name) {
         #some error meassage
     }
 }
-function books_get_select() {
+function books_get_select($parent = -1) {
     $out = '';
-    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` ORDER BY `book_name`");
+    $pg = $parent > -1 ? "WHERE `parent_id`=$parent " : '';
+    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` ".$pg."ORDER BY `book_name`");
     while($r = sql_fetch_array($res)) {
-        $out .= "<option value='".$r['book_id']."'>".$r['book_name']."</option>\n";
+        $out .= "<option value='".$r['book_id']."'>".$r['book_name']."</option>";
     }
     return $out;
 }
