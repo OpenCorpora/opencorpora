@@ -4,18 +4,18 @@ require_once('lib_books.php');
 
 function dict_page() {
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_gt FROM `gram_types`"));
-	$cnt_gt = $r['cnt_gt'];
-	$r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_g FROM `gram`"));
-	$cnt_g = $r['cnt_g'];
-	$r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_l FROM `dict_lemmata`"));
-	$cnt_l = $r['cnt_l'];
-	$r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_f FROM `form2lemma`"));
-	$cnt_f = $r['cnt_f'];
-	$r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_r FROM `dict_revisions` WHERE f2l_check=0"));
-	$cnt_r = $r['cnt_r'];
+    $cnt_gt = $r['cnt_gt'];
+    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_g FROM `gram`"));
+    $cnt_g = $r['cnt_g'];
+    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_l FROM `dict_lemmata`"));
+    $cnt_l = $r['cnt_l'];
+    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_f FROM `form2lemma`"));
+    $cnt_f = $r['cnt_f'];
+    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_r FROM `dict_revisions` WHERE f2l_check=0"));
+    $cnt_r = $r['cnt_r'];
     $out = sprintf("<p>Всего %d граммем в %d группах, %d лемм, %d форм в индексе (не проверено %d ревизий).</p>", $cnt_g, $cnt_gt, $cnt_l, $cnt_f, $cnt_r);
     $out .= '<p><a href="?act=gram">Редактор граммем</a><br/>';
-	$out .= '<a href="?act=lemmata">Редактор лемм</a></p>';
+    $out .= '<a href="?act=lemmata">Редактор лемм</a></p>';
     return $out;
 }
 function dict_page_gram() {
@@ -74,12 +74,18 @@ function addtext_page($txt) {
     $out .= '<br/><input type="submit" value="Проверить"/></form>';
     return $out;
 }
+function split2paragraphs($txt) {
+    return preg_split('/\r?\n\r?\n\r?/', $txt);
+}
+function split2sentences($txt) {
+    return preg_split('/[\r\n]+/', $txt);
+}
 function addtext_check($txt) {
     $out = '<form action="?" method="post" class="inline"><textarea style="display: none" name="txt">'.htmlspecialchars($txt).'</textarea><a href="#" onClick="document.forms[0].submit()">Обратно к форме</a></form><ol type="I">';
-    $pars = preg_split('/\r?\n\r?\n\r?/', $txt);
+    $pars = split2paragraphs($txt);
     foreach ($pars as $par) {
         $out .= '<li><ol>';
-        $sents = preg_split('/[\r\n]+/', $par);
+        $sents = split2sentences($par);
         foreach ($sents as $sent) {
             $out .= '<li>';
             $tokens = explode(' ', $sent);
@@ -98,10 +104,30 @@ function addtext_check($txt) {
         $out .= "</ol></li>\n";
     }
     $out .= '</ol>';
-    $out .= 'Добавляем в <select id="book0" name="book[]" onChange="changeSelectBook(0)"><option value="0">-- Не выбрано --</option>'.books_get_select(0).'</select>&nbsp;';
+    $out .= '<form action="?act=add" method="post">Добавляем в <select id="book0" name="book[]" onChange="changeSelectBook(0)"><option value="0">-- Не выбрано --</option>'.books_get_select(0).'</select>&nbsp;';
     $out .= '<select id="book1" name="book[]" disabled="disabled" onChange="changeSelectBook(1)"><option value="0">-- Не выбрано --</option></select>';
     $out .= '<br/><p id="lastpar_info">Надо выбрать книгу.</p>';
+    $out .= '<textarea style="display: none" name="txt">'.htmlspecialchars($txt).'</textarea>';
+    $out .= 'Счёт абзацев &ndash; с <input id="newpar" name="newpar" size="3" maxlength="3" value="1"/>&nbsp;<input id="submitter" type="submit" value="Добавить" disabled="disabled"/></form>';
     return $out;
+}
+function addtext_add($text, $book_id, $par_num) {
+    print "destination book [$book_id], paragraphs from [$par_num]<br/>";
+    $pars = split2paragraphs($text);
+    foreach($pars as $par) {
+        $sent_num = 1;
+        print "new paragraph (pos = ".($par_num++).")<br/>";
+        $sents = split2sentences($par);
+        foreach($sents as $sent) {
+            $token_num = 1;
+            print "new sentence (pos = ".($sent_num++).")<br/>";
+            $tokens = explode(' ', $sent);
+            foreach ($tokens as $token) {
+                print 'new token (pos = '.($token_num++).') '.$token ."<br/>";
+            }
+        }
+    }
+    return;
 }
 function dict_block_search_lemma($q) {
     $q = mysql_real_escape_string($q);
@@ -132,11 +158,11 @@ function add_gramtype($name) {
     }
 }
 function add_grammem($name, $group, $aot_id, $descr) {
-	if (sql_query("INSERT INTO `gram` VALUES(NULL, '$group', '$aot_id', '$name', '$descr')")) {
-		header("Location:dict.php?act=gram");
-	} else {
-		#some error message
-	}
+    if (sql_query("INSERT INTO `gram` VALUES(NULL, '$group', '$aot_id', '$name', '$descr')")) {
+        header("Location:dict.php?act=gram");
+    } else {
+        #some error message
+    }
 }
 function dict_get_select_gramtype() {
     $res = sql_query("SELECT `type_id`, `type_name` FROM `gram_types` ORDER by `type_name`");

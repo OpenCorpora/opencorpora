@@ -1,6 +1,6 @@
 <?php
 if (!headers_sent()) {
-	session_start();
+    session_start();
 }
 require_once('config.php');
 require_once('common.php');

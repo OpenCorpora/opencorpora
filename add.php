@@ -4,6 +4,11 @@ require('lib/lib_dict.php');
 $action = $_GET['act'];
 if (is_admin()) {
     switch($action) {
+        case 'add':
+            $book_id = array_pop($_POST['book']);
+            addtext_add($_POST['txt'], (int)$book_id, (int)$_POST['newpar']);
+            return;
+            break;
     }
 }
 ?>

@@ -87,15 +87,18 @@ function changeSelectBook(n) {
             s_new.disabled = false;
         }
     };
-    req.open('get', '../ajax/select_book.php?id='+s_old.value, true);
+    req.open('get', 'ajax/select_book.php?id='+s_old.value, true);
     req.send(null);
 }
 function updateLastParInfo(book_id) {
     var p = byid('lastpar_info');
+    var sub = byid('submitter');
     if (book_id==0) {
+        sub.disabled = true;
         p.innerHTML = 'Надо выбрать книгу.';
         return;
     }
+    var np = byid('newpar');
     var req = makeRequest();
     p.innerHTML = '<i>Загрузка...</i>';
     req.onreadystatechange = function() {
@@ -103,11 +106,15 @@ function updateLastParInfo(book_id) {
             var el = req.responseXML.documentElement;
             if (el.childNodes.length==0) {
                 p.innerHTML = 'Нет ни одного абзаца.';
+                np.value = '1';
+                sub.disabled = false;
                 return;
             }
             p.innerHTML = 'Последний абзац #' + el.getAttribute('num') + ' &laquo;<i>...' + el.firstChild.data + '</i>&raquo;';
+            np.value = el.getAttribute('num') + 1;
+            sub.disabled = false;
         }
     }
-    req.open ('get', '../ajax/lastpar.php?book_id='+book_id, true);
+    req.open ('get', 'ajax/lastpar.php?book_id='+book_id, true);
     req.send(null);
 }

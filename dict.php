@@ -8,13 +8,13 @@ if (is_admin()) {
             $name = mysql_real_escape_string($_POST['g_name']);
             add_gramtype($name);
             break;
-		case 'add_gram':
-			$name = mysql_real_escape_string($_POST['g_name']);
-			$group = (int)$_POST['group'];
-			$aot_id = mysql_real_escape_string($_POST['aot_id']);
-			$descr = mysql_real_escape_string($_POST['descr']);
-			add_grammem($name, $group, $aot_id, $descr);
-		    break;
+        case 'add_gram':
+            $name = mysql_real_escape_string($_POST['g_name']);
+            $group = (int)$_POST['group'];
+            $aot_id = mysql_real_escape_string($_POST['aot_id']);
+            $descr = mysql_real_escape_string($_POST['descr']);
+            add_grammem($name, $group, $aot_id, $descr);
+            break;
     }
 }
 ?>
