@@ -112,23 +112,32 @@ function addtext_check($txt) {
     return $out;
 }
 function addtext_add($text, $book_id, $par_num) {
-    print "destination book [$book_id], paragraphs from [$par_num]<br/>";
+    $revset_id = create_revset();
+    if (!$revset_id) return 0;
     $pars = split2paragraphs($text);
     foreach($pars as $par) {
+        #adding a paragraph
+        if (!sql_query("INSERT INTO `paragraphs` VALUES(NULL, '$book_id', '".($par_num++)."')")) return 0;
+        $par_id = sql_insert_id();
         $sent_num = 1;
-        print "new paragraph (pos = ".($par_num++).")<br/>";
         $sents = split2sentences($par);
         foreach($sents as $sent) {
+            #adding a sentence
+            if (!sql_query("INSERT INTO `sentences` VALUES(NULL, '$par_id', '".($sent_num++)."', '0')")) return 0;
+            $sent_id = sql_insert_id();
             $token_num = 1;
-            print "new sentence (pos = ".($sent_num++).")<br/>";
+            #print "new sentence (pos = ".($sent_num++).")<br/>";
             $tokens = explode(' ', $sent);
             foreach ($tokens as $token) {
-                print 'new token (pos = '.($token_num++).') '.$token ."<br/>";
-                print htmlspecialchars(generate_tf_rev($token)).'<br/>';
+                #adding a textform
+                if (!sql_query("INSERT INTO `text_forms` VALUES(NULL, '$sent_id', '".($token_num++)."', '".mysql_real_escape_string($token)."')")) return 0;
+                $tf_id = sql_insert_id();
+                #adding a revision
+                if (!sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$tf_id', '".mysql_real_escape_string(generate_tf_rev($token))."')")) return 0;
             }
         }
     }
-    return;
+    return 1;
 }
 function generate_tf_rev($token) {
     $out = '<tf_rev text="'.htmlspecialchars($token).'">';

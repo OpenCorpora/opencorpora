@@ -57,7 +57,7 @@ function books_rename($book_id, $name) {
 function books_get_select($parent = -1) {
     $out = '';
     $pg = $parent > -1 ? "WHERE `parent_id`=$parent " : '';
-    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` ".$pg."ORDER BY `book_name`");
+    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` ".$pg."ORDER BY `book_name`", 0);
     while($r = sql_fetch_array($res)) {
         $out .= "<option value='".$r['book_id']."'>".$r['book_name']."</option>";
     }

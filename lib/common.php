@@ -16,6 +16,9 @@ function sql_fetch_array($q) {
 function sql_num_rows($q) {
     return mysql_num_rows($q);
 }
+function sql_insert_id() {
+    return mysql_insert_id();
+}
 #other
 function user_login($login, $passwd) {
     $passwd = md5(md5($passwd).substr($login, 0, 2));
@@ -41,5 +44,11 @@ function lc($str) {
     $convert_from = array ('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я');
     $convert_to = array ('а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я');
     return str_replace($convert_from, $convert_to, $str);
+}
+function create_revset() {
+    if (sql_query("INSERT INTO `rev_sets` VALUES(NULL, '".time()."', '".$_SESSION['user_id']."')")) {
+        return sql_insert_id();
+    }
+    return 0;
 }
 ?>
