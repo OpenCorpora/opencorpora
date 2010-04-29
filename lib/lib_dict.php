@@ -112,6 +112,7 @@ function addtext_check($txt) {
     return $out;
 }
 function addtext_add($text, $book_id, $par_num) {
+    if (!$text || !$book_id || !$par_num) return 0;
     $revset_id = create_revset();
     if (!$revset_id) return 0;
     $pars = split2paragraphs($text);

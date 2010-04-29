@@ -1,6 +1,7 @@
 <?php
 require('lib/header.php');
-require('lib/lib_markup.php');
+require('lib/lib_xml.php');
+require('lib/lib_annot.php');
 if (isset($_GET['id'])) {
     $id = (int)$_GET['id'];
 } else {

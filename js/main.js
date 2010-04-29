@@ -118,3 +118,9 @@ function updateLastParInfo(book_id) {
     req.open ('get', 'ajax/lastpar.php?book_id='+book_id, true);
     req.send(null);
 }
+function scroll_annot(offset) {
+    var el = byid('main_annot');
+    var newVal = el.scrollLeft + offset;
+    if (newVal < 0) newVal = 0;
+    el.scrollLeft = newVal;
+}
