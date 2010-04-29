@@ -111,7 +111,7 @@ function updateLastParInfo(book_id) {
                 return;
             }
             p.innerHTML = 'Последний абзац #' + el.getAttribute('num') + ' &laquo;<i>...' + el.firstChild.data + '</i>&raquo;';
-            np.value = el.getAttribute('num') + 1;
+            np.value = parseInt(el.getAttribute('num')) + 1;
             sub.disabled = false;
         }
     }

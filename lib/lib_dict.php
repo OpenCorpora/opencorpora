@@ -126,7 +126,6 @@ function addtext_add($text, $book_id, $par_num) {
             if (!sql_query("INSERT INTO `sentences` VALUES(NULL, '$par_id', '".($sent_num++)."', '0')")) return 0;
             $sent_id = sql_insert_id();
             $token_num = 1;
-            #print "new sentence (pos = ".($sent_num++).")<br/>";
             $tokens = explode(' ', $sent);
             foreach ($tokens as $token) {
                 #adding a textform
