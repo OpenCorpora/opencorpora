@@ -124,10 +124,30 @@ function addtext_add($text, $book_id, $par_num) {
             $tokens = explode(' ', $sent);
             foreach ($tokens as $token) {
                 print 'new token (pos = '.($token_num++).') '.$token ."<br/>";
+                print htmlspecialchars(generate_tf_rev($token)).'<br/>';
             }
         }
     }
     return;
+}
+function generate_tf_rev($token) {
+    $out = '<tf_rev text="'.htmlspecialchars($token).'">';
+    if (preg_match('/[А-Яа-яЁё]/u', $token)) {
+        $res = sql_query("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text='$token'");
+        if (sql_num_rows($res) > 0) {
+            while($r = sql_fetch_array($res)) {
+                $out .= '<var><lemma id="'.$r['lemma_id'].'" text="'.$r['lemma_text'].'">'.$r['grammems'].'</lemma></var>';
+            }
+        } else {
+            $out .= '<var><lemma id="0" text="'.htmlspecialchars($token).'"><grm val="UnknownPOS"/></lemma></var>';
+        }
+    } elseif (preg_match('/[\,\.\:\;\-\(\)\'\"\[\]\?\!\/]/', $token)) {
+        $out .= '<var><lemma id="0" text="'.htmlspecialchars($token).'"><grm val="PM"/></lemma></var>';
+    } else {
+        $out .= '<var><lemma id="0" text="'.htmlspecialchars($token).'"><grm val="UnknownPOS"/></lemma></var>';
+    }
+    $out .= '</tf_rev>';
+    return $out;
 }
 function dict_block_search_lemma($q) {
     $q = mysql_real_escape_string($q);
