@@ -5,9 +5,14 @@ body {
     margin: 0px;
     padding: 0px;
 }
+div#pre_header {
+    padding: 5px 10px;
+    background-color: #F69;
+    height: 15px;
+}
 div#header {
     padding: 5px 10px;
-    background-color: #CCCCCC;
+    background-color: #CCC;
     height: 20px;
 }
 div#header div#lblock {
@@ -24,7 +29,7 @@ div#content {
 }
 div#rightcol {
     position: absolute;
-    top: 30px;
+    top: 60px;
     right: 0px;
     width: 200px;
     float: right;
@@ -73,26 +78,31 @@ div#main_scroller {
     color: red;
 }
 div#main_scroller span#scr_ll {
-    display: block;
+    display: inline;
     float: left;
     margin-right: 20px;
     cursor: pointer;
 }
 div#main_scroller span#scr_l {
-    display: block;
     float: left;
     cursor: pointer;
 }
 div#main_scroller span#scr_rr {
-    display: block;
     float: right;
     cursor: pointer;
 }
 div#main_scroller span#scr_r {
-    display: block;
+    display: inline;
     float: right;
     margin-right: 20px;
     cursor: pointer;
+}
+div#main_scroller div {
+    display: inline;
+    float: left;
+    margin-left: 25%;
+    width: 50%;
+    text-align: center;
 }
 div#main_annot {
     padding: 10px 10px;
@@ -119,9 +129,24 @@ div#main_annot div.var {
     border-top: none;
     text-align: center;
 }
+div#main_annot div.inactive {
+    background-color: #CCC;
+    color: #999;
+}
+div#main_annot div.inactive * {
+    color: #999;
+}
 div#main_annot div.var a.del_var {
     display: block;
     float: right;
     color: red;
     font-size: small;
+    text-decoration: none;
+}
+div#main_annot div.var a.best_var {
+    display: block;
+    float: left;
+    color: #090;
+    font-size: small;
+    text-decoration: none;
 }

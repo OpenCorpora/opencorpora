@@ -124,3 +124,16 @@ function scroll_annot(offset) {
     if (newVal < 0) newVal = 0;
     el.scrollLeft = newVal;
 }
+function del_var(v) {
+    v.childNodes[1].value = 0;
+    v.className = 'var inactive';
+    byid('submit_button').disabled = false;
+}
+function best_var(v) {
+    v.childNodes[1].value = 1;
+    v.className = 'var';
+    for (var i = 1; i<v.parentNode.childNodes.length; ++i) {
+        if (v.parentNode.childNodes[i].id != v.id)
+            del_var(v.parentNode.childNodes[i]);
+    }
+}
