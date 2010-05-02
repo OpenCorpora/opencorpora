@@ -13,7 +13,7 @@ function sentence_page($sent_id) {
     $out .= '<div id="main_scroller"><span id="scr_ll" onClick="scroll_annot(-50)">&lt;&lt;</span><span id="scr_l" onClick="scroll_annot(-20)">&lt;</span><div>';
     if (is_logged())
         $out .= '<button type="submit" disabled="disabled" id="submit_button">Сохранить</button>&nbsp;';
-    $out .= '<button type="reset" onClick="window.location.reload()">Отменить правки</button></div><span id="scr_rr" onClick="scroll_annot(50)">&gt;&gt;</span><span id="scr_r" onClick="scroll_annot(20)">&gt;</span></div><br/><div id="main_annot"><table><tr>';
+    $out .= '<button type="reset" onClick="window.location.reload()">Отменить правки</button>&nbsp;<button type="reset" onClick="window.location.href=\'history.php?sent_id='.$sent_id.'\'">История</button></div><span id="scr_rr" onClick="scroll_annot(50)">&gt;&gt;</span><span id="scr_r" onClick="scroll_annot(20)">&gt;</span></div><br/><div id="main_annot"><table><tr>';
     $tid = 0;
     foreach($tokens as $xml) {
         $arr = xml2ary($xml);

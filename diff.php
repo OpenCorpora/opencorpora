@@ -24,7 +24,7 @@ while($r = sql_fetch_array($res)) {
     if ($r2 && $r1['set_id']==$set_id) {
         print "<tr><th colspan='2'>".$r['pos']."</tr><tr><td valign='top'><b>Версия ".$r2['rev_id']." (".$r2['user_name'].", ".strftime("%d.%m.%Y, %H:%m", $r2['timestamp']).")</b><pre>".htmlspecialchars(format_xml($r2['rev_text']))."</pre>";
         print "<td valign='top'><b>Версия ".$r1['rev_id']." (".$r1['user_name'].", ".strftime("%d.%m.%Y, %H:%m", $r1['timestamp']).")</b><pre>".htmlspecialchars(format_xml($r1['rev_text']))."</pre></tr>";
-    } elseif (!$r2) {
+    } elseif ($r1['set_id']==$set_id) {
         print "<tr><th colspan='2'>".$r['pos']."</tr><tr><td valign='top'><b>Новое предложение</b>";
         print "<td valign='top'><b>Версия ".$r1['rev_id']." (".$r1['user_name'].", ".strftime("%d.%m.%Y, %H:%m", $r1['timestamp']).")</b><pre>".htmlspecialchars(format_xml($r1['rev_text']))."</pre></tr>";
     }
