@@ -79,4 +79,22 @@ function ins2ary(&$ary, $element, $pos) {
     $ar1=array_slice($ary, 0, $pos); $ar1[]=$element;
     $ary=array_merge($ar1, array_slice($ary, $pos));
 }
+function format_xml($xml_string) {
+    $matches = array();
+    $out = '';
+    $level = 0;
+    preg_match_all("/<(.+?)>/", $xml_string, $matches);
+    for ($i = 0; $i < count($matches[1]); ++$i) {
+        $b = false;
+        if (substr($matches[1][$i], 0, 1) == '/') {
+            --$level;
+            $b = true;
+        }
+        $out .= str_pad(' ', 4*$level).'<'.$matches[1][$i].">\n";
+        if (substr($matches[1][$i], -1, 1) != '/' && !$b)
+            ++$level;
+    }
+    return $out;
+}
+
 ?>
