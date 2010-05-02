@@ -7,7 +7,15 @@ if (isset($_GET['id'])) {
 } else {
     header('Location:index.php');
 }
-$action = $_GET['act'];
+if (isset($_GET['act'])) {
+    $action = $_GET['act'];
+    switch($action) {
+        case 'save':
+            sentence_save();
+            return;
+            break;
+    }
+}
 ?>
 <html>
 <head>

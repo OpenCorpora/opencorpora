@@ -110,7 +110,7 @@ function updateLastParInfo(book_id) {
                 sub.disabled = false;
                 return;
             }
-            p.innerHTML = 'Последний абзац #' + el.getAttribute('num') + ' &laquo;<i>...' + el.firstChild.data + '</i>&raquo;';
+            p.innerHTML = 'Последний абзац #' + el.getAttribute('num') + ' &laquo;<i>' + el.firstChild.data + '</i>&raquo;';
             np.value = parseInt(el.getAttribute('num')) + 1;
             sub.disabled = false;
         }
@@ -127,7 +127,9 @@ function scroll_annot(offset) {
 function del_var(v) {
     v.childNodes[1].value = 0;
     v.className = 'var inactive';
-    byid('submit_button').disabled = false;
+    var b;
+    if (b = byid('submit_button'))
+        b.disabled = false;
 }
 function best_var(v) {
     v.childNodes[1].value = 1;

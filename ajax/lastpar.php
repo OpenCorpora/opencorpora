@@ -14,9 +14,11 @@ if ($res = sql_query("SELECT `tf_text` AS txt FROM `text_forms` WHERE `sent_id` 
 }
 if ($txt) $txt .= '<...>';
 if ($res = sql_query("SELECT `tf_text` AS txt FROM `text_forms` WHERE `sent_id` = (SELECT `sent_id` FROM `sentences` WHERE `par_id` = $par_id ORDER BY `pos` DESC LIMIT 1) ORDER BY `pos` DESC LIMIT 5", 0)) {
+    $txt2 = '';
     while($r = sql_fetch_array($res)) {
-        $txt .= $r['txt'].' ';
+        $txt2 = ' '.$r['txt'].$txt2;
     }
+    $txt .= $txt2;
 }
 
 echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?><response num="'.$num.'">'.htmlspecialchars($txt).'</response>';
