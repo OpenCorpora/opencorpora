@@ -13,7 +13,7 @@ function sentence_page($sent_id) {
     $out .= '<div id="main_scroller"><span id="scr_ll" onClick="scroll_annot(-50)">&lt;&lt;</span><span id="scr_l" onClick="scroll_annot(-20)">&lt;</span><div>';
     if (is_logged())
         $out .= '<button type="submit" disabled="disabled" id="submit_button">Сохранить</button>&nbsp;';
-    $out .= '<button type="reset" onClick="window.location.reload()">Отменить правки</button>&nbsp;<button type="reset" onClick="window.location.href=\'history.php?sent_id='.$sent_id.'\'">История</button></div><span id="scr_rr" onClick="scroll_annot(50)">&gt;&gt;</span><span id="scr_r" onClick="scroll_annot(20)">&gt;</span></div><br/><div id="main_annot"><table><tr>';
+    $out .= '<button type="reset" onClick="window.location.reload()">Отменить правки</button>&nbsp;<button type="button" onClick="window.location.href=\'history.php?sent_id='.$sent_id.'\'">История</button>&nbsp;<button type="button" onClick="something()">Кнопка</button></div><span id="scr_rr" onClick="scroll_annot(50)">&gt;&gt;</span><span id="scr_r" onClick="scroll_annot(20)">&gt;</span></div><br/><br/><div id="main_annot"><table><tr>';
     $tid = 0;
     foreach($tokens as $xml) {
         $arr = xml2ary($xml);
@@ -49,7 +49,7 @@ function generate_var_div($var_arr, $tf_id, $num) {
             array_push($grm_arr, $t['_a']['val']);
         }
     }
-    $out = '<div class="var" id="var_'.$tf_id.'_'.$num.'"><img src="spacer.gif" width="100" height="1"/><input type="hidden" name="var_flag['.$tf_id.']['.$num.']" value="1"/>'.($lemma_attr['id']>0?'<a href="'.$config['web_prefix'].'/dict.php?id='.$lemma_attr['id'].'">'.$lemma_attr['text'].'</a>':$lemma_attr['text']).'<a href="#" class="best_var" onClick="best_var(this.parentNode); return false">v</a><a href="#" class="del_var" onClick="del_var(this.parentNode); return false">x</a><br/>'.implode(', ', $grm_arr).'</div>';
+    $out = '<div class="var" id="var_'.$tf_id.'_'.$num.'"><img src="spacer.gif" width="100" height="1"/><input type="hidden" name="var_flag['.$tf_id.']['.$num.']" value="1"/>'.($lemma_attr['id']>0?'<a href="'.$config['web_prefix'].'/dict.php?id='.$lemma_attr['id'].'">'.$lemma_attr['text'].'</a>':'<span>'.$lemma_attr['text'].'</span>').'<a href="#" class="best_var" onClick="best_var(this.parentNode); return false">v</a><a href="#" class="del_var" onClick="del_var(this.parentNode); return false">x</a><br/>'.implode(', ', $grm_arr).'</div>';
     return $out;
 }
 function sentence_save() {

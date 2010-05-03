@@ -139,3 +139,22 @@ function best_var(v) {
             del_var(v.parentNode.childNodes[i]);
     }
 }
+function something() {
+    var el = byid('main_annot');
+    var wd = el.offsetWidth;
+    alert(wd);
+    el = el.firstChild.firstChild.firstChild; //el is <tr>
+    var i;
+    var out = '';
+    for (i=0; i < el.childNodes.length; ++i) {
+        out += i+' '+el.childNodes[i].offsetLeft+'\n';
+    }
+    alert(out);
+}
+function checkKey(evt) {
+    var code = evt.keyCode ? evt.keyCode : evt.charCode;
+    if (code == 37)
+        scroll_annot(-20);
+    if (code == 39)
+        scroll_annot(20);
+}

@@ -100,7 +100,7 @@ div#main_scroller span#scr_r {
 div#main_scroller div {
     display: inline;
     float: left;
-    margin-left: 25%;
+    margin-left: 20%;
     width: 50%;
     text-align: center;
 }
@@ -149,4 +149,7 @@ div#main_annot div.var a.best_var {
     color: #090;
     font-size: small;
     text-decoration: none;
+}
+div#main_annot div.var span {
+    display: block;
 }

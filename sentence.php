@@ -23,7 +23,7 @@ if (isset($_GET['act'])) {
 <link rel='stylesheet' type='text/css' href='<?=$config['web_prefix']?>/css/main.css'/>
 <script language='JavaScript' src='<?=$config['web_prefix']?>/js/main.js'></script>
 </head>
-<body>
+<body onload="document.onkeyup=checkKey;">
 <?php require('include/_header.php'); ?>
 <div id='content'>
 <?php
