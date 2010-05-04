@@ -1,9 +1,14 @@
 <?php
 #sql wrappers
 function sql_query($q, $debug=1) {
+    $debug = isset($_SESSION['debug_mode']) && $debug;
+    if ($debug)
+        $time_start = microtime(true);
     $res = mysql_query($q);
-    if (isset($_SESSION['debug_mode']) && $debug) {
-        print "<span class='debug'>SQL: ".htmlspecialchars($q)."</span><br/>\n";
+    if ($debug)
+        $time = microtime(true)-$time_start;
+    if ($debug) {
+        printf ("<span class='debug'>SQL: ".htmlspecialchars($q)." # %.4f сек.</span><br/>\n", $time);
         if ($err = mysql_error()) {
             print "<span class='debug_error'>$err</span><br/>\n";
         }
