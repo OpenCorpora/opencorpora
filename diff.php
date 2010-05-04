@@ -14,7 +14,7 @@ require_once('lib/lib_xml.php');
 $sent_id = (int)$_GET['sent_id'];
 $set_id = (int)$_GET['set_id'];
 $r = sql_fetch_array(sql_query("SELECT DISTINCT s.*, u.user_name FROM rev_sets s LEFT JOIN `users` u ON (s.user_id = u.user_id) WHERE s.set_id=$set_id"));
-print "<h2>Предложение $sent_id, изменил ".$r['user_name'].strftime(" %d.%m.%Y в %H:%I", $r['timestamp']).'</h2>';
+print "<h2>Предложение $sent_id, изменил ".$r['user_name'].strftime(" %d.%m.%Y в %H:%M", $r['timestamp']).'</h2>';
 print "<table border='1' cellspacing='0' cellpadding='3'>";
 $res = sql_query("SELECT tf_id, `pos` FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
 while($r = sql_fetch_array($res)) {
@@ -22,11 +22,11 @@ while($r = sql_fetch_array($res)) {
     $r1 = sql_fetch_array($res1);
     $r2 = sql_fetch_array($res1);
     if ($r2 && $r1['set_id']==$set_id) {
-        print "<tr><th colspan='2'>".$r['pos']."</tr><tr><td valign='top'><b>Версия ".$r2['rev_id']." (".$r2['user_name'].", ".strftime("%d.%m.%Y, %H:%I", $r2['timestamp']).")</b><pre>".htmlspecialchars(format_xml($r2['rev_text']))."</pre>";
-        print "<td valign='top'><b>Версия ".$r1['rev_id']." (".$r1['user_name'].", ".strftime("%d.%m.%Y, %H:%I", $r1['timestamp']).")</b><pre>".htmlspecialchars(format_xml($r1['rev_text']))."</pre></tr>";
+        print "<tr><th colspan='2'>".$r['pos']."</tr><tr><td valign='top'><b>Версия ".$r2['rev_id']." (".$r2['user_name'].", ".strftime("%d.%m.%Y, %H:%M", $r2['timestamp']).")</b><pre>".htmlspecialchars(format_xml($r2['rev_text']))."</pre>";
+        print "<td valign='top'><b>Версия ".$r1['rev_id']." (".$r1['user_name'].", ".strftime("%d.%m.%Y, %H:%M", $r1['timestamp']).")</b><pre>".htmlspecialchars(format_xml($r1['rev_text']))."</pre></tr>";
     } elseif ($r1['set_id']==$set_id) {
         print "<tr><th colspan='2'>".$r['pos']."</tr><tr><td valign='top'><b>Новое предложение</b>";
-        print "<td valign='top'><b>Версия ".$r1['rev_id']." (".$r1['user_name'].", ".strftime("%d.%m.%Y, %H:%I", $r1['timestamp']).")</b><pre>".htmlspecialchars(format_xml($r1['rev_text']))."</pre></tr>";
+        print "<td valign='top'><b>Версия ".$r1['rev_id']." (".$r1['user_name'].", ".strftime("%d.%m.%Y, %H:%M", $r1['timestamp']).")</b><pre>".htmlspecialchars(format_xml($r1['rev_text']))."</pre></tr>";
     }
 }
 print "</table>";
