@@ -25,6 +25,25 @@ function books_page($book_id) {
         }
         $out .= '</ul>';
     }
+    $res = sql_query("SELECT p.`pos`, s.sent_id FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = $book_id ORDER BY p.`pos`, s.`pos`");
+    if (sql_num_rows($res)==0) {
+        $out .= '<p>В тексте нет ни одного предложения.</p>';
+    } else {
+        $out .= '<h3>Предложения по абзацам</h3><ol>';
+        $lastpar_num = 0;
+        while ($r = sql_fetch_array($res)) {
+            if ($lastpar_num != $r['pos']) {
+                //new paragraph begins
+                if ($lastpar_num > 0)
+                    $out .= '</li>';
+                $out .= '<li value="'.$r['pos'].'"><a href="sentence.php?id='.$r['sent_id'].'">'.$r['sent_id'].'</a>';
+                $lastpar_num = $r['pos'];
+            } else {
+                //one more sentence to the paragraph
+                $out .= ', <a href="sentence.php?id='.$r['sent_id'].'">'.$r['sent_id'].'</a>';
+            }
+        }
+    }
     return $out;
 }
 function books_add($name, $parent_id=0) {
