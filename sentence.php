@@ -2,6 +2,7 @@
 require('lib/header.php');
 require('lib/lib_xml.php');
 require('lib/lib_annot.php');
+require('lib/lib_dict.php');
 if (isset($_GET['id'])) {
     $id = (int)$_GET['id'];
 } else {

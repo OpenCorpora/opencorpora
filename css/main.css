@@ -100,8 +100,8 @@ div#main_scroller span#scr_r {
 div#main_scroller div {
     display: inline;
     float: left;
-    margin-left: 20%;
-    width: 50%;
+    margin-left: 5%;
+    width: 70%;
     text-align: center;
 }
 div#main_annot {
@@ -122,6 +122,13 @@ div#main_annot div.tf {
     border: 1px black solid;
     text-align: center;
     font-size: larger;
+}
+div#main_annot div.tf a.reload {
+    margin-left: 10px;
+    vertical-align: super;
+    font-size: small;
+    text-decoration: none;
+    color: purple;
 }
 div#main_annot div.var {
     padding: 2px;
