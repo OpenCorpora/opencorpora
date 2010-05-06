@@ -148,7 +148,7 @@ function generate_tf_rev($token) {
                 $out .= '<var><lemma id="'.$r['lemma_id'].'" text="'.$r['lemma_text'].'">'.$r['grammems'].'</lemma></var>';
             }
         } else {
-            $out .= '<var><lemma id="0" text="'.htmlspecialchars($token).'"><grm val="UnknownPOS"/></lemma></var>';
+            $out .= '<var><lemma id="0" text="'.htmlspecialchars(lc($token)).'"><grm val="UnknownPOS"/></lemma></var>';
         }
     } elseif (preg_match('/[\,\.\:\;\-\(\)\'\"\[\]\?\!\/]/', $token)) {
         $out .= '<var><lemma id="0" text="'.htmlspecialchars($token).'"><grm val="PM"/></lemma></var>';

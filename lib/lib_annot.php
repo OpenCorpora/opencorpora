@@ -79,18 +79,25 @@ function sentence_save() {
         $new_xml = "<tf_rev text=\"$tf_text\">";
         //let's find all vars inside tf_text
         if (preg_match_all("/<var>(.+?)<\/var>/", $xml, $matches) !== false) {
+            //flags quantity check
             if (count($matches[1]) != count($flag[$tf_id])) {
-                print "Internal error 3: Cannot save";
+                print "Internal error 3: Cannot save\n";
                 if (is_admin()) {
                     print "matches:\n".print_r($matches[1], true);
                     print "flag:\n".print_r($flag[$tf_id], true);
                 }
                 exit(0);
             }
+            $not_empty = 0;
             foreach($flag[$tf_id] as $k=>$f) {
                 if ($f == 1) {
+                    $not_empty = 1;
                     $new_xml .= '<var>'.$matches[1][$k-1].'</var>'; //attention to -1
                 }
+            }
+            //inserting UnknownPOS if no variants present
+            if (!$not_empty) {
+                $new_xml .= '<var><lemma id="0" text="'.htmlspecialchars(lc($tf_text)).'"><grm val="UnknownPOS"/></lemma></var>';
             }
             $new_xml .= '</tf_rev>';
             if ($base_xml != $new_xml) {

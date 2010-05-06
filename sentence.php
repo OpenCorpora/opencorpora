@@ -12,8 +12,11 @@ if (isset($_GET['act'])) {
     $action = $_GET['act'];
     switch($action) {
         case 'save':
-            sentence_save();
-            return;
+            if (is_logged()) {
+                sentence_save();
+            } else {
+                die ($config['msg_notlogged']);
+            }
             break;
     }
 }
