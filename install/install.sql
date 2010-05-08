@@ -5,16 +5,11 @@ CREATE TABLE IF NOT EXISTS `books` (
     INDEX (`parent_id`)
 );
 
-CREATE TABLE IF NOT EXISTS `book_tagnames` (
-    `tag_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `tag_name` VARCHAR(100) NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS `book_tags` (
-    `book_id` INT UNSIGNED NOT NULL,
-    `tag_id`  INT UNSIGNED NOT NULL,
+    `book_id`   INT UNSIGNED NOT NULL,
+    `tag_name`  VARCHAR(255) NOT NULL,
     INDEX (`book_id`),
-    INDEX (`tag_id`)
+    INDEX (`tag_name`)
 );
 
 CREATE TABLE IF NOT EXISTS `paragraphs` (
