@@ -15,16 +15,35 @@ function books_page($book_id) {
         //whether we should show extended sentence list
         $ext = true;
     }
-    $r = sql_fetch_array(sql_query("SELECT * FROM `books` WHERE `book_id`=$book_id"));
+    $r = sql_fetch_array(sql_query("SELECT * FROM `books` WHERE `book_id`=$book_id LIMIT 1"));
     $out = '<h2>'.$r['book_name']."</h2>\n";
     $out .= "<form action='?act=rename' method='post' class='inline'>Переименовать в: <input type='hidden' name='book_id' value='$book_id'/><input name='new_name' value='".htmlspecialchars($r['book_name'])."'/>&nbsp;&nbsp;<input type='submit' value='Переименовать'/></form>\n";
     $out .= "ИЛИ <form action='?act=move' method='post' class='inline'>Переместить в: <input type='hidden' name='book_id' value='$book_id'/><select name='book_to' onChange='document.forms[1].submit()'>\n<option value='0'>&lt;root&gt;</option>\n".books_get_select()."</select></form>";
+    //taglist
+    $out .= '<h3>Теги</h3><p>';
+    $tag_array = array();
+    $res = sql_query("SELECT tag_name FROM book_tags WHERE book_id=$book_id");
+    while ($r = sql_fetch_array($res)) {
+        array_push($tag_array, $r['tag_name']);
+    }
+    if (sizeof($tag_array) > 0) {
+        $out .= '<ul>';
+        foreach($tag_array as $tag) {
+            $out .= '<li>[<a href="?act=del_tag&book_id='.$book_id.'&tag_name='.urlencode($tag).'" onClick="return confirm(\'Точно удалить этот тег?\')">x</a>] '.(substr($tag, 0, 4)=='url:'?'url:'.url2href(substr($tag, 4)):htmlspecialchars($tag)).'</li>';
+        }
+        $out .= '</ul>';
+    } else {
+        $out .= 'Тегов нет.';
+    }
+    $out .= '</p>';
+    $out .= "<form action='?act=add_tag' method='post' class='inline'>Добавить тег: <input type='hidden' name='book_id' value='$book_id'/><input name='tag_name' value='New_tag'/>&nbsp;&nbsp;<input type='submit' value='Добавить'/></form>\n";
     //sub-books list
     $res = sql_query("SELECT book_id, book_name FROM books WHERE parent_id=$book_id");
+    $out .= '<h3>Разделы</h3>';
     if (sql_num_rows($res)==0) {
         $out .= '<p>Разделов нет.</p>';
     } else {
-        $out .= '<h3>Разделы</h3><ul>';
+        $out .= '<ul>';
         while($r = sql_fetch_array($res)) {
             $out .= '<li><a href="?book_id='.$r['book_id'].'">'.htmlspecialchars($r['book_name']).'</a></li>';
         }
@@ -55,11 +74,11 @@ function books_page($book_id) {
                     //new paragraph begins
                     if ($lastpar_num > 0)
                         $out .= '</ol></li>';
-                    $out .= '<li value="'.$r['ppos'].'"><ol><li value="'.$r['spos'].'"><a href="sentence.php?id='.$r['sent_id'].'">'.$txt.'</a></li>';
+                    $out .= '<li value="'.$r['ppos'].'"><ol><li value="'.$r['spos'].'"><a href="sentence.php?id='.$r['sent_id'].'">'.typo_spaces($txt).'</a></li>';
                     $lastpar_num = $r['ppos'];
                 } else {
                     //one more sentence to the paragraph
-                    $out .= '<li value="'.$r['spos'].'"><a href="sentence.php?id='.$r['sent_id'].'">'.$txt.'</a></li>';
+                    $out .= '<li value="'.$r['spos'].'"><a href="sentence.php?id='.$r['sent_id'].'">'.typo_spaces($txt).'</a></li>';
                 }
             }
         }
@@ -125,5 +144,21 @@ function books_get_select($parent = -1) {
         $out .= "<option value='".$r['book_id']."'>".$r['book_name']."</option>";
     }
     return $out;
+}
+function books_add_tag($book_id, $tag_name) {
+    if ($book_id && $tag_name) {
+        if (!sql_query("DELETE FROM `book_tags` WHERE book_id=$book_id AND tag_name='$tag_name'") || !sql_query("INSERT INTO `book_tags` VALUES('$book_id', '$tag_name')")) {
+            die("Couldn't add tag");
+        }
+    }
+    header("Location:books.php?book_id=$book_id");
+}
+function books_del_tag($book_id, $tag_name) {
+    if ($book_id && $tag_name) {
+        if (!sql_query("DELETE FROM `book_tags` WHERE book_id=$book_id AND tag_name='$tag_name'")) {
+            die("Couldn't remove tag");
+        }
+    }
+    header("Location:books.php?book_id=$book_id");
 }
 ?>

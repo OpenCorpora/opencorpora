@@ -58,4 +58,12 @@ function create_revset() {
     }
     return 0;
 }
+function typo_spaces($str) {
+    $patterns = array(' ,', ' .', '( ', ' )', ' :');
+    $replacements = array(',', '.', '(', ')', ':');
+    return str_replace($patterns, $replacements, $str);
+}
+function url2href($str, $target='_blank') {
+    return '<a href="'.$str.'" target="$target">'.htmlspecialchars($str).'</a>';
+}
 ?>

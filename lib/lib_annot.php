@@ -8,7 +8,7 @@ function sentence_page($sent_id) {
         $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." ORDER BY rev_id DESC LIMIT 1"));
         $tokens[$r['tf_id']] = $rev['rev_text'];
     }
-    $out = '<b>Исходный текст:</b> '.implode(' ', $tf_text);
+    $out = '<b>Исходный текст:</b> '.typo_spaces(implode(' ', $tf_text));
     $out .= '<br/><br/><form method="post" action="?id='.$sent_id.'&act=save">';
     $out .= '<div id="main_scroller"><span id="scr_ll" onClick="scroll_annot(-50)">&lt;&lt;</span><span id="scr_l" onClick="scroll_annot(-20)">&lt;</span><div>';
     if (is_logged())
