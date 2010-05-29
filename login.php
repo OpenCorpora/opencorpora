@@ -3,7 +3,7 @@ require('lib/header.php');
 $action = $_GET['act'];
 if ($action=='login') {
     if (user_login(mysql_real_escape_string($_POST['login']), $_POST['passwd'])) {
-        header('Location:index.php');
+        header('Location:'.$_SESSION['return_to']);
     } else {
         header('Location:login.php?act=error');
     }
@@ -51,7 +51,8 @@ switch ($action) {
             print "Ошибка :(";
         }
         break;
-    default:?>
+    default:
+        $_SESSION['return_to'] = $_SERVER['HTTP_REFERER'];?>
 <form action="?act=login" method="post" id='login_form'>    
 <table cellspacing='2'>
 <tr><td>Имя пользователя<td><input type='text' name='login' size='20' maxlength='50'/></tr>
