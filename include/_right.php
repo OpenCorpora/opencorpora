@@ -1,7 +1,9 @@
 <?php
 $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_users FROM `users`"));
-print '<b>Пользователей:</b> '.$r['cnt_users'].'<br/>';
-print "<a href='".$config['web_prefix']."/history.php'>Свежие правки</a><br/>";
+print '<b>Пользователей:</b> '.$r['cnt_users'].'<br/><br/>';
+print "<b>Свежие правки</b><br/>";
+print "<a href='".$config['web_prefix']."/history.php'>В разметке</a><br/>";
+print "<a href='".$config['web_prefix']."/dict_history.php'>В словаре</a><br/>";
 $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_books FROM `books`"));
 print '<br/><b><a href="'.$config['web_prefix'].'/books.php">Книг</a>:</b> '.$r['cnt_books'].'<br/>';
 $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_sent FROM `sentences`"));

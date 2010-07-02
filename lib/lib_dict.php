@@ -53,19 +53,23 @@ function dict_page_lemmata() {
     return $out;
 }
 function dict_page_lemma_edit($id) {
+    $out = '';
+    if (isset($_GET['saved']))
+        $out .= '<p class="p_info">Изменения сохранены.</p>';
     $r = sql_fetch_array(sql_query("SELECT l.`lemma_text`, d.`rev_id`, d.`rev_text` FROM `dict_lemmata` l LEFT JOIN `dict_revisions` d ON (l.lemma_id = d.lemma_id) WHERE l.`lemma_id`=$id ORDER BY d.rev_id DESC LIMIT 1"));
-    $out = '<p><a href="?act=lemmata">&lt;&lt;&nbsp;к поиску</a></p>';
+    $out .= '<p><a href="?act=lemmata">&lt;&lt;&nbsp;к поиску</a></p>';
     $arr = parse_dict_rev($r['rev_text']);
-    $out .= '<form action="" method="post"><b>Лемма</b>:<br/><input name="lemma_text" value="'.$arr['lemma']['_a']['text'].'"/><br/><b>Формы:</b><br/><table cellpadding="3">';
-    foreach($arr['form'] as $n=>$farr) {
-        $out .= "<tr><td>".$farr['_a']['text']."<td>";
-        foreach($farr['_c']['grm'] as $k=>$garr) {
-            $out .= $garr['_a']['val'].', ';
+    $out .= '<form action="?act=save" method="post"><b>Лемма</b>:<br/><input type="hidden" name="lemma_id" value="'.$id.'"/><input name="lemma_text" readonly="readonly" value="'.htmlspecialchars($arr['lemma']['_a']['text']).'"/> (<a href="dict_history.php?lemma_id='.$id.'">история</a>)<br/><b>Формы (оставление левого поля пустым удаляет форму):</b><br/><table cellpadding="3">';
+    foreach($arr['form'] as $farr) {
+        $gram = array();
+        foreach($farr['_c']['grm'] as $garr) {
+            array_push($gram, $garr['_a']['val']);
         }
+        $out .= "<tr><td><input name='form_text[]' value='".htmlspecialchars($farr['_a']['text'])."'/><td><input name='form_gram[]' size='40' value='".htmlspecialchars(implode(', ', $gram))."'/>";
         $out .= '</tr>';
     }
-    $out .= '</table></form>';
-    $out .= '<b>Plain xml:</b><br/><textarea class="small" disabled cols="60" rows="10">'.htmlspecialchars($r['rev_text']).'</textarea>';
+    $out .= '</table><br/><input type="submit" value="Сохранить"/>&nbsp;&nbsp;<input type="reset" value="Сбросить"/></form>';
+    //$out .= '<b>Plain xml:</b><br/><textarea class="small" disabled cols="60" rows="10">'.htmlspecialchars($r['rev_text']).'</textarea>';
     return $out;
 }
 function addtext_page($txt) {
@@ -207,9 +211,73 @@ function parse_dict_rev($text) {
 }
 function form_exists($f) {
     $f = lc($f);
-    if (!preg_match('/[А-Яа-я]/u', $f)) {
+    if (!preg_match('/[А-Яа-я\-\']/u', $f)) {
         return -1;
     }
     return sql_num_rows(sql_query("SELECT lemma_id FROM form2lemma WHERE form_text='".mysql_real_escape_string($f)."' LIMIT 1"));
+}
+function dict_save($array) {
+    //print_r($array);
+    $ltext = $array['form_text'];
+    $lgram = $array['form_gram'];
+    //let's construct the old paradigm
+    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=".$array['lemma_id']." ORDER BY `rev_id` DESC LIMIT 1"));
+    $pdr = parse_dict_rev($old_xml = $r['rev_text']);
+    //print_r($pdr);
+    $lemma_text = $pdr['lemma']['_a']['text'];
+    $old_paradigm = array();
+    foreach($pdr['form'] as $form_arr) {
+        $new_gram = '';
+        $new_txt = $form_arr['_a']['text'];
+        foreach($form_arr['_c']['grm'] as $form_gr) {
+            $new_gram .= ($new_gram?', ':'').$form_gr['_a']['val'];
+        }
+        array_push($old_paradigm, array($new_txt => $new_gram));
+    }
+    //print_r($old_paradigm);
+    $new_paradigm = array();
+    foreach($ltext as $i=>$text) {
+        $text = trim($text);
+        if ($text == '') {
+            //the form is to be deleted, so we do nothing
+        } elseif (strpos($text, ' ') !== false) {
+            die ("Error: a form cannot contain whitespace ($text)");
+        } else {
+            //TODO: perhaps some data validity check?
+            array_push($new_paradigm, array($text=>$lgram[$i]));
+        }
+    }
+    //print_r($new_paradigm);
+    $int = array_intersect($old_paradigm, $new_paradigm);
+    //calculate which forms are actually updated
+    //array -> xml
+    $new_xml = '<dict_rev><lemma text="'.$lemma_text.'"/>';
+    foreach($ltext as $i=>$txt) {
+        $new_xml .= '<form text="'.htmlspecialchars($txt).'">';
+        $gram = explode(',', $lgram[$i]);
+        foreach($gram as $gr) {
+            $new_xml .= '<grm val="'.htmlspecialchars(trim($gr)).'"/>';
+        }
+        $new_xml .= '</form>';
+    }
+    $new_xml .= '</dict_rev>';
+    if ($new_xml != $old_xml) {
+        //something's really changed
+        $res = new_dict_rev($array['lemma_id'], $new_xml);
+        if ($res) {
+            header("Location:dict.php?act=edit&saved&id=".$array['lemma_id']);
+        } else die("Error on saving");
+    } else {
+        header("Location:dict.php?act=edit&id=".$array['lemma_id']);
+    }
+}
+function new_dict_rev($lemma_id, $new_xml) {
+    if (!$lemma_id || !$new_xml) return 0;
+    $revset_id = create_revset();
+    if (!$revset_id) return 0;
+    if (sql_query("INSERT INTO `dict_revisions` VALUES(NULL, '$revset_id', '$lemma_id', '".mysql_real_escape_string($new_xml)."', '0')")) {
+        return 1;
+    }
+    return 0;
 }
 ?>

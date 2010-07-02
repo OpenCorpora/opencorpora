@@ -15,6 +15,9 @@ if (is_admin()) {
             $descr = mysql_real_escape_string($_POST['descr']);
             add_grammem($name, $group, $aot_id, $descr);
             break;
+        case 'save':
+            dict_save($_POST);
+            break;
     }
 }
 ?>
