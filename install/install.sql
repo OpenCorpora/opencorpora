@@ -30,12 +30,14 @@ CREATE TABLE IF NOT EXISTS `sentences` (
 );
 
 CREATE TABLE IF NOT EXISTS `text_forms` (
-    `tf_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `sent_id` INT UNSIGNED NOT NULL,
-    `pos`     SMALLINT UNSIGNED NOT NULL,
-    `tf_text` VARCHAR(100) NOT NULL,
+    `tf_id`        INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `sent_id`      INT UNSIGNED NOT NULL,
+    `pos`          SMALLINT UNSIGNED NOT NULL,
+    `tf_text`      VARCHAR(100) NOT NULL,
+    `dict_updated` TINYINT UNSIGNED NOT NULL,
     INDEX (`sent_id`),
-    INDEX (`pos`)
+    INDEX (`pos`),
+    INDEX (`dict_updated`);
 );
 
 CREATE TABLE IF NOT EXISTS `users` (
@@ -84,6 +86,10 @@ CREATE TABLE IF NOT EXISTS `dict_revisions` (
     `f2l_check` TINYINT(1) UNSIGNED NOT NULL,
     INDEX (`set_id`),
     INDEX (`lemma_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `updated_forms` (
+    `form_text` VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `form2lemma` (
