@@ -25,6 +25,7 @@ if (is_admin()) {
 <head>
 <meta http-equiv='content' content='text/html;charset=utf-8'/>
 <link rel='stylesheet' type='text/css' href='<?=$config['web_prefix']?>/css/main.css'/>
+<script language='JavaScript' src='<?=$config['web_prefix']?>/js/main.js'></script>
 </head>
 <body>
 <?php require('include/_header.php'); ?>

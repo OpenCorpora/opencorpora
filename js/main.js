@@ -198,3 +198,19 @@ function dict_reload(el) {
     req.open ('get', 'ajax/dict_reload.php?tf_id='+tf_id, true);
     req.send(null);
 }
+function dict_add_form(a_el) {
+    var tbody = a_el.parentNode.parentNode.parentNode;
+    var new_tr = document.createElement('tr');
+    var new_td = document.createElement('td');
+    var new_input = document.createElement('input');
+    new_input.setAttribute('name', 'form_text[]');
+    new_td.appendChild(new_input);
+    new_tr.appendChild(new_td);
+    new_td = document.createElement('td');
+    new_input = document.createElement('input');
+    new_input.setAttribute('name', 'form_gram[]');
+    new_input.setAttribute('size', '40');
+    new_td.appendChild(new_input);
+    new_tr.appendChild(new_td);
+    tbody.appendChild(new_tr);
+}

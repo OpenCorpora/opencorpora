@@ -6,8 +6,10 @@ require_once('config.php');
 require_once('common.php');
 
 #database connect
-$db = mysql_connect($config['mysql_host'], $config['mysql_user'], $config['mysql_passwd']) or die ("Unable to open mysql database");
-sql_query("USE corpora", 0);
+$db = mysql_connect($config['mysql_host'], $config['mysql_user'], $config['mysql_passwd']) or die ("Unable to connect to mysql server");
+if (!sql_query("USE ".$config['mysql_dbname'], 0)) {
+    die ("Unable to open mysql database");
+}
 sql_query("SET names utf8", 0);
 
 #debug mode

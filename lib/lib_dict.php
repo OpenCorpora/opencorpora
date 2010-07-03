@@ -68,6 +68,7 @@ function dict_page_lemma_edit($id) {
         $out .= "<tr><td><input name='form_text[]' value='".htmlspecialchars($farr['_a']['text'])."'/><td><input name='form_gram[]' size='40' value='".htmlspecialchars(implode(', ', $gram))."'/>";
         $out .= '</tr>';
     }
+    $out .= '<tr><td>&nbsp;<td><a href="#" onClick="dict_add_form(this); return false">Добавить ешё одну форму</a></tr>';
     $out .= '</table><br/><input type="submit" value="Сохранить"/>&nbsp;&nbsp;<input type="reset" value="Сбросить"/></form>';
     //$out .= '<b>Plain xml:</b><br/><textarea class="small" disabled cols="60" rows="10">'.htmlspecialchars($r['rev_text']).'</textarea>';
     return $out;
@@ -145,7 +146,7 @@ function addtext_add($text, $book_id, $par_num) {
 }
 function generate_tf_rev($token) {
     $out = '<tf_rev text="'.htmlspecialchars($token).'">';
-    if (preg_match('/[А-Яа-яЁё]/u', $token)) {
+    if (preg_match('/[А-Яа-яЁё\-]/u', $token) && $token != '-') {
         $res = sql_query("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text='$token'");
         if (sql_num_rows($res) > 0) {
             while($r = sql_fetch_array($res)) {
@@ -244,17 +245,19 @@ function dict_save($array) {
             die ("Error: a form cannot contain whitespace ($text)");
         } else {
             //TODO: perhaps some data validity check?
-            array_push($new_paradigm, array($text=>$lgram[$i]));
+            array_push($new_paradigm, array($text, $lgram[$i]));
         }
     }
     //print_r($new_paradigm);
-    $int = array_intersect($old_paradigm, $new_paradigm);
+    //exit
     //calculate which forms are actually updated
+    $int = array_intersect($old_paradigm, $new_paradigm);
     //array -> xml
     $new_xml = '<dict_rev><lemma text="'.$lemma_text.'"/>';
-    foreach($ltext as $i=>$txt) {
+    foreach($new_paradigm as $new_form) {
+        list($txt, $gram) = $new_form;
         $new_xml .= '<form text="'.htmlspecialchars($txt).'">';
-        $gram = explode(',', $lgram[$i]);
+        $gram = explode(',', $gram);
         foreach($gram as $gr) {
             $new_xml .= '<grm val="'.htmlspecialchars(trim($gr)).'"/>';
         }
