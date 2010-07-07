@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `text_forms` (
     `dict_updated` TINYINT UNSIGNED NOT NULL,
     INDEX (`sent_id`),
     INDEX (`pos`),
-    INDEX (`dict_updated`);
+    INDEX (`dict_updated`)
 );
 
 CREATE TABLE IF NOT EXISTS `users` (
