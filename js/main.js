@@ -120,9 +120,31 @@ function updateLastParInfo(book_id) {
 }
 function scroll_annot(offset) {
     var el = byid('main_annot');
-    var newVal = el.scrollLeft + offset;
-    if (newVal < 0) newVal = 0;
-    el.scrollLeft = newVal;
+    if (el.state == 1) {
+        var newVal = el.scrollLeft + offset;
+        if (newVal < 0) newVal = 0;
+        el.scrollLeft = newVal;
+        setTimeout('scroll_annot(' + offset + ')', 100);
+    }
+}
+function startScroll(offset) {
+    byid('main_annot').state = 1;
+    setTimeout('scroll_annot(' + offset + ')', 0);
+}
+function endScroll() {
+    byid('main_annot').state = 0;
+}
+function checkKeyDown(evt) {
+    var code = evt.keyCode ? evt.keyCode : evt.charCode;
+    if (code == 37)
+        startScroll(evt.ctrlKey ? -50: -20);
+    if (code == 39)
+        startScroll(evt.ctrlKey ? 50 : 20);
+}
+function checkKeyUp(evt) {
+    var code = evt.keyCode ? evt.keyCode : evt.charCode;
+    if (code == 37 || code == 39)
+        endScroll();
 }
 function del_var(v) {
     v.childNodes[1].value = 0;
@@ -150,13 +172,6 @@ function something() {
         out += i+' '+el.childNodes[i].offsetLeft+'\n';
     }
     alert(out);
-}
-function checkKey(evt) {
-    var code = evt.keyCode ? evt.keyCode : evt.charCode;
-    if (code == 37)
-        scroll_annot(-20);
-    if (code == 39)
-        scroll_annot(20);
 }
 function dict_reload(el) {
     var td = el.parentNode.parentNode;
