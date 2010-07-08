@@ -27,7 +27,7 @@ if (isset($_GET['act'])) {
 <link rel='stylesheet' type='text/css' href='<?=$config['web_prefix']?>/css/main.css'/>
 <script language='JavaScript' src='<?=$config['web_prefix']?>/js/main.js'></script>
 </head>
-<body onload="document.onkeyup=checkKeyUp; document.onkeydown=checkKeyDown;">
+<body onload="highlight_source(); document.onkeyup=checkKeyUp; document.onkeydown=checkKeyDown;">
 <?php require('include/_header.php'); ?>
 <div id='content'>
 <?php

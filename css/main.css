@@ -68,6 +68,12 @@ span.check_noword {
     color: yellow;
 }
 /* ANNOTATION PAGE */
+div#source_text {
+    margin-bottom: 20px;
+}
+span.src_token_hlt {
+    background-color: #66FF66;
+}
 div#main_scroller {
     float: left;
     margin-bottom: 0px;

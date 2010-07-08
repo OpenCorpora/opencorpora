@@ -58,10 +58,15 @@ function create_revset() {
     }
     return 0;
 }
-function typo_spaces($str) {
-    $patterns = array(' ,', ' .', '( ', ' )', ' :');
-    $replacements = array(',', '.', '(', ')', ':');
-    return str_replace($patterns, $replacements, $str);
+function typo_spaces($str, $with_tags = 0) {
+    if (!$with_tags) {
+        $patterns = array(' ,', ' .', '( ', ' )', ' :', ' ;');
+        $replacements = array(',', '.', '(', ')', ':', ';');
+        return str_replace($patterns, $replacements, $str);
+    }
+    $patterns = array('/\s(<[^>]+>(?:\.|\,|\)|:|;)<\/[^>]+>)/', '/(<[^>]+>(?:\()<\/[^>]+>)\s/');
+    $replacements = array('\1', '\1');
+    return preg_replace($patterns, $replacements, $str);
 }
 function url2href($str, $target='_blank') {
     return '<a href="'.$str.'" target="$target">'.htmlspecialchars($str).'</a>';

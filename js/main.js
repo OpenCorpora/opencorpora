@@ -124,6 +124,7 @@ function scroll_annot(offset) {
         var newVal = el.scrollLeft + offset;
         if (newVal < 0) newVal = 0;
         el.scrollLeft = newVal;
+        highlight_source();
         setTimeout('scroll_annot(' + offset + ')', 100);
     }
 }
@@ -161,17 +162,27 @@ function best_var(v) {
             del_var(v.parentNode.childNodes[i]);
     }
 }
-function something() {
+function highlight_source() {
+    dehighlight_source();
     var el = byid('main_annot');
+    var l = el.scrollLeft;
     var wd = el.offsetWidth;
-    alert(wd);
     el = el.firstChild.firstChild.firstChild; //el is <tr>
     var i;
-    var out = '';
+    var vis = 0;
+    var cur_token;
     for (i=0; i < el.childNodes.length; ++i) {
-        out += i+' '+el.childNodes[i].offsetLeft+'\n';
+        cur_token = el.childNodes[i];
+        if (cur_token.offsetLeft + cur_token.clientWidth > l && cur_token.offsetLeft < l + wd)
+            byid('src_token_' + i).className = 'src_token_hlt';
     }
-    alert(out);
+}
+function dehighlight_source() {
+    var i;
+    var cur_token;
+    for (i=0; cur_token = byid('src_token_' + i); i++) {
+        cur_token.className='';
+    }
 }
 function dict_reload(el) {
     var td = el.parentNode.parentNode;
