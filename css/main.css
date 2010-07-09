@@ -74,6 +74,9 @@ div#source_text {
 span.src_token_hlt {
     background-color: #66FF66;
 }
+span.src_token_hlt_light {
+    background-color: #CCFFCC;
+}
 div#main_scroller {
     float: left;
     margin-bottom: 0px;

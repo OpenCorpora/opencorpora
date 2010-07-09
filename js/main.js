@@ -173,8 +173,16 @@ function highlight_source() {
     var cur_token;
     for (i=0; i < el.childNodes.length; ++i) {
         cur_token = el.childNodes[i];
-        if (cur_token.offsetLeft + cur_token.clientWidth > l && cur_token.offsetLeft < l + wd)
-            byid('src_token_' + i).className = 'src_token_hlt';
+        //a) if inner edge is visible
+        //if (cur_token.offsetLeft + cur_token.offsetWidth > l && cur_token.offsetLeft < l + wd) 
+        //b) if outer edge is visible + lighter if inner edge is visible
+        //if (cur_token.offsetLeft > l && cur_token.offsetLeft + cur_token.offsetWidth < l + wd)
+        //    byid('src_token_' + i).className = 'src_token_hlt';
+        //else if (cur_token.offsetLeft + cur_token.offsetWidth > l && cur_token.offsetLeft < l + wd) 
+        //    byid('src_token_' + i).className = 'src_token_hlt_light';
+        //c) if middle is visible
+        //if (cur_token.offsetLeft + cur_token.offsetWidth/2 > l && cur_token.offsetLeft + cur_token.offsetWidth/2 < l + wd)
+        //    byid('src_token_' + i).className = 'src_token_hlt';
     }
 }
 function dehighlight_source() {
