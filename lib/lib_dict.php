@@ -122,22 +122,22 @@ function addtext_add($text, $book_id, $par_num) {
     if (!$revset_id) return 0;
     $pars = split2paragraphs($text);
     foreach($pars as $par) {
-        #adding a paragraph
+        //adding a paragraph
         if (!sql_query("INSERT INTO `paragraphs` VALUES(NULL, '$book_id', '".($par_num++)."')")) return 0;
         $par_id = sql_insert_id();
         $sent_num = 1;
         $sents = split2sentences($par);
         foreach($sents as $sent) {
-            #adding a sentence
+            //adding a sentence
             if (!sql_query("INSERT INTO `sentences` VALUES(NULL, '$par_id', '".($sent_num++)."', '0')")) return 0;
             $sent_id = sql_insert_id();
             $token_num = 1;
             $tokens = explode(' ', $sent);
             foreach ($tokens as $token) {
-                #adding a textform
+                //adding a textform
                 if (!sql_query("INSERT INTO `text_forms` VALUES(NULL, '$sent_id', '".($token_num++)."', '".mysql_real_escape_string($token)."', '0')")) return 0;
                 $tf_id = sql_insert_id();
-                #adding a revision
+                //adding a revision
                 if (!sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$tf_id', '".mysql_real_escape_string(generate_tf_rev($token))."')")) return 0;
             }
         }
@@ -188,14 +188,14 @@ function add_gramtype($name) {
     if (sql_query("INSERT INTO `gram_types` VALUES(NULL, '$name', '".($r['m']+1)."')")) {
         header("Location:dict.php?act=gram");
     } else {
-        #some error message
+        //some error message
     }
 }
 function add_grammem($name, $group, $aot_id, $descr) {
     if (sql_query("INSERT INTO `gram` VALUES(NULL, '$group', '$aot_id', '$name', '$descr')")) {
         header("Location:dict.php?act=gram");
     } else {
-        #some error message
+        //some error message
     }
 }
 function dict_get_select_gramtype() {
@@ -233,9 +233,8 @@ function dict_save($array) {
         foreach($form_arr['_c']['grm'] as $form_gr) {
             $new_gram .= ($new_gram?', ':'').$form_gr['_a']['val'];
         }
-        array_push($old_paradigm, array($new_txt => $new_gram));
+        array_push($old_paradigm, array($new_txt, $new_gram));
     }
-    //print_r($old_paradigm);
     $new_paradigm = array();
     foreach($ltext as $i=>$text) {
         $text = trim($text);
@@ -248,12 +247,21 @@ function dict_save($array) {
             array_push($new_paradigm, array($text, $lgram[$i]));
         }
     }
-    //print_r($new_paradigm);
-    //exit
     //calculate which forms are actually updated
-    $int = array_intersect($old_paradigm, $new_paradigm);
+    $int = paradigm_diff($old_paradigm, $new_paradigm);
+    //..and insert them into `updated_forms`
+    $upd_forms = array();
+    foreach($int as $int_form) {
+        array_push($upd_forms, $int_form[0]);
+    }
+    $upd_forms = array_unique($upd_forms);
+    foreach($upd_forms as $upd_form) {
+        if (!sql_query("INSERT INTO `updated_forms` VALUES('".mysql_real_escape_string($upd_form)."')")) {
+            die("Error at updated_forms :(");
+        }
+    }
     //array -> xml
-    $new_xml = '<dict_rev><lemma text="'.$lemma_text.'"/>';
+    $new_xml = '<dict_rev><lemma text="'.htmlspecialchars($lemma_text).'"/>';
     foreach($new_paradigm as $new_form) {
         list($txt, $gram) = $new_form;
         $new_xml .= '<form text="'.htmlspecialchars($txt).'">';
@@ -282,5 +290,17 @@ function new_dict_rev($lemma_id, $new_xml) {
         return 1;
     }
     return 0;
+}
+function paradigm_diff($array1, $array2) {
+    $diff = array();
+    foreach($array1 as $form_array) {
+        if(!in_array($form_array, $array2))
+            array_push($diff, $form_array);
+    }
+    foreach($array2 as $form_array) {
+        if(!in_array($form_array, $array1))
+            array_push($diff, $form_array);
+    }
+    return $diff;
 }
 ?>

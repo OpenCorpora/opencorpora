@@ -2,12 +2,13 @@
 function sentence_page($sent_id) {
     $tf_text = array();
     $tokens = array();
-    $res = sql_query("SELECT tf_id, tf_text FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
+    $res = sql_query("SELECT tf_id, tf_text, dict_updated FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
     $j = 0; //token position, for further highlighting
     while($r = sql_fetch_array($res)) {
         array_push ($tf_text, '<span id="src_token_'.($j++).'">'.$r['tf_text'].'</span>');
         $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." ORDER BY rev_id DESC LIMIT 1"));
         $tokens[$r['tf_id']] = $rev['rev_text'];
+        $dict_updated[$r['tf_id']] = $r['dict_updated'];
     }
     $out = '<div id="source_text"><b>Исходный текст:</b> '.typo_spaces(implode(' ', $tf_text), 1);
     $out .= '</div><form method="post" action="?id='.$sent_id.'&act=save">';
@@ -19,7 +20,11 @@ function sentence_page($sent_id) {
         $arr = xml2ary($xml);
         $tf = $arr['tf_rev']['_a']['text'];
         $var = $arr['tf_rev']['_c']['var'];
-        $out .= '<td id="var_'.$tid.'"><div class="tf">'.htmlspecialchars($tf).'<a href="#" class="reload" title="Разобрать заново из словаря" onClick="dict_reload(this)">D</a></div>';
+        $out .= '<td id="var_'.$tid.'"><div class="tf">'.htmlspecialchars($tf);
+        if ($dict_updated[$tid]) {
+            $out .= '<a href="#" class="reload" title="Разобрать заново из словаря" onClick="dict_reload(this)">D</a>';
+        }
+        $out .= '</div>';
         if (is_array($var['_c'])) {
             #only one var
             $out .= generate_var_div($var, $tid, 1);

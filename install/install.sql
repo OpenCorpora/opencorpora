@@ -101,6 +101,13 @@ CREATE TABLE IF NOT EXISTS `form2lemma` (
     INDEX (`lemma_id`)
 );
 
+CREATE TABLE IF NOT EXISTS `form2tf` (
+    `form_text` VARCHAR(50) NOT NULL,
+    `tf_id`     INT UNSIGNED NOT NULL,
+    INDEX (`form_text`),
+    INDEX (`tf_id`)
+);
+
 CREATE TABLE IF NOT EXISTS `gram_types` (
     `type_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `type_name` VARCHAR(30) NOT NULL,

@@ -2,9 +2,10 @@
 use strict;
 use utf8;
 use DBI;
+use Encode;
 
 if (-f "f2l.lock") {
-    exit;
+    die ("lock exists, exiting");
 }
 
 open my $lock, ">f2l.lock";
@@ -21,7 +22,7 @@ my $upd = $dbh->prepare("UPDATE dict_revisions SET f2l_check=1 WHERE rev_id=? LI
 
 $scan->execute();
 while(my $ref = $scan->fetchrow_hashref()) {
-    my $txt = $ref->{'rev_text'};
+    my $txt = decode('utf8', $ref->{'rev_text'});
     $txt =~ /<lemma text="([^"]+)"/;
     my $lemma = $1;
     $del->execute($ref->{'lemma_id'});
