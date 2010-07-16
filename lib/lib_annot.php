@@ -57,8 +57,8 @@ function generate_var_div($var_arr, $tf_id, $num) {
     return $out;
 }
 function sentence_save() {
-    $flag = $_POST['var_flag'];
-    $dict = $_POST['dict_flag'];
+    $flag = $_POST['var_flag'];  //what morphovariants are checked as possible (array of arrays)
+    $dict = $_POST['dict_flag']; //whether this token has been reloaded from the dictionary (array)
     $sent_id = (int)$_GET['id'];
     $res = sql_query("SELECT tf_id, tf_text, `pos` FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
     while($r = sql_fetch_array($res)) {
@@ -78,10 +78,15 @@ function sentence_save() {
     foreach($tokens as $tf_id=>$v) {
         list($tf_text, $base_xml) = $v;
         //substitute the last revision's xml for one from dictionary if relevant
-        if ($dict[$tf_id] == 1)
+        if ($dict[$tf_id] == 1) {
             $xml = generate_tf_rev($tf_text);
-        else
+            //and reset the flag! perhaps it would be better to reset all of them by one query, but seems the case is rather rare
+            if (!sql_query("UPDATE text_forms SET dict_updated='0' WHERE tf_id=$tf_id LIMIT 1")) {
+                die("Internal error 5: cannor save");
+            }
+        } else {
             $xml = $base_xml;
+        }
         $new_xml = "<tf_rev text=\"$tf_text\">";
         //let's find all vars inside tf_text
         if (preg_match_all("/<var>(.+?)<\/var>/", $xml, $matches) !== false) {
