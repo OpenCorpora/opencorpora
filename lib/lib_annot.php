@@ -82,7 +82,7 @@ function sentence_save() {
             $xml = generate_tf_rev($tf_text);
             //and reset the flag! perhaps it would be better to reset all of them by one query, but seems the case is rather rare
             if (!sql_query("UPDATE text_forms SET dict_updated='0' WHERE tf_id=$tf_id LIMIT 1")) {
-                die("Internal error 5: cannor save");
+                die("Internal error 5: cannot save");
             }
         } else {
             $xml = $base_xml;

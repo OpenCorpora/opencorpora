@@ -6,15 +6,30 @@ use DBI;
 
 binmode(STDERR, ':utf8');
 
-if (-f "form2tf.lock") {
-    die "lock exists, exiting";
+my $pwd = $ENV{'_'};
+$pwd =~ s/\/[^\/]+$//;
+
+my $lock_path = "$pwd/form2tf.lock";
+if (-f $lock_path) {
+    die ("lock exists, exiting");
 }
 
-open my $lock, ">form2tf.lock";
+open my $lock, ">$lock_path";
 print $lock 'lock';
 close $lock;
 
-my $dbh = DBI->connect('DBI:mysql:corpora:127.0.0.1', 'corpora', 'corpora') or die $DBI::errstr;
+#looking for the config file
+my %mysql;
+open C, $pwd.'/../lib/config.php' or die "Cannot open config file";
+while(<C>) {
+    if (/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
+        $mysql{$1} = $2;
+    }
+}
+close C;
+
+#main
+my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 
 my $scan = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE tf_id NOT IN (SELECT tf_id FROM form2tf) LIMIT ?");
@@ -31,4 +46,4 @@ while(my $ref = $scan->fetchrow_hashref()) {
     $ins->execute($txt, $ref->{'tf_id'});
 }
 
-unlink ("form2tf.lock");
+unlink ($lock_path);

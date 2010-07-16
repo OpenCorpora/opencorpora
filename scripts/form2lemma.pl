@@ -4,15 +4,30 @@ use utf8;
 use DBI;
 use Encode;
 
-if (-f "f2l.lock") {
+my $pwd = $ENV{'_'};
+$pwd =~ s/\/[^\/]+$//;
+
+my $lock_path = "$pwd/f2l.lock";
+if (-f $lock_path) {
     die ("lock exists, exiting");
 }
 
-open my $lock, ">f2l.lock";
+open my $lock, ">$lock_path";
 print $lock 'lock';
 close $lock;
 
-my $dbh = DBI->connect('DBI:mysql:corpora:127.0.0.1', 'corpora', 'corpora') or die $DBI::errstr;
+#looking for the config file
+my %mysql;
+open C, $pwd.'/../lib/config.php' or die "Cannot open config file";
+while(<C>) {
+    if (/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
+        $mysql{$1} = $2;
+    }
+}
+close C;
+
+#main
+my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 
 my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE f2l_check=0 ORDER BY rev_id LIMIT 1000");
@@ -39,4 +54,4 @@ while(my $ref = $scan->fetchrow_hashref()) {
     #print STDERR 'At revision '.$ref->{'rev_id'}."\n";
 }
 
-unlink ("f2l.lock");
+unlink ($lock_path);
