@@ -12,10 +12,10 @@ function sentence_page($sent_id) {
     }
     $out = '<div id="source_text"><b>Исходный текст:</b> '.typo_spaces(implode(' ', $tf_text), 1);
     $out .= '</div><form method="post" action="?id='.$sent_id.'&act=save">';
-    $out .= '<div id="main_scroller"><span id="scr_ll" onMouseDown="startScroll(-50)" onMouseUp="endScroll()" onMouseMove="endScroll()">&lt;&lt;</span><span id="scr_l" onMouseDown="startScroll(-20)" onMouseUp="endScroll()" onMouseMove="endScroll()">&lt;</span><div>';
+    $out .= '<div id="main_scroller"><span id="scr_ll" onMouseDown="startScroll(-50)" onMouseUp="endScroll()" onMouseMove="endScroll()">&lt;&lt;</span><span id="scr_l" onMouseDown="startScroll(-20)" onMouseUp="endScroll()" onMouseMove="endScroll()">&lt;</span><span id="scr_lw" onMouseDown="startScrollByWord(-1)" onMouseUp="endScroll()">&lt;W</span><div>';
     if (is_logged())
         $out .= '<button type="submit" disabled="disabled" id="submit_button">Сохранить</button>&nbsp;';
-    $out .= '<button type="reset" onClick="window.location.reload()">Отменить правки</button>&nbsp;<button type="button" onClick="window.location.href=\'history.php?sent_id='.$sent_id.'\'">История</button></div><span id="scr_rr" onMouseDown="startScroll(50)" onMouseUp="endScroll()" onMouseMove="endScroll()">&gt;&gt;</span><span id="scr_r" onMouseDown="startScroll(20)" onMouseUp="endScroll()" onMouseMove="endScroll()">&gt;</span></div><br/><br/><div id="main_annot"><table><tr>';
+    $out .= '<button type="reset" onClick="window.location.reload()">Отменить правки</button>&nbsp;<button type="button" onClick="window.location.href=\'history.php?sent_id='.$sent_id.'\'">История</button></div><span id="scr_rr" onMouseDown="startScroll(50)" onMouseUp="endScroll()" onMouseMove="endScroll()">&gt;&gt;</span><span id="scr_r" onMouseDown="startScroll(20)" onMouseUp="endScroll()" onMouseMove="endScroll()">&gt;</span><span id="scr_rw" onMouseDown="startScrollByWord(1)" onMouseUp="endScroll()">W&gt;</span></div><br/><br/><div id="main_annot"><table><tr>';
     foreach($tokens as $tid=>$xml) {
         $arr = xml2ary($xml);
         $tf = $arr['tf_rev']['_a']['text'];

@@ -128,9 +128,46 @@ function scroll_annot(offset) {
         setTimeout('scroll_annot(' + offset + ')', 100);
     }
 }
+function scroll_annot_byword(dir) {
+    var el = byid('main_annot');
+    if (el.state == 2) {
+        var l = el.scrollLeft;
+        var wd = el.offsetWidth;
+        var tr_el = el.firstChild.firstChild.firstChild;
+        var i;
+        var cur_token;
+        var d;
+        if (dir == 1) {
+            for (i = 0; i < tr_el.childNodes.length; ++i) {
+                cur_token = tr_el.childNodes[i];
+                if ((d = cur_token.offsetLeft + cur_token.offsetWidth - l - wd) > 0) {
+                    el.scrollLeft += (d + 10);
+                    break;
+                }
+            }
+            highlight_source();
+            setTimeout('scroll_annot_byword(' + dir + ')', 500);
+        }
+        else if (dir == -1) {
+            for (i = tr_el.childNodes.length; i > 0; --i) {
+                cur_token = tr_el.childNodes[i-1];
+                if ((d = cur_token.offsetLeft - l) < 0) {
+                    el.scrollLeft += d;
+                    break;
+                }
+            }
+            highlight_source();
+            setTimeout('scroll_annot_byword(' + dir + ')', 500);
+        }
+    }
+}
 function startScroll(offset) {
     byid('main_annot').state = 1;
     setTimeout('scroll_annot(' + offset + ')', 0);
+}
+function startScrollByWord(dir) {
+    byid('main_annot').state = 2;
+    setTimeout('scroll_annot_byword(' + dir + ')', 0);
 }
 function endScroll() {
     byid('main_annot').state = 0;
@@ -169,7 +206,6 @@ function highlight_source() {
     var wd = el.offsetWidth;
     el = el.firstChild.firstChild.firstChild; //el is <tr>
     var i;
-    var vis = 0;
     var cur_token;
     for (i=0; i < el.childNodes.length; ++i) {
         cur_token = el.childNodes[i];

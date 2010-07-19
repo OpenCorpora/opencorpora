@@ -86,14 +86,26 @@ div#main_scroller {
     font-weight: bold;
     color: red;
 }
+div#main_scroller span#scr_l {
+    display: inline;
+    float: left;
+    margin-right: 20px;
+    cursor: pointer;
+}
 div#main_scroller span#scr_ll {
     display: inline;
     float: left;
     margin-right: 20px;
     cursor: pointer;
 }
-div#main_scroller span#scr_l {
+div#main_scroller span#scr_lw {
     float: left;
+    cursor: pointer;
+}
+div#main_scroller span#scr_rw {
+    display: inline;
+    float: right;
+    margin-right: 20px;
     cursor: pointer;
 }
 div#main_scroller span#scr_rr {
