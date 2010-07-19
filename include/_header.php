@@ -3,7 +3,7 @@ if (stripos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)
     print "<div id='pre_header'>Вы используете браузер Internet Explorer, который может некорректно отображать наш сайт. Рекомендуем поменять браузер.</div>\n";
 ?>
 <div id='header'>
-<div id='lblock'><a href='<?=$config['web_prefix']?>/'>Home</a></div>
+<div id='lblock'><a href='<?php echo $config['web_prefix']?>/'>Home</a></div>
 <div id='rblock'>
 <?php
 if (isset($_SESSION['user_id'])) {

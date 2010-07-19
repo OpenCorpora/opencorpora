@@ -8,7 +8,7 @@ if (isset($_GET['rand'])) {
 <html>
 <head>
 <meta http-equiv='content' content='text/html;charset=utf-8'/>
-<link rel='stylesheet' type='text/css' href='<?=$config['web_prefix']?>/css/main.css'/>
+<link rel='stylesheet' type='text/css' href='<?php echo $config['web_prefix']?>/css/main.css'/>
 </head>
 <body>
 <?php require('include/_header.php'); ?>
@@ -17,11 +17,11 @@ if (isset($_GET['rand'])) {
 //административные опции
 if (is_admin()) {
     ?>
-    <a href='<?=$config['web_prefix']?>/books.php'>Редактор источников</a><br/>
-    <a href='<?=$config['web_prefix']?>/dict.php'>Редактор словаря</a><br/><br/>
-    <a href='<?=$config['web_prefix']?>/add.php'>Добавить текст</a><br/>
+    <a href='<?php echo $config['web_prefix']?>/books.php'>Редактор источников</a><br/>
+    <a href='<?php echo $config['web_prefix']?>/dict.php'>Редактор словаря</a><br/><br/>
+    <a href='<?php echo $config['web_prefix']?>/add.php'>Добавить текст</a><br/>
     <br/>
-    <?
+    <?php
 }
 ?>
 <a href='?rand'>Случайное предложение</a><br/>

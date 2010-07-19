@@ -15,7 +15,7 @@ if ($action=='login') {
 <html>
 <head>
 <meta http-equiv='content' content='text/html;charset=utf-8'/>
-<link rel='stylesheet' type='text/css' href='<?=$config['web_prefix']?>/css/main.css'/>
+<link rel='stylesheet' type='text/css' href='<?php echo $config['web_prefix']?>/css/main.css'/>
 </head>
 <body>
 <?php require('include/_header.php'); ?>
@@ -35,7 +35,7 @@ switch ($action) {
 <tr><td colspan='2' align='right'><input type='submit' value='Зарегистрироваться'/></tr>
 </table>
 </form>
-    <?
+    <?php
         break;
     case 'reg_done':
         if ($_POST['passwd'] != $_POST['passwd_re']) {
@@ -61,7 +61,7 @@ switch ($action) {
 <tr><td colspan='2'>или <a href='?act=register'>зарегистрироваться</a></tr>
 </table>
 </form>
-<?
+<?php
 }
 ?>
 </div><div id='rightcol'><?php require('include/_right.php'); ?></div>

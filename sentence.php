@@ -24,8 +24,8 @@ if (isset($_GET['act'])) {
 <html>
 <head>
 <meta http-equiv='content' content='text/html;charset=utf-8'/>
-<link rel='stylesheet' type='text/css' href='<?=$config['web_prefix']?>/css/main.css'/>
-<script language='JavaScript' src='<?=$config['web_prefix']?>/js/main.js'></script>
+<link rel='stylesheet' type='text/css' href='<?php echo $config['web_prefix']?>/css/main.css'/>
+<script language='JavaScript' src='<?php echo $config['web_prefix']?>/js/main.js'></script>
 </head>
 <body onload="highlight_source(); document.onkeyup=checkKeyUp; document.onkeydown=checkKeyDown; document.onmouseup=endScroll;">
 <?php require('include/_header.php'); ?>

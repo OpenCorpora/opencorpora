@@ -5,7 +5,7 @@ require_once('lib/lib_xml.php');
 <html>
 <head>
 <meta http-equiv='content' content='text/html;charset=utf-8'/>
-<link rel='stylesheet' type='text/css' href='<?=$config['web_prefix']?>/css/main.css'/>
+<link rel='stylesheet' type='text/css' href='<?php echo $config['web_prefix']?>/css/main.css'/>
 </head>
 <body>
 <?php require('include/_header.php'); ?>
