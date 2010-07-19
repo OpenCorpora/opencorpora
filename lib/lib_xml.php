@@ -1,4 +1,4 @@
-<?
+<?php
 /*
 Working with XML. Usage: 
 $xml=xml2ary(file_get_contents('1.xml'));
