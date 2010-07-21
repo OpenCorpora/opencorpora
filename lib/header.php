@@ -5,14 +5,14 @@ if (!headers_sent()) {
 require_once('config.php');
 require_once('common.php');
 
-#database connect
+//database connect
 $db = mysql_connect($config['mysql_host'], $config['mysql_user'], $config['mysql_passwd']) or die ("Unable to connect to mysql server");
 if (!sql_query("USE ".$config['mysql_dbname'], 0)) {
     die ("Unable to open mysql database");
 }
 sql_query("SET names utf8", 0);
 
-#debug mode
+//debug mode
 if (isset($_GET['debug']) && $debug = $_GET['debug']) {
     if ($debug == 'on' && !isset($_SESSION['debug_mode'])) {
         $_SESSION['debug_mode'] = 1;

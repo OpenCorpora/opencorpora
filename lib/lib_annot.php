@@ -26,12 +26,12 @@ function sentence_page($sent_id) {
         }
         $out .= '</div>';
         if (is_array($var['_c'])) {
-            #only one var
+            //only one var
             $out .= generate_var_div($var, $tid, 1);
         }
         else {
             $num = 1;
-            #multiple vars
+            //multiple vars
             foreach($var as $var_arr) {
                 $out .= generate_var_div($var_arr, $tid, $num++);
             }

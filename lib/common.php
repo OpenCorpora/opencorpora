@@ -1,5 +1,5 @@
 <?php
-#sql wrappers
+//sql wrappers
 function sql_query($q, $debug=1) {
     $debug = isset($_SESSION['debug_mode']) && $debug;
     if ($debug)
@@ -23,7 +23,7 @@ function sql_num_rows($q) {
 function sql_insert_id() {
     return mysql_insert_id();
 }
-#other
+//other
 function user_login($login, $passwd) {
     $passwd = md5(md5($passwd).substr($login, 0, 2));
     $q = sql_query("SELECT `user_id`, `user_group`  FROM `users` WHERE `user_name`='$login' AND `user_passwd`='$passwd'");
