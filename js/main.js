@@ -210,7 +210,7 @@ function highlight_source() {
     for (i=0; i < el.childNodes.length; ++i) {
         cur_token = el.childNodes[i];
         //if outer edge is visible + lighter if inner edge is visible
-        if (cur_token.offsetLeft > l && cur_token.offsetLeft + cur_token.offsetWidth < l + wd)
+        if (cur_token.offsetLeft >= l && cur_token.offsetLeft + cur_token.offsetWidth < l + wd)
             byid('src_token_' + i).className = 'src_token_hlt';
         else if (cur_token.offsetLeft + cur_token.offsetWidth > l && cur_token.offsetLeft < l + wd) 
             byid('src_token_' + i).className = 'src_token_hlt_light';
