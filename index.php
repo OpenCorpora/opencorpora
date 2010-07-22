@@ -14,7 +14,7 @@ if (isset($_GET['rand'])) {
 <?php require('include/_header.php'); ?>
 <div id='content'>
 <?php
-//административные опции
+//admin options
 if (is_admin()) {
     ?>
     <a href='<?php echo $config['web_prefix']?>/books.php'>Редактор источников</a><br/>

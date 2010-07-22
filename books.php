@@ -39,7 +39,7 @@ if (is_admin()) {
 <?php require('include/_header.php'); ?>
 <div id='content'>
 <?php
-//административные опции
+//admin options
 if (is_admin()) {
     if($book_id = (int)$_GET['book_id']) {
         print books_page($book_id);

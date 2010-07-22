@@ -79,8 +79,25 @@ function dict_get_select_gramtype() {
     return $out;
 }
 function parse_dict_rev($text) {
+    // output has the following structure:
+    // lemma => array (text => lemma_text, grm => array (grm1, grm2, ...)),
+    // forms => array (
+    //     [0] => array (text => form_text, grm => array (grm1, grm2, ...)),
+    //     [1] => ...
+    // )
     $arr = xml2ary($text);
-    return $arr['dict_rev']['_c'];
+    $arr = $arr['dict_rev']['_c'];
+    $parsed = array();
+    $parsed['lemma']['text'] = $arr['lemma']['_a']['text'];
+    foreach($arr['form'] as $k=>$farr) {
+        $parsed['forms'][$k]['text'] = $farr['_a']['text'];
+        $t = array();
+        foreach ($farr['_c']['grm'] as $j=>$garr) {
+            $t[] = $garr['_a']['val'];
+        }
+        $parsed['forms'][$k]['grm'] = $t;
+    }
+    return $parsed;
 }
 function form_exists($f) {
     $f = lc($f);
@@ -98,13 +115,9 @@ function dict_page_lemma_edit($id) {
     $r = sql_fetch_array(sql_query("SELECT l.`lemma_text`, d.`rev_id`, d.`rev_text` FROM `dict_lemmata` l LEFT JOIN `dict_revisions` d ON (l.lemma_id = d.lemma_id) WHERE l.`lemma_id`=$id ORDER BY d.rev_id DESC LIMIT 1"));
     $out .= '<p><a href="?act=lemmata">&lt;&lt;&nbsp;к поиску</a></p>';
     $arr = parse_dict_rev($r['rev_text']);
-    $out .= '<form action="?act=save" method="post"><b>Лемма</b>:<br/><input type="hidden" name="lemma_id" value="'.$id.'"/><input name="lemma_text" readonly="readonly" value="'.htmlspecialchars($arr['lemma']['_a']['text']).'"/> (<a href="dict_history.php?lemma_id='.$id.'">история</a>)<br/><b>Формы (оставление левого поля пустым удаляет форму):</b><br/><table cellpadding="3">';
-    foreach($arr['form'] as $farr) {
-        $gram = array();
-        foreach($farr['_c']['grm'] as $garr) {
-            array_push($gram, $garr['_a']['val']);
-        }
-        $out .= "<tr><td><input name='form_text[]' value='".htmlspecialchars($farr['_a']['text'])."'/><td><input name='form_gram[]' size='40' value='".htmlspecialchars(implode(', ', $gram))."'/>";
+    $out .= '<form action="?act=save" method="post"><b>Лемма</b>:<br/><input type="hidden" name="lemma_id" value="'.$id.'"/><input name="lemma_text" readonly="readonly" value="'.htmlspecialchars($arr['lemma']['text']).'"/> (<a href="dict_history.php?lemma_id='.$id.'">история</a>)<br/><b>Формы (оставление левого поля пустым удаляет форму):</b><br/><table cellpadding="3">';
+    foreach($arr['forms'] as $farr) {
+        $out .= "<tr><td><input name='form_text[]' value='".htmlspecialchars($farr['text'])."'/><td><input name='form_gram[]' size='40' value='".htmlspecialchars(implode(', ', $farr['grm']))."'/>";
         $out .= '</tr>';
     }
     $out .= '<tr><td>&nbsp;<td><a href="#" onClick="dict_add_form(this); return false">Добавить ешё одну форму</a></tr>';
@@ -119,16 +132,10 @@ function dict_save($array) {
     //let's construct the old paradigm
     $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=".$array['lemma_id']." ORDER BY `rev_id` DESC LIMIT 1"));
     $pdr = parse_dict_rev($old_xml = $r['rev_text']);
-    //print_r($pdr);
-    $lemma_text = $pdr['lemma']['_a']['text'];
+    $lemma_text = $pdr['lemma']['text'];
     $old_paradigm = array();
-    foreach($pdr['form'] as $form_arr) {
-        $new_gram = '';
-        $new_txt = $form_arr['_a']['text'];
-        foreach($form_arr['_c']['grm'] as $form_gr) {
-            $new_gram .= ($new_gram?', ':'').$form_gr['_a']['val'];
-        }
-        array_push($old_paradigm, array($new_txt, $new_gram));
+    foreach($pdr['forms'] as $form_arr) {
+        array_push($old_paradigm, array($form_arr['text'], implode(', ', $form_arr['grm'])));
     }
     $new_paradigm = array();
     foreach($ltext as $i=>$text) {
@@ -156,17 +163,7 @@ function dict_save($array) {
         }
     }
     //array -> xml
-    $new_xml = '<dict_rev><lemma text="'.htmlspecialchars($lemma_text).'"/>';
-    foreach($new_paradigm as $new_form) {
-        list($txt, $gram) = $new_form;
-        $new_xml .= '<form text="'.htmlspecialchars($txt).'">';
-        $gram = explode(',', $gram);
-        foreach($gram as $gr) {
-            $new_xml .= '<grm val="'.htmlspecialchars(trim($gr)).'"/>';
-        }
-        $new_xml .= '</form>';
-    }
-    $new_xml .= '</dict_rev>';
+    $new_xml = make_dict_xml($lemma_text, $new_paradigm);
     if ($new_xml != $old_xml) {
         //something's really changed
         $res = new_dict_rev($array['lemma_id'], $new_xml);
@@ -176,6 +173,20 @@ function dict_save($array) {
     } else {
         header("Location:dict.php?act=edit&id=".$array['lemma_id']);
     }
+}
+function make_dict_xml($lemma_text, $paradigm) {
+    $new_xml = '<dict_rev><lemma text="'.htmlspecialchars($lemma_text).'"/>';
+    foreach($paradigm as $new_form) {
+        list($txt, $gram) = $new_form;
+        $new_xml .= '<form text="'.htmlspecialchars($txt).'">';
+        $gram = explode(',', $gram);
+        foreach($gram as $gr) {
+            $new_xml .= '<grm val="'.htmlspecialchars(trim($gr)).'"/>';
+        }
+        $new_xml .= '</form>';
+    }
+    $new_xml .= '</dict_rev>';
+    return $new_xml;
 }
 function new_dict_rev($lemma_id, $new_xml) {
     if (!$lemma_id || !$new_xml) return 0;
