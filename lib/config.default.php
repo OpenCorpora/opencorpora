@@ -13,4 +13,9 @@ $config['mysql_host']   = 'localhost';
 $config['mysql_dbname'] = '';
 $config['mysql_user']   = '';
 $config['mysql_passwd'] = '';
+
+$config['smarty_template_dir'] = '/var/www/templates/';
+$config['smarty_compile_dir'] = '/var/www/smarty_dir/templates_c/';
+$config['smarty_config_dir'] = '/var/www/smarty_dir/configs/';
+$config['smarty_cache_dir'] = '/var/www/smarty_dir/cache/';
 ?>
