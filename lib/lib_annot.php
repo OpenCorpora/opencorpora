@@ -1,50 +1,42 @@
 <?php
-function sentence_page($sent_id) {
+function get_sentence($sent_id) {
+    $out = array(
+        'id' => $sent_id
+    );
     $tf_text = array();
-    $tokens = array();
     $res = sql_query("SELECT tf_id, tf_text, dict_updated FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
     $j = 0; //token position, for further highlighting
     while($r = sql_fetch_array($res)) {
         array_push ($tf_text, '<span id="src_token_'.($j++).'">'.$r['tf_text'].'</span>');
         $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." ORDER BY rev_id DESC LIMIT 1"));
-        $tokens[$r['tf_id']] = $rev['rev_text'];
-        $dict_updated[$r['tf_id']] = $r['dict_updated'];
+        $arr = xml2ary($rev['rev_text']);
+
+        $out['tokens'][] = array(
+            'tf_id'        => $r['tf_id'],
+            'tf_text'      => $arr['tf_rev']['_a']['text'],
+            'dict_updated' => $r['dict_updated'],
+            'variants'     => get_morph_vars($arr['tf_rev']['_c']['var'])
+        );
     }
-    $out = '<div id="source_text"><b>Исходный текст:</b> '.typo_spaces(implode(' ', $tf_text), 1);
-    $out .= '</div><form method="post" action="?id='.$sent_id.'&act=save">';
-    $out .= '<div id="main_scroller"><span id="scr_ll" onMouseDown="startScroll(-50)" onMouseUp="endScroll()" onMouseMove="endScroll()">&lt;&lt;</span><span id="scr_l" onMouseDown="startScroll(-20)" onMouseUp="endScroll()" onMouseMove="endScroll()">&lt;</span><span id="scr_lw" onMouseDown="startScrollByWord(-1)" onMouseUp="endScroll()">&lt;W</span><div>';
-    if (is_logged())
-        $out .= '<button type="submit" disabled="disabled" id="submit_button">Сохранить</button>&nbsp;';
-    $out .= '<button type="reset" onClick="window.location.reload()">Отменить правки</button>&nbsp;<button type="button" onClick="window.location.href=\'history.php?sent_id='.$sent_id.'\'">История</button></div><span id="scr_rr" onMouseDown="startScroll(50)" onMouseUp="endScroll()" onMouseMove="endScroll()">&gt;&gt;</span><span id="scr_r" onMouseDown="startScroll(20)" onMouseUp="endScroll()" onMouseMove="endScroll()">&gt;</span><span id="scr_rw" onMouseDown="startScrollByWord(1)" onMouseUp="endScroll()">W&gt;</span></div><br/><br/><div id="main_annot"><table><tr>';
-    foreach($tokens as $tid=>$xml) {
-        $arr = xml2ary($xml);
-        $tf = $arr['tf_rev']['_a']['text'];
-        $var = $arr['tf_rev']['_c']['var'];
-        $out .= '<td id="var_'.$tid.'"><div class="tf">'.htmlspecialchars($tf);
-        if ($dict_updated[$tid]) {
-            $out .= '<a href="#" class="reload" title="Разобрать заново из словаря" onClick="dict_reload(this)">D</a>';
-        }
-        $out .= '</div>';
-        if (is_array($var['_c'])) {
-            //only one var
-            $out .= generate_var_div($var, $tid, 1);
-        }
-        else {
-            $num = 1;
-            //multiple vars
-            foreach($var as $var_arr) {
-                $out .= generate_var_div($var_arr, $tid, $num++);
-            }
-        }
-        $out.= '</td>';
-    }
-    $out .= '</tr></table></div></form>';
+    $out['fulltext'] = typo_spaces(implode(' ', $tf_text), 1);
     return $out;
 }
-function generate_var_div($var_arr, $tf_id, $num) {
-    global $config;
-    $lemma_attr = $var_arr['_c']['lemma']['_a'];
-    $lemma_grm = $var_arr['_c']['lemma']['_c']['grm'];
+function get_morph_vars($xml_arr) {
+    if (is_array($xml_arr['_c'])) {
+        //the only variant
+        return array(get_morph_vars_inner($xml_arr, 1));
+    } else {
+        //multiple variants
+        $out = array();
+        $i = 1;
+        foreach($xml_arr as $xml_var_arr) {
+            $out[] = get_morph_vars_inner($xml_var_arr, $i++);
+        }
+        return $out;
+    }
+}
+function get_morph_vars_inner($xml_arr, $num) {
+    $lemma_grm = $xml_arr['_c']['lemma']['_c']['grm'];
     $grm_arr = array();
     if (is_array($lemma_grm['_a'])) {
         array_push($grm_arr, $lemma_grm['_a']['val']);
@@ -53,8 +45,12 @@ function generate_var_div($var_arr, $tf_id, $num) {
             array_push($grm_arr, $t['_a']['val']);
         }
     }
-    $out = '<div class="var" id="var_'.$tf_id.'_'.$num.'"><img src="spacer.gif" width="100" height="1"/><input type="hidden" name="var_flag['.$tf_id.']['.$num.']" value="1"/>'.($lemma_attr['id']>0?'<a href="'.$config['web_prefix'].'/dict.php?id='.$lemma_attr['id'].'">'.$lemma_attr['text'].'</a>':'<span>'.$lemma_attr['text'].'</span>').'<a href="#" class="best_var" onClick="best_var(this.parentNode); return false">v</a><a href="#" class="del_var" onClick="del_var(this.parentNode); return false">x</a><br/>'.implode(', ', $grm_arr).'</div>';
-    return $out;
+    return array(
+        'num'        => $num,
+        'lemma_id'   => $xml_arr['_c']['lemma']['_a']['id'],
+        'lemma_text' => $xml_arr['_c']['lemma']['_a']['text'],
+        'gram_list'  => implode(', ', $grm_arr)
+    );
 }
 function sentence_save() {
     $flag = $_POST['var_flag'];  //what morphovariants are checked as possible (array of arrays)

@@ -14,26 +14,13 @@ if (isset($_GET['act'])) {
         case 'save':
             if (is_logged()) {
                 sentence_save();
+                break;
             } else {
                 die ($config['msg_notlogged']);
             }
-            break;
     }
+} else {
+    $smarty->assign('sentence', get_sentence($id));
+    $smarty->display('sentence.tpl');
 }
 ?>
-<html>
-<head>
-<meta http-equiv='content' content='text/html;charset=utf-8'/>
-<link rel='stylesheet' type='text/css' href='<?php echo $config['web_prefix']?>/css/main.css'/>
-<script language='JavaScript' src='<?php echo $config['web_prefix']?>/js/main.js'></script>
-</head>
-<body onload="highlight_source(); document.onkeyup=checkKeyUp; document.onkeydown=checkKeyDown; document.onmouseup=endScroll;">
-<?php require('include/_header.php'); ?>
-<div id='content'>
-<?php
-print sentence_page($id);
-?>
-</div>
-<div id='rightcol'><?php require('include/_right.php'); ?></div>
-</body>
-</html>
