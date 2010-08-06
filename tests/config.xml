@@ -1,0 +1,8 @@
+<phpunit>
+    <testsuites>
+        <testsuite name="all">
+            <file>Database.php</file>
+            <file>Users.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>

@@ -32,6 +32,9 @@
     {elseif $reg_status == 4}
         {* email is not unique *}
         Такой адрес электронной почты уже существует. Попробуйте, пожалуйста, <a href='?act=register'>ещё раз</a>.
+    {elseif $reg_status == 5}
+        {* a blank field *}
+        Пустое имя пользователя или пароль. Попробуйте, пожалуйста, <a href='?act=register'>ещё раз</a>.
     {else}
         {* another error *}
         Ошибка :(
