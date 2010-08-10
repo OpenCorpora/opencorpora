@@ -3,51 +3,43 @@ require_once('lib_xml.php');
 require_once('lib_books.php');
 
 // GENERAL
-function dict_page() {
+function get_dict_stats() {
+    $out = array();
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_gt FROM `gram_types`"));
-    $cnt_gt = $r['cnt_gt'];
+    $out['cnt_gt'] = $r['cnt_gt'];
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_g FROM `gram`"));
-    $cnt_g = $r['cnt_g'];
+    $out['cnt_g'] = $r['cnt_g'];
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_l FROM `dict_lemmata`"));
-    $cnt_l = $r['cnt_l'];
+    $out['cnt_l'] = $r['cnt_l'];
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_f FROM `form2lemma`"));
-    $cnt_f = $r['cnt_f'];
+    $out['cnt_f'] = $r['cnt_f'];
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_r FROM `dict_revisions` WHERE f2l_check=0"));
-    $cnt_r = $r['cnt_r'];
-    $out = sprintf("<p>Всего %d граммем в %d группах, %d лемм, %d форм в индексе (не проверено %d ревизий).</p>", $cnt_g, $cnt_gt, $cnt_l, $cnt_f, $cnt_r);
-    $out .= '<p><a href="?act=gram">Редактор граммем</a><br/>';
-    $out .= '<a href="?act=lemmata">Редактор лемм</a></p>';
+    $out['cnt_r'] = $r['cnt_r'];
     return $out;
 }
-function dict_page_lemmata() {
-    $out = '<p><a href="?">&lt;&lt;&nbsp;назад</a></p>';
-    $out .= '<h2>Редактор морфологического словаря</h2>';
-    $out .= "<form action='?act=lemmata' method='post'>Поиск леммы: <input name='search_lemma' size='25' maxlength='40' value='".(isset($_POST['search_lemma'])?htmlspecialchars($_POST['search_lemma']):'')."'/> <input type='submit' value='Искать'/></form>";
-    $out .= "<form action='?act=lemmata' method='post'>Поиск формы: <input name='search_form' size='25' maxlength='40' value='".(isset($_POST['search_form'])?htmlspecialchars($_POST['search_form']):'')."'/> <input type='submit' value='Искать'/></form>";
-    if (isset($_POST['search_lemma'])) {
-        $out .= dict_block_search_lemma($_POST['search_lemma']);
-    } elseif (isset($_POST['search_form'])) {
-        $out .= dict_block_search_form($_POST['search_form']);
+function get_dict_search_results($post) {
+    $out = array();
+    if (isset($post['search_lemma'])) {
+        $q = mysql_real_escape_string($post['search_lemma']);
+        $res = sql_query("SELECT lemma_id FROM `dict_lemmata` WHERE `lemma_text`='$q'");
+        $count = sql_num_rows($res);
+        $out['lemma']['count'] = $count;
+        if ($count == 0)
+            return $out;
+        while ($r = sql_fetch_array($res)) {
+            $out['lemma']['found'][] = array('id' => $r['lemma_id'], 'text' => $q);
+        }
     }
-    return $out;
-}
-function dict_block_search_lemma($q) {
-    $q = mysql_real_escape_string($q);
-    $out = '';
-    $res = sql_query("SELECT lemma_id FROM `dict_lemmata` WHERE `lemma_text`='$q'");
-    if (sql_num_rows($res) == 0) return "Ничего не найдено.";
-    while($r = sql_fetch_array($res)) {
-        $out .= '<a href="?act=edit&id='.$r['lemma_id']."\">[".$r['lemma_id']."] $q</a><br/>";
-    }
-    return $out;
-}
-function dict_block_search_form($q) {
-    $q = mysql_real_escape_string($q);
-    $out = '';
-    $res = sql_query("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE fl.`form_text`='$q'");
-    if (sql_num_rows($res) == 0) return "Ничего не найдено.";
-    while($r = sql_fetch_array($res)) {
-        $out .= '<a href="?act=edit&id='.$r['lemma_id']."\">[".$r['lemma_id']."] ".$r['lemma_text']."</a><br/>";
+    elseif (isset($post['search_form'])) {
+        $q = mysql_real_escape_string($post['search_form']);
+        $res = sql_query("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE fl.`form_text`='$q'");
+        $count = sql_num_rows($res);
+        $out['form']['count'] = $count;
+        if ($count == 0)
+            return $out;
+        while ($r = sql_fetch_array($res)) {
+            $out['form']['found'][] = array('id' => $r['lemma_id'], 'text' => $r['lemma_text']);
+        }
     }
     return $out;
 }

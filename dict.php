@@ -18,39 +18,26 @@ if (is_admin()) {
         case 'save':
             dict_save($_POST);
             break;
+        case 'lemmata':
+            $smarty->assign('search', get_dict_search_results($_POST));
+            $smarty->display('dict_lemmata.tpl');
+            break;
+        default:
+            $smarty->assign('stats', get_dict_stats());
+            $smarty->display('dict_main.tpl');
     }
+} else {
+    die ($config['msg_notadmin']);
 }
-?>
-<html>
-<head>
-<meta http-equiv='content' content='text/html;charset=utf-8'/>
-<link rel='stylesheet' type='text/css' href='<?php echo $config['web_prefix']?>/css/main.css'/>
-<script language='JavaScript' src='<?php echo $config['web_prefix']?>/js/main.js'></script>
-</head>
-<body>
-<?php require('include/_header.php'); ?>
-<div id='content'>
-<?php
 if (is_admin()) {
     switch($action) {
         case 'gram':
             print dict_page_gram();
             break;
-        case 'lemmata':
-            print dict_page_lemmata();
-            break;
         case 'edit':
             $lid = (int)$_GET['id'];
             print dict_page_lemma_edit($lid);
             break;
-        default:
-            print dict_page();
     }
-} else {
-    print $config['msg_notadmin'];
 }
 ?>
-</div>
-<div id='rightcol'><?php require('include/_right.php'); ?></div>
-</body>
-</html>
