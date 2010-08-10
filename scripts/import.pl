@@ -6,6 +6,16 @@ use strict;
 use utf8;
 use DBI;
 
+#looking for the config file
+my %mysql;
+open C, '../lib/config.php' or die "Cannot open config file";
+while(<C>) {
+    if (/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
+        $mysql{$1} = $2;
+    }
+}
+close C;
+
 binmode(STDIN, ':utf8');
 binmode(STDOUT, ':utf8');
 binmode(STDERR, ':utf8');
@@ -14,8 +24,8 @@ my ($form, $pos, $gram);
 my ($dbh, $newset, $set_id,  $newlemma, $newlemma_id, $newrev);
 my @stack;
 
-#возвращаемые типы (для дебага)
-my @ret_types = qw/9/;
+#возвращаемые типы (для дебага), 0 - тоже тип
+my @ret_types = qw/0 1 2 3 4 5 6 7 8 9 10 11 12/;
 my %ret_types;
 $ret_types{$_}=1 for (@ret_types);
 
@@ -33,10 +43,10 @@ my @gram_adhoc = qw/общ мест порядк/;
 #части речи
 my %pos_map = (
     'С' => 'СУЩ',
-    #'П' => 'ПРИЛ',
-    #'КР_ПРИЛ' => 'КР_ПРИЛ',
-    #'МС-П' => 'ПРИЛ',
-    #'ЧИСЛ-П' => 'ПРИЛ'
+    'П' => 'ПРИЛ',
+    'КР_ПРИЛ' => 'КР_ПРИЛ',
+    'МС-П' => 'ПРИЛ',
+    'ЧИСЛ-П' => 'ПРИЛ'
 );
 $gram_map{$_} = $_ for (@gram_aot);
 $gram_map{$_} = $pos_map{$_} for (keys %pos_map);
@@ -60,7 +70,7 @@ for my $i(0..$#gram_order) {
     $gram_ord{$gram_order[$i]} = $i;
 }
 unless(DEBUG) {
-    $dbh = DBI->connect('DBI:mysql:corpora:127.0.0.1', 'corpora', 'corpora') or die $DBI::errstr;
+    $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
     $dbh->do("SET NAMES utf8");
     $newset = $dbh->prepare("INSERT INTO `rev_sets` VALUES(NULL, ?, ?)");
     $newset->execute(time(), 0);
@@ -185,7 +195,11 @@ sub split_lemma($) {
         my @fem;
         my @pl;
         for my $el(@arr) {
-            if ($$el[2]=~/мр/) {
+            if ($$el[2]=~/мн/) {
+                $$el[2].=',pl';
+                push @pl, $el;
+            }
+            elsif ($$el[2]=~/мр/) {
                 $$el[2].=',дфст';
                 push @masc, $el;
             }
@@ -193,13 +207,13 @@ sub split_lemma($) {
                 $$el[2].=',дфст';
                 push @fem, $el;
             }
-            elsif ($$el[2]=~/мн/) {
-                $$el[2].=',pl';
-                push @pl, $el;
-            }
+        }
+        my @newarr = (\@masc, \@fem);
+        if (scalar @pl > 0) {
+            push @newarr, \@pl;
         }
         return 0 unless exists $ret_types{6};
-        return [\@masc, \@fem, \@pl];
+        return \@newarr;
     }
     if ($type == 8) {
         #print STDERR $lemma.": is a surname (0)\n";
@@ -251,7 +265,7 @@ sub split_lemma($) {
             }
         }
         return 0 unless exists $ret_types{2};
-        #return [\@newarr];
+        return [\@newarr];
     }
     if ($type == 7) {
         #print STDERR $lemma.": is type 0 (abbr)\n";
@@ -298,20 +312,30 @@ sub split_lemma($) {
 }
 sub make_revtext($) {
     my $aref = shift;
-    my @arr = @$aref;
+    my @ref_arr = @$aref;
+    my @arr = @{$ref_arr[0]};
+    my @lemma_gr = @{$ref_arr[1]};
+    my %lemma_gr; $lemma_gr{$_} = 1 for (@lemma_gr);
     my @t, my @g;
-    my $lemma = get_lemma($aref);
-    my $text = "<dict_rev><lemma text=\"$lemma\"/>".(DEBUG?"\n":'');
+    my $lemma = get_lemma($ref_arr[0]);
+    my $text = "<dr>".(DEBUG?"\n    ":'')."<l t=\"$lemma\">";
+    for my $g(@lemma_gr) {
+        $text .= "<g v=\"".$gram_map{$g}."\"/>";
+    }
+    $text .= '</l>'.(DEBUG?"\n":'');
     for my $el(@arr) {
         @t = @$el;
         @g = @{$t[2]};
-        $text .= (DEBUG?'    ':'')."<form text=\"".$t[0]."\">";
+        $text .= (DEBUG?'    ':'')."<f t=\"".$t[0]."\">";
         for my $g(@g) {
-            $text .= "<grm val=\"".$gram_map{$g}."\"/>";
+            if (exists $lemma_gr{$g}) {
+                next;
+            }
+            $text .= "<g v=\"".$gram_map{$g}."\"/>";
         }
-        $text .= '</form>'.(DEBUG?"\n":'');
+        $text .= '</f>'.(DEBUG?"\n":'');
     }
-    $text .= "</dict_rev>";
+    $text .= "</dr>";
     return $text;
 }
 sub has_gram($$) {
@@ -408,6 +432,8 @@ sub sort_forms($) {
     my @t;
     my @newarr;
     my %uniq, my $hash;
+    my $is_first_form = 1;
+    my %lemma_gr;
     for my $el(@arr) {
         @t = @$el;
         my @newgram;
@@ -420,6 +446,24 @@ sub sort_forms($) {
                 }
             }
         }
+        if ($is_first_form) {
+            for my $gr(@newgram) {
+                $lemma_gr{$gr} = 0;
+            }
+        } else {
+            for my $gr(@newgram) {
+                if (exists $lemma_gr{$gr}) {
+                    $lemma_gr{$gr}++;
+                }
+            }
+            for my $gr(keys %lemma_gr) {
+                if ($lemma_gr{$gr} == 0) {
+                    delete $lemma_gr{$gr};
+                } else {
+                    $lemma_gr{$gr} = 0;
+                }
+            }
+        }
         @newgram = sort sort_gram @newgram;
         $hash = $t[0].' '.join(',', @newgram);
         if (exists $uniq{$hash}) {
@@ -428,6 +472,8 @@ sub sort_forms($) {
             $uniq{$hash} = 1;
             push @newarr, [$t[0], $t[1], \@newgram];
         }
+        $is_first_form = 0;
     }
-    return \@newarr;
+    my @lemma_gr = sort sort_gram keys %lemma_gr;
+    return [\@newarr, \@lemma_gr];
 }
