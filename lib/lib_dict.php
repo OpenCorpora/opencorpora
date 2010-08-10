@@ -54,7 +54,7 @@ function generate_tf_rev($token) {
         } else {
             $out .= '<var><lemma id="0" text="'.htmlspecialchars(lc($token)).'"><grm val="UnknownPOS"/></lemma></var>';
         }
-    } elseif (preg_match('/[\,\.\:\;\-\(\)\'\"\[\]\?\!\/]/', $token)) {
+    } elseif (preg_match('/^[\,\.\:\;\-\(\)\'\"\[\]\?\!\/]+$/', $token)) {
         $out .= '<var><lemma id="0" text="'.htmlspecialchars($token).'"><grm val="PM"/></lemma></var>';
     } else {
         $out .= '<var><lemma id="0" text="'.htmlspecialchars($token).'"><grm val="UnknownPOS"/></lemma></var>';

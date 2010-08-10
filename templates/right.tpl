@@ -12,3 +12,7 @@ $this->assign('stats', get_common_stats());
 <br/><b><a href="{$web_prefix}/dict.php">Словарь</a></b><br/>
 <b>Лемм:</b> {$stats.cnt_lemmata}<br/>
 <b>Форм:</b> {$stats.cnt_forms}
+<br/><br/>
+{if $is_admin == 1}
+<b>Ревизия</b> {$svn_revision}
+{/if}
