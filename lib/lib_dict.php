@@ -100,21 +100,14 @@ function form_exists($f) {
 }
 
 // DICTIONARY EDITOR
-function dict_page_lemma_edit($id) {
-    $out = '';
-    if (isset($_GET['saved']))
-        $out .= '<p class="p_info">Изменения сохранены.</p>';
+function get_lemma_editor($id) {
+    $out = array('lemma_id' => $id);
     $r = sql_fetch_array(sql_query("SELECT l.`lemma_text`, d.`rev_id`, d.`rev_text` FROM `dict_lemmata` l LEFT JOIN `dict_revisions` d ON (l.lemma_id = d.lemma_id) WHERE l.`lemma_id`=$id ORDER BY d.rev_id DESC LIMIT 1"));
-    $out .= '<p><a href="?act=lemmata">&lt;&lt;&nbsp;к поиску</a></p>';
     $arr = parse_dict_rev($r['rev_text']);
-    $out .= '<form action="?act=save" method="post"><b>Лемма</b>:<br/><input type="hidden" name="lemma_id" value="'.$id.'"/><input name="lemma_text" readonly="readonly" value="'.htmlspecialchars($arr['lemma']['text']).'"/> (<a href="dict_history.php?lemma_id='.$id.'">история</a>)<br/><b>Формы (оставление левого поля пустым удаляет форму):</b><br/><table cellpadding="3">';
+    $out['lemma_text'] = $arr['lemma']['text'];
     foreach($arr['forms'] as $farr) {
-        $out .= "<tr><td><input name='form_text[]' value='".htmlspecialchars($farr['text'])."'/><td><input name='form_gram[]' size='40' value='".htmlspecialchars(implode(', ', $farr['grm']))."'/>";
-        $out .= '</tr>';
+        $out['forms'][] = array('text' => $farr['text'], 'grms' => implode(', ', $farr['grm']));
     }
-    $out .= '<tr><td>&nbsp;<td><a href="#" onClick="dict_add_form(this); return false">Добавить ешё одну форму</a></tr>';
-    $out .= '</table><br/><input type="submit" value="Сохранить"/>&nbsp;&nbsp;<input type="reset" value="Сбросить"/></form>';
-    //$out .= '<b>Plain xml:</b><br/><textarea class="small" disabled cols="60" rows="10">'.htmlspecialchars($r['rev_text']).'</textarea>';
     return $out;
 }
 function dict_save($array) {

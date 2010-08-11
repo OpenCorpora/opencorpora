@@ -22,6 +22,11 @@ if (is_admin()) {
             $smarty->assign('search', get_dict_search_results($_POST));
             $smarty->display('dict_lemmata.tpl');
             break;
+        case 'edit':
+            $lid = (int)$_GET['id'];
+            $smarty->assign('editor', get_lemma_editor($lid));
+            $smarty->display('dict_lemma_edit.tpl');
+            break;
         default:
             $smarty->assign('stats', get_dict_stats());
             $smarty->display('dict_main.tpl');
@@ -33,10 +38,6 @@ if (is_admin()) {
     switch($action) {
         case 'gram':
             print dict_page_gram();
-            break;
-        case 'edit':
-            $lid = (int)$_GET['id'];
-            print dict_page_lemma_edit($lid);
             break;
     }
 }

@@ -5,7 +5,6 @@
 <link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css'/>
 </head>
 <body>
-</body>
 {include file='header.tpl'}
 <div id='content'>
     <p><a href="?">&lt;&lt;&nbsp;назад</a></p>
