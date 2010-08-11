@@ -60,9 +60,6 @@ function typo_spaces($str, $with_tags = 0) {
     $replacements = array('\1', '\1');
     return preg_replace($patterns, $replacements, $str);
 }
-function url2href($str, $target='_blank') {
-    return '<a href="'.$str.'" target="$target">'.htmlspecialchars($str).'</a>';
-}
 function get_common_stats() {
     $stats = array();
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_users FROM `users`"));
