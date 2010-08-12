@@ -222,12 +222,6 @@ function add_grammem($name, $group, $aot_id, $descr) {
 }
 
 // ADDING TEXTS
-function addtext_page($txt) {
-    $out = '<h3>Добавляем текст</h3>';
-    $out .= '<form action="?act=check" method="post"><textarea cols="70" rows="20" name="txt"'.(!$txt?' onClick="this.innerHTML=\'\'; this.onClick=\'\'">':'>').($txt?$txt:'Товарищ, помни! Абзацы разделяются двойным переводом строки, предложения &ndash; одинарным; предложение должно быть токенизировано.').'</textarea><br/>';
-    $out .= '<br/><input type="submit" value="Проверить"/></form>';
-    return $out;
-}
 function split2paragraphs($txt) {
     return preg_split('/\r?\n\r?\n\r?/', $txt);
 }
@@ -235,34 +229,21 @@ function split2sentences($txt) {
     return preg_split('/[\r\n]+/', $txt);
 }
 function addtext_check($txt) {
-    $out = '<form action="?" method="post" class="inline"><textarea style="display: none" name="txt">'.htmlspecialchars($txt).'</textarea><a href="#" onClick="document.forms[0].submit()">Обратно к форме</a></form><ol type="I">';
+    $out = array('full' => $txt, 'select' => books_get_select(0));
     $pars = split2paragraphs($txt);
     foreach ($pars as $par) {
-        $out .= '<li><ol>';
+        $par_array = array();
         $sents = split2sentences($par);
         foreach ($sents as $sent) {
-            $out .= '<li>';
+            $sent_array = array();
             $tokens = explode(' ', $sent);
             foreach ($tokens as $token) {
-                $ex = form_exists($token);
-                if ($ex == -1) {
-                    $out .= "<span class='check_unpos'>$token</span> ";
-                } elseif (!$ex) {
-                    $out .= "<span class='check_noword'>$token</span> ";
-                } else {
-                    $out .= "$token ";
-                }
+                $sent_array['tokens'][] = array('text' => $token, 'class' => form_exists($token));
             }
-            $out .= '</li>';
+            $par_array['sentences'][] = $sent_array;
         }
-        $out .= "</ol></li>\n";
+        $out['paragraphs'][] = $par_array;
     }
-    $out .= '</ol>';
-    $out .= '<form action="?act=add" method="post">Добавляем в <select id="book0" name="book[]" onChange="changeSelectBook(0)"><option value="0">-- Не выбрано --</option>'.books_get_select(0).'</select>&nbsp;';
-    $out .= '<select id="book1" name="book[]" disabled="disabled" onChange="changeSelectBook(1)"><option value="0">-- Не выбрано --</option></select>';
-    $out .= '<br/><p id="lastpar_info">Надо выбрать книгу.</p>';
-    $out .= '<textarea style="display: none" name="txt">'.htmlspecialchars($txt).'</textarea>';
-    $out .= 'Счёт абзацев &ndash; с <input id="newpar" name="newpar" size="3" maxlength="3" value="1"/>&nbsp;<input id="submitter" type="submit" value="Добавить" disabled="disabled"/></form>';
     return $out;
 }
 function addtext_add($text, $book_id, $par_num) {
