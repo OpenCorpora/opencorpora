@@ -3,7 +3,6 @@
 <head>
 <meta http-equiv='content' content='text/html;charset=utf-8'/>
 <link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css'/>
-<script language='JavaScript' src='{$web_prefix}/js/main.js'></script>
 </head>
 <body>
 {include file='header.tpl'}
@@ -40,4 +39,3 @@
 </div>
 </body>
 </html>
-

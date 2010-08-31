@@ -1,0 +1,4 @@
+*
+    CHANGE(но -> неод)
+    CHANGE(лок -> гео)
+    CHANGE(дфст -> sg)
