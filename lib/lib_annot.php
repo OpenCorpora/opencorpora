@@ -22,7 +22,7 @@ function get_sentence($sent_id) {
     return $out;
 }
 function get_morph_vars($xml_arr) {
-    if (is_array($xml_arr['_c'])) {
+    if (isset($xml_arr['_c']) && is_array($xml_arr['_c'])) {
         //the only variant
         return array(get_morph_vars_inner($xml_arr, 1));
     } else {
@@ -38,7 +38,7 @@ function get_morph_vars($xml_arr) {
 function get_morph_vars_inner($xml_arr, $num) {
     $lemma_grm = $xml_arr['_c']['lemma']['_c']['grm'];
     $grm_arr = array();
-    if (is_array($lemma_grm['_a'])) {
+    if (isset ($lemma_grm['_a']) && is_array($lemma_grm['_a'])) {
         array_push($grm_arr, $lemma_grm['_a']['val']);
     } else {
         foreach($lemma_grm as $t) {

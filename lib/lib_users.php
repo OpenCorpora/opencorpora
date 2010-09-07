@@ -35,9 +35,9 @@ function user_register($post) {
     return 0;
 }
 function is_admin() {
-    return $_SESSION['user_group']==7;
+    return (isset($_SESSION['user_group']) && $_SESSION['user_group']==7);
 }
 function is_logged() {
-    return $_SESSION['user_id']>0;
+    return (isset($_SESSION['user_id']) && $_SESSION['user_id']>0);
 }
 ?>

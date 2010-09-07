@@ -1,6 +1,7 @@
 <?php
 require('lib/header.php');
-$action = $_GET['act'];
+if (isset($_GET['act']))
+    $action = $_GET['act'];
 if ($action=='login') {
     if (user_login(mysql_real_escape_string($_POST['login']), $_POST['passwd'])) {
         header('Location:'.$_SESSION['return_to']);
