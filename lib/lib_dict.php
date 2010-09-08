@@ -81,13 +81,34 @@ function parse_dict_rev($text) {
     $arr = $arr['dict_rev']['_c'];
     $parsed = array();
     $parsed['lemma']['text'] = $arr['lemma']['_a']['text'];
-    foreach($arr['form'] as $k=>$farr) {
-        $parsed['forms'][$k]['text'] = $farr['_a']['text'];
+    //the rest of the function should be refactored
+    if (isset($arr['form']['_a'])) {
+        //if there is only one form
+        $parsed['forms'][0]['text'] = $arr['form']['_a']['text'];
         $t = array();
-        foreach ($farr['_c']['grm'] as $j=>$garr) {
+        foreach ($arr['form']['_c']['grm'] as $garr) {
+            if (isset($garr['val'])) {
+                //if there is only one grammem
+                $t[] = $garr['val'];
+                break;
+            }
             $t[] = $garr['_a']['val'];
         }
-        $parsed['forms'][$k]['grm'] = $t;
+        $parsed['forms'][0]['grm'] = $t;
+    } else {
+        foreach($arr['form'] as $k=>$farr) {
+            $parsed['forms'][$k]['text'] = $farr['_a']['text'];
+            $t = array();
+            foreach ($farr['_c']['grm'] as $garr) {
+                if (isset($garr['val'])) {
+                    //if there is only one grammem
+                    $t[] = $garr['val'];
+                    break;
+                }
+                $t[] = $garr['_a']['val'];
+            }
+            $parsed['forms'][$k]['grm'] = $t;
+        }
     }
     return $parsed;
 }
