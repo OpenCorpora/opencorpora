@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #TODO: должна ли sg tm отменять граммему ед.ч.?
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 use strict;
 use utf8;
@@ -229,7 +229,7 @@ sub split_lemma($) {
         return [\@newarr];
     }
     if ($type == 9) {
-        print STDERR $lemma.": is a surname (with 0)\n";
+        #print STDERR $lemma.": is a surname (with 0)\n";
         for my $el(@arr) {
             push @newarr, $el;
         }

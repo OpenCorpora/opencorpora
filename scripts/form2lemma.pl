@@ -38,16 +38,16 @@ my $upd = $dbh->prepare("UPDATE dict_revisions SET f2l_check=1 WHERE rev_id=? LI
 $scan->execute();
 while(my $ref = $scan->fetchrow_hashref()) {
     my $txt = decode('utf8', $ref->{'rev_text'});
-    $txt =~ /<lemma text="([^"]+)"/;
-    my $lemma = $1;
+    $txt =~ /<l t="([^"]+)">(.+?)<\/l>/;
+    my ($lemma, $lemma_gr) = ($1, $2);
     $del->execute($ref->{'lemma_id'});
-    while ($txt =~ /<form text="([^"]+)">(.+?)<\/form>/g) {
+    while ($txt =~ /<f t="([^"]+)">(.+?)<\/f>/g) {
         my ($f, $g) = ($1, $2);
         #print STDERR "$f\t".$ref->{'lemma_id'}."\t$lemma\t$g\n";
-        $ins->execute($f, $ref->{'lemma_id'}, $lemma, $g);
+        $ins->execute($f, $ref->{'lemma_id'}, $lemma, $lemma_gr.$g);
         if ($f =~ /ё/) {
             $f =~ s/ё/е/g;
-            $ins->execute($f, $ref->{'lemma_id'}, $lemma, $g);
+            $ins->execute($f, $ref->{'lemma_id'}, $lemma, $lemma_gr.$g);
         }
     }
     $upd->execute($ref->{'rev_id'});

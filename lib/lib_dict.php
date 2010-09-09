@@ -78,34 +78,44 @@ function parse_dict_rev($text) {
     //     [1] => ...
     // )
     $arr = xml2ary($text);
-    $arr = $arr['dict_rev']['_c'];
+    $arr = $arr['dr']['_c'];
     $parsed = array();
-    $parsed['lemma']['text'] = $arr['lemma']['_a']['text'];
+    $parsed['lemma']['text'] = $arr['l']['_a']['t'];
     //the rest of the function should be refactored
-    if (isset($arr['form']['_a'])) {
+    $t = array();
+    foreach ($arr['l']['_c']['g'] as $garr) {
+        if (isset($garr['v'])) {
+            //if there is only one grammem
+            $t[] = $garr['v'];
+            break;
+        }
+        $t[] = $garr['_a']['v'];
+    }
+    $parsed['lemma']['grm'] = $t;
+    if (isset($arr['f']['_a'])) {
         //if there is only one form
-        $parsed['forms'][0]['text'] = $arr['form']['_a']['text'];
+        $parsed['forms'][0]['text'] = $arr['f']['_a']['t'];
         $t = array();
-        foreach ($arr['form']['_c']['grm'] as $garr) {
-            if (isset($garr['val'])) {
+        foreach ($arr['f']['_c']['g'] as $garr) {
+            if (isset($garr['v'])) {
                 //if there is only one grammem
-                $t[] = $garr['val'];
+                $t[] = $garr['v'];
                 break;
             }
-            $t[] = $garr['_a']['val'];
+            $t[] = $garr['_a']['v'];
         }
         $parsed['forms'][0]['grm'] = $t;
     } else {
-        foreach($arr['form'] as $k=>$farr) {
-            $parsed['forms'][$k]['text'] = $farr['_a']['text'];
+        foreach($arr['f'] as $k=>$farr) {
+            $parsed['forms'][$k]['text'] = $farr['_a']['t'];
             $t = array();
-            foreach ($farr['_c']['grm'] as $garr) {
-                if (isset($garr['val'])) {
+            foreach ($farr['_c']['g'] as $garr) {
+                if (isset($garr['v'])) {
                     //if there is only one grammem
-                    $t[] = $garr['val'];
+                    $t[] = $garr['v'];
                     break;
                 }
-                $t[] = $garr['_a']['val'];
+                $t[] = $garr['_a']['v'];
             }
             $parsed['forms'][$k]['grm'] = $t;
         }
@@ -122,10 +132,11 @@ function form_exists($f) {
 
 // DICTIONARY EDITOR
 function get_lemma_editor($id) {
-    $out = array('lemma_id' => $id);
+    $out = array('lemma' => array('id' => $id));
     $r = sql_fetch_array(sql_query("SELECT l.`lemma_text`, d.`rev_id`, d.`rev_text` FROM `dict_lemmata` l LEFT JOIN `dict_revisions` d ON (l.lemma_id = d.lemma_id) WHERE l.`lemma_id`=$id ORDER BY d.rev_id DESC LIMIT 1"));
     $arr = parse_dict_rev($r['rev_text']);
-    $out['lemma_text'] = $arr['lemma']['text'];
+    $out['lemma']['text'] = $arr['lemma']['text'];
+    $out['lemma']['grms'] = implode(', ', $arr['lemma']['grm']);
     foreach($arr['forms'] as $farr) {
         $out['forms'][] = array('text' => $farr['text'], 'grms' => implode(', ', $farr['grm']));
     }
@@ -135,10 +146,12 @@ function dict_save($array) {
     //print_r($array);
     $ltext = $array['form_text'];
     $lgram = $array['form_gram'];
+    $lemma_gram_new = $array['lemma_gram'];
     //let's construct the old paradigm
     $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=".$array['lemma_id']." ORDER BY `rev_id` DESC LIMIT 1"));
     $pdr = parse_dict_rev($old_xml = $r['rev_text']);
     $lemma_text = $pdr['lemma']['text'];
+    $lemma_gram_old = implode(', ', $pdr['lemma']['grm']);
     $old_paradigm = array();
     foreach($pdr['forms'] as $form_arr) {
         array_push($old_paradigm, array($form_arr['text'], implode(', ', $form_arr['grm'])));
@@ -156,11 +169,21 @@ function dict_save($array) {
         }
     }
     //calculate which forms are actually updated
-    $int = paradigm_diff($old_paradigm, $new_paradigm);
-    //..and insert them into `updated_forms`
     $upd_forms = array();
-    foreach($int as $int_form) {
-        array_push($upd_forms, $int_form[0]);
+    //if lemma's grammems have changed then all forms have changed
+    if ($lemma_gram_new != $lemma_gram_old) {
+        foreach($old_paradigm as $farr) {
+            array_push($upd_forms, $farr[0]);
+        }
+        foreach($new_paradigm as $farr) {
+            array_push($upd_forms, $farr[0]);
+        }
+    } else {
+        $int = paradigm_diff($old_paradigm, $new_paradigm);
+        //..and insert them into `updated_forms`
+        foreach($int as $int_form) {
+            array_push($upd_forms, $int_form[0]);
+        }
     }
     $upd_forms = array_unique($upd_forms);
     foreach($upd_forms as $upd_form) {
@@ -169,7 +192,7 @@ function dict_save($array) {
         }
     }
     //array -> xml
-    $new_xml = make_dict_xml($lemma_text, $new_paradigm);
+    $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
     if ($new_xml != $old_xml) {
         //something's really changed
         $res = new_dict_rev($array['lemma_id'], $new_xml);
@@ -180,18 +203,25 @@ function dict_save($array) {
         header("Location:dict.php?act=edit&id=".$array['lemma_id']);
     }
 }
-function make_dict_xml($lemma_text, $paradigm) {
-    $new_xml = '<dict_rev><lemma text="'.htmlspecialchars($lemma_text).'"/>';
+function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
+    $new_xml = '<dr><l t="'.htmlspecialchars($lemma_text).'">';
+    //lemma's grammems
+    $lg = explode(',', $lemma_gram);
+    foreach($lg as $gr) {
+        $new_xml .= '<g v="'.htmlspecialchars(trim($gr)).'"/>';
+    }
+    $new_xml .= '</l>';
+    //paradigm
     foreach($paradigm as $new_form) {
         list($txt, $gram) = $new_form;
-        $new_xml .= '<form text="'.htmlspecialchars($txt).'">';
+        $new_xml .= '<f t="'.htmlspecialchars($txt).'">';
         $gram = explode(',', $gram);
         foreach($gram as $gr) {
-            $new_xml .= '<grm val="'.htmlspecialchars(trim($gr)).'"/>';
+            $new_xml .= '<g v="'.htmlspecialchars(trim($gr)).'"/>';
         }
-        $new_xml .= '</form>';
+        $new_xml .= '</f>';
     }
-    $new_xml .= '</dict_rev>';
+    $new_xml .= '</dr>';
     return $new_xml;
 }
 function new_dict_rev($lemma_id, $new_xml) {

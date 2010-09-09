@@ -15,8 +15,8 @@
     {strip}
     <form action="?act=save" method="post">
         <b>Лемма</b>:<br/>
-        <input type="hidden" name="lemma_id" value="{$editor.lemma_id}"/>
-        <input name="lemma_text" readonly="readonly" value="{$editor.lemma_text|htmlspecialchars}"/> (<a href="dict_history.php?lemma_id={$editor.lemma_id}">история</a>)<br/>
+        <input type="hidden" name="lemma_id" value="{$editor.lemma.id}"/>
+        <input name="lemma_text" readonly="readonly" value="{$editor.lemma.text|htmlspecialchars}"/> <input name="lemma_gram" value="{$editor.lemma.grms|htmlspecialchars}"/> (<a href="dict_history.php?lemma_id={$editor.lemma.id}">история</a>)<br/>
         <b>Формы (оставление левого поля пустым удаляет форму):</b><br/>
         <table cellpadding="3">
         {foreach item=form from=$editor.forms}
