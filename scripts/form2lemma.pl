@@ -4,27 +4,22 @@ use utf8;
 use DBI;
 use Encode;
 
-my $pwd = $ENV{'_'};
-$pwd =~ s/\/[^\/]+$//;
-
-my $lock_path = "$pwd/f2l.lock";
+my $lock_path = "/var/lock/opcorpora_f2l.lock";
 if (-f $lock_path) {
     die ("lock exists, exiting");
+}
+
+#reading config
+my %mysql;
+while(<>) {
+    if (/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
+        $mysql{$1} = $2;
+    }
 }
 
 open my $lock, ">$lock_path";
 print $lock 'lock';
 close $lock;
-
-#looking for the config file
-my %mysql;
-open C, $pwd.'/../lib/config.php' or die "Cannot open config file";
-while(<C>) {
-    if (/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
-        $mysql{$1} = $2;
-    }
-}
-close C;
 
 #main
 my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
