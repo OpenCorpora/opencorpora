@@ -16,12 +16,18 @@ use constant REL_TYPE_AND => 1;
 use constant REL_TYPE_OR => 2;
 use constant ACTION_TYPE_CHANGE => 1;
 use constant ACTION_TYPE_SPLIT => 2;
+use constant DEBUG => 1;
+use constant STOP_AFTER => 5;
 
 sub new {
+    if (DEBUG) {
+        print STDERR "Creating Importer\n";
+    }
     my($class, %args) = @_;
  
     my $self = {};
     $self->{RULES} = undef;
+    $self->{WORD} = undef;
  
     bless $self;
     #return is implicit in bless
@@ -29,29 +35,47 @@ sub new {
 sub read_aot {
     my $self = shift;
     my $path = shift;
-    my $word = undef;
     my @forms;
-    open F, $path or die "Cannot read $path";
+    my $counter;
+    open F, $path or die "Error: Cannot read $path";
     binmode(F, ':utf8');
     while(<F>) {
         if (/\S+\t\S+,\s?(?:\S+)?,?\s?(?:\S+)?/) {
+            if (DEBUG) {
+                print STDERR $_;
+            }
             push @forms, $_;
         }
         elsif (/\S/) {
-            warn "Bad string: <$_>";
+            warn "Warning: Bad string: <$_>";
         }
-        else {
-            $word = new OpenCorpora::Dict::Importer::Word(\@forms);
+        elsif (scalar @forms > 0) {
+            $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms);
+            $self->apply_rules();
             @forms = ();
+            if (++$counter == STOP_AFTER) {
+                last;
+            }
+            if (DEBUG) {
+                print STDERR "====================\n";
+            }
         }
+    }
+    #the last word
+    if (scalar @forms > 0) {
+        $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms);
+        $self->apply_rules();
     }
     close F;
 }
 sub read_rules {
+    if (DEBUG) {
+        print STDERR "Reading rules\n";
+    }
     my $self = shift;
     my $path = shift;
     my $rule_ref = undef;
-    open F, $path or die "Cannot read $path";
+    open F, $path or die "Error: Cannot read $path";
     binmode(F, ':utf8');
     while(<F>) {
         if (/^\s*\#/) {
@@ -65,10 +89,14 @@ sub read_rules {
             #adding the previous rule if it exists
             if ($rule_ref) {
                 push @{$self->{RULES}}, $$rule_ref;
+                if (DEBUG) {
+                    print STDERR "Reading rule #".$#{$self->{RULES}}."\n";
+                }
             }
             #new rule
             my $rule = {};
             $rule->{CONDITIONS} = undef;
+            $rule->{ID} = defined $self->{RULES} ? scalar @{$self->{RULES}} : 0;
             $rule->{TYPE} = undef;
             $rule->{ACTIONS} = undef;
             $rule->{IS_LAST} = 0;
@@ -80,12 +108,15 @@ sub read_rules {
             push @{$$rule_ref->{ACTIONS}}, $action;
         }
         else {
-            die "Bad line in rules: $_";
+            die "Error: Bad line in rules: $_";
         }
     }
     #the last rule
     if ($rule_ref) {
         push @{$self->{RULES}}, $$rule_ref;
+        if (DEBUG) {
+            print STDERR "Reading rule #".$#{$self->{RULES}}."\n";
+        }
     }
 }
 sub parse_condition_string {
@@ -113,7 +144,7 @@ sub parse_condition_string {
                     ($2 eq '&' && $rule->{TYPE} == RULE_TYPE_ANY) ||
                     ($2 eq '|' && $rule->{TYPE} == RULE_TYPE_ALL)
                    ) {
-                    die "Condition type mismatch in: $_";
+                    die "Error: Condition type mismatch in: $_";
                 }
             }
         } elsif(!$rule->{TYPE}) {
@@ -144,9 +175,11 @@ sub parse_simple_condition {
     }
     elsif ($str =~ s/^1\s*//) {
         $cond->{TYPE} = COND_TYPE_ONE;
+    } else {
+        die "Error: Bad condition string: $str";
     }
     if ($str =~ /\|/ && $str =~ /\&/) {
-        die "Condition must contain either conjunction or disjunction: $str";
+        die "Error: Condition must contain either conjunction or disjunction: $str";
     }
     if ($str =~ /([\|\&])/) {
         if ($1 eq '|') {
@@ -195,9 +228,114 @@ sub parse_action_string {
         $action->{GRAMMEMS_IN} = \@gram_in;
     }
     else {
-        die "Bad action string: $str";
+        die "Error: Bad action string: $str";
     }
     return $action;
+}
+sub apply_rules {
+    print STDERR "Applying rules\n" if (DEBUG);
+    my $self = shift;
+    GF:for my $rule(@{$self->{RULES}}) {
+            print STDERR "Checking rule ".$rule->{ID}."\n" if DEBUG;
+        if ($rule->{TYPE} == RULE_TYPE_GLOBAL) {
+            print STDERR "Global, applying\n" if DEBUG;
+            $self->apply_rule($rule);
+            last GF if $rule->{IS_LAST};
+        }
+        elsif ($rule->{TYPE} == RULE_TYPE_ALL) {
+            my $test = 1;
+            for my $c(@{$rule->{CONDITIONS}}) {
+                print STDERR "Condition check\n" if DEBUG;
+                if (!$self->test_condition($c)) {
+                    $test = 0;
+                    print STDERR "Condition check failed\n" if DEBUG;
+                    last;
+                }
+            }
+            if ($test) {
+                $self->apply_rule($rule);
+                last GF if $rule->{IS_LAST};
+            }
+        }
+        elsif ($rule->{TYPE} == RULE_TYPE_ANY) {
+            for my $c(@{$rule->{CONDITIONS}}) {
+                print STDERR "Condition check\n" if DEBUG;
+                if ($self->test_condition($c)) {
+                    print STDERR "Condition check ok\n" if DEBUG;
+                    $self->apply_rule($rule);
+                    last GF if $rule->{IS_LAST};
+                    last;
+                }
+            }
+        }
+        else {
+            die "Error: Wrong RULE_TYPE";
+        }
+    }
+}
+sub test_condition {
+    my $self = shift;
+    my $cond = shift;
+    my $word = $self->{WORD};
+    if ($cond->{TYPE} == COND_TYPE_NUM) {
+        if ($cond->{NUM} == $word->get_form_count()) {
+            return 1;
+        }
+        return 0;
+    }
+    elsif ($cond->{TYPE} == COND_TYPE_ONE) {
+        print STDERR "  COND_TYPE_ONE\n" if DEBUG;
+        for my $form(@{$word->{FORMS}}) {
+            #print STDERR "  testing form ".$form->{TEXT}."\n";
+            if (($cond->{REL} == REL_TYPE_AND && $word->form_has_all_grams($form, $cond->{GRAMMEMS})) ||
+                ($cond->{REL} == REL_TYPE_OR && $word->form_has_any_gram($form, $cond->{GRAMMEMS}))) {
+                print STDERR "OK\n" if DEBUG;
+                return 1;
+            }
+        }
+        return 0;
+    }
+    elsif ($cond->{TYPE} == COND_TYPE_ALL) {
+        print STDERR "COND_TYPE_ALL\n" if DEBUG;
+        for my $form(@{$word->{FORMS}}) {
+            #print STDERR "  testing form ".$form->{TEXT}."\n";
+            if (($cond->{REL} == REL_TYPE_AND && !$word->form_has_all_grams($form, $cond->{GRAMMEMS})) ||
+                ($cond->{REL} == REL_TYPE_OR && !$word->form_has_any_gram($form, $cond->{GRAMMEMS}))) {
+                print STDERR "Fail\n" if DEBUG;
+                return 0;
+            }
+        }
+        return 1;
+    }
+    else {
+        die "Error: Wrong COND_TYPE";
+    }
+}
+sub apply_rule {
+    my $self = shift;
+    my $rule = shift;
+    my $word = $self->{WORD};
+    print STDERR "    Applying rule ".$rule->{ID}."\n" if DEBUG;
+    for my $action(@{$rule->{ACTIONS}}) {
+        if ($action->{TYPE} == ACTION_TYPE_CHANGE) {
+            print STDERR "    Change\n" if DEBUG;
+            $word->change_grammems($action->{GRAMMEMS_IN}, $action->{GRAMMEMS_OUT});
+        }
+        elsif ($action->{TYPE} == ACTION_TYPE_SPLIT) {
+            print STDERR "    Split\n" if DEBUG;
+            my @new_words = $word->split_lemma($action->{GRAMMEMS_IN});
+            if (@new_words == 1) {
+                return;
+            }
+            for my $new_word(@new_words) {
+                $self->{WORD} = $new_word;
+                $self->apply_rules();
+            }
+        }
+        else {
+            die "Error: Wrong ACTION_TYPE";
+        }
+    }
 }
 
 1;
