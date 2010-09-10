@@ -39,7 +39,6 @@ if (is_admin()) {
             }
     }
 } else {
-    print $config['msg_notadmin'];
-    exit;
+    show_error($config['msg_notadmin']);
 }
 ?>

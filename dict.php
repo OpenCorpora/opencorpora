@@ -38,6 +38,6 @@ if (is_admin()) {
             $smarty->display('dict_main.tpl');
     }
 } else {
-    die ($config['msg_notadmin']);
+    show_error($config['msg_notadmin']);
 }
 ?>

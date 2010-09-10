@@ -23,5 +23,5 @@ if (is_admin()) {
             $smarty->display('addtext.tpl');
     }
 } else {
-    print $config['msg_notadmin'];
+    show_error($config['msg_notadmin']);
 }

@@ -40,5 +40,5 @@ $smarty->assign('is_logged', is_logged() ? 1 : 0);
 //svn info
 $svnfile = file('.svn/entries');
 $smarty->assign('svn_revision', $svnfile[3]);
-$smarty->assign('svn_path', $svnfile[4]);
+//$smarty->assign('svn_path', $svnfile[4]);
 ?>

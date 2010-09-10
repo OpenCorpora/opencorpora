@@ -44,6 +44,11 @@ function lc($str) {
     $convert_to = array ('а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я');
     return str_replace($convert_from, $convert_to, strtolower($str));
 }
+function show_error($text = "Произошла ошибка.") {
+    global $smarty;
+    $smarty->assign('error_text', $text);
+    $smarty->display('error.tpl');
+}
 function create_revset() {
     if (sql_query("INSERT INTO `rev_sets` VALUES(NULL, '".time()."', '".$_SESSION['user_id']."')")) {
         return sql_insert_id();
