@@ -17,7 +17,9 @@
         <b>Лемма</b>:<br/>
         <input type="hidden" name="lemma_id" value="{$editor.lemma.id}"/>
         <input name="lemma_text" readonly="readonly" value="{$editor.lemma.text|htmlspecialchars}"/> <input name="lemma_gram" value="{$editor.lemma.grms|htmlspecialchars}"/> (<a href="dict_history.php?lemma_id={$editor.lemma.id}">история</a>)<br/>
-        <b>Формы (оставление левого поля пустым удаляет форму):</b><br/>
+        <b>Формы
+        {if $is_admin} (оставление левого поля пустым удаляет форму){/if}
+        :</b><br/>
         <table cellpadding="3">
         {foreach item=form from=$editor.forms}
         <tr>
@@ -25,9 +27,14 @@
             <td><input name='form_gram[]' size='40' value='{$form.grms|htmlspecialchars}'/>
         </tr>
         {/foreach}
-        <tr><td>&nbsp;<td><a href="#" onClick="dict_add_form(this); return false">Добавить ешё одну форму</a></tr>
+        {if $is_admin}
+            <tr><td>&nbsp;<td><a href="#" onClick="dict_add_form(this); return false">Добавить ешё одну форму</a></tr>
+        {/if}
         </table><br/>
-        <input type="submit" value="Сохранить"/>&nbsp;&nbsp;<input type="reset" value="Сбросить"/>
+        {if $is_admin}
+            <input type="submit" value="Сохранить"/>&nbsp;&nbsp;
+        {/if}
+        <input type="reset" value="Сбросить"/>
     </form>
     {/strip}
 </div>

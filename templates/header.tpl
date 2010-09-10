@@ -8,12 +8,17 @@
 <div id='rblock'>
 {if $smarty.session.user_id}
     Вы &ndash; <b>{$smarty.session.user_name}</b>
-    {if $is_admin == 1}
+    {if $smarty.session.user_group > 5}
         , администратор
         {if $smarty.session.debug_mode}
             &nbsp;[<a href='?debug=off'>debug off</a>]
         {else}
             &nbsp;[<a href='?debug=on'>debug on</a>]
+        {/if}
+        {if $smarty.session.user_group == 6}
+            &nbsp;[<a href='?pretend=off'>перестать притворяться</a>]
+        {else}
+            &nbsp;[<a href='?pretend=on'>притвориться юзером</a>]
         {/if}
     {/if}
     &nbsp;[<a href='{$web_prefix}/login.php?act=logout'>выйти</a>]

@@ -34,6 +34,14 @@ function user_register($post) {
         return 1;
     return 0;
 }
+function user_pretend($act) {
+    if ($_SESSION['user_group'] < 6) return 0;
+    if ($act == 0)
+        $_SESSION['user_group'] = 7;
+    else
+        $_SESSION['user_group'] = 6;
+    return 1;
+}
 function is_admin() {
     return (isset($_SESSION['user_group']) && $_SESSION['user_group']==7);
 }

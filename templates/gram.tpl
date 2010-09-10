@@ -9,6 +9,7 @@
 <div id='content'>
     <p><a href="?">&lt;&lt;&nbsp;назад</a></p>
     <h2>Группы граммем</h2>
+    {if $is_admin}
     <b>Добавить группу</b>:
     <form action="?act=add_gg" method="post" class="inline">
         <input name="g_name" value="&lt;Название&gt;">
@@ -24,10 +25,11 @@
         <input type="submit" value="Добавить"/>
     </form>
     <br/><br/>
+    {/if}
     <table border="1" cellspacing="0" cellpadding="2">
         <tr><th>Название<th>AOT_id<th>Описание</tr>
         {foreach key=id item=group from=$editor.groups}
-            <tr><td colspan="2"><b>{$group.name}</b><td>[<a href='#'>вверх</a>] [<a href='#'>вниз</a>]</tr>
+            <tr><td colspan="2"><b>{$group.name}</b><td>{if $is_admin}[<a href='#'>вверх</a>] [<a href='#'>вниз</a>]{/if}</tr>
             {foreach item=grammem from=$group.grammems}
                 <tr><td>{$grammem.name}<td>{$grammem.aot_id|default:'&nbsp;'}<td>{$grammem.description}</tr>
             {/foreach}

@@ -8,7 +8,11 @@
 {include file='header.tpl'}
 <div id='content'>
     <p><a href="?">&lt;&lt;&nbsp;назад</a></p>
+    {if $is_admin}
     <h2>Редактор морфологического словаря</h2>
+    {else}
+    <h2>Просмотр морфологического словаря</h2>
+    {/if}
     <form action='?act=lemmata' method='post'>Поиск леммы: <input name='search_lemma' size='25' maxlength='40' value='{$smarty.post.search_lemma|htmlspecialchars}'/> <input type='submit' value='Искать'/></form>
     <form action='?act=lemmata' method='post'>Поиск формы: <input name='search_form' size='25' maxlength='40' value='{$smarty.post.search_form|htmlspecialchars}'/> <input type='submit' value='Искать'/></form>
     {if $smarty.post.search_lemma}

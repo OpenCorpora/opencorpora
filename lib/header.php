@@ -21,7 +21,7 @@ if (!sql_query("USE ".$config['mysql_dbname'], 0)) {
 sql_query("SET names utf8", 0);
 
 //debug mode
-if (isset($_GET['debug']) && $debug = $_GET['debug']) {
+if (is_admin() && isset($_GET['debug']) && $debug = $_GET['debug']) {
     if ($debug == 'on' && !isset($_SESSION['debug_mode'])) {
         $_SESSION['debug_mode'] = 1;
     } elseif ($debug == 'off' && $_SESSION['debug_mode']) {
@@ -30,9 +30,16 @@ if (isset($_GET['debug']) && $debug = $_GET['debug']) {
     header("Location:".$_SERVER['HTTP_REFERER']);
 }
 
+//admin pretends that he is a user
+if ($_SESSION['user_group'] > 5 && isset($_GET['pretend']) && $pretend = $_GET['pretend']) {
+    if ($pretend == 'on')
+        $_SESSION['user_group'] = 6;
+    elseif ($pretend == 'off')
+        $_SESSION['user_group'] = 7;
+    header("Location:".$_SERVER['HTTP_REFERER']);
+}
+
 //some globals
-if (stripos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)
-    $smarty->assign('bad_browser', 1);
 $smarty->assign('web_prefix', $config['web_prefix']);
 $smarty->assign('is_admin', is_admin() ? 1 : 0);
 $smarty->assign('is_logged', is_logged() ? 1 : 0);
@@ -40,5 +47,4 @@ $smarty->assign('is_logged', is_logged() ? 1 : 0);
 //svn info
 $svnfile = file('.svn/entries');
 $smarty->assign('svn_revision', $svnfile[3]);
-//$smarty->assign('svn_path', $svnfile[4]);
 ?>

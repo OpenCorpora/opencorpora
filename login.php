@@ -11,7 +11,9 @@ if ($action=='login') {
     }
 } elseif ($action=='logout') {
     user_logout();
-    header('Location:/');
+    if (isset($_SERVER['HTTP_REFERER']))
+        header('Location:'.$_SERVER['HTTP_REFERER']);
+    else header('Location:/');
 } elseif ($action=='reg_done') {
     $smarty->assign('reg_status', user_register($_POST));
 }
