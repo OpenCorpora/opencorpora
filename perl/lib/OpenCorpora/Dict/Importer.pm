@@ -16,7 +16,7 @@ use constant REL_TYPE_AND => 1;
 use constant REL_TYPE_OR => 2;
 use constant ACTION_TYPE_CHANGE => 1;
 use constant ACTION_TYPE_SPLIT => 2;
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 use constant STOP_AFTER => 5;
 
 sub new {
@@ -41,9 +41,7 @@ sub read_aot {
     binmode(F, ':utf8');
     while(<F>) {
         if (/\S+\t\S+,\s?(?:\S+)?,?\s?(?:\S+)?/) {
-            if (DEBUG) {
-                print STDERR $_;
-            }
+            print STDERR $_ if DEBUG;
             push @forms, $_;
         }
         elsif (/\S/) {
@@ -52,26 +50,28 @@ sub read_aot {
         elsif (scalar @forms > 0) {
             $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms);
             $self->apply_rules();
+            if ($self->{WORD}) {
+                print $self->{WORD}->to_string()."\n";
+            }
             @forms = ();
             if (++$counter == STOP_AFTER) {
                 last;
             }
-            if (DEBUG) {
-                print STDERR "====================\n";
-            }
+            print STDERR "====================\n" if DEBUG
         }
     }
     #the last word
     if (scalar @forms > 0) {
         $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms);
         $self->apply_rules();
+        if ($self->{WORD}) {
+            print $self->{WORD}->to_string()."\n";
+        }
     }
     close F;
 }
 sub read_rules {
-    if (DEBUG) {
-        print STDERR "Reading rules\n";
-    }
+    print STDERR "Reading rules\n" if DEBUG;
     my $self = shift;
     my $path = shift;
     my $rule_ref = undef;
@@ -89,9 +89,7 @@ sub read_rules {
             #adding the previous rule if it exists
             if ($rule_ref) {
                 push @{$self->{RULES}}, $$rule_ref;
-                if (DEBUG) {
-                    print STDERR "Reading rule #".$#{$self->{RULES}}."\n";
-                }
+                print STDERR "Reading rule #".$#{$self->{RULES}}."\n" if DEBUG;
             }
             #new rule
             my $rule = {};
@@ -114,9 +112,7 @@ sub read_rules {
     #the last rule
     if ($rule_ref) {
         push @{$self->{RULES}}, $$rule_ref;
-        if (DEBUG) {
-            print STDERR "Reading rule #".$#{$self->{RULES}}."\n";
-        }
+        print STDERR "Reading rule #".$#{$self->{RULES}}."\n" if DEBUG;
     }
 }
 sub parse_condition_string {
@@ -202,10 +198,10 @@ sub parse_action_string {
     my @gram_in;
     my @gram_out;
     chomp $str;
-    if ($str =~ /CHANGE\s*\((.+?)\s*->\s*(.+)\)/i) {
+    if ($str =~ /CHANGE\s*\((.+?)?\s*->\s*(.+)?\)/i) {
         $action->{TYPE} = ACTION_TYPE_CHANGE;
-        @gram_in = split /,/, $1;
-        @gram_out = split /,/, $2;
+        @gram_in = split /,/, $1 if $1;
+        @gram_out = split /,/, $2 if $2;
         map { $_ =~ s/\s//g; } @gram_in;
         for my $i(0..$#gram_in) {
             if ($gram_in[$i] eq '') {
@@ -236,7 +232,7 @@ sub apply_rules {
     print STDERR "Applying rules\n" if (DEBUG);
     my $self = shift;
     GF:for my $rule(@{$self->{RULES}}) {
-            print STDERR "Checking rule ".$rule->{ID}."\n" if DEBUG;
+        print STDERR "Checking rule ".$rule->{ID}."\n" if DEBUG;
         if ($rule->{TYPE} == RULE_TYPE_GLOBAL) {
             print STDERR "Global, applying\n" if DEBUG;
             $self->apply_rule($rule);
@@ -315,22 +311,34 @@ sub apply_rule {
     my $self = shift;
     my $rule = shift;
     my $word = $self->{WORD};
+    if ($word->rule_applied($rule)) {
+        print STDERR "    Rule already applied, skipping\n" if DEBUG;
+        return;
+    }
     print STDERR "    Applying rule ".$rule->{ID}."\n" if DEBUG;
     for my $action(@{$rule->{ACTIONS}}) {
         if ($action->{TYPE} == ACTION_TYPE_CHANGE) {
             print STDERR "    Change\n" if DEBUG;
             $word->change_grammems($action->{GRAMMEMS_IN}, $action->{GRAMMEMS_OUT});
+            push @{$word->{APPLIED_RULES}}, $rule->{ID};
         }
         elsif ($action->{TYPE} == ACTION_TYPE_SPLIT) {
+            #any rule with SPLIT must be last
+            $rule->{IS_LAST} = 1;
             print STDERR "    Split\n" if DEBUG;
-            my @new_words = $word->split_lemma($action->{GRAMMEMS_IN});
-            if (@new_words == 1) {
+            my @new_words = @{$word->split_lemma($action->{GRAMMEMS_IN})};
+            if (scalar @new_words == 1) {
+                warn "Warning: Splitting '".$word->{LEMMA}."' results in one word, skipping";
                 return;
             }
             for my $new_word(@new_words) {
+                push @{$new_word->{APPLIED_RULES}}, $rule->{ID};
+                push @{$new_word->{APPLIED_RULES}}, @{$word->{APPLIED_RULES}} if $word->{APPLIED_RULES};
                 $self->{WORD} = $new_word;
                 $self->apply_rules();
+                print $self->{WORD}->to_string()."\n";
             }
+            $self->{WORD} = undef;
         }
         else {
             die "Error: Wrong ACTION_TYPE";

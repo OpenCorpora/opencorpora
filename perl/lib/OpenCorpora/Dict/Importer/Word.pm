@@ -4,21 +4,24 @@ use strict;
 use warnings;
 use utf8;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 sub new {
-    if (DEBUG) {
-        print STDERR "Creating Word\n";
-    }
+    #a Word may be created either with a set of forms or without one
+    print STDERR "Creating Word\n" if DEBUG;
     my ($class, $ref) = @_;
  
     my $self = {};
     $self->{LEMMA} = undef;
     $self->{FORMS} = undef;
+    $self->{APPLIED_RULES} = undef;
 
     if (!$ref) {
-        die "Cannot dereference";
+        #no forms given
+        bless $self;
+        return $self;
     }
+
     my @forms = @$ref;
     #adding forms
     for my $form_string(@forms) {
@@ -53,6 +56,15 @@ sub form_has_gram {
         }
     }
     return 0;
+}
+sub count_form_has_gram {
+    my $form = shift;
+    my @search = @{shift()};
+    my $count = 0;
+    for my $search(@search) {
+        form_has_gram($form, $search) && $count++;
+    }
+    return $count;
 }
 sub form_has_all_grams {
     my $self = shift;
@@ -93,21 +105,67 @@ sub change_grammems {
     my @in = @{shift()};
     my %in; $in{$_} = 1 for (@in);
     my @out = @{shift()};
-    my %out; $out{$_} = 1 for (@out);
     for my $form(@{$self->{FORMS}}) {
         if ($self->form_has_all_grams($form, \@in)) {
             my @new_grams;
             for my $gram(@{$form->{GRAMMEMS}}) {
                 push (@new_grams, $gram) if !exists $in{$gram};
             }
-            push (@new_grams, $_) for(keys %out);
+            push (@new_grams, $_) for(@out);
+            $form->{GRAMMEMS} = \@new_grams;
         }
     }
     return $self;
 }
 sub split_lemma {
     my $self = shift;
-    return [$self];
+    my @grammems = @{shift()};
+    my %new_words;
+    my @out_words;
+    my $has_aster = 0;
+    my $ok;
+    print STDERR "    split with (".join(',', @grammems).")\n" if DEBUG;
+    #check if there is '*'
+    for my $gram(@grammems) {
+        if ($gram eq '*') {
+            $has_aster = 1;
+            last;
+        }
+    }
+    #splitting itself
+    for my $form(@{$self->{FORMS}}) {
+        $ok = 0;
+        #check if any form has more than one of @grammems
+        if (count_form_has_gram($form, \@grammems) > 1) {
+            warn "Warning: Form '".$form->{TEXT}."' has several grammems among (".join(',', @grammems)."), cannot split, skipping";
+            return [$self];
+        }
+        for my $gram(@grammems) {
+            if (form_has_gram($form, $gram)) {
+                push @{$new_words{$gram}}, $form;
+                $ok = 1;
+                last;
+            }
+        }
+        if (!$ok) {
+            if ($has_aster) {
+                push @{$new_words{'*'}},  $form;
+            }
+            else {
+                warn "Warning: Form '".$form->{TEXT}."' has no grammems among (".join(',', @grammems)."), cannot split, skipping";
+                return [$self];
+            }
+        }
+    }
+    #split successful, now we should construct Word's
+    for my $k(keys %new_words) {
+        my $word = new();
+        my @forms = @{$new_words{$k}};
+        $word->{LEMMA} = $forms[0]->{TEXT};
+        $word->{FORMS} = \@forms;
+        push @out_words, $word;
+    }
+    return \@out_words;
 }
 sub to_lower {
     my $s = shift;
@@ -117,6 +175,24 @@ sub to_lower {
 sub get_form_count {
     my $self = shift;
     return scalar @{$self->{FORMS}};
+}
+sub rule_applied {
+    my $self = shift;
+    my $rule = shift;
+    for my $r(@{$self->{APPLIED_RULES}}) {
+        if ($r == $rule->{ID}) {
+            return 1;
+        }
+    }
+    return 0;
+}
+sub to_string {
+    my $self = shift;
+    my $out;
+    for my $form(@{$self->{FORMS}}) {
+        $out .= $form->{TEXT}."\t".join(',', @{$form->{GRAMMEMS}})."\n";
+    }
+    return $out;
 }
 
 1;
