@@ -12,6 +12,14 @@ switch($action) {
         } else
             show_error($config['msg_notadmin']);
         break;
+    case 'move_gg':
+        if (is_admin()) {
+            $group = (int)$_GET['id'];
+            $dir = $_GET['dir'];
+            move_gramtype($group, $dir);
+        } else
+            show_error($config['msg_notadmin']);
+        break;
     case 'add_gram':
         if (is_admin()) {
             $name = mysql_real_escape_string($_POST['g_name']);
@@ -19,6 +27,24 @@ switch($action) {
             $aot_id = mysql_real_escape_string($_POST['aot_id']);
             $descr = mysql_real_escape_string($_POST['descr']);
             add_grammem($name, $group, $aot_id, $descr);
+        } else
+            show_error($config['msg_notadmin']);
+        break;
+    case 'move_gram':
+        if (is_admin()) {
+            $grm = (int)$_GET['id'];
+            $dir = $_GET['dir'];
+            move_grammem($grm, $dir);
+        } else
+            show_error($config['msg_notadmin']);
+        break;
+    case 'edit_gram':
+        if (is_admin()) {
+            $id = (int)$_POST['id'];
+            $inner_id = mysql_real_escape_string($_POST['inner_id']);
+            $outer_id = mysql_real_escape_string($_POST['outer_id']);
+            $descr = mysql_real_escape_string($_POST['descr']);
+            edit_grammem($id, $inner_id, $outer_id, $descr);
         } else
             show_error($config['msg_notadmin']);
         break;

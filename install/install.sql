@@ -118,8 +118,9 @@ CREATE TABLE IF NOT EXISTS `gram_types` (
 CREATE TABLE IF NOT EXISTS `gram` (
     `gram_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `gram_type`  INT UNSIGNED NOT NULL,
-    `aot_id`     VARCHAR(20) NOT NULL,
-    `gram_name`  VARCHAR(20) NOT NULL,
+    `inner_id`   VARCHAR(20) NOT NULL,
+    `outer_id`   VARCHAR(20) NOT NULL,
     `gram_descr` VARCHAR(50) NOT NULL,
+    `orderby`    SMALLINT NOT NULL,
     INDEX (`gram_type`)
 );

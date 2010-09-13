@@ -31,7 +31,7 @@ if (is_admin() && isset($_GET['debug']) && $debug = $_GET['debug']) {
 }
 
 //admin pretends that he is a user
-if ($_SESSION['user_group'] > 5 && isset($_GET['pretend']) && $pretend = $_GET['pretend']) {
+if (is_logged() && $_SESSION['user_group'] > 5 && isset($_GET['pretend']) && $pretend = $_GET['pretend']) {
     if ($pretend == 'on')
         $_SESSION['user_group'] = 6;
     elseif ($pretend == 'off')

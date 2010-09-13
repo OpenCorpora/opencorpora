@@ -279,3 +279,10 @@ function dict_add_form(a_el) {
     new_tr.appendChild(new_td);
     tbody.appendChild(new_tr);
 }
+function edit_gram(tr, gram_id) {
+    var tr = tr.parentNode.parentNode;
+    tr.firstChild.innerHTML = '<input name="inner_id" size="10" maxlength="20" value="'+tr.firstChild.innerHTML+'"/>'
+    tr.childNodes[1].innerHTML = '<input name="outer_id" size="10" maxlength="20" value="'+tr.childNodes[1].innerHTML+'"/>'
+    tr.childNodes[2].innerHTML = '<input name="descr" size="20" value="'+tr.childNodes[2].innerHTML+'"/>'
+    tr.lastChild.innerHTML += ' <input type="hidden" name="id" value="'+gram_id+'"/><input type="submit" value="Сохранить"/>';
+}
