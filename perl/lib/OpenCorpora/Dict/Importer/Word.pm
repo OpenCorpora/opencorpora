@@ -115,7 +115,6 @@ sub change_grammems {
             $form->{GRAMMEMS} = \@new_grams;
         }
     }
-    return $self;
 }
 sub split_lemma {
     my $self = shift;
@@ -166,6 +165,32 @@ sub split_lemma {
         push @out_words, $word;
     }
     return \@out_words;
+}
+sub generate_paradigm {
+    my $self = shift;
+    if ($self->get_form_count() > 1) {
+        warn "Warning: Word ".$self->{LEMMA}." has more than one form, cannot generate full paradigm, skipping";
+        return;
+    }
+    my @gram = @{shift()};
+    for my $gr(@gram) {
+        $self->generate_paradigm_plain($gr);
+    }
+}
+sub generate_paradigm_plain {
+    my $self = shift;
+    my @gram = @{shift()};
+    my @new_forms;
+    for my $form(@{$self->{FORMS}}) {
+        for my $g(@gram) {
+            my $new_form = {};
+            $new_form->{TEXT} = $form->{TEXT};
+            my @new_grams = (@{$form->{GRAMMEMS}}, $g);
+            $new_form->{GRAMMEMS} = \@new_grams;
+            push @new_forms, $new_form;
+        }
+    }
+    $self->{FORMS} = \@new_forms;
 }
 sub to_lower {
     my $s = shift;

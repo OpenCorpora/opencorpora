@@ -16,6 +16,8 @@ use constant REL_TYPE_AND => 1;
 use constant REL_TYPE_OR => 2;
 use constant ACTION_TYPE_CHANGE => 1;
 use constant ACTION_TYPE_SPLIT => 2;
+use constant ACTION_TYPE_GENERATE => 3;
+
 use constant DEBUG => 0;
 use constant STOP_AFTER => 5;
 
@@ -100,7 +102,7 @@ sub read_rules {
             $rule->{IS_LAST} = 0;
             $rule_ref = \parse_condition_string($rule, $1);
         }
-        elsif (/[\s\t]+((?:CHANGE|SPLIT)\s*\(.+\))/i) {
+        elsif (/[\s\t]+((?:CHANGE|SPLIT|GENERATE)\s*\(.+\))/i) {
             #this is an action
             my $action = parse_action_string($1);
             push @{$$rule_ref->{ACTIONS}}, $action;
@@ -221,6 +223,26 @@ sub parse_action_string {
         $action->{TYPE} = ACTION_TYPE_SPLIT;
         @gram_in = split /,/, $1;
         map { $_ =~ s/\s//g; } @gram_in;
+        for my $i(0..$#gram_in) {
+            if ($gram_in[$i] eq '') {
+                delete $gram_in[$i];
+            }
+        }
+        $action->{GRAMMEMS_IN} = \@gram_in;
+    }
+    elsif($str =~ /GENERATE\s*\((.+)\)/i) {
+        $action->{TYPE} = ACTION_TYPE_GENERATE;
+        my @gram = split /;/, $1;
+        for my $g(@gram) {
+            my @gram1 = split /,/, $g;
+            map { $_ =~ s/\s//g; } @gram1;
+            for my $i(0..$#gram1) {
+                if ($gram1[$i] eq '') {
+                    delete $gram1[$i];
+                }
+            }
+            push @gram_in, \@gram1;
+        }
         $action->{GRAMMEMS_IN} = \@gram_in;
     }
     else {
@@ -339,6 +361,11 @@ sub apply_rule {
                 print $self->{WORD}->to_string()."\n";
             }
             $self->{WORD} = undef;
+        }
+        elsif ($action->{TYPE} == ACTION_TYPE_GENERATE) {
+            print STDERR "    Generate\n" if DEBUG;
+            $word->generate_paradigm($action->{GRAMMEMS_IN});
+            push @{$word->{APPLIED_RULES}}, $rule->{ID};
         }
         else {
             die "Error: Wrong ACTION_TYPE";
