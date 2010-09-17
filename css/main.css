@@ -5,6 +5,9 @@ body {
     margin: 0px;
     padding: 0px;
 }
+h1 {
+    font-size: 26px;
+}
 div#pre_header {
     padding: 5px 10px;
     background-color: #F69;

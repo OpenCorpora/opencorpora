@@ -1,9 +1,6 @@
 {* Smarty *}
-{if $bad_browser == 1}
-<div id='pre_header'>Вы используете браузер Internet Explorer, который может некорректно отображать наш сайт. Рекомендуем поменять браузер.</div>
-{/if}
 <div id='header'>
-<div id='lblock'><a href='{$web_prefix}/'>Home</a></div>
+<div id='lblock'><a href='{$web_prefix}/'>Home</a>&nbsp;&nbsp;&nbsp;<span class='small'>&alpha;-версия</small></div>
 {strip}
 <div id='rblock'>
 {if $smarty.session.user_id}
