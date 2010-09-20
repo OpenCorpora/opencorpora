@@ -8,6 +8,10 @@ my $dict_items_count;
 
 my %paradigm; # id -> ref.to.array -> ref.to.hash -> { flex => "", $grm => "" }
 
+if ($#ARGV < 1) {
+  print "Hint: perl list_paradigms.pl morphs.mrd\n";
+  die;
+}
 my $mrd_fn = $ARGV[0];
 
 open ( my $mrd_fh, $mrd_fn ) || die "can't open $mrd_fn";
