@@ -168,6 +168,7 @@ sub read_grm_tab
 
     my ( $ancode, $smth, $pos, $grm_str ) = split( /\s+/, $_ );
     my @grammems = split( /,/, $grm_str );
+    $grm_str =~ s/мн,мн/мн,pl/;
     $grmtab{ $ancode } = "$pos, $grm_str";
   }
 
