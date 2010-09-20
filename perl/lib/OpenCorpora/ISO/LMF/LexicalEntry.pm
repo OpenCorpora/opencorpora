@@ -30,9 +30,10 @@ sub lemma_text {
   my $self = shift;
   if (@_) {
     my $text = shift;
-    $self->{lemma}->{text} = $text_;
+    $self->{lemma}->{text} = $text;
   }
 
   return $self->{lemma}->{text};
 }
 
+1;
