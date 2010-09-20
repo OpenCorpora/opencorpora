@@ -8,7 +8,7 @@ my $dict_items_count;
 
 my %paradigm; # id -> ref.to.array -> ref.to.hash -> { flex => "", $grm => "" }
 
-if ($#ARGV < 1) {
+if ($#ARGV < 0) {
   print "Hint: perl list_paradigms.pl morphs.mrd\n";
   die;
 }
