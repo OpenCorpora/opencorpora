@@ -97,7 +97,7 @@ foreach $d ( keys %dict )
 {
   my $stem = $dict{ $d }->{ "stem" };
   my $pid = $dict{ $d }->{ "pid" };
-#  print "$stem $pid\n";
+  print "PARA $pid\n";
   
   my $f;
   foreach $f ( @{ $paradigm{ $pid } } )
