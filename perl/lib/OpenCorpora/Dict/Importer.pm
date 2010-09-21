@@ -19,17 +19,16 @@ use constant ACTION_TYPE_SPLIT => 2;
 use constant ACTION_TYPE_GENERATE => 3;
 
 use constant DEBUG => 0;
-use constant STOP_AFTER => 5;
+use constant STOP_AFTER => 50;
 
 sub new {
-    if (DEBUG) {
-        print STDERR "Creating Importer\n";
-    }
+    print STDERR "Creating Importer\n" if DEBUG;
     my($class, %args) = @_;
  
     my $self = {};
     $self->{RULES} = undef;
     $self->{WORD} = undef;
+    $self->{STATS} = undef;
  
     bless $self;
     #return is implicit in bless
@@ -38,6 +37,7 @@ sub read_aot {
     my $self = shift;
     my $path = shift;
     my @forms;
+    my $para_no = undef;
     my $counter;
     open F, $path or die "Error: Cannot read $path";
     binmode(F, ':utf8');
@@ -46,31 +46,41 @@ sub read_aot {
             print STDERR $_ if DEBUG;
             push @forms, $_;
         }
+        elsif (/PARA (\d+)/) {
+            $para_no = $1;
+        }
         elsif (/\S/) {
             warn "Warning: Bad string: <$_>";
         }
         elsif (scalar @forms > 0) {
             $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms);
-            $self->apply_rules();
-            if ($self->{WORD}) {
+            ++$self->{STATS}->{TOTAL}->{$para_no};
+            my $applied = $self->apply_rules();
+            $self->{STATS}->{APPLIED}->{$para_no} += $applied;
+            if ($self->{WORD}->{LEMMA}) {
                 print $self->{WORD}->to_string()."\n";
             }
             @forms = ();
-            if (++$counter == STOP_AFTER) {
+            $para_no = undef;
+            ++$counter;
+            print STDERR "====================\n" if DEBUG;
+            if ($counter == STOP_AFTER && STOP_AFTER>0) {
                 last;
             }
-            print STDERR "====================\n" if DEBUG
         }
     }
     #the last word
     if (scalar @forms > 0) {
         $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms);
-        $self->apply_rules();
-        if ($self->{WORD}) {
+        ++$self->{STATS}->{TOTAL}->{$para_no};
+        my $applied = $self->apply_rules();
+        $self->{STATS}->{APPLIED}->{$para_no} += $applied;
+        if ($self->{WORD}->{LEMMA}) {
             print $self->{WORD}->to_string()."\n";
         }
     }
     close F;
+    $self->print_stats();
 }
 sub read_rules {
     print STDERR "Reading rules\n" if DEBUG;
@@ -251,14 +261,16 @@ sub parse_action_string {
     return $action;
 }
 sub apply_rules {
-    print STDERR "Applying rules\n" if (DEBUG);
+    #returns 1 if at least 1 rule was applied
     my $self = shift;
+    my $applied = 0;
+    print STDERR "Applying rules to ".$self->{WORD}->{LEMMA}.' ('.$self->{WORD}->get_form_count()." forms)\n" if DEBUG;
     GF:for my $rule(@{$self->{RULES}}) {
         print STDERR "Checking rule ".$rule->{ID}."\n" if DEBUG;
         if ($rule->{TYPE} == RULE_TYPE_GLOBAL) {
             print STDERR "Global, applying\n" if DEBUG;
-            $self->apply_rule($rule);
-            last GF if $rule->{IS_LAST};
+            my $res = $self->apply_rule($rule);
+            last GF if $rule->{IS_LAST} && $res;
         }
         elsif ($rule->{TYPE} == RULE_TYPE_ALL) {
             my $test = 1;
@@ -271,8 +283,9 @@ sub apply_rules {
                 }
             }
             if ($test) {
-                $self->apply_rule($rule);
-                last GF if $rule->{IS_LAST};
+                my $res = $self->apply_rule($rule);
+                $applied = 1 if $res;
+                last GF if $rule->{IS_LAST} && $res;
             }
         }
         elsif ($rule->{TYPE} == RULE_TYPE_ANY) {
@@ -280,8 +293,9 @@ sub apply_rules {
                 print STDERR "Condition check\n" if DEBUG;
                 if ($self->test_condition($c)) {
                     print STDERR "Condition check ok\n" if DEBUG;
-                    $self->apply_rule($rule);
-                    last GF if $rule->{IS_LAST};
+                    my $res = $self->apply_rule($rule);
+                    $applied = 1 if $res;
+                    last GF if $rule->{IS_LAST} && $res;
                     last;
                 }
             }
@@ -290,6 +304,7 @@ sub apply_rules {
             die "Error: Wrong RULE_TYPE";
         }
     }
+    return $applied;
 }
 sub test_condition {
     my $self = shift;
@@ -335,7 +350,7 @@ sub apply_rule {
     my $word = $self->{WORD};
     if ($word->rule_applied($rule)) {
         print STDERR "    Rule already applied, skipping\n" if DEBUG;
-        return;
+        return 0;
     }
     print STDERR "    Applying rule ".$rule->{ID}."\n" if DEBUG;
     for my $action(@{$rule->{ACTIONS}}) {
@@ -370,6 +385,15 @@ sub apply_rule {
         else {
             die "Error: Wrong ACTION_TYPE";
         }
+    }
+    return 1;
+}
+sub print_stats {
+    my $self = shift;
+    my %total = %{$self->{STATS}->{TOTAL}};
+    my %applied = %{$self->{STATS}->{APPLIED}};
+    for my $k(sort {$total{$b} <=> $total{$a}} sort {$a<=>$b} keys %total) {
+        printf STDERR "PARA %-4s %5s of %5s\n", $k, $applied{$k}, $total{$k};
     }
 }
 
