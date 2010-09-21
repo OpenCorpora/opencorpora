@@ -31,7 +31,7 @@
     <table border="1" cellspacing="0" cellpadding="2">
         <tr><th>Внутр. ID<th>Внешн. ID<th>Описание{if $is_admin}<th>&nbsp;{/if}</tr>
         {foreach key=id item=group from=$editor.groups}
-            <tr><td colspan="2"><b>{$group.name}</b><td>&nbsp;{if $is_admin}<td>[<a href='?act=move_gg&dir=up&id={$id}'>вверх</a>] [<a href='?act=move_gg&dir=down&id={$id}'>вниз</a>]{else}&nbsp;{/if}</tr>
+            <tr><td colspan="2"><b>{$group.name}</b><td>&nbsp;{if $is_admin}<td>[<a href='?act=move_gg&dir=up&id={$id}'>вверх</a>] [<a href='?act=move_gg&dir=down&id={$id}'>вниз</a>] [<a href='?act=del_gg&id={$id}' onClick="return confirm('Вы уверены?');">x</a>]{else}&nbsp;{/if}</tr>
             {foreach item=grammem from=$group.grammems}
                 <tr><td>{$grammem.name}<td>{$grammem.aot_id|default:'&nbsp;'}<td>{$grammem.description}{if $is_admin}<td>[<a href='?act=move_gram&dir=up&id={$grammem.id}'>вверх</a>] [<a href='?act=move_gram&dir=down&id={$grammem.id}'>вниз</a>] [<a href='#' onClick='edit_gram(this, {$grammem.id}); return false;'>ред.</a>]{else}&nbsp;{/if}</tr>
             {/foreach}

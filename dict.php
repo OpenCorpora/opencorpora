@@ -20,6 +20,13 @@ switch($action) {
         } else
             show_error($config['msg_notadmin']);
         break;
+    case 'del_gg':
+        if (is_admin()) {
+            $group = (int)$_GET['id'];
+            del_gramtype($group);
+        } else
+            show_error($config['msg_notadmin']);
+        break;
     case 'add_gram':
         if (is_admin()) {
             $name = mysql_real_escape_string($_POST['g_name']);
