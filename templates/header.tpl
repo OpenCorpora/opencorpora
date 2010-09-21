@@ -18,6 +18,7 @@
             &nbsp;[<a href='?pretend=on'>притвориться юзером</a>]
         {/if}
     {/if}
+    &nbsp;[<a href='{$web_prefix}/options.php'>настройки</a>]
     &nbsp;[<a href='{$web_prefix}/login.php?act=logout'>выйти</a>]
 {else}
     <a href='{$web_prefix}/login.php'>Вход/Регистрация</a>

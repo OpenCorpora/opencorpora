@@ -49,6 +49,20 @@ CREATE TABLE IF NOT EXISTS `users` (
     `user_reg`    INT UNSIGNED NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS `user_options` (
+    `user_id`      INT UNSIGNED NOT NULL,
+    `option_id`    SMALLINT NOT NULL,
+    `option_value` VARCHAR(32) NOT NULL,
+    INDEX (`user_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `user_options_types` (
+    `option_id`     SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `option_name`   VARCHAR(50),
+    `option_values` VARCHAR(64),
+    `order_by`      SMALLINT UNSIGNED NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS `tf_revisions` (
     `rev_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `set_id`   INT UNSIGNED NOT NULL,
