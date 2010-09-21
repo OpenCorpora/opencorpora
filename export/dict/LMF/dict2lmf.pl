@@ -13,7 +13,7 @@ binmode(STDERR, ":encoding(utf-8)");
 
 my $dictReader = OpenCorpora::Dict::SimpleReader->new(handlers => {lemma => \&processLemma});
 
-my $lmf_lexical_resource = OpenCorpora::ISO::LMF::LexicalResource->new(dtdRevision => "16.opecorpora.1");
+my $lmf_lexical_resource = OpenCorpora::ISO::LMF::LexicalResource->new(dtdRevision => "16.opencorpora.1");
 # dtdRevision code - ISO dtd revision number + "opencorpora" + our revision number
 # our LMF implementation have following changes from ISO specification:
 # - attributes (att) in <feat> tag are to be uniq (is this specified anywhere?)
