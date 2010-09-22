@@ -3,7 +3,6 @@
 use strict;
 use utf8;
 use DBI;
-use HTML::Entities qw/encode_entities/;
 
 my $lock_path = "/var/lock/opcorpora_export_dict.lock";
 if (-f $lock_path) {
