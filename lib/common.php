@@ -2,7 +2,9 @@
 require_once('lib_users.php');
 
 //sql wrappers
-function sql_query($q, $debug=1) {
+function sql_query($q, $debug=1, $override_readonly=0) {
+    if (file_exists('/var/lock/oc_readonly.lock') && stripos($q, 'select') !== 0 && !$override_readonly) 
+        return false;
     $debug = isset($_SESSION['debug_mode']) && $debug;
     if ($debug)
         $time_start = microtime(true);

@@ -188,7 +188,8 @@ function dict_save($array) {
     $upd_forms = array_unique($upd_forms);
     foreach($upd_forms as $upd_form) {
         if (!sql_query("INSERT INTO `updated_forms` VALUES('".mysql_real_escape_string($upd_form)."')")) {
-            die("Error at updated_forms :(");
+            show_error("Error at updated_forms :(");
+            exit;
         }
     }
     //array -> xml
@@ -198,7 +199,7 @@ function dict_save($array) {
         $res = new_dict_rev($array['lemma_id'], $new_xml);
         if ($res) {
             header("Location:dict.php?act=edit&saved&id=".$array['lemma_id']);
-        } else die("Error on saving");
+        } else show_error("Error on saving");
     } else {
         header("Location:dict.php?act=edit&id=".$array['lemma_id']);
     }

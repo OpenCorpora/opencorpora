@@ -59,6 +59,8 @@ function get_user_options($user_id) {
     return $out;
 }
 function save_user_options($post) {
+    if (!isset($post['options']))
+        header('Location:options.php');
     foreach($post['options'] as $id=>$value) {
         if($_SESSION['options'][$id]['value'] != $value) {
             if(!sql_query("UPDATE user_options SET option_value='".mysql_real_escape_string($value)."' WHERE option_id=".mysql_real_escape_string($id)." AND user_id=".$_SESSION['user_id']." LIMIT 1")) {

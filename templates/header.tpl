@@ -1,4 +1,7 @@
 {* Smarty *}
+{if $readonly == 1}
+<div id='pre_header'>Система находится в режиме &laquo;только для чтения&raquo;.</div>
+{/if}
 <div id='header'>
 <div id='lblock'><a href='{$web_prefix}/'>Home</a>&nbsp;&nbsp;&nbsp;<span class='small'>&alpha;-версия</small></div>
 {strip}
