@@ -29,7 +29,7 @@ $dbh->do("SET NAMES utf8");
 my $rev = $dbh->prepare("SELECT MAX(rev_id) AS m FROM dict_revisions");
 my $read_gg = $dbh->prepare("SELECT * FROM gram_types ORDER by `orderby`");
 my $read_g = $dbh->prepare("SELECT inner_id FROM gram WHERE gram_type=? ORDER BY `orderby`");
-my $read_l = $dbh->prepare("SELECT * FROM (SELECT lemma_id, rev_id, rev_text FROM dict_revisions WHERE lemma_id<10 ORDER BY lemma_id, rev_id DESC) T GROUP BY T.lemma_id");
+my $read_l = $dbh->prepare("SELECT * FROM (SELECT lemma_id, rev_id, rev_text FROM dict_revisions ORDER BY lemma_id, rev_id DESC) T GROUP BY T.lemma_id");
 
 $rev->execute();
 my $r = $rev->fetchrow_hashref();
@@ -54,9 +54,8 @@ my $lemmata = "<lemmata>\n";
 
 $read_l->execute();
 while($r = $read_l->fetchrow_hashref()) {
-    $r->{'rev_text'} =~ s/<l/<l id="$r->{'lemma_id'}" rev="$r->{'rev_id'}"/;
     $r->{'rev_text'} =~ s/<\/?dr>//g;
-    $lemmata .= '    '.$r->{'rev_text'}."\n";
+    $lemmata .= '    <lemma id="'.$r->{'lemma_id'}.'" rev="'.$r->{'rev_id'}.'">'.$r->{'rev_text'}."</lemma>\n";
 }
 $lemmata .= "</lemmata>\n";
 
