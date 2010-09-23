@@ -90,6 +90,7 @@ sub read_rules {
     open F, $path or die "Error: Cannot read $path";
     binmode(F, ':utf8');
     while(<F>) {
+        s/^\x{feff}//;
         if (/^\s*\#/) {
             next; #skipping comments
         }
