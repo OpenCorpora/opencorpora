@@ -83,4 +83,11 @@ function get_common_stats() {
     $stats['cnt_forms'] = $r['cnt_forms'];
     return $stats;
 }
+function get_downloads_info() {
+    $dict = array();
+    $stat = stat('files/export/dict/dict.opcorpora.xml.bz2');
+    $dict['size'] = sprintf("%.3f", $stat[7] / (1024 * 1024));
+    $dict['updated'] = date('d.m.Y в H:i UTC', $stat[9]);
+    return array('dict'=>$dict);
+}
 ?>
