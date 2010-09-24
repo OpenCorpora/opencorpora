@@ -86,8 +86,8 @@ function get_common_stats() {
 function get_downloads_info() {
     $dict = array();
     $stat = stat('files/export/dict/dict.opcorpora.xml.bz2');
-    $dict['size'] = sprintf("%.3f", $stat[7] / (1024 * 1024));
-    $dict['updated'] = date('d.m.Y в H:i UTC', $stat[9]);
+    $dict['size'] = sprintf("%.2f", $stat[7] / (1024 * 1024));
+    $dict['updated'] = date('d.m.Y H:i \U\T\C', $stat[9]);
     return array('dict'=>$dict);
 }
 ?>
