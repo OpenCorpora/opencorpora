@@ -4,6 +4,11 @@ use strict;
 use warnings;
 use utf8;
 
+use Getopt::constant (
+    'DEBUG' => 0,
+    'STOP_AFTER' => 0
+);
+
 use OpenCorpora::Dict::Importer::Word;
 
 use constant RULE_TYPE_ALL => 1;
@@ -17,9 +22,6 @@ use constant REL_TYPE_OR => 2;
 use constant ACTION_TYPE_CHANGE => 1;
 use constant ACTION_TYPE_SPLIT => 2;
 use constant ACTION_TYPE_GENERATE => 3;
-
-use constant DEBUG => 0;
-use constant STOP_AFTER => 50;
 
 sub new {
     print STDERR "Creating Importer\n" if DEBUG;
