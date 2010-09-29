@@ -9,7 +9,14 @@ if (is_logged()) {
         case 'save':
             save_user_options($_POST);
             break;
+        case 'save_meta':
+            if (is_admin())
+                save_meta_options($_POST);
+            else
+                show_error($config['msg_notadmin']);
+            break;
         default:
+            $smarty->assign('meta', get_meta_options());
             $smarty->display('options.tpl');
     }
 } else

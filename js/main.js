@@ -286,3 +286,24 @@ function edit_gram(tr, gram_id) {
     tr.childNodes[2].innerHTML = '<input name="descr" size="20" value="'+tr.childNodes[2].innerHTML+'"/>'
     tr.lastChild.innerHTML += ' <input type="hidden" name="id" value="'+gram_id+'"/><input type="submit" value="Сохранить"/>';
 }
+function add_meta_option() {
+    var tbody = byid('tbl_meta_options').lastChild;
+    var new_tr = document.createElement('tr');
+    var new_td = document.createElement('td');
+    var new_input = document.createElement('input');
+    new_input.setAttribute('name', 'option_names[]');
+    new_td.appendChild(new_input);
+    new_tr.appendChild(new_td);
+    new_td = document.createElement('td');
+    new_input = document.createElement('input');
+    new_input.setAttribute('name', 'option_values[]');
+    new_td.appendChild(new_input);
+    new_tr.appendChild(new_td);
+    new_td = document.createElement('td');
+    new_input = document.createElement('input');
+    new_input.setAttribute('name', 'option_default[]');
+    new_input.setAttribute('value', 'default');
+    new_td.appendChild(new_input);
+    new_tr.appendChild(new_td);
+    tbody.appendChild(new_tr);
+}
