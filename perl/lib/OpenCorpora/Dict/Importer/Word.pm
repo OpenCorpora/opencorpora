@@ -9,12 +9,13 @@ use constant DEBUG => 0;
 sub new {
     #a Word may be created either with a set of forms or without one
     print STDERR "Creating Word\n" if DEBUG;
-    my ($class, $ref) = @_;
+    my ($class, $ref, $para_no) = @_;
  
     my $self = {};
     $self->{LEMMA} = undef;
     $self->{FORMS} = undef;
     $self->{APPLIED_RULES} = undef;
+    $self->{PARADIGM_NO} = $para_no;
 
     if (!$ref) {
         #no forms given
@@ -213,7 +214,7 @@ sub rule_applied {
 }
 sub to_string {
     my $self = shift;
-    my $out;
+    my $out = 'PARA '.($self->{PARADIGM_NO} ? $self->{PARADIGM_NO} : '-1')."\n";
     for my $form(@{$self->{FORMS}}) {
         $out .= $form->{TEXT}."\t".join(',', @{$form->{GRAMMEMS}})."\n";
     }

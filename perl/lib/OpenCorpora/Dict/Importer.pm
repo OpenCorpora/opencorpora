@@ -55,7 +55,7 @@ sub read_aot {
             warn "Warning: Bad string: <$_>";
         }
         elsif (scalar @forms > 0) {
-            $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms);
+            $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms, $para_no);
             ++$self->{STATS}->{TOTAL}->{$para_no};
             my $applied = $self->apply_rules();
             $self->{STATS}->{APPLIED}->{$para_no} += $applied;
@@ -73,7 +73,7 @@ sub read_aot {
     }
     #the last word
     if (scalar @forms > 0) {
-        $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms);
+        $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms, $para_no);
         ++$self->{STATS}->{TOTAL}->{$para_no};
         my $applied = $self->apply_rules();
         $self->{STATS}->{APPLIED}->{$para_no} += $applied;
@@ -395,9 +395,14 @@ sub print_stats {
     my $self = shift;
     my %total = %{$self->{STATS}->{TOTAL}};
     my %applied = %{$self->{STATS}->{APPLIED}};
+    my $applied = 0;
+    my $total = 0;
     for my $k(sort {$total{$b} <=> $total{$a}} sort {$a<=>$b} keys %total) {
-        printf STDERR "PARA %-4s %5s of %5s\n", $k, $applied{$k}, $total{$k};
+        printf STDERR "PARA %-4s %6s of %6s\n", $k, $applied{$k}, $total{$k};
+        $applied += $applied{$k};
+        $total += $total{$k};
     }
+    printf STDERR "TOTAL     %6s of %6s\n", $applied, $total;
 }
 
 1;
