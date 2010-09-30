@@ -56,10 +56,12 @@ sub read_aot {
         }
         elsif (scalar @forms > 0) {
             $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms, $para_no);
+            $self->update_gram_stats(0);
             ++$self->{STATS}->{TOTAL}->{$para_no};
             my $applied = $self->apply_rules();
             $self->{STATS}->{APPLIED}->{$para_no} += $applied;
             if ($self->{WORD}->{LEMMA}) {
+                $self->update_gram_stats(1);
                 print $self->{WORD}->to_string()."\n";
             }
             @forms = ();
@@ -74,10 +76,12 @@ sub read_aot {
     #the last word
     if (scalar @forms > 0) {
         $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms, $para_no);
+        $self->update_gram_stats(0);
         ++$self->{STATS}->{TOTAL}->{$para_no};
         my $applied = $self->apply_rules();
         $self->{STATS}->{APPLIED}->{$para_no} += $applied;
         if ($self->{WORD}->{LEMMA}) {
+            $self->update_gram_stats(1);
             print $self->{WORD}->to_string()."\n";
         }
     }
@@ -395,14 +399,39 @@ sub print_stats {
     my $self = shift;
     my %total = %{$self->{STATS}->{TOTAL}};
     my %applied = %{$self->{STATS}->{APPLIED}};
+    my %gram_b = %{$self->{STATS}->{GRAM_BEFORE}};
+    my %gram_a = %{$self->{STATS}->{GRAM_AFTER}};
     my $applied = 0;
     my $total = 0;
+    print STDERR "=== PARADIGM STATS ===\n";
     for my $k(sort {$total{$b} <=> $total{$a}} sort {$a<=>$b} keys %total) {
         printf STDERR "PARA %-4s %6s of %6s\n", $k, $applied{$k}, $total{$k};
         $applied += $applied{$k};
         $total += $total{$k};
     }
     printf STDERR "TOTAL     %6s of %6s\n", $applied, $total;
+    print STDERR "=== GRAMMEM STATS ===\n";
+    for my $k(sort {$gram_b{$b} <=> $gram_b{$a}} sort {$a cmp $b} keys %gram_b) {
+        printf STDERR "%12s %6s => %6s\n", $k, $gram_b{$k}, $gram_a{$k} ? $gram_a{$k} : 0;
+    }
+}
+sub update_gram_stats {
+    my $self = shift;
+    my $type = shift;
+    if ($type) {
+        #after applying
+        my @grams = @{$self->{WORD}->get_all_grammems()};
+        for my $gram(@grams) {
+            ++$self->{STATS}->{GRAM_AFTER}->{$gram};
+        }
+    }
+    else {
+        #before applying
+        my @grams = @{$self->{WORD}->get_all_grammems()};
+        for my $gram(@grams) {
+            ++$self->{STATS}->{GRAM_BEFORE}->{$gram};
+        }
+    }
 }
 
 1;

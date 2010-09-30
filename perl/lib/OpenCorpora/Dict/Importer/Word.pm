@@ -220,5 +220,16 @@ sub to_string {
     }
     return $out;
 }
+sub get_all_grammems {
+    my $self = shift;
+    my %all = ();
+    for my $form(@{$self->{FORMS}}) {
+        for my $gram(@{$form->{GRAMMEMS}}) {
+            $all{$gram} = 1;
+        }
+    }
+    my @keys = keys %all;
+    return \@keys;
+}
 
 1;
