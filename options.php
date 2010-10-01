@@ -19,6 +19,7 @@ if (is_logged()) {
             if (is_admin()) {
                 set_readonly_on();
                 header('Location:options.php');
+                return;
             } else
                 show_error($config['msg_notadmin']);
             break;
@@ -26,6 +27,7 @@ if (is_logged()) {
             if (is_admin()) {
                 set_readonly_off();
                 header('Location:options.php');
+                return;
             } else
                 show_error($config['msg_notadmin']);
             break;

@@ -28,6 +28,7 @@ if (is_admin() && isset($_GET['debug']) && $debug = $_GET['debug']) {
         unset ($_SESSION['debug_mode']);
     }
     header("Location:".$_SERVER['HTTP_REFERER']);
+    return;
 }
 
 //admin pretends that he is a user
@@ -37,6 +38,7 @@ if (is_logged() && $_SESSION['user_group'] > 5 && isset($_GET['pretend']) && $pr
     elseif ($pretend == 'off')
         $_SESSION['user_group'] = 7;
     header("Location:".$_SERVER['HTTP_REFERER']);
+    return;
 }
 
 //some globals

@@ -91,6 +91,7 @@ function save_user_options($post) {
         }
     }
     header('Location:options.php?saved=1');
+    return;
 }
 function save_meta_options($post) {
     if (!isset($post['option_names'])) {
@@ -127,6 +128,7 @@ function save_meta_options($post) {
         }
     }
     header('Location:options.php');
+    return;
 }
 function is_admin() {
     return (isset($_SESSION['user_group']) && $_SESSION['user_group']==7);

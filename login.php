@@ -6,14 +6,20 @@ else $action = '';
 if ($action=='login') {
     if (user_login(mysql_real_escape_string($_POST['login']), $_POST['passwd'])) {
         header('Location:'.$_SESSION['return_to']);
+        return;
     } else {
         header('Location:login.php?act=error');
+        return;
     }
 } elseif ($action=='logout') {
     user_logout();
     if (isset($_SERVER['HTTP_REFERER']))
         header('Location:'.$_SERVER['HTTP_REFERER']);
-    else header('Location:/');
+        return;
+    else {
+        header('Location:/');
+        return;
+    }
 } elseif ($action=='reg_done') {
     $smarty->assign('reg_status', user_register($_POST));
 }

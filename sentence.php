@@ -7,6 +7,7 @@ if (isset($_GET['id'])) {
     $id = (int)$_GET['id'];
 } else {
     header('Location:index.php');
+    return;
 }
 if (isset($_GET['act'])) {
     $action = $_GET['act'];

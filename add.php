@@ -10,6 +10,7 @@ if (is_admin()) {
                 die("Text adding failed");
             } else {
                 header("Location:add.php");
+                return;
             }
             break;
         case 'check':

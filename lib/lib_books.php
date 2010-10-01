@@ -55,6 +55,7 @@ function books_add($name, $parent_id=0) {
     }
     if (sql_query("INSERT INTO `books` VALUES(NULL, '$name', '$parent_id')")) {
         header("Location:books.php?book_id=$parent_id");
+        return;
     } else {
         show_error();
     }
@@ -66,6 +67,7 @@ function books_move($book_id, $to_id) {
     }
     if (sql_query("UPDATE `books` SET `parent_id`='$to_id' WHERE `book_id`=$book_id LIMIT 1")) {
         header("Location:books.php?book_id=$to_id");
+        return;
     } else {
         show_error();
     }
@@ -76,6 +78,7 @@ function books_rename($book_id, $name) {
     }
     if (sql_query("UPDATE `books` SET `book_name`='$name' WHERE `book_id`=$book_id LIMIT 1")) {
         header("Location:books.php?book_id=$book_id");
+        return;
     } else {
         show_error();
     }
@@ -96,6 +99,7 @@ function books_add_tag($book_id, $tag_name) {
         }
     }
     header("Location:books.php?book_id=$book_id");
+    return;
 }
 function books_del_tag($book_id, $tag_name) {
     if ($book_id && $tag_name) {
@@ -104,5 +108,6 @@ function books_del_tag($book_id, $tag_name) {
         }
     }
     header("Location:books.php?book_id=$book_id");
+    return;
 }
 ?>

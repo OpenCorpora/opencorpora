@@ -199,9 +199,11 @@ function dict_save($array) {
         $res = new_dict_rev($array['lemma_id'], $new_xml);
         if ($res) {
             header("Location:dict.php?act=edit&saved&id=".$array['lemma_id']);
+            return;
         } else show_error("Error on saving");
     } else {
         header("Location:dict.php?act=edit&id=".$array['lemma_id']);
+        return;
     }
 }
 function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
@@ -262,6 +264,7 @@ function add_gramtype($name) {
     $r = sql_fetch_array(sql_query("SELECT MAX(`orderby`) AS `m` FROM `gram_types`"));
     if (sql_query("INSERT INTO `gram_types` VALUES(NULL, '$name', '".($r['m']+1)."')")) {
         header("Location:dict.php?act=gram");
+        return;
     } else {
         show_error();
     }
@@ -282,26 +285,31 @@ function move_gramtype($group_id, $dir) {
             $ord2 = $r['ord'];
         }
     }
-    if (!isset($ord2))
+    if (!isset($ord2)) {
         header('Location:dict.php?act=gram');
+        return;
+    }
     if (sql_query("UPDATE `gram_types` SET `orderby`='$ord' WHERE `orderby`=$ord2 LIMIT 1") &&
         sql_query("UPDATE `gram_types` SET `orderby`='$ord2' WHERE `type_id`=$group_id LIMIT 1")) {
         header('Location:dict.php?act=gram');
+        return;
     } else {
         show_error();
     }
 }
 function del_gramtype($group_id) {
     if (sql_query("DELETE FROM `gram` WHERE gram_type=$group_id") &&
-        sql_query("DELETE FROM gram_types WHERE type_id=$group_id LIMIT 1"))
+        sql_query("DELETE FROM gram_types WHERE type_id=$group_id LIMIT 1")) {
         header('Location:dict.php?act=gram');
-    else
+        return;
+    } else
         show_error();
 }
 function add_grammem($inner_id, $group, $outer_id, $descr) {
     $r = sql_fetch_array(sql_query("SELECT MAX(`orderby`) AS `m` FROM `gram` WHERE `gram_type`=$group"));
     if (sql_query("INSERT INTO `gram` VALUES(NULL, '$group', '$inner_id', '$outer_id', '$descr', '".($r['m']+1)."')")) {
         header("Location:dict.php?act=gram");
+        return;
     } else {
         show_error();
     }
@@ -322,11 +330,14 @@ function move_grammem($grm_id, $dir) {
             $ord2 = $r['ord'];
         }
     }
-    if (!isset($ord2))
+    if (!isset($ord2)) {
         header('Location:dict.php?act=gram');
+        return;
+    }
     if (sql_query("UPDATE `gram` SET `orderby`='$ord' WHERE `orderby`=$ord2 LIMIT 1") &&
         sql_query("UPDATE `gram` SET `orderby`='$ord2' WHERE `gram_id`=$grm_id LIMIT 1")) {
         header('Location:dict.php?act=gram');
+        return;
     } else {
         show_error();
     }
@@ -334,6 +345,7 @@ function move_grammem($grm_id, $dir) {
 function edit_grammem($id, $inner_id, $outer_id, $descr) {
     if (sql_query("UPDATE `gram` SET `inner_id`='$inner_id', `outer_id`='$outer_id', `gram_descr`='$descr' WHERE `gram_id`=$id LIMIT 1")) {
         header('Location:dict.php?act=gram');
+        return;
     } else {
         show_error();
     }

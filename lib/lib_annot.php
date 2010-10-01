@@ -125,5 +125,6 @@ function sentence_save() {
         }
     }
     header("Location:sentence.php?id=$sent_id");
+    return;
 }
 ?>
