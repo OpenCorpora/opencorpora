@@ -225,11 +225,10 @@ sub get_all_grammems {
     my %all = ();
     for my $form(@{$self->{FORMS}}) {
         for my $gram(@{$form->{GRAMMEMS}}) {
-            $all{$gram} = 1;
+            ++$all{$gram};
         }
     }
-    my @keys = keys %all;
-    return \@keys;
+    return \%all;
 }
 
 1;

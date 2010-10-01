@@ -380,6 +380,7 @@ sub apply_rule {
                 push @{$new_word->{APPLIED_RULES}}, @{$word->{APPLIED_RULES}} if $word->{APPLIED_RULES};
                 $self->{WORD} = $new_word;
                 $self->apply_rules();
+                $self->update_gram_stats(1);
                 print $self->{WORD}->to_string()."\n";
             }
             $self->{WORD} = undef;
@@ -420,16 +421,16 @@ sub update_gram_stats {
     my $type = shift;
     if ($type) {
         #after applying
-        my @grams = @{$self->{WORD}->get_all_grammems()};
-        for my $gram(@grams) {
-            ++$self->{STATS}->{GRAM_AFTER}->{$gram};
+        my %grams = %{$self->{WORD}->get_all_grammems()};
+        for my $gram(keys %grams) {
+            $self->{STATS}->{GRAM_AFTER}->{$gram} += $grams{$gram};
         }
     }
     else {
         #before applying
-        my @grams = @{$self->{WORD}->get_all_grammems()};
-        for my $gram(@grams) {
-            ++$self->{STATS}->{GRAM_BEFORE}->{$gram};
+        my %grams = %{$self->{WORD}->get_all_grammems()};
+        for my $gram(keys %grams) {
+            $self->{STATS}->{GRAM_BEFORE}->{$gram} += $grams{$gram};
         }
     }
 }
