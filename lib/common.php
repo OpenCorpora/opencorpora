@@ -90,4 +90,15 @@ function get_downloads_info() {
     $dict['updated'] = date('d.m.Y H:i \U\T\C', $stat[9]);
     return array('dict'=>$dict);
 }
+function set_readonly_on() {
+    if (!is_admin()) return 0;
+    touch_file('/var/lock/oc_readonly.lock');
+}
+function set_readonly_off() {
+    if (!is_admin()) return 0;
+    unlink('/var/lock/oc_readonly.lock');
+}
+function touch_file($path) {
+    exec("touch {$path}");
+}
 ?>

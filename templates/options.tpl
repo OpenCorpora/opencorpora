@@ -31,6 +31,9 @@
 <input type='submit' value='Сохранить'/>&nbsp;&nbsp;<input type='reset' value='Отменить'/>
 </form>
 {if $is_admin}
+<h2>Readonly</h2>
+<input type='button' value='Включить' onClick="if (confirm('Are you sure?')) location.href='?act=readonly_on'" {if $readonly}disabled='disabled'{/if}/>
+<input type='button' value='Выключить' onClick="if (confirm('Are you sure?')) location.href='?act=readonly_off'" {if $readonly == 0}disabled='disabled'{/if}/>
 <h2>Настройки настроек</h2>
 <form action="?act=save_meta" method="post">
 <table cellpadding='5' id='tbl_meta_options'>
