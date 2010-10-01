@@ -21,17 +21,28 @@ function user_logout() {
     unset ($_SESSION['options']);
 }
 function user_register($post) {
+    $post['login'] = trim($post['login']);
+    $post['email'] = trim($post['email']);
+    //testing if all fields are ok
     if ($post['passwd'] != $post['passwd_re']) 
         return 2;
     if ($post['passwd'] == '' || $post['login'] == '')
         return 5;
+    if (!preg_match('/^[a-z0-9_-]+$/i', $post['login']))
+        return 6;
+    if (!preg_match('/^[a-z0-9_-]+$/i', $post['passwd']))
+        return 7;
+    if ($post['email'] && !preg_match('/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i', $post['email']))
+        //we took the regexp from regular-expressions.info
+        return 8;
+    //so far they are ok
     $name = mysql_real_escape_string($post['login']);
     $passwd = md5(md5($post['passwd']).substr($name, 0, 2));
     $email = mysql_real_escape_string($post['email']);
     if (sql_num_rows(sql_query("SELECT user_id FROM `users` WHERE user_name='$name' LIMIT 1")) > 0) {
         return 3;
     }
-    if (sql_num_rows(sql_query("SELECT user_id FROM `users` WHERE user_email='$email' LIMIT 1")) > 0) {
+    if ($email && sql_num_rows(sql_query("SELECT user_id FROM `users` WHERE user_email='$email' LIMIT 1")) > 0) {
         return 4;
     }
     if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '1', '$email', '".time()."')"))

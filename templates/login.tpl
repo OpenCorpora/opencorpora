@@ -15,7 +15,7 @@
     <tr><td>Имя пользователя<td><input type='text' name='login' size='40' maxlength='50'/></tr>
     <tr><td>Пароль<td><input type='password' name='passwd' size='40' maxlength='50'/></tr>
     <tr><td>Пароль ещё раз<td><input type='password' name='passwd_re' size='40' maxlength='50'/></tr>
-    <tr><td>Email<br/><span class='small'>(необязательно)</span><td valign='top'><input type='text' name='email' size='40' maxlength='50'/></tr>
+    <tr><td valign='top'>Email<td><input type='text' name='email' size='40' maxlength='50'/><br/><span class='small'>(необязательно, но без него вы не сможете восстановить пароль)</span></tr>
     <tr><td colspan='2' align='right'><input type='submit' value='Зарегистрироваться'/></tr>
     </table>
     </form>
@@ -35,6 +35,15 @@
     {elseif $reg_status == 5}
         {* a blank field *}
         Пустое имя пользователя или пароль. Попробуйте, пожалуйста, <a href='?act=register'>ещё раз</a>.
+    {elseif $reg_status == 6}
+        {* bad login *}
+        Недопустимые символы в имени пользователя (допустимыми являются все латинские символы, цифры и знаки &laquo;<b>-</b>&raquo; и &laquo;<b>_</b>&raquo;). Попробуйте, пожалуйста, <a href='?act=register'>ещё раз</a>.
+    {elseif $reg_status == 7}
+        {* bad passwd *}
+        Недопустимые символы в пароле (допустимыми являются все латинские символы, цифры и знаки &laquo;<b>-</b>&raquo; и &laquo;<b>_</b>&raquo;). Попробуйте, пожалуйста, <a href='?act=register'>ещё раз</a>.
+    {elseif $reg_status == 8}
+        {* bad email *}
+        Неверный адрес электронной почты (если вы вводите верный адрес &mdash; напишите нам об этой ошибке). Попробуйте, пожалуйста, <a href='?act=register'>ещё раз</a>.
     {else}
         {* another error *}
         Ошибка :(
