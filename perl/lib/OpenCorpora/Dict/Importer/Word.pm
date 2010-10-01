@@ -220,6 +220,26 @@ sub to_string {
     }
     return $out;
 }
+sub to_xml {
+    my $self = shift;
+    my $out = '<dr><l t="'.$self->{LEMMA}.'">';
+    my @lgram = @{$self->get_lemma_grammems()};
+    my %lgram;
+    for my $gr(@lgram) {
+        $out .= "<g v=\"$gr\"/>";
+        $lgram{$gr} = 1;
+    }
+    $out .= '</l>';
+    for my $form(@{$self->{FORMS}}) {
+        $out .= '<f t="'.$form->{TEXT}.'">';
+        for my $gr(@{$form->{GRAMMEMS}}) {
+            $out .= "<g v=\"$gr\"/>" unless exists $lgram{$gr};
+        }
+        $out .= '</f>';
+    }
+    $out .= '</dr>';
+    return $out;
+}
 sub get_all_grammems {
     my $self = shift;
     my %all = ();
@@ -229,6 +249,18 @@ sub get_all_grammems {
         }
     }
     return \%all;
+}
+sub get_lemma_grammems {
+    my $self = shift;
+    my %grams = %{$self->get_all_grammems()};
+    my @out;
+    my $num = $self->get_form_count();
+    for my $gr(keys %grams) {
+        if ($grams{$gr} == $num) {
+            push @out, $gr;
+        }
+    }
+    return \@out;
 }
 
 1;

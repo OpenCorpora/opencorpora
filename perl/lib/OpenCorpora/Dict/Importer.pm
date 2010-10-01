@@ -3,10 +3,13 @@ package OpenCorpora::Dict::Importer;
 use strict;
 use warnings;
 use utf8;
+use DBI;
 
 use Getopt::constant (
     'DEBUG' => 0,
-    'STOP_AFTER' => 0
+    'STOP_AFTER' => 0,
+    'CONFIG' => '',
+    'INSERT' => 0
 );
 
 use OpenCorpora::Dict::Importer::Word;
@@ -24,16 +27,41 @@ use constant ACTION_TYPE_SPLIT => 2;
 use constant ACTION_TYPE_GENERATE => 3;
 
 sub new {
-    print STDERR "Creating Importer\n" if DEBUG;
+    print STDERR "Creating Importer\n" if DEBUG && !INSERT;
     my($class, %args) = @_;
  
     my $self = {};
     $self->{RULES} = undef;
     $self->{WORD} = undef;
     $self->{STATS} = undef;
- 
+    $self->{CONNECTION} = undef;
+    $self->{CONNECTION_LEMMA} = undef;
+    $self->{CONNECTION_REVISION} = undef;
+
     bless $self;
     #return is implicit in bless
+}
+sub sql_connect {
+    my $self = shift;
+    my %mysql;
+    open F, CONFIG or die "Error: Cannot read ".CONFIG;
+    while(<F>) {
+        if (/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
+             $mysql{$1} = $2;
+         }
+    }
+    close F;
+    my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
+    $dbh->do("SET NAMES utf8");
+    my $newset = $dbh->prepare("INSERT INTO `rev_sets` VALUES(NULL, ?, ?)");
+    $newset->execute(time(), 0) or die $DBI::errstr;
+    my $set_id = $dbh->{'mysql_insertid'} or die $DBI::errstr;
+    print STDERR "Created revision set #$set_id\n";
+    my $newlemma = $dbh->prepare("INSERT INTO `dict_lemmata` VALUES(NULL, ?)");
+    my $newrev = $dbh->prepare("INSERT INTO `dict_revisions` VALUES(NULL, '$set_id', ?, ?, '0')"); #null, set, lemma, text, null
+    $self->{CONNECTION} = $dbh;
+    $self->{CONNECTION_LEMMA} = $newlemma;
+    $self->{CONNECTION_REVISION} = $newrev;
 }
 sub read_aot {
     my $self = shift;
@@ -41,11 +69,17 @@ sub read_aot {
     my @forms;
     my $para_no = undef;
     my $counter;
+
+    #connecting to mysql server
+    if (INSERT && CONFIG) {
+        $self->sql_connect();
+    }
+
     open F, $path or die "Error: Cannot read $path";
     binmode(F, ':utf8');
     while(<F>) {
         if (/\S+\t\S+,\s?(?:\S+)?,?\s?(?:\S+)?/) {
-            print STDERR $_ if DEBUG;
+            print STDERR $_ if DEBUG && !INSERT;
             push @forms, $_;
         }
         elsif (/PARA (\d+)/) {
@@ -62,12 +96,12 @@ sub read_aot {
             $self->{STATS}->{APPLIED}->{$para_no} += $applied;
             if ($self->{WORD}->{LEMMA}) {
                 $self->update_gram_stats(1);
-                print $self->{WORD}->to_string()."\n";
+                $self->print_or_insert();
             }
             @forms = ();
             $para_no = undef;
             ++$counter;
-            print STDERR "====================\n" if DEBUG;
+            print STDERR "====================\n" if DEBUG && !INSERT;
             if ($counter == STOP_AFTER && STOP_AFTER>0) {
                 last;
             }
@@ -82,14 +116,18 @@ sub read_aot {
         $self->{STATS}->{APPLIED}->{$para_no} += $applied;
         if ($self->{WORD}->{LEMMA}) {
             $self->update_gram_stats(1);
-            print $self->{WORD}->to_string()."\n";
+            $self->print_or_insert();
         }
     }
     close F;
-    $self->print_stats();
+    if (!defined $self->{CONNECTION}) {
+        $self->print_stats();
+    } else {
+        print STDERR "\n";
+    }
 }
 sub read_rules {
-    print STDERR "Reading rules\n" if DEBUG;
+    print STDERR "Reading rules\n" if DEBUG && !INSERT;
     my $self = shift;
     my $path = shift;
     my $rule_ref = undef;
@@ -108,7 +146,7 @@ sub read_rules {
             #adding the previous rule if it exists
             if ($rule_ref) {
                 push @{$self->{RULES}}, $$rule_ref;
-                print STDERR "Reading rule #".$#{$self->{RULES}}."\n" if DEBUG;
+                print STDERR "Reading rule #".$#{$self->{RULES}}."\n" if DEBUG && !INSERT;
             }
             #new rule
             my $rule = {};
@@ -131,7 +169,7 @@ sub read_rules {
     #the last rule
     if ($rule_ref) {
         push @{$self->{RULES}}, $$rule_ref;
-        print STDERR "Reading rule #".$#{$self->{RULES}}."\n" if DEBUG;
+        print STDERR "Reading rule #".$#{$self->{RULES}}."\n" if DEBUG && !INSERT;
     }
 }
 sub parse_condition_string {
@@ -271,21 +309,21 @@ sub apply_rules {
     #returns 1 if at least 1 rule was applied
     my $self = shift;
     my $applied = 0;
-    print STDERR "Applying rules to ".$self->{WORD}->{LEMMA}.' ('.$self->{WORD}->get_form_count()." forms)\n" if DEBUG;
+    print STDERR "Applying rules to ".$self->{WORD}->{LEMMA}.' ('.$self->{WORD}->get_form_count()." forms)\n" if DEBUG && !INSERT;
     GF:for my $rule(@{$self->{RULES}}) {
-        print STDERR "Checking rule ".$rule->{ID}."\n" if DEBUG;
+        print STDERR "Checking rule ".$rule->{ID}."\n" if DEBUG && !INSERT;
         if ($rule->{TYPE} == RULE_TYPE_GLOBAL) {
-            print STDERR "Global, applying\n" if DEBUG;
+            print STDERR "Global, applying\n" if DEBUG && !INSERT;
             my $res = $self->apply_rule($rule);
             last GF if $rule->{IS_LAST} && $res;
         }
         elsif ($rule->{TYPE} == RULE_TYPE_ALL) {
             my $test = 1;
             for my $c(@{$rule->{CONDITIONS}}) {
-                print STDERR "Condition check\n" if DEBUG;
+                print STDERR "Condition check\n" if DEBUG && !INSERT;
                 if (!$self->test_condition($c)) {
                     $test = 0;
-                    print STDERR "Condition check failed\n" if DEBUG;
+                    print STDERR "Condition check failed\n" if DEBUG && !INSERT;
                     last;
                 }
             }
@@ -297,9 +335,9 @@ sub apply_rules {
         }
         elsif ($rule->{TYPE} == RULE_TYPE_ANY) {
             for my $c(@{$rule->{CONDITIONS}}) {
-                print STDERR "Condition check\n" if DEBUG;
+                print STDERR "Condition check\n" if DEBUG && !INSERT;
                 if ($self->test_condition($c)) {
-                    print STDERR "Condition check ok\n" if DEBUG;
+                    print STDERR "Condition check ok\n" if DEBUG && !INSERT;
                     my $res = $self->apply_rule($rule);
                     $applied = 1 if $res;
                     last GF if $rule->{IS_LAST} && $res;
@@ -324,24 +362,24 @@ sub test_condition {
         return 0;
     }
     elsif ($cond->{TYPE} == COND_TYPE_ONE) {
-        print STDERR "  COND_TYPE_ONE\n" if DEBUG;
+        print STDERR "  COND_TYPE_ONE\n" if DEBUG && !INSERT;
         for my $form(@{$word->{FORMS}}) {
             #print STDERR "  testing form ".$form->{TEXT}."\n";
             if (($cond->{REL} == REL_TYPE_AND && $word->form_has_all_grams($form, $cond->{GRAMMEMS})) ||
                 ($cond->{REL} == REL_TYPE_OR && $word->form_has_any_gram($form, $cond->{GRAMMEMS}))) {
-                print STDERR "OK\n" if DEBUG;
+                print STDERR "OK\n" if DEBUG && !INSERT;
                 return 1;
             }
         }
         return 0;
     }
     elsif ($cond->{TYPE} == COND_TYPE_ALL) {
-        print STDERR "COND_TYPE_ALL\n" if DEBUG;
+        print STDERR "COND_TYPE_ALL\n" if DEBUG && !INSERT;
         for my $form(@{$word->{FORMS}}) {
             #print STDERR "  testing form ".$form->{TEXT}."\n";
             if (($cond->{REL} == REL_TYPE_AND && !$word->form_has_all_grams($form, $cond->{GRAMMEMS})) ||
                 ($cond->{REL} == REL_TYPE_OR && !$word->form_has_any_gram($form, $cond->{GRAMMEMS}))) {
-                print STDERR "Fail\n" if DEBUG;
+                print STDERR "Fail\n" if DEBUG && !INSERT;
                 return 0;
             }
         }
@@ -356,20 +394,20 @@ sub apply_rule {
     my $rule = shift;
     my $word = $self->{WORD};
     if ($word->rule_applied($rule)) {
-        print STDERR "    Rule already applied, skipping\n" if DEBUG;
+        print STDERR "    Rule already applied, skipping\n" if DEBUG && !INSERT;
         return 0;
     }
-    print STDERR "    Applying rule ".$rule->{ID}."\n" if DEBUG;
+    print STDERR "    Applying rule ".$rule->{ID}."\n" if DEBUG && !INSERT;
     for my $action(@{$rule->{ACTIONS}}) {
         if ($action->{TYPE} == ACTION_TYPE_CHANGE) {
-            print STDERR "    Change\n" if DEBUG;
+            print STDERR "    Change\n" if DEBUG && !INSERT;
             $word->change_grammems($action->{GRAMMEMS_IN}, $action->{GRAMMEMS_OUT});
             push @{$word->{APPLIED_RULES}}, $rule->{ID};
         }
         elsif ($action->{TYPE} == ACTION_TYPE_SPLIT) {
             #any rule with SPLIT must be last
             $rule->{IS_LAST} = 1;
-            print STDERR "    Split\n" if DEBUG;
+            print STDERR "    Split\n" if DEBUG && !INSERT;
             my @new_words = @{$word->split_lemma($action->{GRAMMEMS_IN})};
             if (scalar @new_words == 1) {
                 warn "Warning: Splitting '".$word->{LEMMA}."' results in one word, skipping";
@@ -381,12 +419,12 @@ sub apply_rule {
                 $self->{WORD} = $new_word;
                 $self->apply_rules();
                 $self->update_gram_stats(1);
-                print $self->{WORD}->to_string()."\n";
+                $self->print_or_insert();
             }
             $self->{WORD} = undef;
         }
         elsif ($action->{TYPE} == ACTION_TYPE_GENERATE) {
-            print STDERR "    Generate\n" if DEBUG;
+            print STDERR "    Generate\n" if DEBUG && !INSERT;
             $word->generate_paradigm($action->{GRAMMEMS_IN});
             push @{$word->{APPLIED_RULES}}, $rule->{ID};
         }
@@ -432,6 +470,16 @@ sub update_gram_stats {
         for my $gram(keys %grams) {
             $self->{STATS}->{GRAM_BEFORE}->{$gram} += $grams{$gram};
         }
+    }
+}
+sub print_or_insert {
+    my $self = shift;
+    if (defined $self->{CONNECTION}) {
+        $self->{CONNECTION_LEMMA}->execute($self->{WORD}->{LEMMA}) or die $DBI::errstr;
+        $self->{CONNECTION_REVISION}->execute($self->{CONNECTION}->{'mysql_insertid'}, $self->{WORD}->to_xml()) or die $DBI::errstr;
+        print STDERR "Committed revision ".$self->{CONNECTION}->{'mysql_insertid'}."\r";
+    } else {
+        print $self->{WORD}->to_string()."\n";
     }
 }
 
