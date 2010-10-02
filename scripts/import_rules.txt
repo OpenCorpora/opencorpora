@@ -1,13 +1,53 @@
-# глобальные замены п
-
+# глобальные замены
+*
+	CHANGE(П -> ADJF)
+	CHANGE(мр -> masc)
+	CHANGE(ед -> sing)
+	CHANGE(им -> nomn)
+	CHANGE(рд -> gent)
+	CHANGE(дт -> datv)
+	CHANGE(вн -> accs)
+	CHANGE(тв -> ablt)
+	CHANGE(пр -> loct)
+	CHANGE(жр -> femn)
+	CHANGE(ср -> neut)
+	CHANGE(мн -> plur)
+	CHANGE(КР_ПРИЛ -> ADJS)
+	CHANGE(сравн -> ADJC)
+	CHANGE(кач -> Qual)
+	CHANGE(од -> anim)
+	CHANGE(но -> inan)
+	CHANGE(мест-п -> Apro)
+	CHANGE(чист-п -> Anum)
+	CHANGE(кач-неизм -> fixd)
+	CHANGE(аббр -> Abbr)
+# проблема CHANGE(0 -> fixd)
 # разбиваем по частям речи
-(1 КР_ПРИЛ) & (* П|КР_ПРИЛ)
-    SPLIT(П, КР_ПРИЛ)
+(1 ADJS) & (* ADJF|ADJS)
+    SPLIT(ADJF, ADJS)
 
 # существительное
 
 # прилагательное
+* ADJF
+    CHANGE(!accs,anim -> )
+    CHANGE(!accs,inan -> )
+    CHANGE(femn,sing,accs,anim -> femn,sing,accs)
+    CHANGE(neut,sing,accs,anim -> neut,sing,accs)
+    CHANGE(femn,sing,accs,inan -> femn,sing,accs)
+    CHANGE(neut,sing,accs,inan -> neut,sing,accs)
+* ADJS
+	CHANGE(anim,inam -> )
+* ADJC	
+	CHANGE(anim,inam -> )
+	CHANGE(2 -> 2-nd)
+# 2  - пока вот так.	
+# Звездочка раз:	П, жр,ед,тв,од,но, PARA 2504 -НОЙ-НОЮ, PARA # 2503 -ОЙ-ОЮ, PARA 2506 -ЬНОЙ/-ЬНОЮ
+# звездочка два: 	П, сравн,од,но     PARA 2504 -НЕЕ-НЕЙ, PARA # 2503 -ЕЕ-ЕЙ, PARA 2506 -ЬНЕЕ/-ЬНЕЙ
+# зведочка три: 	П, сравн,2,од,но	PARA 2504 ПО-PARA-НЕЕ/ПО-PARA-НЕЙ, PARA # 2503 ПО-PARA-ЕЕ/ПО-PARA-ЕЙ, PARA 2506	ПО-PARA-ЬНЕЕ\PARA ПО-PARA-ЬНЕЙ
 
-# глагол (инфинитив, личная форма, причастие, краткое причастие, деепричастие)
+
+	
+# глагол (инфинитив, личная форма, причастие, деепричастие)
 
 # все остальное
