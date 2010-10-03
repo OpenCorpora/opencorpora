@@ -53,14 +53,14 @@
 # существительное
 
 # прилагательное
-* ADJF
+* ADJF|PRTF
     CHANGE(!accs,anim -> )
     CHANGE(!accs,inan -> )
     CHANGE(femn,sing,accs,anim -> femn,sing,accs)
     CHANGE(neut,sing,accs,anim -> neut,sing,accs)
     CHANGE(femn,sing,accs,inan -> femn,sing,accs)
     CHANGE(neut,sing,accs,inan -> neut,sing,accs)
-* ADJS
+* ADJS|PRTS
     CHANGE(anim,inam -> )
 * ADJC    
     CHANGE(anim,inam -> )
