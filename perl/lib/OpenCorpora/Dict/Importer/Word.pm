@@ -16,6 +16,7 @@ sub new {
     $self->{FORMS} = undef;
     $self->{APPLIED_RULES} = undef;
     $self->{PARADIGM_NO} = $para_no;
+    $self->{LINKS} = undef;
 
     if (!$ref) {
         #no forms given
@@ -158,7 +159,8 @@ sub split_lemma {
         }
     }
     #split successful, now we should construct Word's
-    for my $k(keys %new_words) {
+    for my $k(@grammems) {
+        next unless exists $new_words{$k};
         my $word = new();
         my @forms = @{$new_words{$k}};
         $word->{LEMMA} = $forms[0]->{TEXT};
@@ -217,6 +219,9 @@ sub to_string {
     my $out = 'PARA '.($self->{PARADIGM_NO} ? $self->{PARADIGM_NO} : '-1')."\n";
     for my $form(@{$self->{FORMS}}) {
         $out .= $form->{TEXT}."\t".join(',', @{$form->{GRAMMEMS}})."\n";
+    }
+    for my $lnk(@{$self->{LINKS}}) {
+        $out .= "link '".$$lnk[1]."' to ".$$lnk[0]."\n";
     }
     return $out;
 }

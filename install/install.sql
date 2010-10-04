@@ -85,6 +85,19 @@ CREATE TABLE IF NOT EXISTS `dict_lemmata` (
     `lemma_text`  VARCHAR(50) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS `dict_links_types` (
+    `link_id`   SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `link_name` VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `dict_links` (
+    `lemma1_id` INT UNSIGNED NOT NULL,
+    `lemma2_id` INT UNSIGNED NOT NULL,
+    `link_type` SMALLINT UNSIGNED NOT NULL,
+    INDEX (`lemma1_id`),
+    INDEX (`lemma2_id`)
+);
+
 CREATE TABLE IF NOT EXISTS `dict_lex` (
     `lex_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `lemma_id`  INT UNSIGNED NOT NULL,

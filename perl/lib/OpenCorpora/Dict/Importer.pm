@@ -25,6 +25,7 @@ use constant REL_TYPE_OR => 2;
 use constant ACTION_TYPE_CHANGE => 1;
 use constant ACTION_TYPE_SPLIT => 2;
 use constant ACTION_TYPE_GENERATE => 3;
+use constant ACTION_TYPE_LINK => 4;
 
 sub new {
     print STDERR "Creating Importer\n" if DEBUG && !INSERT;
@@ -37,6 +38,9 @@ sub new {
     $self->{CONNECTION} = undef;
     $self->{CONNECTION_LEMMA} = undef;
     $self->{CONNECTION_REVISION} = undef;
+    $self->{WORD_ID} = 1;
+    $self->{BASE_WORD_ID} = undef;
+    $self->{LINK_TYPES} = undef;    #all existing link types so far (in order not to ask the DB if it has one)
 
     bless $self;
     #return is implicit in bless
@@ -157,10 +161,18 @@ sub read_rules {
             $rule->{IS_LAST} = 0;
             $rule_ref = \parse_condition_string($rule, $1);
         }
-        elsif (/[\s\t]+((?:CHANGE|SPLIT|GENERATE)\s*\(.+\))/i) {
+        elsif (/[\s\t]+((?:CHANGE|SPLIT|GENERATE|LINK)\s*\(.+\))/i) {
             #this is an action
             my $action = parse_action_string($1);
-            push @{$$rule_ref->{ACTIONS}}, $action;
+            if ($action->{TYPE} == ACTION_TYPE_LINK) {
+                my $last_action = $$rule_ref->{ACTIONS}->[$#{$$rule_ref->{ACTIONS}}];
+                if ($last_action->{TYPE} != ACTION_TYPE_SPLIT) {
+                    die "Error: LINK not after SPLIT";
+                }
+                push @{$last_action->{LINKS}}, $action;
+            } else {
+                push @{$$rule_ref->{ACTIONS}}, $action;
+            }
         }
         else {
             die "Error: Bad line in rules: $_";
@@ -284,6 +296,22 @@ sub parse_action_string {
             }
         }
         $action->{GRAMMEMS_IN} = \@gram_in;
+    }
+    elsif($str =~ /LINK\s*\((.+)\)/i) {
+        $action->{TYPE} = ACTION_TYPE_LINK;
+        my ($i, $j, $link_name) = split /,/, $1;
+        if (!defined $j) {
+            #if short syntax was used
+            $link_name = $i;
+            $i = 0;
+            $j = 1;
+        }
+        $i =~ s/\s//g;
+        $j =~ s/\s//g;
+        $link_name =~ s/\s//g;
+        $action->{INDEX1} = $i;
+        $action->{INDEX2} = $j;
+        $action->{LINK_NAME} = $link_name;
     }
     elsif($str =~ /GENERATE\s*\((.+)\)/i) {
         $action->{TYPE} = ACTION_TYPE_GENERATE;
@@ -413,6 +441,19 @@ sub apply_rule {
                 warn "Warning: Splitting '".$word->{LEMMA}."' results in one word, skipping";
                 return;
             }
+            #setting links
+            for my $lnk(@{$action->{LINKS}}) {
+                my ($i, $j) = ($lnk->{INDEX1}, $lnk->{INDEX2});
+                if (exists $new_words[$i] && exists $new_words[$j]) {
+                    my @for_i = ($self->{WORD_ID} + $j, $lnk->{LINK_NAME});
+                    my @for_j = ($self->{WORD_ID} + $i, $lnk->{LINK_NAME});
+                    push @{$new_words[$i]->{LINKS}}, \@for_i;
+                    push @{$new_words[$j]->{LINKS}}, \@for_j;
+                }
+                else {
+                    warn "Warning: Cannot link after splitting '".$word->{LEMMA}."': indices are $i and $j but only ".scalar @new_words." words present";
+                }
+            }
             for my $new_word(@new_words) {
                 push @{$new_word->{APPLIED_RULES}}, $rule->{ID};
                 push @{$new_word->{APPLIED_RULES}}, @{$word->{APPLIED_RULES}} if $word->{APPLIED_RULES};
@@ -477,10 +518,13 @@ sub print_or_insert {
     if (defined $self->{CONNECTION}) {
         $self->{CONNECTION_LEMMA}->execute($self->{WORD}->{LEMMA}) or die $DBI::errstr;
         $self->{CONNECTION_REVISION}->execute($self->{CONNECTION}->{'mysql_insertid'}, $self->{WORD}->to_xml()) or die $DBI::errstr;
+        # also we have links!
         print STDERR "Committed revision ".$self->{CONNECTION}->{'mysql_insertid'}."\r";
     } else {
+        print $self->{WORD_ID}."\n";
         print $self->{WORD}->to_string()."\n";
     }
+    $self->{WORD_ID}++;
 }
 
 1;
