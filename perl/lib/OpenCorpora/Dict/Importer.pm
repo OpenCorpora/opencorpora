@@ -138,14 +138,14 @@ sub read_rules {
     open F, $path or die "Error: Cannot read $path";
     binmode(F, ':utf8');
     while(<F>) {
-        s/^\x{feff}//;
+        s/^\x{feff}//;  #killing BOM
         if (/^\s*\#/) {
             next; #skipping comments
         }
         if (/^\s*$/) {
             next; #skipping blank lines
         }
-        if (/^(\*|\(.+)/) {
+        if (/^((?:\*|1).*|\(.+)/) {
             #this is a condition
             #adding the previous rule if it exists
             if ($rule_ref) {
@@ -194,6 +194,12 @@ sub parse_condition_string {
     }
     if ($str =~ /^\*\s*$/) {
         $rule->{TYPE} = RULE_TYPE_GLOBAL;
+        return $rule;
+    }
+    elsif ($str !~ /\(/) {
+        $rule->{TYPE} = RULE_TYPE_ALL;
+        push @{$rule->{CONDITIONS}}, parse_simple_condition($str);
+        return $rule;
     }
     while($str =~ /\(([^\)]+)\)\s*([\&\|])?\s*/g) {
         #operator check
