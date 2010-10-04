@@ -45,6 +45,7 @@
     CHANGE(пвл -> impr)
 #    CHANGE( -> subj)
 
+    CHANGE(0 -> fixd)
 # проблема CHANGE(0 -> fixd)
 # разбиваем по частям речи
 (1 ADJS) & (* ADJF|ADJS)

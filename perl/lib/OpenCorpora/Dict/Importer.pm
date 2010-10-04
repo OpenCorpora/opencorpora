@@ -198,6 +198,7 @@ sub parse_condition_string {
     my $rule = shift;
     my $str = shift;
     chomp $str;
+    $str =~ s/\s+$//;
     if ($str =~ s/\s+L\s*$//i) {
         #there's a flag indicating that the rule will be the last
         $rule->{IS_LAST} = 1;
@@ -285,8 +286,8 @@ sub parse_action_string {
     chomp $str;
     if ($str =~ /CHANGE\s*\((.+?)?\s*->\s*(.+)?\)/i) {
         $action->{TYPE} = ACTION_TYPE_CHANGE;
-        @gram_in = split /,/, $1 if $1;
-        @gram_out = split /,/, $2 if $2;
+        @gram_in = split /,/, $1 if defined $1;
+        @gram_out = split /,/, $2 if defined $2;
         map { $_ =~ s/\s//g; } @gram_in;
         for my $i(0..$#gram_in) {
             if ($gram_in[$i] eq '') {
