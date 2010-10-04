@@ -1,6 +1,7 @@
 #!/bin/bash
-cd ~/corpus
-if [ ! -d ./backup/`date +%Y%m` ]; then
-	mkdir ./backup/`date +%Y%m`
+touch /var/lock/oc_readonly.lock
+if [ ! -d /data/backup/`date +%Y%m` ]; then
+	mkdir /data/backup/`date +%Y%m`
 fi
-mysqldump -uroot corpora | gzip > ./backup/`date +%Y%m`/`date +%Y%m%d_%H%M`.sql.gz
+mysqldump opcorpora | bzip2 -c9 > /data/backup/`date +%Y%m`/oc`date +%Y%m%d_%H%M`.sql.bz2
+rm /var/lock/oc_readonly.lock
