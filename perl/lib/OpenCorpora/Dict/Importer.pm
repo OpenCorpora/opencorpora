@@ -458,15 +458,21 @@ sub apply_rule {
                 warn "Warning: Splitting '".$word->{LEMMA}."' results in one word, skipping";
                 return;
             }
+            #preliminary calculations
+            my %absent;
+            for my $i(0..$#new_words) {
+                $new_words[$i] || ($absent{$i} = 1);
+            }
             #setting links
             for my $lnk(@{$action->{LINKS}}) {
                 my ($i, $j) = ($lnk->{INDEX1}, $lnk->{INDEX2});
-                if (exists $new_words[$i] && exists $new_words[$j]) {
-                    my @for_i = ($self->{WORD_ID} + $j, $lnk->{LINK_NAME});
+                my $j1 = modify_index($j, \%absent);
+                if (defined $new_words[$i] && defined $new_words[$j]) {
+                    my @for_i = ($self->{WORD_ID} + $j1, $lnk->{LINK_NAME});
                     push @{$new_words[$i]->{LINKS}}, \@for_i;
                 }
                 else {
-                    warn "Warning: Cannot link after splitting '".$word->{LEMMA}."': indices are $i and $j but only ".scalar @new_words." words present";
+                    warn "Warning: Cannot link after splitting '".$word->{LEMMA}."' with indices $i and $j; this may be normal";
                 }
             }
             for my $new_word(@new_words) {
@@ -553,6 +559,15 @@ sub print_or_insert {
         print $self->{WORD}->to_string()."\n";
     }
     $self->{WORD_ID}++;
+}
+sub modify_index {
+    my ($j, $ref) = @_;
+    my %h = %$ref;
+    my $j1 = 0;
+    for my $k(sort {$a <=> $b} keys %h) {
+        $j1-- if $k<$j;
+    }
+    return $j + $j1;
 }
 
 1;
