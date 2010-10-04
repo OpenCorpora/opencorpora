@@ -159,13 +159,15 @@ sub split_lemma {
         }
     }
     #split successful, now we should construct Word's
-    for my $k(@grammems) {
+    my $k;
+    for my $i(0..$#grammems) {
+        $k = $grammems[$i];
         next unless exists $new_words{$k};
         my $word = new();
         my @forms = @{$new_words{$k}};
         $word->{LEMMA} = $forms[0]->{TEXT};
         $word->{FORMS} = \@forms;
-        push @out_words, $word;
+        $out_words[$i] = $word;
     }
     return \@out_words;
 }

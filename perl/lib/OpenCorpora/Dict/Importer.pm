@@ -469,6 +469,7 @@ sub apply_rule {
                 }
             }
             for my $new_word(@new_words) {
+                next unless $new_word; #this can be if some grammems were not found but split was ok
                 push @{$new_word->{APPLIED_RULES}}, $rule->{ID};
                 push @{$new_word->{APPLIED_RULES}}, @{$word->{APPLIED_RULES}} if $word->{APPLIED_RULES};
                 $self->{WORD} = $new_word;
