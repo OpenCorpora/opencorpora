@@ -38,6 +38,8 @@ sub new {
     $self->{CONNECTION} = undef;
     $self->{CONNECTION_LEMMA} = undef;
     $self->{CONNECTION_REVISION} = undef;
+    $self->{CONNECTION_LINKTYPE} = undef;
+    $self->{CONNECTION_LINK} = undef;
     $self->{WORD_ID} = 1;
     $self->{BASE_WORD_ID} = undef;
     $self->{LINK_TYPES} = undef;    #all existing link types so far (in order not to ask the DB if it has one)
@@ -61,11 +63,19 @@ sub sql_connect {
     $newset->execute(time(), 0) or die $DBI::errstr;
     my $set_id = $dbh->{'mysql_insertid'} or die $DBI::errstr;
     print STDERR "Created revision set #$set_id\n";
+    my $max = $dbh->prepare("SELECT MAX(`lemma_id`) AS m FROM `dict_lemmata`");
+    $max->execute() or die $DBI::errstr;
+    my $r = $max->fetchrow_hashref();
+    $self->{BASE_WORD_ID} = $r->{'m'};
     my $newlemma = $dbh->prepare("INSERT INTO `dict_lemmata` VALUES(NULL, ?)");
     my $newrev = $dbh->prepare("INSERT INTO `dict_revisions` VALUES(NULL, '$set_id', ?, ?, '0')"); #null, set, lemma, text, null
+    my $newlinktype = $dbh->prepare("INSERT INTO `dict_links_types` VALUES(NULL, ?)");
+    my $newlink = $dbh->prepare("INSERT INTO `dict_links` VALUES(?, ?, ?)");
     $self->{CONNECTION} = $dbh;
     $self->{CONNECTION_LEMMA} = $newlemma;
     $self->{CONNECTION_REVISION} = $newrev;
+    $self->{CONNECTION_LINKTYPE} = $newlinktype;
+    $self->{CONNECTION_LINK} = $newlink;
 }
 sub read_aot {
     my $self = shift;
@@ -452,9 +462,7 @@ sub apply_rule {
                 my ($i, $j) = ($lnk->{INDEX1}, $lnk->{INDEX2});
                 if (exists $new_words[$i] && exists $new_words[$j]) {
                     my @for_i = ($self->{WORD_ID} + $j, $lnk->{LINK_NAME});
-                    my @for_j = ($self->{WORD_ID} + $i, $lnk->{LINK_NAME});
                     push @{$new_words[$i]->{LINKS}}, \@for_i;
-                    push @{$new_words[$j]->{LINKS}}, \@for_j;
                 }
                 else {
                     warn "Warning: Cannot link after splitting '".$word->{LEMMA}."': indices are $i and $j but only ".scalar @new_words." words present";
@@ -524,8 +532,20 @@ sub print_or_insert {
     if (defined $self->{CONNECTION}) {
         $self->{CONNECTION_LEMMA}->execute($self->{WORD}->{LEMMA}) or die $DBI::errstr;
         $self->{CONNECTION_REVISION}->execute($self->{CONNECTION}->{'mysql_insertid'}, $self->{WORD}->to_xml()) or die $DBI::errstr;
-        # also we have links!
         print STDERR "Committed revision ".$self->{CONNECTION}->{'mysql_insertid'}."\r";
+        # links
+        my $link_typeid;
+        for my $lnk(@{$self->{WORD}->{LINKS}}) {
+            my ($link_to, $link_name) = @$lnk;
+            if (!defined $self->{LINK_TYPES} || !exists $self->{LINK_TYPES}->{$link_name}) {
+                $self->{CONNECTION_LINKTYPE}->execute($link_name) or die $DBI::errstr;
+                $link_typeid = $self->{CONNECTION}->{'mysql_insertid'};
+                $self->{LINK_TYPES}->{$link_name} = $link_typeid;
+            } else {
+                $link_typeid = $self->{LINK_TYPES}->{$link_name};
+            }
+            $self->{CONNECTION_LINK}->execute($self->{BASE_WORD_ID} + $self->{WORD_ID}, $self->{BASE_WORD_ID} + $link_to, $link_typeid);
+        }
     } else {
         print $self->{WORD_ID}."\n";
         print $self->{WORD}->to_string()."\n";

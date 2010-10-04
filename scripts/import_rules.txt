@@ -49,12 +49,6 @@
 # разбиваем по частям речи
 (1 ADJS) & (* ADJF|ADJS)
     SPLIT(ADJF, ADJS)
-    LINK(kr_pril)
-
-(1 ИНФИНИТИВ)
-    SPLIT(ИНФИНИТИВ, Г, ПРИЧАСТИЕ, КР_ПРИЧАСТИЕ, ДЕЕПРИЧАСТИЕ)
-    LINK(0, 1, inf_to_finite)
-    LINK(2, 3, kr_prichast)
 
 # существительное
 
