@@ -13,10 +13,10 @@ if ($action=='login') {
     }
 } elseif ($action=='logout') {
     user_logout();
-    if (isset($_SERVER['HTTP_REFERER']))
+    if (isset($_SERVER['HTTP_REFERER'])) {
         header('Location:'.$_SERVER['HTTP_REFERER']);
         return;
-    else {
+    } else {
         header('Location:/');
         return;
     }
