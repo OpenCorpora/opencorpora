@@ -66,7 +66,7 @@ sub sql_connect {
     my $max = $dbh->prepare("SELECT MAX(`lemma_id`) AS m FROM `dict_lemmata`");
     $max->execute() or die $DBI::errstr;
     my $r = $max->fetchrow_hashref();
-    $self->{BASE_WORD_ID} = $r->{'m'};
+    $self->{BASE_WORD_ID} = $r->{'m'} ? $r->{'m'} : 0;
     my $newlemma = $dbh->prepare("INSERT INTO `dict_lemmata` VALUES(NULL, ?)");
     my $newrev = $dbh->prepare("INSERT INTO `dict_revisions` VALUES(NULL, '$set_id', ?, ?, '0')"); #null, set, lemma, text, null
     my $newlinktype = $dbh->prepare("INSERT INTO `dict_links_types` VALUES(NULL, ?)");
@@ -472,7 +472,7 @@ sub apply_rule {
                     push @{$new_words[$i]->{LINKS}}, \@for_i;
                 }
                 else {
-                    warn "Warning: Cannot link after splitting '".$word->{LEMMA}."' with indices $i and $j; this may be normal";
+                    print STDERR "Warning: Cannot link after splitting '".$word->{LEMMA}."' with indices $i and $j; this may be normal\n" if DEBUG;
                 }
             }
             for my $new_word(@new_words) {
