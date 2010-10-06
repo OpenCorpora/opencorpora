@@ -37,6 +37,12 @@
         <input type="reset" value="Сбросить"/>
     </form>
     {/strip}
+    <b>Связи</b>
+    <ul>
+    {foreach item=link from=$editor.links}
+    <li><a href="?act=edit&id={$link.lemma_id}">{$link.lemma_text}</a> ({$link.name})
+    {/foreach}
+    </ul>
 </div>
 <div id='rightcol'>
 {include file='right.tpl'}
