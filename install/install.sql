@@ -98,6 +98,15 @@ CREATE TABLE IF NOT EXISTS `dict_links` (
     INDEX (`lemma2_id`)
 );
 
+CREATE TABLE IF NOT EXISTS `dict_links_revisions` (
+    `rev_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `set_id`    INT UNSIGNED NOT NULL,
+    `lemma1_id` INT UNSIGNED NOT NULL,
+    `lemma2_id` INT UNSIGNED NOT NULL,
+    `link_type` SMALLINT UNSIGNED NOT NULL,
+    `action`    TINYINT UNSIGNED NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS `dict_lex` (
     `lex_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `lemma_id`  INT UNSIGNED NOT NULL,

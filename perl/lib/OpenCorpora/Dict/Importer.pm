@@ -41,6 +41,7 @@ sub new {
     $self->{CONNECTION_REVISION} = undef;
     $self->{CONNECTION_LINKTYPE} = undef;
     $self->{CONNECTION_LINK} = undef;
+    $self->{CONNECTION_LINKREV} = undef;
     $self->{WORD_ID} = 1;
     $self->{BASE_WORD_ID} = undef;
     $self->{LINK_TYPES} = undef;    #all existing link types so far (in order not to ask the DB if it has one)
@@ -72,11 +73,13 @@ sub sql_connect {
     my $newrev = $dbh->prepare("INSERT INTO `dict_revisions` VALUES(NULL, '$set_id', ?, ?, '0')"); #null, set, lemma, text, null
     my $newlinktype = $dbh->prepare("INSERT INTO `dict_links_types` VALUES(NULL, ?)");
     my $newlink = $dbh->prepare("INSERT INTO `dict_links` VALUES(?, ?, ?)");
+    my $newlinkrev = $dbh->prepare("INSERT INTO `dict_links_revisions` VALUES(NULL, '$set_id', ?, ?, ?, '1')");
     $self->{CONNECTION} = $dbh;
     $self->{CONNECTION_LEMMA} = $newlemma;
     $self->{CONNECTION_REVISION} = $newrev;
     $self->{CONNECTION_LINKTYPE} = $newlinktype;
     $self->{CONNECTION_LINK} = $newlink;
+    $self->{CONNECTION_LINKREV} = $newlinkrev;
 }
 sub read_aot {
     my $self = shift;
@@ -554,6 +557,7 @@ sub print_or_insert {
                 $link_typeid = $self->{LINK_TYPES}->{$link_name};
             }
             $self->{CONNECTION_LINK}->execute($self->{BASE_WORD_ID} + $self->{WORD_ID}, $self->{BASE_WORD_ID} + $link_to, $link_typeid);
+            $self->{CONNECTION_LINKREV}->execute($self->{BASE_WORD_ID} + $self->{WORD_ID}, $self->{BASE_WORD_ID} + $link_to, $link_typeid);
         }
     } else {
         print $self->{WORD_ID}."\n";
