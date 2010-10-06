@@ -9,7 +9,8 @@ use Getopt::constant (
     'DEBUG' => 0,
     'STOP_AFTER' => 0,
     'CONFIG' => '',
-    'INSERT' => 0
+    'INSERT' => 0,
+    'QUIET' => 0
 );
 
 use OpenCorpora::Dict::Importer::Word;
@@ -62,7 +63,7 @@ sub sql_connect {
     my $newset = $dbh->prepare("INSERT INTO `rev_sets` VALUES(NULL, ?, ?)");
     $newset->execute(time(), 0) or die $DBI::errstr;
     my $set_id = $dbh->{'mysql_insertid'} or die $DBI::errstr;
-    print STDERR "Created revision set #$set_id\n";
+    print STDERR "Created revision set #$set_id\n" unless QUIET;
     my $max = $dbh->prepare("SELECT MAX(`lemma_id`) AS m FROM `dict_lemmata`");
     $max->execute() or die $DBI::errstr;
     my $r = $max->fetchrow_hashref();
@@ -540,7 +541,7 @@ sub print_or_insert {
     if (defined $self->{CONNECTION}) {
         $self->{CONNECTION_LEMMA}->execute($self->{WORD}->{LEMMA}) or die $DBI::errstr;
         $self->{CONNECTION_REVISION}->execute($self->{CONNECTION}->{'mysql_insertid'}, $self->{WORD}->to_xml()) or die $DBI::errstr;
-        print STDERR "Committed revision ".$self->{CONNECTION}->{'mysql_insertid'}."\r";
+        print STDERR "Committed revision ".$self->{CONNECTION}->{'mysql_insertid'}."\r" unless QUIET;
         # links
         my $link_typeid;
         for my $lnk(@{$self->{WORD}->{LINKS}}) {
