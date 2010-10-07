@@ -52,6 +52,13 @@ sub new {
 sub form_has_gram {
     my $form = shift;
     my $search = shift;
+    if ($search =~ /~\/(.+)\//) {
+        if ($form->{TEXT} =~ /$1/i) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
     for my $gram(@{$form->{GRAMMEMS}}) {
         if ($gram eq $search) {
             return 1;
