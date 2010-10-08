@@ -1,6 +1,7 @@
 # глобальные замены
 *
     CHANGE(П -> ADJF)
+    CHANGE (С -> NOUN)
     CHANGE(мр -> masc)
     CHANGE(ед -> sing)
     CHANGE(им -> nomn)
@@ -12,6 +13,8 @@
     CHANGE(жр -> femn)
     CHANGE(ср -> neut)
     CHANGE(мн -> plur)
+    CHANGE (дфст -> sgtm)
+    CHANGE (лок -> Geox)
     CHANGE(КР_ПРИЛ -> ADJS)
     CHANGE(сравн -> ADJC)
     CHANGE(кач -> Qual)
@@ -83,3 +86,4 @@
        LINK(1, 4, INFN-GRND)
 
 # все остальное
+

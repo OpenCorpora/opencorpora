@@ -11,9 +11,9 @@ binmode(STDOUT, ':utf8');
 binmode(STDERR, ':utf8');
 
 my $importer = new OpenCorpora::Dict::Importer;
-$importer->read_rules('/home/grand/corpus/scripts/import_rules.txt');
+$importer->read_rules('C://mathlingvo//scripts//import_rules.txt');
 #my $dump = dump($importer);
 #$dump =~ s/\\x{([0-9a-f]+)}/X/gi;
 #print $dump;
-$importer->read_aot('/home/grand/morphs.mrd.dump.utf8');
+$importer->read_aot('C://mathlingvo//morphs.mrd.dump.utf8.nouns');
 #$importer->read_aot('/home/grand/corpus/scripts/test.txt');
