@@ -35,6 +35,7 @@
     CHANGE(нп -> intr)
     CHANGE(дст -> actv)
     CHANGE(стр -> pssv)
+	
 #    CHANGE( -> Impr)
 #    CHANGE( -> Mult)
 #    CHANGE( -> Refl)
@@ -47,6 +48,11 @@
 #    CHANGE( -> indc)
     CHANGE(пвл -> impr)
 #    CHANGE( -> subj)
+    CHANGE (имя -> Name)
+	CHANGE (фам -> Surn)
+	CHANGE (отч -> Patr)
+	CHANGE (разг -> info)
+# надо придумать помету для разг
 
     CHANGE(0 -> fixd)
 # проблема CHANGE(0 -> fixd)
@@ -55,6 +61,9 @@
     SPLIT(ADJF, ADJS)
 
 # существительное
+(1 Patr)
+    SPLIT (Name, Patr)
+	    LINK (0, 1, NAME-PATR)
 
 # прилагательное
 * ADJF|PRTF
@@ -78,7 +87,7 @@
     
 # глагол (инфинитив, личная форма, причастие, краткое причастие, деепричастие)
 #(1 VERB) & (1 INFN) & (1 PRTF) & (1 PRTS) & (1 GRND) & (* VERB|INFN|PRTF|PRTS|GRND)
-(1 VERB) & (1 INFN) & (* VERB|INFN|PRTF|PRTS|GRND)
+1 VERB) & (1 INFN) & (* VERB|INFN|PRTF|PRTS|GRND)
    SPLIT(VERB, INFN, PRTF, PRTS, GRND)
        LINK(1, 0, INFN-VERB)
        LINK(1, 2, INFN-PRTF)
