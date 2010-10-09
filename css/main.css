@@ -1,9 +1,30 @@
 * {
     font-family: Georgia, Times, serif;
 }
+html {
+    height: 100%;
+}
 body {
     margin: 0px;
     padding: 0px;
+    height: 100%;
+}
+div#main {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    position: relative;
+}
+div#fake {
+    height: 25px;
+}
+div#footer {
+    height: 25px;
+    position: relative;
+    margin-top: -25px;
+    padding-left: 5px;
+    line-height: 25px;
+    font-size: small;
 }
 h1 {
     font-size: 26px;

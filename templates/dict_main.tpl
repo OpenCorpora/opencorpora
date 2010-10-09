@@ -5,6 +5,7 @@
 <link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css'/>
 </head>
 <body>
+<div id='main'>
 {include file='header.tpl'}
 <div id='content'>
     <p>Всего {$stats.cnt_g} граммем в {$stats.cnt_gt} группах, {$stats.cnt_l} лемм, {$stats.cnt_f} форм в индексе (не проверено {$stats.cnt_r} ревизий).</p>
@@ -19,5 +20,8 @@
 <div id='rightcol'>
 {include file='right.tpl'}
 </div>
+<div id='fake'></div>
+</div>
+{include file='footer.tpl'}
 </body>
 </html>

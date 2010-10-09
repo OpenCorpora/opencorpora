@@ -6,6 +6,7 @@
 <script language='JavaScript' src='{$web_prefix}/js/main.js'></script>
 </head>
 <body>
+<div id='main'>
 {include file='header.tpl'}
 <div id='content'>
 <h1>Настройки</h1>
@@ -54,5 +55,8 @@
 <div id='rightcol'>
 {include file='right.tpl'}
 </div>
+<div id='fake'></div>
+</div>
+{include file='footer.tpl'}
 </body>
 </html>

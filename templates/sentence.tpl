@@ -6,6 +6,7 @@
 <script language='JavaScript' src='{$web_prefix}/js/main.js'></script>
 </head>
 <body onload="highlight_source(); document.onkeyup=checkKeyUp; document.onkeydown=checkKeyDown; document.onmouseup=endScroll;">
+<div id='main'>
 {include file='header.tpl'}
 <div id='content'>
     {strip}
@@ -59,5 +60,8 @@
 <div id='rightcol'>
 {include file='right.tpl'}
 </div>
+<div id='fake'></div>
+</div>
+{include file='footer.tpl'}
 </body>
 </html>

@@ -6,6 +6,7 @@
 <script language='JavaScript' src='{$web_prefix}/js/main.js'></script>
 </head>
 <body>
+<div id='main'>
 {include file='header.tpl'}
 <div id='content'>
     Всего книг: <b>{$books.num}</b>, <a href='#' class='toggle' onClick='show(byid("book_add")); return false;'>добавить</a>:
@@ -19,5 +20,8 @@
 <div id='rightcol'>
 {include file='right.tpl'}
 </div>
+<div id='fake'></div>
+</div>
+{include file='footer.tpl'}
 </body>
 </html>
