@@ -35,6 +35,7 @@
     CHANGE(нп -> intr)
     CHANGE(дст -> actv)
     CHANGE(стр -> pssv)
+	
 #    CHANGE( -> Impr)
 #    CHANGE( -> Mult)
 #    CHANGE( -> Refl)
@@ -47,18 +48,43 @@
 #    CHANGE( -> indc)
     CHANGE(пвл -> impr)
 #    CHANGE( -> subj)
-    CHANGE(прев -> Supr)
+    CHANGE (имя -> Name)
+	CHANGE (фам -> Surn)
+	CHANGE (отч -> Patr)
+	CHANGE (разг -> infr)
+# надо придумать помету для разг
+
     CHANGE(0 -> fixd)
+# проблема CHANGE(0 -> fixd)
 # разбиваем по частям речи
+(1 ADJS) & (* ADJF|ADJS)
+    SPLIT(ADJF, ADJS)
 
 # существительное
+* sgtm
+	CHANGE (plur -> plur, a-pl)
+(1 Patr)
+	CHANGE (!infr -> form)
+(1 Name)
+	CHANGE (Name, form -> Name)
+(1 Patr)
+	SPLIT (Name, masc&form, masc&infr, femn&form, femn&infr)
+		LINK (0, 1, NAME-PATR)
+		LINK (0, 2, NAME-PATR)
+		LINK (0, 3, NAME-PATR)
+		LINK (0, 4, NAME-PATR)
+		LINK (1, 2, PATR-INFR)
+		LINK (1, 3, PATR-FEMN)
+		LINK (1, 4, PATR-IN_F)
+		LINK (3, 4, FEMN-IN_F)
+# я не переусердствовала со связями?
+# пришлось ввести фейковую грамемму form, я теперь не знаю как от нее избавиться, а как сделать без нее я пока не придумала
 
+
+
+
+		
 # прилагательное
-# сравнительная степень
-*ADJF
-    CHANGE(ADJF, ADJC -> ADJC)
-#(1 ADJC) & (* ADJF|ADJC) SPLIT(ADJF, ADJC)
-# убираем одушевленность	
 * ADJF|PRTF
     CHANGE(!accs,anim -> )
     CHANGE(!accs,inan -> )
@@ -66,27 +92,26 @@
     CHANGE(neut,sing,accs,anim -> neut,sing,accs)
     CHANGE(femn,sing,accs,inan -> femn,sing,accs)
     CHANGE(neut,sing,accs,inan -> neut,sing,accs)
-# краткие прилагательные	
-(1 ADJS) & (* ADJF|ADJS)
-    SPLIT(ADJF, ADJS)
-	    LINK(0, 1, ADJF-ADJS)	
 * ADJS|PRTS
     CHANGE(anim,inam -> )
 * ADJC    
     CHANGE(anim,inam -> )
-    CHANGE(2 -> Cmp2)
-#* ADJF & sing & ablt & femn & ~/ою$/  
-#   CHANGE( -> str1)	  
+    CHANGE(2 -> 2-nd)
+# 2  - пока вот так.    
 # Звездочка раз:    П, жр,ед,тв,од,но, PARA 2504 -НОЙ-НОЮ, PARA # 2503 -ОЙ-ОЮ, PARA 2506 -ЬНОЙ/-ЬНОЮ
 # звездочка два:     П, сравн,од,но     PARA 2504 -НЕЕ-НЕЙ, PARA # 2503 -ЕЕ-ЕЙ, PARA 2506 -ЬНЕЕ/-ЬНЕЙ
 # зведочка три:     П, сравн,2,од,но    PARA 2504 ПО-PARA-НЕЕ/ПО-PARA-НЕЙ, PARA # 2503 ПО-PARA-ЕЕ/ПО-PARA-ЕЙ, PARA 2506    ПО-PARA-ЬНЕЕ\PARA ПО-PARA-ЬНЕЙ
 
+
+    
 # глагол (инфинитив, личная форма, причастие, краткое причастие, деепричастие)
 #(1 VERB) & (1 INFN) & (1 PRTF) & (1 PRTS) & (1 GRND) & (* VERB|INFN|PRTF|PRTS|GRND)
-(1 VERB) & (1 INFN) & (* VERB|INFN|PRTF|PRTS|GRND)
-    SPLIT(VERB, INFN, PRTF, PRTS, GRND)
+1 VERB) & (1 INFN) & (* VERB|INFN|PRTF|PRTS|GRND)
+   SPLIT(VERB, INFN, PRTF, PRTS, GRND)
        LINK(1, 0, INFN-VERB)
        LINK(1, 2, INFN-PRTF)
        LINK(2, 3, PRTF-PRTS)
        LINK(1, 4, INFN-GRND)
+
 # все остальное
+
