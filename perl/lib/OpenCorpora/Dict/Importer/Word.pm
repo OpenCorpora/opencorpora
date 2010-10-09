@@ -75,6 +75,16 @@ sub count_form_has_gram {
     }
     return $count;
 }
+sub count_form_has_gram_set {
+    my $self = shift;
+    my $form = shift;
+    my @search = @{shift()};
+    my $count = 0;
+    for my $search(@search) {
+        $self->form_has_all_grams($form, $search) && $count++;
+    }
+    return $count;
+}
 sub form_has_all_grams {
     my $self = shift;
     my $form = shift;
@@ -128,6 +138,7 @@ sub change_grammems {
 sub split_lemma {
     my $self = shift;
     my @grammems = @{shift()};
+    my @new_grammems;
     my %new_words;
     my @out_words;
     my $has_aster = 0;
@@ -140,16 +151,25 @@ sub split_lemma {
             last;
         }
     }
+    #making @grammems an array of arrays
+    for my $gram(@grammems) {
+        my @t = split /\&/, $gram;
+        map { $_ =~ s/^\s+//; $_ =~ s/\s+$//; } @t;
+        for my $i(0..$#t) {
+            delete $t[$i] if $t[$i] eq '';
+        }
+        push @new_grammems, \@t;
+    }
     #splitting itself
     for my $form(@{$self->{FORMS}}) {
         $ok = 0;
         #check if any form has more than one of @grammems
-        if (count_form_has_gram($form, \@grammems) > 1) {
+        if ($self->count_form_has_gram_set($form, \@new_grammems) > 1) {
             warn "Warning: Form '".$form->{TEXT}."' has several grammems among (".join(',', @grammems)."), cannot split, skipping";
             return [$self];
         }
-        for my $gram(@grammems) {
-            if (form_has_gram($form, $gram)) {
+        for my $gram(@new_grammems) {
+            if ($self->form_has_all_grams($form, $gram)) {
                 push @{$new_words{$gram}}, $form;
                 $ok = 1;
                 last;
@@ -168,7 +188,7 @@ sub split_lemma {
     #split successful, now we should construct Word's
     my $k;
     for my $i(0..$#grammems) {
-        $k = $grammems[$i];
+        $k = $new_grammems[$i];
         next unless exists $new_words{$k};
         my $word = new();
         my @forms = @{$new_words{$k}};

@@ -364,7 +364,7 @@ sub apply_rules {
         if ($rule->{TYPE} == RULE_TYPE_GLOBAL) {
             print STDERR "Global, applying\n" if DEBUG && !INSERT;
             my $res = $self->apply_rule($rule);
-            last GF if $rule->{IS_LAST} && $res;
+            last GF if $rule->{IS_LAST};
         }
         elsif ($rule->{TYPE} == RULE_TYPE_ALL) {
             my $test = 1;
@@ -373,13 +373,14 @@ sub apply_rules {
                 if (!$self->test_condition($c)) {
                     $test = 0;
                     print STDERR "Condition check failed\n" if DEBUG && !INSERT;
+                    last GF if $rule->{IS_LAST};
                     last;
                 }
             }
             if ($test) {
                 my $res = $self->apply_rule($rule);
                 $applied = 1 if $res;
-                last GF if $rule->{IS_LAST} && $res;
+                last GF if $rule->{IS_LAST};
             }
         }
         elsif ($rule->{TYPE} == RULE_TYPE_ANY) {
@@ -389,7 +390,7 @@ sub apply_rules {
                     print STDERR "Condition check ok\n" if DEBUG && !INSERT;
                     my $res = $self->apply_rule($rule);
                     $applied = 1 if $res;
-                    last GF if $rule->{IS_LAST} && $res;
+                    last GF if $rule->{IS_LAST};
                     last;
                 }
             }
