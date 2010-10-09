@@ -22,9 +22,15 @@ div#footer {
     height: 25px;
     position: relative;
     margin-top: -25px;
-    padding-left: 5px;
+    padding: 0px 5px;
     line-height: 25px;
     font-size: small;
+}
+div#footer div#foot_left {
+    float: left;
+}
+div#footer div#foot_right {
+    float: right;
 }
 h1 {
     font-size: 26px;
