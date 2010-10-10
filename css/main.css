@@ -24,6 +24,7 @@ div#footer {
     margin-top: -25px;
     padding: 0px 5px;
     line-height: 25px;
+    background-color: #CCC;
     font-size: small;
 }
 div#footer div#foot_left {
@@ -31,6 +32,7 @@ div#footer div#foot_left {
 }
 div#footer div#foot_right {
     float: right;
+    padding-top: 5px;
 }
 h1 {
     font-size: 26px;
