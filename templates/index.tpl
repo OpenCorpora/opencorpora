@@ -1,9 +1,5 @@
 {* Smarty *}
-<html>
-<head>
-<meta http-equiv='content' content='text/html;charset=utf-8'/>
-<link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css'/>
-</head>
+{include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
 {include file='header.tpl'}
@@ -15,9 +11,9 @@
 <h2>Как я могу помочь?</h2>
 <p>Если вы:</p>
 <ul>
-<li>интересуетесь компьютерной лингвистикой и хотите поучаствовать в настоящем проекте;
-<li>хотя бы немного умеете программировать;
-<li>не знаете ничего о лингвистике и программировании, но вам просто интересно
+<li>интересуетесь компьютерной лингвистикой и хотите поучаствовать в настоящем проекте;</li>
+<li>хотя бы немного умеете программировать;</li>
+<li>не знаете ничего о лингвистике и программировании, но вам просто интересно</li>
 </ul>
 <p>&ndash; пишите нам на <b>opencorpora [at] gmail.com</b></p>
 {* Admin options *}
@@ -36,4 +32,4 @@
 </div>
 {include file='footer.tpl'}
 </body>
-</html>
+{include file='commonhtmlfooter.tpl'}

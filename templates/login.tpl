@@ -1,9 +1,5 @@
 {* Smarty *}
-<html>
-<head>
-<meta http-equiv='content' content='text/html;charset=utf-8'/>
-<link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css'/>
-</head>
+{include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
 {include file='header.tpl'}
@@ -52,10 +48,10 @@
 {else}
     <form action="?act=login" method="post" id='login_form'>    
     <table cellspacing='2'>
-    <tr><td>Имя пользователя<td><input type='text' name='login' size='20' maxlength='50'/></tr>
-    <tr><td>Пароль<td><input type='password' name='passwd' size='20' maxlength='50'/></tr>
-    <tr><td><td><input type='submit' value='Войти'/>
-    <tr><td colspan='2'>или <a href='?act=register'>зарегистрироваться</a></tr>
+    <tr><td>Имя пользователя</td><td><input type='text' name='login' size='20' maxlength='50'/></td></tr>
+    <tr><td>Пароль</td><td><input type='password' name='passwd' size='20' maxlength='50'/></td></tr>
+    <tr><td></td><td><input type='submit' value='Войти'/></td></tr>
+    <tr><td colspan='2'>или <a href='?act=register'>зарегистрироваться</a></td></tr>
     </table>
     </form>
 {/if}
@@ -66,4 +62,4 @@
 </div>
 {include file='footer.tpl'}
 </body>
-</html>
+{include file='commonhtmlfooter.tpl'}

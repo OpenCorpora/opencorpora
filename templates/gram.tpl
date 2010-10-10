@@ -1,10 +1,5 @@
 {* Smarty *}
-<html>
-<head>
-<meta http-equiv='content' content='text/html;charset=utf-8'/>
-<link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css'/>
-<script language='JavaScript' src='{$web_prefix}/js/main.js'></script>
-</head>
+{include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
 {include file='header.tpl'}
@@ -30,11 +25,11 @@
     {/if}
     <form action="?act=edit_gram" method="post">
     <table border="1" cellspacing="0" cellpadding="2">
-        <tr><th>Внутр. ID<th>Внешн. ID<th>Описание{if $is_admin}<th>&nbsp;{/if}</tr>
+        <tr><th>Внутр. ID</th><th>Внешн. ID</th><th>Описание</th>{if $is_admin}<th>&nbsp;</th>{/if}</tr>
         {foreach key=id item=group from=$editor.groups}
-            <tr><td colspan="2"><b>{$group.name}</b><td>&nbsp;{if $is_admin}<td>[<a href='?act=move_gg&dir=up&id={$id}'>вверх</a>] [<a href='?act=move_gg&dir=down&id={$id}'>вниз</a>] [<a href='?act=del_gg&id={$id}' onClick="return confirm('Вы уверены?');">x</a>]{else}&nbsp;{/if}</tr>
+            <tr><td colspan="2"><b>{$group.name}</b></td><td>&nbsp;</td><td>{if $is_admin}[<a href='?act=move_gg&amp;dir=up&amp;id={$id}'>вверх</a>] [<a href='?act=move_gg&amp;dir=down&amp;id={$id}'>вниз</a>] [<a href='?act=del_gg&amp;id={$id}' onClick="return confirm('Вы уверены?');">x</a>]{else}&nbsp;{/if}</td></tr>
             {foreach item=grammem from=$group.grammems}
-                <tr><td>{$grammem.name}<td>{$grammem.aot_id|default:'&nbsp;'}<td>{$grammem.description}{if $is_admin}<td>[<a href='?act=move_gram&dir=up&id={$grammem.id}'>вверх</a>] [<a href='?act=move_gram&dir=down&id={$grammem.id}'>вниз</a>] [<a href='#' onClick='edit_gram(this, {$grammem.id}); return false;'>ред.</a>]{else}&nbsp;{/if}</tr>
+                <tr><td>{$grammem.name}</td><td>{$grammem.aot_id|default:'&nbsp;'}</td><td>{$grammem.description}</td><td>{if $is_admin}[<a href='?act=move_gram&amp;dir=up&amp;id={$grammem.id}'>вверх</a>] [<a href='?act=move_gram&amp;dir=down&amp;id={$grammem.id}'>вниз</a>] [<a href='#' onClick='edit_gram(this, {$grammem.id}); return false;'>ред.</a>]{else}&nbsp;{/if}</td></tr>
             {/foreach}
         {/foreach}
     </table>
@@ -47,4 +42,4 @@
 </div>
 {include file='footer.tpl'}
 </body>
-</html>
+{include file='commonhtmlfooter.tpl'}

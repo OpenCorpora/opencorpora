@@ -1,9 +1,5 @@
 {* Smarty *}
-<html>
-<head>
-<meta http-equiv='content' content='text/html;charset=utf-8'/>
-<link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css'/>
-</head>
+{include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
 {include file='header.tpl'}
@@ -19,7 +15,7 @@
     {if $smarty.post.search_lemma}
         {if $search.lemma.count > 0}
         {foreach item=lemma from=$search.lemma.found}
-            <a href="?act=edit&id={$lemma.id}">[{$lemma.id}] {$lemma.text}</a><br/>
+            <a href="?act=edit&amp;id={$lemma.id}">[{$lemma.id}] {$lemma.text}</a><br/>
         {/foreach}
         {else}
             Ничего не найдено.
@@ -28,7 +24,7 @@
     {if $smarty.post.search_form}
         {if $search.form.count > 0}
         {foreach item=lemma from=$search.form.found}
-            <a href="?act=edit&id={$lemma.id}">[{$lemma.id}] {$lemma.text}</a><br/>
+            <a href="?act=edit&amp;id={$lemma.id}">[{$lemma.id}] {$lemma.text}</a><br/>
         {/foreach}
         {else}
             Ничего не найдено.
@@ -42,4 +38,4 @@
 </div>
 {include file='footer.tpl'}
 </body>
-</html>
+{include file='commonhtmlfooter.tpl'}

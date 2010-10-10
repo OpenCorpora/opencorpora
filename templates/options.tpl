@@ -1,10 +1,5 @@
 {* Smarty *}
-<html>
-<head>
-<meta http-equiv='content' content='text/html;charset=utf-8'/>
-<link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css'/>
-<script language='JavaScript' src='{$web_prefix}/js/main.js'></script>
-</head>
+{include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
 {include file='header.tpl'}
@@ -17,7 +12,7 @@
 <table cellpadding='5'>
 {foreach key=id item=option from=$meta}
     <tr>
-        <td>{$option.name}
+        <td>{$option.name}</td>
         <td>
         {if $option.value_type == 'string'}
             <input name='options[{$id}]' value='{$smarty.session.options[$id]|htmlspecialchars}'/>
@@ -26,6 +21,7 @@
                 {html_options values=$option.values output=$option.values selected=$smarty.session.options[$id]}
             </select>
         {/if}
+        </td>
     </tr>
 {/foreach}
 </table>
@@ -40,9 +36,9 @@
 <table cellpadding='5' id='tbl_meta_options'>
 {foreach key=id item=option from=$meta}
     <tr>
-    <td><input name='option_names[{$id}]' value='{$option.name|htmlspecialchars}'/>
-    <td><input name='option_values[{$id}]' value='{$option.value_type|htmlspecialchars}'/>
-    <td><input name='option_default[{$id}]' type='hidden'/>
+    <td><input name='option_names[{$id}]' value='{$option.name|htmlspecialchars}'/></td>
+    <td><input name='option_values[{$id}]' value='{$option.value_type|htmlspecialchars}'/></td>
+    <td><input name='option_default[{$id}]' type='hidden'/></td>
     </tr>
 {/foreach}
 </table>
@@ -59,4 +55,4 @@
 </div>
 {include file='footer.tpl'}
 </body>
-</html>
+{include file='commonhtmlfooter.tpl'}

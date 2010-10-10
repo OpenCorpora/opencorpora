@@ -1,9 +1,5 @@
 {* Smarty *}
-<html>
-<head>
-<meta http-equiv='content' content='text/html;charset=utf-8'/>
-<link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css'/>
-</head>
+{include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
 {include file='header.tpl'}
@@ -29,7 +25,7 @@
         {foreach item=tag from=$book.tags}
             {strip}
             <li>
-                [<a href="?act=del_tag&book_id={$book.id}&tag_name={$tag.prefix|cat:":"|cat:$tag.body|urlencode}" onClick="return confirm('Точно удалить этот тег?')">x</a>]&nbsp;
+                [<a href="?act=del_tag&amp;book_id={$book.id}&amp;tag_name={$tag.prefix|cat:":"|cat:$tag.body|urlencode}" onClick="return confirm('Точно удалить этот тег?')">x</a>]&nbsp;
                 {if $tag.prefix == 'url'}
                     url:<a href="{$tag.body}" target="_blank">{$tag.body}</a>
                 {else}
@@ -65,7 +61,7 @@
         {if isset($smarty.get.ext)}
             <a href="?book_id={$book.id}">к сокращённому виду</a>
         {else}
-            <a href="?book_id={$book.id}&ext">к расширенному виду</a>
+            <a href="?book_id={$book.id}&amp;ext">к расширенному виду</a>
         {/if}
         </p>
         <ol type="I">
@@ -103,4 +99,4 @@
 </div>
 {include file='footer.tpl'}
 </body>
-</html>
+{include file='commonhtmlfooter.tpl'}

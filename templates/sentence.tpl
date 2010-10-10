@@ -1,10 +1,5 @@
 {* Smarty *}
-<html>
-<head>
-<meta http-equiv='content' content='text/html;charset=utf-8'/>
-<link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css'/>
-<script language='JavaScript' src='{$web_prefix}/js/main.js'></script>
-</head>
+{include file='commonhtmlheader.tpl' title='Разметка предложения'}
 <body onload="highlight_source(); document.onkeyup=checkKeyUp; document.onkeydown=checkKeyDown; document.onmouseup=endScroll;">
 <div id='main'>
 {include file='header.tpl'}
@@ -64,4 +59,4 @@
 </div>
 {include file='footer.tpl'}
 </body>
-</html>
+{include file='commonhtmlfooter.tpl'}

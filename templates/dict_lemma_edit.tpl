@@ -1,10 +1,5 @@
 {* Smarty *}
-<html>
-<head>
-<meta http-equiv='content' content='text/html;charset=utf-8'/>
-<link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css'/>
-<script language='JavaScript' src='{$web_prefix}/js/main.js'></script>
-</head>
+{include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
 {include file='header.tpl'}
@@ -41,7 +36,7 @@
     <b>Связи</b>
     <ul>
     {foreach item=link from=$editor.links}
-    <li><a href="?act=edit&id={$link.lemma_id}">{$link.lemma_text}</a> ({$link.name})
+    <li><a href="?act=edit&amp;id={$link.lemma_id}">{$link.lemma_text}</a> ({$link.name})
     {/foreach}
     </ul>
 </div>
@@ -52,4 +47,4 @@
 </div>
 {include file='footer.tpl'}
 </body>
-</html>
+{include file='commonhtmlfooter.tpl'}

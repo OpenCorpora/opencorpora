@@ -3,7 +3,7 @@
 <div id='pre_header'>Система находится в режиме &laquo;только для чтения&raquo;.</div>
 {/if}
 <div id='header'>
-<div id='lblock'><a href='{$web_prefix}/'>Home</a>&nbsp;&nbsp;&nbsp;<span class='small'>&alpha;-версия</small></div>
+<div id='lblock'><a href='{$web_prefix}/'>Home</a>&nbsp;&nbsp;&nbsp;<span class='small'>&alpha;-версия</span></div>
 {strip}
 <div id='rblock'>
 {if $smarty.session.user_id}
