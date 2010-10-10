@@ -19,9 +19,9 @@ div#fake {
     height: 25px;
 }
 div#footer {
-    height: 25px;
+    height: 28px;
     position: relative;
-    margin-top: -25px;
+    margin-top: -28px;
     padding: 0px 5px;
     line-height: 25px;
     background-color: #CCC;
@@ -32,7 +32,7 @@ div#footer div#foot_left {
 }
 div#footer div#foot_right {
     float: right;
-    padding-top: 5px;
+    padding-top: 3px;
 }
 h1 {
     font-size: 26px;
