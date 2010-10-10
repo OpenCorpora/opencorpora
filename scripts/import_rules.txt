@@ -20,9 +20,8 @@
     CHANGE(кач -> Qual)
     CHANGE(од -> anim)
     CHANGE(но -> inan)
-    CHANGE(мест-п -> Apro)
+    CHANGE(МС-П -> Apro)
     CHANGE(чист-п -> Anum)
-    CHANGE(кач-неизм -> fixd)
     CHANGE(аббр -> Abbr)
     CHANGE(Г -> VERB)
     CHANGE(ИНФИНИТИВ -> INFN)
@@ -35,7 +34,8 @@
     CHANGE(нп -> intr)
     CHANGE(дст -> actv)
     CHANGE(стр -> pssv)
-	
+	CHANGE(притяж -> Poss)
+	CHANGE(жарг -> Slng)
 #    CHANGE( -> Impr)
 #    CHANGE( -> Mult)
 #    CHANGE( -> Refl)
@@ -51,14 +51,17 @@
     CHANGE (имя -> Name)
 	CHANGE (фам -> Surn)
 	CHANGE (отч -> Patr)
-	CHANGE (разг -> infr)
+	CHANGE (разг -> Infr)
+	CHANGE(прев -> Supr)
+	CHANGE(арх -> Obsl)
 # надо придумать помету для разг
 
     CHANGE(0 -> fixd)
-# проблема CHANGE(0 -> fixd)
+
 # разбиваем по частям речи
 (1 ADJS) & (* ADJF|ADJS)
     SPLIT(ADJF, ADJS)
+	    LINK (0, 1, ADJF-ADJS)
 
 # существительное
 * sgtm
@@ -96,8 +99,8 @@
     CHANGE(anim,inam -> )
 * ADJC    
     CHANGE(anim,inam -> )
-    CHANGE(2 -> 2-nd)
-# 2  - пока вот так.    
+    CHANGE(2 -> Cmp2)
+    
 # Звездочка раз:    П, жр,ед,тв,од,но, PARA 2504 -НОЙ-НОЮ, PARA # 2503 -ОЙ-ОЮ, PARA 2506 -ЬНОЙ/-ЬНОЮ
 # звездочка два:     П, сравн,од,но     PARA 2504 -НЕЕ-НЕЙ, PARA # 2503 -ЕЕ-ЕЙ, PARA 2506 -ЬНЕЕ/-ЬНЕЙ
 # зведочка три:     П, сравн,2,од,но    PARA 2504 ПО-PARA-НЕЕ/ПО-PARA-НЕЙ, PARA # 2503 ПО-PARA-ЕЕ/ПО-PARA-ЕЙ, PARA 2506    ПО-PARA-ЬНЕЕ\PARA ПО-PARA-ЬНЕЙ
