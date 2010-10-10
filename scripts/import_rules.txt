@@ -105,13 +105,18 @@
 
     
 # глагол (инфинитив, личная форма, причастие, краткое причастие, деепричастие)
-#(1 VERB) & (1 INFN) & (1 PRTF) & (1 PRTS) & (1 GRND) & (* VERB|INFN|PRTF|PRTS|GRND)
-1 VERB) & (1 INFN) & (* VERB|INFN|PRTF|PRTS|GRND)
-   SPLIT(VERB, INFN, PRTF, PRTS, GRND)
+(1 VERB) & (1 INFN) & (* VERB|INFN|PRTF|PRTS|GRND)
+   SPLIT(VERB, INFN, PRTF&actv&pres, PRTF&actv&past, PRTF&pssv&pres, PRTF&pssv&past, PRTS&pres, PRTS&past, GRND)
        LINK(1, 0, INFN-VERB)
        LINK(1, 2, INFN-PRTF)
-       LINK(2, 3, PRTF-PRTS)
-       LINK(1, 4, INFN-GRND)
+       LINK(1, 3, INFN-PRTF)
+       LINK(1, 4, INFN-PRTF)
+       LINK(1, 5, INFN-PRTF)
+       LINK(2, 6, PRTF-PRTS)
+       LINK(3, 7, PRTF-PRTS)
+       LINK(4, 6, PRTF-PRTS)
+       LINK(5, 7, PRTF-PRTS)
+       LINK(1, 8, INFN-GRND)
 
 # все остальное
 
