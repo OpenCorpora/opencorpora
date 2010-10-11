@@ -17,7 +17,7 @@ if ($action=='login') {
         header('Location:'.$_SERVER['HTTP_REFERER']);
         return;
     } else {
-        header('Location:/');
+        header('Location:index.php');
         return;
     }
 } elseif ($action=='reg_done') {
