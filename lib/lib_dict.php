@@ -141,10 +141,11 @@ function get_lemma_editor($id) {
         $out['forms'][] = array('text' => $farr['text'], 'grms' => implode(', ', $farr['grm']));
     }
     //links
-    $res = sql_query("(SELECT lemma1_id lemma_id, lemma_text, link_name FROM dict_links l LEFT JOIN dict_links_types t ON (l.link_type=t.link_id) LEFT JOIN dict_lemmata lm ON (l.lemma1_id=lm.lemma_id) WHERE lemma2_id=$id) UNION (SELECT lemma2_id lemma_id, lemma_text, link_name FROM dict_links l LEFT JOIN dict_links_types t ON (l.link_type=t.link_id) LEFT JOIN dict_lemmata lm ON (l.lemma2_id=lm.lemma_id) WHERE lemma1_id=$id)");
+    $res = sql_query("(SELECT lemma1_id lemma_id, lemma_text, link_name FROM dict_links l LEFT JOIN dict_links_types t ON (l.link_type=t.link_id) LEFT JOIN dict_lemmata lm ON (l.lemma1_id=lm.lemma_id) WHERE lemma2_id=$id) UNION (SELECT lemma2_id lemma_id, lemma_text, link_name FROM dict_links l LEFT JOIN dict_links_types t ON (l.link_type=t.link_id) LEFT JOIN dict_lemmata lm ON (l.lemma2_id=lm.lemma_id) WHERE lemma1_id=$id)", 1, 1);
     while($r = sql_fetch_array($res)) {
         $out['links'][] = array('lemma_id' => $r['lemma_id'], 'lemma_text' => $r['lemma_text'], 'name' => $r['link_name']);
     }
+    print_r($out);
     return $out;
 }
 function dict_save($array) {
