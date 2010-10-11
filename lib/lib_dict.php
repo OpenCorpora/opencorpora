@@ -319,6 +319,13 @@ function add_grammem($inner_id, $group, $outer_id, $descr) {
         show_error();
     }
 }
+function del_grammem($grm_id) {
+    if (sql_query("DELETE FROM `gram` WHERE `gram_id`=$grm_id LIMIT 1")) {
+        header("Location:dict.php?act=gram");
+        return;
+    } else
+        show_error();
+}
 function move_grammem($grm_id, $dir) {
     $r = sql_fetch_array(sql_query("SELECT `orderby` as `ord` FROM `gram` WHERE gram_id=$grm_id"));
     $ord = $r['ord'];

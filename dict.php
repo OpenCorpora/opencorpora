@@ -45,6 +45,13 @@ switch($action) {
         } else
             show_error($config['msg_notadmin']);
         break;
+    case 'del_gram':
+        if (is_admin()) {
+            $grm = (int)$_GET['id'];
+            del_grammem($grm);
+        } else
+            show_error($config['msg_notadmin']);
+        break;
     case 'edit_gram':
         if (is_admin()) {
             $id = (int)$_POST['id'];
