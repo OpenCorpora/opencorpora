@@ -145,7 +145,6 @@ function get_lemma_editor($id) {
     while($r = sql_fetch_array($res)) {
         $out['links'][] = array('lemma_id' => $r['lemma_id'], 'lemma_text' => $r['lemma_text'], 'name' => $r['link_name']);
     }
-    print_r($out);
     return $out;
 }
 function dict_save($array) {
