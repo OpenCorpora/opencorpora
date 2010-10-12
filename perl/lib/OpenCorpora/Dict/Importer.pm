@@ -72,7 +72,7 @@ sub sql_connect {
     my $newlemma = $dbh->prepare("INSERT INTO `dict_lemmata` VALUES(NULL, ?)");
     my $newrev = $dbh->prepare("INSERT INTO `dict_revisions` VALUES(NULL, '$set_id', ?, ?, '0')"); #null, set, lemma, text, null
     my $newlinktype = $dbh->prepare("INSERT INTO `dict_links_types` VALUES(NULL, ?)");
-    my $newlink = $dbh->prepare("INSERT INTO `dict_links` VALUES(?, ?, ?)");
+    my $newlink = $dbh->prepare("INSERT INTO `dict_links` VALUES(NULL,?, ?, ?)");
     my $newlinkrev = $dbh->prepare("INSERT INTO `dict_links_revisions` VALUES(NULL, '$set_id', ?, ?, ?, '1')");
     $self->{CONNECTION} = $dbh;
     $self->{CONNECTION_LEMMA} = $newlemma;

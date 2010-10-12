@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS `dict_links_types` (
 );
 
 CREATE TABLE IF NOT EXISTS `dict_links` (
+    `link_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `lemma1_id` INT UNSIGNED NOT NULL,
     `lemma2_id` INT UNSIGNED NOT NULL,
     `link_type` SMALLINT UNSIGNED NOT NULL,
