@@ -28,9 +28,9 @@ $dbh->do("SET NAMES utf8");
 my $rev = $dbh->prepare("SELECT MAX(rev_id) AS m FROM dict_revisions");
 my $read_gg = $dbh->prepare("SELECT * FROM gram_types ORDER by `orderby`");
 my $read_g = $dbh->prepare("SELECT inner_id FROM gram WHERE gram_type=? ORDER BY `orderby`");
-my $read_l = $dbh->prepare("SELECT * FROM (SELECT lemma_id, rev_id, rev_text FROM dict_revisions ORDER BY lemma_id, rev_id DESC) T GROUP BY T.lemma_id");
+my $read_l = $dbh->prepare("SELECT * FROM (SELECT lemma_id, rev_id, rev_text FROM dict_revisions WHERE lemma_id BETWEEN ? AND ? ORDER BY lemma_id, rev_id DESC) T GROUP BY T.lemma_id");
 
-$rev->execute();
+$rev->execute() or die $DBI::errstr;
 my $r = $rev->fetchrow_hashref();
 my $r1;
 my $maxrev = $r->{'m'};
@@ -39,26 +39,38 @@ my $header = "<?xml version=\"1.0\" encoding=\"utf8\" standalone=\"yes\"?>\n<dic
 my $footer = "</dictionary>";
 my $grams = "<grammems>\n";
 
-$read_gg->execute();
+$read_gg->execute() or die $DBI::errstr;
 while($r = $read_gg->fetchrow_hashref()) {
     $grams .= "    <group name=\"".tidy_xml($r->{'type_name'})."\">\n";
-    $read_g->execute($r->{'type_id'});
+    $read_g->execute($r->{'type_id'}) or die $DBI::errstr;
     while($r1 = $read_g->fetchrow_hashref()) {
         $grams .= "        <grammem>".tidy_xml($r1->{'inner_id'})."</grammem>\n";
     }
     $grams .= "    </group>\n";
 }
 $grams .= "</grammems>\n";
-my $lemmata = "<lemmata>\n";
 
-$read_l->execute();
-while($r = $read_l->fetchrow_hashref()) {
-    $r->{'rev_text'} =~ s/<\/?dr>//g;
-    $lemmata .= '    <lemma id="'.$r->{'lemma_id'}.'" rev="'.$r->{'rev_id'}.'">'.$r->{'rev_text'}."</lemma>\n";
+print $header.$grams;
+
+print "<lemmata>\n";
+
+my $flag = 1;
+my $min_lid = 0;
+
+while ($flag) {
+    $flag = 0;
+    $read_l->execute($min_lid + 1, $min_lid + 50000) or die $DBI::errstr;
+    while($r = $read_l->fetchrow_hashref()) {
+        $flag = 1;
+        $r->{'rev_text'} =~ s/<\/?dr>//g;
+        print '    <lemma id="'.$r->{'lemma_id'}.'" rev="'.$r->{'rev_id'}.'">'.$r->{'rev_text'}."</lemma>\n";
+    }
+    $min_lid += 50000;
 }
-$lemmata .= "</lemmata>\n";
 
-print $header.$grams.$lemmata.$footer."\n";
+print "</lemmata>\n";
+
+print $footer."\n";
 
 unlink($lock_path);
 
