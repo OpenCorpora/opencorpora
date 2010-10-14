@@ -59,9 +59,13 @@
     CHANGE(0 -> fixd)
 
 # разбиваем по частям речи
-(1 ADJS) & (* ADJF|ADJS)
-    SPLIT(ADJF, ADJS)
+	CHANGE(ADJF, ADJC -> ADJC)
+#	CHANGE(ADJC, Cmp2 -> Cmp2)
+	
+(1 ADJS|ADJC) & (* ADJF|ADJS|ADJC)
+    SPLIT(ADJF, ADJS, ADJC)
 	    LINK (0, 1, ADJF-ADJS)
+		LINK (0, 2, ADJF-ADJC)
 
 # существительное
 * sgtm
@@ -96,11 +100,12 @@
     CHANGE(femn,sing,accs,inan -> femn,sing,accs)
     CHANGE(neut,sing,accs,inan -> neut,sing,accs)
 * ADJS|PRTS
-    CHANGE(anim,inam -> )
+    CHANGE(anim,inan -> )
 * ADJC    
-    CHANGE(anim,inam -> )
+    CHANGE(anim,inan -> )
     CHANGE(2 -> Cmp2)
-    
+* ADJF	
+    CHANGE(~/ою$/ -> str1)    
 # Звездочка раз:    П, жр,ед,тв,од,но, PARA 2504 -НОЙ-НОЮ, PARA # 2503 -ОЙ-ОЮ, PARA 2506 -ЬНОЙ/-ЬНОЮ
 # звездочка два:     П, сравн,од,но     PARA 2504 -НЕЕ-НЕЙ, PARA # 2503 -ЕЕ-ЕЙ, PARA 2506 -ЬНЕЕ/-ЬНЕЙ
 # зведочка три:     П, сравн,2,од,но    PARA 2504 ПО-PARA-НЕЕ/ПО-PARA-НЕЙ, PARA # 2503 ПО-PARA-ЕЕ/ПО-PARA-ЕЙ, PARA 2506    ПО-PARA-ЬНЕЕ\PARA ПО-PARA-ЬНЕЙ
