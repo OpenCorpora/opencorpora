@@ -21,6 +21,7 @@ use constant RULE_TYPE_GLOBAL => 3;
 use constant COND_TYPE_ALL => 1;
 use constant COND_TYPE_ONE => 2;
 use constant COND_TYPE_NUM => 3;
+use constant COND_TYPE_PARA => 4;
 use constant REL_TYPE_AND => 1;
 use constant REL_TYPE_OR => 2;
 use constant ACTION_TYPE_CHANGE => 1;
@@ -256,6 +257,11 @@ sub parse_simple_condition {
         $cond->{TYPE} = COND_TYPE_NUM;
         return $cond;
     }
+    if ($str =~ /^\#(\d+)$/) {
+        $cond->{PARA_NO} = $1;
+        $cond->{TYPE} = COND_TYPE_PARA;
+        return $cond;
+    }
     if ($str =~ s/^\*\s*//) {
         $cond->{TYPE} = COND_TYPE_ALL;
     }
@@ -410,7 +416,13 @@ sub test_condition {
         }
         return 0;
     }
-    elsif ($cond->{TYPE} == COND_TYPE_ONE) {
+    if ($cond->{TYPE} == COND_TYPE_PARA) {
+        if ($cond->{PARA_NO} == $word->{PARADIGM_NO}) {
+            return 1;
+        }
+        return 0;
+    }
+    if ($cond->{TYPE} == COND_TYPE_ONE) {
         print STDERR "  COND_TYPE_ONE\n" if DEBUG && !INSERT;
         for my $form(@{$word->{FORMS}}) {
             #print STDERR "  testing form ".$form->{TEXT}."\n";
@@ -422,7 +434,7 @@ sub test_condition {
         }
         return 0;
     }
-    elsif ($cond->{TYPE} == COND_TYPE_ALL) {
+    if ($cond->{TYPE} == COND_TYPE_ALL) {
         print STDERR "COND_TYPE_ALL\n" if DEBUG && !INSERT;
         for my $form(@{$word->{FORMS}}) {
             #print STDERR "  testing form ".$form->{TEXT}."\n";
@@ -434,9 +446,7 @@ sub test_condition {
         }
         return 1;
     }
-    else {
-        die "Error: Wrong COND_TYPE";
-    }
+    die "Error: Wrong COND_TYPE";
 }
 sub apply_rule {
     my $self = shift;
