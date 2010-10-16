@@ -253,6 +253,47 @@ function paradigm_diff($array1, $array2) {
     }
     return $diff;
 }
+function del_lemma($id) {
+    error_reporting(0);
+    //delete links (but preserve history)
+    $res = sql_query("SELECT link_id FROM dict_links WHERE lemma1_id=$id OR lemma2_id=$id");
+    $revset_id = create_revset();
+    print "revset created ";
+    while($r = sql_fetch_array($res)) {
+        print "will delete link $r[link_id] ";
+        if (!del_link($r['link_id'], $revset_id)) {
+            show_error();
+            return;
+        }
+    }
+    //update `updated_forms`
+    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$id ORDER BY `rev_id` DESC LIMIT 1"));
+    $pdr = parse_dict_rev($r['rev_text']);
+    foreach($pdr['forms'] as $form) {
+        print $form['text'];
+        if (!sql_query("INSERT INTO `updated_forms` VALUES('".$form['text']."')")) {
+            show_error();
+            return;
+        }
+    }
+    //delete forms from form2lemma
+    sql_query("DELETE FROM `form2lemma` WHERE lemma_id=$id");
+    //delete lemma
+    if (sql_query("INSERT INTO dict_lemmata_deleted (SELECT * FROM dict_lemmata WHERE lemma_id=$id LIMIT 1)") && sql_query("DELETE FROM dict_lemmata WHERE lemma_id=$id LIMIT 1")) {
+        header("Location:dict.php");
+        return;
+    } else
+        show_error();
+}
+function del_link($link_id, $revset_id=0) {
+    $r = sql_fetch_array(sql_query("SELECT * FROM dict_links WHERE link_id=$link_id LIMIT 1"));
+    if (!$revset_id) $revset_id = create_revset();
+    if (sql_query("INSERT INTO dict_links_revisions VALUES(NULL, '$revset_id', '".$r['lemma1_id']."', '".$r['lemma2_id']."', '".$r['link_type']."', '0')") &&
+        sql_query("DELETE FROM dict_links WHERE link_id=$link_id LIMIT 1")) {
+        return 1;
+    }
+    return 0;
+}
 
 // GRAMMEM EDITOR
 function get_grammem_editor() {

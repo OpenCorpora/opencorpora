@@ -68,6 +68,12 @@ switch($action) {
         } else
             show_error($config['msg_notadmin']);
         break;
+    case 'del_lemma':
+        if (is_admin()) {
+            del_lemma((int)$_GET['lemma_id']);
+        } else
+            show_error($config['msg_notadmin']);
+        break;
     case 'lemmata':
         $smarty->assign('search', get_dict_search_results($_POST));
         $smarty->display('dict_lemmata.tpl');
