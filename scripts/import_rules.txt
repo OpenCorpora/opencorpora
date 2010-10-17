@@ -103,6 +103,10 @@
 
 		
 # прилагательное
+* Apro
+    CHANGE( -> ADJF)
+* Anum
+    CHANGE( -> ADJF)
 * ADJF|PRTF
     CHANGE(!accs,anim -> )
     CHANGE(!accs,inan -> )
@@ -120,10 +124,7 @@
     CHANGE(~/ою$/ -> str1)
 	CHANGE(~/ею$/ -> str1)
 	
- 	
-# Звездочка раз:    П, жр,ед,тв,од,но, PARA 2504 -НОЙ-НОЮ, PARA # 2503 -ОЙ-ОЮ, PARA 2506 -ЬНОЙ/-ЬНОЮ
-# звездочка два:     П, сравн,од,но     PARA 2504 -НЕЕ-НЕЙ, PARA # 2503 -ЕЕ-ЕЙ, PARA 2506 -ЬНЕЕ/-ЬНЕЙ
-# зведочка три:     П, сравн,2,од,но    PARA 2504 ПО-PARA-НЕЕ/ПО-PARA-НЕЙ, PARA # 2503 ПО-PARA-ЕЕ/ПО-PARA-ЕЙ, PARA 2506    ПО-PARA-ЬНЕЕ\PARA ПО-PARA-ЬНЕЙ
+
 
 
     
