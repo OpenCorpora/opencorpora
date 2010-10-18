@@ -7,12 +7,11 @@ if (is_admin()) {
         case 'add':
             $book_id = array_pop($_POST['book']);
             if (!addtext_add($_POST['txt'], (int)$book_id, (int)$_POST['newpar'])) {
-                die("Text adding failed");
+                show_error("Text adding failed");
             } else {
                 header("Location:add.php");
-                return;
             }
-            break;
+            return;
         case 'check':
             $smarty->assign('check', addtext_check($_POST['txt']));
             $smarty->display('addtext_check.tpl');

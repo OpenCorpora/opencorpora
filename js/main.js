@@ -65,10 +65,8 @@ function changeSelectBook(n) {
         addOption(s_new, '-- Не выбрано --', 0);
         el.disabled = true;
     }
-    if (s_old.value==0) {
-        updateLastParInfo(0);
-        return;
-    }
+    updateLastParInfo(0);
+    if (s_old.value==0) return;
     clearCh(s_new);
     addOption(s_new, 'Загрузка...', 0);
     var req = makeRequest();
@@ -79,6 +77,7 @@ function changeSelectBook(n) {
             el = req.responseXML.documentElement;
             if (el.childNodes.length==0) {
                 updateLastParInfo(s_old.value);
+                return;
             }
             for (i = 0; i<el.childNodes.length; ++i) {
                 t = el.childNodes[i];
