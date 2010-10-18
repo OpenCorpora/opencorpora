@@ -18,7 +18,7 @@
             <a href="?act=edit&amp;id={$lemma.id}">[{$lemma.id}] {$lemma.text}</a><br/>
         {/foreach}
         {else}
-            Ничего не найдено.
+            <p>Ничего не найдено. <a href="?act=edit&amp;id=-1&amp;text={$smarty.post.search_lemma|urlencode}">Добавить лемму &laquo;{$smarty.post.search_lemma}&raquo;</a>?</p>
         {/if}
     {/if}
     {if $smarty.post.search_form}
@@ -27,7 +27,7 @@
             <a href="?act=edit&amp;id={$lemma.id}">[{$lemma.id}] {$lemma.text}</a><br/>
         {/foreach}
         {else}
-            Ничего не найдено.
+            <p>Ничего не найдено.</p>
         {/if}
     {/if}
 </div>

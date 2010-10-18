@@ -8,6 +8,7 @@
     {if $is_admin}
         <p><a href="?act=gram">Редактор граммем</a><br/>
         <a href="?act=lemmata">Редактор лемм</a></p>
+        <p><button onClick="location.href='?act=edit&amp;id=-1'">Добавить лемму</button></p>
     {else}
         <p><a href="?act=gram">Просмотр граммем</a><br/>
         <a href="?act=lemmata">Просмотр лемм</a></p>

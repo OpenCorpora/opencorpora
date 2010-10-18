@@ -12,10 +12,15 @@
     <form action="?act=save" method="post">
         <b>Лемма</b>:<br/>
         <input type="hidden" name="lemma_id" value="{$editor.lemma.id}"/>
+        {if $editor.lemma.id > 0}
         <input name="lemma_text" readonly="readonly" value="{$editor.lemma.text|htmlspecialchars}"/>
         <input name="lemma_gram" value="{$editor.lemma.grms|htmlspecialchars}"/>
         <input type="button" onClick="location.href='dict_history.php?lemma_id={$editor.lemma.id}'" value="История"/>
         <input type="button" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" value="Удалить"/>
+        {else}
+        <input name="lemma_text" value="{$smarty.get.text}"/>
+        <input name="lemma_gram" value="граммемы" onClick="this.value=''; this.onclick=''"/>
+        {/if}
         <br/>
         <b>Формы
         {if $is_admin} (оставление левого поля пустым удаляет форму){/if}

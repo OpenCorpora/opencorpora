@@ -133,6 +133,7 @@ function form_exists($f) {
 // DICTIONARY EDITOR
 function get_lemma_editor($id) {
     $out = array('lemma' => array('id' => $id));
+    if ($id == -1) return $out;
     $r = sql_fetch_array(sql_query("SELECT l.`lemma_text`, d.`rev_id`, d.`rev_text` FROM `dict_lemmata` l LEFT JOIN `dict_revisions` d ON (l.lemma_id = d.lemma_id) WHERE l.`lemma_id`=$id ORDER BY d.rev_id DESC LIMIT 1"));
     $arr = parse_dict_rev($r['rev_text']);
     $out['lemma']['text'] = $arr['lemma']['text'];
@@ -147,8 +148,55 @@ function get_lemma_editor($id) {
     }
     return $out;
 }
+function dict_add_lemma($array) {
+    $ltext = $array['form_text'];
+    $lgram = $array['form_gram'];
+    $lemma_gram_new = $array['lemma_gram'];
+    $lemma_text = $array['lemma_text'];
+    $new_paradigm = array();
+    foreach($ltext as $i=>$text) {
+        $text = trim($text);
+        if ($text == '') {
+            //the form is to be deleted, so we do nothing
+        } elseif (strpos($text, ' ') !== false) {
+            show_error("Error: a form cannot contain whitespace ($text)");
+            return;
+        } else {
+            //TODO: perhaps some data validity check?
+            array_push($new_paradigm, array($text, $lgram[$i]));
+        }
+    }
+    $upd_forms = array();
+    foreach($new_paradigm as $form) {
+        $upd_forms[] = $form[0];
+    }
+    $upd_forms = array_unique($upd_forms);
+    foreach($upd_forms as $upd_form) {
+        if (!sql_query("INSERT INTO `updated_forms` VALUES('".mysql_real_escape_string($upd_form)."')")) {
+            show_error("Error at updated_forms :(");
+            exit;
+        }
+    }
+    //new lemma in dict_lemmata
+    if (!sql_query("INSERT INTO dict_lemmata VALUES(NULL, '".mysql_real_escape_string($lemma_text)."')")) {
+        show_error();
+        exit;
+    }
+    $lemma_id = sql_insert_id();
+    //array -> xml
+    $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
+    $res = new_dict_rev($lemma_id, $new_xml);
+    if ($res) {
+        header("Location:dict.php?act=edit&saved&id=$lemma_id");
+        return;
+    } else show_error("Error on saving");
+}
 function dict_save($array) {
-    //print_r($array);
+    //it may be a totally new lemma
+    if ($array['lemma_id'] == -1) {
+        dict_add_lemma($array);
+        return;
+    }
     $ltext = $array['form_text'];
     $lgram = $array['form_gram'];
     $lemma_gram_new = $array['lemma_gram'];
