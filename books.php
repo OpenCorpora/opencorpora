@@ -30,7 +30,7 @@ if (is_admin()) {
             books_del_tag($book_id, $tag_name);
             break;
         default:
-            if ($book_id = (int)$_GET['book_id']) {
+            if (isset($_GET['book_id']) && $book_id = (int)$_GET['book_id']) {
                 $smarty->assign('book', get_book_page($book_id, isset($_GET['ext'])));
                 $smarty->display('book.tpl');
             } else {

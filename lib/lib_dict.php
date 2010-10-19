@@ -96,13 +96,16 @@ function parse_dict_rev($text) {
         //if there is only one form
         $parsed['forms'][0]['text'] = $arr['f']['_a']['t'];
         $t = array();
-        foreach ($arr['f']['_c']['g'] as $garr) {
-            if (isset($garr['v'])) {
-                //if there is only one grammem
-                $t[] = $garr['v'];
-                break;
+        if (isset($arr['f']['_c'])) {
+            //if there are grammems at all
+            foreach ($arr['f']['_c']['g'] as $garr) {
+                if (isset($garr['v'])) {
+                    //if there is only one grammem
+                    $t[] = $garr['v'];
+                    break;
+                }
+                $t[] = $garr['_a']['v'];
             }
-            $t[] = $garr['_a']['v'];
         }
         $parsed['forms'][0]['grm'] = $t;
     } else {

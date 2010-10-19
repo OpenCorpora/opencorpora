@@ -1,7 +1,9 @@
 <?php
 require('lib/header.php');
 require('lib/lib_dict.php');
-$action = $_GET['act'];
+if (isset($_GET['act']))
+    $action = $_GET['act'];
+else $action = '';
 if (is_admin()) {
     switch($action) {
         case 'add':
