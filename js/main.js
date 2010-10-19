@@ -251,9 +251,9 @@ function dict_reload(td) {
                 new_div.setAttribute('id', 'var_'+tf_id+'_'+(i+1));
                 new_div.innerHTML = '<img src="spacer.gif" height="1" width="100"><input name="var_flag['+tf_id+']['+(i+1)+']" value="1" type="hidden">';
                 if (cvar.firstChild.getAttribute('id') > 0)
-                    new_div.innerHTML += '<a href="dict.php?act=edit&amp;id='+cvar.firstChild.getAttribute('id')+'">'+cvar.firstChild.getAttribute('text')+'</a>';
+                    new_div.innerHTML += '<a href="dict.php?act=edit&amp;id='+cvar.firstChild.getAttribute('id')+'">'+cvar.firstChild.getAttribute('t')+'</a>';
                 else
-                    new_div.innerHTML += '<span>'+cvar.firstChild.getAttribute('text')+'</span>';
+                    new_div.innerHTML += '<span>'+cvar.firstChild.getAttribute('t')+'</span>';
                 new_div.innerHTML += '<a class="best_var" onclick="best_var(this.parentNode); return false" href="#">v</a><a class="del_var" onclick="del_var(this.parentNode); return false" href="#">x</a><br/>' + cvar.firstChild.firstChild.getAttribute('v');
                 for (j = 1; cvar.firstChild.childNodes[j] != null; ++j) {
                     new_div.innerHTML += ', ' + cvar.firstChild.childNodes[j].getAttribute('v');

@@ -44,22 +44,22 @@ function get_dict_search_results($post) {
     return $out;
 }
 function generate_tf_rev($token) {
-    $out = '<tf_rev text="'.htmlspecialchars($token).'">';
-    if (preg_match('/[А-Яа-яЁё\-]/u', $token) && $token != '-') {
+    $out = '<tfr t="'.htmlspecialchars($token).'">';
+    if (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {
         $res = sql_query("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text='$token'");
         if (sql_num_rows($res) > 0) {
             while($r = sql_fetch_array($res)) {
-                $out .= '<var><lemma id="'.$r['lemma_id'].'" text="'.$r['lemma_text'].'">'.$r['grammems'].'</lemma></var>';
+                $out .= '<v><l id="'.$r['lemma_id'].'" t="'.$r['lemma_text'].'">'.$r['grammems'].'</l></v>';
             }
         } else {
-            $out .= '<var><lemma id="0" text="'.htmlspecialchars(lc($token)).'"><g v="UnknownPOS"/></lemma></var>';
+            $out .= '<v><l id="0" t="'.htmlspecialchars(lc($token)).'"><g v="UNKN"/></l></v>';
         }
     } elseif (preg_match('/^[\,\.\:\;\-\(\)\'\"\[\]\?\!\/]+$/', $token)) {
-        $out .= '<var><lemma id="0" text="'.htmlspecialchars($token).'"><g v="PM"/></lemma></var>';
+        $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="PNCT"/></l></v>';
     } else {
-        $out .= '<var><lemma id="0" text="'.htmlspecialchars($token).'"><g v="UnknownPOS"/></lemma></var>';
+        $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="UNKN"/></l></v>';
     }
-    $out .= '</tf_rev>';
+    $out .= '</tfr>';
     return $out;
 }
 function dict_get_select_gramtype() {

@@ -13,9 +13,9 @@ function get_sentence($sent_id) {
 
         $out['tokens'][] = array(
             'tf_id'        => $r['tf_id'],
-            'tf_text'      => $arr['tf_rev']['_a']['text'],
+            'tf_text'      => $arr['tfr']['_a']['t'],
             'dict_updated' => $r['dict_updated'],
-            'variants'     => get_morph_vars($arr['tf_rev']['_c']['var'])
+            'variants'     => get_morph_vars($arr['tfr']['_c']['v'])
         );
     }
     $out['fulltext'] = typo_spaces(implode(' ', $tf_text), 1);
@@ -29,14 +29,16 @@ function get_morph_vars($xml_arr) {
         //multiple variants
         $out = array();
         $i = 1;
-        foreach($xml_arr as $xml_var_arr) {
-            $out[] = get_morph_vars_inner($xml_var_arr, $i++);
+        if (is_array($xml_arr)) {
+            foreach($xml_arr as $xml_var_arr) {
+                $out[] = get_morph_vars_inner($xml_var_arr, $i++);
+            }
         }
         return $out;
     }
 }
 function get_morph_vars_inner($xml_arr, $num) {
-    $lemma_grm = $xml_arr['_c']['lemma']['_c']['g'];
+    $lemma_grm = $xml_arr['_c']['l']['_c']['g'];
     $grm_arr = array();
     if (isset ($lemma_grm['_a']) && is_array($lemma_grm['_a'])) {
         array_push($grm_arr, $lemma_grm['_a']['v']);
@@ -47,8 +49,8 @@ function get_morph_vars_inner($xml_arr, $num) {
     }
     return array(
         'num'        => $num,
-        'lemma_id'   => $xml_arr['_c']['lemma']['_a']['id'],
-        'lemma_text' => $xml_arr['_c']['lemma']['_a']['text'],
+        'lemma_id'   => $xml_arr['_c']['l']['_a']['id'],
+        'lemma_text' => $xml_arr['_c']['l']['_a']['t'],
         'gram_list'  => implode(', ', $grm_arr)
     );
 }
