@@ -296,5 +296,27 @@ sub get_lemma_grammems {
     }
     return \@out;
 }
+sub sort_grammems {
+    my $self = shift;
+    my $ref = shift;
+
+    for my $form(@{$self->{FORMS}}) {
+        $self->sort_form_grammems($form, $ref);
+    }
+}
+sub sort_form_grammems {
+    my $self = shift;
+    my $form = shift;
+    my %order = %{shift()};
+
+    for my $gram(@{$form->{GRAMMEMS}}) {
+        if (!exists $order{$gram}) {
+            $order{$gram} = scalar keys %order;
+        }
+    }
+
+    my @new_gram = sort {$order{$a} <=> $order{$b}} @{$form->{GRAMMEMS}};
+    $form->{GRAMMEMS} = \@new_gram;
+}
 
 1;

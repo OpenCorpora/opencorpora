@@ -10,7 +10,8 @@ use Getopt::constant (
     'STOP_AFTER' => 0,
     'CONFIG' => '',
     'INSERT' => 0,
-    'QUIET' => 0
+    'QUIET' => 0,
+    'SORT_GRAMMEMS' => 0
 );
 
 use OpenCorpora::Dict::Importer::Word;
@@ -46,6 +47,7 @@ sub new {
     $self->{WORD_ID} = 1;
     $self->{BASE_WORD_ID} = undef;
     $self->{LINK_TYPES} = undef;    #all existing link types so far (in order not to ask the DB if it has one)
+    $self->{GRAM_ORDER} = undef;
 
     bless $self;
     #return is implicit in bless
@@ -62,6 +64,11 @@ sub sql_connect {
     close F;
     my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
     $dbh->do("SET NAMES utf8");
+    $self->{CONNECTION} = $dbh;
+}
+sub prepare_insert {
+    my $self = shift;
+    my $dbh = $self->{CONNECTION};
     my $newset = $dbh->prepare("INSERT INTO `rev_sets` VALUES(NULL, ?, ?)");
     $newset->execute(time(), 0) or die $DBI::errstr;
     my $set_id = $dbh->{'mysql_insertid'} or die $DBI::errstr;
@@ -75,12 +82,20 @@ sub sql_connect {
     my $newlinktype = $dbh->prepare("INSERT INTO `dict_links_types` VALUES(NULL, ?)");
     my $newlink = $dbh->prepare("INSERT INTO `dict_links` VALUES(NULL,?, ?, ?)");
     my $newlinkrev = $dbh->prepare("INSERT INTO `dict_links_revisions` VALUES(NULL, '$set_id', ?, ?, ?, '1')");
-    $self->{CONNECTION} = $dbh;
     $self->{CONNECTION_LEMMA} = $newlemma;
     $self->{CONNECTION_REVISION} = $newrev;
     $self->{CONNECTION_LINKTYPE} = $newlinktype;
     $self->{CONNECTION_LINK} = $newlink;
     $self->{CONNECTION_LINKREV} = $newlinkrev;
+}
+sub read_grammem_order {
+    my $self = shift;
+    my $gram = $self->{CONNECTION}->prepare("SELECT inner_id FROM gram g JOIN gram_types gt ON (g.gram_type=gt.type_id) ORDER BY gt.orderby, g.orderby");
+    $gram->execute();
+    my $i = 0;
+    while(my $r = $gram->fetchrow_hashref()) {
+        $self->{GRAM_ORDER}->{$r->{'inner_id'}} = $i++;
+    }
 }
 sub read_aot {
     my $self = shift;
@@ -90,8 +105,14 @@ sub read_aot {
     my $counter;
 
     #connecting to mysql server
-    if (INSERT && CONFIG) {
+    if (CONFIG) {
         $self->sql_connect();
+        if (INSERT) {
+            $self->prepare_insert();
+        }
+        if (SORT_GRAMMEMS) {
+            $self->read_grammem_order();
+        }
     }
 
     open F, $path or die "Error: Cannot read $path";
@@ -551,7 +572,8 @@ sub update_gram_stats {
 }
 sub print_or_insert {
     my $self = shift;
-    if (defined $self->{CONNECTION}) {
+    $self->{WORD}->sort_grammems($self->{GRAM_ORDER}) if SORT_GRAMMEMS;
+    if (INSERT) {
         $self->{CONNECTION_LEMMA}->execute($self->{WORD}->{LEMMA}) or die $DBI::errstr;
         $self->{CONNECTION_REVISION}->execute($self->{CONNECTION}->{'mysql_insertid'}, $self->{WORD}->to_xml()) or die $DBI::errstr;
         print STDERR "Committed revision ".$self->{CONNECTION}->{'mysql_insertid'}."\r" unless QUIET;
