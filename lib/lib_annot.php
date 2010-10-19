@@ -13,7 +13,7 @@ function get_sentence($sent_id) {
 
         $out['tokens'][] = array(
             'tf_id'        => $r['tf_id'],
-            'tf_text'      => $arr['tfr']['_a']['t'],
+            'tf_text'      => $r['tf_text'],
             'dict_updated' => $r['dict_updated'],
             'variants'     => get_morph_vars($arr['tfr']['_c']['v'])
         );
