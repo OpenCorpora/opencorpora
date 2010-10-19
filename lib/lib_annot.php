@@ -36,7 +36,7 @@ function get_morph_vars($xml_arr) {
     }
 }
 function get_morph_vars_inner($xml_arr, $num) {
-    $lemma_grm = $xml_arr['_c']['lemma']['_c']['grm'];
+    $lemma_grm = $xml_arr['_c']['lemma']['_c']['g'];
     $grm_arr = array();
     if (isset ($lemma_grm['_a']) && is_array($lemma_grm['_a'])) {
         array_push($grm_arr, $lemma_grm['_a']['val']);
