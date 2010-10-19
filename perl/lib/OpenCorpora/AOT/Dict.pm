@@ -23,10 +23,38 @@ sub new {
   bless($self, $class);
 
   $self->load($self->{fnGramtab}, $self->{fnMrd}) if exists($self->{fnMrd}) && exists($self->{fnGramtab});
+  $self->build_forms();
 
   return $self;
 #  bless($self, $class);
 } 
+
+sub build_forms {
+  my ($self) = @_;
+  
+  foreach my $l (@{$self->{aLemma}}) {
+    my ($stem, $pid) = ($l->{stem}, $l->{pid});
+
+    scalar @{$self->{aParadigm}} >= $pid or die "Paradigm id ($pid) is wrong for lemma ($stem).";
+    my $rp = $self->{aParadigm}->[$pid];
+
+    my $prefix = "";
+    if (defined $l->{prefid}) {
+      scalar @{$self->{aPrefix}} >= $l->{prefid} or die "Prefix id (" . $l->{prefid} . ") is wrong for lemma ($stem).";
+      $prefix = $self->{aPrefix}->[$l->{prefid}];
+    }
+
+    foreach my $f (@{$rp->{forms}}) {
+      my $form_prefix = "";
+      if (defined $f->{prefix}) {
+        $form_prefix = $f->{prefix};
+      }
+      my $text = $prefix . $form_prefix . $l->{stem} . $f->{flex};
+      print STDERR "F $text " . $l->{ancode} . " " . $f->{ancode} . "\n";
+    }
+  } 
+  print STDERR "\n";
+}
 
 sub load {
   my ($self, $fnGramtab, $fnMrd) = @_;
@@ -53,6 +81,7 @@ sub load_mrd_section {
   while (<$fh>) {
     chomp $_;
     $_ = decode("windows-1251", $_);
+    $_ =~ s/[\n\r]$//;
     $rsub->($_);
     if (--$n <= 0) {
       last;
