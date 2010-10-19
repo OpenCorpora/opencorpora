@@ -3,6 +3,12 @@ package OpenCorpora::AOT::Dict;
 use strict;
 use warnings;
 use utf8;
+use Encode;
+
+use Dict::Gramtab;
+use Dict::Paradigm;
+use Dict::AccentParadigm;
+use Dict::Lemma;
 
 our $VERSION = "0.01";
 
@@ -32,21 +38,24 @@ sub load {
 sub load_mrd {
   my ($self, $fnMrd) = @_;
 
-  open(my $fh, "<", $fnMrd) or die $!;
-  load_mrd_section($fh, sub { push @{$self->{aParadigm}}, new OpenCorpora::AOT::Dict::Paradigm(shift); });
-  load_mrd_section($fh, sub { push @{$self->{aAccentParadigm}}, new OpenCorpora::AOT::Dict::AccentParadigm(shift); });
-  load_mrd_section($fh, sub { push @{$self->{aHistory}}, shift });
-  load_mrd_section($fh, sub { push @{$self->{aPrefix}}, shift });
-  load_mrd_section($fh, sub { push @{$self->{aLemma}}, new OpenCorpora::AOT::Dict::Lemma(shift); });
-  close($fh);
+  open(FH, "<", $fnMrd) or die $!;
+  load_mrd_section(\*FH, sub { push @{$self->{aParadigm}}, new OpenCorpora::AOT::Dict::Paradigm(shift); });
+  load_mrd_section(\*FH, sub { push @{$self->{aAccentParadigm}}, new OpenCorpora::AOT::Dict::AccentParadigm(shift); });
+  load_mrd_section(\*FH, sub { push @{$self->{aHistory}}, shift });
+  load_mrd_section(\*FH, sub { push @{$self->{aPrefix}}, shift });
+  load_mrd_section(\*FH, sub { push @{$self->{aLemma}}, new OpenCorpora::AOT::Dict::Lemma(shift); });
+  close(FH);
 }
 
 sub load_mrd_section {
-  my ($self, $fh, $rsub) = @_;
+  my ($fh, $rsub) = @_;
   my $n = <$fh>;
-  while (<$fh> && $n > 0) {
+  while (<$fh>) {
     chomp $_;
+    $_ = decode("windows-1251", $_);
     $rsub->($_);
-    $n--;
+    if (--$n <= 0) {
+      last;
+    }
   }
 }

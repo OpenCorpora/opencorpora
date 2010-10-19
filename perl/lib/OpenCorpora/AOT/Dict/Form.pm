@@ -1,19 +1,20 @@
-package OpenCorpora::AOT::Dict::AccentParadigm;
+package OpenCorpora::AOT::Dict::Form;
 
 use strict;
 use warnings;
 use utf8;
+use Encode;
 
 our $VERSION = "0.01";
 
  
 sub new {
-  my ($class, $line) = @_;
   my $self = {};
-
-  @{$self->{forms}} = split(/;/, $line);
+  my $class;
+  ($class, $self->{flex}, $self->{ancode}, $self->{prefix}) = @_;
 
   bless($self, $class);
+
   return $self;
 } 
-
+ 

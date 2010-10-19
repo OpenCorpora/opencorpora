@@ -11,11 +11,14 @@ sub new {
   my ($class, $line) = @_;
   my $self = {};
 
+  my ($stem, $pid, $aid, $hid, $ancode, $prefid) = split(/\s+/, $line);
+  ($self->{stem}, $self->{pid}) = ($stem, $pid);
+  $self->{aid} = $aid unless ("-" eq $aid);
+  $self->{hid} = $hid unless ("-" eq $hid);
+  $self->{ancode} = $ancode unless ("-" eq $ancode);
+  $self->{prefid} = $prefid unless ("-" eq $prefid);
 
   bless($self, $class);
-
-
   return $self;
-#  bless($self, $class);
 } 
 
