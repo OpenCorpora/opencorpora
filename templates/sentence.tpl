@@ -15,7 +15,9 @@
                 {if $is_logged == 1}
                     <button type="submit" disabled="disabled" id="submit_button">Сохранить</button>&nbsp;
                 {/if}
-                <button type="reset" onClick="window.location.reload()">Отменить правки</button>&nbsp;<button type="button" onClick="window.location.href='history.php?sent_id={$sentence.id}'">История</button>
+                <button type="reset" onClick="window.location.reload()">Отменить правки</button>&nbsp;
+                <button type="button" onClick="window.location.href='history.php?sent_id={$sentence.id}'">История</button>&nbsp;
+                <button type="button" onClick="dict_reload_all()">Разобрать заново</button>
             </div>
             <span id="scr_rr" onMouseDown="startScroll(50)" onMouseUp="endScroll()" onMouseMove="endScroll()">&gt;&gt;</span>
             <span id="scr_r" onMouseDown="startScroll(20)" onMouseUp="endScroll()" onMouseMove="endScroll()">&gt;</span>
@@ -28,7 +30,7 @@
                 <div class="tf">
                     {$token.tf_text|htmlspecialchars}
                     {if $token.dict_updated == 1}
-                        <a href="#" class="reload" title="Разобрать заново из словаря" onClick="dict_reload(this)">D</a>
+                        <a href="#" class="reload" title="Разобрать заново из словаря" onClick="dict_reload(this.parentNode.parentNode)">D</a>
                     {/if}
                 </div>
                 {foreach item=variant from=$token.variants}
@@ -36,7 +38,7 @@
                         <img src="spacer.gif" width="100" height="1"/>
                         <input type="hidden" name="var_flag[{$token.tf_id}][{$variant.num}]" value="1"/>
                         {if $variant.lemma_id > 0}
-                            <a href="{$web_prefix}/dict.php?id={$variant.lemma_id}">{$variant.lemma_text}</a>
+                            <a href="{$web_prefix}/dict.php?act=edit&amp;id={$variant.lemma_id}">{$variant.lemma_text}</a>
                         {else}
                             <span>{$variant.lemma_text|htmlspecialchars}</span>
                         {/if}

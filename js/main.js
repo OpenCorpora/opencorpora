@@ -222,8 +222,13 @@ function dehighlight_source() {
         cur_token.className='';
     }
 }
-function dict_reload(el) {
-    var td = el.parentNode.parentNode;
+function dict_reload_all() {
+    var tr = byid('main_annot').firstChild.firstChild.firstChild;
+    for (i=0; i<tr.childNodes.length; ++i) {
+        dict_reload(tr.childNodes[i]);
+    }
+}
+function dict_reload(td) {
     var tf_id = parseInt(td.id.substr(4));
     //delete all vars
     while (td.childNodes.length > 1) {
@@ -246,17 +251,19 @@ function dict_reload(el) {
                 new_div.setAttribute('id', 'var_'+tf_id+'_'+(i+1));
                 new_div.innerHTML = '<img src="spacer.gif" height="1" width="100"><input name="var_flag['+tf_id+']['+(i+1)+']" value="1" type="hidden">';
                 if (cvar.firstChild.getAttribute('id') > 0)
-                    new_div.innerHTML += '<a href="dict.php?id='+cvar.firstChild.getAttribute('id')+'">'+cvar.firstChild.getAttribute('text')+'</a>';
+                    new_div.innerHTML += '<a href="dict.php?act=edit&amp;id='+cvar.firstChild.getAttribute('id')+'">'+cvar.firstChild.getAttribute('text')+'</a>';
                 else
                     new_div.innerHTML += '<span>'+cvar.firstChild.getAttribute('text')+'</span>';
-                new_div.innerHTML += '<a class="best_var" onclick="best_var(this.parentNode); return false" href="#">v</a><a class="del_var" onclick="del_var(this.parentNode); return false" href="#">x</a><br/>' + cvar.firstChild.firstChild.getAttribute('val');
+                new_div.innerHTML += '<a class="best_var" onclick="best_var(this.parentNode); return false" href="#">v</a><a class="del_var" onclick="del_var(this.parentNode); return false" href="#">x</a><br/>' + cvar.firstChild.firstChild.getAttribute('v');
                 for (j = 1; cvar.firstChild.childNodes[j] != null; ++j) {
-                    new_div.innerHTML += ', ' + cvar.firstChild.childNodes[j].getAttribute('val');
+                    new_div.innerHTML += ', ' + cvar.firstChild.childNodes[j].getAttribute('v');
                 }
                 td.appendChild(new_div);
             }
             td.firstChild.innerHTML = old_inner + '<input type="hidden" name="dict_flag['+tf_id+']" value="1"/>';
-            byid('submit_button').disabled = false;
+            var sb;
+            if (sb = byid('submit_button'))
+                sb.disabled = false;
         }
     }
     req.open ('get', 'ajax/dict_reload.php?tf_id='+tf_id, true);
