@@ -227,6 +227,7 @@ function dict_reload_all() {
     for (i=0; i<tr.childNodes.length; ++i) {
         dict_reload(tr.childNodes[i]);
     }
+    highlight_source();
 }
 function dict_reload(td) {
     var tf_id = parseInt(td.id.substr(4));
