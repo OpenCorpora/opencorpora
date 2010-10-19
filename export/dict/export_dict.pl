@@ -29,6 +29,8 @@ my $rev = $dbh->prepare("SELECT MAX(rev_id) AS m FROM dict_revisions");
 my $read_gg = $dbh->prepare("SELECT * FROM gram_types ORDER by `orderby`");
 my $read_g = $dbh->prepare("SELECT inner_id FROM gram WHERE gram_type=? ORDER BY `orderby`");
 my $read_l = $dbh->prepare("SELECT * FROM (SELECT lemma_id, rev_id, rev_text FROM dict_revisions WHERE lemma_id BETWEEN ? AND ? ORDER BY lemma_id, rev_id DESC) T GROUP BY T.lemma_id");
+my $read_lt = $dbh->prepare("SELECT * FROM dict_links_types ORDER BY link_id");
+my $read_links = $dbh->prepare("SELECT * FROM dict_links ORDER BY link_id LIMIT ?, 10000");
 
 $rev->execute() or die $DBI::errstr;
 my $r = $rev->fetchrow_hashref();
@@ -37,6 +39,8 @@ my $maxrev = $r->{'m'};
 
 my $header = "<?xml version=\"1.0\" encoding=\"utf8\" standalone=\"yes\"?>\n<dictionary version=\"0.7\" revision=\"$maxrev\">\n";
 my $footer = "</dictionary>";
+
+# grammems
 my $grams = "<grammems>\n";
 
 $read_gg->execute() or die $DBI::errstr;
@@ -52,6 +56,7 @@ $grams .= "</grammems>\n";
 
 print $header.$grams;
 
+# lemmata
 print "<lemmata>\n";
 
 my $flag = 1;
@@ -69,6 +74,33 @@ while ($flag) {
 }
 
 print "</lemmata>\n";
+
+# link types
+print "<link_types>\n";
+
+$read_lt->execute();
+while($r = $read_lt->fetchrow_hashref()) {
+    print '<type id="'.$r->{'link_id'}.'">'.tidy_xml($r->{'link_name'})."</type>\n";
+}
+
+print "</link_types>\n";
+
+# links
+print "<links>\n";
+
+$min_lid = 0;
+$flag = 1;
+
+while($flag) {
+    $flag = 0;
+    $read_links->execute($min_lid) or die $DBI::errstr;
+    while($r = $read_links->fetchrow_hashref()) {
+        $flag = 1;
+        print '    <link id="'.$r->{'link_id'}.'" from="'.$r->{'lemma1_id'}.'" to="'.$r->{'lemma2_id'}.'" type="'.$r->{'link_type'}."\"/>\n";
+    }
+}
+
+print "</links>\n";
 
 print $footer."\n";
 
