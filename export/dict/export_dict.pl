@@ -110,6 +110,7 @@ while($flag) {
         $flag = 1;
         print '    <link id="'.$r->{'link_id'}.'" from="'.$r->{'lemma1_id'}.'" to="'.$r->{'lemma2_id'}.'" type="'.$r->{'link_type'}."\"/>\n";
     }
+    $min_lid += 10000;
 }
 
 print "</links>\n";
