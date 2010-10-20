@@ -81,7 +81,7 @@ sub load_mrd_section {
   while (<$fh>) {
     chomp $_;
     $_ = decode("windows-1251", $_);
-    $_ =~ s/[\n\r]$//;
+    $_ =~ s/[\n\r]+$//;
     $rsub->($_);
     if (--$n <= 0) {
       last;
