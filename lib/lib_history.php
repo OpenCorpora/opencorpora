@@ -14,7 +14,7 @@ function main_history($sentence_id) {
 }
 function dict_history($lemma_id) {
     $out = array();
-    $res = sql_query("SELECT s.*, u.user_name, dl.lemma_id, dl.lemma_text FROM rev_sets s LEFT JOIN `users` u ON (s.user_id = u.user_id) LEFT JOIN `dict_revisions` dr ON (s.set_id = dr.set_id) RIGHT JOIN `dict_lemmata` dl ON (dr.lemma_id = dl.lemma_id)".($lemma_id?" WHERE dl.lemma_id=$lemma_id":"")." ORDER BY s.set_id DESC LIMIT 20");
+    $res = sql_query("SELECT s.*, u.user_name, dl.* FROM dict_revisions dr LEFT JOIN rev_sets s ON (dr.set_id=s.set_id) LEFT JOIN users u ON (s.user_id=u.user_id) LEFT JOIN dict_lemmata dl ON (dr.lemma_id=dl.lemma_id)".($lemma_id?" WHERE dr.lemma_id=$lemma_id":"")." ORDER BY dr.rev_id DESC LIMIT 20");
     while($r = sql_fetch_array($res)) {
         $out[] = array (
             'set_id'     => $r['set_id'],
