@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use utf8;
 
-use Dict::Form;
+use Dict::FormSpec;
 
 our $VERSION = "0.01";
 
@@ -19,7 +19,7 @@ sub new {
   } 
 #print STDERR $paradigm_text;
   while ($paradigm_text =~ /%([А-ЯЁ]*)\*([А-ЯЁа-яё]+)(\*([А-ЯЁ]*))?/g) {
-    push @{$self->{forms}}, new OpenCorpora::AOT::Dict::Form($1, $2, $4);
+    push @{$self->{forms}}, new OpenCorpora::AOT::Dict::FormSpec($1, $2, $4);
   }
 
   bless($self, $class);
@@ -27,3 +27,7 @@ sub new {
   return $self;
 } 
 
+sub FormSpecs {
+  my $self = shift;
+  return $self->{forms};
+}

@@ -10,11 +10,18 @@ our $VERSION = "0.01";
  
 sub new {
   my $self = {};
-  my $class;
-  ($class, $self->{flex}, $self->{ancode}, $self->{prefix}) = @_;
+  my ($class, $ref_dic, $text, $ancode, $lemma_ancode) = @_;
 
   bless($self, $class);
-
   return $self;
 } 
- 
+
+sub Text {
+  my $self = shift;
+  return $self->{text};
+}
+
+sub Ancode {
+  my $self = shift;
+  return $self->{ancode};
+} 

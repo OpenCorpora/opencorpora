@@ -27,7 +27,17 @@ sub new {
 
   return $self;
 #  bless($self, $class);
+}
+
+sub Lemmata {
+  my $self = shift;
+  return $self->{aLemma};
 } 
+
+sub Ancode2Grammems {
+  my ($self, $ancode) = @_;
+  return $self->{Gramtab}->Ancode2Grammems($ancode);
+}
 
 sub build_forms {
   my ($self) = @_;
@@ -71,7 +81,7 @@ sub load_mrd {
   load_mrd_section(\*FH, sub { push @{$self->{aAccentParadigm}}, new OpenCorpora::AOT::Dict::AccentParadigm(shift); });
   load_mrd_section(\*FH, sub { push @{$self->{aHistory}}, shift });
   load_mrd_section(\*FH, sub { push @{$self->{aPrefix}}, shift });
-  load_mrd_section(\*FH, sub { push @{$self->{aLemma}}, new OpenCorpora::AOT::Dict::Lemma(shift); });
+  load_mrd_section(\*FH, sub { push @{$self->{aLemma}}, new OpenCorpora::AOT::Dict::Lemma($self, shift); });
   close(FH);
 }
 

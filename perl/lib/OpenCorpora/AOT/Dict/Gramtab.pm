@@ -19,3 +19,7 @@ sub new {
   return $self;
 } 
 
+sub Ancode2Grammems {
+  my ($self, $ancode) = @_;
+  return $self->{ancodes}->{$ancode};
+}
