@@ -85,9 +85,9 @@ function sentence_save() {
         } else {
             $xml = $base_xml;
         }
-        $new_xml = "<tf_rev text=\"$tf_text\">";
+        $new_xml = "<tfr t=\"$tf_text\">";
         //let's find all vars inside tf_text
-        if (preg_match_all("/<var>(.+?)<\/var>/", $xml, $matches) !== false) {
+        if (preg_match_all("/<v>(.+?)<\/v>/", $xml, $matches) !== false) {
             //flags quantity check
             if (count($matches[1]) != count($flag[$tf_id])) {
                 print "Internal error 3: Cannot save\n";
@@ -101,14 +101,14 @@ function sentence_save() {
             foreach($flag[$tf_id] as $k=>$f) {
                 if ($f == 1) {
                     $not_empty = 1;
-                    $new_xml .= '<var>'.$matches[1][$k-1].'</var>'; //attention to -1
+                    $new_xml .= '<v>'.$matches[1][$k-1].'</v>'; //attention to -1
                 }
             }
             //inserting UnknownPOS if no variants present
             if (!$not_empty) {
-                $new_xml .= '<var><lemma id="0" text="'.htmlspecialchars(lc($tf_text)).'"><grm val="UnknownPOS"/></lemma></var>';
+                $new_xml .= '<v><l id="0" t="'.htmlspecialchars(lc($tf_text)).'"><g v="UNKN"/></l></v>';
             }
-            $new_xml .= '</tf_rev>';
+            $new_xml .= '</tfr>';
             if ($base_xml != $new_xml) {
                 //something's changed
                 array_push($all_changes, array($tf_id, $new_xml));
