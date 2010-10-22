@@ -55,8 +55,6 @@
 	CHANGE (разг -> Infr)
 	CHANGE(прев -> Supr)
 	CHANGE(арх -> Obsl)
-# надо придумать помету для разг
-
     CHANGE(0 -> fixd)
 
 # разбиваем по частям речи
@@ -69,7 +67,7 @@
 		LINK (0, 2, ADJF-ADJC)
 
 # существительное
-* sgtm
+* Sgtm
 	CHANGE (plur -> plur, a-pl)
 (1 Patr)
 	CHANGE (!Infr -> form)
@@ -81,25 +79,23 @@
 		LINK (0, 2, NAME-PATR)
 		LINK (0, 3, NAME-PATR)
 		LINK (0, 4, NAME-PATR)
-		LINK (1, 2, PATR-INFR)
-		LINK (1, 3, PATR-FEMN)
-		LINK (1, 4, PATR-IN_F)
-		LINK (3, 4, FEMN-IN_F)
-# я не переусердствовала со связями?
+		LINK (1, 2, PATR_MASC_FORM-PATR_MASC_INFR)
+		LINK (1, 3, PATR_MASC-PATR_FEMN)
+		LINK (3, 4, PATR_FEMN_FORM-PATR_FEMN_INFR)
 (1 form)
 	CHANGE (form -> )
 (1 Surn)
 	SPLIT (masc, femn, Ms-f)
-		LINK (0, 1, SURN-FEMN)
-		LINK (0, 2, SURN-PLUR)
+		LINK (0, 1, SURN_MASC-SURN_FEMN)
+		LINK (0, 2, SURN_MASC-SURN_PLUR)
 (1 Surn & masc) | (1 Surn & femn)
 	CHANGE ( -> Sgtm)
 (1 Surn & Ms-f)
 	CHANGE ( -> Pltm)
 (1 Pltm)
 	CHANGE ( -> GNdr)
-
-
+#(* plur) & (* !Pltm)
+#	CHANGE ( -> xxx)
 
 		
 # прилагательное
