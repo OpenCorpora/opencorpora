@@ -9,6 +9,7 @@ use Dict::Gramtab;
 use Dict::Paradigm;
 use Dict::AccentParadigm;
 use Dict::Lemma;
+use Dict::MorphVariant;
 
 our $VERSION = "0.01";
 
@@ -26,12 +27,16 @@ sub new {
   $self->build_forms();
 
   return $self;
-#  bless($self, $class);
 }
 
-sub Lemmata {
+sub MaxLemmaNo {
   my $self = shift;
-  return $self->{aLemma};
+  return scalar @{$self->{aLemma}};
+}
+
+sub GetLemma {
+  my ($self, $n) = @_;
+  return $self->{aLemma}->[$n];
 } 
 
 sub Ancode2Grammems {
@@ -41,29 +46,22 @@ sub Ancode2Grammems {
 
 sub build_forms {
   my ($self) = @_;
-  
-  foreach my $l (@{$self->{aLemma}}) {
-    my ($stem, $pid) = ($l->{stem}, $l->{pid});
-
-    scalar @{$self->{aParadigm}} >= $pid or die "Paradigm id ($pid) is wrong for lemma ($stem).";
-    my $rp = $self->{aParadigm}->[$pid];
-
-    my $prefix = "";
-    if (defined $l->{prefid}) {
-      scalar @{$self->{aPrefix}} >= $l->{prefid} or die "Prefix id (" . $l->{prefid} . ") is wrong for lemma ($stem).";
-      $prefix = $self->{aPrefix}->[$l->{prefid}];
+  for (my $lid = 0; $lid < $self->MaxLemmaNo(); $lid++) {
+    my $l = $self->{aLemma}->[$lid]; 
+    for (my $fid = 0; $fid < $l->MaxFormNo(); $fid++) {
+      my $f = $l->GetForm($fid);
+      push @{$self->{aLookupIndex}->{$f->Text()}}, new OpenCorpora::AOT::Dict::MorphVariant($lid, $f->Ancode());
     }
+  }
+}
 
-    foreach my $f (@{$rp->{forms}}) {
-      my $form_prefix = "";
-      if (defined $f->{prefix}) {
-        $form_prefix = $f->{prefix};
-      }
-      my $text = $prefix . $form_prefix . $l->{stem} . $f->{flex};
-      print STDERR "F $text " . $l->{ancode} . " " . $f->{ancode} . "\n";
-    }
-  } 
-  print STDERR "\n";
+sub Lookup {
+  my ($self, $w) = @_;
+  $w =~ tr/а-яёa-z/А-ЯЁA-Z/;
+  if (!exists($self->{aLookupIndex}->{$w})) {
+    return undef;
+  }
+  return $self->{aLookupIndex}->{$w};
 }
 
 sub load {
@@ -81,7 +79,7 @@ sub load_mrd {
   load_mrd_section(\*FH, sub { push @{$self->{aAccentParadigm}}, new OpenCorpora::AOT::Dict::AccentParadigm(shift); });
   load_mrd_section(\*FH, sub { push @{$self->{aHistory}}, shift });
   load_mrd_section(\*FH, sub { push @{$self->{aPrefix}}, shift });
-  load_mrd_section(\*FH, sub { push @{$self->{aLemma}}, new OpenCorpora::AOT::Dict::Lemma($self, shift); });
+  load_mrd_section(\*FH, sub { my $l = new OpenCorpora::AOT::Dict::Lemma($self, shift); push @{$self->{aLemma}}, $l if defined $l; });
   close(FH);
 }
 

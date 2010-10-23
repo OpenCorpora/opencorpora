@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use utf8;
 
+use Data::Dumper;
+
 use Dict::FormSpec;
 
 our $VERSION = "0.01";
@@ -17,9 +19,12 @@ sub new {
   if (defined($other) && length($other) > 0) { 
     die "mrd paring error: $_"; 
   } 
-#print STDERR $paradigm_text;
-  while ($paradigm_text =~ /%([А-ЯЁ]*)\*([А-ЯЁа-яё]+)(\*([А-ЯЁ]*))?/g) {
+ 
+  while ($paradigm_text =~ /%([\-А-ЯЁ]*)\*([А-ЯЁа-яё]+)(\*([А-ЯЁ]*))?/g) {
     push @{$self->{forms}}, new OpenCorpora::AOT::Dict::FormSpec($1, $2, $4);
+  }
+  if (!defined($self->{forms})) {
+    die "can't parse paradigm \"$paradigm_text\"\n";
   }
 
   bless($self, $class);
