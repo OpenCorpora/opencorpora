@@ -5,11 +5,11 @@ use warnings;
 use utf8;
 use Encode;
 
-use Dict::Gramtab;
-use Dict::Paradigm;
-use Dict::AccentParadigm;
-use Dict::Lemma;
-use Dict::MorphVariant;
+use OpenCorpora::AOT::Dict::Gramtab;
+use OpenCorpora::AOT::Dict::Paradigm;
+use OpenCorpora::AOT::Dict::AccentParadigm;
+use OpenCorpora::AOT::Dict::Lemma;
+use OpenCorpora::AOT::Dict::MorphVariant;
 
 our $VERSION = "0.01";
 

@@ -2,7 +2,7 @@ use strict;
 use utf8;
 
 use Data::Dumper;
-use Dict;
+use OpenCorpora::AOT::Dict;
 
 my $d = new OpenCorpora::AOT::Dict(Mrd=>"morphs.mrd", Gramtab=>"rgramtab.tab");
 

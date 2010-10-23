@@ -4,9 +4,9 @@ use strict;
 use warnings;
 use utf8;
 
-use Dict::FormSpec;
-use Dict::Form;
-use Dict::Paradigm;
+use OpenCorpora::AOT::Dict::FormSpec;
+use OpenCorpora::AOT::Dict::Form;
+use OpenCorpora::AOT::Dict::Paradigm;
 
 our $VERSION = "0.01";
 

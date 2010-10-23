@@ -4,9 +4,7 @@ use strict;
 use warnings;
 use utf8;
 
-use Data::Dumper;
-
-use Dict::FormSpec;
+use OpenCorpora::AOT::Dict::FormSpec;
 
 our $VERSION = "0.01";
 
