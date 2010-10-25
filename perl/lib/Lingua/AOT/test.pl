@@ -2,9 +2,9 @@ use strict;
 use utf8;
 
 use Data::Dumper;
-use Dict;
+use Lingua::AOT::MorphDict;
 
-my $d = new OpenCorpora::AOT::Dict(Mrd=>"morphs.mrd", Gramtab=>"rgramtab.tab");
+my $d = new Lingua::AOT::MorphDict(Mrd=>"morphs.mrd", Gramtab=>"rgramtab.tab");
 
 binmode(STDOUT, ":encoding(utf-8)");
 

@@ -1,12 +1,12 @@
-package OpenCorpora::AOT::Dict::MorphVariant;
+package Lingua::AOT::MorphDict::MorphVariant;
 
 use strict;
 use warnings;
 use utf8;
 
-use OpenCorpora::AOT::Dict::FormSpec;
-use OpenCorpora::AOT::Dict::Form;
-use OpenCorpora::AOT::Dict::Paradigm;
+use Lingua::AOT::MorphDict::FormSpec;
+use Lingua::AOT::MorphDict::Form;
+use Lingua::AOT::MorphDict::Paradigm;
 
 our $VERSION = "0.01";
 

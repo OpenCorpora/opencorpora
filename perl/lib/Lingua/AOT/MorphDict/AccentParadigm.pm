@@ -1,4 +1,4 @@
-package OpenCorpora::AOT::Dict::AccentParadigm;
+package Lingua::AOT::MorphDict::AccentParadigm;
 
 use strict;
 use warnings;

@@ -1,15 +1,15 @@
-package OpenCorpora::AOT::Dict;
+package Lingua::AOT::MorphDict;
 
 use strict;
 use warnings;
 use utf8;
 use Encode;
 
-use OpenCorpora::AOT::Dict::Gramtab;
-use OpenCorpora::AOT::Dict::Paradigm;
-use OpenCorpora::AOT::Dict::AccentParadigm;
-use OpenCorpora::AOT::Dict::Lemma;
-use OpenCorpora::AOT::Dict::MorphVariant;
+use Lingua::AOT::MorphDict::Gramtab;
+use Lingua::AOT::MorphDict::Paradigm;
+use Lingua::AOT::MorphDict::AccentParadigm;
+use Lingua::AOT::MorphDict::Lemma;
+use Lingua::AOT::MorphDict::MorphVariant;
 
 our $VERSION = "0.01";
 
@@ -20,6 +20,7 @@ sub new {
 
   $self->{fnMrd} = $args{Mrd} if exists($args{Mrd});
   $self->{fnGramtab} = $args{Gramtab} if exists($args{Gramtab});
+  $self->{optRemoveAccentDoublicates} = 1;
 
   bless($self, $class);
 
@@ -50,7 +51,7 @@ sub build_forms {
     my $l = $self->{aLemma}->[$lid]; 
     for (my $fid = 0; $fid < $l->MaxFormNo(); $fid++) {
       my $f = $l->GetForm($fid);
-      push @{$self->{aLookupIndex}->{$f->Text()}}, new OpenCorpora::AOT::Dict::MorphVariant($lid, $f->Ancode());
+      push @{$self->{aLookupIndex}->{$f->Text()}}, new Lingua::AOT::MorphDict::MorphVariant($lid, $f->Ancode());
     }
   }
 }
@@ -67,19 +68,19 @@ sub Lookup {
 sub load {
   my ($self, $fnGramtab, $fnMrd) = @_;
 
-  $self->{Gramtab} = new OpenCorpora::AOT::Dict::Gramtab($fnGramtab);
+  $self->{Gramtab} = new Lingua::AOT::MorphDict::Gramtab($fnGramtab);
   $self->load_mrd($fnMrd);
 }
 
 sub load_mrd {
   my ($self, $fnMrd) = @_;
 
-  open(FH, "<", $fnMrd) or die $!;
-  load_mrd_section(\*FH, sub { push @{$self->{aParadigm}}, new OpenCorpora::AOT::Dict::Paradigm(shift); });
-  load_mrd_section(\*FH, sub { push @{$self->{aAccentParadigm}}, new OpenCorpora::AOT::Dict::AccentParadigm(shift); });
+  open(FH, "<", $fnMrd) or die $!;                                                                           # optRemoveAccentDoublicates
+  load_mrd_section(\*FH, sub { push @{$self->{aParadigm}}, new Lingua::AOT::MorphDict::Paradigm(shift, $self->{optRemoveAccentDoublicates}); });
+  load_mrd_section(\*FH, sub { push @{$self->{aAccentParadigm}}, new Lingua::AOT::MorphDict::AccentParadigm(shift); });
   load_mrd_section(\*FH, sub { push @{$self->{aHistory}}, shift });
   load_mrd_section(\*FH, sub { push @{$self->{aPrefix}}, shift });
-  load_mrd_section(\*FH, sub { my $l = new OpenCorpora::AOT::Dict::Lemma($self, shift); push @{$self->{aLemma}}, $l if defined $l; });
+  load_mrd_section(\*FH, sub { my $l = new Lingua::AOT::MorphDict::Lemma($self, shift); push @{$self->{aLemma}}, $l if defined $l; });
   close(FH);
 }
 

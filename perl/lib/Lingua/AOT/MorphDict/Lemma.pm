@@ -1,12 +1,12 @@
-package OpenCorpora::AOT::Dict::Lemma;
+package Lingua::AOT::MorphDict::Lemma;
 
 use strict;
 use warnings;
 use utf8;
 
-use OpenCorpora::AOT::Dict::FormSpec;
-use OpenCorpora::AOT::Dict::Form;
-use OpenCorpora::AOT::Dict::Paradigm;
+use Lingua::AOT::MorphDict::FormSpec;
+use Lingua::AOT::MorphDict::Form;
+use Lingua::AOT::MorphDict::Paradigm;
 
 our $VERSION = "0.01";
 
@@ -43,6 +43,14 @@ sub new {
     $self->{prefix} = "";
   }
 
+  foreach my $rfs (@{$self->{ref_paradigm}->FormSpecs()}) {
+    if (!defined($self->{POS})) {
+      $ref_dic->Ancode2Grammems($rfs->{ancode}) =~ /^([А-ЯЁа-яёA-Za-z_\-]+),\s+/;
+      $self->{POS} = $1;
+      last;
+    }
+  }
+ 
   bless($self, $class);
   #$self->build_forms($ref_dic);
 
@@ -66,6 +74,11 @@ sub build_forms {
   $prefix = $ref_dic->{aPrefix}->[$self->{prefid}] if (defined $self->{prefid});
 
   foreach my $rfs (@{$rp->FormSpecs()}) {
+    if (!defined($self->{POS})) {
+      print STDERR $rfs->{ancode} . "\n";
+      $ref_dic->Ancode2Grammems($rfs->{ancode}) =~ /^([А-ЯЁа-яёA-Za-z_\-]+),\s+/;
+      $self->{POS} = $1;
+    }
     my $form_prefix = "";
 
     if (defined $rfs->{prefix}) {
@@ -73,7 +86,7 @@ sub build_forms {
     }
 
     my $text = $prefix . $form_prefix . $self->{stem} . $rfs->{flex};
-    push @{$self->{forms}}, new OpenCorpora::AOT::Dict::Form($ref_dic, $text, $rfs->{ancode}, $self->{ancode});
+    push @{$self->{forms}}, new Lingua::AOT::MorphDict::Form($ref_dic, $text, $rfs->{ancode}, $self->{ancode});
   }
 }
 
@@ -99,7 +112,12 @@ sub GetForm {
 
   my $text = $self->{prefix} . $form_prefix . $self->{stem} . $rfs->{flex};
   
-  return new OpenCorpora::AOT::Dict::Form("", $text, $rfs->{ancode}, $self->{ancode});
+  return new Lingua::AOT::MorphDict::Form("", $text, $rfs->{ancode}, $self->{ancode});
+}
+
+sub GetPOS {
+  my $self = shift;
+  return $self->{POS};
 }
 
 sub GetDefForm {
@@ -115,4 +133,9 @@ sub Ancode {
 sub Stem {
   my $self = shift;
   return $self->{stem};
+}
+
+sub SetStem {
+  my ($self, $new_stem) = @_;
+  $self->{stem} = $new_stem;
 }

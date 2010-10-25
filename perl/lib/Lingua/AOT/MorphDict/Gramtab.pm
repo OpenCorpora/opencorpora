@@ -1,4 +1,4 @@
-package OpenCorpora::AOT::Dict::Gramtab;
+package Lingua::AOT::MorphDict::Gramtab;
 
 use strict;
 use warnings;

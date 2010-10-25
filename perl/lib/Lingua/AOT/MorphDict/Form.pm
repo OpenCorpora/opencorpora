@@ -1,4 +1,4 @@
-package OpenCorpora::AOT::Dict::Form;
+package Lingua::AOT::MorphDict::Form;
 
 use strict;
 use warnings;
