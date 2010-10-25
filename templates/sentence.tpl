@@ -8,9 +8,6 @@
     <div id="source_text"><b>Исходный текст:</b> {$sentence.fulltext}</div>
     <form method="post" action="?id={$sentence.id}&amp;act=save">
         <div id="main_scroller">
-            <!--<span id="scr_ll" onMouseDown="startScroll(-50)" onMouseUp="endScroll()" onMouseMove="endScroll()">&lt;&lt;</span>
-            <span id="scr_l" onMouseDown="startScroll(-20)" onMouseUp="endScroll()" onMouseMove="endScroll()">&lt;</span>
-            <span id="scr_lw" onMouseDown="startScrollByWord(-1)" onMouseUp="endScroll()">&lt;W</span>-->
             <div>
                 {if $is_logged == 1}
                     <button type="submit" disabled="disabled" id="submit_button">Сохранить</button>&nbsp;
@@ -19,9 +16,6 @@
                 <button type="button" onClick="window.location.href='history.php?sent_id={$sentence.id}'">История</button>&nbsp;
                 <button type="button" onClick="dict_reload_all()">Разобрать заново</button>
             </div>
-        <!--    <span id="scr_rr" onMouseDown="startScroll(50)" onMouseUp="endScroll()" onMouseMove="endScroll()">&gt;&gt;</span>
-            <span id="scr_r" onMouseDown="startScroll(20)" onMouseUp="endScroll()" onMouseMove="endScroll()">&gt;</span>
-            <span id="scr_rw" onMouseDown="startScrollByWord(1)" onMouseUp="endScroll()">W&gt;</span>-->
         </div>
         <br/><br/>
         <div id="scrollbar"><div style="height:10px;"></div></div>

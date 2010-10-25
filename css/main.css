@@ -157,8 +157,16 @@ div#main_scroller div {
     width: 70%;
     text-align: center;
 }
+
+div#scrollbar {
+	height: 10px;
+	overflow: scroll;
+	overflow-y: hidden;
+	padding: 10px;
+}
+
 div#main_annot {
-    padding: 10px 10px;
+    padding: 10px;
     overflow: hidden;
 }
 div#main_annot table {

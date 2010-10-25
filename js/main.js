@@ -117,9 +117,10 @@ function updateLastParInfo(book_id) {
     req.open ('get', 'ajax/lastpar.php?book_id='+book_id, true);
     req.send(null);
 }
+
 function scroll_annot(offset) {
-    var el = byid('main_annot');
-    if (el.state == 1) {
+    var el = byid('scrollbar');
+    if (el.state == (offset > 0 ? 1: -1) ) {
         var newVal = el.scrollLeft + offset;
         if (newVal < 0) newVal = 0;
         el.scrollLeft = newVal;
@@ -127,60 +128,36 @@ function scroll_annot(offset) {
         setTimeout('scroll_annot(' + offset + ')', 100);
     }
 }
-function scroll_annot_byword(dir) {
-    var el = byid('main_annot');
-    if (el.state == 2) {
-        var l = el.scrollLeft;
-        var wd = el.offsetWidth;
-        var tr_el = el.firstChild.firstChild.firstChild;
-        var i;
-        var cur_token;
-        var d;
-        if (dir == 1) {
-            for (i = 0; i < tr_el.childNodes.length; ++i) {
-                cur_token = tr_el.childNodes[i];
-                if ((d = cur_token.offsetLeft + cur_token.offsetWidth - l - wd) > 0) {
-                    el.scrollLeft += (d + 10);
-                    break;
-                }
-            }
-            highlight_source();
-            setTimeout('scroll_annot_byword(' + dir + ')', 500);
-        }
-        else if (dir == -1) {
-            for (i = tr_el.childNodes.length; i > 0; --i) {
-                cur_token = tr_el.childNodes[i-1];
-                if ((d = cur_token.offsetLeft - l) < 0) {
-                    el.scrollLeft += d;
-                    break;
-                }
-            }
-            highlight_source();
-            setTimeout('scroll_annot_byword(' + dir + ')', 500);
-        }
-    }
-}
+
 function startScroll(offset) {
-    byid('main_annot').state = 1;
+    byid('scrollbar').state = offset > 0 ? 1: -1;
     setTimeout('scroll_annot(' + offset + ')', 0);
 }
-function startScrollByWord(dir) {
-    byid('main_annot').state = 2;
-    setTimeout('scroll_annot_byword(' + dir + ')', 0);
-}
+
 function endScroll() {
-    byid('main_annot').state = 0;
+    byid('scrollbar').state = 0;
 }
+
+function syncScroll() {
+	byid('main_annot').scrollLeft = byid('scrollbar').scrollLeft;
+	highlight_source();
+}
+
+function prepareScroll() {
+        byid('scrollbar').firstChild.style.width = byid('main_annot').firstChild.scrollWidth + "px";
+        byid('scrollbar').onscroll = syncScroll;
+}
+        
 function checkKeyDown(evt) {
     var code = evt.keyCode ? evt.keyCode : evt.charCode;
     if (code == 37)
-        startScroll(evt.ctrlKey ? -50: -20);
+        startScroll(evt.shiftKey ? -50: -20);
     if (code == 39)
-        startScroll(evt.ctrlKey ? 50 : 20);
+        startScroll(evt.shiftKey ? 50 : 20);
 }
 function checkKeyUp(evt) {
     var code = evt.keyCode ? evt.keyCode : evt.charCode;
-    if (code == 37 || code == 39)
+    if ( (code == 37 && byid('scrollbar').state == -1) || (code == 39 && byid('scrollbar').state == 1) )
         endScroll();
 }
 function del_var(v) {
