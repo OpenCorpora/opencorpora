@@ -26,6 +26,7 @@ sub new {
   $self->{hid} = $hid unless ("-" eq $hid);
   $self->{ancode} = $ancode unless ("-" eq $ancode);
   $self->{prefid} = $prefid unless ("-" eq $prefid);
+  $self->{ref_dic} = $ref_dic;
 
   scalar @{$ref_dic->{aParadigm}} >= $pid or die "Paradigm id ($pid) is wrong for lemma ($stem).";
   $self->{ref_paradigm} = $ref_dic->{aParadigm}->[$pid];
@@ -43,6 +44,8 @@ sub new {
     $self->{prefix} = "";
   }
 
+  bless($self, $class);
+ 
   foreach my $rfs (@{$self->{ref_paradigm}->FormSpecs()}) {
     if (!defined($self->{POS})) {
       $ref_dic->Ancode2Grammems($rfs->{ancode}) =~ /^([А-ЯЁа-яёA-Za-z_\-]+),\s+/;
@@ -50,9 +53,6 @@ sub new {
       last;
     }
   }
- 
-  bless($self, $class);
-  #$self->build_forms($ref_dic);
 
   return $self;
 } 
@@ -138,4 +138,10 @@ sub Stem {
 sub SetStem {
   my ($self, $new_stem) = @_;
   $self->{stem} = $new_stem;
+}
+
+sub SetParadigmId {
+  my ($self, $new_pid) = @_;
+  $self->{pid} = $new_pid;
+  $self->{ref_paradigm} = $self->{ref_dic}->GetParadigm($self->{pid});
 }

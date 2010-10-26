@@ -65,6 +65,14 @@ sub Lookup {
   return $self->{aLookupIndex}->{$w};
 }
 
+sub GetParadigm {
+  my ($self, $pid) = @_;
+  if ($pid > scalar @{$self->{aParadigm}}) {
+    die "wrong paradigm id ($pid) at MorphDict::GetParadigm";
+  }
+  return $self->{aParadigm}->[$pid];
+}
+
 sub load {
   my ($self, $fnGramtab, $fnMrd) = @_;
 
