@@ -113,7 +113,7 @@ div#main_scroller {
     float: left;
     margin-bottom: 0px;
     width: 100%;
-    padding: 0px 10px;
+    padding: 0px 10px 20px 10px;
     font-size: large;
     font-weight: bold;
     color: red;
@@ -163,6 +163,7 @@ div#scrollbar {
 	overflow: scroll;
 	overflow-y: hidden;
 	padding: 10px;
+	clear:both;
 }
 
 div#main_annot {
@@ -196,6 +197,7 @@ div#main_annot div.var {
     border: 1px black solid;
     border-top: none;
     text-align: center;
+    min-width: 100px;
 }
 div#main_annot div.inactive {
     background-color: #CCC;

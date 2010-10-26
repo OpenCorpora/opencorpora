@@ -12,12 +12,11 @@
                 {if $is_logged == 1}
                     <button type="submit" disabled="disabled" id="submit_button">Сохранить</button>&nbsp;
                 {/if}
-                <button type="reset" onClick="window.location.reload()">Отменить правки</button>&nbsp;
-                <button type="button" onClick="window.location.href='history.php?sent_id={$sentence.id}'">История</button>&nbsp;
-                <button type="button" onClick="dict_reload_all()">Разобрать заново</button>
+                <button type="reset" onclick="window.location.reload()">Отменить правки</button>&nbsp;
+                <button type="button" onclick="window.location.href='history.php?sent_id={$sentence.id}'">История</button>&nbsp;
+                <button type="button" onclick="dict_reload_all()">Разобрать заново</button>
             </div>
         </div>
-        <br/><br/>
         <div id="scrollbar"><div style="height:10px;"></div></div>
         <div id="main_annot"><table><tr>
         {foreach item=token from=$sentence.tokens}
@@ -30,7 +29,6 @@
                 </div>
                 {foreach item=variant from=$token.variants}
                     <div class="var" id="var_{$token.tf_id}_{$variant.num}">
-                        <img src="spacer.gif" width="100" height="1"/>
                         <input type="hidden" name="var_flag[{$token.tf_id}][{$variant.num}]" value="1"/>
                         {if $variant.lemma_id > 0}
                             <a href="{$web_prefix}/dict.php?act=edit&amp;id={$variant.lemma_id}">{$variant.lemma_text}</a>

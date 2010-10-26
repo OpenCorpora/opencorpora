@@ -227,7 +227,7 @@ function dict_reload(td) {
                 var new_div = document.createElement('div');
                 new_div.className = 'var';
                 new_div.setAttribute('id', 'var_'+tf_id+'_'+(i+1));
-                new_div.innerHTML = '<img src="spacer.gif" height="1" width="100"><input name="var_flag['+tf_id+']['+(i+1)+']" value="1" type="hidden">';
+                new_div.innerHTML = '<input name="var_flag['+tf_id+']['+(i+1)+']" value="1" type="hidden"/>';
                 if (cvar.firstChild.getAttribute('id') > 0)
                     new_div.innerHTML += '<a href="dict.php?act=edit&amp;id='+cvar.firstChild.getAttribute('id')+'">'+cvar.firstChild.getAttribute('t')+'</a>';
                 else
