@@ -242,6 +242,7 @@ function dict_reload(td) {
             var sb;
             if (sb = byid('submit_button'))
                 sb.disabled = false;
+            prepareScroll();
         }
     }
     req.open ('get', 'ajax/dict_reload.php?tf_id='+tf_id, true);
