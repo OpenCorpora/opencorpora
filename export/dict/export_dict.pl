@@ -3,6 +3,7 @@
 use strict;
 use utf8;
 use DBI;
+use Getopt::constant('FORCE' => 0);
 
 my $lock_path = "/var/lock/opcorpora_export_dict.lock";
 if (-f $lock_path) {
@@ -32,7 +33,7 @@ $dbh->do("SET NAMES utf8");
 my $ts = $dbh->prepare("SELECT MAX(`timestamp`) `timestamp` FROM `rev_sets` WHERE `set_id` IN ((SELECT `set_id` FROM dict_revisions ORDER BY `rev_id` DESC LIMIT 1), (SELECT `set_id` FROM dict_links_revisions ORDER BY `rev_id` DESC LIMIT 1))");
 $ts->execute();
 my $r = $ts->fetchrow_hashref();
-if (time() - $r->{'timestamp'} > 60*60*25) {
+if (time() - $r->{'timestamp'} > 60*60*25 && !FORCE) {
     unlink $lock_path;
     die ("Dictionary not updated for 25 hours, exiting");
 }
