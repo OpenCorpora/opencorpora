@@ -33,7 +33,7 @@ my $upd = $dbh->prepare("UPDATE dict_revisions SET f2l_check=1 WHERE rev_id=? LI
 $scan->execute();
 while(my $ref = $scan->fetchrow_hashref()) {
     my $txt = decode('utf8', $ref->{'rev_text'});
-    $txt =~ /<l t="([^"]+)">(.+?)<\/l>/;
+    $txt =~ /<l t="([^"]+)">(.*?)<\/l>/;
     my ($lemma, $lemma_gr) = ($1, $2);
     $del->execute($ref->{'lemma_id'});
     while ($txt =~ /<f t="([^"]+)">(.+?)<\/f>/g) {
