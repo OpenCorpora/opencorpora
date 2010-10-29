@@ -161,14 +161,14 @@ function checkKeyUp(evt) {
         endScroll();
 }
 function del_var(v) {
-    v.childNodes[1].value = 0;
+    v.firstChild.value = 0;
     v.className = 'var inactive';
     var b;
     if (b = byid('submit_button'))
         b.disabled = false;
 }
 function best_var(v) {
-    v.childNodes[1].value = 1;
+    v.firstChild.value = 1;
     v.className = 'var';
     for (var i = 1; i<v.parentNode.childNodes.length; ++i) {
         if (v.parentNode.childNodes[i].id != v.id)
