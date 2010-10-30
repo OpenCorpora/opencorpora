@@ -56,15 +56,29 @@
 	CHANGE(прев -> Supr)
 	CHANGE(арх -> Obsl)
     CHANGE(0 -> fixd)
-
+	
 # разбиваем по частям речи
 	CHANGE(ADJF, ADJC -> ADJC)
-#	CHANGE(ADJC, Cmp2 -> Cmp2)
+(1 ADJS|ADJC) & (* ADJF|ADJS|ADJC)	
+	SPLIT(ADJF, ADJC, ADJS)
 	
-(1 ADJS|ADJC) & (* ADJF|ADJS|ADJC)
-    SPLIT(ADJF, ADJS, ADJC)
-	    LINK (0, 1, ADJF-ADJS)
-		LINK (0, 2, ADJF-ADJC)
+#(1 ADJS|ADJC|~/ейш/|~/айш/) & (* ADJF|ADJS|ADJC)
+#	SPLIT(ADJF&!~/ейш/&!~/айш/, ADJF&~/ейш/&!~/наи/, ADJF&~/айш/&!~/наи/, ADJF&~/ейш/&~/наи/, ADJF&~/айш/&~/наи/, ADJS&!~/ейш/&!~/айш/, ADJS&~/ейш/&!~/наи/, ADJS&~/айш/&!~/наи/, ADJS&~/ейш/&~/наи/, ADJS&~/ейш/&~/наи/, ADJC&!~/ейш/&!~/айш/, ADJC&~/ейш/&!~/наи/, ADJC&~/айш/&!~/наи/, ADJC&~/айш/&~/наи/, ADJC&~/ейш/&~/наи/)
+#		LINK(0, 1, ADJF-SUPR)
+#		LINK(O, 2, ADJF-SUPR)
+#		LINK(0, 5, ADJF-ADJS)
+#		LINK(0, 10, ADJF-ADJC)
+#		LINK(1, 3, ADJF-SUPR)
+#		LINK(2, 4, ADJF-SUPR)
+#		LINK(1, 11, ADJF-ADJC)
+#		LINK(1, 6, ADJF-ADJS)
+#		LINK(2, 7, ADJF-ADJS)
+#		LINK(2, 12, ADJF-ADJC)
+#		LINK(3, 8, ADJF-ADJS)
+#		LINK(4, 9, ADJF-ADJS)
+#		LINK(3, 14, ADJF-ADJC)
+#		LINK(4, 13, ADJF-ADJC)
+	
 
 # существительное
 * Sgtm
@@ -115,10 +129,12 @@
 * ADJC    
     CHANGE(anim,inan -> )
     CHANGE(2 -> Cmp2)
-	CHANGE(~/ее$/ -> str2) 
+	CHANGE(~/ей$/ -> V-ej) 
 * ADJF
-    CHANGE(~/ою$/ -> str1)
-	CHANGE(~/ею$/ -> str1)
+    CHANGE(~/ою$/ -> V-oy)
+	CHANGE(~/ею$/ -> V-ey)
+
+
 	
 
 
