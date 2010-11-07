@@ -15,7 +15,9 @@
     CHANGE(ср -> neut)
     CHANGE(мн -> plur)
     CHANGE (дфст -> Sgtm)
+	CHANGE (pl -> Pltm)
     CHANGE (лок -> Geox)
+	CHANGE (орг -> Comp)
     CHANGE(КР_ПРИЛ -> ADJS)
     CHANGE(сравн -> ADJC)
     CHANGE(кач -> Qual)
@@ -56,6 +58,7 @@
 	CHANGE(прев -> Supr)
 	CHANGE(арх -> Obsl)
     CHANGE(0 -> fixd)
+	CHANGE (2 ->2nd)
 	
 # разбиваем по частям речи
 	CHANGE(ADJF, ADJC -> ADJC)
@@ -81,13 +84,17 @@
 	
 
 # существительное
-* Sgtm
-	CHANGE (plur -> plur, a-pl)
-(1 Patr)
+(* fixd) & (* !Sgtm) & (* !Pltm)
+	GENERATE (sing, plur; nomn, gent,datv, accs, ablt, loct)
+(* fixd) & (* Sgtm | Pltm)
+	GENERATE (nomn, gent,datv, accs, ablt, loct)
+* Pltm
+	CHANGE (sing -> sing, a-sg)
+1 Patr
 	CHANGE (!Infr -> form)
-(1 Name)
+1 Name
 	CHANGE (Name, form -> Name)
-(1 Patr)
+1 Patr
 	SPLIT (Name, masc&form, masc&Infr, femn&form, femn&Infr)
 		LINK (0, 1, NAME-PATR)
 		LINK (0, 2, NAME-PATR)
@@ -96,18 +103,30 @@
 		LINK (1, 2, PATR_MASC_FORM-PATR_MASC_INFR)
 		LINK (1, 3, PATR_MASC-PATR_FEMN)
 		LINK (3, 4, PATR_FEMN_FORM-PATR_FEMN_INFR)
-(1 form)
+1 form
 	CHANGE (form -> )
-(1 Surn)
+1 Surn
 	SPLIT (masc, femn, Ms-f)
 		LINK (0, 1, SURN_MASC-SURN_FEMN)
 		LINK (0, 2, SURN_MASC-SURN_PLUR)
 (1 Surn & masc) | (1 Surn & femn)
 	CHANGE ( -> Sgtm)
-(1 Surn & Ms-f)
+1 Surn & Ms-f
 	CHANGE ( -> Pltm)
-(1 Pltm)
+1 Pltm
 	CHANGE ( -> GNdr)
+1 2nd & gent
+	CHANGE (gent, sg -> gen1)
+	CHANGE (gen1, 2nd -> gen2)
+1 2nd & loct	
+	CHANGE (loct, sg -> loc1)
+	CHANGE (loc1, 2nd -> loc2)
+(* sing) & (* !Sgtm)
+	CHANGE ( -> Sgtm)
+(* Name) & (1 plur) & (1 Sgtm)
+	CHANGE (Sgtm -> )
+* Sgtm
+	CHANGE (plur -> plur, a-pl)
 #(* plur) & (* !Pltm)
 #	CHANGE ( -> xxx)
 
