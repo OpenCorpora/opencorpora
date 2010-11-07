@@ -117,7 +117,7 @@
     CHANGE( -> ADJF)
 * Anum
     CHANGE( -> ADJF)
-* ADJF|PRTF
+* ADJF|PRTF|Apro
     CHANGE(!accs,anim -> )
     CHANGE(!accs,inan -> )
     CHANGE(femn,sing,accs,anim -> femn,sing,accs)
@@ -133,10 +133,13 @@
 * ADJF
     CHANGE(~/ою$/ -> V-oy)
 	CHANGE(~/ею$/ -> V-ey)
-
-
-	
-
+    CHANGE(#2504 -> fake)
+(* Apro) & (1 ~/^ее$/|~/^его$/|~/^их$/)
+    GENERATE(sing,plur; nomn,gent,datv,accs,ablt,loct)
+#PARA74) & !Poss
+#    CHANGE( -> Poss)
+#PARA146) & !Poss
+#    CHANGE( -> Poss)
 
 
     
