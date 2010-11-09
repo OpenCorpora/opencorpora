@@ -438,7 +438,7 @@ sub test_condition {
         return 0;
     }
     if ($cond->{TYPE} == COND_TYPE_PARA) {
-        if ($cond->{PARA_NO} == $word->{PARADIGM_NO}) {
+        if (defined $word->{PARADIGM_NO} && $cond->{PARA_NO} == $word->{PARADIGM_NO}) {
             return 1;
         }
         return 0;
