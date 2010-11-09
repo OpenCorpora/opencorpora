@@ -356,6 +356,9 @@ sub parse_action_string {
         }
         $i =~ s/\s//g;
         $j =~ s/\s//g;
+        if ($i !~ /^\d+$/ || $j !~ /^\d+$/) {
+            die "Error: not a number: $str";
+        }
         $link_name =~ s/\s//g;
         $action->{INDEX1} = $i;
         $action->{INDEX2} = $j;
