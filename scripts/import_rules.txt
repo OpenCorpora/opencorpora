@@ -116,10 +116,10 @@
 1 Pltm
 	CHANGE ( -> GNdr)
 1 2nd & gent
-	CHANGE (gent, sg -> gen1)
+	CHANGE (gent, sing -> gen1)
 	CHANGE (gen1, 2nd -> gen2)
 1 2nd & loct	
-	CHANGE (loct, sg -> loc1)
+	CHANGE (loct, sing -> loc1)
 	CHANGE (loc1, 2nd -> loc2)
 (* sing) & (* !Sgtm)
 	CHANGE ( -> Sgtm)
