@@ -37,6 +37,9 @@ div#footer div#foot_right {
 h1 {
     font-size: 26px;
 }
+h2 {
+    font-size: 20px;
+}
 div#pre_header {
     padding: 5px 10px;
     background-color: #F69;
@@ -66,7 +69,9 @@ div#rightcol {
     width: 200px;
     float: right;
     padding: 10px;
-    font-size: small;
+}
+div#rightcol div {
+    margin-bottom: 10px;
 }
 .inline {
     display: inline;

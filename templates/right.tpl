@@ -1,22 +1,24 @@
 {* Smarty *}
 {php}
-$this->assign('stats', get_common_stats());
 $this->assign('dl', get_downloads_info());
 {/php}
-<b>Пользователей:</b> {$stats.cnt_users}<br/><br/>
-<b>Свежие правки</b><br/>
-<a href='{$web_prefix}/history.php'>В разметке</a><br/>
-<a href='{$web_prefix}/dict_history.php'>В словаре</a><br/>
-<br/><b><a href="{$web_prefix}/books.php">Книг</a>:</b> {$stats.cnt_books}<br/>
-<b>Предложений:</b> <a href="{$web_prefix}/?rand">{$stats.cnt_sent}</a><br/>
-<b>Сл/употр:</b> {$stats.cnt_words}<br/>
-<br/><b><a href="{$web_prefix}/dict.php">Словарь</a></b><br/>
-<b>Лемм:</b> {$stats.cnt_lemmata}<br/>
-<b>Форм:</b> {$stats.cnt_forms}
-<br/><br/>
-<b>Скачать:</b><br/>
-<a href="{$web_prefix}/files/export/dict/dict.opcorpora.xml.bz2">Словарь</a> (обновлён {$dl.dict.updated}, {$dl.dict.size} Мб)
-<br/><br/>
+<div>
+    <a href="{$web_prefix}/?page=publications">Публикации</a><br/>
+    <a href="{$web_prefix}/dict.php">Словарь</a><br/>
+    <a href="{$web_prefix}/?page=stats">Статистика</a><br/>
+    <a href="{$web_prefix}/?rand">Случайное предложение</a>
+</div>
+<div>
+    <b>Свежие правки</b><br/>
+    <a href='{$web_prefix}/history.php'>В разметке</a><br/>
+    <a href='{$web_prefix}/dict_history.php'>В словаре</a>
+</div>
+<b>Скачать:</b>
+<div class='small'>
+    <a href="{$web_prefix}/files/export/dict/dict.opcorpora.xml.bz2">Словарь</a> (обновлён {$dl.dict.updated}, {$dl.dict.size} Мб)
+</div>
 {if $is_admin == 1}
-<b>Ревизия</b> {$svn_revision}
+<div>
+    <b>Ревизия</b> {$svn_revision}
+</div>
 {/if}

@@ -5,5 +5,20 @@ if (isset($_GET['rand'])) {
     header("Location:sentence.php?id=".$r['sent_id']);
     return;
 }
-$smarty->display('index.tpl');
+if (isset($_GET['page'])) {
+    $page = $_GET['page'];
+    switch($page) {
+        case 'publications':
+            $smarty->display('publications.tpl');
+            break;
+        case 'stats':
+            $smarty->assign('stats', get_common_stats());
+            $smarty->display('stats.tpl');
+            break;
+        default:
+            $smarty->display('index.tpl');
+    }
+}
+else
+    $smarty->display('index.tpl');
 ?>
