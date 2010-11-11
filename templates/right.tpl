@@ -4,6 +4,8 @@ $this->assign('dl', get_downloads_info());
 {/php}
 <div>
     <a href="{$web_prefix}/?page=publications">Публикации</a><br/>
+</div>
+<div>
     <a href="{$web_prefix}/dict.php">Словарь</a><br/>
     <a href="{$web_prefix}/?page=stats">Статистика</a><br/>
     <a href="{$web_prefix}/?rand">Случайное предложение</a>
