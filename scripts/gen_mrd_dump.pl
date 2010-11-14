@@ -7,9 +7,17 @@ my $d = new Lingua::AOT::MorphDict(Mrd=>"morphs.mrd", Gramtab=>"rgramtab.tab");
 
 binmode(STDOUT, ":encoding(utf-8)");
 binmode(STDERR, ":encoding(utf-8)");
+binmode(STDIN, ":encoding(utf-8)");
 
 for (my $l = 0; $l < $d->MaxLemmaNo(); $l++) {
   my $lemma = $d->GetLemma($l);
+  if ($lemma->GetDefForm()->Text() =~ /\-/) {
+    print STDERR $lemma->GetPOS() . ", " . $lemma->GetDefForm()->Text() . ", " . $l;
+    if (defined $lemma->Ancode()) {
+      print STDERR ", " . $d->Ancode2Grammems($lemma->Ancode());
+    }
+    print STDERR "\n";
+  }
   if ($lemma->GetDefForm()->Text() =~ /^([А-ЯЁа-яёA-Za-z]+)\-([А-ЯЁа-яёA-Za-z]+)$/) {
     my ($p1, $p2) = ($1, $2);
     if ($p2 !~ /[Ёё]/ && $p2 =~ /[Ее]/) {
@@ -29,6 +37,7 @@ for (my $l = 0; $l < $d->MaxLemmaNo(); $l++) {
               }
             }
             if (defined $related_lemma) {
+              # fix stem ...
               $lemma->SetStem($p1 . "-" . $related_lemma->Stem());
               $lemma->SetParadigmId($related_lemma->ParadigmId());
               #print STDERR "SetStem from $p1-$p2 to $p1-$w\n";
@@ -54,12 +63,16 @@ for (my $l = 0; $l < $d->MaxLemmaNo(); $l++) {
   for (my $f = 0; $f < $lemma->MaxFormNo(); $f++) {
     my $form = $lemma->GetForm($f);
 
-    print $form->Text() . "\t". $d->Ancode2Grammems($form->Ancode());
+    my $output_line = $form->Text() . "\t" . $d->Ancode2Grammems($form->Ancode());
     if (defined $lemma->Ancode()) {
-      print ", " . $d->Ancode2Grammems($lemma->Ancode()) . "\n";
+      $output_line .= ", " . $d->Ancode2Grammems($lemma->Ancode()) . "\n";
     } else {
-      print "\n";
+      $output_line .= "\n";
     }
+
+    # pluralia tantum notation fix
+    $output_line =~ s/мн,мн/мн,pl/;
+    print $output_line;
   }
 
   print "\n";

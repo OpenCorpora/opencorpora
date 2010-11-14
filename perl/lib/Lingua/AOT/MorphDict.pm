@@ -4,6 +4,11 @@ use strict;
 use warnings;
 use utf8;
 use Encode;
+use Fcntl;
+use SDBM_File;
+use DB_File;
+use NDBM_File;
+use DBM_Filter;
 
 use Lingua::AOT::MorphDict::Gramtab;
 use Lingua::AOT::MorphDict::Paradigm;
@@ -21,6 +26,8 @@ sub new {
   $self->{fnMrd} = $args{Mrd} if exists($args{Mrd});
   $self->{fnGramtab} = $args{Gramtab} if exists($args{Gramtab});
   $self->{optRemoveAccentDoublicates} = 1;
+  $self->{tempDictFile} = "somefile_db.txt";
+  $self->{db} = undef;
 
   bless($self, $class);
 
@@ -30,6 +37,12 @@ sub new {
   return $self;
 }
 
+sub DESTROY {
+  my $self = shift;
+  unlink $self->{tempDictFile};
+  print STDERR $self->{tempDictFile} . " unlinked\n";
+}
+
 sub MaxLemmaNo {
   my $self = shift;
   return scalar @{$self->{aLemma}};
@@ -37,7 +50,7 @@ sub MaxLemmaNo {
 
 sub GetLemma {
   my ($self, $n) = @_;
-  return $self->{aLemma}->[$n];
+  return new Lingua::AOT::MorphDict::Lemma($self, $self->{aLemma}->[$n]);
 } 
 
 sub Ancode2Grammems {
@@ -47,11 +60,23 @@ sub Ancode2Grammems {
 
 sub build_forms {
   my ($self) = @_;
+  
+  $self->{db} = tie %{$self->{aLookupIndex}}, 'SDBM_File', $self->{tempDictFile}, O_RDWR|O_CREAT, 0666
+    or die "Couldn't tie SDBM file: $!";
+  $self->{db}->Filter_Push("utf8");
   for (my $lid = 0; $lid < $self->MaxLemmaNo(); $lid++) {
-    my $l = $self->{aLemma}->[$lid]; 
+    my %h;
+    my $l = $self->GetLemma($lid); 
     for (my $fid = 0; $fid < $l->MaxFormNo(); $fid++) {
       my $f = $l->GetForm($fid);
-      push @{$self->{aLookupIndex}->{$f->Text()}}, new Lingua::AOT::MorphDict::MorphVariant($lid, $f->Ancode());
+      #push @{$self->{aLookupIndex}->{$f->Text()}}, new Lingua::AOT::MorphDict::MorphVariant($lid, $f->Ancode());
+      push @{$h{$f->Text()}}, $lid . " " . $f->Ancode();
+      #push @{$self->{aLookupIndex}->{$f->Text()}}, $lid . " " . $f->Ancode();
+    }
+ 
+    foreach my $f (keys %h) {
+      #push @{$self->{aLookupIndex}->{$f}}, $lid . " " . $h{$f};
+      $self->{aLookupIndex}->{$f} = join("\t", @{$h{$f}});
     }
   }
 }
@@ -62,7 +87,16 @@ sub Lookup {
   if (!exists($self->{aLookupIndex}->{$w})) {
     return undef;
   }
-  return $self->{aLookupIndex}->{$w};
+  my $a = $self->{aLookupIndex}->{$w};
+  my $retval;
+  foreach my $i (split(/\t/, $a)) {
+    my ($lid, $anex) = split(/\s+/, $i);
+    while ($anex =~ /(..)/g) {
+      push @{$retval}, new Lingua::AOT::MorphDict::MorphVariant($lid, $1);
+    }
+  }
+  return $retval;
+  #return $self->{aLookupIndex}->{$w};
 }
 
 sub GetParadigm {
@@ -86,9 +120,10 @@ sub load_mrd {
   open(FH, "<", $fnMrd) or die $!;                                                                           # optRemoveAccentDoublicates
   load_mrd_section(\*FH, sub { push @{$self->{aParadigm}}, new Lingua::AOT::MorphDict::Paradigm(shift, $self->{optRemoveAccentDoublicates}); });
   load_mrd_section(\*FH, sub { push @{$self->{aAccentParadigm}}, new Lingua::AOT::MorphDict::AccentParadigm(shift); });
-  load_mrd_section(\*FH, sub { push @{$self->{aHistory}}, shift });
+  load_mrd_section(\*FH, sub { #push @{$self->{aHistory}}, shift
+                             });
   load_mrd_section(\*FH, sub { push @{$self->{aPrefix}}, shift });
-  load_mrd_section(\*FH, sub { my $l = new Lingua::AOT::MorphDict::Lemma($self, shift); push @{$self->{aLemma}}, $l if defined $l; });
+  load_mrd_section(\*FH, sub { push @{$self->{aLemma}}, shift; });
   close(FH);
 }
 
