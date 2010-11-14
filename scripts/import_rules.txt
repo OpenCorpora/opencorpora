@@ -84,6 +84,13 @@
 	
 
 # существительное
+(* plur) & (* !Pltm)
+	CHANGE ( -> Pltm)
+(* sing) & (* !Sgtm)
+	CHANGE ( -> Sgtm)
+1 Pltm
+	CHANGE (Sgtm -> )
+	CHANGE (a-pl -> )
 (* fixd) & (* !Sgtm) & (* !Pltm)
 	GENERATE (sing, plur; nomn, gent,datv, accs, ablt, loct)
 (* fixd) & (* Sgtm | Pltm)
@@ -121,14 +128,14 @@
 1 2nd & loct	
 	CHANGE (loct, sing -> loc1)
 	CHANGE (loc1, 2nd -> loc2)
-(* sing) & (* !Sgtm)
-	CHANGE ( -> Sgtm)
 (* Name) & (1 plur) & (1 Sgtm)
 	CHANGE (Sgtm -> )
 * Sgtm
 	CHANGE (plur -> plur, a-pl)
-#(* plur) & (* !Pltm)
-#	CHANGE ( -> xxx)
+#* ~/пр/
+#	CHANGE ( -> _del)
+#(* ~/^неубивай/) & (* NOUN) 
+#	CHANGE ( -> _del)
 
 		
 # прилагательное
