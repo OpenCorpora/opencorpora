@@ -61,26 +61,7 @@
 	CHANGE (2 ->2nd)
 	
 # разбиваем по частям речи
-	CHANGE(ADJF, ADJC -> ADJC)
-(1 ADJS|ADJC) & (* ADJF|ADJS|ADJC)	
-	SPLIT(ADJF, ADJC, ADJS)
-	
-#(1 ADJS|ADJC|~/ейш/|~/айш/) & (* ADJF|ADJS|ADJC)
-#	SPLIT(ADJF&!~/ейш/&!~/айш/, ADJF&~/ейш/&!~/наи/, ADJF&~/айш/&!~/наи/, ADJF&~/ейш/&~/наи/, ADJF&~/айш/&~/наи/, ADJS&!~/ейш/&!~/айш/, ADJS&~/ейш/&!~/наи/, ADJS&~/айш/&!~/наи/, ADJS&~/ейш/&~/наи/, ADJS&~/ейш/&~/наи/, ADJC&!~/ейш/&!~/айш/, ADJC&~/ейш/&!~/наи/, ADJC&~/айш/&!~/наи/, ADJC&~/айш/&~/наи/, ADJC&~/ейш/&~/наи/)
-#		LINK(0, 1, ADJF-SUPR)
-#		LINK(O, 2, ADJF-SUPR)
-#		LINK(0, 5, ADJF-ADJS)
-#		LINK(0, 10, ADJF-ADJC)
-#		LINK(1, 3, ADJF-SUPR)
-#		LINK(2, 4, ADJF-SUPR)
-#		LINK(1, 11, ADJF-ADJC)
-#		LINK(1, 6, ADJF-ADJS)
-#		LINK(2, 7, ADJF-ADJS)
-#		LINK(2, 12, ADJF-ADJC)
-#		LINK(3, 8, ADJF-ADJS)
-#		LINK(4, 9, ADJF-ADJS)
-#		LINK(3, 14, ADJF-ADJC)
-#		LINK(4, 13, ADJF-ADJC)
+
 	
 
 # существительное
@@ -139,11 +120,45 @@
 
 		
 # прилагательное
+(#178) & (1 !Poss)
+    CHANGE( -> Poss)
+(#74) & (1 !Poss)
+    CHANGE( -> Poss)
+(#146) & (1 !Poss)
+    CHANGE( -> Poss)	
+(1 ADJF)
+    CHANGE(ADJF, ADJC -> ADJC)
+
+	
+(1 ADJS|ADJC|~/ейш/|~/айш/) & (* ADJF|ADJS|ADJC)
+    SPLIT(ADJF&!~/ейш/&!~/айш/, ADJF&~/ейш/&!~/наи/, ADJF&~/айш/&!~/наи/, ADJF&~/ейш/&~/наи/, ADJF&~/айш/&~/наи/, ADJS&!~/ейш/&!~/айш/, ADJS&~/ейш/&!~/наи/, ADJS&~/айш/&!~/наи/, ADJS&~/ейш/&~/наи/, ADJS&~/aйш/&~/наи/, ADJC&!~/ейш/&!~/айш/, ADJC&~/ейш/&!~/наи/, ADJC&~/айш/&!~/наи/, ADJC&~/айш/&~/наи/, ADJC&~/ейш/&~/наи/)
+        LINK(0, 1, ADJF-SUPR_ejsh)
+        LINK(0, 2, ADJF-SUPR_ajsh)
+        LINK(0, 5, ADJF-ADJS)
+        LINK(0, 10, ADJF-ADJC)
+	    LINK(5, 6, ADJS-ADJS_eish)
+	    LINK(5, 7, ADJS-ADJS_aish)
+	    LINK(10, 11, ADJC-ADJC_eish)
+	    LINK(10, 12, ADJC-ADJC_aish)
+	    LINK(1, 3, ADJF_eish-SUPR_nai_eish)
+        LINK(2, 4, ADJF_aish-SUPR_nai_aish)
+        LINK(1, 11, ADJF_eish-ADJC_eish)
+	    LINK(2, 12, ADJF_aish-ADJC_aish)
+        LINK(1, 6, ADJF_eish-ADJS_eish)
+        LINK(2, 7, ADJF_aish-ADJS_aish)
+	    LINK(6, 8, ADJS_eish-ADJS_nai_eish)
+	    LINK(7, 9, ADJS_aish-ADJS_nai_aish)
+		LINK(11, 14, ADJC_eish-ADJC_nai_eish)
+		LINK(12, 13, ADJC_aish-ADJC_nai_aish)
+        LINK(3, 8, ADJF_nai_eish-ADJS_nai_eish)
+        LINK(4, 9, ADJF_nai_aish-ADJS_nai_aish)
+        LINK(3, 14, ADJF_nai_eish-ADJC_nai_eish)
+        LINK(4, 13, ADJF_nai_aish-ADJC_nai_aish)
 * Apro
     CHANGE( -> ADJF)
 * Anum
     CHANGE( -> ADJF)
-* ADJF|PRTF|Apro
+* ADJF|PRTF
     CHANGE(!accs,anim -> )
     CHANGE(!accs,inan -> )
     CHANGE(femn,sing,accs,anim -> femn,sing,accs)
@@ -159,13 +174,10 @@
 * ADJF
     CHANGE(~/ою$/ -> V-oy)
 	CHANGE(~/ею$/ -> V-ey)
-    CHANGE(#2504 -> fake)
 (* Apro) & (1 ~/^ее$/|~/^его$/|~/^их$/)
     GENERATE(sing,plur; nomn,gent,datv,accs,ablt,loct)
-#PARA74) & !Poss
-#    CHANGE( -> Poss)
-#PARA146) & !Poss
-#    CHANGE( -> Poss)
+
+
 
 
     
