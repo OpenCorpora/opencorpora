@@ -26,8 +26,8 @@ sub new {
   $self->{fnMrd} = $args{Mrd} if exists($args{Mrd});
   $self->{fnGramtab} = $args{Gramtab} if exists($args{Gramtab});
   $self->{optRemoveAccentDoublicates} = 1;
-  $self->{tempDictFile} = "somefile_db.txt";
-  $self->{db} = undef;
+  #$self->{tempDictFile} = "somefile_db.txt";
+  #$self->{db} = undef;
 
   bless($self, $class);
 
@@ -39,8 +39,8 @@ sub new {
 
 sub DESTROY {
   my $self = shift;
-  unlink $self->{tempDictFile};
-  print STDERR $self->{tempDictFile} . " unlinked\n";
+  #unlink $self->{tempDictFile};
+  #print STDERR $self->{tempDictFile} . " unlinked\n";
 }
 
 sub MaxLemmaNo {
@@ -61,9 +61,9 @@ sub Ancode2Grammems {
 sub build_forms {
   my ($self) = @_;
   
-  $self->{db} = tie %{$self->{aLookupIndex}}, 'SDBM_File', $self->{tempDictFile}, O_RDWR|O_CREAT, 0666
-    or die "Couldn't tie SDBM file: $!";
-  $self->{db}->Filter_Push("utf8");
+  #$self->{db} = tie %{$self->{aLookupIndex}}, 'SDBM_File', $self->{tempDictFile}, O_RDWR|O_CREAT, 0666
+  #  or die "Couldn't tie SDBM file: $!";
+  #$self->{db}->Filter_Push("utf8");
   for (my $lid = 0; $lid < $self->MaxLemmaNo(); $lid++) {
     my %h;
     my $l = $self->GetLemma($lid); 
