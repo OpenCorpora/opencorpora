@@ -27,7 +27,7 @@ sub new {
     my @forms = @$ref;
     #adding forms
     for my $form_string(@forms) {
-        if ($form_string =~ /^(\S+)\t(\S+),?\s?(\S+)?,?\s?(\S+)?/) {
+        if ($form_string =~ /^(\S+)\t([А-Яа-я0-9Ёё\-_]+),?\s?(\S+)?,?\s?(\S+)?/) {
             if (!$self->{LEMMA}) {
                 $self->{LEMMA} = to_lower($1);
             }
