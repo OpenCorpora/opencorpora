@@ -5,10 +5,10 @@ use warnings;
 use utf8;
 use Encode;
 use Fcntl;
-use SDBM_File;
-use DB_File;
-use NDBM_File;
-use DBM_Filter;
+#use SDBM_File;
+#use DB_File;
+#use NDBM_File;
+#use DBM_Filter;
 
 use Lingua::AOT::MorphDict::Gramtab;
 use Lingua::AOT::MorphDict::Paradigm;
