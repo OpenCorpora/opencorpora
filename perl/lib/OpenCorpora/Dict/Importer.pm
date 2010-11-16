@@ -118,7 +118,7 @@ sub read_aot {
     open F, $path or die "Error: Cannot read $path";
     binmode(F, ':utf8');
     while(<F>) {
-        if (/\S+\t\S+,\s?(?:\S+)?,?\s?(?:\S+)?/) {
+        if (/^\S+\t\S+,?\s?(?:\S+)?,?\s?(?:\S+)?/) {
             print STDERR $_ if DEBUG && !INSERT;
             push @forms, $_;
         }
