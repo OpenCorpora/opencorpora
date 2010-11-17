@@ -173,7 +173,9 @@ sub read_rules {
     my $rule_ref = undef;
     open F, $path or die "Error: Cannot read $path";
     binmode(F, ':utf8');
+    my $string_no = 0;
     while(<F>) {
+        $string_no++;
         s/^\x{feff}//;  #killing BOM
         if (/^\s*\#/) {
             next; #skipping comments
@@ -200,6 +202,8 @@ sub read_rules {
         elsif (/[\s\t]+((?:CHANGE|SPLIT|GENERATE|LINK)\s*\(.+\))/i) {
             #this is an action
             my $action = parse_action_string($1);
+            $action->{STRING_NO} = $string_no;
+            $action->{RULE_NO} = $$rule_ref->{ID};
             if ($action->{TYPE} == ACTION_TYPE_LINK) {
                 my $last_action = $$rule_ref->{ACTIONS}->[$#{$$rule_ref->{ACTIONS}}];
                 if ($last_action->{TYPE} != ACTION_TYPE_SPLIT) {
@@ -491,9 +495,10 @@ sub apply_rule {
             #any rule with SPLIT must be last
             $rule->{IS_LAST} = 1;
             print STDERR "    Split\n" if DEBUG && !INSERT;
-            my @new_words = @{$word->split_lemma($action->{GRAMMEMS_IN})};
+            my @new_words = @{$word->split_lemma($action)};
             if (scalar @new_words == 1) {
-                warn "Warning: Splitting '".$word->{LEMMA}."' results in one word, skipping";
+                printf STDERR "[rule %d, string %d] Warning: Splitting '%s' results in one word, skipping\n",
+                    $rule->{ID}, $action->{STRING_NO}, $word->{LEMMA};
                 return;
             }
             #preliminary calculations
@@ -509,8 +514,9 @@ sub apply_rule {
                     my @for_i = ($self->{WORD_ID} + $j1, $lnk->{LINK_NAME});
                     push @{$new_words[$i]->{LINKS}}, \@for_i;
                 }
-                else {
-                    print STDERR "Warning: Cannot link after splitting '".$word->{LEMMA}."' with indices $i and $j; this may be normal\n" if DEBUG;
+                elsif (DEBUG) {
+                    printf STDERR "[rule %d, string %d] Warning: Cannot link after splitting '%s' with indices %d and %d; this may be normal\n",
+                        $rule->{ID}, $action->{STRING_NO}, $word->{LEMMA}, $i, $j;
                 }
             }
             for my $new_word(@new_words) {
@@ -526,7 +532,7 @@ sub apply_rule {
         }
         elsif ($action->{TYPE} == ACTION_TYPE_GENERATE) {
             print STDERR "    Generate\n" if DEBUG && !INSERT;
-            $word->generate_paradigm($action->{GRAMMEMS_IN});
+            $word->generate_paradigm($action);
             push @{$word->{APPLIED_RULES}}, $rule->{ID};
         }
         else {

@@ -137,7 +137,8 @@ sub change_grammems {
 }
 sub split_lemma {
     my $self = shift;
-    my @grammems = @{shift()};
+    my $action = shift;
+    my @grammems = @{$action->{GRAMMEMS_IN}};
     my @new_grammems;
     my %new_words;
     my @out_words;
@@ -165,7 +166,8 @@ sub split_lemma {
         $ok = 0;
         #check if any form has more than one of @grammems
         if ($self->count_form_has_gram_set($form, \@new_grammems) > 1) {
-            warn "Warning: Form '".$form->{TEXT}."' has several grammems among (".join(',', @grammems)."), cannot split, skipping";
+            printf STDERR "[rule %d, string %d] Warning: Form '%s' has several grammems among (%s), cannot split, skipping\n",
+                $action->{RULE_NO}, $action->{STRING_NO}, $form->{TEXT}, join(',', @grammems);
             return [$self];
         }
         for my $gram(@new_grammems) {
@@ -180,7 +182,8 @@ sub split_lemma {
                 push @{$new_words{'*'}},  $form;
             }
             else {
-                warn "Warning: Form '".$form->{TEXT}."' has no grammems among (".join(',', @grammems)."), cannot split, skipping";
+                printf STDERR "[rule %d, string %d] Warning: Form '%s' has no grammems among (%s), cannot split, skipping\n",
+                    $action->{RULE_NO}, $action->{STRING_NO}, $form->{TEXT}, join(',', @grammems);
                 return [$self];
             }
         }
@@ -200,11 +203,13 @@ sub split_lemma {
 }
 sub generate_paradigm {
     my $self = shift;
+    my $action = shift;
     if ($self->get_form_count() > 1) {
-        warn "Warning: Word ".$self->{LEMMA}." has more than one form, cannot generate full paradigm, skipping";
+        printf STDERR "[rule %d, string %d] Warning: Word '%s' has more than one form, cannot generate full paradigm, skipping\n",
+            $action->{RULE_NO}, $action->{STRING_NO}, $self->{LEMMA};
         return;
     }
-    my @gram = @{shift()};
+    my @gram = @{$action->{GRAMMEMS_IN}};
     for my $gr(@gram) {
         $self->generate_paradigm_plain($gr);
     }
