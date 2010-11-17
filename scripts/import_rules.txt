@@ -178,8 +178,8 @@
 * ADJC
     CHANGE(~/краше$/ -> litr)
 * ADJF  
-    CHANGE(~/^наихорош...$/ -> V-nai) 
-    CHANGE(~/^наихорош..$/ -> V-nai)    
+    CHANGE(~/^наихорош...$/ -> Vnai) 
+    CHANGE(~/^наихорош..$/ -> Vnai)    
 (* Apro) & (1 ~/^ее$/|~/^его$/|~/^их$/)
     GENERATE(sing,plur; nomn,gent,datv,accs,ablt,loct)
 (1 ~/^ее$/|~/^его$/|~/^их$/)
