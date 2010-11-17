@@ -120,40 +120,41 @@
 
 		
 # прилагательное
-(#178) & (1 !Poss)
+(#178) & (* !Poss) & (* !Qual) & (* !Apro)
     CHANGE( -> Poss)
-(#74) & (1 !Poss)
+(#74) & (* !Poss) & (* !Poss) & (* !Qual) & (* !Apro)
     CHANGE( -> Poss)
-(#146) & (1 !Poss)
+(#146) & (* !Poss) & (* !Poss) & (* !Qual) & (* !Apro)
     CHANGE( -> Poss)	
 (1 ADJF)
     CHANGE(ADJF, ADJC -> ADJC)
-
-	
 (1 ADJS|ADJC|~/ейш/|~/айш/) & (* ADJF|ADJS|ADJC)
-    SPLIT(ADJF&!~/ейш/&!~/айш/, ADJF&~/ейш/&!~/наи/, ADJF&~/айш/&!~/наи/, ADJF&~/ейш/&~/наи/, ADJF&~/айш/&~/наи/, ADJS&!~/ейш/&!~/айш/, ADJS&~/ейш/&!~/наи/, ADJS&~/айш/&!~/наи/, ADJS&~/ейш/&~/наи/, ADJS&~/aйш/&~/наи/, ADJC&!~/ейш/&!~/айш/, ADJC&~/ейш/&!~/наи/, ADJC&~/айш/&!~/наи/, ADJC&~/айш/&~/наи/, ADJC&~/ейш/&~/наи/)
+    SPLIT(ADJF&!~/ейш/&!~/айш/&!Supr, ADJF&~/ейш/&!~/наи/, ADJF&~/айш/&!~/наи/, ADJF&~/ейш/&~/наи/, ADJF&~/айш/&~/наи/, ADJS&!~/ейш/&!~/айш/, ADJS&~/ейш/&!~/наи/, ADJS&~/айш/&!~/наи/, ADJS&~/ейш/&~/наи/, ADJS&~/aйш/&~/наи/, ADJC&!~/ейш/&!~/айш/, ADJC&~/ейш/&!~/наи/, ADJC&~/айш/&!~/наи/, ADJC&~/айш/&~/наи/, ADJC&~/ейш/&~/наи/, ADJF&~/^наи/&!~/ейш/&!~/айш/&Supr, ADJF&!~/^наи/&!~/ейш/&!~/айш/&Supr, *)
         LINK(0, 1, ADJF-SUPR_ejsh)
         LINK(0, 2, ADJF-SUPR_ajsh)
         LINK(0, 5, ADJF-ADJS)
         LINK(0, 10, ADJF-ADJC)
-        LINK(5, 6, ADJS-ADJS_eish)
-        LINK(5, 7, ADJS-ADJS_aish)
-        LINK(10, 11, ADJC-ADJC_eish)
-        LINK(10, 12, ADJC-ADJC_aish)
+        LINK(5, 6, ADJS-SUPR_eish)
+        LINK(5, 7, ADJS-SUPR_aish)
+        LINK(10, 11, ADJC-SUPR_eish)
+        LINK(10, 12, ADJC-SUPR_aish)
         LINK(1, 3, ADJF_eish-SUPR_nai_eish)
         LINK(2, 4, ADJF_aish-SUPR_nai_aish)
-        LINK(1, 11, ADJF_eish-ADJC_eish)
-        LINK(2, 12, ADJF_aish-ADJC_aish)
-        LINK(1, 6, ADJF_eish-ADJS_eish)
-        LINK(2, 7, ADJF_aish-ADJS_aish)
-        LINK(6, 8, ADJS_eish-ADJS_nai_eish)
-        LINK(7, 9, ADJS_aish-ADJS_nai_aish)
-        LINK(11, 14, ADJC_eish-ADJC_nai_eish)
-        LINK(12, 13, ADJC_aish-ADJC_nai_aish)
-        LINK(3, 8, ADJF_nai_eish-ADJS_nai_eish)
-        LINK(4, 9, ADJF_nai_aish-ADJS_nai_aish)
-        LINK(3, 14, ADJF_nai_eish-ADJC_nai_eish)
-        LINK(4, 13, ADJF_nai_aish-ADJC_nai_aish)
+        LINK(1, 11, ADJF-ADJC)
+        LINK(2, 12, ADJF-ADJC)
+        LINK(1, 6, ADJF-ADJS)
+        LINK(2, 7, ADJF-ADJS)
+        LINK(6, 8, ADJS_eish-SUPR_nai_eish)
+        LINK(7, 9, ADJS_aish-SUPR_nai_aish)
+        LINK(11, 14, ADJC_eish-SUPR_nai_eish)
+        LINK(12, 13, ADJC_aish-SUPR_nai_aish)
+        LINK(3, 8, ADJF-ADJS)
+        LINK(4, 9, ADJF-ADJS)
+        LINK(3, 14, ADJF-ADJC)
+        LINK(4, 13, ADJF-ADJC)
+        LINK(16, 15, ADJF-SUPR_nai)
+        LINK(0, 16, ADJF-SUPR_suppl)
+
 * Apro
     CHANGE( -> ADJF)
 * Anum
@@ -174,13 +175,17 @@
 * ADJF
     CHANGE(~/ою$/ -> V-oy)
     CHANGE(~/ею$/ -> V-ey)
+* ADJC
+    CHANGE(~/краше$/ -> litr)
+* ADJF  
+    CHANGE(~/^наихорош...$/ -> V-nai) 
+    CHANGE(~/^наихорош..$/ -> V-nai)    
 (* Apro) & (1 ~/^ее$/|~/^его$/|~/^их$/)
     GENERATE(sing,plur; nomn,gent,datv,accs,ablt,loct)
+(1 ~/^ее$/|~/^его$/|~/^их$/)
+    CHANGE(anim,inan, accs -> accs)
 
-
-
-
-    
+	
 # глагол (инфинитив, личная форма, причастие, краткое причастие, деепричастие)
 (1 VERB) & (1 INFN) & (* VERB|INFN|PRTF|PRTS|GRND)
    SPLIT(VERB, INFN, PRTF&actv&pres, PRTF&actv&past, PRTF&pssv&pres, PRTF&pssv&past, PRTS&pres, PRTS&past, GRND)
