@@ -14,9 +14,9 @@
         <input type="hidden" name="lemma_id" value="{$editor.lemma.id}"/>
         {if $editor.lemma.id > 0}
         <input name="lemma_text" readonly="readonly" value="{$editor.lemma.text|htmlspecialchars}"/>
-        <input name="lemma_gram" value="{$editor.lemma.grms|htmlspecialchars}" size="30"/>
+        <input name="lemma_gram" {if !$is_admin}readonly="readonly"{/if} value="{$editor.lemma.grms|htmlspecialchars}" size="30"/>
         <input type="button" onClick="location.href='dict_history.php?lemma_id={$editor.lemma.id}'" value="История"/>
-        <input type="button" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" value="Удалить"/>
+        {if $is_admin}<input type="button" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" value="Удалить"/>{/if}
         {else}
         <input name="lemma_text" value="{$smarty.get.text}"/>
         <input name="lemma_gram" value="граммемы" onClick="this.value=''; this.onclick=''"/>
@@ -28,8 +28,8 @@
         <table cellpadding="3">
         {foreach item=form from=$editor.forms}
         <tr>
-            <td><input name='form_text[]' value='{$form.text|htmlspecialchars}'/>
-            <td><input name='form_gram[]' size='40' value='{$form.grms|htmlspecialchars}'/>
+            <td><input name='form_text[]' {if !$is_admin}readonly="readonly"{/if} value='{$form.text|htmlspecialchars}'/>
+            <td><input name='form_gram[]' {if !$is_admin}readonly="readonly"{/if} size='40' value='{$form.grms|htmlspecialchars}'/>
         </tr>
         {/foreach}
         {if $is_admin}
@@ -38,11 +38,11 @@
         </table><br/>
         {if $is_admin}
             <input type="submit" value="Сохранить"/>&nbsp;&nbsp;
+            <input type="reset" value="Сбросить"/>
         {/if}
-        <input type="reset" value="Сбросить"/>
     </form>
     {/strip}
-    <b>Связи</b>
+    <p><b>Связи</b></p>
     <ul>
     {foreach item=link from=$editor.links}
     <li><a href="?act=edit&amp;id={$link.lemma_id}">{$link.lemma_text}</a> ({$link.name})
