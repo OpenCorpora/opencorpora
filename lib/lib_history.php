@@ -58,4 +58,21 @@ function main_diff($sentence_id, $set_id) {
     }
     return $out;
 }
+function dict_diff($lemma_id, $set_id) {
+    $res = sql_query("SELECT dr.rev_id, dr.rev_text, s.timestamp, u.user_name FROM dict_revisions dr LEFT JOIN rev_sets s ON (dr.set_id=s.set_id) LEFT JOIN `users` u ON (s.user_id=u.user_id) WHERE dr.set_id<=$set_id AND dr.lemma_id=$lemma_id ORDER BY dr.rev_id DESC LIMIT 2");
+    $r1 = sql_fetch_array($res);
+    $r2 = sql_fetch_array($res);
+    $out = array(
+        'lemma_id'      => $lemma_id,
+        'old_ver'       => $r2['rev_id'],
+        'new_ver'       => $r1['rev_id'],
+        'old_user_name' => $r2['user_name'],
+        'new_user_name' => $r1['user_name'],
+        'old_timestamp' => $r2['timestamp'],
+        'new_timestamp' => $r1['timestamp'],
+        'old_rev_xml'   => $r2['rev_text'],
+        'new_rev_xml'   => $r1['rev_text']
+    );
+    return $out;
+}
 ?>

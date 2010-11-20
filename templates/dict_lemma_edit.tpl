@@ -14,12 +14,12 @@
         <input type="hidden" name="lemma_id" value="{$editor.lemma.id}"/>
         {if $editor.lemma.id > 0}
         <input name="lemma_text" readonly="readonly" value="{$editor.lemma.text|htmlspecialchars}"/>
-        <input name="lemma_gram" {if !$is_admin}readonly="readonly"{/if} value="{$editor.lemma.grms|htmlspecialchars}" size="30"/>
+        <input name="lemma_gram" {if !$is_admin}readonly="readonly"{/if} value="{$editor.lemma.grms|htmlspecialchars}" size="35"/>
         <input type="button" onClick="location.href='dict_history.php?lemma_id={$editor.lemma.id}'" value="История"/>
         {if $is_admin}<input type="button" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" value="Удалить"/>{/if}
         {else}
         <input name="lemma_text" value="{$smarty.get.text}"/>
-        <input name="lemma_gram" value="граммемы" onClick="this.value=''; this.onclick=''"/>
+        <input name="lemma_gram" value="граммемы" onClick="this.value=''; this.onclick=''" size="35"/>
         {/if}
         <br/>
         <b>Формы
