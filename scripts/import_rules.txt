@@ -11,6 +11,7 @@
     CHANGE(вн -> accs)
     CHANGE(тв -> ablt)
     CHANGE(пр -> loct)
+	CHANGE(зв -> voct)
     CHANGE(жр -> femn)
     CHANGE(ср -> neut)
     CHANGE(мн -> plur)
