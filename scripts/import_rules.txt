@@ -58,26 +58,14 @@
     CHANGE(прев -> Supr)
     CHANGE(арх -> Obsl)
     CHANGE(0 -> fixd)
-    CHANGE (2 ->2nd)
 	
 # разбиваем по частям речи
 
 	
 
 # существительное
-(* plur) & (* !Pltm)
-	CHANGE ( -> Pltm)
-(* sing) & (* !Sgtm)
-	CHANGE ( -> Sgtm)
-1 Pltm
-	CHANGE (Sgtm -> )
-	CHANGE (a-pl -> )
-(* fixd) & (* !Sgtm) & (* !Pltm)
-	GENERATE (sing, plur; nomn, gent,datv, accs, ablt, loct)
-(* fixd) & (* Sgtm | Pltm)
-	GENERATE (nomn, gent,datv, accs, ablt, loct)
-* Pltm
-	CHANGE (sing -> sing, a-sg)
+* NOUN    
+	CHANGE (2 ->2nd)
 1 Patr
 	CHANGE (!Infr -> form)
 1 Name
@@ -97,26 +85,44 @@
 	SPLIT (masc, femn, Ms-f)
 		LINK (0, 1, SURN_MASC-SURN_FEMN)
 		LINK (0, 2, SURN_MASC-SURN_PLUR)
-(1 Surn & masc) | (1 Surn & femn)
-	CHANGE ( -> Sgtm)
-1 Surn & Ms-f
+(1 ~/^газпром-медиа$/)
+	CHANGE (masc, femn, neut, sing, nomn, gent, datv, accs, ablt, loct, Sgtm, a-pl -> Pltm, fixd)
+# не работает
+(* plur) & (* !Pltm)
 	CHANGE ( -> Pltm)
+(* sing) & (* !Sgtm)
+	CHANGE ( -> Sgtm)
+1 Pltm
+	CHANGE (Sgtm -> )
+	CHANGE (a-pl -> )
+(* Ms-f) & (* !Surn) & (* !~/^завмаг$/)
+	CHANGE ( -> femn)
+(1 ~/^завмаг$/)
+	CHANGE ( -> masc)
+(* fixd) & (* Ms-f)
+	CHANGE ( -> GNdr)
+(* NOUN) & (* fixd) & (* !Sgtm) & (* !Pltm)
+	GENERATE (sing, plur; nomn, gent,datv, accs, ablt, loct)
+(* NOUN) & (* fixd) & (* Sgtm | Pltm)
+	GENERATE (nomn, gent,datv, accs, ablt, loct)
+* Pltm
+	CHANGE (sing -> sing, a-sg)
+* Sgtm
+	CHANGE (plur -> plur, a-pl)
 1 Pltm
 	CHANGE ( -> GNdr)
 1 2nd & gent
-	CHANGE (gent, sing -> gen1)
+	CHANGE (gent, sing -> gen1, sing)
 	CHANGE (gen1, 2nd -> gen2)
 1 2nd & loct	
-	CHANGE (loct, sing -> loc1)
+	CHANGE (loct, sing -> loc1, sing)
 	CHANGE (loc1, 2nd -> loc2)
 (* Name) & (1 plur) & (1 Sgtm)
-	CHANGE (Sgtm -> )
-* Sgtm
-	CHANGE (plur -> plur, a-pl)
-#* ~/пр/
-#	CHANGE ( -> _del)
-#(* ~/^неубивай/) & (* NOUN) 
-#	CHANGE ( -> _del)
+	CHANGE (Sgtm, a-pl -> )
+(* ~/^др$/)
+	CHANGE ( -> _del)
+(* ~/^неубивайменя$/)
+	CHANGE ( -> _del)
 
 		
 # прилагательное
