@@ -90,7 +90,7 @@ sub prepare_insert {
 }
 sub read_grammem_order {
     my $self = shift;
-    my $gram = $self->{CONNECTION}->prepare("SELECT inner_id FROM gram g JOIN gram_types gt ON (g.gram_type=gt.type_id) ORDER BY gt.orderby, g.orderby");
+    my $gram = $self->{CONNECTION}->prepare("SELECT inner_id FROM gram ORDER BY orderby");
     $gram->execute();
     my $i = 0;
     while(my $r = $gram->fetchrow_hashref()) {
