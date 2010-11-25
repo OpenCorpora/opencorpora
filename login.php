@@ -26,7 +26,7 @@ if ($action=='login') {
 
 if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'login.php') === false)
     $_SESSION['return_to'] = $_SERVER['HTTP_REFERER'];
-else $_SESSION['return_to'] = '/';
+else $_SESSION['return_to'] = 'index.php';
 
 $smarty->display('login.tpl');
 ?>
