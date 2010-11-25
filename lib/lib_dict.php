@@ -62,11 +62,11 @@ function generate_tf_rev($token) {
     $out .= '</tfr>';
     return $out;
 }
-function dict_get_select_gramtype() {
-    $res = sql_query("SELECT `type_id`, `type_name` FROM `gram_types` ORDER by `type_name`");
+function dict_get_select_gram() {
+    $res = sql_query("SELECT `gram_id`, `inner_id` FROM `gram` ORDER by `inner_id`");
     $out = '';
     while($r = sql_fetch_array($res)) {
-        $out .= '<option value="'.$r['type_id'].'">'.$r['type_name'].'</option>';
+        $out .= '<option value="'.$r['gram_id'].'">'.$r['inner_id'].'</option>';
     }
     return $out;
 }
@@ -348,62 +348,21 @@ function del_link($link_id, $revset_id=0) {
 
 // GRAMMEM EDITOR
 function get_grammem_editor() {
-    $out = array('select' => dict_get_select_gramtype());
-    $res = sql_query("SELECT gt.*, g.* FROM `gram_types` gt LEFT JOIN `gram` g ON (gt.type_id = g.gram_type) ORDER BY gt.`orderby`, g.`orderby`");
+    $out = array();
+    $res = sql_query("SELECT g1.`gram_id`, g1.`parent_id`, g1.`inner_id`, g1.`outer_id`, g1.`gram_descr`, g2.`inner_id` AS `parent_name` FROM `gram` g1 LEFT JOIN `gram` g2 ON (g1.parent_id=g2.gram_id) ORDER BY g1.`orderby`");
     while($r = sql_fetch_array($res)) {
-        $out['groups'][$r['type_id']]['name'] = $r['type_name'];
-        if ($r['gram_id'])
-            $out['groups'][$r['type_id']]['grammems'][] = array('id' => $r['gram_id'], 'name' => $r['inner_id'], 'aot_id' => $r['outer_id'], 'description' => $r['gram_descr']);
+        $out[] = array(
+            'id' => $r['gram_id'],
+            'name' => $r['inner_id'],
+            'outer_id' => $r['outer_id'],
+            'description' => htmlspecialchars($r['gram_descr']),
+            'parent_name' => $r['parent_name']
+        );
     }
     return $out;
 }
-function add_gramtype($name) {
-    $r = sql_fetch_array(sql_query("SELECT MAX(`orderby`) AS `m` FROM `gram_types`"));
-    if (sql_query("INSERT INTO `gram_types` VALUES(NULL, '$name', '".($r['m']+1)."')")) {
-        header("Location:dict.php?act=gram");
-        return;
-    } else {
-        show_error();
-    }
-}
-function move_gramtype($group_id, $dir) {
-    $r = sql_fetch_array(sql_query("SELECT `orderby` as `ord` FROM `gram_types` WHERE type_id=$group_id"));
-    $ord = $r['ord'];
-    if ($dir == 'up') {
-        $q = sql_query("SELECT MAX(`orderby`) as `ord` FROM `gram_types` WHERE `orderby`<$ord");
-        if ($q) {
-            $r = sql_fetch_array($q);
-            $ord2 = $r['ord'];
-        }
-    } else {
-        $q = sql_query("SELECT MIN(`orderby`) as `ord` FROM `gram_types` WHERE `orderby`>$ord");
-        if ($q) {
-            $r = sql_fetch_array($q);
-            $ord2 = $r['ord'];
-        }
-    }
-    if (!isset($ord2)) {
-        header('Location:dict.php?act=gram');
-        return;
-    }
-    if (sql_query("UPDATE `gram_types` SET `orderby`='$ord' WHERE `orderby`=$ord2 LIMIT 1") &&
-        sql_query("UPDATE `gram_types` SET `orderby`='$ord2' WHERE `type_id`=$group_id LIMIT 1")) {
-        header('Location:dict.php?act=gram');
-        return;
-    } else {
-        show_error();
-    }
-}
-function del_gramtype($group_id) {
-    if (sql_query("DELETE FROM `gram` WHERE gram_type=$group_id") &&
-        sql_query("DELETE FROM gram_types WHERE type_id=$group_id LIMIT 1")) {
-        header('Location:dict.php?act=gram');
-        return;
-    } else
-        show_error();
-}
 function add_grammem($inner_id, $group, $outer_id, $descr) {
-    $r = sql_fetch_array(sql_query("SELECT MAX(`orderby`) AS `m` FROM `gram` WHERE `gram_type`=$group"));
+    $r = sql_fetch_array(sql_query("SELECT MAX(`orderby`) AS `m` FROM `gram`"));
     if (sql_query("INSERT INTO `gram` VALUES(NULL, '$group', '$inner_id', '$outer_id', '$descr', '".($r['m']+1)."')")) {
         header("Location:dict.php?act=gram");
         return;

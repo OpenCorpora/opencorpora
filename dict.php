@@ -5,35 +5,13 @@ if (isset($_GET['act']))
     $action = $_GET['act'];
 else $action = '';
 switch($action) {
-    case 'add_gg':
-        if (is_admin()) {
-            $name = mysql_real_escape_string($_POST['g_name']);
-            add_gramtype($name);
-        } else
-            show_error($config['msg_notadmin']);
-        break;
-    case 'move_gg':
-        if (is_admin()) {
-            $group = (int)$_GET['id'];
-            $dir = $_GET['dir'];
-            move_gramtype($group, $dir);
-        } else
-            show_error($config['msg_notadmin']);
-        break;
-    case 'del_gg':
-        if (is_admin()) {
-            $group = (int)$_GET['id'];
-            del_gramtype($group);
-        } else
-            show_error($config['msg_notadmin']);
-        break;
     case 'add_gram':
         if (is_admin()) {
             $name = mysql_real_escape_string($_POST['g_name']);
-            $group = (int)$_POST['group'];
-            $aot_id = mysql_real_escape_string($_POST['aot_id']);
+            $group = (int)$_POST['parent_gram'];
+            $outer_id = mysql_real_escape_string($_POST['outer_id']);
             $descr = mysql_real_escape_string($_POST['descr']);
-            add_grammem($name, $group, $aot_id, $descr);
+            add_grammem($name, $group, $outer_id, $descr);
         } else
             show_error($config['msg_notadmin']);
         break;
@@ -79,7 +57,8 @@ switch($action) {
         $smarty->display('dict_lemmata.tpl');
         break;
     case 'gram':
-        $smarty->assign('editor', get_grammem_editor());
+        $smarty->assign('grammems', get_grammem_editor());
+        $smarty->assign('select', dict_get_select_gram());
         $smarty->display('gram.tpl');
         break;
     case 'edit':
