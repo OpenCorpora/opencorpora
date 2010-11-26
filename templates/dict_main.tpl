@@ -4,7 +4,7 @@
 <div id='main'>
 {include file='header.tpl'}
 <div id='content'>
-    <p>Всего {$stats.cnt_g} граммем в {$stats.cnt_gt} группах, {$stats.cnt_l} лемм, {$stats.cnt_f} форм в индексе (не проверено {$stats.cnt_r} ревизий).</p>
+    <p>Всего {$stats.cnt_g} граммем, {$stats.cnt_l} лемм, {$stats.cnt_f} форм в индексе (не проверено {$stats.cnt_r} ревизий).</p>
     {if $is_admin}
         <p><a href="?act=gram">Редактор граммем</a><br/>
         <a href="?act=lemmata">Редактор лемм</a></p>

@@ -5,8 +5,6 @@ require_once('lib_books.php');
 // GENERAL
 function get_dict_stats() {
     $out = array();
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_gt FROM `gram_types`"));
-    $out['cnt_gt'] = $r['cnt_gt'];
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_g FROM `gram`"));
     $out['cnt_g'] = $r['cnt_g'];
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_l FROM `dict_lemmata`"));
