@@ -1,0 +1,149 @@
+славкин	ADJF
+славка	NOUN,anim,Name
+
+адамов	ADJF
+адам	NOUN,anim,Name
+
+ильин	ADJF
+илья	NOUN,anim,Name
+
+карлушин	ADJF
+карлуш	NOUN,anim,Name
+
+светланин	ADJF
+светлана	NOUN,anim,Name
+
+юркин	ADJF
+юрка	NOUN,anim,Name
+
+маринкин	ADJF
+маринка	NOUN,anim,Name
+
+симонов	ADJF
+симон	NOUN,anim,Name
+
+димкин	ADJF
+димка	NOUN,anim,Name
+
+иринкин	ADJF
+иринка	NOUN,anim,Name
+
+иродов	ADJF
+ирод	NOUN,anim,Name
+
+митин	ADJF
+митя	NOUN,anim,Name
+
+иришкин	ADJF
+иришка	NOUN,anim,Name
+
+ариаднин	ADJF
+ариадна	NOUN,anim,Name
+
+наташкин	ADJF
+наташка	NOUN,anim,Name
+
+катин	ADJF
+катя	NOUN,anim,Name
+
+анютин	ADJF
+анюта	NOUN,anim,Name
+
+святославов	ADJF
+святослав	NOUN,anim,Name
+
+танин	ADJF
+таня	NOUN,anim,Name
+
+димин	ADJF
+дима	NOUN,anim,Name
+
+юрин	ADJF
+юра	NOUN,anim,Name
+
+сергиев	ADJF
+сергий	NOUN,anim,Name
+
+толин	ADJF
+толя	NOUN,anim,Name
+
+валькин	ADJF
+валька	NOUN,anim,Name
+
+мишин	ADJF
+миша	NOUN,anim,Name
+
+танькин	ADJF
+танька	NOUN,anim,Name
+
+толькин	ADJF
+толька	NOUN,anim,Name
+
+надин	ADJF
+надя	NOUN,anim,Name
+
+юлин	ADJF
+юля	NOUN,anim,Name
+
+люськин	ADJF
+люська	NOUN,anim,Name
+
+федин	ADJF
+федя	NOUN,anim,Name
+
+мишкин	ADJF
+мишка	NOUN,anim,Name
+
+федькин	ADJF
+федька	NOUN,anim,Name
+
+ларисин	ADJF
+лариса	NOUN,anim,Name
+
+клавкин	ADJF
+клавка	NOUN,anim,Name
+
+тришкин	ADJF
+тришка	NOUN,anim,Name
+
+нинкин	ADJF
+нинка	NOUN,anim,Name
+
+левин	ADJF
+лева	NOUN,anim,Name
+
+олин	ADJF
+оля	NOUN,anim,Name
+
+олегов	ADJF
+олег	NOUN,anim,Name
+
+юлькин	ADJF
+юлька	NOUN,anim,Name
+
+ноев	ADJF
+ной	NOUN,anim,Name
+
+колин	ADJF
+коля	NOUN,anim,Name
+
+ленин	ADJF
+лена	NOUN,anim,Name
+
+иванов	ADJF
+иван	NOUN,anim,Name
+
+ванин	ADJF
+ваня	NOUN,anim,Name
+
+колькин	ADJF
+колька	NOUN,anim,Name
+
+юрьев	ADJF
+юрий	NOUN,anim,Name 
+
+светкин	ADJF
+светка	NOUN,anim,Name
+
+любочкин	ADJF
+любочка	NOUN,anim,Name
