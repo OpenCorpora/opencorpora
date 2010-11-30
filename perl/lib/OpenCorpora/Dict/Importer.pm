@@ -12,6 +12,7 @@ use Getopt::constant (
     'INSERT' => 0,
     'QUIET' => 0,
     'SORT_GRAMMEMS' => 0
+    'PRINT_STATS' => 0
 );
 
 use OpenCorpora::Dict::Importer::Word;
@@ -160,7 +161,7 @@ sub read_aot {
         }
     }
     close F;
-    if (!defined $self->{CONNECTION}) {
+    if (PRINT_STATS) {
         $self->print_stats();
     } else {
         print STDERR "\n";
