@@ -419,6 +419,35 @@ function split2paragraphs($txt) {
 function split2sentences($txt) {
     return preg_split('/[\r\n]+/', $txt);
 }
+function tokenize($txt) {
+    $words = explode(' ', $txt);
+    $txt = array();
+    $token = '';
+    $last_letter = 0;
+    foreach ($words as $word) {
+        for($i = 0; $i < mb_strlen($word, 'utf-8'); ++$i) {
+            $char = mb_substr($word, $i, 1, 'utf-8');
+            if (preg_match('/[\.,!\?;:\(\)\[\]\xAB\xBB]/u', $char)) {
+                if ($token) {
+                    $txt[] = $token;
+                    $token = '';
+                }
+                if ($last_letter)
+                    $txt[] = $char;
+                else
+                    $txt[sizeof($txt)-1] .= $char;
+                $last_letter = 0;
+            } else {
+                $token .= $char;
+                $last_letter = 1;
+            }
+        }
+        if ($token)
+            $txt[] = $token;
+        $token = '';
+    }
+    return $txt;
+}
 function addtext_check($txt) {
     $out = array('full' => $txt, 'select' => books_get_select(0));
     $pars = split2paragraphs($txt);
@@ -427,7 +456,7 @@ function addtext_check($txt) {
         $sents = split2sentences($par);
         foreach ($sents as $sent) {
             $sent_array = array();
-            $tokens = explode(' ', $sent);
+            $tokens = tokenize($sent);
             foreach ($tokens as $token) {
                 $sent_array['tokens'][] = array('text' => $token, 'class' => form_exists($token));
             }
@@ -455,7 +484,7 @@ function addtext_add($text, $book_id, $par_num) {
             $token_num = 1;
             //strip excess whitespace
             $sent = preg_replace('/\s\s+/', ' ', $sent);
-            $tokens = explode(' ', $sent);
+            $tokens = tokenize($sent);
             foreach ($tokens as $token) {
                 //adding a textform
                 if (!sql_query("INSERT INTO `text_forms` VALUES(NULL, '$sent_id', '".($token_num++)."', '".mysql_real_escape_string($token)."', '0')")) return 0;
