@@ -11,7 +11,7 @@ use Getopt::constant (
     'CONFIG' => '',
     'INSERT' => 0,
     'QUIET' => 0,
-    'SORT_GRAMMEMS' => 0
+    'SORT_GRAMMEMS' => 0,
     'PRINT_STATS' => 0
 );
 
