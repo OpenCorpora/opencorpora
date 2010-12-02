@@ -36,7 +36,7 @@ while(my $ref = $scan->fetchrow_hashref()) {
     $txt =~ /<l t="([^"]+)">(.*?)<\/l>/;
     my ($lemma, $lemma_gr) = ($1, $2);
     $del->execute($ref->{'lemma_id'});
-    while ($txt =~ /<f t="([^"]+)">(.+?)<\/f>/g) {
+    while ($txt =~ /<f t="([^"]+)">(.*?)<\/f>/g) {
         my ($f, $g) = ($1, $2);
         #print STDERR "$f\t".$ref->{'lemma_id'}."\t$lemma\t$g\n";
         $ins->execute($f, $ref->{'lemma_id'}, $lemma, $lemma_gr.$g);
