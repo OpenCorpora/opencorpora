@@ -125,7 +125,7 @@ function parse_dict_rev($text) {
 }
 function form_exists($f) {
     $f = lc($f);
-    if (!preg_match('/[А-Яа-я\-\']/u', $f)) {
+    if (!preg_match('/[А-Яа-яЁё\-\']/u', $f)) {
         return -1;
     }
     return sql_num_rows(sql_query("SELECT lemma_id FROM form2lemma WHERE form_text='".mysql_real_escape_string($f)."' LIMIT 1"));
@@ -425,9 +425,23 @@ function tokenize($txt) {
     $token = '';
     $last_letter = 0;
     foreach ($words as $word) {
+        #whole word check
+        if (form_exists($word)) {
+            $txt[] = $word;
+            $last_letter = 1;
+            continue;
+        }
+        #hyphen check
+        if (preg_match('/([А-Яа-яЁё]+)-([А-Яа-яЁё]+)/u', $word, $matches)) {
+            $txt[] = $matches[1];
+            $txt[] = '-';
+            $txt[] = $matches[2];
+            $last_letter = 1;
+            continue;
+        }
         for($i = 0; $i < mb_strlen($word, 'utf-8'); ++$i) {
             $char = mb_substr($word, $i, 1, 'utf-8');
-            if (preg_match('/[\.,!\?;:\(\)\[\]\xAB\xBB]/u', $char)) {
+            if (preg_match('/[\.,!\?;:\(\)\[\]\/\xAB\xBB]/u', $char)) {
                 if ($token) {
                     $txt[] = $token;
                     $token = '';
