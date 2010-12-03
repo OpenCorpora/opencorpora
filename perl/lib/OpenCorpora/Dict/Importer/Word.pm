@@ -197,7 +197,7 @@ sub split_lemma {
         my @forms = @{$new_words{$k}};
         $word->{LEMMA} = $forms[0]->{TEXT};
         $word->{FORMS} = \@forms;
-        $out_words[$i] = $word;
+        $out_words[$i] = $word unless $word->is_to_delete();
     }
     return \@out_words;
 }
@@ -252,9 +252,11 @@ sub to_string {
     my $self = shift;
     my $out = 'PARA '.($self->{PARADIGM_NO} ? $self->{PARADIGM_NO} : '-1')."\n";
     for my $form(@{$self->{FORMS}}) {
+        next if form_has_gram($form, '_del');
         $out .= $form->{TEXT}."\t".join(',', @{$form->{GRAMMEMS}})."\n";
     }
     for my $lnk(@{$self->{LINKS}}) {
+        next unless defined $lnk;
         $out .= "link '".$$lnk[1]."' to ".$$lnk[0]."\n";
     }
     return $out;
@@ -270,6 +272,7 @@ sub to_xml {
     }
     $out .= '</l>';
     for my $form(@{$self->{FORMS}}) {
+        next if form_has_gram($form, '_del');
         $out .= '<f t="'.$form->{TEXT}.'">';
         for my $gr(@{$form->{GRAMMEMS}}) {
             $out .= "<g v=\"$gr\"/>" unless exists $lgram{$gr};
@@ -322,6 +325,14 @@ sub sort_form_grammems {
 
     my @new_gram = sort {$order{$a} <=> $order{$b}} @{$form->{GRAMMEMS}};
     $form->{GRAMMEMS} = \@new_gram;
+}
+sub is_to_delete {
+    my $self = shift;
+
+    for my $form(@{$self->{FORMS}}) {
+        return 0 unless form_has_gram($form, '_del');
+    }
+    return 1;
 }
 
 1;
