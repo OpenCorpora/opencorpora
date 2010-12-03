@@ -33,6 +33,8 @@ function main_diff($sentence_id, $set_id) {
         'sent_id'   => $sentence_id,
         'user_name' => $r['user_name'],
         'timestamp' => $r['timestamp'],
+        'prev_set' => 0,
+        'next_set' => 0,
         'tokens'    => array()
     );
     $res = sql_query("SELECT tf_id, `pos` FROM text_forms WHERE sent_id=$sentence_id ORDER BY `pos`");
@@ -56,6 +58,16 @@ function main_diff($sentence_id, $set_id) {
         );
         $out['tokens'][] = $token;
     }
+    $res = sql_query("SELECT set_id FROM tf_revisions WHERE tf_id IN (SELECT tf_id FROM text_forms WHERE sent_id=$sentence_id) AND set_id<$set_id ORDER BY set_id DESC LIMIT 1");
+    if ($res) {
+        $r = sql_fetch_array($res);
+        $out['prev_set'] = $r[0];
+    }
+    $res = sql_query("SELECT set_id FROM tf_revisions WHERE tf_id IN (SELECT tf_id FROM text_forms WHERE sent_id=$sentence_id) AND set_id>$set_id ORDER BY set_id ASC LIMIT 1");
+    if ($res) {
+        $r = sql_fetch_array($res);
+        $out['next_set'] = $r[0];
+    }
     return $out;
 }
 function dict_diff($lemma_id, $set_id) {
@@ -71,8 +83,20 @@ function dict_diff($lemma_id, $set_id) {
         'old_timestamp' => $r2['timestamp'],
         'new_timestamp' => $r1['timestamp'],
         'old_rev_xml'   => $r2['rev_text'],
-        'new_rev_xml'   => $r1['rev_text']
+        'new_rev_xml'   => $r1['rev_text'],
+        'prev_set'      => 0,
+        'next_set'      => 0
     );
+    $res = sql_query("SELECT set_id FROM dict_revisions WHERE lemma_id=$lemma_id AND set_id<$set_id ORDER BY set_id DESC LIMIT 1");
+    if ($res) {
+        $r = sql_fetch_array($res);
+        $out['prev_set'] = $r[0];
+    }
+    $res = sql_query("SELECT set_id FROM dict_revisions WHERE lemma_id=$lemma_id AND set_id>$set_id ORDER BY set_id ASC LIMIT 1");
+    if ($res) {
+        $r = sql_fetch_array($res);
+        $out['next_set'] = $r[0];
+    }
     return $out;
 }
 ?>

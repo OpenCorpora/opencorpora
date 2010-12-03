@@ -6,6 +6,10 @@
 <div id='content'>
 <h3><a href='sentence.php?id={$diff.sent_id}'>Предложение {$diff.sent_id}</a>, изменил {$diff.user_name|default:'Робот'} {$diff.timestamp|date_format:"%d.%m.%Y в %H:%M"}</h3>
 <table border='1' cellspacing='0' cellpadding='3'>
+    <tr>
+        <td>{if $diff.prev_set}<a href='?sent_id={$diff.sent_id}&amp;set_id={$diff.prev_set}'>&lt; предыдущая версия</a>{else}&nbsp;{/if}</td>
+        <td align='right'>{if $diff.next_set}<a href='?sent_id={$diff.sent_id}&amp;set_id={$diff.next_set}'>следующая версия &gt;</a>{else}&nbsp;{/if}</td>
+    </tr>
 {foreach from=$diff.tokens item=token}
     <tr><th colspan='2'>{$token.pos}</tr>
     <tr>

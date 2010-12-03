@@ -4,8 +4,12 @@
 <div id='main'>
 {include file='header.tpl'}
 <div id='content'>
-<h3><a href='dict.php?act=edit&amp;id={$diff.lemma_id}'>Лемма {$diff.lemma_id}</a>, изменил {$diff.user_name|default:'Робот'} {$diff.new_timestamp|date_format:"%d.%m.%Y в %H:%M"}</h3>
+<h3><a href='dict.php?act=edit&amp;id={$diff.lemma_id}'>Лемма {$diff.lemma_id}</a>, изменил {$diff.new_user_name|default:'Робот'} {$diff.new_timestamp|date_format:"%d.%m.%Y в %H:%M"}</h3>
 <table border='1' cellspacing='0' cellpadding='3'>
+    <tr>
+        <td>{if $diff.prev_set}<a href='?lemma_id={$diff.lemma_id}&amp;set_id={$diff.prev_set}'>&lt; предыдущая версия</a>{else}&nbsp;{/if}</td>
+        <td align='right'>{if $diff.next_set}<a href='?lemma_id={$diff.lemma_id}&amp;set_id={$diff.next_set}'>следующая версия &gt;</a>{else}&nbsp;{/if}</td>
+    </tr>
     <tr>
 {if $diff.old_ver > 0}
         <td valign='top'><b>(Было)<br/>Версия {$diff.old_ver} ({$diff.old_user_name|default:'Робот'}, {$diff.old_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b><pre>{$diff.old_rev_xml|format_xml|htmlspecialchars}</pre></td>
