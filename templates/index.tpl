@@ -15,7 +15,7 @@
 <li>хотя бы немного умеете программировать;</li>
 <li>не знаете ничего о лингвистике и программировании, но вам просто интересно</li>
 </ul>
-<p>&ndash; пишите нам на <b>opencorpora [at] gmail.com</b></p>
+<p>&ndash; пишите нам на <b>opencorpora [at] opencorpora.org</b></p>
 {* Admin options *}
 {if $is_admin == 1}
     <a href='{$web_prefix}/books.php'>Редактор источников</a><br/>

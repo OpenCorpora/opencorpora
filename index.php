@@ -8,8 +8,11 @@ if (isset($_GET['rand'])) {
 if (isset($_GET['page'])) {
     $page = $_GET['page'];
     switch($page) {
+        case 'about':
+            $smarty->display('static/about.tpl');
+            break;
         case 'publications':
-            $smarty->display('publications.tpl');
+            $smarty->display('static/publications.tpl');
             break;
         case 'stats':
             $smarty->assign('stats', get_common_stats());

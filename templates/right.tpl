@@ -3,6 +3,7 @@
 $this->assign('dl', get_downloads_info());
 {/php}
 <div>
+    <a href="{$web_prefix}/?page=about">О проекте</a><br/>
     <a href="{$web_prefix}/?page=publications">Публикации</a><br/>
 </div>
 <div>
