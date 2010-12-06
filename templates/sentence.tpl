@@ -10,7 +10,7 @@
         <div id="main_scroller">
             <div>
                 {if $is_logged == 1}
-                    <button type="submit" disabled="disabled" id="submit_button">Сохранить</button>&nbsp;
+                    <button type="button" disabled="disabled" id="submit_button" onclick="submit_with_readonly_check(document.forms[0])">Сохранить</button>&nbsp;
                 {/if}
                 <button type="reset" onclick="window.location.reload()">Отменить правки</button>&nbsp;
                 <button type="button" onclick="window.location.href='history.php?sent_id={$sentence.id}'">История</button>&nbsp;

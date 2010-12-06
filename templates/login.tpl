@@ -13,7 +13,7 @@
     <tr><td>Пароль<td><input type='password' name='passwd' size='40' maxlength='50'/></tr>
     <tr><td>Пароль ещё раз<td><input type='password' name='passwd_re' size='40' maxlength='50'/></tr>
     <tr><td valign='top'>Email<td><input type='text' name='email' size='40' maxlength='50'/><br/><span class='small'>(необязательно, но без него вы не сможете восстановить пароль)</span></tr>
-    <tr><td colspan='2' align='right'><input type='submit' value='Зарегистрироваться'/></tr>
+    <tr><td colspan='2' align='right'><input type='button' onclick='submit_with_readonly_check(document.forms[0])' value='Зарегистрироваться'/></tr>
     </table>
     </form>
 {elseif $smarty.get.act == 'reg_done'}

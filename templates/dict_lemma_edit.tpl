@@ -37,7 +37,7 @@
         {/if}
         </table><br/>
         {if $is_admin}
-            <input type="submit" value="Сохранить"/>&nbsp;&nbsp;
+            <input type="button" onclick="submit_with_readonly_check(document.forms[0])" value="Сохранить"/>&nbsp;&nbsp;
             <input type="reset" value="Сбросить"/>
         {/if}
     </form>

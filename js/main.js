@@ -293,3 +293,19 @@ function add_meta_option() {
     new_tr.appendChild(new_td);
     tbody.appendChild(new_tr);
 }
+function submit_with_readonly_check(f) {
+    var req = makeRequest();
+    req.onreadystatechange = function() {
+        if (req.readyState==4) {
+            var root = req.responseXML.documentElement;
+            var ro = root.getAttribute('readonly');
+            if (ro == 1) {
+                alert('Извините, система находится в режиме "только для чтения".');
+            } else {
+                f.submit();
+            }
+        }
+    }
+    req.open('get', 'ajax/readonly.php?', true);
+    req.send(null);
+}
