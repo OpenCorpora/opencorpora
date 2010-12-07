@@ -285,7 +285,7 @@ function new_dict_rev($lemma_id, $new_xml) {
     if (!$lemma_id || !$new_xml) return 0;
     $revset_id = create_revset();
     if (!$revset_id) return 0;
-    if (sql_query("INSERT INTO `dict_revisions` VALUES(NULL, '$revset_id', '$lemma_id', '".mysql_real_escape_string($new_xml)."', '0')")) {
+    if (sql_query("INSERT INTO `dict_revisions` VALUES(NULL, '$revset_id', '$lemma_id', '".mysql_real_escape_string($new_xml)."', '0', '0')")) {
         return 1;
     }
     return 0;
