@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS `rev_sets` (
     `set_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `timestamp` INT UNSIGNED NOT NULL,
     `user_id`   INT UNSIGNED NOT NULL,
+    `comment`   TEXT NOT NULL,
     INDEX (`timestamp`),
     INDEX (`user_id`)
 );
@@ -121,13 +122,25 @@ CREATE TABLE IF NOT EXISTS `dict_lex` (
 );
 
 CREATE TABLE IF NOT EXISTS `dict_revisions` (
-    `rev_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `set_id`    INT UNSIGNED NOT NULL,
-    `lemma_id`  INT UNSIGNED NOT NULL,
-    `rev_text`  TEXT NOT NULL,
-    `f2l_check` TINYINT(1) UNSIGNED NOT NULL,
+    `rev_id`     INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `set_id`     INT UNSIGNED NOT NULL,
+    `lemma_id`   INT UNSIGNED NOT NULL,
+    `rev_text`   TEXT NOT NULL,
+    `f2l_check`  TINYINT(1) UNSIGNED NOT NULL,
+    `dict_check` TINYINT(1) UNSIGNED NOT NULL,
     INDEX (`set_id`),
-    INDEX (`lemma_id`)
+    INDEX (`lemma_id`),
+    INDEX (`f2l_check`),
+    INDEX (`dict_check`)
+);
+
+CREATE TABLE IF NOT EXISTS `dict_errata` (
+    `error_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `timestamp`   INT UNSIGNED NOT NULL,
+    `rev_id`      INT UNSIGNED NOT NULL,
+    `error_type`  SMALLINT UNSIGNED NOT NULL,
+    `error_descr` TEXT NOT NULL,
+    INDEX (`error_type`)
 );
 
 CREATE TABLE IF NOT EXISTS `updated_forms` (
