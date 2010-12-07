@@ -104,6 +104,19 @@ span.check_noword {
     background-color: #C00;
     color: yellow;
 }
+/* GRAMMEM EDITOR */
+tr.gramed_bad {
+    background-color: #C00;
+}
+tr.gramed_pos {
+    background-color: #df73ff;
+}
+tr.gramed_group {
+    background-color: yellow;
+}
+tr.gramed_label {
+    background-color: #9f9;
+}
 /* ANNOTATION PAGE */
 div#source_text {
     margin-bottom: 20px;

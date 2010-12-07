@@ -349,12 +349,17 @@ function get_grammem_editor() {
     $out = array();
     $res = sql_query("SELECT g1.`gram_id`, g1.`parent_id`, g1.`inner_id`, g1.`outer_id`, g1.`gram_descr`, g2.`inner_id` AS `parent_name` FROM `gram` g1 LEFT JOIN `gram` g2 ON (g1.parent_id=g2.gram_id) ORDER BY g1.`orderby`");
     while($r = sql_fetch_array($res)) {
+        $class = strlen($r['inner_id']) != 4 ? 'gramed_bad' :
+            (preg_match('/^[A-Z0-9-]+$/', $r['inner_id']) ? 'gramed_pos' :
+            (preg_match('/[A-Z0-9-][A-Z0-9-][a-z0-9-][a-z0-9-]/', $r['inner_id']) ? 'gramed_group' :
+            (preg_match('/[A-Z0-9-][a-z0-9-][a-z0-9-][a-z0-9-]/', $r['inner_id']) ? 'gramed_label' : '')));
         $out[] = array(
             'id' => $r['gram_id'],
             'name' => $r['inner_id'],
             'outer_id' => $r['outer_id'],
             'description' => htmlspecialchars($r['gram_descr']),
-            'parent_name' => $r['parent_name']
+            'parent_name' => $r['parent_name'],
+            'css_class' => $class
         );
     }
     return $out;
