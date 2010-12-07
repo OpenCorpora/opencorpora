@@ -353,8 +353,8 @@ function get_grammem_editor($order) {
     while($r = sql_fetch_array($res)) {
         $class = strlen($r['inner_id']) != 4 ? 'gramed_bad' :
             (preg_match('/^[A-Z0-9-]+$/', $r['inner_id']) ? 'gramed_pos' :
-            (preg_match('/[A-Z0-9-][A-Z0-9][a-z0-9-][a-z0-9-]/', $r['inner_id']) ? 'gramed_group' :
-            (preg_match('/[A-Z0-9-][a-z0-9-][a-z0-9-][a-z0-9-]/', $r['inner_id']) ? 'gramed_label' : '')));
+            (preg_match('/[A-Z0-9][A-Z0-9][a-z0-9-][a-z0-9-]/', $r['inner_id']) ? 'gramed_group' :
+            (preg_match('/[A-Z][a-z0-9-][a-z0-9-][a-z0-9-]/', $r['inner_id']) ? 'gramed_label' : '')));
         $out[] = array(
             'order' => $r['orderby'],
             'id' => $r['gram_id'],
