@@ -422,6 +422,24 @@ function edit_grammem($id, $inner_id, $outer_id, $descr) {
     }
 }
 
+//ERRATA
+function get_dict_errata() {
+    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_v FROM `dict_revisions` WHERE dict_check=0"));
+    $out = array('lag' => $r['cnt_v']);
+    $res = sql_query("SELECT * FROM dict_errata");
+    $out['total'] = sql_num_rows($res);
+    while($r = sql_fetch_array($res)) {
+        $out['errors'][] = array(
+            'id' => $r['error_id'],
+            'timestamp' => $r['timestamp'],
+            'revision' => $r['rev_id'],
+            'type' => $r['error_type'],
+            'description' => $r['error_descr']
+        );
+    }
+    return $out;
+}
+
 // ADDING TEXTS
 function split2paragraphs($txt) {
     return preg_split('/\r?\n\r?\n\r?/', $txt);
