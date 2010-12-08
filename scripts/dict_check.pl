@@ -33,7 +33,9 @@ get_gram_info();
 my @revisions = @{get_new_revisions()};
 while(my $ref = shift @revisions) {
     $clear->execute($ref->{'lemma_id'});
-    check($ref) && $update->execute($ref->{'id'});
+    check($ref);
+    $update->execute($ref->{'id'});
+    print STDERR "checked $ref->{'id'}\n";
 }
 
 #unlink ($lock_path);
@@ -80,5 +82,33 @@ sub get_gram_info {
 }
 sub check {
     my $ref = shift;
-    0;
+    my $newerr = $dbh->prepare("INSERT INTO dict_errata VALUES(NULL, '?', '?', '?', '?')");
+    $ref->{'text'} =~ /<l t=".+">(.+)<\/l>/;
+    my $lg_str = $1;
+    my @lemma_gram = ();
+    while($lg_str =~ /<g v="([^"]+)"\/>/g) {
+        push @lemma_gram, $1;
+    }
+    my @form_gram = ();
+    my @all_gram = ();
+    while($ref->{'text'} =~ /<f t="([^"]+)">(.+?)<\/f>/g) {
+        my ($ft, $fg_str) = ($1, $2);
+        @form_gram = ();
+        while($fg_str =~ /<g v="([^"]+)"\/>/g) {
+            push @form_gram, $1;
+        }
+        @all_gram = (@lemma_gram, @form_gram);
+        if (is_incompatible(\@all_gram)) {
+            $newerr->execute(time(), $ref->{'id'}, 1, "<$ft> has incompatible grammems");
+        }
+    }
+}
+sub is_incompatible {
+    my @gram = @{shift()};
+    for my $i(0..$#gram) {
+        for my $j($i+1..$#gram) {
+            exists $bad_pairs{"$i|$j"} && return 1;
+        }
+    }
+    return 0;
 }
