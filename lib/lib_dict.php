@@ -13,6 +13,8 @@ function get_dict_stats() {
     $out['cnt_f'] = $r['cnt_f'];
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_r FROM `dict_revisions` WHERE f2l_check=0"));
     $out['cnt_r'] = $r['cnt_r'];
+    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_v FROM `dict_revisions` WHERE dict_check=0"));
+    $out['cnt_v'] = $r['cnt_v'];
     return $out;
 }
 function get_dict_search_results($post) {

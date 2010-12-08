@@ -54,7 +54,7 @@ switch($action) {
         break;
     case 'lemmata':
         $smarty->assign('search', get_dict_search_results($_POST));
-        $smarty->display('dict_lemmata.tpl');
+        $smarty->display('dict/lemmata.tpl');
         break;
     case 'gram':
         if (isset($_GET['order']))
@@ -63,15 +63,19 @@ switch($action) {
             $order = '';
         $smarty->assign('grammems', get_grammem_editor($order));
         $smarty->assign('select', dict_get_select_gram());
-        $smarty->display('gram.tpl');
+        $smarty->display('dict/gram.tpl');
         break;
     case 'edit':
         $lid = (int)$_GET['id'];
         $smarty->assign('editor', get_lemma_editor($lid));
-        $smarty->display('dict_lemma_edit.tpl');
+        $smarty->display('dict/lemma_edit.tpl');
+        break;
+    case 'errata':
+        $smarty->assign('errata', get_dict_errata());
+        $smarty->display('dict/errata.tpl');
         break;
     default:
         $smarty->assign('stats', get_dict_stats());
-        $smarty->display('dict_main.tpl');
+        $smarty->display('dict/main.tpl');
 }
 ?>
