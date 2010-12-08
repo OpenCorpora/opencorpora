@@ -70,8 +70,8 @@ sub sql_connect {
 sub prepare_insert {
     my $self = shift;
     my $dbh = $self->{CONNECTION};
-    my $newset = $dbh->prepare("INSERT INTO `rev_sets` VALUES(NULL, ?, ?)");
-    $newset->execute(time(), 0) or die $DBI::errstr;
+    my $newset = $dbh->prepare("INSERT INTO `rev_sets` VALUES(NULL, ?, ?, ?)");
+    $newset->execute(time(), 0, 'Dictionary import') or die $DBI::errstr;
     my $set_id = $dbh->{'mysql_insertid'} or die $DBI::errstr;
     print STDERR "Created revision set #$set_id\n" unless QUIET;
     my $max = $dbh->prepare("SELECT MAX(`lemma_id`) AS m FROM `dict_lemmata`");
@@ -79,7 +79,7 @@ sub prepare_insert {
     my $r = $max->fetchrow_hashref();
     $self->{BASE_WORD_ID} = $r->{'m'} ? $r->{'m'} : 0;
     my $newlemma = $dbh->prepare("INSERT INTO `dict_lemmata` VALUES(NULL, ?)");
-    my $newrev = $dbh->prepare("INSERT INTO `dict_revisions` VALUES(NULL, '$set_id', ?, ?, '0')"); #null, set, lemma, text, null
+    my $newrev = $dbh->prepare("INSERT INTO `dict_revisions` VALUES(NULL, '$set_id', ?, ?, '0', '0')"); #null, set, lemma, text, null
     my $newlinktype = $dbh->prepare("INSERT INTO `dict_links_types` VALUES(NULL, ?)");
     my $newlink = $dbh->prepare("INSERT INTO `dict_links` VALUES(NULL,?, ?, ?)");
     my $newlinkrev = $dbh->prepare("INSERT INTO `dict_links_revisions` VALUES(NULL, '$set_id', ?, ?, ?, '1')");
