@@ -58,7 +58,7 @@
     CHANGE (разг -> Infr)
     CHANGE(прев -> Supr)
     CHANGE(арх -> Obsl)
-    CHANGE(0 -> fixd)
+    CHANGE(0 -> Fixd)
 	
 # разбиваем по частям речи
 
@@ -87,7 +87,7 @@
 		LINK (0, 1, SURN_MASC-SURN_FEMN)
 		LINK (0, 2, SURN_MASC-SURN_PLUR)
 (1 ~/^газпром-медиа$/)
-	CHANGE (masc, femn, neut, sing, nomn, gent, datv, accs, ablt, loct, Sgtm, a-pl -> Pltm, fixd)
+	CHANGE (masc, femn, neut, sing, nomn, gent, datv, accs, ablt, loct, Sgtm, a-pl -> Pltm, Fixd)
 # не работает
 (* plur) & (* !Pltm)
 	CHANGE ( -> Pltm)
@@ -100,16 +100,16 @@
 	CHANGE ( -> femn)
 (1 ~/^завмаг$/)
 	CHANGE ( -> masc)
-(* fixd) & (* Ms-f)
+(* Fixd) & (* Ms-f)
 	CHANGE ( -> GNdr)
-(* NOUN) & (* fixd) & (* !Sgtm) & (* !Pltm)
+(* NOUN) & (* Fixd) & (* !Sgtm) & (* !Pltm)
 	GENERATE (sing, plur; nomn, gent,datv, accs, ablt, loct)
-(* NOUN) & (* fixd) & (* Sgtm | Pltm)
+(* NOUN) & (* Fixd) & (* Sgtm | Pltm)
 	GENERATE (nomn, gent,datv, accs, ablt, loct)
 * Pltm
-	CHANGE (sing -> sing, a-sg)
+	CHANGE (sing -> sing, A-sg)
 * Sgtm
-	CHANGE (plur -> plur, a-pl)
+	CHANGE (plur -> plur, A-pl)
 1 Pltm
 	CHANGE ( -> GNdr)
 1 2nd & gent
