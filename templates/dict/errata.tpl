@@ -5,7 +5,15 @@
 {include file='header.tpl'}
 <div id='content'>
 <h1>Контроль словаря</h1>
-<p>Не проверено {$errata.lag} ревизий, всего {$errata.total} ошибок.</p>
+<p>Не проверено {$errata.lag} ревизий, всего {$errata.total} ошибок.
+{if $errata.total > 200}
+    {if isset($smarty.get.all)}
+    (<a href="?act=errata">Показать только первые 200</a>.)
+    {else}
+    (Показаны первые 200. <a href="?act=errata&amp;all">Показать все</a>.)
+    {/if}
+{/if}
+</p>
 <table border='1' cellspacing='0' cellpadding='2'>
 <tr>
     <th>id</th>

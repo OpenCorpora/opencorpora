@@ -423,11 +423,12 @@ function edit_grammem($id, $inner_id, $outer_id, $descr) {
 }
 
 //ERRATA
-function get_dict_errata() {
+function get_dict_errata($all) {
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_v FROM `dict_revisions` WHERE dict_check=0"));
     $out = array('lag' => $r['cnt_v']);
-    $res = sql_query("SELECT * FROM dict_errata");
-    $out['total'] = sql_num_rows($res);
+    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_t FROM `dict_errata`"));
+    $out['total'] = $r['cnt_t'];
+    $res = sql_query("SELECT * FROM dict_errata".($all?'':' LIMIT 200'));
     while($r = sql_fetch_array($res)) {
         $out['errors'][] = array(
             'id' => $r['error_id'],
