@@ -17,9 +17,9 @@ while(<>) {
     }
 }
 
-#open my $lock, ">$lock_path";
-#print $lock 'lock';
-#close $lock;
+open my $lock, ">$lock_path";
+print $lock 'lock';
+close $lock;
 
 #main
 my %bad_pairs;
@@ -35,14 +35,13 @@ while(my $ref = shift @revisions) {
     $clear->execute($ref->{'lemma_id'});
     check($ref);
     $update->execute($ref->{'id'});
-    print STDERR "checked $ref->{'id'}\n";
 }
 
-#unlink ($lock_path);
+unlink ($lock_path);
 
 ##### SUBROUTINES #####
 sub get_new_revisions {
-    my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE dict_check=0 ORDER BY rev_id LIMIT 100");
+    my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE dict_check=0 ORDER BY rev_id LIMIT 5000");
     $scan->execute();
     my $txt;
     my @revs;
@@ -82,7 +81,7 @@ sub get_gram_info {
 }
 sub check {
     my $ref = shift;
-    my $newerr = $dbh->prepare("INSERT INTO dict_errata VALUES(NULL, '?', '?', '?', '?')");
+    my $newerr = $dbh->prepare("INSERT INTO dict_errata VALUES(NULL, ?, ?, ?, ?)");
     $ref->{'text'} =~ /<l t=".+">(.+)<\/l>/;
     my $lg_str = $1;
     my @lemma_gram = ();
@@ -107,7 +106,7 @@ sub is_incompatible {
     my @gram = @{shift()};
     for my $i(0..$#gram) {
         for my $j($i+1..$#gram) {
-            exists $bad_pairs{"$i|$j"} && return 1;
+            exists $bad_pairs{$gram[$i].'|'.$gram[$j]} && return 1;
         }
     }
     return 0;
