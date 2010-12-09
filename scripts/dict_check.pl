@@ -41,7 +41,7 @@ unlink ($lock_path);
 
 ##### SUBROUTINES #####
 sub get_new_revisions {
-    my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE dict_check=0 ORDER BY rev_id LIMIT 5000");
+    my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE dict_check=0 ORDER BY rev_id LIMIT 1000");
     $scan->execute();
     my $txt;
     my @revs;
