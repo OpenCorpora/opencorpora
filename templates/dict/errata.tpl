@@ -14,6 +14,9 @@
     {/if}
 {/if}
 </p>
+{if $is_admin}
+<p>Сбросить флаг проверки <a href="?act=clear_errata&amp;old">у всех ревизий</a>, <a href="?act=clear_errata">у текущих ревизий</a></p>
+{/if}
 <table border='1' cellspacing='0' cellpadding='2'>
 <tr>
     <th>id</th>

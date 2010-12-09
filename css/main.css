@@ -79,6 +79,9 @@ div#rightcol div {
 .small {
     font-size: small;
 }
+.red {
+    color: #F00;
+}
 a.toggle {
     border-bottom: 1px black dashed;
     text-decoration: none;

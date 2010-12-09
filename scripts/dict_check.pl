@@ -23,6 +23,7 @@ close $lock;
 
 #main
 my %bad_pairs;
+my %all_grammems;
 
 my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
@@ -58,13 +59,16 @@ sub get_gram_info {
     while(my $ref = $scan0->fetchrow_hashref()) {
         %h = ();
         $h{$ref->{'inner_id'}} = 0;
+        $all_grammems{$ref->{'inner_id'}} = 0;
         my $scan1 = $dbh->prepare("SELECT gram_id, inner_id FROM gram WHERE parent_id=".$ref->{'gram_id'});
         $scan1->execute();
         while(my $ref1 = $scan1->fetchrow_hashref()) {
             $h{$ref1->{'inner_id'}} = 0;
+            $all_grammems{$ref1->{'inner_id'}} = 0;
             my $scan2 = $dbh->prepare("SELECT gram_id, inner_id FROM gram WHERE parent_id=".$ref1->{'gram_id'});
             $scan2->execute();
             while (my $ref2 = $scan2->fetchrow_hashref()) {
+                $all_grammems{$ref2->{'inner_id'}} = 0;
                 $h{$ref2->{'inner_id'}} = 0;
             }
         }
@@ -97,8 +101,11 @@ sub check {
             push @form_gram, $1;
         }
         @all_gram = (@lemma_gram, @form_gram);
-        if (is_incompatible(\@all_gram)) {
-            $newerr->execute(time(), $ref->{'id'}, 1, "<$ft> has incompatible grammems");
+        if (my $err = is_incompatible(\@all_gram)) {
+            $newerr->execute(time(), $ref->{'id'}, 1, "<$ft> has incompatible grammems: $err");
+        }
+        elsif (my $err = has_unknown_grammems(\@all_gram)) {
+            $newerr->execute(time(), $ref->{'id'}, 2, "<$ft> has unknown grammem: $err");
         }
     }
 }
@@ -106,8 +113,15 @@ sub is_incompatible {
     my @gram = @{shift()};
     for my $i(0..$#gram) {
         for my $j($i+1..$#gram) {
-            exists $bad_pairs{$gram[$i].'|'.$gram[$j]} && return 1;
+            exists $bad_pairs{$gram[$i].'|'.$gram[$j]} && return $gram[$i].'|'.$gram[$j];
         }
+    }
+    return 0;
+}
+sub has_unknown_grammems {
+    my @gram = @{shift()};
+    for my $g(@gram) {
+        exists $all_grammems{$g} || return $g;
     }
     return 0;
 }

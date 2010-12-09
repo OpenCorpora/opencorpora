@@ -440,6 +440,47 @@ function get_dict_errata($all) {
     }
     return $out;
 }
+function clear_dict_errata($old) {
+    if ($old) {
+        if (sql_query("UPDATE dict_revisions SET dict_check='0'")) {
+            header("Location:dict.php?act=errata");
+            return;
+        } else {
+            show_error();
+        }
+    }
+    else {
+        $res = sql_query("SELECT MAX(rev_id) AS m FROM dict_revisions GROUP BY lemma_id");
+        while($r = sql_fetch_array($res)) {
+            if (!sql_query("UPDATE dict_revisions SET dict_check='0' WHERE rev_id=".$r['m']." LIMIT 1")) {
+                show_error();
+                return;
+            }
+        }
+        header("Location:dict.php?act=errata");
+        return;
+    }
+}
+function get_gram_restrictions() {
+    $res = sql_query("SELECT * FROM gram_restrictions");
+    $out = array('gram_options' => '');
+    while ($r = sql_fetch_array($res)) {
+        $out['list'][] = array(
+            'id' => $r['restr_id'],
+            'if1_id' => $r['if1_id'],
+            'if2_id' => $r['if2_id'],
+            'then_id' => $r['then_id'],
+            'object' => $r['object'],
+            'necessary' => $r['necessary'],
+            'auto' => $r['auto']
+        );
+    }
+    $res = sql_query("SELECT gram_id, inner_id FROM gram order by inner_id");
+    while ($r = sql_fetch_array($res)) {
+        $out['gram_options'] .= '<option value="'.$r['gram_id'].'">'.$r['inner_id'].'</option>';
+    }
+    return $out;
+}
 
 // ADDING TEXTS
 function split2paragraphs($txt) {
