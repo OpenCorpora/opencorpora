@@ -40,6 +40,17 @@ switch($action) {
         } else
             show_error($config['msg_notadmin']);
         break;
+    case 'clear_errata':
+        if (is_admin()) {
+            clear_dict_errata(isset($_GET['old']));
+        } else
+            show_error($config['msg_notadmin']);
+        break;
+    case 'add_restr':
+        if (is_admin()) {
+        } else
+            show_error($config['msg_notadmin']);
+        break;
     case 'save':
         if (is_admin()) {
             dict_save($_POST);
@@ -64,6 +75,10 @@ switch($action) {
         $smarty->assign('grammems', get_grammem_editor($order));
         $smarty->assign('select', dict_get_select_gram());
         $smarty->display('dict/gram.tpl');
+        break;
+    case 'gram_restr':
+        $smarty->assign('restrictions', get_gram_restrictions());
+        $smarty->display('dict/restrictions.tpl');
         break;
     case 'edit':
         $lid = (int)$_GET['id'];
