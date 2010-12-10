@@ -48,6 +48,7 @@ switch($action) {
         break;
     case 'add_restr':
         if (is_admin()) {
+            add_dict_restriction($_POST);
         } else
             show_error($config['msg_notadmin']);
         break;

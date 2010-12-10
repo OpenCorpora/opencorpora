@@ -428,7 +428,7 @@ function get_dict_errata($all) {
     $out = array('lag' => $r['cnt_v']);
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_t FROM `dict_errata`"));
     $out['total'] = $r['cnt_t'];
-    $res = sql_query("SELECT * FROM dict_errata".($all?'':' LIMIT 200'));
+    $res = sql_query("SELECT * FROM dict_errata ORDER BY error_id".($all?'':' LIMIT 200'));
     while($r = sql_fetch_array($res)) {
         $out['errors'][] = array(
             'id' => $r['error_id'],
@@ -462,14 +462,19 @@ function clear_dict_errata($old) {
     }
 }
 function get_gram_restrictions() {
-    $res = sql_query("SELECT * FROM gram_restrictions");
+    $res = sql_query("SELECT r.restr_id, r.object, r.necessary, r.auto, g1.inner_id if1, g2.inner_id if2, g3.inner_id `then`
+        FROM gram_restrictions r
+            LEFT JOIN gram g1 ON (r.if1_id=g1.gram_id)
+            LEFT JOIN gram g2 ON (r.if2_id=g2.gram_id)
+            LEFT JOIN gram g3 ON (r.then_id=g3.gram_id)
+        ORDER BY r.restr_id");
     $out = array('gram_options' => '');
     while ($r = sql_fetch_array($res)) {
         $out['list'][] = array(
             'id' => $r['restr_id'],
-            'if1_id' => $r['if1_id'],
-            'if2_id' => $r['if2_id'],
-            'then_id' => $r['then_id'],
+            'if1_id' => $r['if1'],
+            'if2_id' => $r['if2'],
+            'then_id' => $r['then'],
             'object' => $r['object'],
             'necessary' => $r['necessary'],
             'auto' => $r['auto']
@@ -480,6 +485,13 @@ function get_gram_restrictions() {
         $out['gram_options'] .= '<option value="'.$r['gram_id'].'">'.$r['inner_id'].'</option>';
     }
     return $out;
+}
+function add_dict_restriction($post) {
+    if (sql_query("INSERT INTO gram_restrictions VALUES(NULL, '".(int)$_POST['if1']."', '".(int)$_POST['if2']."', '".(int)$_POST['then']."', '".(int)$_POST['obj']."', '".(int)$_POST['necess']."', '0')")) {
+        header("Location:dict.php?act=gram_restr");
+        return;
+    } else
+        show_error();
 }
 
 // ADDING TEXTS

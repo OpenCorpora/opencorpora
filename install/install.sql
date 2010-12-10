@@ -172,3 +172,13 @@ CREATE TABLE IF NOT EXISTS `gram` (
     `orderby`    SMALLINT NOT NULL,
     INDEX (`parent_id`)
 );
+
+CREATE TABLE IF NOT EXISTS `gram_restrictions` (
+    `restr_id`  SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+    `if1_id`    INT UNSIGNED NOT NULL,
+    `if2_id`    INT UNSIGNED NOT NULL,
+    `then_id`   INT UNSIGNED NOT NULL,
+    `object`    TINYINT(1) UNSIGNED NOT NULL,
+    `necessary` TINYINT(1) UNSIGNED NOT NULL,
+    `auto`      TINYINT(1) UNSIGNED NOT NULL
+);

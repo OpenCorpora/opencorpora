@@ -15,20 +15,20 @@
 {/if}
 </p>
 {if $is_admin}
-<p>Сбросить флаг проверки <a href="?act=clear_errata&amp;old">у всех ревизий</a>, <a href="?act=clear_errata">у текущих ревизий</a></p>
+<p>Сбросить флаг проверки <a href="?act=clear_errata&amp;old" onclick="return confirm('Вы уверены?')">у всех ревизий</a>, <a href="?act=clear_errata" onclick="return confirm('Вы уверены?')">у текущих ревизий</a></p>
 {/if}
 <table border='1' cellspacing='0' cellpadding='2'>
 <tr>
     <th>id</th>
-    <th>timestamp</th>
-    <th>revision</th>
-    <th>type</th>
-    <th>description</th>
+    <th>Время проверки</th>
+    <th>Ревизия</th>
+    <th>Тип ошибки</th>
+    <th>Описание</th>
 </tr>
 {foreach item=error from=$errata.errors}
 <tr>
     <td>{$error.id}</td>
-    <td>{$error.timestamp|date_format:"%a %d.%m.%Y, %H:%M"}</td>
+    <td>{$error.timestamp|date_format:"%d.%m.%Y, %H:%M"}</td>
     <td>{$error.revision}</td>
     <td>{$error.type}</td>
     <td>{$error.description}</td>
