@@ -86,12 +86,24 @@ sub get_gram_info {
 sub check {
     my $ref = shift;
     my $newerr = $dbh->prepare("INSERT INTO dict_errata VALUES(NULL, ?, ?, ?, ?)");
-    $ref->{'text'} =~ /<l t=".+">(.+)<\/l>/;
-    my $lg_str = $1;
+    $ref->{'text'} =~ /<l t="(.+)">(.+)<\/l>/;
+    my ($lt, $lg_str) = ($1, $2);
     my @lemma_gram = ();
+    my $lemma_flag = 0;
     while($lg_str =~ /<g v="([^"]+)"\/>/g) {
         push @lemma_gram, $1;
     }
+    
+    if (my $err = is_incompatible(\@lemma_gram)) {
+        $newerr->execute(time(), $ref->{'id'}, 1, "<$lt> has incompatible grammems on lemma: $err");
+        $lemma_flag = 1;
+    }
+    if (my $err = has_unknown_grammems(\@lemma_gram)) {
+        $newerr->execute(time(), $ref->{'id'}, 2, "<$lt> has unknown grammem on lemma: $err");
+        return;
+    }
+    return if $lemma_flag;
+
     my @form_gram = ();
     my @all_gram = ();
     while($ref->{'text'} =~ /<f t="([^"]+)">(.+?)<\/f>/g) {
