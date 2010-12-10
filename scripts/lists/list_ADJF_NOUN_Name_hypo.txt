@@ -7,9 +7,6 @@
 ильин	ADJF
 илья	NOUN,anim,Name
 
-карлушин	ADJF
-карлуш	NOUN,anim,Name
-
 светланин	ADJF
 светлана	NOUN,anim,Name
 
