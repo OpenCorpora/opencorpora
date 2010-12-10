@@ -160,7 +160,7 @@
         LINK(3, 14, ADJF-ADJC)
         LINK(4, 13, ADJF-ADJC)
         LINK(16, 15, ADJF-SUPR_nai)
-	    LINK(0, 17, ADJF-SUPR_slng)
+        LINK(0, 17, ADJF-SUPR_slng)
         LINK(0, 16, ADJF-SUPR_suppl)
 
 * Apro
