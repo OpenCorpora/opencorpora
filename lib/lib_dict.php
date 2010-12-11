@@ -428,14 +428,16 @@ function get_dict_errata($all) {
     $out = array('lag' => $r['cnt_v']);
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_t FROM `dict_errata`"));
     $out['total'] = $r['cnt_t'];
-    $res = sql_query("SELECT * FROM dict_errata ORDER BY error_id".($all?'':' LIMIT 200'));
+    $res = sql_query("SELECT e.*, r.lemma_id, r.set_id FROM dict_errata e LEFT JOIN dict_revisions r ON (e.rev_id=r.rev_id) ORDER BY error_id".($all?'':' LIMIT 200'));
     while($r = sql_fetch_array($res)) {
         $out['errors'][] = array(
             'id' => $r['error_id'],
             'timestamp' => $r['timestamp'],
             'revision' => $r['rev_id'],
             'type' => $r['error_type'],
-            'description' => $r['error_descr']
+            'description' => preg_replace('/<([^>]+)>/', '<a href="?act=edit&amp;id='.$r['lemma_id'].'">$1</a>', $r['error_descr']),
+            'lemma_id' => $r['lemma_id'],
+            'set_id' => $r['set_id']
         );
     }
     return $out;

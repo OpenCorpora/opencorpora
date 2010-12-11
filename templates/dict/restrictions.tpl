@@ -44,6 +44,7 @@
     <th>Объект</th>
     <th>Обязательно?</th>
     <th>Выведено?</th>
+    <th>&nbsp;</th>
 </tr>
 {foreach item=r from=$restrictions.list}
 <tr>
@@ -54,6 +55,7 @@
     <td>{if $r.object}Лемма{else}Форма{/if}</td>
     <td>{if $r.necessary}Да{else}Нет{/if}</td>
     <td>{if $r.auto}Да{else}Нет{/if}</td>
+    <td><a href="?act=del_restr&amp;id={$r.id}" onclick="return confirm('Вы уверены?')">x</a></td>
 </tr>
 {/foreach}
 </table>
