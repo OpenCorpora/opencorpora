@@ -7,7 +7,7 @@
 <h1>Участники проекта</h1>
 <table border='0' cellpadding='4'>
 <tr><td width='200px'>Василий Алексеев</td></tr>
-<tr><td>Светлана Бичинёва</td></tr>
+<tr><td>Светлана Бичинёва</td><td>bichineva [at] opencorpora.org</tr>
 <tr><td>Виктор Бочаров</td><td>bocharov [at] opencorpora.org</td></tr>
 <tr><td>Дмитрий Грановский</td><td>granovsky [at] opencorpora.org</td></tr>
 <tr><td>Наталья Остапук</td></tr>
@@ -16,6 +16,7 @@
 <h2>Мы благодарны:</h2>
 <ul>
 <li>И.В. Азаровой,
+<li>К.М. Аксарину,
 <li>Н.В. Борисову,
 <li>Татьяне Ландо,
 <li>О.В. Митрениной,
