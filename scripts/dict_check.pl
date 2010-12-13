@@ -96,11 +96,11 @@ sub check {
     my %lemma_flags = ();
     
     if (my $err = is_incompatible(\@lemma_gram)) {
-        $newerr->execute(time(), $ref->{'id'}, 1, "<$lt> has incompatible grammems on lemma: $err");
+        $newerr->execute(time(), $ref->{'id'}, 1, "<$lt> ($err)");
         $lemma_flags{1} = 1;
     }
     if (my $err = has_unknown_grammems(\@lemma_gram)) {
-        $newerr->execute(time(), $ref->{'id'}, 2, "<$lt> has unknown grammem on lemma: $err");
+        $newerr->execute(time(), $ref->{'id'}, 2, "<$lt> ($err)");
         $lemma_flags{2} = 1;
     }
 
@@ -117,14 +117,14 @@ sub check {
         }
         @all_gram = (@lemma_gram, @form_gram);
         if (!$lemma_flags{1} && (my $err = is_incompatible(\@all_gram))) {
-            $newerr->execute(time(), $ref->{'id'}, 1, "<$ft> has incompatible grammems: $err");
+            $newerr->execute(time(), $ref->{'id'}, 1, "<$ft> ($err)");
         }
         if (!$lemma_flags{2} && (my $err = has_unknown_grammems(\@all_gram))) {
-            $newerr->execute(time(), $ref->{'id'}, 2, "<$ft> has unknown grammem: $err");
+            $newerr->execute(time(), $ref->{'id'}, 2, "<$ft> ($err)");
         }
         $form_gram_str = join('|', sort @form_gram);
         if (my $f = $form_gram_hash{$form_gram_str}) {
-            $newerr->execute(time(), $ref->{'id'}, 3, "<$ft> duplicates <$f> with grammems '$form_gram_str'");
+            $newerr->execute(time(), $ref->{'id'}, 3, "<$ft>, <$f> ($form_gram_str)");
             return;
         } else {
             $form_gram_hash{$form_gram_str} = $ft;

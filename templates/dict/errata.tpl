@@ -30,7 +30,15 @@
     <td>{$error.id}</td>
     <td>{$error.timestamp|date_format:"%d.%m.%Y, %H:%M"}</td>
     <td><a href="{$web_prefix}/dict_diff.php?lemma_id={$error.lemma_id}&amp;set_id={$error.set_id}">{$error.revision}</a></td>
-    <td>{$error.type}</td>
+    <td>
+        {if $error.type == 1}
+            Несовместимые граммемы 
+        {elseif $error.type == 2}
+            Неизвестная граммема
+        {elseif $error.type == 3}
+            Формы-дубликаты
+        {/if}
+    </td>
     <td>{$error.description}</td>
 </tr>
 {/foreach}
