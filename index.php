@@ -11,6 +11,9 @@ if (isset($_GET['page'])) {
         case 'about':
             $smarty->display('static/about.tpl');
             break;
+        case 'team':
+            $smarty->display('static/team.tpl');
+            break;
         case 'publications':
             $smarty->display('static/publications.tpl');
             break;

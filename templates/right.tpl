@@ -6,6 +6,7 @@ $this->assign('dict_errors', sql_num_rows(sql_query("SELECT error_id FROM dict_e
 <div>
     <a href="{$web_prefix}/?page=about">О проекте</a><br/>
     <a href="{$web_prefix}/?page=publications">Публикации</a><br/>
+    <a href="{$web_prefix}/?page=team">Участники</a><br/>
 </div>
 <div>
     <a href="{$web_prefix}/dict.php">Словарь</a>
