@@ -407,7 +407,7 @@ function move_grammem($grm_id, $dir) {
     }
     if (sql_query("UPDATE `gram` SET `orderby`='$ord' WHERE `orderby`=$ord2 LIMIT 1") &&
         sql_query("UPDATE `gram` SET `orderby`='$ord2' WHERE `gram_id`=$grm_id LIMIT 1")) {
-        header('Location:dict.php?act=gram');
+        header('Location:dict.php?act=gram#g'.$grm_id);
         return;
     } else {
         show_error();
