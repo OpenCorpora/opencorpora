@@ -7,7 +7,14 @@
     {if isset($smarty.get.saved)}
         <p class='p_info'>Изменения сохранены.</p>
     {/if}
-    <p><a href="?act=lemmata">&lt;&lt;&nbsp;к поиску</a></p>
+    <p><form class='inline' method="post" action="?act=lemmata">
+    {if $smarty.get.found_lemma}
+    <input type='hidden' name='search_lemma' value='{$smarty.get.found_lemma}'/>
+    {elseif $smarty.get.found_form}
+    <input type='hidden' name='search_form' value='{$smarty.get.found_form}'/>
+    {/if}
+    <a href="#" onclick="document.forms[0].submit()">&lt;&lt;&nbsp;к поиску</a>
+    </form></p>
     {strip}
     <form action="?act=save" method="post">
         <b>Лемма</b>:<br/>
@@ -37,7 +44,7 @@
         {/if}
         </table><br/>
         {if $is_admin}
-            <input type="button" onclick="submit_with_readonly_check(document.forms[0])" value="Сохранить"/>&nbsp;&nbsp;
+            <input type="button" onclick="submit_with_readonly_check(document.forms[1])" value="Сохранить"/>&nbsp;&nbsp;
             <input type="reset" value="Сбросить"/>
         {/if}
     </form>
