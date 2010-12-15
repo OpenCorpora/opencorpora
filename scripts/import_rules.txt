@@ -57,7 +57,7 @@
     CHANGE (отч -> Patr)
     CHANGE (разг -> Infr)
     CHANGE(прев -> Supr)
-    CHANGE(арх -> Obsl)
+    CHANGE(арх -> Arch)
     CHANGE(0 -> Fixd)
 	
 # разбиваем по частям речи
