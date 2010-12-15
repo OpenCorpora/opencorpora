@@ -87,7 +87,7 @@ switch($action) {
         $smarty->display('dict/lemma_edit.tpl');
         break;
     case 'errata':
-        $smarty->assign('errata', get_dict_errata(isset($_GET['all'])));
+        $smarty->assign('errata', get_dict_errata(isset($_GET['all']), isset($_GET['rand'])));
         $smarty->display('dict/errata.tpl');
         break;
     default:
