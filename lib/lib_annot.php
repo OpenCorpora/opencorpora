@@ -41,17 +41,21 @@ function get_morph_vars_inner($xml_arr, $num) {
     $lemma_grm = $xml_arr['_c']['l']['_c']['g'];
     $grm_arr = array();
     if (isset ($lemma_grm['_a']) && is_array($lemma_grm['_a'])) {
-        array_push($grm_arr, $lemma_grm['_a']['v']);
+        $inner_id = $lemma_grm['_a']['v'];
+        $r = sql_fetch_array(sql_query("SELECT gram_descr FROM gram WHERE inner_id='$inner_id' LIMIT 1"));
+        array_push($grm_arr, array('inner' => $inner_id, 'descr' => $r[0]));
     } elseif(is_array($lemma_grm)) {
         foreach($lemma_grm as $t) {
-            array_push($grm_arr, $t['_a']['v']);
+            $inner_id = $t['_a']['v'];
+            $r = sql_fetch_array(sql_query("SELECT gram_descr FROM gram WHERE inner_id='$inner_id' LIMIT 1"));
+            array_push($grm_arr, array('inner' => $inner_id, 'descr' => $r[0]));
         }
     }
     return array(
         'num'        => $num,
         'lemma_id'   => $xml_arr['_c']['l']['_a']['id'],
         'lemma_text' => $xml_arr['_c']['l']['_a']['t'],
-        'gram_list'  => implode(', ', $grm_arr)
+        'gram_list'  => $grm_arr
     );
 }
 function sentence_save() {

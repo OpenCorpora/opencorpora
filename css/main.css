@@ -48,7 +48,8 @@ div#pre_header {
 div#header {
     padding: 5px 10px;
     background-color: #CCC;
-    height: 20px;
+    height: 24px;
+    line-height: 22px;
 }
 div#header div#lblock {
     float: left;
@@ -78,6 +79,10 @@ div#rightcol div {
 }
 .small {
     font-size: small;
+}
+.hint {
+    border-bottom: 1px black dashed;
+    text-decoration: none;
 }
 .red {
     color: #F00;
@@ -241,6 +246,6 @@ div#main_annot div.var a.best_var {
     font-size: small;
     text-decoration: none;
 }
-div#main_annot div.var span {
+div#main_annot div.var span.lt {
     display: block;
 }

@@ -33,12 +33,14 @@
                         {if $variant.lemma_id > 0}
                             <a href="{$web_prefix}/dict.php?act=edit&amp;id={$variant.lemma_id}">{$variant.lemma_text}</a>
                         {else}
-                            <span>{$variant.lemma_text|htmlspecialchars}</span>
+                            <span class='lt'>{$variant.lemma_text|htmlspecialchars}</span>
                         {/if}
                         <a href="#" class="best_var" onclick="best_var(this.parentNode); return false">v</a>
                         <a href="#" class="del_var" onclick="del_var(this.parentNode); return false">x</a>
                         <br/>
-                        {$variant.gram_list}
+                        {foreach item=gram from=$variant.gram_list name=gramf}
+                        <span class='hint' title='{$gram.descr}'>{$gram.inner}</span>{if !$smarty.foreach.gramf.last}, {/if}
+                        {/foreach}
                     </div>
                 {/foreach}
             </td>
