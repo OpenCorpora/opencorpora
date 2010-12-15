@@ -273,7 +273,10 @@ function edit_gram(tr, gram_id) {
     tr.lastChild.innerHTML += ' <input type="hidden" name="id" value="'+gram_id+'"/><input type="submit" value="Сохранить"/>&nbsp;<input type="button" value="Отменить" onClick="location.reload()"/>';
 }
 function add_meta_option() {
-    var tbody = byid('tbl_meta_options').lastChild;
+    var tbody = byid('tbl_meta_options');
+    if (tbody.lastChild.tagName == 'tbody') {
+        tbody = tbody.lastChild;
+    }
     var new_tr = document.createElement('tr');
     var new_td = document.createElement('td');
     var new_input = document.createElement('input');

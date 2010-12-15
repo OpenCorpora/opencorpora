@@ -107,7 +107,7 @@ function save_meta_options($post) {
             header('Location:options.php');
             return;
         }
-        if ($id <= $r['m']) {
+        if ($r['m'] > 0 && $id <= $r['m']) {
             //old option
             $q = "UPDATE user_options_types SET option_name='".mysql_real_escape_string($name)."', option_values='".mysql_real_escape_string($val)."' WHERE option_id=$id LIMIT 1";
         } else {
