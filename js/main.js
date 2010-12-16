@@ -267,9 +267,9 @@ function dict_add_form(a_el) {
 function edit_gram(tr, gram_id) {
     tr.setAttribute('onClick', 'return false');
     tr = tr.parentNode.parentNode;
-    tr.firstChild.innerHTML = '<input name="inner_id" size="10" maxlength="20" value="'+tr.firstChild.innerHTML+'"/>'
-    tr.childNodes[1].innerHTML = '<input name="outer_id" size="10" maxlength="20" value="'+tr.childNodes[1].innerHTML+'"/>'
-    tr.childNodes[2].innerHTML = '<input name="descr" size="35" value="'+tr.childNodes[2].innerHTML+'"/>'
+    tr.childNodes[1].innerHTML = '<input name="inner_id" size="10" maxlength="20" value="'+tr.childNodes[1].innerHTML+'"/>'
+    tr.childNodes[2].innerHTML = '<input name="outer_id" size="10" maxlength="20" value="'+tr.childNodes[2].innerHTML+'"/>'
+    tr.childNodes[3].innerHTML = '<input name="descr" size="35" value="'+tr.childNodes[3].innerHTML+'"/>'
     tr.lastChild.innerHTML += ' <input type="hidden" name="id" value="'+gram_id+'"/><input type="submit" value="Сохранить"/>&nbsp;<input type="button" value="Отменить" onClick="location.reload()"/>';
 }
 function add_meta_option() {
