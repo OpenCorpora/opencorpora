@@ -62,6 +62,10 @@
 # существительное
 * NOUN    
     CHANGE (2 ->2nd)
+(* NOUN) & (1 ablt&~/ой$/)
+    CHANGE (ablt,~/ою$/ -> ablt,V-oy)
+(* NOUN) & (1 ablt&~/ей$/)
+    CHANGE (ablt,~/ею$/ -> ablt,V-ey)
 1 Patr
     CHANGE (!Infr -> form)
 1 Name
