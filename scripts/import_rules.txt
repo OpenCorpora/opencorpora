@@ -11,7 +11,7 @@
     CHANGE(вн -> accs)
     CHANGE(тв -> ablt)
     CHANGE(пр -> loct)
-	CHANGE(зв -> voct)
+    CHANGE(зв -> voct)
     CHANGE(жр -> femn)
     CHANGE(ср -> neut)
     CHANGE(мн -> plur)
@@ -51,7 +51,6 @@
     CHANGE(буд -> futr)
 #    CHANGE( -> indc)
     CHANGE(пвл -> impr)
-#    CHANGE( -> subj)
     CHANGE (имя -> Name)
     CHANGE (фам -> Surn)
     CHANGE (отч -> Patr)
@@ -59,80 +58,76 @@
     CHANGE(прев -> Supr)
     CHANGE(арх -> Arch)
     CHANGE(0 -> Fixd)
-	
-# разбиваем по частям речи
-
-	
-
+    
 # существительное
 * NOUN    
-	CHANGE (2 ->2nd)
+    CHANGE (2 ->2nd)
 1 Patr
-	CHANGE (!Infr -> form)
+    CHANGE (!Infr -> form)
 1 Name
-	CHANGE (Name, form -> Name)
+    CHANGE (Name, form -> Name)
 1 Patr
-	SPLIT (Name, masc&form, masc&Infr, femn&form, femn&Infr)
-		LINK (0, 1, NAME-PATR)
-		LINK (0, 2, NAME-PATR)
-		LINK (0, 3, NAME-PATR)
-		LINK (0, 4, NAME-PATR)
-		LINK (1, 2, PATR_MASC_FORM-PATR_MASC_INFR)
-		LINK (1, 3, PATR_MASC-PATR_FEMN)
-		LINK (3, 4, PATR_FEMN_FORM-PATR_FEMN_INFR)
+    SPLIT (Name, masc&form, masc&Infr, femn&form, femn&Infr)
+        LINK (0, 1, NAME-PATR)
+        LINK (0, 2, NAME-PATR)
+        LINK (0, 3, NAME-PATR)
+        LINK (0, 4, NAME-PATR)
+        LINK (1, 2, PATR_MASC_FORM-PATR_MASC_INFR)
+        LINK (1, 3, PATR_MASC-PATR_FEMN)
+        LINK (3, 4, PATR_FEMN_FORM-PATR_FEMN_INFR)
 1 form
-	CHANGE (form -> )
+    CHANGE (form -> )
 1 Surn
-	SPLIT (masc, femn, Ms-f)
-		LINK (0, 1, SURN_MASC-SURN_FEMN)
-		LINK (0, 2, SURN_MASC-SURN_PLUR)
+    SPLIT (masc, femn, Ms-f)
+        LINK (0, 1, SURN_MASC-SURN_FEMN)
+        LINK (0, 2, SURN_MASC-SURN_PLUR)
 (1 ~/^газпром-медиа$/)
-	CHANGE (masc, femn, neut, sing, nomn, gent, datv, accs, ablt, loct, Sgtm, a-pl -> Pltm, Fixd)
+    CHANGE (masc, femn, neut, sing, nomn, gent, datv, accs, ablt, loct, Sgtm, a-pl -> Pltm, Fixd)
 # не работает
 (* plur) & (* !Pltm)
-	CHANGE ( -> Pltm)
+    CHANGE ( -> Pltm)
 (* sing) & (* !Sgtm)
-	CHANGE ( -> Sgtm)
+    CHANGE ( -> Sgtm)
 1 Pltm
-	CHANGE (Sgtm -> )
-	CHANGE (a-pl -> )
+    CHANGE (Sgtm -> )
+    CHANGE (a-pl -> )
 (* Ms-f) & (* !Surn) & (* !~/^завмаг$/)
-	CHANGE ( -> femn)
+    CHANGE ( -> femn)
 (1 ~/^завмаг$/)
-	CHANGE ( -> masc)
+    CHANGE ( -> masc)
 (* Fixd) & (* Ms-f)
-	CHANGE ( -> GNdr)
+    CHANGE ( -> GNdr)
 (* NOUN) & (* Fixd) & (* !Sgtm) & (* !Pltm)
-	GENERATE (sing, plur; nomn, gent,datv, accs, ablt, loct)
+    GENERATE (sing, plur; nomn, gent,datv, accs, ablt, loct)
 (* NOUN) & (* Fixd) & (* Sgtm | Pltm)
-	GENERATE (nomn, gent,datv, accs, ablt, loct)
+    GENERATE (nomn, gent,datv, accs, ablt, loct)
 * Pltm
-	CHANGE (sing -> sing, A-sg)
+    CHANGE (sing -> sing, A-sg)
 * Sgtm
-	CHANGE (plur -> plur, A-pl)
+    CHANGE (plur -> plur, A-pl)
 1 Pltm
-	CHANGE ( -> GNdr)
+    CHANGE ( -> GNdr)
 1 2nd & gent
-	CHANGE (gent, sing -> gen1, sing)
-	CHANGE (gen1, 2nd -> gen2)
-1 2nd & loct	
-	CHANGE (loct, sing -> loc1, sing)
-	CHANGE (loc1, 2nd -> loc2)
+    CHANGE (gent, sing -> gen1, sing)
+    CHANGE (gen1, 2nd -> gen2)
+1 2nd & loct    
+    CHANGE (loct, sing -> loc1, sing)
+    CHANGE (loc1, 2nd -> loc2)
 (* Name) & (1 plur) & (1 Sgtm)
-	CHANGE (Sgtm, a-pl -> )
+    CHANGE (Sgtm, a-pl -> )
 (* ~/^др$/)
-	CHANGE ( -> _del)
+    CHANGE ( -> _del)
 (* ~/^неубивайменя$/)
-	CHANGE ( -> _del)
+    CHANGE ( -> _del)
 
-		
+        
 # прилагательное
 (#178) & (* !Poss) & (* !Qual) & (* !Apro)
     CHANGE( -> Poss)
 (#74) & (* !Poss) & (* !Poss) & (* !Qual) & (* !Apro)
     CHANGE( -> Poss)
 (#146) & (* !Poss) & (* !Poss) & (* !Qual) & (* !Apro)
-    CHANGE( -> Poss)	
+    CHANGE( -> Poss)    
 (1 ADJF)
     CHANGE(ADJF, ADJC -> ADJC)
 (1 ADJS|ADJC|~/ейш/|~/айш/) & (* ADJF|ADJS|ADJC)
@@ -191,20 +186,22 @@
 (1 ~/^ее$/|~/^его$/|~/^их$/)
     CHANGE(anim,inan, accs -> accs)
 
-	
+    
 # глагол (инфинитив, личная форма, причастие, краткое причастие, деепричастие)
+(1 GRND)
+    CHANGE(GRND,~/ши$/ -> GRND,Infr)
 (1 VERB) & (1 INFN) & (* VERB|INFN|PRTF|PRTS|GRND)
-   SPLIT(VERB, INFN, PRTF&actv&pres, PRTF&actv&past, PRTF&pssv&pres, PRTF&pssv&past, PRTS&pres, PRTS&past, GRND)
-       LINK(1, 0, INFN-VERB)
-       LINK(1, 2, INFN-PRTF)
-       LINK(1, 3, INFN-PRTF)
-       LINK(1, 4, INFN-PRTF)
-       LINK(1, 5, INFN-PRTF)
-       LINK(2, 6, PRTF-PRTS)
-       LINK(3, 7, PRTF-PRTS)
-       LINK(4, 6, PRTF-PRTS)
-       LINK(5, 7, PRTF-PRTS)
-       LINK(1, 8, INFN-GRND)
+    SPLIT(VERB, INFN, PRTF&actv&pres, PRTF&actv&past, PRTF&pssv&pres, PRTF&pssv&past, PRTS&pres, PRTS&past, GRND)
+        LINK(1, 0, INFN-VERB)
+        LINK(1, 2, INFN-PRTF)
+        LINK(1, 3, INFN-PRTF)
+        LINK(1, 4, INFN-PRTF)
+        LINK(1, 5, INFN-PRTF)
+        LINK(2, 6, PRTF-PRTS)
+        LINK(3, 7, PRTF-PRTS)
+        LINK(4, 6, PRTF-PRTS)
+        LINK(5, 7, PRTF-PRTS)
+        LINK(1, 8, INFN-GRND)
 
 # все остальное
 
