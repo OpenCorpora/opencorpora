@@ -58,6 +58,7 @@
     CHANGE(прев -> Supr)
     CHANGE(арх -> Arch)
     CHANGE(0 -> Fixd)
+	CHANGE (опч -> Erro)
     
 # существительное
 * NOUN    
@@ -72,6 +73,10 @@
     CHANGE (ablt,~/еюся$/ -> ablt,V-ey)
 (* NOUN) & (1 ablt&~/ёй$/)
     CHANGE (ablt,~/ёю$/ -> ablt,V-ey)
+(* NOUN) & (1 nomn&~/ье$/)
+	CHANGE (~/ь.+$/ -> V-be)
+(* NOUN)
+	CHANGE (anim,inan -> ANim)
 1 Patr
     CHANGE (!Infr -> form)
 1 Name
@@ -101,7 +106,7 @@
 1 Pltm
     CHANGE (Sgtm -> )
     CHANGE (a-pl -> )
-(* Ms-f) & (* !Surn) & (* !~/^завмаг$/)
+(* Ms-f) & (* !Surn) & (* !~/^завмаг$/) & (* !Fixd)
     CHANGE ( -> femn)
 (1 ~/^завмаг$/)
     CHANGE ( -> masc)
@@ -129,6 +134,10 @@
     CHANGE ( -> _del)
 (* ~/^неубивайменя$/)
     CHANGE ( -> _del)
+(* Surn) & (1 ~/^целий$/)
+	CHANGE ( -> _del)
+# АУДИ С, 0, мр-жр, но
+
 
         
 # прилагательное
