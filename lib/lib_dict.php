@@ -464,21 +464,18 @@ function clear_dict_errata($old) {
     }
 }
 function get_gram_restrictions() {
-    $res = sql_query("SELECT r.restr_id, r.object, r.necessary, r.auto, g1.inner_id if1, g2.inner_id if2, g3.inner_id `then`
+    $res = sql_query("SELECT r.restr_id, r.restr_type, r.auto, g1.inner_id `if`, g2.inner_id `then`
         FROM gram_restrictions r
-            LEFT JOIN gram g1 ON (r.if1_id=g1.gram_id)
-            LEFT JOIN gram g2 ON (r.if2_id=g2.gram_id)
-            LEFT JOIN gram g3 ON (r.then_id=g3.gram_id)
+            LEFT JOIN gram g1 ON (r.if_id=g1.gram_id)
+            LEFT JOIN gram g2 ON (r.then_id=g2.gram_id)
         ORDER BY r.restr_id");
     $out = array('gram_options' => '');
     while ($r = sql_fetch_array($res)) {
         $out['list'][] = array(
             'id' => $r['restr_id'],
-            'if1_id' => $r['if1'],
-            'if2_id' => $r['if2'],
+            'if_id' => $r['if'],
             'then_id' => $r['then'],
-            'object' => $r['object'],
-            'necessary' => $r['necessary'],
+            'type' => $r['restr_type'],
             'auto' => $r['auto']
         );
     }
@@ -489,7 +486,14 @@ function get_gram_restrictions() {
     return $out;
 }
 function add_dict_restriction($post) {
-    if (sql_query("INSERT INTO gram_restrictions VALUES(NULL, '".(int)$_POST['if1']."', '".(int)$_POST['if2']."', '".(int)$_POST['then']."', '".(int)$_POST['obj']."', '".(int)$_POST['necess']."', '0')")) {
+    if (sql_query("INSERT INTO gram_restrictions VALUES(NULL, '".(int)$_POST['if']."', '".(int)$_POST['then']."', '".(int)$_POST['rtype']."', '0')")) {
+        header("Location:dict.php?act=gram_restr");
+        return;
+    } else
+        show_error();
+}
+function del_dict_restriction($id) {
+    if (sql_query("DELETE FROM gram_restrictions WHERE restr_id=$id LIMIT 1")) {
         header("Location:dict.php?act=gram_restr");
         return;
     } else
@@ -525,7 +529,7 @@ function tokenize($txt) {
         }
         for($i = 0; $i < mb_strlen($word, 'utf-8'); ++$i) {
             $char = mb_substr($word, $i, 1, 'utf-8');
-            if (preg_match('/[\.,!\?;:\(\)\[\]\/\xAB\xBB]/u', $char)) {
+            if (preg_match('/[\.,!\?;:\(\)\[\]\/"\xAB\xBB]/u', $char)) {
                 if ($token) {
                     $txt[] = $token;
                     $token = '';

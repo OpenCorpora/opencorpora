@@ -52,6 +52,12 @@ switch($action) {
         } else
             show_error($config['msg_notadmin']);
         break;
+    case 'del_restr':
+        if (is_admin()) {
+            del_dict_restriction((int)$_GET['id']);
+        } else
+            show_error($config['msg_notadmin']);
+        break;
     case 'save':
         if (is_admin()) {
             dict_save($_POST);
