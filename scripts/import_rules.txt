@@ -64,8 +64,12 @@
     CHANGE (2 ->2nd)
 (* NOUN) & (1 ablt&~/ой$/)
     CHANGE (ablt,~/ою$/ -> ablt,V-oy)
+(* NOUN) & (1 ablt&~/ойся$/)
+    CHANGE (ablt,~/оюся$/ -> ablt,V-oy)
 (* NOUN) & (1 ablt&~/ей$/)
     CHANGE (ablt,~/ею$/ -> ablt,V-ey)
+(* NOUN) & (1 ablt&~/ейся$/)
+    CHANGE (ablt,~/еюся$/ -> ablt,V-ey)
 (* NOUN) & (1 ablt&~/ёй$/)
     CHANGE (ablt,~/ёю$/ -> ablt,V-ey)
 1 Patr
