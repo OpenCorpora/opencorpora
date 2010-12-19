@@ -38,6 +38,7 @@
     CHANGE(нп -> intr)
     CHANGE(дст -> actv)
     CHANGE(стр -> pssv)
+    CHANGE (безл -> Impr)
     CHANGE(притяж -> Poss)
     CHANGE(жарг -> Slng)
     CHANGE(безл -> Impr)
@@ -51,6 +52,17 @@
     CHANGE(буд -> futr)
 #    CHANGE( -> indc)
     CHANGE(пвл -> impr)
+    CHANGE (Н -> ADVB)
+    CHANGE(вопр -> Ques)
+    CHANGE(указат -> Dmns)
+    CHANGE (ЧИСЛ -> NUMB)
+    CHANGE (МС -> NPRO)
+    CHANGE (имя -> Name)
+    CHANGE (ПРЕДК -> PRED)
+    CHANGE (МЕЖД -> INTJ)
+    CHANGE (ПРЕДЛ -> PREP)
+    CHANGE (ЧАСТ -> PRCL)
+    CHANGE (СОЮЗ -> CONJ)
     CHANGE (имя -> Name)
     CHANGE (фам -> Surn)
     CHANGE (отч -> Patr)
@@ -58,8 +70,10 @@
     CHANGE(прев -> Supr)
     CHANGE(арх -> Arch)
     CHANGE(0 -> Fixd)
+    CHANGE (опч -> Еrro)
 	CHANGE (опч -> Erro)
     
+
 # существительное
 * NOUN    
     CHANGE (2 ->2nd)
@@ -229,4 +243,26 @@
         LINK(1, 8, INFN-GRND)
 
 # все остальное
+* ВВОДН
+	CHANGE(ВВОДН -> CONJ,Prnt) 
+
+(* ~/^бухты-барахты$/)
+	CHANGE(ФРАЗ -> ADVB) #С бухты-барахты
+(* ~/^фуфу$/)
+	CHANGE(ФРАЗ -> ADVB) #Сдать экзамен на фуфу
+(* ~/^гугу$/)
+	CHANGE(ФРАЗ -> INTJ) #Он пришел и ни гугу
+(* ~/^несмотря$/)
+	CHANGE(ФРАЗ -> PREP) #Несмотря на это, он успел на поезд
+(* ~/^зги$/|~/^смотря$/|~/^глядя$/|~/^судя$/)
+	CHANGE(ФРАЗ -> _del) 
+(* ~/^невзирая$/)
+	CHANGE(ФРАЗ -> PREP) #Невзирая на это, он успел на поезд
+* МС-ПРЕДК
+	CHANGE(МС-ПРЕДК -> PRED,Ppro)
+(* ~/^ради$/)
+	CHANGE(ПОСЛ -> _del) 
+
+
+
 
