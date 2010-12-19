@@ -38,7 +38,6 @@
     CHANGE(нп -> intr)
     CHANGE(дст -> actv)
     CHANGE(стр -> pssv)
-    CHANGE (безл -> Impr)
     CHANGE(притяж -> Poss)
     CHANGE(жарг -> Slng)
     CHANGE(безл -> Impr)
@@ -50,14 +49,12 @@
     CHANGE(нст -> pres)
     CHANGE(прш -> past)
     CHANGE(буд -> futr)
-#    CHANGE( -> indc)
     CHANGE(пвл -> impr)
     CHANGE (Н -> ADVB)
     CHANGE(вопр -> Ques)
     CHANGE(указат -> Dmns)
     CHANGE (ЧИСЛ -> NUMB)
     CHANGE (МС -> NPRO)
-    CHANGE (имя -> Name)
     CHANGE (ПРЕДК -> PRED)
     CHANGE (МЕЖД -> INTJ)
     CHANGE (ПРЕДЛ -> PREP)
@@ -70,8 +67,7 @@
     CHANGE(прев -> Supr)
     CHANGE(арх -> Arch)
     CHANGE(0 -> Fixd)
-    CHANGE (опч -> Еrro)
-	CHANGE (опч -> Erro)
+    CHANGE (опч -> Erro)
     
 
 # существительное
@@ -88,9 +84,9 @@
 (* NOUN) & (1 ablt&~/ёй$/)
     CHANGE (ablt,~/ёю$/ -> ablt,V-ey)
 (* NOUN) & (1 nomn&~/ье$/)
-	CHANGE (~/ь.+$/ -> V-be)
+    CHANGE (~/ь.+$/ -> V-be)
 (* NOUN)
-	CHANGE (anim,inan -> ANim)
+    CHANGE (anim,inan -> ANim)
 1 Patr
     CHANGE (!Infr -> form)
 1 Name
@@ -112,7 +108,6 @@
         LINK (0, 2, SURN_MASC-SURN_PLUR)
 (1 ~/^газпром-медиа$/)
     CHANGE (masc, femn, neut, sing, nomn, gent, datv, accs, ablt, loct, Sgtm, a-pl -> Pltm, Fixd)
-# не работает
 (* plur) & (* !Pltm)
     CHANGE ( -> Pltm)
 (* sing) & (* !Sgtm)
@@ -149,7 +144,7 @@
 (* ~/^неубивайменя$/)
     CHANGE ( -> _del)
 (* Surn) & (1 ~/^целий$/)
-	CHANGE ( -> _del)
+    CHANGE ( -> _del)
 # АУДИ С, 0, мр-жр, но
 
 
@@ -244,25 +239,21 @@
 
 # все остальное
 * ВВОДН
-	CHANGE(ВВОДН -> CONJ,Prnt) 
+    CHANGE(ВВОДН -> CONJ,Prnt) 
 
 (* ~/^бухты-барахты$/)
-	CHANGE(ФРАЗ -> ADVB) #С бухты-барахты
+    CHANGE(ФРАЗ -> ADVB) #С бухты-барахты
 (* ~/^фуфу$/)
-	CHANGE(ФРАЗ -> ADVB) #Сдать экзамен на фуфу
+    CHANGE(ФРАЗ -> ADVB) #Сдать экзамен на фуфу
 (* ~/^гугу$/)
-	CHANGE(ФРАЗ -> INTJ) #Он пришел и ни гугу
+    CHANGE(ФРАЗ -> INTJ) #Он пришел и ни гугу
 (* ~/^несмотря$/)
-	CHANGE(ФРАЗ -> PREP) #Несмотря на это, он успел на поезд
+    CHANGE(ФРАЗ -> PREP) #Несмотря на это, он успел на поезд
 (* ~/^зги$/|~/^смотря$/|~/^глядя$/|~/^судя$/)
-	CHANGE(ФРАЗ -> _del) 
+    CHANGE(ФРАЗ -> _del) 
 (* ~/^невзирая$/)
-	CHANGE(ФРАЗ -> PREP) #Невзирая на это, он успел на поезд
+    CHANGE(ФРАЗ -> PREP) #Невзирая на это, он успел на поезд
 * МС-ПРЕДК
-	CHANGE(МС-ПРЕДК -> PRED,Ppro)
+    CHANGE(МС-ПРЕДК -> PRED,Ppro)
 (* ~/^ради$/)
-	CHANGE(ПОСЛ -> _del) 
-
-
-
-
+    CHANGE(ПОСЛ -> _del) 
