@@ -66,6 +66,8 @@
     CHANGE (ablt,~/ою$/ -> ablt,V-oy)
 (* NOUN) & (1 ablt&~/ей$/)
     CHANGE (ablt,~/ею$/ -> ablt,V-ey)
+(* NOUN) & (1 ablt&~/ёй$/)
+    CHANGE (ablt,~/ёю$/ -> ablt,V-ey)
 1 Patr
     CHANGE (!Infr -> form)
 1 Name
