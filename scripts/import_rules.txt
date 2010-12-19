@@ -40,7 +40,7 @@
     CHANGE(стр -> pssv)
     CHANGE(притяж -> Poss)
     CHANGE(жарг -> Slng)
-#    CHANGE( -> Impr)
+    CHANGE(безл -> Impr)
 #    CHANGE( -> Mult)
 #    CHANGE( -> Refl)
     CHANGE(1л -> 1per)
