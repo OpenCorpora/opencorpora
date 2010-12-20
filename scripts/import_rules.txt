@@ -204,8 +204,9 @@
     CHANGE(2 -> Cmp2)
     CHANGE(~/ей$/ -> V-ej) 
 * ADJF
-    CHANGE(~/ою$/ -> V-oy)
-    CHANGE(~/ею$/ -> V-ey)
+    CHANGE(ablt,~/ою$/ -> ablt,V-oy)
+    CHANGE(ablt,~/ею$/ -> ablt,V-ey)
+    CHANGE(ablt,~/еюся$/ -> ablt,V-ey)
 * ADJC
     CHANGE(~/краше$/ -> litr)
    
