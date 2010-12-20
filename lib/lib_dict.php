@@ -473,7 +473,7 @@ function get_gram_restrictions($hide_auto) {
     $out = array('gram_options' => '');
     while ($r = sql_fetch_array($res)) {
         $out['list'][] = array(
-            //'id' => $r['restr_id'],
+            'id' => $r['restr_id'],
             'if_id' => $r['if'],
             'then_id' => $r['then'],
             'type' => $r['restr_type'],
