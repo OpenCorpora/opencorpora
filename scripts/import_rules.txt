@@ -53,7 +53,7 @@
     CHANGE (Н -> ADVB)
     CHANGE(вопр -> Ques)
     CHANGE(указат -> Dmns)
-    CHANGE (ЧИСЛ -> NUMB)
+    CHANGE (ЧИСЛ -> NUMR)
     CHANGE (МС -> NPRO)
     CHANGE (ПРЕДК -> PRED)
     CHANGE (МЕЖД -> INTJ)
