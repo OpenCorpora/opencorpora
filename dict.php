@@ -58,6 +58,12 @@ switch($action) {
         } else
             show_error($config['msg_notadmin']);
         break;
+    case 'update_restr':
+        if (is_admin()) {
+            calculate_gram_restrictions();
+        } else
+            show_error($config['msg_notadmin']);
+        break;
     case 'save':
         if (is_admin()) {
             dict_save($_POST);
@@ -84,7 +90,7 @@ switch($action) {
         $smarty->display('dict/gram.tpl');
         break;
     case 'gram_restr':
-        $smarty->assign('restrictions', get_gram_restrictions());
+        $smarty->assign('restrictions', get_gram_restrictions(isset($_GET['hide_auto'])));
         $smarty->display('dict/restrictions.tpl');
         break;
     case 'edit':

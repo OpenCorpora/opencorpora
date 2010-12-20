@@ -39,6 +39,8 @@
             Неизвестная граммема
         {elseif $error.type == 3}
             Формы-дубликаты
+        {elseif $error.type == 4}
+            Нет обязательной граммемы
         {/if}
     </td>
     <td>{$error.description}</td>

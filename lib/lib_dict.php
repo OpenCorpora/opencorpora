@@ -463,16 +463,17 @@ function clear_dict_errata($old) {
         return;
     }
 }
-function get_gram_restrictions() {
+function get_gram_restrictions($hide_auto) {
     $res = sql_query("SELECT r.restr_id, r.restr_type, r.auto, g1.inner_id `if`, g2.inner_id `then`
         FROM gram_restrictions r
             LEFT JOIN gram g1 ON (r.if_id=g1.gram_id)
-            LEFT JOIN gram g2 ON (r.then_id=g2.gram_id)
-        ORDER BY r.restr_id");
+            LEFT JOIN gram g2 ON (r.then_id=g2.gram_id)".
+            ($hide_auto ? " WHERE `auto`=0" : "")
+        ." ORDER BY r.restr_id");
     $out = array('gram_options' => '');
     while ($r = sql_fetch_array($res)) {
         $out['list'][] = array(
-            'id' => $r['restr_id'],
+            //'id' => $r['restr_id'],
             'if_id' => $r['if'],
             'then_id' => $r['then'],
             'type' => $r['restr_type'],
@@ -498,6 +499,29 @@ function del_dict_restriction($id) {
         return;
     } else
         show_error();
+}
+function calculate_gram_restrictions() {
+    sql_query("DELETE FROM gram_restrictions WHERE `auto`=1");
+    $maybe = array();
+    $res = sql_query("SELECT r.if_id, r.then_id, g1.gram_id gram1, g2.gram_id gram2
+        FROM gram_restrictions r
+        LEFT JOIN gram g1 ON (r.then_id = g1.parent_id)
+        LEFT JOIN gram g2 ON (g1.gram_id = g2.parent_id)
+        WHERE r.restr_type=1");
+    while ($r = sql_fetch_array($res)) {
+        if ($r['gram1'])
+            $maybe[] = $r['if_id'].'#'.$r['gram1'];
+        if ($r['gram2'])
+            $maybe[] = $r['if_id'].'#'.$r['gram2'];
+    }
+    $maybe = array_unique($maybe);
+    foreach ($maybe as $pair) {
+        list($if, $then) = explode('#', $pair);
+        if (!sql_query("INSERT INTO gram_restrictions VALUES(NULL, '$if', '$then', '0', '1')")) {
+            show_error();
+        }
+    }
+    header("Location:dict.php?act=gram_restr");
 }
 
 // ADDING TEXTS

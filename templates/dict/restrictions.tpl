@@ -25,25 +25,29 @@
 </select>
 &raquo;.<br/>
 <input type='submit' value='Добавить'/>
-</form><br/>
+</form>
+<p><a href="?act=update_restr">Пересчитать</a> |
+{if isset($smarty.get.hide_auto)}
+<a href="?act=gram_restr">Показать выведенные</a></p>
+{else}
+<a href="?act=gram_restr&amp;hide_auto">Скрыть выведенные</a></p>
+{/if}
 {/if}
 <table border='1' cellspacing='0' cellpadding='2'>
 <tr>
-    <th>id</th>
     <th>Если</th>
     <th>То</th>
     <th>Тип</th>
     <th>Выведено?</th>
-    <th>&nbsp;</th>
+    {if $is_admin}<th>&nbsp;</th>{/if}
 </tr>
 {foreach item=r from=$restrictions.list}
 <tr>
-    <td>{$r.id}</td>
-    <td>{$r.if_id}</td>
+    <td>{$r.if_id|default:'Что угодно'}</td>
     <td>{$r.then_id}</td>
     <td>{if $r.type == 2}запрещено{elseif $r.type == 1}обязательно{else}возможно{/if}</td>
     <td>{if $r.auto}Да{else}Нет{/if}</td>
-    <td><a href="?act=del_restr&amp;id={$r.id}" onclick="return confirm('Вы уверены?')">x</a></td>
+    {if $is_admin}<td><a href="?act=del_restr&amp;id={$r.id}" onclick="return confirm('Вы уверены?')">x</a></td>{/if}
 </tr>
 {/foreach}
 </table>
