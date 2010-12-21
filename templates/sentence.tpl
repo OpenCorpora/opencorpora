@@ -10,11 +10,13 @@
         <div id="main_scroller">
             <div>
                 {if $is_logged == 1}
-                    <button type="button" disabled="disabled" id="submit_button" onclick="submit_with_readonly_check(document.forms[0])">Сохранить</button>&nbsp;
+                    <button type="button" disabled="disabled" id="submit_button" onclick="show_comment_field(this)">Сохранить</button>&nbsp;
                 {/if}
                 <button type="reset" onclick="window.location.reload()">Отменить правки</button>&nbsp;
                 <button type="button" onclick="window.location.href='history.php?sent_id={$sentence.id}'">История</button>&nbsp;
                 <button type="button" onclick="dict_reload_all()">Разобрать заново</button>
+                <br/>
+                <span id='comment_fld'>Комментарий: <input name='comment' size='60'/></span>
             </div>
         </div>
         <div id="scrollbar"><div style="height:10px;"></div></div>

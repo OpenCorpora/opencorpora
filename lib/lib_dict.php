@@ -203,6 +203,7 @@ function dict_save($array) {
     $ltext = $array['form_text'];
     $lgram = $array['form_gram'];
     $lemma_gram_new = $array['lemma_gram'];
+    $comment = mysql_real_escape_string($array['comment']);
     //let's construct the old paradigm
     $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=".$array['lemma_id']." ORDER BY `rev_id` DESC LIMIT 1"));
     $pdr = parse_dict_rev($old_xml = $r['rev_text']);
@@ -252,7 +253,7 @@ function dict_save($array) {
     $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
     if ($new_xml != $old_xml) {
         //something's really changed
-        $res = new_dict_rev($array['lemma_id'], $new_xml);
+        $res = new_dict_rev($array['lemma_id'], $new_xml, $comment);
         if ($res) {
             header("Location:dict.php?act=edit&saved&id=".$array['lemma_id']);
             return;
@@ -283,9 +284,9 @@ function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
     $new_xml .= '</dr>';
     return $new_xml;
 }
-function new_dict_rev($lemma_id, $new_xml) {
+function new_dict_rev($lemma_id, $new_xml, $comment = '') {
     if (!$lemma_id || !$new_xml) return 0;
-    $revset_id = create_revset();
+    $revset_id = create_revset($comment);
     if (!$revset_id) return 0;
     if (sql_query("INSERT INTO `dict_revisions` VALUES(NULL, '$revset_id', '$lemma_id', '".mysql_real_escape_string($new_xml)."', '0', '0')")) {
         return 1;

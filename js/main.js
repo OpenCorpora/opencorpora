@@ -199,6 +199,11 @@ function dehighlight_source() {
         cur_token.className='';
     }
 }
+function show_comment_field(btn) {
+    show(byid('comment_fld'));
+    btn.style.fontWeight = 'bold';
+    btn.setAttribute('onclick', 'submit_with_readonly_check(document.forms[0])');
+}
 function dict_reload_all() {
     var tr = byid('main_annot').firstChild.firstChild.firstChild;
     for (i=0; i<tr.childNodes.length; ++i) {

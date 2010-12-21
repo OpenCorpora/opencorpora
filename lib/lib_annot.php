@@ -62,6 +62,7 @@ function sentence_save() {
     $flag = $_POST['var_flag'];  //what morphovariants are checked as possible (array of arrays)
     $dict = $_POST['dict_flag']; //whether this token has been reloaded from the dictionary (array)
     $sent_id = (int)$_GET['id'];
+    $comment = mysql_real_escape_string($_POST['comment']);
     $res = sql_query("SELECT tf_id, tf_text, `pos` FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
     while($r = sql_fetch_array($res)) {
         $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." ORDER BY rev_id DESC LIMIT 1"));
@@ -122,7 +123,7 @@ function sentence_save() {
         }
     }
     if (count($all_changes)>0) {
-        $revset_id = create_revset();
+        $revset_id = create_revset($comment);
         if (!$revset_id)
             die ("Cannot create revset");
         foreach ($all_changes as $v) {

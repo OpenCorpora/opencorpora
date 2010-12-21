@@ -44,6 +44,8 @@
         {/if}
         </table><br/>
         {if $is_admin}
+            Комментарий к правке:<br/>
+            <input name='comment' size='60'/><br/>
             <input type="button" onclick="submit_with_readonly_check(document.forms[1])" value="Сохранить"/>&nbsp;&nbsp;
             <input type="reset" value="Сбросить"/>
         {/if}

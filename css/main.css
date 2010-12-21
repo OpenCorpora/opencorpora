@@ -140,41 +140,9 @@ div#main_scroller {
     margin-bottom: 0px;
     width: 100%;
     padding: 0px 10px 20px 10px;
-    font-size: large;
-    font-weight: bold;
-    color: red;
 }
-div#main_scroller span#scr_l {
-    display: inline;
-    float: left;
-    margin-right: 20px;
-    cursor: pointer;
-}
-div#main_scroller span#scr_ll {
-    display: inline;
-    float: left;
-    margin-right: 20px;
-    cursor: pointer;
-}
-div#main_scroller span#scr_lw {
-    float: left;
-    cursor: pointer;
-}
-div#main_scroller span#scr_rw {
-    display: inline;
-    float: right;
-    margin-right: 20px;
-    cursor: pointer;
-}
-div#main_scroller span#scr_rr {
-    float: right;
-    cursor: pointer;
-}
-div#main_scroller span#scr_r {
-    display: inline;
-    float: right;
-    margin-right: 20px;
-    cursor: pointer;
+div#main_scroller span#comment_fld {
+    display: none;
 }
 div#main_scroller div {
     display: inline;
