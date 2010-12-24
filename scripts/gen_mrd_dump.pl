@@ -63,16 +63,28 @@ for (my $l = 0; $l < $d->MaxLemmaNo(); $l++) {
   for (my $f = 0; $f < $lemma->MaxFormNo(); $f++) {
     my $form = $lemma->GetForm($f);
 
-    my $output_line = $form->Text() . "\t" . $d->Ancode2Grammems($form->Ancode());
+    my $form_grm = $d->Ancode2Grammems($form->Ancode());
+    my $output_line = $form->Text() . "\t" . $form_grm;
+    my $lemma_grm;
     if (defined $lemma->Ancode()) {
-      $output_line .= ", " . $d->Ancode2Grammems($lemma->Ancode()) . "\n";
+      $lemma_grm = $d->Ancode2Grammems($lemma->Ancode());
+      $output_line .= ", " . $lemma_grm . "\n";
     } else {
       $output_line .= "\n";
     }
 
-    # pluralia tantum notation fix
-    $output_line =~ s/мн,мн/мн,pl/;
-    print $output_line;
+    my %lemma_grm_hash = map { $_ => 1 } split(/,\s*/, $lemma_grm);
+    if (exists($lemma_grm_hash{"св"}) && exists($lemma_grm_hash{"нс"})) {
+      delete $lemma_grm_hash{"св"};
+      delete $lemma_grm_hash{"нс"};
+      my $new_line = $form->Text() . "\t" . $form_grm . ", " . join(",", keys %lemma_grm_hash);
+      print $new_line . ",св\n";
+      print $new_line . ",нс\n";
+    } else {
+      # pluralia tantum notation fix
+      $output_line =~ s/мн,мн/мн,pl/;
+      print $output_line;
+    }
   }
 
   print "\n";
