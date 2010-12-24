@@ -28,6 +28,7 @@ sub load_gramtab {
     if ($_ =~ /^([А-ЯЁа-яё]{2,2})\s+(\w)\s+([А-ЯЁа-яё_\-\*]+)\s+([а-яё\-0-9\,]*)/) {
       my ($ancode, $pos, $gram_line) = ($1, $3, $4);
       $gram_line =~ s/,\s*$//;
+      $gram_line =~ s/,,/,/g;
       $self->{ancodes}->{$ancode} = ("*" ne $pos ? $pos : "");
       if (length($self->{ancodes}->{$ancode}) > 0 && length($gram_line) > 0) {
         $self->{ancodes}->{$ancode} .= ", ";
