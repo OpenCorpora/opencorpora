@@ -83,7 +83,7 @@
 (* NOUN) & (1 ablt&~/ёй$/)
     CHANGE (ablt,~/ёю$/ -> ablt,V-ey)
 (* NOUN) & (1 nomn&~/ье$/)
-    CHANGE (~/ь.+$/ -> V-be)
+    CHANGE (~/ь..?.?$/ -> V-be)
 (* NOUN)
     CHANGE (anim,inan -> ANim)
 1 Patr
@@ -287,5 +287,4 @@
     CHANGE(ПОСЛ -> _del) 
 # числительное
 (* NUMR) & (1 ~/много$/|~/немножко/|~/мног..$/|~/немножечко/|~/мало/|~/меньше/|~/больше/|~/мног...$/|~/менее/|~/более/)
-    CHANGE(NUMR -> )
-    CHANGE(-> ADVB)
+    CHANGE(NUMR -> ADVB)
