@@ -41,6 +41,8 @@
             Формы-дубликаты
         {elseif $error.type == 4}
             Нет обязательной граммемы
+        {elseif $error.type == 5}
+            Не разрешённое сочетание граммем
         {/if}
     </td>
     <td>{$error.description}</td>

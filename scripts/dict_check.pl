@@ -25,6 +25,7 @@ close $lock;
 my %bad_pairs;
 my %all_grammems;
 my %must;
+my %may;
 
 my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
@@ -85,24 +86,30 @@ sub get_gram_info {
         }
     }
     #must
-    my $scan1 = $dbh->prepare("SELECT g0.inner_id if_id, g1.inner_id then_id, g2.inner_id gram1, g3.inner_id gram2
+    my $scan1 = $dbh->prepare("SELECT g0.inner_id if_id, g1.inner_id then_id, g2.inner_id gram1, g3.inner_id gram2, r.restr_type
         FROM gram_restrictions r
         LEFT JOIN gram g0 ON (r.if_id = g0.gram_id)
         LEFT JOIN gram g1 ON (r.then_id = g1.gram_id)
         LEFT JOIN gram g2 ON (r.then_id = g2.parent_id)
         LEFT JOIN gram g3 ON (g2.gram_id = g3.parent_id)
-        WHERE r.restr_type=1");
+        ORDER BY r.restr_type");
     $scan1->execute();
     while(my $ref = $scan1->fetchrow_hashref()) {
-        push @{$must{$ref->{'if_id'}}}, $ref->{'then_id'};
-        push @{$must{$ref->{'if_id'}}}, $ref->{'gram1'} if $ref->{'gram1'};
-        push @{$must{$ref->{'if_id'}}}, $ref->{'gram2'} if $ref->{'gram2'};
-    }
-    for my $k(keys %must) {
-        my %h;
-        $h{$_} = 1 for @{$must{$k}};
-        my @a = keys %h;
-        $must{$k} = \@a;
+        if ($ref->{'restr_type'} == 1) {
+            push @{$must{$ref->{'if_id'}}}, $ref->{'then_id'};
+            push @{$must{$ref->{'if_id'}}}, $ref->{'gram1'} if $ref->{'gram1'};
+            push @{$must{$ref->{'if_id'}}}, $ref->{'gram2'} if $ref->{'gram2'};
+        }
+        elsif ($ref->{'restr_type'} == 0) {
+            $may{$ref->{'if_id'}}{$ref->{'then_id'}} = 1;
+            $may{$ref->{'if_id'}}{$ref->{'gram1'}} = 1 if $ref->{'gram1'};
+            $may{$ref->{'if_id'}}{$ref->{'gram2'}} = 1 if $ref->{'gram2'};
+        }
+        else {
+            delete $may{$ref->{'if_id'}}{$ref->{'then_id'}};
+            delete $may{$ref->{'if_id'}}{$ref->{'gram1'}} if $ref->{'gram1'};
+            delete $may{$ref->{'if_id'}}{$ref->{'gram2'}} if $ref->{'gram2'};
+        }
     }
 }
 sub check {
@@ -147,6 +154,9 @@ sub check {
         if (my $err = misses_obligatory_grammems(\@all_gram)) {
             $newerr->execute(time(), $ref->{'id'}, 4, "<$ft> ($err)");
         }
+        if (my $err = has_disallowed_grammems(\@all_gram)) {
+            $newerr->execute(time(), $ref->{'id'}, 5, "<$ft> ($err)");
+        }
         $form_gram_str = join('|', sort @form_gram);
         if (my $f = $form_gram_hash{$form_gram_str}) {
             $newerr->execute(time(), $ref->{'id'}, 3, "<$ft>, <$f> ($form_gram_str)");
@@ -182,6 +192,20 @@ sub misses_obligatory_grammems {
     for my $gr(@gram) {
         if (exists $must{$gr} && !has_any_grammem(\@gram, $must{$gr})) {
             return join('|', @{$must{$gr}});
+        }
+    }
+    return 0;
+}
+sub has_disallowed_grammems {
+    my @gram = @{shift()};
+    for my $i(0..$#gram) {
+        for my $j($i+1..$#gram) {
+            unless (
+                exists $may{$gram[$i]}{$gram[$j]} ||
+                exists $may{$gram[$j]}{$gram[$i]}
+            ) {
+                return $gram[$i].', '.$gram[$j];
+            }
         }
     }
     return 0;

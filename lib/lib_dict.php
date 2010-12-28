@@ -489,14 +489,14 @@ function get_gram_restrictions($hide_auto) {
 }
 function add_dict_restriction($post) {
     if (sql_query("INSERT INTO gram_restrictions VALUES(NULL, '".(int)$_POST['if']."', '".(int)$_POST['then']."', '".(int)$_POST['rtype']."', '0')")) {
-        header("Location:dict.php?act=gram_restr");
+        calculate_gram_restrictions();
         return;
     } else
         show_error();
 }
 function del_dict_restriction($id) {
     if (sql_query("DELETE FROM gram_restrictions WHERE restr_id=$id LIMIT 1")) {
-        header("Location:dict.php?act=gram_restr");
+        calculate_gram_restrictions();
         return;
     } else
         show_error();
