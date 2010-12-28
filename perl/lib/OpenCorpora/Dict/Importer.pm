@@ -135,7 +135,7 @@ sub read_aot {
             ++$self->{STATS}->{TOTAL}->{$para_no};
             my $applied = $self->apply_rules();
             $self->{STATS}->{APPLIED}->{$para_no} += $applied;
-            if ($self->{WORD}->{LEMMA}) {
+            if ($self->{WORD}->{LEMMA} && !$self->{WORD}->is_to_delete()) {
                 $self->update_gram_stats(1);
                 $self->print_or_insert();
             }
@@ -155,7 +155,7 @@ sub read_aot {
         ++$self->{STATS}->{TOTAL}->{$para_no};
         my $applied = $self->apply_rules();
         $self->{STATS}->{APPLIED}->{$para_no} += $applied;
-        if ($self->{WORD}->{LEMMA}) {
+        if ($self->{WORD}->{LEMMA} && !$self->{WORD}->is_to_delete()) {
             $self->update_gram_stats(1);
             $self->print_or_insert();
         }
