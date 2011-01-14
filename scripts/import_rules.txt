@@ -211,11 +211,9 @@
 * ADJC
     CHANGE(~/краше$/ -> litr)
    
-(* Apro) & (1 ~/^ее$/|~/^его$/|~/^их$/)
+(* ADJF) & (* Fixd)
     GENERATE(sing,plur; nomn,gent,datv,accs,ablt,loct)
-(* Fixd) & (* ADJF)
     CHANGE(anim,inan, accs -> accs)
-
     
 # глагол (инфинитив, личная форма, причастие, краткое причастие, деепричастие)
 (1 GRND)
@@ -295,6 +293,9 @@
     CHANGE( -> del)
 (* NUMR)
     CHANGE( ~/мало/ -> del)
-	CHANGE( ~/менее/-> del)
-(* NUMR) # (1 ~/^один$/|~/^одн...$/|~/^одн..$/)
+    CHANGE( ~/менее/-> del)
+(* NUMR) & (1 ~/^один$/|~/^одн...$/|~/^одн..$/)
     CHANGE( NUMR -> ADJF)
+(* NUMR) & (1 ~/^меньше$/)
+    CHANGE(NUMR,ADJC -> ADVB)
+    	
