@@ -2,7 +2,7 @@
 function user_login($login, $passwd) {
     $login = mysql_real_escape_string($login);
     $passwd = md5(md5($passwd).substr($login, 0, 2));
-    $q = sql_query("SELECT `user_id`, `user_group`  FROM `users` WHERE `user_name`='$login' AND `user_passwd`='$passwd'");
+    $q = sql_query("SELECT `user_id`, `user_group`  FROM `users` WHERE `user_name`='$login' AND `user_passwd`='$passwd' LIMIT 1");
     if ($row = sql_fetch_array($q)) {
         $_SESSION['user_id'] = $row['user_id'];
         $_SESSION['user_group'] = $row['user_group'];
@@ -48,6 +48,25 @@ function user_register($post) {
     if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '1', '$email', '".time()."')"))
         return 1;
     return 0;
+}
+function user_change_password($post) {
+    //testing if the old password is correct
+    $login = $_SESSION['user_name'];
+    $passwd = md5(md5($post['old_pw']).substr($login, 0, 2));
+    $q = sql_query("SELECT user_id FROM `users` WHERE `user_name`='$login' AND `user_passwd`='$passwd'");
+    if ($row = sql_fetch_array($q)) {
+        //testing if the two new passwords coincide
+        if ($post['new_pw'] != $post['new_pw_re'])
+            return 3;
+        if (!preg_match('/^[a-z0-9_-]+$/i', $post['new_pw']))
+            return 4;
+        $passwd = md5(md5($post['new_pw']).substr($login, 0, 2));
+        if (sql_query("UPDATE `users` SET `user_passwd`='$passwd' WHERE `user_id`=".$row['user_id']." LIMIT 1"))
+            return 1;
+        return 0;
+    }
+    else
+        return 2;
 }
 function user_pretend($act) {
     if ($_SESSION['user_group'] < 6) return 0;

@@ -45,6 +45,18 @@
         {* another error *}
         Ошибка :(
     {/if}
+{elseif $smarty.get.act == 'change_pw'}
+    {if $change_status == 1}
+        Пароль успешно изменён.
+    {elseif $change_status == 2}
+        Старый пароль введён неверно. Попробуйте, пожалуйста, <a href='{$web_prefix}/options.php'>ещё раз</a>.
+    {elseif $change_status == 3}
+        Введённые пароли не совпадают. Попробуйте, пожалуйста, <a href='{$web_prefix}/options.php'>ещё раз</a>.
+    {elseif $change_status == 4}
+        Недопустимые символы в пароле (допустимыми являются все латинские символы, цифры и знаки &laquo;<b>-</b>&raquo; и &laquo;<b>_</b>&raquo;). Попробуйте, пожалуйста, <a href='{$web_prefix}/options.php'>ещё раз</a>.
+    {else}
+        Ошибка :(
+    {/if}
 {else}
     <form action="?act=login" method="post" id='login_form'>    
     <table cellspacing='2'>

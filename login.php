@@ -13,7 +13,7 @@ if ($action=='login') {
     }
 } elseif ($action=='logout') {
     user_logout();
-    if (isset($_SERVER['HTTP_REFERER'])) {
+    if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'login.php') === false) {
         header('Location:'.$_SERVER['HTTP_REFERER']);
         return;
     } else {
@@ -22,6 +22,8 @@ if ($action=='login') {
     }
 } elseif ($action=='reg_done') {
     $smarty->assign('reg_status', user_register($_POST));
+} elseif ($action=='change_pw') {
+    $smarty->assign('change_status', user_change_password($_POST));
 }
 
 if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'login.php') === false)
