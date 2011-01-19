@@ -24,6 +24,11 @@ if ($action=='login') {
     $smarty->assign('reg_status', user_register($_POST));
 } elseif ($action=='change_pw') {
     $smarty->assign('change_status', user_change_password($_POST));
+} elseif ($action=='change_email') {
+    $smarty->assign('change_status', user_change_email($_POST));
+} elseif (isset($_SESSION['user_id'])) {
+    header("Location:index.php");
+    return;
 }
 
 if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'login.php') === false)

@@ -57,6 +57,16 @@
     {else}
         Ошибка :(
     {/if}
+{elseif $smarty.get.act == 'change_email'}
+    {if $change_status == 1}
+        Адрес электронной почты успешно изменён.
+    {elseif $change_status == 2}
+        Пароль введён неверно. Попробуйте, пожалуйста, <a href='{$web_prefix}/options.php'>ещё раз</a>.
+    {elseif $change_status == 3}
+        Неверный адрес электронной почты (если вы вводите верный адрес &mdash; напишите нам об этой ошибке). Попробуйте, пожалуйста, <a href='{$web_prefix}/options.php'>ещё раз</a>.
+    {else}
+        Ошибка :(
+    {/if}
 {else}
     <form action="?act=login" method="post" id='login_form'>    
     <table cellspacing='2'>

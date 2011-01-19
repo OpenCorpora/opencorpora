@@ -33,6 +33,7 @@ if (is_logged()) {
             break;
         default:
             $smarty->assign('meta', get_meta_options());
+            $smarty->assign('current_email', get_user_email($_SESSION['user_id']));
             $smarty->display('options.tpl');
     }
 } else

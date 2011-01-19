@@ -33,7 +33,14 @@
 Старый пароль <input type='password' name='old_pw'/><br/>
 Новый пароль <input type='password' name='new_pw'/><br/>
 Новый пароль ещё раз <input type='password' name='new_pw_re'/><br/>
-<input type='button' onclick="submit_with_readonly_check(document.forms[1])" value="Изменить пароль">
+<input type='button' onclick="submit_with_readonly_check(document.forms[1])" value="Изменить пароль"/>
+</form>
+<form action='{$web_prefix}/login.php?act=change_email' method='post'>
+<h3>Изменить адрес электронной почты</h3>
+Текущий адрес: <b>{$current_email|default:'(отсутствует)'}</b><br/>
+Новый адрес <input name='email'/><br/>
+Пароль <input type='password' name='passwd'/><br/>
+<input type='button' onclick="submit_with_readonly_check(document.forms[2])" value="Изменить адрес"/>
 </form>
 {if $is_admin}
 <h2>Readonly</h2>

@@ -1,9 +1,19 @@
 <?php
+function user_check_password($login, $password) {
+    $password = md5(md5($password).substr($login, 0, 2));
+    $q = sql_query("SELECT `user_id`, `user_group`  FROM `users` WHERE `user_name`='$login' AND `user_passwd`='$password' LIMIT 1");
+    return sql_fetch_array($q);
+}
+function is_valid_password($string) {
+    return preg_match('/^[a-z0-9_-]+$/i', $string);
+}
+function is_valid_email($string) {
+    return preg_match('/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i', $string);
+    //we took the regexp from regular-expressions.info
+}
 function user_login($login, $passwd) {
     $login = mysql_real_escape_string($login);
-    $passwd = md5(md5($passwd).substr($login, 0, 2));
-    $q = sql_query("SELECT `user_id`, `user_group`  FROM `users` WHERE `user_name`='$login' AND `user_passwd`='$passwd' LIMIT 1");
-    if ($row = sql_fetch_array($q)) {
+    if ($row = user_check_password($login, $passwd)) {
         $_SESSION['user_id'] = $row['user_id'];
         $_SESSION['user_group'] = $row['user_group'];
         $_SESSION['user_name'] = $login;
@@ -30,10 +40,9 @@ function user_register($post) {
         return 5;
     if (!preg_match('/^[a-z0-9_-]+$/i', $post['login']))
         return 6;
-    if (!preg_match('/^[a-z0-9_-]+$/i', $post['passwd']))
+    if (!is_valid_password($post['passwd']))
         return 7;
-    if ($post['email'] && !preg_match('/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i', $post['email']))
-        //we took the regexp from regular-expressions.info
+    if ($post['email'] && !is_valid_email($post['email']))
         return 8;
     //so far they are ok
     $name = mysql_real_escape_string($post['login']);
@@ -52,18 +61,29 @@ function user_register($post) {
 function user_change_password($post) {
     //testing if the old password is correct
     $login = $_SESSION['user_name'];
-    $passwd = md5(md5($post['old_pw']).substr($login, 0, 2));
-    $q = sql_query("SELECT user_id FROM `users` WHERE `user_name`='$login' AND `user_passwd`='$passwd'");
-    if ($row = sql_fetch_array($q)) {
+    if ($row = user_check_password($login, $post['old_pw'])) {
         //testing if the two new passwords coincide
         if ($post['new_pw'] != $post['new_pw_re'])
             return 3;
         if (!preg_match('/^[a-z0-9_-]+$/i', $post['new_pw']))
             return 4;
         $passwd = md5(md5($post['new_pw']).substr($login, 0, 2));
-        if (sql_query("UPDATE `users` SET `user_passwd`='$passwd' WHERE `user_id`=".$row['user_id']." LIMIT 1"))
+        if (sql_query("UPDATE `users` SET `user_passwd`='$passwd' WHERE `user_id`=".$_SESSION['user_id']." LIMIT 1"))
             return 1;
         return 0;
+    }
+    else
+        return 2;
+}
+function user_change_email($post) {
+    $login = $_SESSION['user_name'];
+    if ($row = user_check_password($login, $post['passwd'])) {
+        if (is_valid_email($post['email'])) {
+            if (sql_query("UPDATE `users` SET `user_email`='".mysql_real_escape_string($post['email'])."' WHERE `user_id`=".$_SESSION['user_id']." LIMIT 1"))
+                return 1;
+            return 0;
+        } else
+            return 3;
     }
     else
         return 2;
@@ -75,6 +95,15 @@ function user_pretend($act) {
     else
         $_SESSION['user_group'] = 6;
     return 1;
+}
+function get_user_email($user_id) {
+    if (!$user_id) return;
+    $res = sql_query("SELECT user_email FROM `users` WHERE user_id=$user_id LIMIT 1");
+    if ($res) {
+        $r = sql_fetch_array($res);
+        return $r['user_email'];
+    }
+    return false;
 }
 function get_user_options($user_id) {
     if (!$user_id) return;
