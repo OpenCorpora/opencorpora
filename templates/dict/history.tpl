@@ -18,6 +18,7 @@
         <a href="dict_diff.php?lemma_id={$h.lemma_id}&amp;set_id={$h.set_id}">Изменения</a>
         {/if}
     </td>
+    <td>{$h.comment|default:'(без комментария)'}</td>
 </tr>
 {/foreach}
 </table>

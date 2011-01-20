@@ -5,6 +5,13 @@
 {include file='header.tpl'}
 <div id='content'>
 <h3><a href='dict.php?act=edit&amp;id={$diff.lemma_id}'>Лемма {$diff.lemma_id}</a>, изменил {$diff.new_user_name|default:'Робот'} {$diff.new_timestamp|date_format:"%d.%m.%Y в %H:%M"}</h3>
+<p>
+{if $diff.comment}
+<b>Комментарий:</b> {$diff.comment}
+{else}
+Без комментария.
+{/if}
+</p>
 <table border='1' cellspacing='0' cellpadding='3'>
     <tr>
         <td>{if $diff.prev_set}<a href='?lemma_id={$diff.lemma_id}&amp;set_id={$diff.prev_set}'>&lt; предыдущая версия</a>{else}&nbsp;{/if}</td>

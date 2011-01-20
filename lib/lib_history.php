@@ -7,7 +7,8 @@ function main_history($sentence_id) {
             'set_id'    => $r['set_id'],
             'user_name' => $r['user_name'],
             'timestamp' => $r['timestamp'],
-            'sent_id'   => $r['sent_id']
+            'sent_id'   => $r['sent_id'],
+            'comment'   => $r['comment']
         );
     }
     return $out;
@@ -37,6 +38,7 @@ function dict_history($lemma_id) {
             'set_id'     => $r['set_id'],
             'user_name'  => $r['user_name'],
             'timestamp'  => $r['timestamp'],
+            'comment'    => $r['comment'],
             'lemma_id'   => $r['lemma_id'],
             'lemma_text' => $r['lemma_text'],
             'is_link'    => $r['is_link']
@@ -51,8 +53,9 @@ function main_diff($sentence_id, $set_id) {
         'sent_id'   => $sentence_id,
         'user_name' => $r['user_name'],
         'timestamp' => $r['timestamp'],
-        'prev_set' => 0,
-        'next_set' => 0,
+        'comment'   => $r['comment'],
+        'prev_set'  => 0,
+        'next_set'  => 0,
         'tokens'    => array()
     );
     $res = sql_query("SELECT tf_id, `pos` FROM text_forms WHERE sent_id=$sentence_id ORDER BY `pos`");
@@ -89,7 +92,7 @@ function main_diff($sentence_id, $set_id) {
     return $out;
 }
 function dict_diff($lemma_id, $set_id) {
-    $res = sql_query("SELECT dr.rev_id, dr.rev_text, s.timestamp, u.user_name FROM dict_revisions dr LEFT JOIN rev_sets s ON (dr.set_id=s.set_id) LEFT JOIN `users` u ON (s.user_id=u.user_id) WHERE dr.set_id<=$set_id AND dr.lemma_id=$lemma_id ORDER BY dr.rev_id DESC LIMIT 2");
+    $res = sql_query("SELECT dr.rev_id, dr.rev_text, s.timestamp, s.comment, u.user_name FROM dict_revisions dr LEFT JOIN rev_sets s ON (dr.set_id=s.set_id) LEFT JOIN `users` u ON (s.user_id=u.user_id) WHERE dr.set_id<=$set_id AND dr.lemma_id=$lemma_id ORDER BY dr.rev_id DESC LIMIT 2");
     $r1 = sql_fetch_array($res);
     $r2 = sql_fetch_array($res);
     $out = array(
@@ -100,6 +103,7 @@ function dict_diff($lemma_id, $set_id) {
         'new_user_name' => $r1['user_name'],
         'old_timestamp' => $r2['timestamp'],
         'new_timestamp' => $r1['timestamp'],
+        'comment'       => $r1['comment'],
         'old_rev_xml'   => $r2['rev_text'],
         'new_rev_xml'   => $r1['rev_text'],
         'prev_set'      => 0,
