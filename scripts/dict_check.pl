@@ -33,6 +33,11 @@ my $clear = $dbh->prepare("DELETE FROM dict_errata WHERE rev_id IN (SELECT rev_i
 my $update = $dbh->prepare("UPDATE dict_revisions SET dict_check='1' WHERE rev_id=? LIMIT 1");
 
 get_gram_info();
+for my $k(keys %may) {
+    for my $l(keys %{$may{$k}}) {
+        #print STDERR "$k -> $l\n";
+    }
+}
 my @revisions = @{get_new_revisions()};
 while(my $ref = shift @revisions) {
     $clear->execute($ref->{'lemma_id'});
@@ -44,7 +49,7 @@ unlink ($lock_path);
 
 ##### SUBROUTINES #####
 sub get_new_revisions {
-    my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE dict_check=0 ORDER BY rev_id LIMIT 500");
+    my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE dict_check=0 ORDER BY rev_id LIMIT 1");
     $scan->execute();
     my $txt;
     my @revs;
@@ -106,9 +111,16 @@ sub get_gram_info {
             $may{$ref->{'if_id'}}{$ref->{'gram2'}} = 1 if $ref->{'gram2'};
         }
         else {
-            delete $may{$ref->{'if_id'}}{$ref->{'then_id'}};
-            delete $may{$ref->{'if_id'}}{$ref->{'gram1'}} if $ref->{'gram1'};
-            delete $may{$ref->{'if_id'}}{$ref->{'gram2'}} if $ref->{'gram2'};
+            $bad_pairs{$ref->{'if_id'}.'|'.$ref->{'then_id'}} = 0;
+            $bad_pairs{$ref->{'then_id'}.'|'.$ref->{'if_id'}} = 0;
+            if ($ref->{'gram1'}) {
+                $bad_pairs{$ref->{'if_id'}.'|'.$ref->{'gram1'}} = 0;
+                $bad_pairs{$ref->{'gram1'}.'|'.$ref->{'if_id'}} = 0;
+            }
+            if ($ref->{'gram2'}) {
+                $bad_pairs{$ref->{'if_id'}.'|'.$ref->{'gram2'}} = 0;
+                $bad_pairs{$ref->{'gram2'}.'|'.$ref->{'if_id'}} = 0;
+            }
         }
     }
 }
@@ -198,15 +210,18 @@ sub misses_obligatory_grammems {
 }
 sub has_disallowed_grammems {
     my @gram = @{shift()};
-    for my $i(0..$#gram) {
-        for my $j($i+1..$#gram) {
-            unless (
-                exists $may{$gram[$i]}{$gram[$j]} ||
-                exists $may{$gram[$j]}{$gram[$i]}
-            ) {
-                return $gram[$i].', '.$gram[$j];
+    printf STDERR "checking %s\n", join (',', @gram);
+    F1:for my $gram1(@gram) {
+        for my $gram2(@gram) {
+            next if $gram1 eq $gram2;
+            printf STDERR "%s vs %s\n", $gram1, $gram2;
+            if (exists $may{''}{$gram1} || exists $may{$gram2}{$gram1}) {
+                print STDERR "ok\n";
+                next F1;
             }
         }
+        print STDERR "error\n";
+        return $gram1;
     }
     return 0;
 }
