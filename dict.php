@@ -70,6 +70,15 @@ switch($action) {
         } else
             show_error($config['msg_notadmin']);
         break;
+    case 'del_link':
+        if (is_admin()) {
+            if (del_link((int)$_GET['id'])) {
+                header("Location:dict.php?act=edit&id=".(int)$_GET['lemma_id']);
+            } else
+                show_error();
+        } else
+            show_error($config['msg_notadmin']);
+        break;
     case 'del_lemma':
         if (is_admin()) {
             del_lemma((int)$_GET['lemma_id']);

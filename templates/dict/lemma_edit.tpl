@@ -54,7 +54,7 @@
     <p><b>Связи</b></p>
     <ul>
     {foreach item=link from=$editor.links}
-    <li><a href="?act=edit&amp;id={$link.lemma_id}">{$link.lemma_text}</a> ({$link.name})
+    <li><a href="?act=edit&amp;id={$link.lemma_id}">{$link.lemma_text}</a> ({$link.name}) [<a href="?act=del_link&amp;id={$link.id}&amp;lemma_id={$editor.lemma.id}" onclick="return confirm('Вы уверены?')">удалить</a>]
     {/foreach}
     </ul>
 </div>

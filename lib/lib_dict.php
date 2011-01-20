@@ -145,9 +145,21 @@ function get_lemma_editor($id) {
         $out['forms'][] = array('text' => $farr['text'], 'grms' => implode(', ', $farr['grm']));
     }
     //links
-    $res = sql_query("(SELECT lemma1_id lemma_id, lemma_text, link_name FROM dict_links l LEFT JOIN dict_links_types t ON (l.link_type=t.link_id) LEFT JOIN dict_lemmata lm ON (l.lemma1_id=lm.lemma_id) WHERE lemma2_id=$id) UNION (SELECT lemma2_id lemma_id, lemma_text, link_name FROM dict_links l LEFT JOIN dict_links_types t ON (l.link_type=t.link_id) LEFT JOIN dict_lemmata lm ON (l.lemma2_id=lm.lemma_id) WHERE lemma1_id=$id)", 1, 1);
+    $res = sql_query("
+    (SELECT lemma1_id lemma_id, lemma_text, link_name, l.link_id
+        FROM dict_links l
+        LEFT JOIN dict_links_types t ON (l.link_type=t.link_id)
+        LEFT JOIN dict_lemmata lm ON (l.lemma1_id=lm.lemma_id)
+        WHERE lemma2_id=$id)
+    UNION
+    (SELECT lemma2_id lemma_id, lemma_text, link_name, l.link_id
+        FROM dict_links l
+        LEFT JOIN dict_links_types t ON (l.link_type=t.link_id)
+        LEFT JOIN dict_lemmata lm ON (l.lemma2_id=lm.lemma_id)
+        WHERE lemma1_id=$id)
+    ", 1, 1);
     while($r = sql_fetch_array($res)) {
-        $out['links'][] = array('lemma_id' => $r['lemma_id'], 'lemma_text' => $r['lemma_text'], 'name' => $r['link_name']);
+        $out['links'][] = array('lemma_id' => $r['lemma_id'], 'lemma_text' => $r['lemma_text'], 'name' => $r['link_name'], 'id' => $r['link_id']);
     }
     return $out;
 }
@@ -310,9 +322,7 @@ function del_lemma($id) {
     //delete links (but preserve history)
     $res = sql_query("SELECT link_id FROM dict_links WHERE lemma1_id=$id OR lemma2_id=$id");
     $revset_id = create_revset();
-    print "revset created ";
     while($r = sql_fetch_array($res)) {
-        print "will delete link $r[link_id] ";
         if (!del_link($r['link_id'], $revset_id)) {
             show_error();
             return;
@@ -322,7 +332,6 @@ function del_lemma($id) {
     $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$id ORDER BY `rev_id` DESC LIMIT 1"));
     $pdr = parse_dict_rev($r['rev_text']);
     foreach($pdr['forms'] as $form) {
-        print $form['text'];
         if (!sql_query("INSERT INTO `updated_forms` VALUES('".$form['text']."')")) {
             show_error();
             return;
