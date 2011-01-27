@@ -3,6 +3,7 @@ use strict;
 use utf8;
 use DBI;
 use Encode;
+use Data::Dump qw/dump/;
 
 my $lock_path = "/var/lock/opcorpora_dictcheck.lock";
 if (-f $lock_path) {
@@ -40,25 +41,19 @@ my $clear = $dbh->prepare("DELETE FROM dict_errata WHERE rev_id IN (SELECT rev_i
 my $update = $dbh->prepare("UPDATE dict_revisions SET dict_check='1' WHERE rev_id=? LIMIT 1");
 
 get_gram_info();
-for my $k(keys %must) {
-    for my $l(keys %{$must{$k}}) {
-        for my $j(keys %{$must{$k}{$l}}) {
-            print STDERR "$k -> $l -> $j\n";
-        }
-    }
-}
+#print STDERR dump(%must)."\n";
 my @revisions = @{get_new_revisions()};
 while(my $ref = shift @revisions) {
-    #$clear->execute($ref->{'lemma_id'});
-    #check($ref);
-    #$update->execute($ref->{'id'});
+    $clear->execute($ref->{'lemma_id'});
+    check($ref);
+    $update->execute($ref->{'id'});
 }
 
 unlink ($lock_path);
 
 ##### SUBROUTINES #####
 sub get_new_revisions {
-    my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE dict_check=0 ORDER BY rev_id LIMIT 1");
+    my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE dict_check=0 ORDER BY rev_id LIMIT 100");
     $scan->execute();
     my $txt;
     my @revs;
@@ -100,7 +95,7 @@ sub get_gram_info {
         }
     }
     #must
-    my $scan1 = $dbh->prepare("SELECT g0.inner_id if_id, g1.inner_id then_id, g2.inner_id gram1, g3.inner_id gram2, r.restr_type, r.obj_type
+    my $scan1 = $dbh->prepare("SELECT g0.inner_id if_id, g1.inner_id then_id, g2.inner_id gram1, g3.inner_id gram2, r.restr_id, r.restr_type, r.obj_type
         FROM gram_restrictions r
         LEFT JOIN gram g0 ON (r.if_id = g0.gram_id)
         LEFT JOIN gram g1 ON (r.then_id = g1.gram_id)
@@ -108,12 +103,23 @@ sub get_gram_info {
         LEFT JOIN gram g3 ON (g2.gram_id = g3.parent_id)
         ORDER BY r.restr_type");
     $scan1->execute();
+    my $last_id = 0;
+    my @real = ();
     while(my $ref = $scan1->fetchrow_hashref()) {
+        @real = ($ref->{'then_id'});
+        push @real, $ref->{'gram1'} if $ref->{'gram1'};
+        push @real, $ref->{'gram2'} if $ref->{'gram2'};
         if ($ref->{'restr_type'} == 1) {
-            push @{$must{$objtype{$ref->{'obj_type'}}}{$ref->{'if_id'}}}, $ref->{'then_id'};
-            push @{$must{$objtype{$ref->{'obj_type'}}}{$ref->{'if_id'}}}, $ref->{'gram1'} if $ref->{'gram1'};
-            push @{$must{$objtype{$ref->{'obj_type'}}}{$ref->{'if_id'}}}, $ref->{'gram2'} if $ref->{'gram2'};
+            if ($ref->{'restr_id'} != $last_id) {
+                my %t;
+                $t{$_} = 1 for (@real);
+                push @{$must{$objtype{$ref->{'obj_type'}}}{$ref->{'if_id'}}}, \%t;
+            }
+            else {
+                $must{$objtype{$ref->{'obj_type'}}}{$ref->{'if_id'}}[-1]{$_} = 1 for (@real);
+            }
         }
+        $last_id = $ref->{'restr_id'};
     }
 }
 sub check {
@@ -190,22 +196,45 @@ sub has_unknown_grammems {
     return 0;
 }
 sub misses_oblig_grammems_ll {
-    #my @gram = @{shift()};
-    #if (exists $must{''}) {
-    #    if (!has_any_grammem(\@gram, $must{''})) {
-    #        return join('|', @{$must{''}});
-    #    }
-    #}
-    #for my $gr(@gram) {
-    #    if (exists $must{$gr} && !has_any_grammem(\@gram, $must{$gr})) {
-    #        return join('|', @{$must{$gr}});
-    #    }
-    #}
-    #return 0;
+    my @gram = @{shift()};
+    if (exists $must{'ll'}{''}) {
+        for my $cl(@{$must{'ll'}{''}}) {
+            if (!has_any_grammem(\@gram, $cl)) {
+                return join('|', @{$must{'ll'}{''}});
+            }
+        }
+    }
+
+    for my $gr(@gram) {
+        if (exists $must{'ll'}{$gr}) {
+            for my $cl(@{$must{'ll'}{$gr}}) {
+                if (!has_any_grammem(\@gram, $cl)) {
+                    return join('|', @{$must{'ll'}{$gr}});
+                }
+            }
+        }
+    }
+
+    return 0;
 }
 sub has_any_grammem {
-    my @haystack = @{shift()};
-    my @needle = @{shift()};
+    my $haystack_ref = shift;
+    my $needle_ref = shift;
+    my @haystack;
+    my @needle;
+
+    if (ref($haystack_ref) eq 'ARRAY') {
+        @haystack = @$haystack_ref;
+    }
+    elsif (ref($haystack_ref) eq 'HASH') {
+        @haystack = keys %$haystack_ref;
+    }
+    if (ref($needle_ref) eq 'ARRAY') {
+        @needle = @$needle_ref;
+    }
+    elsif (ref($needle_ref) eq 'HASH') {
+        @needle = keys %$needle_ref;
+    }
 
     for my $h(@haystack) {
         for my $n(@needle) {
