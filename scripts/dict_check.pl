@@ -27,22 +27,31 @@ my %all_grammems;
 my %must;
 my %may;
 
+my %objtype = (
+    0 => 'll',
+    1 => 'lf',
+    2 => 'fl',
+    3 => 'ff'
+);
+
 my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 my $clear = $dbh->prepare("DELETE FROM dict_errata WHERE rev_id IN (SELECT rev_id FROM dict_revisions WHERE lemma_id=?)");
 my $update = $dbh->prepare("UPDATE dict_revisions SET dict_check='1' WHERE rev_id=? LIMIT 1");
 
 get_gram_info();
-for my $k(keys %may) {
-    for my $l(keys %{$may{$k}}) {
-        #print STDERR "$k -> $l\n";
+for my $k(keys %must) {
+    for my $l(keys %{$must{$k}}) {
+        for my $j(keys %{$must{$k}{$l}}) {
+            print STDERR "$k -> $l -> $j\n";
+        }
     }
 }
 my @revisions = @{get_new_revisions()};
 while(my $ref = shift @revisions) {
-    $clear->execute($ref->{'lemma_id'});
-    check($ref);
-    $update->execute($ref->{'id'});
+    #$clear->execute($ref->{'lemma_id'});
+    #check($ref);
+    #$update->execute($ref->{'id'});
 }
 
 unlink ($lock_path);
@@ -91,7 +100,7 @@ sub get_gram_info {
         }
     }
     #must
-    my $scan1 = $dbh->prepare("SELECT g0.inner_id if_id, g1.inner_id then_id, g2.inner_id gram1, g3.inner_id gram2, r.restr_type
+    my $scan1 = $dbh->prepare("SELECT g0.inner_id if_id, g1.inner_id then_id, g2.inner_id gram1, g3.inner_id gram2, r.restr_type, r.obj_type
         FROM gram_restrictions r
         LEFT JOIN gram g0 ON (r.if_id = g0.gram_id)
         LEFT JOIN gram g1 ON (r.then_id = g1.gram_id)
@@ -101,26 +110,9 @@ sub get_gram_info {
     $scan1->execute();
     while(my $ref = $scan1->fetchrow_hashref()) {
         if ($ref->{'restr_type'} == 1) {
-            push @{$must{$ref->{'if_id'}}}, $ref->{'then_id'};
-            push @{$must{$ref->{'if_id'}}}, $ref->{'gram1'} if $ref->{'gram1'};
-            push @{$must{$ref->{'if_id'}}}, $ref->{'gram2'} if $ref->{'gram2'};
-        }
-        elsif ($ref->{'restr_type'} == 0) {
-            $may{$ref->{'if_id'}}{$ref->{'then_id'}} = 1;
-            $may{$ref->{'if_id'}}{$ref->{'gram1'}} = 1 if $ref->{'gram1'};
-            $may{$ref->{'if_id'}}{$ref->{'gram2'}} = 1 if $ref->{'gram2'};
-        }
-        else {
-            $bad_pairs{$ref->{'if_id'}.'|'.$ref->{'then_id'}} = 0;
-            $bad_pairs{$ref->{'then_id'}.'|'.$ref->{'if_id'}} = 0;
-            if ($ref->{'gram1'}) {
-                $bad_pairs{$ref->{'if_id'}.'|'.$ref->{'gram1'}} = 0;
-                $bad_pairs{$ref->{'gram1'}.'|'.$ref->{'if_id'}} = 0;
-            }
-            if ($ref->{'gram2'}) {
-                $bad_pairs{$ref->{'if_id'}.'|'.$ref->{'gram2'}} = 0;
-                $bad_pairs{$ref->{'gram2'}.'|'.$ref->{'if_id'}} = 0;
-            }
+            push @{$must{$objtype{$ref->{'obj_type'}}}{$ref->{'if_id'}}}, $ref->{'then_id'};
+            push @{$must{$objtype{$ref->{'obj_type'}}}{$ref->{'if_id'}}}, $ref->{'gram1'} if $ref->{'gram1'};
+            push @{$must{$objtype{$ref->{'obj_type'}}}{$ref->{'if_id'}}}, $ref->{'gram2'} if $ref->{'gram2'};
         }
     }
 }
@@ -144,6 +136,9 @@ sub check {
         $newerr->execute(time(), $ref->{'id'}, 2, "<$lt> ($err)");
         $lemma_flags{2} = 1;
     }
+    if (my $err = misses_oblig_grammems_ll(\@lemma_gram)) {
+        $newerr->execute(time(), $ref->{'id'}, 4, "<$lt> ($err)");
+    }
 
     my @form_gram = ();
     my $form_gram_str;
@@ -163,12 +158,12 @@ sub check {
         if (!$lemma_flags{2} && (my $err = has_unknown_grammems(\@all_gram))) {
             $newerr->execute(time(), $ref->{'id'}, 2, "<$ft> ($err)");
         }
-        if (my $err = misses_obligatory_grammems(\@all_gram)) {
-            $newerr->execute(time(), $ref->{'id'}, 4, "<$ft> ($err)");
-        }
-        if (my $err = has_disallowed_grammems(\@all_gram)) {
-            $newerr->execute(time(), $ref->{'id'}, 5, "<$ft> ($err)");
-        }
+        #if (my $err = misses_obligatory_grammems(\@all_gram)) {
+        #    $newerr->execute(time(), $ref->{'id'}, 4, "<$ft> ($err)");
+        #}
+        #if (my $err = has_disallowed_grammems(\@all_gram)) {
+        #    $newerr->execute(time(), $ref->{'id'}, 5, "<$ft> ($err)");
+        #}
         $form_gram_str = join('|', sort @form_gram);
         if (my $f = $form_gram_hash{$form_gram_str}) {
             $newerr->execute(time(), $ref->{'id'}, 3, "<$ft>, <$f> ($form_gram_str)");
@@ -194,36 +189,19 @@ sub has_unknown_grammems {
     }
     return 0;
 }
-sub misses_obligatory_grammems {
-    my @gram = @{shift()};
-    if (exists $must{''}) {
-        if (!has_any_grammem(\@gram, $must{''})) {
-            return join('|', @{$must{''}});
-        }
-    }
-    for my $gr(@gram) {
-        if (exists $must{$gr} && !has_any_grammem(\@gram, $must{$gr})) {
-            return join('|', @{$must{$gr}});
-        }
-    }
-    return 0;
-}
-sub has_disallowed_grammems {
-    my @gram = @{shift()};
-    printf STDERR "checking %s\n", join (',', @gram);
-    F1:for my $gram1(@gram) {
-        for my $gram2(@gram) {
-            next if $gram1 eq $gram2;
-            printf STDERR "%s vs %s\n", $gram1, $gram2;
-            if (exists $may{''}{$gram1} || exists $may{$gram2}{$gram1}) {
-                print STDERR "ok\n";
-                next F1;
-            }
-        }
-        print STDERR "error\n";
-        return $gram1;
-    }
-    return 0;
+sub misses_oblig_grammems_ll {
+    #my @gram = @{shift()};
+    #if (exists $must{''}) {
+    #    if (!has_any_grammem(\@gram, $must{''})) {
+    #        return join('|', @{$must{''}});
+    #    }
+    #}
+    #for my $gr(@gram) {
+    #    if (exists $must{$gr} && !has_any_grammem(\@gram, $must{$gr})) {
+    #        return join('|', @{$must{$gr}});
+    #    }
+    #}
+    #return 0;
 }
 sub has_any_grammem {
     my @haystack = @{shift()};
