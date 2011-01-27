@@ -178,5 +178,6 @@ CREATE TABLE IF NOT EXISTS `gram_restrictions` (
     `if_id`      INT UNSIGNED NOT NULL,
     `then_id`    INT UNSIGNED NOT NULL,
     `restr_type` TINYINT(1) UNSIGNED NOT NULL,
+    `obj_type`   TINYINT(1) UNSIGNED NOT NULL,
     `auto`       TINYINT(1) UNSIGNED NOT NULL
 );
