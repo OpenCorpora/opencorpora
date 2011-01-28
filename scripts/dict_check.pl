@@ -200,7 +200,7 @@ sub misses_oblig_grammems_ll {
     if (exists $must{'ll'}{''}) {
         for my $cl(@{$must{'ll'}{''}}) {
             if (!has_any_grammem(\@gram, $cl)) {
-                return join('|', @{$must{'ll'}{''}});
+                return join('|', keys %{$must{'ll'}{''}});
             }
         }
     }
@@ -209,7 +209,7 @@ sub misses_oblig_grammems_ll {
         if (exists $must{'ll'}{$gr}) {
             for my $cl(@{$must{'ll'}{$gr}}) {
                 if (!has_any_grammem(\@gram, $cl)) {
-                    return join('|', @{$must{'ll'}{$gr}});
+                    return join('|', keys %{$must{'ll'}{$gr}});
                 }
             }
         }
