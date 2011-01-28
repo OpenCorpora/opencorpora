@@ -227,7 +227,7 @@ sub misses_oblig_grammems {
     if (exists $must{$type}{''}) {
         for my $cl(@{$must{$type}{''}}) {
             if (!has_any_grammem(\@gram2, $cl)) {
-                return join('|', keys %{$must{$type}{''}});
+                return join('|', keys %$cl);
             }
         }
     }
@@ -236,7 +236,7 @@ sub misses_oblig_grammems {
         if (exists $must{$type}{$gr}) {
             for my $cl(@{$must{$type}{$gr}}) {
                 if (!has_any_grammem(\@gram2, $cl)) {
-                    return join('|', keys %{$must{$type}{$gr}});
+                    return join('|', keys %$cl);
                 }
             }
         }
