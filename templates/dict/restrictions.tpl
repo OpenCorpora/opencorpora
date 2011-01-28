@@ -52,7 +52,13 @@
     {if $is_admin}<th>&nbsp;</th>{/if}
 </tr>
 {foreach item=r from=$restrictions.list}
+{if $r.type == 2}
+<tr style='background-color: #FF6699'>
+{elseif $r.type == 1}
+<tr style='background-color: #CCFFCC'>
+{else}
 <tr>
+{/if}
     <td>{$r.if_id|default:'Что угодно'}</td>
     <td>{$r.then_id}</td>
     <td>
