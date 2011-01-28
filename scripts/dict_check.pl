@@ -38,7 +38,7 @@ my %objtype = (
 my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 my $clear = $dbh->prepare("DELETE FROM dict_errata WHERE rev_id IN (SELECT rev_id FROM dict_revisions WHERE lemma_id=?)");
-my $update = $dbh->prepare("UPDATE dict_revisions SET dict_check='1' WHERE rev_id=? LIMIT 1");
+my $update = $dbh->prepare("UPDATE dict_revisions SET dict_check='1' WHERE rev_id=? LIMIT 100");
 
 get_gram_info();
 #print STDERR dump(%must)."\n";
@@ -250,15 +250,10 @@ sub has_disallowed_grammems {
     my $ref = shift;
     my @gram2 = $ref ? @$ref : @gram;
 
-    printf STDERR "will check for disallowed, gram = (%s), gram2 = (%s)\n",
-        join(', ', @gram),
-        join(', ', @gram2);
-
     for my $gr(@gram) {
         next if exists $may{$type}{$gr}{''};
         if (exists $may{$type}{$gr}) {
             if (!has_any_grammem(\@gram2, $may{$type}{$gr})) {
-                print STDERR "failed on $gr\n";
                 return $gr;
             }
         }
