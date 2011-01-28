@@ -70,6 +70,14 @@ function dict_get_select_gram() {
     }
     return $out;
 }
+function get_link_types() {
+    $res = sql_query("SELECT * FROM dict_links_types ORDER BY link_name");
+    $out = array();
+    while ($r = sql_fetch_array($res)) {
+        $out[$r['link_id']] = $r['link_name'];
+    }
+    return $out;
+}
 function parse_dict_rev($text) {
     // output has the following structure:
     // lemma => array (text => lemma_text, grm => array (grm1, grm2, ...)),
@@ -520,6 +528,7 @@ function calculate_gram_restrictions() {
         LEFT JOIN gram g2 ON (g1.gram_id = g2.parent_id)
         WHERE r.restr_type=1");
     while ($r = sql_fetch_array($res)) {
+        $maybe[] = $r['if_id'].'#'.$r['then_id'].'#'.$r['obj_type'];
         if ($r['gram1'])
             $maybe[] = $r['if_id'].'#'.$r['gram1'].'#'.$r['obj_type'];
         if ($r['gram2'])
@@ -528,7 +537,7 @@ function calculate_gram_restrictions() {
     $maybe = array_unique($maybe);
     foreach ($maybe as $triplet) {
         list($if, $then, $type) = explode('#', $triplet);
-        if (!sql_query("INSERT INTO gram_restrictions VALUES(NULL, '$if', '$then', '$type', '0', '1')")) {
+        if (!sql_query("INSERT INTO gram_restrictions VALUES(NULL, '$if', '$then', '0', '$type', '1')")) {
             show_error();
         }
     }

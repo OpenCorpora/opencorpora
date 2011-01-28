@@ -53,7 +53,7 @@ unlink ($lock_path);
 
 ##### SUBROUTINES #####
 sub get_new_revisions {
-    my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE dict_check=0 ORDER BY rev_id LIMIT 100");
+    my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE dict_check=0 ORDER BY rev_id LIMIT 1");
     $scan->execute();
     my $txt;
     my @revs;
@@ -101,8 +101,9 @@ sub get_gram_info {
         LEFT JOIN gram g1 ON (r.then_id = g1.gram_id)
         LEFT JOIN gram g2 ON (r.then_id = g2.parent_id)
         LEFT JOIN gram g3 ON (g2.gram_id = g3.parent_id)
+        WHERE r.restr_type = ? OR r.restr_type = ?
         ORDER BY r.restr_type");
-    $scan1->execute();
+    $scan1->execute(0, 1);
     my $last_id = 0;
     my @real = ();
     while(my $ref = $scan1->fetchrow_hashref()) {
@@ -110,6 +111,7 @@ sub get_gram_info {
         push @real, $ref->{'gram1'} if $ref->{'gram1'};
         push @real, $ref->{'gram2'} if $ref->{'gram2'};
         if ($ref->{'restr_type'} == 1) {
+            #grammem must be there in some cases
             if ($ref->{'restr_id'} != $last_id) {
                 my %t;
                 $t{$_} = 1 for (@real);
@@ -119,7 +121,20 @@ sub get_gram_info {
                 $must{$objtype{$ref->{'obj_type'}}}{$ref->{'if_id'}}[-1]{$_} = 1 for (@real);
             }
         }
+        else {
+            #grammem is allowed in some cases
+            $may{swap2($objtype{$ref->{'obj_type'}})}{$_}{$ref->{'if_id'}} = 1 for (@real);
+        }
         $last_id = $ref->{'restr_id'};
+    }
+
+    # deleting what is forbidden
+    $scan1->execute(2, 2);
+    while(my $ref = $scan1->fetchrow_hashref()) {
+        @real = ($ref->{'then_id'});
+        push @real, $ref->{'gram1'} if $ref->{'gram1'};
+        push @real, $ref->{'gram2'} if $ref->{'gram2'};
+        delete $may{swap2($objtype{$ref->{'obj_type'}})}{$_}{$ref->{'if_id'}} for (@real);
     }
 }
 sub check {
@@ -142,8 +157,11 @@ sub check {
         $newerr->execute(time(), $ref->{'id'}, 2, "<$lt> ($err)");
         $lemma_flags{2} = 1;
     }
-    if (my $err = misses_oblig_grammems_ll(\@lemma_gram)) {
+    if (my $err = misses_oblig_grammems('ll', \@lemma_gram)) {
         $newerr->execute(time(), $ref->{'id'}, 4, "<$lt> ($err)");
+    }
+    if (my $err = has_disallowed_grammems('ll', \@lemma_gram)) {
+        $newerr->execute(time(), $ref->{'id'}, 5, "<$lt> ($err)");
     }
 
     my @form_gram = ();
@@ -164,12 +182,17 @@ sub check {
         if (!$lemma_flags{2} && (my $err = has_unknown_grammems(\@all_gram))) {
             $newerr->execute(time(), $ref->{'id'}, 2, "<$ft> ($err)");
         }
-        #if (my $err = misses_obligatory_grammems(\@all_gram)) {
-        #    $newerr->execute(time(), $ref->{'id'}, 4, "<$ft> ($err)");
-        #}
-        #if (my $err = has_disallowed_grammems(\@all_gram)) {
-        #    $newerr->execute(time(), $ref->{'id'}, 5, "<$ft> ($err)");
-        #}
+        if (my $err = misses_oblig_grammems('lf', \@lemma_gram, \@form_gram)) {
+            $newerr->execute(time(), $ref->{'id'}, 4, "<$ft> ($err)");
+        }
+        if (my $err = misses_oblig_grammems('ff', \@form_gram)) {
+            $newerr->execute(time(), $ref->{'id'}, 4, "<$ft> ($err)");
+        }
+        if (my $err = has_disallowed_grammems('fl', \@form_gram, \@lemma_gram)) {
+            if (my $err0 = has_disallowed_grammems('ff', \@form_gram)) {
+                $newerr->execute(time(), $ref->{'id'}, 5, "<$ft> ($err0)");
+            }
+        }
         $form_gram_str = join('|', sort @form_gram);
         if (my $f = $form_gram_hash{$form_gram_str}) {
             $newerr->execute(time(), $ref->{'id'}, 3, "<$ft>, <$f> ($form_gram_str)");
@@ -195,22 +218,48 @@ sub has_unknown_grammems {
     }
     return 0;
 }
-sub misses_oblig_grammems_ll {
+sub misses_oblig_grammems {
+    my $type = shift;
     my @gram = @{shift()};
-    if (exists $must{'ll'}{''}) {
-        for my $cl(@{$must{'ll'}{''}}) {
-            if (!has_any_grammem(\@gram, $cl)) {
-                return join('|', keys %{$must{'ll'}{''}});
+    my $ref = shift;
+    my @gram2 = $ref ? @$ref : @gram;
+
+    if (exists $must{$type}{''}) {
+        for my $cl(@{$must{$type}{''}}) {
+            if (!has_any_grammem(\@gram2, $cl)) {
+                return join('|', keys %{$must{$type}{''}});
             }
         }
     }
 
     for my $gr(@gram) {
-        if (exists $must{'ll'}{$gr}) {
-            for my $cl(@{$must{'ll'}{$gr}}) {
-                if (!has_any_grammem(\@gram, $cl)) {
-                    return join('|', keys %{$must{'ll'}{$gr}});
+        if (exists $must{$type}{$gr}) {
+            for my $cl(@{$must{$type}{$gr}}) {
+                if (!has_any_grammem(\@gram2, $cl)) {
+                    return join('|', keys %{$must{$type}{$gr}});
                 }
+            }
+        }
+    }
+
+    return 0;
+}
+sub has_disallowed_grammems {
+    my $type = shift;
+    my @gram = @{shift()};
+    my $ref = shift;
+    my @gram2 = $ref ? @$ref : @gram;
+
+    printf STDERR "will check for disallowed, gram = (%s), gram2 = (%s)\n",
+        join(', ', @gram),
+        join(', ', @gram2);
+
+    for my $gr(@gram) {
+        next if exists $may{$type}{$gr}{''};
+        if (exists $may{$type}{$gr}) {
+            if (!has_any_grammem(\@gram2, $may{$type}{$gr})) {
+                print STDERR "failed on $gr\n";
+                return $gr;
             }
         }
     }
@@ -242,4 +291,9 @@ sub has_any_grammem {
         }
     }
     return 0;
+}
+sub swap2 {
+    my $s = shift;
+    $s =~ s/(.)(.)/$2$1/;
+    return $s;
 }
