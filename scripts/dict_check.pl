@@ -3,7 +3,7 @@ use strict;
 use utf8;
 use DBI;
 use Encode;
-use Data::Dump qw/dump/;
+#use Data::Dump qw/dump/;
 
 my $lock_path = "/var/lock/opcorpora_dictcheck.lock";
 if (-f $lock_path) {
@@ -27,6 +27,7 @@ my %bad_pairs;
 my %all_grammems;
 my %must;
 my %may;
+my %forbidden;
 
 my %objtype = (
     0 => 'll',
@@ -41,7 +42,7 @@ my $clear = $dbh->prepare("DELETE FROM dict_errata WHERE rev_id IN (SELECT rev_i
 my $update = $dbh->prepare("UPDATE dict_revisions SET dict_check='1' WHERE rev_id=? LIMIT 1");
 
 get_gram_info();
-#print STDERR dump(%must)."\n";
+#print STDERR dump(%forbidden)."\n";
 my @revisions = @{get_new_revisions()};
 while(my $ref = shift @revisions) {
     $clear->execute($ref->{'lemma_id'});
@@ -135,6 +136,7 @@ sub get_gram_info {
         push @real, $ref->{'gram1'} if $ref->{'gram1'};
         push @real, $ref->{'gram2'} if $ref->{'gram2'};
         delete $may{swap2($objtype{$ref->{'obj_type'}})}{$_}{$ref->{'if_id'}} for (@real);
+        $forbidden{swap2($objtype{$ref->{'obj_type'}})}{$_}{$ref->{'if_id'}} = 1 for (@real);
     }
 }
 sub check {
@@ -227,7 +229,14 @@ sub misses_oblig_grammems {
     if (exists $must{$type}{''}) {
         for my $cl(@{$must{$type}{''}}) {
             if (!has_any_grammem(\@gram2, $cl)) {
-                return join('|', keys %$cl);
+                for my $clgr(keys %$cl) {
+                    if (
+                        !has_any_grammem($forbidden{'ff'}{$clgr}, \@gram2) &&
+                        !has_any_grammem($forbidden{'fl'}{$clgr}, \@gram2)
+                       ) {
+                        return join('|', keys %$cl);
+                    }
+                }
             }
         }
     }
@@ -236,7 +245,14 @@ sub misses_oblig_grammems {
         if (exists $must{$type}{$gr}) {
             for my $cl(@{$must{$type}{$gr}}) {
                 if (!has_any_grammem(\@gram2, $cl)) {
-                    return join('|', keys %$cl);
+                    for my $clgr(keys %$cl) {
+                        if (
+                            !has_any_grammem($forbidden{'ff'}{$clgr}, \@gram2) &&
+                            !has_any_grammem($forbidden{'fl'}{$clgr}, \@gram2)
+                           ) {
+                            return join('|', keys %$cl);
+                        }
+                    }
                 }
             }
         }
