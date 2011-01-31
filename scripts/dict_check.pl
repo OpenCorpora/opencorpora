@@ -40,6 +40,8 @@ my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{
 $dbh->do("SET NAMES utf8");
 my $clear = $dbh->prepare("DELETE FROM dict_errata WHERE rev_id IN (SELECT rev_id FROM dict_revisions WHERE lemma_id=?)");
 my $update = $dbh->prepare("UPDATE dict_revisions SET dict_check='1' WHERE rev_id=? LIMIT 1");
+my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE dict_check=0 ORDER BY rev_id LIMIT 100");
+my $scan0 = $dbh->prepare("SELECT gram_id, inner_id FROM gram WHERE parent_id=0");
 
 get_gram_info();
 #print STDERR dump(%forbidden)."\n";
@@ -54,7 +56,6 @@ unlink ($lock_path);
 
 ##### SUBROUTINES #####
 sub get_new_revisions {
-    my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE dict_check=0 ORDER BY rev_id LIMIT 100");
     $scan->execute();
     my $txt;
     my @revs;
@@ -66,7 +67,6 @@ sub get_new_revisions {
 }
 sub get_gram_info {
     #bad pairs, all valid grammems
-    my $scan0 = $dbh->prepare("SELECT gram_id, inner_id FROM gram WHERE parent_id=0");
     $scan0->execute();
     my %h;
     while(my $ref = $scan0->fetchrow_hashref()) {
@@ -162,7 +162,7 @@ sub check {
     if (my $err = misses_oblig_grammems('ll', \@lemma_gram)) {
         $newerr->execute(time(), $ref->{'id'}, 4, "<$lt> ($err)");
     }
-    if (my $err = has_disallowed_grammems('ll', \@lemma_gram)) {
+    if (my $err = has_disallowed_grammems_l(\@lemma_gram)) {
         $newerr->execute(time(), $ref->{'id'}, 5, "<$lt> ($err)");
     }
 
@@ -190,10 +190,8 @@ sub check {
         if (my $err = misses_oblig_grammems('ff', \@form_gram)) {
             $newerr->execute(time(), $ref->{'id'}, 4, "<$ft> ($err)");
         }
-        if (my $err = has_disallowed_grammems('fl', \@form_gram, \@lemma_gram)) {
-            if (my $err0 = has_disallowed_grammems('ff', \@form_gram)) {
-                $newerr->execute(time(), $ref->{'id'}, 5, "<$ft> ($err0)");
-            }
+        if (my $err = has_disallowed_grammems_f(\@form_gram, \@lemma_gram)) {
+            $newerr->execute(time(), $ref->{'id'}, 5, "<$ft> ($err)");
         }
         $form_gram_str = join('|', sort @form_gram);
         if (my $f = $form_gram_hash{$form_gram_str}) {
@@ -260,18 +258,45 @@ sub misses_oblig_grammems {
 
     return 0;
 }
-sub has_disallowed_grammems {
-    my $type = shift;
+sub has_disallowed_grammems_l {
     my @gram = @{shift()};
-    my $ref = shift;
-    my @gram2 = $ref ? @$ref : @gram;
 
     for my $gr(@gram) {
-        next if exists $may{$type}{$gr}{''};
-        if (exists $may{$type}{$gr}) {
-            if (!has_any_grammem(\@gram2, $may{$type}{$gr})) {
+        next if exists $may{'ll'}{$gr}{''};
+        if (exists $may{'ll'}{$gr}) {
+            if (!has_any_grammem(\@gram, $may{'ll'}{$gr})) {
                 return $gr;
             }
+        }
+    }
+
+    return 0;
+}
+sub has_disallowed_grammems_f {
+    my @form_gram = @{shift()};
+    my @lemma_gram = @{shift()};
+
+    for my $gr(@form_gram) {
+        next if (exists $may{'fl'}{$gr}{''} || exists $may{'ff'}{$gr}{''});
+        if (exists $may{'fl'}{$gr}) {
+            if (!has_any_grammem(\@lemma_gram, $may{'fl'}{$gr})) {
+                if (exists $may{'ff'}{$gr}) {
+                    if (!has_any_grammem(\@form_gram, $may{'ff'}{$gr})) {
+                        return $gr;
+                    }
+                }
+                else {
+                    return $gr;
+                }
+            }
+        }
+        elsif (exists $may{'ff'}{$gr}) {
+            if (!has_any_grammem(\@form_gram, $may{'ff'}{$gr})) {
+                return $gr;
+            }
+        }
+        else {
+            return $gr;
         }
     }
 
