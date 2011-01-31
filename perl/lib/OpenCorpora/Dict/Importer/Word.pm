@@ -263,8 +263,10 @@ sub to_string {
 }
 sub to_xml {
     my $self = shift;
+    my $ref_bad_gram = shift;
+
     my $out = '<dr><l t="'.$self->{LEMMA}.'">';
-    my @lgram = @{$self->get_lemma_grammems()};
+    my @lgram = @{$self->get_lemma_grammems($ref_bad_gram)};
     my %lgram;
     for my $gr(@lgram) {
         $out .= "<g v=\"$gr\"/>";
@@ -294,11 +296,16 @@ sub get_all_grammems {
 }
 sub get_lemma_grammems {
     my $self = shift;
+    my @bad = @{shift()};
+    
+    my %bad;
+    $bad{$_} = 1 for (@bad);
+
     my %grams = %{$self->get_all_grammems()};
     my @out;
     my $num = $self->get_form_count();
     for my $gr(keys %grams) {
-        if ($grams{$gr} == $num) {
+        if ($grams{$gr} == $num && !exists $bad{$gr}) {
             push @out, $gr;
         }
     }

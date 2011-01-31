@@ -5,15 +5,11 @@ use utf8;
 
 use lib '/home/grand/corpus/perl/lib';
 use OpenCorpora::Dict::Importer;
-#use Data::Dump qw/dump/;
 
 binmode(STDOUT, ':utf8');
 binmode(STDERR, ':utf8');
 
 my $importer = new OpenCorpora::Dict::Importer;
 $importer->read_rules('/home/grand/corpus/scripts/import_rules.txt');
-#my $dump = dump($importer);
-#$dump =~ s/\\x{([0-9a-f]+)}/X/gi;
-#print $dump;
-$importer->read_aot('/home/grand/morphs.mrd.dump.utf8');
-#$importer->read_aot('/home/grand/corpus/scripts/test.txt');
+$importer->read_bad_lemma_grammems('/home/grand/corpus/scripts/bad_lemma_grammems.txt');
+$importer->read_aot('/home/grand/aot_dump.2');

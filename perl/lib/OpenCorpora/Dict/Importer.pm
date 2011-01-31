@@ -49,6 +49,7 @@ sub new {
     $self->{BASE_WORD_ID} = undef;
     $self->{LINK_TYPES} = undef;    #all existing link types so far (in order not to ask the DB if it has one)
     $self->{GRAM_ORDER} = undef;
+    $self->{BAD_LEMMA_GRAMMEMS} = undef;
 
     bless $self;
     #return is implicit in bless
@@ -97,6 +98,20 @@ sub read_grammem_order {
     while(my $r = $gram->fetchrow_hashref()) {
         $self->{GRAM_ORDER}->{$r->{'inner_id'}} = $i++;
     }
+}
+sub read_bad_lemma_grammems {
+    my $self = shift;
+    my $path = shift;
+
+    open F, $path;
+    binmode (F, ':utf8');
+    while(<F>) {
+        next unless /\S/;
+        next if /^\s*#/;
+        chomp;
+        push @{$self->{BAD_LEMMA_GRAMMEMS}}, $_;
+    }
+    close F;
 }
 sub read_aot {
     my $self = shift;
@@ -585,7 +600,7 @@ sub print_or_insert {
     $self->{WORD}->sort_grammems($self->{GRAM_ORDER}) if SORT_GRAMMEMS;
     if (INSERT) {
         $self->{CONNECTION_LEMMA}->execute($self->{WORD}->{LEMMA}) or die $DBI::errstr;
-        $self->{CONNECTION_REVISION}->execute($self->{CONNECTION}->{'mysql_insertid'}, $self->{WORD}->to_xml()) or die $DBI::errstr;
+        $self->{CONNECTION_REVISION}->execute($self->{CONNECTION}->{'mysql_insertid'}, $self->{WORD}->to_xml($self->{BAD_LEMMA_GRAMMEMS})) or die $DBI::errstr;
         print STDERR "Committed revision ".$self->{CONNECTION}->{'mysql_insertid'}."\r" unless QUIET;
         # links
         my $link_typeid;
