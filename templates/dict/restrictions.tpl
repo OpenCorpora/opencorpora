@@ -35,13 +35,17 @@
 &raquo;.<br/>
 <input type='submit' value='Добавить'/>
 </form>
-<p><a href="?act=update_restr">Пересчитать</a> |
+{/if}
+<p>
+{if $is_admin}
+<a href="?act=update_restr">Пересчитать</a> |
+{/if}
 {if isset($smarty.get.hide_auto)}
-<a href="?act=gram_restr">Показать выведенные</a></p>
+<a href="?act=gram_restr">Показать выведенные</a>
 {else}
-<a href="?act=gram_restr&amp;hide_auto">Скрыть выведенные</a></p>
+<a href="?act=gram_restr&amp;hide_auto">Скрыть выведенные</a>
 {/if}
-{/if}
+</p>
 <table border='1' cellspacing='0' cellpadding='2'>
 <tr>
     <th>Если</th>
