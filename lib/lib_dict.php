@@ -521,24 +521,27 @@ function del_dict_restriction($id) {
 }
 function calculate_gram_restrictions() {
     sql_query("DELETE FROM gram_restrictions WHERE `auto`=1");
-    $maybe = array();
-    $res = sql_query("SELECT r.if_id, r.then_id, r.obj_type, g1.gram_id gram1, g2.gram_id gram2
+    $restr = array();
+    $res = sql_query("SELECT r.if_id, r.then_id, r.obj_type, r.restr_type, g1.gram_id gram1, g2.gram_id gram2
         FROM gram_restrictions r
         LEFT JOIN gram g1 ON (r.then_id = g1.parent_id)
         LEFT JOIN gram g2 ON (g1.gram_id = g2.parent_id)
-        WHERE r.restr_type=1");
+        WHERE r.restr_type>0");
     while ($r = sql_fetch_array($res)) {
-        $maybe[] = $r['if_id'].'#'.$r['then_id'].'#'.$r['obj_type'];
+        $restr[] = $r['if_id'].'#'.$r['then_id'].'#'.$r['obj_type'].'#'.$r['restr_type'];
         if ($r['gram1'])
-            $maybe[] = $r['if_id'].'#'.$r['gram1'].'#'.$r['obj_type'];
+            $restr[] = $r['if_id'].'#'.$r['gram1'].'#'.$r['obj_type'].'#'.$r['restr_type'];
         if ($r['gram2'])
-            $maybe[] = $r['if_id'].'#'.$r['gram2'].'#'.$r['obj_type'];
+            $restr[] = $r['if_id'].'#'.$r['gram2'].'#'.$r['obj_type'].'#'.$r['restr_type'];
     }
-    $maybe = array_unique($maybe);
-    foreach ($maybe as $triplet) {
-        list($if, $then, $type) = explode('#', $triplet);
-        if (!sql_query("INSERT INTO gram_restrictions VALUES(NULL, '$if', '$then', '0', '$type', '1')")) {
-            show_error();
+    $restr = array_unique($restr);
+    foreach ($restr as $quad) {
+        list($if, $then, $type, $w0) = explode('#', $quad);
+        $w = ($w0 == 1 ? 0 : 2);
+        if (sql_num_rows(sql_query("SELECT restr_id FROM gram_restrictions WHERE if_id=$if AND then_id=$then AND obj_type=$type AND restr_type=$w")) == 0) {
+            if (!sql_query("INSERT INTO gram_restrictions VALUES(NULL, '$if', '$then', '$w', '$type', '1')")) {
+                show_error();
+            }
         }
     }
     header("Location:dict.php?act=gram_restr");
