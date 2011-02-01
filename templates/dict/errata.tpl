@@ -42,7 +42,7 @@
         {elseif $error.type == 4}
             Нет обязательной граммемы
         {elseif $error.type == 5}
-            Не разрешённое сочетание граммем
+            Не разрешённая граммема
         {/if}
     </td>
     <td>{$error.description}</td>

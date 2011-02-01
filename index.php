@@ -17,6 +17,10 @@ if (isset($_GET['page'])) {
         case 'publications':
             $smarty->display('static/publications.tpl');
             break;
+        case 'downloads':
+            $smarty->assign('dl', get_downloads_info());
+            $smarty->display('static/downloads.tpl');
+            break;
         case 'stats':
             $smarty->assign('stats', get_common_stats());
             $smarty->display('stats.tpl');

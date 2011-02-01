@@ -19,9 +19,8 @@ $this->assign('dict_errors', sql_num_rows(sql_query("SELECT error_id FROM dict_e
     <a href='{$web_prefix}/history.php'>В разметке</a><br/>
     <a href='{$web_prefix}/dict_history.php'>В словаре</a>
 </div>
-<b>Скачать:</b>
-<div class='small'>
-    <a href="{$web_prefix}/files/export/dict/dict.opcorpora.xml.bz2">Словарь</a> (обновлён {$dl.dict.updated}, {$dl.dict.size} Мб)
+<div>
+<b><a href="{$web_prefix}/?page=downloads">Downloads</a></b>
 </div>
 {if $is_admin}
 <div>
