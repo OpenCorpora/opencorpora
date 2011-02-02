@@ -44,7 +44,7 @@ my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions 
 my $scan0 = $dbh->prepare("SELECT gram_id, inner_id FROM gram WHERE parent_id=0");
 
 get_gram_info();
-#print STDERR dump(%forbidden)."\n";
+#print STDERR dump(%must)."\n";
 my @revisions = @{get_new_revisions()};
 while(my $ref = shift @revisions) {
     $clear->execute($ref->{'lemma_id'});
@@ -263,18 +263,34 @@ sub misses_oblig_grammems_f {
         }
     }
 
-    for my $type(qw/lf ff/) {
-        for my $gr(@form_gram) {
-            if (exists $must{$type}{$gr}) {
-                for my $cl(@{$must{$type}{$gr}}) {
-                    if (!has_any_grammem(\@form_gram, $cl)) {
-                        for my $clgr(keys %$cl) {
-                            if (
-                                !has_any_grammem($forbidden{'ff'}{$clgr}, \@form_gram) &&
-                                !has_any_grammem($forbidden{'fl'}{$clgr}, \@lemma_gram)
-                               ) {
-                                return join('|', keys %$cl);
-                            }
+    for my $gr(@form_gram) {
+        if (exists $must{'ff'}{$gr}) {
+            for my $cl(@{$must{'ff'}{$gr}}) {
+                if (!has_any_grammem(\@form_gram, $cl)) {
+                    for my $clgr(keys %$cl) {
+                        if (
+                            !has_any_grammem($forbidden{'ff'}{$clgr}, \@form_gram) &&
+                            !has_any_grammem($forbidden{'fl'}{$clgr}, \@lemma_gram)
+                           ) {
+                            print STDERR "failed\n";
+                            return join('|', keys %$cl);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for my $gr(@lemma_gram) {
+        if (exists $must{'lf'}{$gr}) {
+            for my $cl(@{$must{'lf'}{$gr}}) {
+                if (!has_any_grammem(\@form_gram, $cl)) {
+                    for my $clgr(keys %$cl) {
+                        if (
+                            !has_any_grammem($forbidden{'ff'}{$clgr}, \@form_gram) &&
+                            !has_any_grammem($forbidden{'fl'}{$clgr}, \@lemma_gram)
+                           ) {
+                            return join('|', keys %$cl);
                         }
                     }
                 }
@@ -346,6 +362,8 @@ sub has_any_grammem {
     elsif (ref($needle_ref) eq 'HASH') {
         @needle = keys %$needle_ref;
     }
+
+    #printf STDERR "    searching for (%s) in (%s)\n", join(', ', @needle), join (', ', @haystack);
 
     for my $h(@haystack) {
         for my $n(@needle) {
