@@ -159,7 +159,7 @@ sub check {
         $newerr->execute(time(), $ref->{'id'}, 2, "<$lt> ($err)");
         $lemma_flags{2} = 1;
     }
-    if (my $err = misses_oblig_grammems('ll', \@lemma_gram)) {
+    if (my $err = misses_oblig_grammems_l(\@lemma_gram)) {
         $newerr->execute(time(), $ref->{'id'}, 4, "<$lt> ($err)");
     }
     if (my $err = has_disallowed_grammems_l(\@lemma_gram)) {
@@ -184,10 +184,7 @@ sub check {
         if (!$lemma_flags{2} && (my $err = has_unknown_grammems(\@all_gram))) {
             $newerr->execute(time(), $ref->{'id'}, 2, "<$ft> ($err)");
         }
-        if (my $err = misses_oblig_grammems('lf', \@lemma_gram, \@form_gram)) {
-            $newerr->execute(time(), $ref->{'id'}, 4, "<$ft> ($err)");
-        }
-        if (my $err = misses_oblig_grammems('ff', \@form_gram)) {
+        if (my $err = misses_oblig_grammems_f(\@form_gram, \@lemma_gram)) {
             $newerr->execute(time(), $ref->{'id'}, 4, "<$ft> ($err)");
         }
         if (my $err = has_disallowed_grammems_f(\@form_gram, \@lemma_gram)) {
@@ -218,20 +215,14 @@ sub has_unknown_grammems {
     }
     return 0;
 }
-sub misses_oblig_grammems {
-    my $type = shift;
+sub misses_oblig_grammems_l {
     my @gram = @{shift()};
-    my $ref = shift;
-    my @gram2 = $ref ? @$ref : @gram;
 
-    if (exists $must{$type}{''}) {
-        for my $cl(@{$must{$type}{''}}) {
-            if (!has_any_grammem(\@gram2, $cl)) {
+    if (exists $must{'ll'}{''}) {
+        for my $cl(@{$must{'ll'}{''}}) {
+            if (!has_any_grammem(\@gram, $cl)) {
                 for my $clgr(keys %$cl) {
-                    if (
-                        !has_any_grammem($forbidden{'ff'}{$clgr}, \@gram2) &&
-                        !has_any_grammem($forbidden{'fl'}{$clgr}, \@gram2)
-                       ) {
+                    if (!has_any_grammem($forbidden{'ll'}{$clgr}, \@gram)) {
                         return join('|', keys %$cl);
                     }
                 }
@@ -240,15 +231,50 @@ sub misses_oblig_grammems {
     }
 
     for my $gr(@gram) {
-        if (exists $must{$type}{$gr}) {
-            for my $cl(@{$must{$type}{$gr}}) {
-                if (!has_any_grammem(\@gram2, $cl)) {
+        if (exists $must{'ll'}{$gr}) {
+            for my $cl(@{$must{'ll'}{$gr}}) {
+                if (!has_any_grammem(\@gram, $cl)) {
                     for my $clgr(keys %$cl) {
-                        if (
-                            !has_any_grammem($forbidden{'ff'}{$clgr}, \@gram2) &&
-                            !has_any_grammem($forbidden{'fl'}{$clgr}, \@gram2)
-                           ) {
+                        if (!has_any_grammem($forbidden{'ll'}{$clgr}, \@gram)) {
                             return join('|', keys %$cl);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+sub misses_oblig_grammems_f {
+    my @form_gram = @{shift()};
+    my @lemma_gram = @{shift()};
+
+    if (exists $must{'lf'}{''}) {
+        for my $cl(@{$must{'lf'}{''}}) {
+            if (!has_any_grammem(\@form_gram, $cl)) {
+                for my $clgr(keys %$cl) {
+                    if (
+                        !has_any_grammem($forbidden{'ff'}{$clgr}, \@form_gram) &&
+                        !has_any_grammem($forbidden{'fl'}{$clgr}, \@lemma_gram)
+                       ) {
+                        return join('|', keys %$cl);
+                    }
+                }
+            }
+        }
+    }
+
+    for my $type(qw/lf ff/) {
+        for my $gr(@form_gram) {
+            if (exists $must{$type}{$gr}) {
+                for my $cl(@{$must{$type}{$gr}}) {
+                    if (!has_any_grammem(\@form_gram, $cl)) {
+                        for my $clgr(keys %$cl) {
+                            if (
+                                !has_any_grammem($forbidden{'ff'}{$clgr}, \@form_gram) &&
+                                !has_any_grammem($forbidden{'fl'}{$clgr}, \@lemma_gram)
+                               ) {
+                                return join('|', keys %$cl);
+                            }
                         }
                     }
                 }
