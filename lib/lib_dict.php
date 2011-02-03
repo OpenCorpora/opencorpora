@@ -169,6 +169,11 @@ function get_lemma_editor($id) {
     while($r = sql_fetch_array($res)) {
         $out['links'][] = array('lemma_id' => $r['lemma_id'], 'lemma_text' => $r['lemma_text'], 'name' => $r['link_name'], 'id' => $r['link_id']);
     }
+    //errata
+    $res = sql_query("SELECT * FROM dict_errata WHERE rev_id IN (SELECT rev_id FROM dict_revisions WHERE lemma_id=$id)");
+    while($r = sql_fetch_array($res)) {
+        $out['errata'][] = array('type' => $r['error_type'], 'descr' => $r['error_descr']);
+    }
     return $out;
 }
 function dict_add_lemma($array) {

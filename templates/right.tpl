@@ -1,6 +1,5 @@
 {* Smarty *}
 {php}
-$this->assign('dl', get_downloads_info());
 $this->assign('dict_errors', sql_num_rows(sql_query("SELECT error_id FROM dict_errata LIMIT 1")));
 {/php}
 <div>

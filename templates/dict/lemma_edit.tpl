@@ -15,6 +15,24 @@
     {/if}
     <a href="#" onclick="document.forms[0].submit()">&lt;&lt;&nbsp;к поиску</a>
     </form></p>
+    <div id="errata">
+    {foreach from=$editor.errata item=error}
+        <div>Ошибка.
+        {if $error.type == 1}
+            Несовместимые граммемы:
+        {elseif $error.type == 2}
+            Неизвестная граммема:
+        {elseif $error.type == 3}
+            Формы-дубликаты:
+        {elseif $error.type == 4}
+            Нет обязательной граммемы:
+        {elseif $error.type == 5}
+            Не разрешённая граммема:
+        {/if}
+        {$error.descr}
+        </div>
+    {/foreach}
+    </div>
     {strip}
     <form action="?act=save" method="post">
         <b>Лемма</b>:<br/>
@@ -52,6 +70,18 @@
     </form>
     {/strip}
     <p><b>Связи</b></p>
+    {* Off until there is jquery *}
+    {*
+    <p><a href="#" class="toggle" onclick="show(byid('add_link')); return false">Добавить связь</a></p>
+    <form id="add_link">
+        <select name='link_type'>
+            <option value='0' selected='selected'>--Тип связи--</option>
+            {html_options options=$link_types}
+        </select>
+        с леммой
+        <input id="find_lemma"/> <input type='button' value='Найти'/>
+    </form>
+    *}
     <ul>
     {foreach item=link from=$editor.links}
     <li><a href="?act=edit&amp;id={$link.lemma_id}">{$link.lemma_text}</a> ({$link.name}) [<a href="?act=del_link&amp;id={$link.id}&amp;lemma_id={$editor.lemma.id}" onclick="return confirm('Вы уверены?')">удалить</a>]

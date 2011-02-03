@@ -105,6 +105,7 @@ switch($action) {
     case 'edit':
         $lid = (int)$_GET['id'];
         $smarty->assign('editor', get_lemma_editor($lid));
+        $smarty->assign('link_types', get_link_types());
         $smarty->display('dict/lemma_edit.tpl');
         break;
     case 'errata':

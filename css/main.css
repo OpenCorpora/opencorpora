@@ -100,9 +100,15 @@ span.debug_error {
     background-color: #CC0000;
     color: yellow;
 }
+div#errata div {
+    background-color: #F69;
+}
 /* FORMS */
 form#login_form {
     margin: 10px;
+}
+form#add_link {
+    display: none;
 }
 /* WORDS HIGHLIGHTING */
 span.check_unpos {
