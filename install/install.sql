@@ -49,19 +49,23 @@ CREATE TABLE IF NOT EXISTS `users` (
     `user_reg`    INT UNSIGNED NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS `user_options` (
+CREATE TABLE IF NOT EXISTS `user_options_values` (
     `user_id`      INT UNSIGNED NOT NULL,
     `option_id`    SMALLINT NOT NULL,
-    `option_value` VARCHAR(32) NOT NULL,
+    `option_value` SMALLINT NOT NULL,
     INDEX (`user_id`)
 );
 
-CREATE TABLE IF NOT EXISTS `user_options_types` (
-    `option_id`     SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `option_name`   VARCHAR(50),
+DROP TABLE IF EXISTS `user_options`;
+CREATE TABLE `user_options` (
+    `option_id`     SMALLINT UNSIGNED NOT NULL PRIMARY KEY,
+    `option_name`   VARCHAR(128),
     `option_values` VARCHAR(64),
+    `default_value` SMALLINT NOT NULL,
     `order_by`      SMALLINT UNSIGNED NOT NULL
 );
+INSERT INTO `user_options` VALUES
+    ('1', 'Показывать русские названия граммем', '1', '1', '1');
 
 CREATE TABLE IF NOT EXISTS `tf_revisions` (
     `rev_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
