@@ -42,13 +42,13 @@ function get_morph_vars_inner($xml_arr, $num) {
     $grm_arr = array();
     if (isset ($lemma_grm['_a']) && is_array($lemma_grm['_a'])) {
         $inner_id = $lemma_grm['_a']['v'];
-        $r = sql_fetch_array(sql_query("SELECT gram_descr FROM gram WHERE inner_id='$inner_id' LIMIT 1"));
-        array_push($grm_arr, array('inner' => $inner_id, 'descr' => $r[0]));
+        $r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='$inner_id' LIMIT 1"));
+        array_push($grm_arr, array('inner' => $inner_id, 'outer' => $r[0], 'descr' => $r[1]));
     } elseif(is_array($lemma_grm)) {
         foreach($lemma_grm as $t) {
             $inner_id = $t['_a']['v'];
-            $r = sql_fetch_array(sql_query("SELECT gram_descr FROM gram WHERE inner_id='$inner_id' LIMIT 1"));
-            array_push($grm_arr, array('inner' => $inner_id, 'descr' => $r[0]));
+            $r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='$inner_id' LIMIT 1"));
+            array_push($grm_arr, array('inner' => $inner_id, 'outer' => $r[0], 'descr' => $r[1]));
         }
     }
     return array(

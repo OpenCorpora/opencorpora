@@ -19,9 +19,8 @@ function user_login($login, $passwd) {
         $_SESSION['user_name'] = $login;
         $_SESSION['options'] = get_user_options($row['user_id']);
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 function user_logout() {
     unset ($_SESSION['user_id']);
@@ -108,19 +107,26 @@ function get_user_email($user_id) {
 function get_user_options($user_id) {
     if (!$user_id) return;
     $out = array();
-    $res = sql_query("SELECT option_id id, option_value value FROM user_options WHERE user_id=$user_id");
+
+    //autovivify
+    $res = sql_query("SELECT option_id, default_value FROM user_options WHERE option_id NOT IN (SELECT option_id FROM user_options_values WHERE user_id=$user_id)");
+    while($r = sql_fetch_array($res)) {
+        if (!sql_query("INSERT INTO user_options_values VALUES('$user_id', '".$r['option_id']."', '".$r['default_value']."')")) {
+            show_error("Error on autovivifying an option");
+            return;
+        }
+    }
+
+    $res = sql_query("SELECT option_id id, option_value value FROM user_options_values WHERE user_id=$user_id");
     while($r = sql_fetch_array($res))
         $out[$r['id']] = $r['value'];
     return $out;
 }
 function get_meta_options() {
     $out = array();
-    $res = sql_query("SELECT * FROM user_options_types ORDER BY `order_by`");
+    $res = sql_query("SELECT * FROM user_options ORDER BY `order_by`");
     while ($r = sql_fetch_array($res)) {
         $out[$r['option_id']] = array('name'=>$r['option_name'], 'value_type'=>$r['option_values']);
-        if (strpos($r['option_values'], '|')) {
-            $out[$r['option_id']]['values'] = explode('|', $r['option_values']);
-        }
     }
     return $out;
 }
@@ -131,7 +137,7 @@ function save_user_options($post) {
     }
     foreach($post['options'] as $id=>$value) {
         if($_SESSION['options'][$id]['value'] != $value) {
-            if(!sql_query("UPDATE user_options SET option_value='".mysql_real_escape_string($value)."' WHERE option_id=".mysql_real_escape_string($id)." AND user_id=".$_SESSION['user_id']." LIMIT 1")) {
+            if(!sql_query("UPDATE user_options_values SET option_value='".mysql_real_escape_string($value)."' WHERE option_id=".mysql_real_escape_string($id)." AND user_id=".$_SESSION['user_id']." LIMIT 1")) {
                 show_error("Error on saving options");
                 return;
             }
@@ -139,43 +145,6 @@ function save_user_options($post) {
         }
     }
     header('Location:options.php?saved=1');
-    return;
-}
-function save_meta_options($post) {
-    if (!isset($post['option_names'])) {
-        header('Location:options.php');
-        return;
-    }
-    $r = sql_fetch_array(sql_query("SELECT MAX(option_id) AS m FROM user_options_types"));
-    foreach($post['option_names'] as $id=>$name) {
-        $flag = 0;
-        $name = trim($name);
-        $val = trim($post['option_values'][$id]);
-        if ($name == '' || $val == '') {
-            header('Location:options.php');
-            return;
-        }
-        if ($r['m'] > 0 && $id <= $r['m']) {
-            //old option
-            $q = "UPDATE user_options_types SET option_name='".mysql_real_escape_string($name)."', option_values='".mysql_real_escape_string($val)."' WHERE option_id=$id LIMIT 1";
-        } else {
-            //new option
-            $flag = 1;
-            $default = trim($post['option_default'][$id]);
-            $q = "INSERT INTO user_options_types VALUES(NULL, '".mysql_real_escape_string($name)."', '".mysql_real_escape_string($val)."', '".($r['m']+1)."')";
-        }
-        if (!sql_query($q)) {
-            show_error("Error on saving options (meta)");
-            return;
-        }
-        if ($flag) {
-            if (!sql_query("INSERT INTO user_options (SELECT user_id, '".(sql_insert_id())."', '".mysql_real_escape_string($default)."' FROM `users`)")) {
-                show_error("Error on saving options (meta)");
-                return;
-            }
-        }
-    }
-    header('Location:options.php');
     return;
 }
 function is_admin() {

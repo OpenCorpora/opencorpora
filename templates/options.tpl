@@ -14,12 +14,9 @@
     <tr>
         <td>{$option.name}</td>
         <td>
-        {if $option.value_type == 'string'}
-            <input name='options[{$id}]' value='{$smarty.session.options[$id]|htmlspecialchars}'/>
-        {else}
-            <select name='options[{$id}]'>
-                {html_options values=$option.values output=$option.values selected=$smarty.session.options[$id]}
-            </select>
+        {if $option.value_type == 1}
+            <label><input type='radio' name='options[{$id}]' value='1' {if $smarty.session.options.$id == 1}checked='checked'{/if}/> да</label>
+            <label><input type='radio' name='options[{$id}]' value='0' {if $smarty.session.options.$id == 0}checked='checked'{/if}/> нет</label>
         {/if}
         </td>
     </tr>
@@ -46,21 +43,6 @@
 <h2>Readonly</h2>
 <input type='button' value='Включить' onClick="if (confirm('Are you sure?')) location.href='?act=readonly_on'" {if $readonly}disabled='disabled'{/if}/>
 <input type='button' value='Выключить' onClick="if (confirm('Are you sure?')) location.href='?act=readonly_off'" {if $readonly == 0}disabled='disabled'{/if}/>
-<h2>Настройки настроек</h2>
-<form action="?act=save_meta" method="post">
-<table cellpadding='5' id='tbl_meta_options'>
-{foreach key=id item=option from=$meta}
-    <tr>
-    <td><input name='option_names[{$id}]' value='{$option.name|htmlspecialchars}'/></td>
-    <td><input name='option_values[{$id}]' value='{$option.value_type|htmlspecialchars}'/></td>
-    <td><input name='option_default[{$id}]' type='hidden'/></td>
-    </tr>
-{/foreach}
-</table>
-<input type='button' value='Добавить опцию' onClick='add_meta_option();'>&nbsp;
-<input type='submit' value='Сохранить'/>&nbsp;
-<input type='reset' value='Отменить'/>
-</form>
 {/if}
 </div>
 <div id='rightcol'>

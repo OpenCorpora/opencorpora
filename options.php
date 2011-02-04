@@ -9,12 +9,6 @@ if (is_logged()) {
         case 'save':
             save_user_options($_POST);
             break;
-        case 'save_meta':
-            if (is_admin())
-                save_meta_options($_POST);
-            else
-                show_error($config['msg_notadmin']);
-            break;
         case 'readonly_on':
             if (is_admin()) {
                 set_readonly_on();

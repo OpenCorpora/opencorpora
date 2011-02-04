@@ -41,7 +41,13 @@
                         <a href="#" class="del_var" onclick="del_var(this.parentNode); return false">x</a>
                         <br/>
                         {foreach item=gram from=$variant.gram_list name=gramf}
-                        <span class='hint' title='{$gram.descr}'>{$gram.inner}</span>{if !$smarty.foreach.gramf.last}, {/if}
+                        <span class='hint' title='{$gram.descr}'>
+                        {if $smarty.session.options.1 == 1}
+                            {$gram.outer|default:"<b class='red'>`$gram.inner`</b>"}
+                        {else}
+                            {$gram.inner}
+                        {/if}
+                        </span>{if !$smarty.foreach.gramf.last}, {/if}
                         {/foreach}
                     </div>
                 {/foreach}
