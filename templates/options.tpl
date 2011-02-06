@@ -17,12 +17,14 @@
         {if $option.value_type == 1}
             <label><input type='radio' name='options[{$id}]' value='1' {if $smarty.session.options.$id == 1}checked='checked'{/if}/> да</label>
             <label><input type='radio' name='options[{$id}]' value='0' {if $smarty.session.options.$id == 0}checked='checked'{/if}/> нет</label>
+        {else}
+            <select name='options[{$id}]'>{html_options options=$option.values selected=$smarty.session.options.$id}</select>
         {/if}
         </td>
     </tr>
 {/foreach}
 </table>
-<input type='submit' value='Сохранить'/>&nbsp;&nbsp;<input type='reset' value='Отменить'/>
+<input type='button' onclick="submit_with_readonly_check(document.forms[0])" value='Сохранить'/>&nbsp;&nbsp;<input type='reset' value='Отменить'/>
 </form>
 <h2>Регистрационные данные</h2>
 <form action='{$web_prefix}/login.php?act=change_pw' method='post'>

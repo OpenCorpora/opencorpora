@@ -67,7 +67,8 @@ CREATE TABLE `user_options` (
     `order_by`      SMALLINT UNSIGNED NOT NULL
 );
 INSERT INTO `user_options` VALUES
-    ('1', 'Показывать русские названия граммем', '1', '1', '1');
+    ('1', 'Показывать русские названия граммем', '1', '1', '1'),
+    ('2', 'Язык/Language', '1=Русский|2=English', '1', '2');
 
 CREATE TABLE IF NOT EXISTS `tf_revisions` (
     `rev_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,

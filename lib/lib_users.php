@@ -126,7 +126,16 @@ function get_meta_options() {
     $out = array();
     $res = sql_query("SELECT * FROM user_options ORDER BY `order_by`");
     while ($r = sql_fetch_array($res)) {
-        $out[$r['option_id']] = array('name'=>$r['option_name'], 'value_type'=>$r['option_values']);
+        if ($r['option_values'] == '1') {
+            $out[$r['option_id']] = array('name'=>$r['option_name'], 'value_type'=>$r['option_values']);
+        } else {
+            $values = array();
+            foreach (explode('|', $r['option_values']) as $t) {
+                list($val, $descr) = explode('=', $t);
+                $values[$val] = $descr;
+            }
+            $out[$r['option_id']] = array('name'=>$r['option_name'], 'value_type'=>2, 'values' => $values);
+        }
     }
     return $out;
 }
@@ -141,7 +150,7 @@ function save_user_options($post) {
                 show_error("Error on saving options");
                 return;
             }
-            $_SESSION['options'][$id] = $value;
+            $_SESSION['options'][$id] = mysql_real_escape_string($value);
         }
     }
     header('Location:options.php?saved=1');
