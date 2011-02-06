@@ -1,2 +1,3 @@
-sing
-plur
+*	sing
+*	plur
+GRND	past

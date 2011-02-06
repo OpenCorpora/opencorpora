@@ -109,7 +109,8 @@ sub read_bad_lemma_grammems {
         next unless /\S/;
         next if /^\s*#/;
         chomp;
-        push @{$self->{BAD_LEMMA_GRAMMEMS}}, $_;
+        my ($pos, $gr) = split /\t/;
+        $self->{BAD_LEMMA_GRAMMEMS}->{$pos}->{$gr} = 1;
     }
     close F;
 }

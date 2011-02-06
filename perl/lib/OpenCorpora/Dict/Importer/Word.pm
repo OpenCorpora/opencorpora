@@ -296,16 +296,21 @@ sub get_all_grammems {
 }
 sub get_lemma_grammems {
     my $self = shift;
-    my @bad = @{shift()};
+    my %bad = %{shift()};
     
-    my %bad;
-    $bad{$_} = 1 for (@bad);
-
     my %grams = %{$self->get_all_grammems()};
     my @out;
     my $num = $self->get_form_count();
+    my $pos = '';
+
     for my $gr(keys %grams) {
-        if ($grams{$gr} == $num && !exists $bad{$gr}) {
+        if ($gr =~ /^[A-Z]+$/) {
+            $pos = $gr;
+            last;
+        }
+    }
+    for my $gr(keys %grams) {
+        if ($grams{$gr} == $num && !exists $bad{'*'}{$gr} && !exists $bad{$pos}{$gr}) {
             push @out, $gr;
         }
     }

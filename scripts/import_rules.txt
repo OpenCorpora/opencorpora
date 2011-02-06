@@ -216,6 +216,8 @@
     CHANGE(anim,inan, accs -> accs)
     
 # глагол (инфинитив, личная форма, причастие, краткое причастие, деепричастие)
+(1 INFN)
+    CHANGE(INFN,actv -> INFN)
 (1 GRND)
     CHANGE(GRND,~/ши$/ -> GRND,Infr)
     CHANGE(GRND,actv -> GRND)
