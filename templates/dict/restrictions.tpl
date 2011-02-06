@@ -16,7 +16,7 @@
 есть граммема
 <select name='if'>
 <option value='0'>(любая)</option>
-{$restrictions.gram_options}
+{html_options options=$restrictions.gram_options}
 </select>,
 то у
 <select name='then_type'>
@@ -30,7 +30,7 @@
 </select>
 граммема
 <select name='then'>
-{$restrictions.gram_options}
+{html_options options=$restrictions.gram_options}
 </select>
 &raquo;.<br/>
 <input type='submit' value='Добавить'/>

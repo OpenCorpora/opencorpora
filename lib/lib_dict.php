@@ -64,9 +64,9 @@ function generate_tf_rev($token) {
 }
 function dict_get_select_gram() {
     $res = sql_query("SELECT `gram_id`, `inner_id` FROM `gram` ORDER by `inner_id`");
-    $out = '';
+    $out = array();
     while($r = sql_fetch_array($res)) {
-        $out .= '<option value="'.$r['gram_id'].'">'.$r['inner_id'].'</option>';
+        $out[$r['gram_id']] = $r['inner_id'];
     }
     return $out;
 }
@@ -506,7 +506,7 @@ function get_gram_restrictions($hide_auto) {
     }
     $res = sql_query("SELECT gram_id, inner_id FROM gram order by inner_id");
     while ($r = sql_fetch_array($res)) {
-        $out['gram_options'] .= '<option value="'.$r['gram_id'].'">'.$r['inner_id'].'</option>';
+        $out['gram_options'][$r['gram_id']] = $r['inner_id'];
     }
     return $out;
 }

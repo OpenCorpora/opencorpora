@@ -11,7 +11,7 @@
     <form action="?act=add_gram" method="post" class="inline">
         Внутр. ID <input name="g_name" value="grm" size="10" maxlength="20"/>,
         внешн. ID <input name="outer_id" value="грм" size="10" maxlength="20"/>,
-        родительская граммема <select name='parent_gram'><option value='0'>--Не выбрана--</option>{$select}</select>,<br/>
+        родительская граммема <select name='parent_gram'><option value='0'>--Не выбрана--</option>{html_options options=$select}</select>,<br/>
         описание <input name="descr" size="40"/>
         <input type="submit" value="Добавить"/>
     </form>
