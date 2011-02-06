@@ -23,12 +23,12 @@ if (isset($_GET['page'])) {
             break;
         case 'stats':
             $smarty->assign('stats', get_common_stats());
-            $smarty->display('stats.tpl');
+            show_page('stats.tpl');
             break;
         default:
-            $smarty->display('index.tpl');
+            show_page('index.tpl');
     }
 }
 else
-    $smarty->display('index.tpl');
+    show_page('index.tpl');
 ?>

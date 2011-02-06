@@ -26,7 +26,7 @@
 <a href='?rand'>Случайное предложение</a><br/>
 </div>
 <div id='rightcol'>
-{include file='right.tpl'}
+{include file='english/right.tpl'}
 </div>
 <div id='fake'></div>
 </div>

@@ -46,6 +46,25 @@ function lc($str) {
     $convert_to = array ('а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я');
     return str_replace($convert_from, $convert_to, strtolower($str));
 }
+function show_page($template_name) {
+    global $smarty;
+    $lang_code = 1;
+    if (is_logged())
+        $lang_code = $_SESSION['options'][2];
+
+    if ($lang_code == 2 && $smarty->template_exists("english/$template_name")) {
+        $smarty->display("english/$template_name");
+    }
+    elseif ($lang_code ==1 && $smarty->template_exists("russian/$template_name")) {
+        $smarty->display("russian/$template_name");
+    }
+    elseif ($smarty->template_exists($template_name)) {
+        $smarty->display($template_name);
+    }
+    else {
+        show_error("Шаблон не найден: $template_name");
+    }
+}
 function show_error($text = "Произошла ошибка.") {
     global $smarty;
     $smarty->assign('error_text', $text);
