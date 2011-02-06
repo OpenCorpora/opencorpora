@@ -2,7 +2,7 @@
 {include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
-{include file='header.tpl'}
+{include file='russian/header.tpl'}
 <div id='content'>
 <h1>Открытый корпус</h1>
 <p>Здравствуйте!</p>
@@ -15,7 +15,7 @@
 <li>хотя бы немного умеете программировать;</li>
 <li>не знаете ничего о лингвистике и программировании, но вам просто интересно</li>
 </ul>
-<p>&ndash; пишите нам на <b>opencorpora [at] opencorpora.org</b></p>
+<p>&ndash; пишите нам на <b>{mailto address=opencorpora@opencorpora.org encode=javascript}</b></p>
 {* Admin options *}
 {if $is_admin == 1}
     <a href='{$web_prefix}/books.php'>Редактор источников</a><br/>

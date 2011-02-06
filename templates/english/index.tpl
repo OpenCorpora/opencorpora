@@ -2,12 +2,12 @@
 {include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
-{include file='header.tpl'}
+{include file='english/header.tpl'}
 <div id='content'>
-<h1>Открытый корпус</h1>
-<p>Здравствуйте!</p>
-<p>Это сайт проекта &laquo;Открытый корпус&raquo; (OpenCorpora). Наша цель &ndash; создать морфологически, синтаксически и семантически размеченный корпус текстов на русском языке, в полном объёме доступный для исследователей и редактируемый пользователями.</p>
-<p>Мы начали работу в 2009 году, сейчас идёт разработка. Следить за тем, как мы продвигаемся, можно <a href="http://opencorpora.googlecode.com">здесь</a> (да, код проекта открыт).</p>
+<h1>Open Corpora</h1>
+<p>Hi!</p>
+<p>This is the website of the OpenCorpora project. Our goal is to create an annotated (morphologically, syntactically and semantically) corpus of texts in Russian which will be fully accessible to researchers, the annotation being crowd-sourced.</p>
+<p>We started in 2009, the development is under way. You may follow our progress <a href="http://opencorpora.googlecode.com">here</a> (yes, the project is opensource).</p>
 <h2>Как я могу помочь?</h2>
 <p>Если вы:</p>
 <ul>
@@ -15,7 +15,7 @@
 <li>хотя бы немного умеете программировать;</li>
 <li>не знаете ничего о лингвистике и программировании, но вам просто интересно</li>
 </ul>
-<p>&ndash; пишите нам на <b>opencorpora [at] opencorpora.org</b></p>
+<p>&ndash; пишите нам на <b>{mailto address=opencorpora@opencorpora.org encode=javascript}</b></p>
 {* Admin options *}
 {if $is_admin == 1}
     <a href='{$web_prefix}/books.php'>Редактор источников</a><br/>
