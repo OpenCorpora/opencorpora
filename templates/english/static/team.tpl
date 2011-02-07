@@ -2,7 +2,7 @@
 {include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
-{include file='russian/header.tpl'}
+{include file='english/header.tpl'}
 <div id='content'>
 <h1>Участники проекта</h1>
 <table border='0' cellpadding='4'>
@@ -29,7 +29,7 @@
 </ul>
 </div>
 <div id='rightcol'>
-{include file='russian/right.tpl'}
+{include file='english/right.tpl'}
 </div>
 <div id='fake'></div>
 </div>

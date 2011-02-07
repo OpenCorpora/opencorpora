@@ -2,7 +2,7 @@
 {include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
-{include file='russian/header.tpl'}
+{include file='english/header.tpl'}
 <div id='content'>
 <h1>Контроль словаря</h1>
 <p>Не проверено {$errata.lag} ревизий, всего {$errata.total} ошибок.
@@ -51,7 +51,7 @@
 </table>
 </div>
 <div id='rightcol'>
-{include file='russian/right.tpl'}
+{include file='english/right.tpl'}
 </div>
 <div id='fake'></div>
 </div>
