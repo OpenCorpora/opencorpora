@@ -5,5 +5,5 @@ if (isset($_GET['sent_id']))
     $sent_id = (int)$_GET['sent_id'];
     else $sent_id = 0;
 $smarty->assign('history', main_history($sent_id));
-$smarty->display('history.tpl');
+show_page('history.tpl');
 ?>

@@ -16,13 +16,13 @@ if (is_admin()) {
             return;
         case 'check':
             $smarty->assign('check', addtext_check($_POST['txt']));
-            $smarty->display('addtext_check.tpl');
+            show_page('addtext_check.tpl');
             break;
         default:
             if (isset($_POST['txt'])) {
                 $smarty->assign('txt', $_POST['txt']);
             }
-            $smarty->display('addtext.tpl');
+            show_page('addtext.tpl');
     }
 } else {
     show_error($config['msg_notadmin']);

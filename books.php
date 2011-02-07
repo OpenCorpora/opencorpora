@@ -32,10 +32,10 @@ if (is_admin()) {
         default:
             if (isset($_GET['book_id']) && $book_id = (int)$_GET['book_id']) {
                 $smarty->assign('book', get_book_page($book_id, isset($_GET['ext'])));
-                $smarty->display('book.tpl');
+                show_page('book.tpl');
             } else {
                 $smarty->assign('books', get_books_list());
-                $smarty->display('books.tpl');
+                show_page('books.tpl');
             }
     }
 } else {
