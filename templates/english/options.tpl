@@ -4,7 +4,7 @@
 <div id='main'>
 {include file='english/header.tpl'}
 <div id='content'>
-<h1>Настройки</h1>
+<h1>Settings</h1>
 {if $smarty.get.saved == 1}
 <p>Your settings have been saved.</p>
 {/if}

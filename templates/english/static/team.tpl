@@ -4,28 +4,28 @@
 <div id='main'>
 {include file='english/header.tpl'}
 <div id='content'>
-<h1>Участники проекта</h1>
+<h1>Project team</h1>
 <table border='0' cellpadding='4'>
-<tr><td width='200px'>Василий Алексеев</td></tr>
-<tr><td>Светлана Бичинёва</td><td>{mailto address=bichineva@opencorpora.org encode=javascript}</tr>
-<tr><td>Виктор Бочаров</td><td>{mailto address=bocharov@opencorpora.org encode=javascript}</td></tr>
-<tr><td>Дмитрий Грановский</td><td>{mailto address=granovsky@opencorpora.org encode=javascript}</td></tr>
-<tr><td>Наталья Остапук</td></tr>
-<tr><td>Мария Степанова</td></tr>
+<tr><td width='200px'>Vasily Alexeev</td></tr>
+<tr><td>Svetlana Bichineva</td><td>{mailto address=bichineva@opencorpora.org encode=javascript}</tr>
+<tr><td>Victor Bocharov</td><td>{mailto address=bocharov@opencorpora.org encode=javascript}</td></tr>
+<tr><td>Dmitry Granovsky</td><td>{mailto address=granovsky@opencorpora.org encode=javascript}</td></tr>
+<tr><td>Natalia Ostapuk</td></tr>
+<tr><td>Maria Stepanova</td></tr>
 </table>
-<h2>Мы благодарны:</h2>
+<h2>We are grateful to:</h2>
 <ul>
-<li>И.В. Азаровой,
-<li>К.М. Аксарину,
-<li>Н.В. Борисову,
-<li>Татьяне Ландо,
-<li>О.В. Митрениной,
-<li>О.А. Митрофановой,
-<li>Марии Николаевой,
-<li>Лидии Пивоваровой,
-<li>а также кафедре математической лингвистики СПбГУ,
-<li>кафедре информационных систем в гуманитарных науках и искусстве СПбГУ
-<li>и коллективу АОТ (aot.ru).
+<li>Irina V. Azarova,
+<li>Konstantin M. Aksarin,
+<li>Nikolay V. Borisov,
+<li>Tatiana Lando,
+<li>Olga V. Mitrenina,
+<li>Olga A. Mitrofanova,
+<li>Maria Nikolaeva,
+<li>Lidia Pivovarova,
+<li>the Department of Mathematical Linguistics, St. Petersburg State University,
+<li>the Department of Information Systems in Liberal Arts, St. Petersburg State University
+<li>and the AOT team (aot.ru).
 </ul>
 </div>
 <div id='rightcol'>

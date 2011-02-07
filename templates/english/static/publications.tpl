@@ -4,7 +4,7 @@
 <div id='main'>
 {include file='english/header.tpl'}
 <div id='content'>
-<h1>Публикации</h1>
+<h1>Publications</h1>
 <table cellpadding='8' cellspacing='0' border='1'>
 <tr>
     <td>2010</td>

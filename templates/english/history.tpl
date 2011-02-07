@@ -10,9 +10,9 @@
 	<td>{$h.set_id}</td>
 	<td>{$h.user_name|default:'Робот'}</td>
 	<td>{$h.timestamp|date_format:"%a %d.%m.%Y, %H:%M"}</td>
-	<td><a href="sentence.php?id={$h.sent_id}">Предложение {$h.sent_id}</a></td>
-	<td><a href="diff.php?sent_id={$h.sent_id}&amp;set_id={$h.set_id}">Изменения</a></td>
-    <td>{$h.comment|default:'(без комментария)'}</td>
+	<td><a href="sentence.php?id={$h.sent_id}">Sentence {$h.sent_id}</a></td>
+	<td><a href="diff.php?sent_id={$h.sent_id}&amp;set_id={$h.set_id}">Diff</a></td>
+    <td>{$h.comment|default:'(no comment)'}</td>
 </tr>
 {/foreach}
 </table>
