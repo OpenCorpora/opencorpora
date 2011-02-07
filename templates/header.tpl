@@ -21,8 +21,8 @@
             &nbsp;[<a href='?pretend=on'>притвориться юзером</a>]
         {/if}
     {/if}
-    &nbsp;<a title='Настройки' href='{$web_prefix}/options.php'><img src='{$web_prefix}/media/settings22.png' style='border:none; vertical-align: middle' alt='Настройки'/></a>
-    &nbsp;<a title='Выйти' href='{$web_prefix}/login.php?act=logout'><img src='{$web_prefix}/media/exit22.png' style='border:none; vertical-align: middle' alt='Выйти'/></a>
+    &nbsp;[<a href='{$web_prefix}/options.php'>настройки</a>]
+    &nbsp;[<a href='{$web_prefix}/login.php?act=logout'>выйти</a>]
 {else}
     <a href='{$web_prefix}/login.php'>Вход/Регистрация</a>
 {/if}

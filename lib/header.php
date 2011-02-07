@@ -35,6 +35,19 @@ if (is_admin() && isset($_GET['debug']) && $debug = $_GET['debug']) {
     return;
 }
 
+//language
+if (isset($_GET['lang']) && $lang = $_GET['lang']) {
+    if ($lang == 'ru') {
+        $_SESSION['options'][2] = 1;
+    }
+    elseif ($lang == 'en') {
+        $_SESSION['options'][2] = 2;
+    }
+
+    header("Location:".$_SERVER['HTTP_REFERER']);
+    return;
+}
+
 //admin pretends that he is a user
 if (is_logged() && $_SESSION['user_group'] > 5 && isset($_GET['pretend']) && $pretend = $_GET['pretend']) {
     if ($pretend == 'on')

@@ -48,9 +48,8 @@ function lc($str) {
 }
 function show_page($template_name) {
     global $smarty;
-    $lang_code = 1;
-    if (is_logged())
-        $lang_code = $_SESSION['options'][2];
+    $lang_code = $_SESSION['options'][2];
+    if (!$lang_code) $lang_code = 1;
 
     if ($lang_code == 2 && $smarty->template_exists("english/$template_name")) {
         $smarty->display("english/$template_name");

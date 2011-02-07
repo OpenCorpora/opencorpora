@@ -3,7 +3,7 @@
 <div id='pre_header'>The system is in read-only mode.</div>
 {/if}
 <div id='header'>
-<div id='lblock'><a href='{$web_prefix}/'>Home</a>&nbsp;&nbsp;&nbsp;<span class='small'>&alpha;-version</span></div>
+<div id='lblock'><a href='{$web_prefix}/'>Home</a>&nbsp;&nbsp;&nbsp;<span class='small'>&alpha;-version</span>&nbsp;&nbsp;&nbsp;<a href="?lang=ru">Русская версия</a></div>
 {strip}
 <div id='rblock'>
 {if $smarty.session.user_id}
@@ -21,8 +21,8 @@
             &nbsp;[<a href='?pretend=on'>pretend a user</a>]
         {/if}
     {/if}
-    &nbsp;<a title='Options' href='{$web_prefix}/options.php'><img src='{$web_prefix}/media/settings22.png' style='border:none; vertical-align: middle' alt='Options'/></a>
-    &nbsp;<a title='Log off' href='{$web_prefix}/login.php?act=logout'><img src='{$web_prefix}/media/exit22.png' style='border:none; vertical-align: middle' alt='Log off'/></a>
+    &nbsp;[<a href='{$web_prefix}/options.php'>options</a>]
+    &nbsp;[<a href='{$web_prefix}/login.php?act=logout'>log off</a>]
 {else}
     <a href='{$web_prefix}/login.php'>Login/register</a>
 {/if}

@@ -2,7 +2,7 @@
 {include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
-{include file='header.tpl'}
+{include file='russian/header.tpl'}
 <div id='content'>
 <h1>Настройки</h1>
 {if $smarty.get.saved == 1}
@@ -43,12 +43,12 @@
 </form>
 {if $is_admin}
 <h2>Readonly</h2>
-<input type='button' value='Включить' onClick="if (confirm('Are you sure?')) location.href='?act=readonly_on'" {if $readonly}disabled='disabled'{/if}/>
-<input type='button' value='Выключить' onClick="if (confirm('Are you sure?')) location.href='?act=readonly_off'" {if $readonly == 0}disabled='disabled'{/if}/>
+<input type='button' value='Включить' onClick="if (confirm('Вы уверены?')) location.href='?act=readonly_on'" {if $readonly}disabled='disabled'{/if}/>
+<input type='button' value='Выключить' onClick="if (confirm('Вы уверены?')) location.href='?act=readonly_off'" {if $readonly == 0}disabled='disabled'{/if}/>
 {/if}
 </div>
 <div id='rightcol'>
-{include file='right.tpl'}
+{include file='russian/right.tpl'}
 </div>
 <div id='fake'></div>
 </div>
