@@ -2,7 +2,7 @@
 {include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
-{include file='header.tpl'}
+{include file='russian/header.tpl'}
 <div id='content'>
     <h2>{$book.title}</h2>
     <form action='?act=rename' method='post' class='inline'>Переименовать в:
@@ -93,7 +93,7 @@
     {/if}
 </div>
 <div id='rightcol'>
-{include file='right.tpl'}
+{include file='russian/right.tpl'}
 </div>
 <div id='fake'></div>
 </div>

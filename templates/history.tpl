@@ -2,7 +2,7 @@
 {include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
-{include file='header.tpl'}
+{include file='russian/header.tpl'}
 <div id='content'>
 <table border='1' cellspacing='0' cellpadding='3'>
 {foreach from=$history item=h}
@@ -18,7 +18,7 @@
 </table>
 </div>
 <div id='rightcol'>
-{include file='right.tpl'}
+{include file='russian/right.tpl'}
 </div>
 <div id='fake'></div>
 </div>

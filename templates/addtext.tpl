@@ -2,7 +2,7 @@
 {include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
-{include file='header.tpl'}
+{include file='russian/header.tpl'}
 <div id='content'>
     <h3>Добавляем текст</h3>
     <form action="?act=check" method="post">
@@ -16,7 +16,7 @@
     </form>
 </div>
 <div id='rightcol'>
-{include file='right.tpl'}
+{include file='russian/right.tpl'}
 </div>
 <div id='fake'></div>
 </div>

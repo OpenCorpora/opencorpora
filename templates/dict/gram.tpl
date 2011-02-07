@@ -2,7 +2,7 @@
 {include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
-{include file='header.tpl'}
+{include file='russian/header.tpl'}
 <div id='content'>
     <p><a href="?">&lt;&lt;&nbsp;назад</a></p>
     <h2>Граммемы</h2>
@@ -34,7 +34,7 @@
     </form>
 </div>
 <div id='rightcol'>
-{include file='right.tpl'}
+{include file='russian/right.tpl'}
 </div>
 <div id='fake'></div>
 </div>

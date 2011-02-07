@@ -2,7 +2,7 @@
 {include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
-{include file='header.tpl'}
+{include file='russian/header.tpl'}
 <div id='content'>
     <form action="?" method="post" class="inline">
         <textarea style="display: none" name="txt">{$check.full|htmlspecialchars}</textarea>
@@ -45,7 +45,7 @@
     </form>
 </div>
 <div id='rightcol'>
-{include file='right.tpl'}
+{include file='russian/right.tpl'}
 </div>
 <div id='fake'></div>
 </div>

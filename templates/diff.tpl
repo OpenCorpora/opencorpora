@@ -2,7 +2,7 @@
 {include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
-{include file='header.tpl'}
+{include file='russian/header.tpl'}
 <div id='content'>
 <h3><a href='sentence.php?id={$diff.sent_id}'>Предложение {$diff.sent_id}</a>, изменил {$diff.user_name|default:'Робот'} {$diff.timestamp|date_format:"%d.%m.%Y в %H:%M"}</h3>
 <p>
@@ -32,7 +32,7 @@
 </table>
 </div>
 <div id='rightcol'>
-{include file='right.tpl'}
+{include file='russian/right.tpl'}
 </div>
 <div id='fake'></div>
 </div>

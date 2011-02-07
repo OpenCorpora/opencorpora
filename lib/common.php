@@ -67,7 +67,7 @@ function show_page($template_name) {
 function show_error($text = "Произошла ошибка.") {
     global $smarty;
     $smarty->assign('error_text', $text);
-    $smarty->display('error.tpl');
+    show_page('error.tpl');
 }
 function create_revset($comment = '') {
     if (sql_query("INSERT INTO `rev_sets` VALUES(NULL, '".time()."', '".$_SESSION['user_id']."', '$comment')")) {

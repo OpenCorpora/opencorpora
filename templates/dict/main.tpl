@@ -2,7 +2,7 @@
 {include file='commonhtmlheader.tpl' title='Словарь'}
 <body>
 <div id='main'>
-{include file='header.tpl'}
+{include file='russian/header.tpl'}
 <div id='content'>
     <p>Всего {$stats.cnt_g} граммем, {$stats.cnt_l} лемм, {$stats.cnt_f} форм в индексе (не проверено {$stats.cnt_r} ревизий).</p>
     {if $is_admin}
@@ -19,7 +19,7 @@
     {/if}
 </div>
 <div id='rightcol'>
-{include file='right.tpl'}
+{include file='russian/right.tpl'}
 </div>
 <div id='fake'></div>
 </div>
