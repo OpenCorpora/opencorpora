@@ -121,4 +121,33 @@ function dict_diff($lemma_id, $set_id) {
     }
     return $out;
 }
+function revert_changeset($set_id, $comment) {
+    $new_set_id = create_revset($comment);
+    $dict_flag = 0;
+
+    $res = sql_query("SELECT tf_id FROM tf_revisions WHERE set_id=$set_id");
+    while ($r = sql_fetch_array($res)) {
+        $arr = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=$r[0] AND set_id<$set_id ORDER BY rev_id DESC LIMIT 1"));
+        if (!sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$new_set_id', '$r[0]', '$arr[0]')")) {
+            show_error();
+            return;
+        }
+    }
+
+    $res = sql_query("SELECT lemma_id FROM dict_revisions WHERE set_id=$set_id");
+    while ($r = sql_fetch_array($res)) {
+        $arr = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$r[0] AND set_id<$set_id ORDER BY rev_id DESC LIMIT 1"));
+        if (!sql_query("INSERT INTO `dict_revisions` VALUES(NULL, '$new_set_id', '$r[0]', '$arr[0]')")) {
+            show_error();
+            return;
+        }
+        $dict_flag = 1;
+    }
+
+    if ($dict_flag)
+        header("Location:dict_history.php");
+    else
+        header("Location:history.php");
+    return;
+}
 ?>

@@ -12,6 +12,13 @@
 Без комментария.
 {/if}
 </p>
+{if $is_logged && $diff.prev_set && !$diff.next_set}
+<p><a class="hint" href="#" onclick="show(byid('revert_form')); return false">Вернуть предыдущую редакцию предложения</a></p>
+<form id="revert_form" action="{$web_prefix}/revert.php?set_id={$diff.set_id}" method="post" style="display:none">
+    Comment: <input name='comment' value='Отмена правки {$diff.user_name}, возврат к предыдущей версии' size='60'/>&nbsp;
+    <input type='button' onclick="submit_with_readonly_check(document.forms[0])" value="Вернуть"/>
+</form>
+{/if}
 <table border='1' cellspacing='0' cellpadding='3'>
     <tr>
         <td>{if $diff.prev_set}<a href='?sent_id={$diff.sent_id}&amp;set_id={$diff.prev_set}'>&lt; предыдущая версия</a>{else}&nbsp;{/if}</td>
