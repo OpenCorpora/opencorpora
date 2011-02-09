@@ -30,7 +30,7 @@ msgstr "Login/Register"
 # right.tpl
 
 msgid "О проекте"
-msgstr "About"
+msgstr "About OpenCorpora"
 
 msgid "Публикации"
 msgstr "Publications"
@@ -108,3 +108,87 @@ msgstr "Dictionary editor"
 
 msgid "Добавить текст"
 msgstr "Add text"
+
+# static/downloads.tpl
+
+msgid "Материалы для скачивания"
+msgstr "Downloads"
+
+msgid "Морфологический словарь"
+msgstr "Morphological dictionary"
+
+msgid "обновлён"
+msgstr "updated on"
+
+msgid "Мб"
+msgstr "Mb"
+
+# static/team.tpl
+
+msgid "Участники проекта"
+msgstr "Project team"
+
+msgid "Василий Алексеев"
+msgstr "Vasily Alexeev"
+
+msgid "Светлана Бичинёва"
+msgstr "Svetlana Bichineva"
+
+msgid "Виктор Бочаров"
+msgstr "Victor Bocharov"
+
+msgid "Дмитрий Грановский"
+msgstr "Dmitry Granovsky"
+
+msgid "Наталья Остапук"
+msgstr "Natalia Ostapuk"
+
+msgid "Мария Степанова"
+msgstr "Maria Stepanova"
+
+msgid "Мы благодарны:"
+msgstr "We are grateful to:"
+
+msgid "И.В. Азаровой"
+msgstr "Irina V. Azarova"
+
+msgid "К.М. Аксарину"
+msgstr "Konstantin M. Aksarin"
+
+msgid "Н.В. Борисову"
+msgstr "Nikolay V. Borisov"
+
+msgid "Татьяне Ландо"
+msgstr "Tatiana Lando"
+
+msgid "О.В. Митрениной"
+msgstr "Olga V. Mitrenina"
+
+msgid "О.А. Митрофановой"
+msgstr "Olga A. Mitrofanova"
+
+msgid "Марии Николаевой"
+msgstr "Maria Nikolaeva"
+
+msgid "Лидии Пивоваровой"
+msgstr "Lidia Pivovarova"
+
+msgid "а также кафедре математической лингвистики СПбГУ"
+msgstr "the Department of Mathematical Linguistics, St. Petersburg State University"
+
+msgid "кафедре информационных систем в гуманитарных науках и искусстве СПбГУ"
+msgstr "the Department of Information Systems in Liberal Arts, St. Petersburg State University"
+
+msgid "и коллективу АОТ (aot.ru)"
+msgstr "and the AOT team (aot.ru)"
+
+# static/about.tpl
+
+msgid "Для решения многих лингвистических задач используются так называемые <em>текстовые корпуса</em> &mdash; специальным образом подобранные и структурированные коллекции текстов. Наиболее информативными являются <em>размеченные корпуса</em>, то есть такие, в которых частям текста приписана лингвистическая информация &mdash; например, каждое слово отнесено к той или иной части речи."
+msgstr ""
+
+msgid "Создание размеченного корпуса &mdash; очень трудоёмкий процесс, требующий времени и сил многих людей. По этой причине чаще всего размеченные корпуса создаются коллективами исследователей при государственных учреждениях, и таких корпусов не очень много. Однажды созданный корпус может быть использован многими исследователями для решения различных задач. Способы применения корпуса могут быть самыми разнообразными, в том числе и такими, о которых не думали его создатели. Чтобы корпус мог приносить максимальную отдачу научному сообществу, нужно, чтобы он был доступен не только для просмотра через предусмотренный его разработчиками интерфейс, но и для скачивания целиком на компьютер пользователя."
+msgstr ""
+
+msgid "OpenCorpora &mdash; это проект по созданию размеченного корпуса текстов силами сообщества. Корпус будет доступен бесплатно и в полном объёме (под лицензией CC-BY-SA). Мы создаём хранилище текстов, специально предназначенное для текстов с лингвистической разметкой, удобный интерфейс редактирования разметки и исправления ошибок, инструменты для контроля качества и стандарт разметки для русского языка."
+msgstr ""

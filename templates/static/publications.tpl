@@ -2,9 +2,9 @@
 {include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
-{include file='russian/header.tpl'}
+{include file='header.tpl'}
 <div id='content'>
-<h1>Публикации</h1>
+<h1>{t}Публикации{/t}</h1>
 <table cellpadding='8' cellspacing='0' border='1'>
 <tr>
     <td>2010</td>
@@ -15,7 +15,7 @@
 </table>
 </div>
 <div id='rightcol'>
-{include file='russian/right.tpl'}
+{include file='right.tpl'}
 </div>
 <div id='fake'></div>
 </div>
