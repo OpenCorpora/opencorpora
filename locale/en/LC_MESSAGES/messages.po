@@ -1,0 +1,110 @@
+# header.tpl
+
+msgid "&alpha;-версия"
+msgstr "&alpha;-version"
+
+msgid "Система находится в режиме &laquo;только для чтения&raquo;"
+msgstr "The system is in read-only mode"
+
+msgid "Вы &ndash;"
+msgstr "You are"
+
+msgid "администратор"
+msgstr "admin"
+
+msgid "притвориться юзером"
+msgstr "pretend a user"
+
+msgid "перестать притворяться"
+msgstr "stop pretending"
+
+msgid "настройки"
+msgstr "settings"
+
+msgid "выйти"
+msgstr "logoff"
+
+msgid "Вход/Регистрация"
+msgstr "Login/Register"
+
+# right.tpl
+
+msgid "О проекте"
+msgstr "About"
+
+msgid "Публикации"
+msgstr "Publications"
+
+msgid "Участники"
+msgstr "Our team"
+
+msgid "Словарь"
+msgstr "Dictionary"
+
+msgid "есть ошибки"
+msgstr "has errors"
+
+msgid "Статистика"
+msgstr "Stats"
+
+msgid "Случайное предложение"
+msgstr "Random sentence"
+
+msgid "Свежие правки"
+msgstr "Latest edits"
+
+msgid "В разметке"
+msgstr "In the annotation"
+
+msgid "В словаре"
+msgstr "In the dictionary"
+
+msgid "Ревизия"
+msgstr "Revision"
+
+# index.tpl
+
+msgid "Открытый корпус"
+msgstr "Open Corpora"
+
+msgid "Здравствуйте!"
+msgstr "Hi!"
+
+msgid "Это сайт проекта &laquo;Открытый корпус&raquo; (OpenCorpora). Наша цель &ndash; создать морфологически, синтаксически и семантически размеченный корпус текстов на русском языке, в полном объёме доступный для исследователей и редактируемый пользователями."
+msgstr "This is the website of the OpenCorpora project. Our goal is to create an annotated (morphologically, syntactically and semantically) corpus of texts in Russian which will be fully accessible to researchers, the annotation being crowd-sourced."
+
+msgid "Мы начали работу в 2009 году, сейчас идёт разработка. Следить за тем, как мы продвигаемся, можно"
+msgstr "We started in 2009, the development is under way. You may follow our progress"
+
+msgid "здесь"
+msgstr "here"
+
+msgid "да, код проекта открыт"
+msgstr "yes, the project is opensource"
+
+msgid "Как я могу помочь?"
+msgstr "How can I help?"
+
+msgid "Если вы:"
+msgstr "If you:"
+
+msgid "интересуетесь компьютерной лингвистикой и хотите поучаствовать в настоящем проекте;"
+msgstr "are interested in computational linguistics and want to participate in a real project;"
+
+msgid "хотя бы немного умеете программировать;"
+msgstr "have any programming skills;"
+
+msgid "не знаете ничего о лингвистике и программировании, но вам просто интересно"
+msgstr "know nothing of linguistics or programming, but are curious about what we do"
+
+msgid "пишите нам на"
+msgstr "write us:"
+
+msgid "Редактор источников"
+msgstr "Sources editor"
+
+msgid "Редактор словаря"
+msgstr "Dictionary editor"
+
+msgid "Добавить текст"
+msgstr "Add text"

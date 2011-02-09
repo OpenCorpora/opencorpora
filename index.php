@@ -9,26 +9,26 @@ if (isset($_GET['page'])) {
     $page = $_GET['page'];
     switch($page) {
         case 'about':
-            show_page('static/about.tpl');
+            $smarty->display('static/about.tpl');
             break;
         case 'team':
-            show_page('static/team.tpl');
+            $smarty->display('static/team.tpl');
             break;
         case 'publications':
-            show_page('static/publications.tpl');
+            $smarty->display('static/publications.tpl');
             break;
         case 'downloads':
             $smarty->assign('dl', get_downloads_info());
-            show_page('static/downloads.tpl');
+            $smarty->display('static/downloads.tpl');
             break;
         case 'stats':
             $smarty->assign('stats', get_common_stats());
-            show_page('stats.tpl');
+            $smarty->display('stats.tpl');
             break;
         default:
-            show_page('index.tpl');
+            $smarty->display('index.tpl');
     }
 }
 else
-    show_page('index.tpl');
+    $smarty->display('index.tpl');
 ?>
