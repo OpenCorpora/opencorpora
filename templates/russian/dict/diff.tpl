@@ -19,7 +19,11 @@
     </tr>
     <tr>
 {if $diff.old_ver > 0}
-        <td valign='top'><b>(Было)<br/>Версия {$diff.old_ver} ({$diff.old_user_name|default:'Робот'}, {$diff.old_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b><pre>{$diff.old_rev_xml|format_xml|htmlspecialchars}</pre></td>
+        <td valign='top'><b>(Было)</b>
+        {if $is_logged}
+        <form class='inline' id='form_revert_t{$diff.old_ver}' method='post' action='{$web_prefix}/revert.php?dict_rev={$diff.old_ver}'><button onclick="submit_with_readonly_check(byid('form_revert_t{$diff.old_ver}'))">Вернуть эту версию</button></form>
+        {/if}
+        <br/><b>Версия {$diff.old_ver} ({$diff.old_user_name|default:'Робот'}, {$diff.old_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b><pre>{$diff.old_rev_xml|format_xml|htmlspecialchars}</pre></td>
         <td valign='top'><b>(Стало)<br/>Версия {$diff.new_ver} ({$diff.new_user_name|default:'Робот'}, {$diff.new_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b><pre>{$diff.new_rev_xml|format_xml|htmlspecialchars}</pre></td>
 {else}
         <td valign='top'><b>Новая лемма</b></td>

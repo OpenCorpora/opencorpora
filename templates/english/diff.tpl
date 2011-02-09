@@ -28,7 +28,11 @@ No comment.
     <tr><th colspan='2'>{$token.pos}</tr>
     <tr>
 {if $token.old_ver > 0}
-        <td valign='top'><b>(Before the edit)<br/>Revision {$token.old_ver} ({$token.old_user_name|default:'Robot'}, {$token.old_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b><pre>{$token.old_rev_xml|format_xml|htmlspecialchars}</pre></td>
+        <td valign='top'><b>(Before the edit)</b>
+        {if $is_logged}
+        <form class='inline' id='form_revert_t{$token.old_ver}' method='post' action='{$web_prefix}/revert.php?tf_rev={$token.old_ver}'><button onclick="submit_with_readonly_check(byid('form_revert_t{$token.old_ver}'))">Revert to this version</button></form>
+        {/if}
+        <br/><b>Revision {$token.old_ver} ({$token.old_user_name|default:'Robot'}, {$token.old_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b><pre>{$token.old_rev_xml|format_xml|htmlspecialchars}</pre></td>
         <td valign='top'><b>(After the edit)<br/>Revision {$token.new_ver} ({$token.new_user_name|default:'Robot'}, {$token.new_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b><pre>{$token.new_rev_xml|format_xml|htmlspecialchars}</pre></td>
 {else}
         <td valign='top'><b>New sentence</b></td>
