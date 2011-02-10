@@ -16,7 +16,7 @@ $smarty->template_dir = $config['smarty_template_dir'];
 $smarty->compile_dir  = $config['smarty_compile_dir'];
 $smarty->config_dir   = $config['smarty_config_dir'];
 $smarty->cache_dir    = $config['smarty_cache_dir'];
-$smarty->register_block("t", "translate");
+$smarty->registerPlugin("block", "t", "translate");
 
 //language issues
 if (isset($_SESSION['options'])) {
@@ -96,6 +96,7 @@ $smarty->assign('web_prefix', $config['web_prefix']);
 $smarty->assign('is_admin', is_admin() ? 1 : 0);
 $smarty->assign('is_logged', is_logged() ? 1 : 0);
 $smarty->assign('readonly', file_exists('/var/lock/oc_readonly.lock') ? 1 : 0);
+$smarty->assign('dict_errors', sql_num_rows(sql_query("SELECT error_id FROM dict_errata LIMIT 1")));
 
 //svn info
 $svnfile = file('.svn/entries');

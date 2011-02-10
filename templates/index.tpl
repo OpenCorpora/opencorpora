@@ -1,9 +1,5 @@
-{* Smarty *}
-{include file='commonhtmlheader.tpl'}
-<body>
-<div id='main'>
-{include file='header.tpl'}
-<div id='content'>
+{extends file="common.tpl"}
+{block name=content}
 <h1>{t}Открытый корпус{/t}</h1>
 <p>{t}Здравствуйте!{/t}</p>
 <p>{t}Это сайт проекта &laquo;Открытый корпус&raquo; (OpenCorpora). Наша цель &ndash; создать морфологически, синтаксически и семантически размеченный корпус текстов на русском языке, в полном объёме доступный для исследователей и редактируемый пользователями.{/t}</p>
@@ -15,7 +11,7 @@
 <li>{t}хотя бы немного умеете программировать;{/t}</li>
 <li>{t}не знаете ничего о лингвистике и программировании, но вам просто интересно{/t}</li>
 </ul>
-<p>&ndash; {t}пишите нам на{/t} <b>{mailto address=opencorpora@opencorpora.org encode=javascript}</b></p>
+<p>&ndash; {t}пишите нам на{/t} <b>{mailto address="opencorpora@opencorpora.org" encode="javascript"}</b></p>
 {* Admin options *}
 {if $is_admin == 1}
     <a href='{$web_prefix}/books.php'>{t}Редактор источников{/t}</a><br/>
@@ -24,12 +20,4 @@
     <br/>
 {/if}
 <a href='?rand'>{t}Случайное предложение{/t}</a><br/>
-</div>
-<div id='rightcol'>
-{include file='right.tpl'}
-</div>
-<div id='fake'></div>
-</div>
-{include file='footer.tpl'}
-</body>
-{include file='commonhtmlfooter.tpl'}
+{/block}
