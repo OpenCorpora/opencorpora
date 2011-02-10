@@ -7,9 +7,9 @@
 <h1>{t}Участники проекта{/t}</h1>
 <table border='0' cellpadding='4'>
 <tr><td width='200px'>{t}Василий Алексеев{/t}</td></tr>
-<tr><td>{t}Светлана Бичинёва{/t}</td><td>{mailto address=bichineva@opencorpora.org encode=javascript}</tr>
-<tr><td>{t}Виктор Бочаров{/t}</td><td>{mailto address=bocharov@opencorpora.org encode=javascript}</td></tr>
-<tr><td>{t}Дмитрий Грановский{/t}</td><td>{mailto address=granovsky@opencorpora.org encode=javascript}</td></tr>
+<tr><td>{t}Светлана Бичинёва{/t}</td><td>{mailto address="bichineva@opencorpora.org" encode="javascript"}</tr>
+<tr><td>{t}Виктор Бочаров{/t}</td><td>{mailto address="bocharov@opencorpora.org" encode="javascript"}</td></tr>
+<tr><td>{t}Дмитрий Грановский{/t}</td><td>{mailto address="granovsky@opencorpora.org" encode="javascript"}</td></tr>
 <tr><td>{t}Наталья Остапук{/t}</td></tr>
 <tr><td>{t}Мария Степанова{/t}</td></tr>
 </table>
