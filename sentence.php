@@ -22,6 +22,6 @@ if (isset($_GET['act'])) {
     }
 } else {
     $smarty->assign('sentence', get_sentence($id));
-    show_page('sentence.tpl');
+    $smarty->display('sentence.tpl');
 }
 ?>

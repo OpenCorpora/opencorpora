@@ -1,22 +1,22 @@
 {* Smarty *}
-{include file='commonhtmlheader.tpl' title='Sentence annotation'}
+{include file='commonhtmlheader.tpl' title='Разметка предложения'}
 <body onload="highlight_source(); document.onkeyup=checkKeyUp; document.onkeydown=checkKeyDown; document.onmouseup=endScroll; prepareScroll();">
 <div id='main'>
-{include file='english/header.tpl'}
+{include file='header.tpl'}
 <div id='content'>
     {strip}
-    <div id="source_text"><b>Source text:</b> {$sentence.fulltext}</div>
+    <div id="source_text"><b>{t}Исходный текст{/t}:</b> {$sentence.fulltext}</div>
     <form method="post" action="?id={$sentence.id}&amp;act=save">
         <div id="main_scroller">
             <div>
                 {if $is_logged == 1}
-                    <button type="button" disabled="disabled" id="submit_button" onclick="show_comment_field(this)">Save</button>&nbsp;
+                    <button type="button" disabled="disabled" id="submit_button" onclick="show_comment_field(this)">{t}Сохранить{/t}</button>&nbsp;
                 {/if}
-                <button type="reset" onclick="window.location.reload()">Cancel edits</button>&nbsp;
-                <button type="button" onclick="window.location.href='history.php?sent_id={$sentence.id}'">History</button>&nbsp;
-                <button type="button" onclick="dict_reload_all()">Parse again</button>
+                <button type="reset" onclick="window.location.reload()">{t}Отменить правки{/t}</button>&nbsp;
+                <button type="button" onclick="window.location.href='history.php?sent_id={$sentence.id}'">{t}История{/t}</button>&nbsp;
+                <button type="button" onclick="dict_reload_all()">{t}Разобрать заново{/t}</button>
                 <br/>
-                <span id='comment_fld'>Comment: <input name='comment' size='60'/></span>
+                <span id='comment_fld'>{t}Комментарий{/t}: <input name='comment' size='60'/></span>
             </div>
         </div>
         <div id="scrollbar"><div style="height:10px;"></div></div>
@@ -26,7 +26,7 @@
                 <div class="tf">
                     {$token.tf_text|htmlspecialchars}
                     {if $token.dict_updated == 1}
-                        <a href="#" class="reload" title="Parse again using the dictionary" onClick="dict_reload(this.parentNode.parentNode)">D</a>
+                        <a href="#" class="reload" title="{t}Разобрать заново из словаря{/t}" onClick="dict_reload(this.parentNode.parentNode)">D</a>
                     {/if}
                 </div>
                 {foreach item=variant from=$token.variants}
@@ -58,7 +58,7 @@
     {/strip}
 </div>
 <div id='rightcol'>
-{include file='english/right.tpl'}
+{include file='right.tpl'}
 </div>
 <div id='fake'></div>
 </div>

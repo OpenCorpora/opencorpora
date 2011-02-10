@@ -192,3 +192,234 @@ msgstr ""
 
 msgid "OpenCorpora &mdash; это проект по созданию размеченного корпуса текстов силами сообщества. Корпус будет доступен бесплатно и в полном объёме (под лицензией CC-BY-SA). Мы создаём хранилище текстов, специально предназначенное для текстов с лингвистической разметкой, удобный интерфейс редактирования разметки и исправления ошибок, инструменты для контроля качества и стандарт разметки для русского языка."
 msgstr ""
+
+# stats.tpl
+
+msgid "Пользователей"
+msgstr "Users"
+
+msgid "Книг"
+msgstr "Books"
+
+msgid "Предложений"
+msgstr "Sentences"
+
+msgid "Словоупотреблений"
+msgstr "Words"
+
+msgid "Лемм"
+msgstr "Lemmata"
+
+msgid "Форм"
+msgstr "Word forms"
+
+# sentence.tpl
+
+msgid "Исходный текст"
+msgstr "Source text"
+
+msgid "Сохранить"
+msgstr "Save"
+
+msgid "Отменить правки"
+msgstr "Cancel edits"
+
+msgid "История"
+msgstr "History"
+
+msgid "Разобрать заново"
+msgstr "Parse again"
+
+msgid "Комментарий"
+msgstr "Comment"
+
+msgid "Разобрать заново из словаря"
+msgstr "Parse again using the dictionary"
+
+# login.tpl
+
+msgid "Пользователь с указанной комбинацией логина и пароля не найден."
+msgstr "Not found any users with these login and password."
+
+msgid "Попробуйте, пожалуйста,"
+msgstr "Please, try"
+
+msgid "ещё раз"
+msgstr "again"
+
+msgid "Имя пользователя"
+msgstr "Username"
+
+msgid "Пароль"
+msgstr "Password"
+
+msgid "Пароль ещё раз"
+msgstr "Password again"
+
+msgid "необязательно, но без него вы не сможете восстановить пароль"
+msgstr "optional, but without it you won't be able to restore your password"
+
+msgid "зарегистрироваться"
+msgstr "register"
+
+msgid "Зарегистрироваться"
+msgstr "Register"
+
+msgid "Спасибо, регистрация успешно завершена."
+msgstr "Thank you, the registration process has been completed."
+
+msgid "Теперь вы можете"
+msgstr "Now you can"
+
+msgid "войти"
+msgstr "login"
+
+msgid "Войти"
+msgstr "Login"
+
+msgid "под своим именем пользователя"
+msgstr "using your username"
+
+msgid "Введённые пароли не совпадают."
+msgstr "The passwords you entered are different."
+
+msgid "Такое имя пользователя уже существует."
+msgstr "A user with such name already exists."
+
+msgid "Такой адрес электронной почты уже существует."
+msgstr "This email address is already used by someone else."
+
+msgid "Пустое имя пользователя или пароль."
+msgstr "The username or the password you provided is blank."
+
+msgid "Недопустимые символы в имени пользователя"
+msgstr "Wrong characters in your username"
+
+msgid "допустимыми являются все латинские символы, цифры и знаки &laquo;<b>-</b>&raquo; и &laquo;<b>_</b>&raquo;"
+msgstr "good characters are all latin letters, numbers, \"<b>-</b>\" and \"<b>_</b>\" symbols"
+
+msgid "Недопустимые символы в пароле"
+msgstr "Wrong characters in your password"
+
+msgid "Неверный адрес электронной почты (если вы вводите верный адрес &mdash; напишите нам об этой ошибке)."
+msgstr "Wrong email address (if you are sure that the address you enter is valid, please report this error)."
+
+msgid "Ошибка"
+msgstr "Error"
+
+msgid "Пароль успешно изменён."
+msgstr "Password changed successfully."
+
+msgid "Старый пароль введён неверно."
+msgstr "Old password is wrong."
+
+msgid "Адрес электронной почты успешно изменён."
+msgstr "Email address changed successfully."
+
+msgid "Пароль введён неверно."
+msgstr "Wrong password."
+
+msgid "или"
+msgstr "or"
+
+# diff.tpl
+
+msgid "Предложение"
+msgstr "Sentence"
+
+msgid "изменил"
+msgstr "changed by"
+
+msgid "Без комментария."
+msgstr "No comment."
+
+msgid "Вернуть предыдущую редакцию предложения"
+msgstr "Revert the whole sentence"
+
+msgid "Вернуть"
+msgstr "Revert"
+
+msgid "предыдущая версия"
+msgstr "previous version"
+
+msgid "следующая версия"
+msgstr "next version"
+
+msgid "Было"
+msgstr "Before the edit"
+
+msgid "Стало"
+msgstr "After the edit"
+
+msgid "Версия"
+msgstr "Revision"
+
+msgid "Вернуть эту версию"
+msgstr "Revert to this version"
+
+msgid "Новое предложение"
+msgstr "New sentence"
+
+# history.tpl
+
+msgid "Изменения"
+msgstr "Diff"
+
+msgid "без комментария"
+msgstr "no comment"
+
+# options.tpl
+
+msgid "Настройки"
+msgstr "Settings"
+
+msgid "Настройки сохранены."
+msgstr "Your settings have been saved."
+
+msgid "да"
+msgstr "yes"
+
+msgid "нет"
+msgstr "no"
+
+msgid "Отменить"
+msgstr "Cancel"
+
+msgid "Регистрационные данные"
+msgstr "Registration data"
+
+msgid "Изменить пароль"
+msgstr "Change password"
+
+msgid "Старый пароль"
+msgstr "Old password"
+
+msgid "Новый пароль"
+msgstr "New password"
+
+msgid "Новый пароль ещё раз"
+msgstr "Repeat new password"
+
+msgid "Изменить адрес электронной почты"
+msgstr "Change email"
+
+msgid "Текущий адрес"
+msgstr "Current email"
+
+msgid "отсутствует"
+msgstr "none"
+
+msgid "Новый адрес"
+msgstr "New email"
+
+msgid "Изменить адрес"
+msgstr "Change email"
+
+msgid "Включить"
+msgstr "Turn on"
+
+msgid "Выключить"
+msgstr "Turn off"
+
+msgid "Вы уверены?"
+msgstr "Are you sure?"
