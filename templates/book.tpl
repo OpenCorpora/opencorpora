@@ -2,16 +2,16 @@
 {include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
-{include file='english/header.tpl'}
+{include file='header.tpl'}
 <div id='content'>
     <h2>{$book.title}</h2>
-    <form action='?act=rename' method='post' class='inline'>Переименовать в:
+    <form action='?act=rename' method='post' class='inline'>{t}Переименовать в{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
         <input name='new_name' value='{$book.title|htmlspecialchars}'/>&nbsp;&nbsp;
-        <input type='submit' value='Переименовать'/>
+        <input type='submit' value='{t}Переименовать{/t}'/>
     </form>
-    ИЛИ
-    <form action='?act=move' method='post' class='inline'>Переместить в:
+    {t}ИЛИ{/t}
+    <form action='?act=move' method='post' class='inline'>{t}Переместить в{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
         <select name='book_to' onChange='document.forms[1].submit()'>
             <option value='0'>&lt;root&gt;</option>
@@ -19,13 +19,13 @@
         </select>
     </form>
     {* Tag list *}
-    <h3>Теги</h3>
+    <h3>{t}Теги{/t}</h3>
     {if isset($book.tags[0])}
         <ul>
         {foreach item=tag from=$book.tags}
             {strip}
             <li>
-                [<a href="?act=del_tag&amp;book_id={$book.id}&amp;tag_name={$tag.prefix|cat:":"|cat:$tag.body|urlencode}" onClick="return confirm('Точно удалить этот тег?')">x</a>]&nbsp;
+                [<a href="?act=del_tag&amp;book_id={$book.id}&amp;tag_name={$tag.prefix|cat:":"|cat:$tag.body|urlencode}" onClick="return confirm('{t}Точно удалить этот тег?{/t}')">x</a>]&nbsp;
                 {if $tag.prefix == 'url'}
                     url:<a href="{$tag.body}" target="_blank">{$tag.body}</a>
                 {else}
@@ -36,15 +36,15 @@
         {/foreach}          
         </ul>
     {else}
-        <p>Тегов нет.</p>
+        <p>{t}Тегов нет.{/t}</p>
     {/if}
-    <form action='?act=add_tag' method='post' class='inline'>Добавить тег:
+    <form action='?act=add_tag' method='post' class='inline'>{t}Добавить тег{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
         <input name='tag_name' value='New_tag'/>&nbsp;&nbsp;
-        <input type='submit' value='Добавить'/>
+        <input type='submit' value='{t}Добавить{/t}'/>
     </form>
     {* Sub-books list *}
-    <h3>Разделы</h3>
+    <h3>{t}Разделы{/t}</h3>
     {if isset($book.children[0])}
         <ul>
         {foreach item=book from=$book.children}
@@ -52,16 +52,16 @@
         {/foreach}
         </ul>
     {else}
-        <p>Разделов нет.</p>
+        <p>{t}Разделов нет.{/t}</p>
     {/if}
     {* Sentence list *}
     {if count($book.paragraphs) > 0}
-        <h3>Предложения по абзацам</h3>
+        <h3>{t}Предложения по абзацам{/t}</h3>
         <p>
         {if isset($smarty.get.ext)}
-            <a href="?book_id={$book.id}">к сокращённому виду</a>
+            <a href="?book_id={$book.id}">{t}к сокращённому виду{/t}</a>
         {else}
-            <a href="?book_id={$book.id}&amp;ext">к расширенному виду</a>
+            <a href="?book_id={$book.id}&amp;ext">{t}к расширенному виду{/t}</a>
         {/if}
         </p>
         <ol type="I">
@@ -89,11 +89,11 @@
         {/foreach}
         </ol>
     {else}
-        <p>В тексте нет ни одного предложения.</p>
+        <p>{t}В тексте нет ни одного предложения.{/t}</p>
     {/if}
 </div>
 <div id='rightcol'>
-{include file='english/right.tpl'}
+{include file='right.tpl'}
 </div>
 <div id='fake'></div>
 </div>

@@ -2,10 +2,10 @@
 {include file='commonhtmlheader.tpl'}
 <body>
 <div id='main'>
-{include file='english/header.tpl'}
+{include file='header.tpl'}
 <div id='content'>
     {if isset($smarty.get.saved)}
-        <p class='p_info'>Изменения сохранены.</p>
+        <p class='p_info'>{t}Изменения сохранены.{/t}</p>
     {/if}
     <p><form class='inline' method="post" action="?act=lemmata">
     {if $smarty.get.found_lemma}
@@ -13,21 +13,21 @@
     {elseif $smarty.get.found_form}
     <input type='hidden' name='search_form' value='{$smarty.get.found_form}'/>
     {/if}
-    <a href="#" onclick="document.forms[0].submit()">&lt;&lt;&nbsp;к поиску</a>
+    <a href="#" onclick="document.forms[0].submit()">&lt;&lt;&nbsp;{t}к поиску{/t}</a>
     </form></p>
     <div id="errata">
     {foreach from=$editor.errata item=error}
-        <div>Ошибка.
+        <div>{t}Ошибка{/t}.
         {if $error.type == 1}
-            Несовместимые граммемы:
+            {t}Несовместимые граммемы{/t}:
         {elseif $error.type == 2}
-            Неизвестная граммема:
+            {t}Неизвестная граммема{/t}:
         {elseif $error.type == 3}
-            Формы-дубликаты:
+            {t}Формы-дубликаты{/t}:
         {elseif $error.type == 4}
-            Нет обязательной граммемы:
+            {t}Нет обязательной граммемы{/t}:
         {elseif $error.type == 5}
-            Не разрешённая граммема:
+            {t}Не разрешённая граммема{/t}:
         {/if}
         {$error.descr}
         </div>
@@ -35,20 +35,20 @@
     </div>
     {strip}
     <form action="?act=save" method="post">
-        <b>Лемма</b>:<br/>
+        <b>{t}Лемма{/t}</b>:<br/>
         <input type="hidden" name="lemma_id" value="{$editor.lemma.id}"/>
         {if $editor.lemma.id > 0}
         <input name="lemma_text" readonly="readonly" value="{$editor.lemma.text|htmlspecialchars}"/>
         <input name="lemma_gram" {if !$is_admin}readonly="readonly"{/if} value="{$editor.lemma.grms|htmlspecialchars}" size="40"/>
-        <input type="button" onClick="location.href='dict_history.php?lemma_id={$editor.lemma.id}'" value="История"/>
-        {if $is_admin}<input type="button" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" value="Удалить"/>{/if}
+        <input type="button" onClick="location.href='dict_history.php?lemma_id={$editor.lemma.id}'" value="{t}История{/t}"/>
+        {if $is_admin}<input type="button" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" value="{t}Удалить{/t}"/>{/if}
         {else}
         <input name="lemma_text" value="{$smarty.get.text}"/>
-        <input name="lemma_gram" value="граммемы" onClick="this.value=''; this.onclick=''" size="40"/>
+        <input name="lemma_gram" value="{t}граммемы{/t}" onClick="this.value=''; this.onclick=''" size="40"/>
         {/if}
         <br/>
-        <b>Формы
-        {if $is_admin} (оставление левого поля пустым удаляет форму){/if}
+        <b>{t}Формы{/t}
+        {if $is_admin} ({t}оставление левого поля пустым удаляет форму{/t}){/if}
         :</b><br/>
         <table cellpadding="3">
         {foreach item=form from=$editor.forms}
@@ -58,38 +58,38 @@
         </tr>
         {/foreach}
         {if $is_admin}
-            <tr><td>&nbsp;<td><a href="#" onClick="dict_add_form(this); return false">Добавить ешё одну форму</a></tr>
+            <tr><td>&nbsp;<td><a href="#" onClick="dict_add_form(this); return false">{t}Добавить ешё одну форму{/t}</a></tr>
         {/if}
         </table><br/>
         {if $is_admin}
-            Комментарий к правке:<br/>
+            {t}Комментарий к правке{/t}:<br/>
             <input name='comment' size='60'/><br/>
-            <input type="button" onclick="submit_with_readonly_check(document.forms[1])" value="Сохранить"/>&nbsp;&nbsp;
-            <input type="reset" value="Сбросить"/>
+            <input type="button" onclick="submit_with_readonly_check(document.forms[1])" value="{t}Сохранить{/t}"/>&nbsp;&nbsp;
+            <input type="reset" value="{t}Сбросить{/t}"/>
         {/if}
     </form>
     {/strip}
-    <p><b>Связи</b></p>
+    <p><b>{t}Связи{/t}</b></p>
     {* Off until there is jquery *}
     {*
-    <p><a href="#" class="toggle" onclick="show(byid('add_link')); return false">Добавить связь</a></p>
+    <p><a href="#" class="toggle" onclick="show(byid('add_link')); return false">{t}Добавить связь{/t}</a></p>
     <form id="add_link">
         <select name='link_type'>
-            <option value='0' selected='selected'>--Тип связи--</option>
+            <option value='0' selected='selected'>--{t}Тип связи{/t}--</option>
             {html_options options=$link_types}
         </select>
-        с леммой
-        <input id="find_lemma"/> <input type='button' value='Найти'/>
+        {t}с леммой{/t}
+        <input id="find_lemma"/> <input type='button' value='{t}Найти{/t}'/>
     </form>
     *}
     <ul>
     {foreach item=link from=$editor.links}
-    <li><a href="?act=edit&amp;id={$link.lemma_id}">{$link.lemma_text}</a> ({$link.name}) [<a href="?act=del_link&amp;id={$link.id}&amp;lemma_id={$editor.lemma.id}" onclick="return confirm('Вы уверены?')">удалить</a>]
+    <li><a href="?act=edit&amp;id={$link.lemma_id}">{$link.lemma_text}</a> ({$link.name}) [<a href="?act=del_link&amp;id={$link.id}&amp;lemma_id={$editor.lemma.id}" onclick="return confirm('{t}Вы уверены?{/t}')">{t}удалить{/t}</a>]
     {/foreach}
     </ul>
 </div>
 <div id='rightcol'>
-{include file='english/right.tpl'}
+{include file='right.tpl'}
 </div>
 <div id='fake'></div>
 </div>

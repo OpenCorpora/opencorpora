@@ -423,3 +423,270 @@ msgstr "Turn off"
 
 msgid "Вы уверены?"
 msgstr "Are you sure?"
+
+# books.tpl
+
+msgid "Всего книг"
+msgstr "Total books"
+
+msgid "добавить"
+msgstr "add"
+
+msgid "Добавить"
+msgstr "Add"
+
+msgid "Название"
+msgstr "Title"
+
+# book.tpl
+
+msgid "Переименовать в"
+msgstr "Rename to"
+
+msgid "Переименовать"
+msgstr "Rename"
+
+msgid "ИЛИ"
+msgstr "OR"
+
+msgid "Переместить в"
+msgstr "Move to"
+
+msgid "Теги"
+msgstr "Tags"
+
+msgid "Точно удалить этот тег?"
+msgstr "Are you sure to delete this tag?"
+
+msgid "Тегов нет."
+msgstr "No tags."
+
+msgid "Добавить тег"
+msgstr "Add tag"
+
+msgid "Разделы"
+msgstr "Sections"
+
+msgid "Разделов нет."
+msgstr "No sections."
+
+msgid "Предложения по абзацам"
+msgstr "Sentences by paragraphs"
+
+msgid "к сокращённому виду"
+msgstr "compact view"
+
+msgid "к расширенному виду"
+msgstr "extended view"
+
+msgid "В тексте нет ни одного предложения."
+msgstr "There are no sentences in the text."
+
+# addtext.tpl
+
+msgid "Добавляем текст"
+msgstr ""
+
+msgid "Проверить"
+msgstr ""
+
+# addtext_check.tpl
+
+msgid "Обратно к форме"
+msgstr ""
+
+msgid "Добавляем в"
+msgstr ""
+
+msgid "Не выбрано"
+msgstr ""
+
+msgid "Надо выбрать книгу."
+msgstr ""
+
+msgid "Счёт абзацев &ndash; с"
+msgstr ""
+
+# dict/history.tpl
+
+msgid "Изменились связи"
+msgstr "Links changed"
+
+# dict/diff.tpl
+
+msgid "Лемма"
+msgstr "Lemma"
+
+msgid "Новая лемма"
+msgstr "New lemma"
+
+# dict/main.tpl
+
+msgid "Всего"
+msgstr "Total"
+
+msgid "граммем"
+msgstr "grammemes"
+
+msgid "лемм"
+msgstr "lemmata"
+
+msgid "форм в индексе"
+msgstr "forms in index"
+
+msgid "ревизий не проверено"
+msgstr "revisions not checked"
+
+msgid "Редактор граммем"
+msgstr "Grammeme editor"
+
+msgid "Ограничения на граммемы"
+msgstr "Restrictions on grammemes"
+
+msgid "Редактор лемм"
+msgstr "Lemma editor"
+
+msgid "Ошибки в словаре"
+msgstr "Errors in the dictionary"
+
+msgid "Добавить лемму"
+msgstr "Add lemma"
+
+msgid "Просмотр граммем"
+msgstr "View grammemes"
+
+msgid "Просмотр лемм"
+msgstr "View lemmata"
+
+# dict/restrictions.tpl
+
+msgid "Новое правило"
+msgstr ""
+
+msgid "Если у"
+msgstr ""
+
+msgid "леммы"
+msgstr ""
+
+msgid "формы"
+msgstr ""
+
+msgid "есть граммема"
+msgstr ""
+
+msgid "любая"
+msgstr ""
+
+msgid "то у"
+msgstr ""
+
+msgid "может быть"
+msgstr ""
+
+msgid "должна быть"
+msgstr ""
+
+msgid "должна отсутствовать"
+msgstr ""
+
+msgid "граммема"
+msgstr ""
+
+msgid "Пересчитать"
+msgstr ""
+
+msgid "Показать выведенные"
+msgstr ""
+
+msgid "Скрыть выведенные"
+msgstr ""
+
+msgid "Если"
+msgstr ""
+
+msgid "То"
+msgstr ""
+
+msgid "Действует на"
+msgstr ""
+
+msgid "Тип"
+msgstr ""
+
+msgid "Выведено?"
+msgstr ""
+
+msgid "Что угодно"
+msgstr ""
+
+msgid "лемма"
+msgstr ""
+
+msgid "форма"
+msgstr ""
+
+msgid "запрещено"
+msgstr ""
+
+msgid "обязательно"
+msgstr ""
+
+msgid "возможно"
+msgstr ""
+
+msgid "Да"
+msgstr ""
+
+msgid "Нет"
+msgstr ""
+
+# dict/gram.tpl
+
+msgid "назад"
+msgstr ""
+
+msgid "Граммемы"
+msgstr ""
+
+msgid "Добавить граммему"
+msgstr ""
+
+msgid "Внутр. ID"
+msgstr ""
+
+msgid "внешн. ID"
+msgstr ""
+
+msgid "Внешн. ID"
+msgstr ""
+
+msgid "родительская граммема"
+msgstr ""
+
+msgid "описание"
+msgstr ""
+
+msgid "Порядок"
+msgstr ""
+
+msgid "вверх"
+msgstr ""
+
+msgid "вниз"
+msgstr ""
+
+msgid "ред."
+msgstr ""
+
+msgid "Вы уверены, что хотите удалить граммему?"
+msgstr ""
+
+# dict/errata.tpl
+# still to be done
+
+# dict/lemmata.tpl
+# still to be done
+
+# dict/lemma_edit.tpl
+# still to be done
