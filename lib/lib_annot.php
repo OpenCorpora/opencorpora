@@ -111,7 +111,7 @@ function sentence_save() {
             }
             //inserting UnknownPOS if no variants present
             if (!$not_empty) {
-                $new_xml .= '<v><l id="0" t="'.htmlspecialchars(lc($tf_text)).'"><g v="UNKN"/></l></v>';
+                $new_xml .= '<v><l id="0" t="'.htmlspecialchars(mb_strtolower($tf_text)).'"><g v="UNKN"/></l></v>';
             }
             $new_xml .= '</tfr>';
             if ($base_xml != $new_xml) {

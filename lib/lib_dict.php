@@ -52,7 +52,7 @@ function generate_tf_rev($token) {
                 $out .= '<v><l id="'.$r['lemma_id'].'" t="'.$r['lemma_text'].'">'.$r['grammems'].'</l></v>';
             }
         } else {
-            $out .= '<v><l id="0" t="'.htmlspecialchars(lc($token)).'"><g v="UNKN"/></l></v>';
+            $out .= '<v><l id="0" t="'.htmlspecialchars(mb_strtolower($token)).'"><g v="UNKN"/></l></v>';
         }
     } elseif (preg_match('/^[\,\.\:\;\-\(\)\'\"\[\]\?\!\/]+$/', $token)) {
         $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="PNCT"/></l></v>';
@@ -134,7 +134,7 @@ function parse_dict_rev($text) {
     return $parsed;
 }
 function form_exists($f) {
-    $f = lc($f);
+    $f = mb_strtolower($f);
     if (!preg_match('/[А-Яа-яЁё\-\']/u', $f)) {
         return -1;
     }
