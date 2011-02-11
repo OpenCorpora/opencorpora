@@ -63,7 +63,7 @@
     <td>{if $r.if_id}{$r.if_id}{else}{t}Что угодно{/t}{/if}</td>
     <td>{$r.then_id}</td>
     <td>
-        {if $r.obj_type == 0}i{t}лемма{/t} &rarr; {t}лемма{/t}
+        {if $r.obj_type == 0}{t}лемма{/t} &rarr; {t}лемма{/t}
         {elseif $r.obj_type == 1}{t}лемма{/t} &rarr; {t}форма{/t}
         {elseif $r.obj_type == 2}{t}форма{/t} &rarr; {t}лемма{/t}
         {else}{t}форма{/t} &rarr; {t}форма{/t}
