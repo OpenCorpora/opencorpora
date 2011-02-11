@@ -52,7 +52,7 @@ function generate_tf_rev($token) {
                 $out .= '<v><l id="'.$r['lemma_id'].'" t="'.$r['lemma_text'].'">'.$r['grammems'].'</l></v>';
             }
         } else {
-            $out .= '<v><l id="0" t="'.htmlspecialchars(mb_strtolower($token)).'"><g v="UNKN"/></l></v>';
+            $out .= '<v><l id="0" t="'.htmlspecialchars(mb_strtolower($token, 'UTF-8')).'"><g v="UNKN"/></l></v>';
         }
     } elseif (preg_match('/^[\,\.\:\;\-\(\)\'\"\[\]\?\!\/]+$/', $token)) {
         $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="PNCT"/></l></v>';
@@ -134,7 +134,7 @@ function parse_dict_rev($text) {
     return $parsed;
 }
 function form_exists($f) {
-    $f = mb_strtolower($f);
+    $f = mb_strtolower($f, 'UTF-8');
     if (!preg_match('/[А-Яа-яЁё\-\']/u', $f)) {
         return -1;
     }
@@ -579,8 +579,8 @@ function tokenize($txt) {
             $last_letter = 1;
             continue;
         }
-        for($i = 0; $i < mb_strlen($word, 'utf-8'); ++$i) {
-            $char = mb_substr($word, $i, 1, 'utf-8');
+        for($i = 0; $i < mb_strlen($word, 'UTF-8'); ++$i) {
+            $char = mb_substr($word, $i, 1, 'UTF-8');
             if (preg_match('/[\.,!\?;:\(\)\[\]\/"\xAB\xBB]/u', $char)) {
                 if ($token) {
                     $txt[] = $token;
