@@ -1,7 +1,7 @@
 {* Smarty *}
 {* This is the main template inherited by all the others *}
 {include file='commonhtmlheader.tpl'}
-<body>
+{block name=body}<body>{/block}
 <div id='main'>
 {include file='header.tpl'}
 <div id='content'>

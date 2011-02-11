@@ -1,9 +1,6 @@
 {* Smarty *}
-{include file='commonhtmlheader.tpl'}
-<body>
-<div id='main'>
-{include file='header.tpl'}
-<div id='content'>
+{extends file='common.tpl'}
+{block name=content}
     <h2>{$book.title}</h2>
     <form action='?act=rename' method='post' class='inline'>{t}Переименовать в{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
@@ -47,8 +44,8 @@
     <h3>{t}Разделы{/t}</h3>
     {if isset($book.children[0])}
         <ul>
-        {foreach item=book from=$book.children}
-            <li><a href="?book_id={$book.id}">{$book.title|htmlspecialchars}</a></li>
+        {foreach item=subbook from=$book.children}
+            <li><a href="?book_id={$subbook.id}">{$subbook.title|htmlspecialchars}</a></li>
         {/foreach}
         </ul>
     {else}
@@ -91,12 +88,4 @@
     {else}
         <p>{t}В тексте нет ни одного предложения.{/t}</p>
     {/if}
-</div>
-<div id='rightcol'>
-{include file='right.tpl'}
-</div>
-<div id='fake'></div>
-</div>
-{include file='footer.tpl'}
-</body>
-{include file='commonhtmlfooter.tpl'}
+{/block}

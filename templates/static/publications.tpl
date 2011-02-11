@@ -1,9 +1,6 @@
 {* Smarty *}
-{include file='commonhtmlheader.tpl'}
-<body>
-<div id='main'>
-{include file='header.tpl'}
-<div id='content'>
+{extends file='common.tpl'}
+{block name='content'}
 <h1>{t}Публикации{/t}</h1>
 <table cellpadding='8' cellspacing='0' border='1'>
 <tr>
@@ -13,12 +10,4 @@
     <td><a href='{$web_prefix}/doc/articles/2010_IMS.tex'>tex</a></td>
 </tr>
 </table>
-</div>
-<div id='rightcol'>
-{include file='right.tpl'}
-</div>
-<div id='fake'></div>
-</div>
-{include file='footer.tpl'}
-</body>
-{include file='commonhtmlfooter.tpl'}
+{/block}

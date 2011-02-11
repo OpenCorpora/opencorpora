@@ -1,9 +1,6 @@
 {* Smarty *}
-{include file='commonhtmlheader.tpl'}
-<body>
-<div id='main'>
-{include file='header.tpl'}
-<div id='content'>
+{extends file='common.tpl'}
+{block name=content}
 {if $smarty.get.act == 'error'}
     {t}Пользователь с указанной комбинацией логина и пароля не найден.{/t} {t}Попробуйте, пожалуйста,{/t} <a href='?'>{t}ещё раз{/t}</a>.
 {elseif $smarty.get.act == 'register'}
@@ -77,11 +74,4 @@
     </table>
     </form>
 {/if}
-</div><div id='rightcol'>
-{include file='right.tpl'}
-</div>
-<div id='fake'></div>
-</div>
-{include file='footer.tpl'}
-</body>
-{include file='commonhtmlfooter.tpl'}
+{/block}

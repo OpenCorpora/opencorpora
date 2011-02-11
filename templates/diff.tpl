@@ -1,9 +1,6 @@
 {* Smarty *}
-{include file='commonhtmlheader.tpl'}
-<body>
-<div id='main'>
-{include file='header.tpl'}
-<div id='content'>
+{extends file='common.tpl'}
+{block name=content}
 <h3><a href='sentence.php?id={$diff.sent_id}'>{t}Предложение{/t} {$diff.sent_id}</a>, {t}изменил{/t} {$diff.user_name|default:'Робот'} {$diff.timestamp|date_format:"%d.%m.%Y, %H:%M"}</h3>
 <p>
 {if $diff.comment}
@@ -41,12 +38,4 @@
     </tr>
 {/foreach}
 </table>
-</div>
-<div id='rightcol'>
-{include file='right.tpl'}
-</div>
-<div id='fake'></div>
-</div>
-{include file='footer.tpl'}
-</body>
-{include file='commonhtmlfooter.tpl'}
+{/block}

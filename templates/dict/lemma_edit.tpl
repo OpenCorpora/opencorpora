@@ -1,9 +1,6 @@
 {* Smarty *}
-{include file='commonhtmlheader.tpl'}
-<body>
-<div id='main'>
-{include file='header.tpl'}
-<div id='content'>
+{extends file='common.tpl'}
+{block name='content'}
     {if isset($smarty.get.saved)}
         <p class='p_info'>{t}Изменения сохранены.{/t}</p>
     {/if}
@@ -87,12 +84,4 @@
     <li><a href="?act=edit&amp;id={$link.lemma_id}">{$link.lemma_text}</a> ({$link.name}) [<a href="?act=del_link&amp;id={$link.id}&amp;lemma_id={$editor.lemma.id}" onclick="return confirm('{t}Вы уверены?{/t}')">{t}удалить{/t}</a>]
     {/foreach}
     </ul>
-</div>
-<div id='rightcol'>
-{include file='right.tpl'}
-</div>
-<div id='fake'></div>
-</div>
-{include file='footer.tpl'}
-</body>
-{include file='commonhtmlfooter.tpl'}
+{/block}

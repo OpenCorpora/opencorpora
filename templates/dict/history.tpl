@@ -1,9 +1,6 @@
 {* Smarty *}
-{include file='commonhtmlheader.tpl'}
-<body>
-<div id='main'>
-{include file='header.tpl'}
-<div id='content'>
+{extends file='common.tpl'}
+{block name='content'}
 <table border='1' cellspacing='0' cellpadding='3'>
 {foreach from=$history item=h}
 <tr{if $h.is_link} style='background:yellow'{/if}>
@@ -22,12 +19,4 @@
 </tr>
 {/foreach}
 </table>
-</div>
-<div id='rightcol'>
-{include file='right.tpl'}
-</div>
-<div id='fake'></div>
-</div>
-{include file='footer.tpl'}
-</body>
-{include file='commonhtmlfooter.tpl'}
+{/block}

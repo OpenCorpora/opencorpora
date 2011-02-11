@@ -1,9 +1,6 @@
 {* Smarty *}
-{include file='commonhtmlheader.tpl'}
-<body>
-<div id='main'>
-{include file='header.tpl'}
-<div id='content'>
+{extends file='common.tpl'}
+{block name='content'}
 <h1>{t}Участники проекта{/t}</h1>
 <table border='0' cellpadding='4'>
 <tr><td width='200px'>{t}Василий Алексеев{/t}</td></tr>
@@ -27,12 +24,4 @@
 <li>{t}кафедре информационных систем в гуманитарных науках и искусстве СПбГУ{/t}
 <li>{t}и коллективу АОТ (aot.ru){/t}.
 </ul>
-</div>
-<div id='rightcol'>
-{include file='right.tpl'}
-</div>
-<div id='fake'></div>
-</div>
-{include file='footer.tpl'}
-</body>
-{include file='commonhtmlfooter.tpl'}
+{/block}

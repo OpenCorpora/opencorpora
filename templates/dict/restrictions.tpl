@@ -1,9 +1,6 @@
 {* Smarty *}
-{include file='commonhtmlheader.tpl'}
-<body>
-<div id='main'>
-{include file='header.tpl'}
-<div id='content'>
+{extends file='common.tpl'}
+{block name='content'}
 <h1>{t}Ограничения на граммемы{/t}</h1>
 {if $is_admin}
 <form id='addform' method='post' action='?act=add_restr'>
@@ -78,12 +75,4 @@
 </tr>
 {/foreach}
 </table>
-</div>
-<div id='rightcol'>
-{include file='right.tpl'}
-</div>
-<div id='fake'></div>
-</div>
-{include file='footer.tpl'}
-</body>
-{include file='commonhtmlfooter.tpl'}
+{/block}

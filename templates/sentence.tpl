@@ -1,9 +1,7 @@
 {* Smarty *}
-{include file='commonhtmlheader.tpl' title='Разметка предложения'}
-<body onload="highlight_source(); document.onkeyup=checkKeyUp; document.onkeydown=checkKeyDown; document.onmouseup=endScroll; prepareScroll();">
-<div id='main'>
-{include file='header.tpl'}
-<div id='content'>
+{extends file='common.tpl'}
+{block name=body}<body onload="highlight_source(); document.onkeyup=checkKeyUp; document.onkeydown=checkKeyDown; document.onmouseup=endScroll; prepareScroll();">{/block}
+{block name=content}
     {strip}
     <div id="source_text"><b>{t}Исходный текст{/t}:</b> {$sentence.fulltext}</div>
     <form method="post" action="?id={$sentence.id}&amp;act=save">
@@ -56,12 +54,4 @@
         </tr></table></div>
     </form>
     {/strip}
-</div>
-<div id='rightcol'>
-{include file='right.tpl'}
-</div>
-<div id='fake'></div>
-</div>
-{include file='footer.tpl'}
-</body>
-{include file='commonhtmlfooter.tpl'}
+{/block}

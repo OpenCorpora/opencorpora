@@ -1,3 +1,4 @@
+{* Smarty *}
 {extends file="common.tpl"}
 {block name=content}
 <h1>{t}Открытый корпус{/t}</h1>

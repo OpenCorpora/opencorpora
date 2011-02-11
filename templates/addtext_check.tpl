@@ -1,9 +1,6 @@
 {* Smarty *}
-{include file='commonhtmlheader.tpl'}
-<body>
-<div id='main'>
-{include file='header.tpl'}
-<div id='content'>
+{extends file='common.tpl'}
+{block name=content}
     <form action="?" method="post" class="inline">
         <textarea style="display: none" name="txt">{$check.full|htmlspecialchars}</textarea>
         <a href="#" onClick="document.forms[0].submit()">{t}Обратно к форме{/t}</a>
@@ -43,12 +40,4 @@
         <input id="newpar" name="newpar" size="3" maxlength="3" value="1"/>
         <input id="submitter" type="submit" value="{t}Добавить{/t}" disabled="disabled"/>
     </form>
-</div>
-<div id='rightcol'>
-{include file='right.tpl'}
-</div>
-<div id='fake'></div>
-</div>
-{include file='footer.tpl'}
-</body>
-{include file='commonhtmlfooter.tpl'}
+{/block}

@@ -1,9 +1,6 @@
 {* Smarty *}
-{include file='commonhtmlheader.tpl'}
-<body>
-<div id='main'>
-{include file='header.tpl'}
-<div id='content'>
+{extends file='common.tpl'}
+{block name='content'}
 <h1>{t}Контроль словаря{/t}</h1>
 <p>{$errata.lag} {t}ревизий не проверено{/t}, {t}всего{/t} {$errata.total} {t}ошибок{/t}.
 {if $errata.total > 200}
@@ -49,12 +46,4 @@
 </tr>
 {/foreach}
 </table>
-</div>
-<div id='rightcol'>
-{include file='right.tpl'}
-</div>
-<div id='fake'></div>
-</div>
-{include file='footer.tpl'}
-</body>
-{include file='commonhtmlfooter.tpl'}
+{/block}

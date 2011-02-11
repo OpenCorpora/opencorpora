@@ -1,9 +1,6 @@
 {* Smarty *}
-{include file='commonhtmlheader.tpl'}
-<body>
-<div id='main'>
-{include file='header.tpl'}
-<div id='content'>
+{extends file='common.tpl'}
+{block name='content'}
     <p><a href="?">&lt;&lt;&nbsp;{t}назад{/t}</a></p>
     {if $is_admin}
     <h2>{t}Редактор морфологического словаря{/t}</h2>
@@ -30,12 +27,4 @@
             <p>{t}Ничего не найдено.{/t}</p>
         {/if}
     {/if}
-</div>
-<div id='rightcol'>
-{include file='right.tpl'}
-</div>
-<div id='fake'></div>
-</div>
-{include file='footer.tpl'}
-</body>
-{include file='commonhtmlfooter.tpl'}
+{/block}
