@@ -188,3 +188,21 @@ CREATE TABLE IF NOT EXISTS `gram_restrictions` (
     `obj_type`   TINYINT(1) UNSIGNED NOT NULL,
     `auto`       TINYINT(1) UNSIGNED NOT NULL
 );
+
+DROP TABLE IF EXISTS `stats_param`;
+CREATE TABLE `stats_param` (
+    `param_id`   SMALLINT UNSIGNED NOT NULL PRIMARY KEY,
+    `param_name` VARCHAR(32) NOT NULL,
+    `is_active`  TINYINT(1) UNSIGNED NOT NULL
+);
+INSERT INTO `stats_param` VALUES
+    ('1', 'total_books', '1'),
+    ('2', 'total_sentences', '1'),
+    ('3', 'total_tokens', '1'),
+    ('4', 'total_lemmata', '1');
+
+CREATE TABLE IF NOT EXISTS `stats_values` (
+    `timestamp`   INT UNSIGNED NOT NULL,
+    `param_id`    SMALLINT UNSIGNED NOT NULL,
+    `param_value` INT UNSIGNED NOT NULL
+);

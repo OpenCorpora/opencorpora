@@ -67,18 +67,13 @@ function typo_spaces($str, $with_tags = 0) {
 }
 function get_common_stats() {
     $stats = array();
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_users FROM `users`"));
-    $stats['cnt_users'] = $r['cnt_users'];
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_books FROM `books`"));
-    $stats['cnt_books'] = $r['cnt_books'];
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_sent FROM `sentences`"));
-    $stats['cnt_sent'] = $r['cnt_sent'];
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_words FROM `text_forms`"));
-    $stats['cnt_words'] = $r['cnt_words'];
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_lemmata FROM `dict_lemmata`"));
-    $stats['cnt_lemmata'] = $r['cnt_lemmata'];
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_forms FROM `form2lemma`"));
-    $stats['cnt_forms'] = $r['cnt_forms'];
+
+    $res = sql_query("SELECT * FROM stats_param WHERE is_active=1");
+    while($r = sql_fetch_array($res)) {
+        $arr = sql_fetch_array(sql_query("SELECT `timestamp`, param_value FROM stats_values WHERE param_id=".$r['param_id']." ORDER BY `timestamp` DESC LIMIT 1"));
+        $stats[$r['param_name']] = array('timestamp' => $arr['timestamp'], 'value' => $arr['param_value']);
+    }
+
     return $stats;
 }
 function get_downloads_info() {
