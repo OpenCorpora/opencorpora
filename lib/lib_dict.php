@@ -135,7 +135,7 @@ function parse_dict_rev($text) {
 }
 function form_exists($f) {
     $f = mb_strtolower($f, 'UTF-8');
-    if (!preg_match('/[А-Яа-яЁё\-\']/u', $f)) {
+    if (!preg_match('/^[А-Яа-яЁё]/u', $f)) {
         return -1;
     }
     return sql_num_rows(sql_query("SELECT lemma_id FROM form2lemma WHERE form_text='".mysql_real_escape_string($f)."' LIMIT 1"));
@@ -560,13 +560,17 @@ function split2sentences($txt) {
     return preg_split('/[\r\n]+/', $txt);
 }
 function tokenize($txt) {
+    $re_punctuation = '/[\.,!\?;:\(\)\[\]\/"\xAB\xBB]/u';
+
     $words = explode(' ', $txt);
     $txt = array();
     $token = '';
     $last_letter = 0;
+    $last_char = '';
+
     foreach ($words as $word) {
         #whole word check
-        if (form_exists($word)) {
+        if (form_exists($word) > 0) {
             $txt[] = $word;
             $last_letter = 1;
             continue;
@@ -581,16 +585,17 @@ function tokenize($txt) {
         }
         for($i = 0; $i < mb_strlen($word, 'UTF-8'); ++$i) {
             $char = mb_substr($word, $i, 1, 'UTF-8');
-            if (preg_match('/[\.,!\?;:\(\)\[\]\/"\xAB\xBB]/u', $char)) {
-                if ($token) {
+            if (preg_match($re_punctuation, $char)) {
+                if ($token != '') {
                     $txt[] = $token;
                     $token = '';
                 }
-                if ($last_letter)
+                if ($last_letter || $last_char != $char)
                     $txt[] = $char;
                 else
                     $txt[sizeof($txt)-1] .= $char;
                 $last_letter = 0;
+                $last_char = $char;
             } else {
                 $token .= $char;
                 $last_letter = 1;
