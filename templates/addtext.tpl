@@ -1,5 +1,5 @@
 {* Smarty *}
-{extend file='common.tpl'}
+{extends file='common.tpl'}
 {block name=content}
     <h3>{t}Добавляем текст{/t}</h3>
     <form action="?act=check" method="post">
