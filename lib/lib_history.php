@@ -16,7 +16,7 @@ function main_history($sentence_id) {
 function dict_history($lemma_id) {
     $out = array();
     $res = sql_query("SELECT * FROM (
-                        (SELECT s.*, u.user_name, dl.*, '0' is_link
+                        (SELECT s.*, u.user_name, dl.*, '0' lemma2_id, '0' lemma2_text, '0' is_link
                             FROM dict_revisions dr
                             LEFT JOIN rev_sets s ON (dr.set_id=s.set_id)
                             LEFT JOIN users u ON (s.user_id=u.user_id)
@@ -24,11 +24,13 @@ function dict_history($lemma_id) {
                             ".($lemma_id?" WHERE dr.lemma_id=$lemma_id":"")." 
                             ORDER BY dr.rev_id DESC LIMIT 20)
                         UNION
-                        (SELECT s.*, u.user_name, dl.*, '1' is_link
+                        (SELECT s.*, u.user_name, dl.*, dl2.lemma_id lemma2_id, dl2.lemma_text lemma2_text, '1' is_link
                             FROM dict_links_revisions dr
                             LEFT JOIN rev_sets s ON (dr.set_id=s.set_id)
                             LEFT JOIN users u ON (s.user_id=u.user_id)
                             LEFT JOIN dict_lemmata dl ON (dr.lemma1_id=dl.lemma_id)
+                            LEFT JOIN dict_lemmata dl2 ON (dr.lemma2_id=dl2.lemma_id)
+                            ".($lemma_id?" WHERE dr.lemma1_id=$lemma_id OR dr.lemma2_id=$lemma_id":"")."
                             ORDER BY dr.rev_id DESC LIMIT 20)
                         ) T
                         ORDER BY set_id DESC, lemma_id DESC LIMIT 20
@@ -41,6 +43,8 @@ function dict_history($lemma_id) {
             'comment'    => $r['comment'],
             'lemma_id'   => $r['lemma_id'],
             'lemma_text' => $r['lemma_text'],
+            'lemma2_id'   => $r['lemma2_id'],
+            'lemma2_text' => $r['lemma2_text'],
             'is_link'    => $r['is_link']
         );
     }

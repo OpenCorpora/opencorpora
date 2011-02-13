@@ -7,7 +7,13 @@
 	<td>{$h.set_id}</td>
 	<td>{$h.user_name|default:'Робот'}</td>
 	<td>{$h.timestamp|date_format:"%a %d.%m.%Y, %H:%M"}</td>
-	<td><a href="dict.php?act=edit&amp;id={$h.lemma_id}">{$h.lemma_text}</a></td>
+	<td>
+        {if $h.is_link && $smarty.get.lemma_id && $smarty.get.lemma_id != $h.lemma_id}
+        <a href="dict.php?act=edit&amp;id={$h.lemma2_id}">{$h.lemma2_text}</a>
+        {else}
+        <a href="dict.php?act=edit&amp;id={$h.lemma_id}">{$h.lemma_text}</a>
+        {/if}
+    </td>
 	<td>
         {if $h.is_link}
         {t}Изменились связи{/t}
