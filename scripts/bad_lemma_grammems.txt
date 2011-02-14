@@ -1,3 +1,4 @@
 *	sing
 *	plur
+*	indc
 GRND	past

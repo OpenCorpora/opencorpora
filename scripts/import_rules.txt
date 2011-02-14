@@ -90,6 +90,7 @@
     CHANGE (!Infr -> form)
 1 Name
     CHANGE (Name, form -> Name)
+    CHANGE (Sgtm, !sing -> Sgtm, sing)
 1 Patr
     SPLIT (Name, masc&form, masc&Infr, femn&form, femn&Infr)
         LINK (0, 1, NAME-PATR)
@@ -157,6 +158,8 @@
     CHANGE( -> Poss)    
 (1 сравн)
     CHANGE(сравн -> ADJC)
+(1 ADJF&Name)
+    CHANGE(ADJF, Name -> ADJF)
 (1 ADJC)
 	CHANGE(ADJF, ADJC -> ADJC)
 (1 ADJS|ADJC|~/ейш/|~/айш/) & (* ADJF|ADJS|ADJC)
