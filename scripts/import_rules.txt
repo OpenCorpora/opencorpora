@@ -90,7 +90,7 @@
     CHANGE (!Infr -> form)
 1 Name
     CHANGE (Name, form -> Name)
-    CHANGE (Sgtm, !sing -> Sgtm, sing)
+    CHANGE (Sgtm, !sing, !plur -> Sgtm, sing)
 1 Patr
     SPLIT (Name, masc&form, masc&Infr, femn&form, femn&Infr)
         LINK (0, 1, NAME-PATR)
