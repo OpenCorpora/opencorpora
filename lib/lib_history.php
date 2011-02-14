@@ -13,8 +13,12 @@ function main_history($sentence_id) {
     }
     return $out;
 }
-function dict_history($lemma_id) {
+function dict_history($lemma_id, $skip = 0) {
     $out = array();
+    $res = sql_fetch_array(sql_query("SELECT COUNT(*) FROM dict_revisions"));
+    $out['total'] = $res[0];
+    $res = sql_fetch_array(sql_query("SELECT COUNT(*) FROM dict_links_revisions"));
+    $out['total'] += $res[0];
     $res = sql_query("SELECT * FROM (
                         (SELECT s.*, u.user_name, dl.*, '0' lemma2_id, '0' lemma2_text, '0' is_link
                             FROM dict_revisions dr
@@ -22,7 +26,7 @@ function dict_history($lemma_id) {
                             LEFT JOIN users u ON (s.user_id=u.user_id)
                             LEFT JOIN dict_lemmata dl ON (dr.lemma_id=dl.lemma_id)
                             ".($lemma_id?" WHERE dr.lemma_id=$lemma_id":"")." 
-                            ORDER BY dr.rev_id DESC LIMIT 20)
+                            ORDER BY dr.rev_id DESC LIMIT ".($skip+20).")
                         UNION
                         (SELECT s.*, u.user_name, dl.*, dl2.lemma_id lemma2_id, dl2.lemma_text lemma2_text, '1' is_link
                             FROM dict_links_revisions dr
@@ -31,12 +35,12 @@ function dict_history($lemma_id) {
                             LEFT JOIN dict_lemmata dl ON (dr.lemma1_id=dl.lemma_id)
                             LEFT JOIN dict_lemmata dl2 ON (dr.lemma2_id=dl2.lemma_id)
                             ".($lemma_id?" WHERE dr.lemma1_id=$lemma_id OR dr.lemma2_id=$lemma_id":"")."
-                            ORDER BY dr.rev_id DESC LIMIT 20)
+                            ORDER BY dr.rev_id DESC LIMIT ".($skip+20).")
                         ) T
-                        ORDER BY set_id DESC, lemma_id DESC LIMIT 20
+                        ORDER BY set_id DESC, lemma_id DESC LIMIT $skip,20
                     ");
     while($r = sql_fetch_array($res)) {
-        $out[] = array (
+        $out['sets'][] = array (
             'set_id'     => $r['set_id'],
             'user_name'  => $r['user_name'],
             'timestamp'  => $r['timestamp'],
