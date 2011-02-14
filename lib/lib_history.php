@@ -1,9 +1,13 @@
 <?php
-function main_history($sentence_id) {
+function main_history($sentence_id, $skip = 0) {
     $out = array();
-    $res = sql_query("SELECT DISTINCT s.*, u.user_name, st.sent_id FROM rev_sets s LEFT JOIN `users` u ON (s.user_id = u.user_id) LEFT JOIN `tf_revisions` tr ON (s.set_id = tr.set_id) RIGHT JOIN `text_forms` tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN `sentences` st ON (tf.sent_id = st.sent_id)".($sentence_id?" WHERE st.sent_id=$sentence_id":"")." ORDER BY s.set_id DESC, tr.rev_id LIMIT 20");
+    if (!$sentence_id) {
+        $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT s.set_id, st.sent_id) FROM rev_sets s LEFT JOIN tf_revisions tr ON (s.set_id=tr.set_id) RIGHT JOIN text_forms tf ON (tr.tf_id=tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id)"));
+        $out['total'] = $res[0];
+    }
+    $res = sql_query("SELECT DISTINCT s.*, u.user_name, st.sent_id FROM rev_sets s LEFT JOIN `users` u ON (s.user_id = u.user_id) LEFT JOIN `tf_revisions` tr ON (s.set_id = tr.set_id) RIGHT JOIN `text_forms` tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN `sentences` st ON (tf.sent_id = st.sent_id)".($sentence_id?" WHERE st.sent_id=$sentence_id":"")." ORDER BY s.set_id DESC, tr.rev_id LIMIT $skip,20");
     while($r = sql_fetch_array($res)) {
-        $out[] = array (
+        $out['sets'][] = array (
             'set_id'    => $r['set_id'],
             'user_name' => $r['user_name'],
             'timestamp' => $r['timestamp'],
@@ -15,10 +19,12 @@ function main_history($sentence_id) {
 }
 function dict_history($lemma_id, $skip = 0) {
     $out = array();
-    $res = sql_fetch_array(sql_query("SELECT COUNT(*) FROM dict_revisions"));
-    $out['total'] = $res[0];
-    $res = sql_fetch_array(sql_query("SELECT COUNT(*) FROM dict_links_revisions"));
-    $out['total'] += $res[0];
+    if (!$lemma_id) {
+        $res = sql_fetch_array(sql_query("SELECT COUNT(*) FROM dict_revisions"));
+        $out['total'] = $res[0];
+        $res = sql_fetch_array(sql_query("SELECT COUNT(*) FROM dict_links_revisions"));
+        $out['total'] += $res[0];
+    }
     $res = sql_query("SELECT * FROM (
                         (SELECT s.*, u.user_name, dl.*, '0' lemma2_id, '0' lemma2_text, '0' is_link
                             FROM dict_revisions dr

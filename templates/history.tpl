@@ -2,7 +2,14 @@
 {extends file='common.tpl'}
 {block name=content}
 <table border='1' cellspacing='0' cellpadding='3'>
-{foreach from=$history item=h}
+{if !$smarty.get.sent_id}
+<tr>
+    <td colspan='3'>{if $smarty.get.skip > 0}<a href='?skip={$smarty.get.skip - 20}'>&lt; {t}позже{/t}</a>{else}&nbsp;{/if}</td>
+    <td colspan='2'>{t}Всего{/t}: {$history.total}</td>
+    <td align='right'>{if $history.total > ($smarty.get.skip + 20)}<a href='?skip={$smarty.get.skip + 20}'>{t}раньше{/t} &gt;</a>{else}&nbsp;{/if}</td>
+</tr>
+{/if}
+{foreach from=$history.sets item=h}
 <tr>
 	<td>{$h.set_id}</td>
 	<td>{$h.user_name|default:'Робот'}</td>
@@ -12,5 +19,12 @@
     <td>{if $h.comment}{$h.comment}{else}({t}без комментария{/t}){/if}</td>
 </tr>
 {/foreach}
+{if !$smarty.get.sent_id}
+<tr>
+    <td colspan='3'>{if $smarty.get.skip > 0}<a href='?skip={$smarty.get.skip - 20}'>&lt; {t}позже{/t}</a>{else}&nbsp;{/if}</td>
+    <td colspan='2'>{t}Всего{/t}: {$history.total}</td>
+    <td align='right'>{if $history.total > ($smarty.get.skip + 20)}<a href='?skip={$smarty.get.skip + 20}'>{t}раньше{/t} &gt;</a>{else}&nbsp;{/if}</td>
+</tr>
+{/if}
 </table>
 {/block}
