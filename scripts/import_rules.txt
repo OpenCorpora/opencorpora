@@ -163,6 +163,8 @@
     CHANGE( -> Poss)    
 (1 сравн)
     CHANGE(сравн -> ADJC)
+(1 ADJS&masc&sing&~/ен$/) & (1 ADJS&masc&sing&~/енен$/)
+    CHANGE (ADJS, masc, sing, ~/енен$/ -> ADJS, masc, sing, V-en)
 (1 ADJF&Name)
     CHANGE(ADJF, Name -> ADJF)
 (1 ADJC)
