@@ -322,6 +322,12 @@ msgstr "Wrong password."
 msgid "или"
 msgstr "or"
 
+msgid "ввести регистрационные данные"
+msgstr "enter registration data"
+
+msgid "Войти через OpenID"
+msgstr "Login using OpenID"
+
 # diff.tpl
 
 msgid "Предложение"

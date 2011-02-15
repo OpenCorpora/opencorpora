@@ -22,6 +22,32 @@ function user_login($login, $passwd) {
     }
     return false;
 }
+function user_login_openid($token) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "http://loginza.ru/api/authinfo?token=$token");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $arr = json_decode(curl_exec($ch), true);
+    if (isset($arr['error_type'])) {
+        print ($arr['error_message']);
+        return 0;
+    }
+    $id = $arr['identity'];
+    //check if the user exists
+    $res = sql_query("SELECT user_id, user_group FROM `users` WHERE user_name='$id' LIMIT 1");
+    //if he doesn't
+    if (sql_num_rows($res) == 0) {
+        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', '', '1', '', '".time()."')")) {
+            return 0;
+        }
+        $res = sql_query("SELECT user_id, user_group FROM `users` WHERE user_name='$id' LIMIT 1");
+    }
+    $row = sql_fetch_array($res);
+    $_SESSION['user_id'] = $row['user_id'];
+    $_SESSION['user_group'] = $row['user_group'];
+    $_SESSION['user_name'] = $id;
+    $_SESSION['options'] = get_user_options($row['user_id']);
+    return 1;
+}
 function user_logout() {
     unset ($_SESSION['user_id']);
     unset ($_SESSION['user_group']);
