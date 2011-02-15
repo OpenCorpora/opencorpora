@@ -108,9 +108,9 @@
         LINK (0, 2, SURN_MASC-SURN_PLUR)
 (1 ~/^газпром-медиа$/)
     CHANGE (masc, femn, neut, sing, nomn, gent, datv, accs, ablt, loct, Sgtm, a-pl -> Pltm, Fixd)
-(* plur) & (* !Pltm)
+(* NOUN&plur) & (* !Pltm)
     CHANGE ( -> Pltm)
-(* sing) & (* !Sgtm)
+(* NOUN&sing) & (* !Sgtm)
     CHANGE ( -> Sgtm)
 1 Pltm
     CHANGE (Sgtm -> )
@@ -125,6 +125,11 @@
     GENERATE (sing, plur; nomn, gent,datv, accs, ablt, loct)
 (* NOUN) & (* Fixd) & (* Sgtm | Pltm)
     GENERATE (nomn, gent,datv, accs, ablt, loct)
+(* NOUN) & (1 sing&Fixd) & (#=1)
+    CHANGE ( -> tmpmark)
+(* NOUN) & (1 sing&Fixd)
+    CHANGE (!tmpmark,Fixd,!nomn,!gent,!datv,!accs,!ablt,!loct -> nomn)
+    CHANGE (tmpmark ->)
 * Pltm
     CHANGE (sing -> sing, A-sg)
 * Sgtm

@@ -2,3 +2,4 @@
 *	plur
 *	indc
 GRND	past
+ADJS	neut
