@@ -157,9 +157,9 @@
 # прилагательное
 (#178) & (* !Poss) & (* !Qual) & (* !Apro)
     CHANGE( -> Poss)
-(#74) & (* !Poss) & (* !Poss) & (* !Qual) & (* !Apro)
+(#74) & (* !Poss) & (* !Qual) & (* !Apro)
     CHANGE( -> Poss)
-(#146) & (* !Poss) & (* !Poss) & (* !Qual) & (* !Apro)
+(#146) & (* !Poss) & (* !Qual) & (* !Apro)
     CHANGE( -> Poss)    
 (1 сравн)
     CHANGE(сравн -> ADJC)
