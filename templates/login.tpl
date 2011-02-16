@@ -67,7 +67,7 @@
 {else}
     <ol>
     <script src="http://s1.loginza.ru/js/widget.js" type="text/javascript"></script>
-    <li><a href="https://loginza.ru/api/widget?token_url=http%3A%2F%2F{$smarty.server.HTTP_HOST}%2Flogin.php?act=login_openid&amp;lang={$lang}" class="loginza">{t}Войти через OpenID{/t}</a></li>
+    <li><a href="https://loginza.ru/api/widget?token_url=http%3A%2F%2F{$smarty.server.HTTP_HOST}{$web_prefix|urlencode}%2Flogin.php?act=login_openid&amp;lang={$lang}" class="loginza">{t}Войти через OpenID{/t}</a></li>
     <li>{t}или{/t} {t}ввести регистрационные данные{/t}:</li>
     <form action="?act=login" method="post" id='login_form'>    
     <table cellspacing='2'>
