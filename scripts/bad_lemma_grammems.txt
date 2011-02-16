@@ -1,5 +1,8 @@
 *	sing
 *	plur
 *	indc
+VERB	pres
+VERB	past
 GRND	past
+GRND	pres
 ADJS	neut
