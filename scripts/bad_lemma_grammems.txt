@@ -3,6 +3,7 @@
 *	indc
 VERB	pres
 VERB	past
-GRND	past
 GRND	pres
+GRND	past
 ADJS	neut
+ADJC	V-ej
