@@ -91,7 +91,7 @@
 (1 Patr&nomn&~/ьевич$/) & (1 Patr&nomn&~/иевич$/)
     CHANGE(~/иевич.?.?.?$/ -> V-ie)
 (1 Patr&nomn&~/ьевна$/) & (1 Patr&nomn&~/иевна$/)
-    CHANGE(~/иевн..?.?$/ -> V-ie)
+    CHANGE(~/иеве?н.?.?.?$/ -> V-ie)
 1 Name
     CHANGE (Name, form -> Name)
     CHANGE (Sgtm, !sing, !plur -> Sgtm, sing)
