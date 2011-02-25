@@ -12,4 +12,5 @@ binmode(STDERR, ':utf8');
 my $importer = new OpenCorpora::Dict::Importer;
 $importer->read_rules('/home/grand/corpus/scripts/import_rules.txt');
 $importer->read_bad_lemma_grammems('/home/grand/corpus/scripts/bad_lemma_grammems.txt');
+$importer->preload_list('anim0', 'lists/Del_anim-inan&Add_ANim.txt');
 $importer->read_aot('/home/grand/aot_dump.2');

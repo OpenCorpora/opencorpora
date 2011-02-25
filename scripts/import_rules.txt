@@ -155,6 +155,9 @@
     CHANGE ( -> _del)
 (* Surn) & (1 ~/^целий$/)
     CHANGE ( -> _del)
+(* NOUN) & (1 nomn&sing&@anim0)
+    CHANGE (anim -> ANim)
+    CHANGE (inan -> ANim)
 # АУДИ С, 0, мр-жр, но
 
 

@@ -9,7 +9,7 @@ use constant DEBUG => 0;
 sub new {
     #a Word may be created either with a set of forms or without one
     print STDERR "Creating Word\n" if DEBUG;
-    my ($class, $ref, $para_no) = @_;
+    my ($class, $ref, $para_no, $importer) = @_;
  
     my $self = {};
     $self->{LEMMA} = undef;
@@ -17,6 +17,7 @@ sub new {
     $self->{APPLIED_RULES} = undef;
     $self->{PARADIGM_NO} = $para_no;
     $self->{LINKS} = undef;
+    $self->{IMPORTER} = $importer;
 
     if (!$ref) {
         #no forms given
@@ -50,14 +51,20 @@ sub new {
     #return is implicit in bless
 }
 sub form_has_gram {
+    my $self = shift;
     my $form = shift;
     my $search = shift;
     if ($search =~ /~\/(.+)\//) {
         if ($form->{TEXT} =~ /$1/i) {
             return 1;
-        } else {
-            return 0;
         }
+        return 0;
+    }
+    if ($search =~ /@(.+)/) {
+        if (exists $self->{IMPORTER}->{WORD_LISTS}->{$1}->{$form->{TEXT}}) {
+            return 1;
+        }
+        return 0;
     }
     for my $gram(@{$form->{GRAMMEMS}}) {
         if ($gram eq $search) {
@@ -65,15 +72,6 @@ sub form_has_gram {
         }
     }
     return 0;
-}
-sub count_form_has_gram {
-    my $form = shift;
-    my @search = @{shift()};
-    my $count = 0;
-    for my $search(@search) {
-        form_has_gram($form, $search) && $count++;
-    }
-    return $count;
 }
 sub count_form_has_gram_set {
     my $self = shift;
@@ -93,8 +91,8 @@ sub form_has_all_grams {
     my $neg = 0; #whether we have a '!'
     for my $gram(@search) {
         $neg = ($gram =~ s/^\!//);
-        if (($neg && form_has_gram($form, $gram)) ||
-            (!$neg && !form_has_gram($form, $gram))) {
+        if (($neg && $self->form_has_gram($form, $gram)) ||
+            (!$neg && !$self->form_has_gram($form, $gram))) {
             print STDERR "It doesn't.\n" if DEBUG;
             return 0;
         }
@@ -110,8 +108,8 @@ sub form_has_any_gram {
     my $neg = 0; #whether we have a '!'
     for my $gram(@search) {
         $neg = ($gram =~ s/^\!//);
-        if ((!$neg && form_has_gram($form, $gram)) ||
-            ($neg && !form_has_gram($form, $gram))) {
+        if ((!$neg && $self->form_has_gram($form, $gram)) ||
+            ($neg && !$self->form_has_gram($form, $gram))) {
             print STDERR "It does!\n" if DEBUG;
             return 1;
         }
@@ -252,7 +250,7 @@ sub to_string {
     my $self = shift;
     my $out = 'PARA '.($self->{PARADIGM_NO} ? $self->{PARADIGM_NO} : '-1')."\n";
     for my $form(@{$self->{FORMS}}) {
-        next if form_has_gram($form, '_del');
+        next if $self->form_has_gram($form, '_del');
         $out .= $form->{TEXT}."\t".join(',', @{$form->{GRAMMEMS}})."\n";
     }
     for my $lnk(@{$self->{LINKS}}) {
@@ -263,7 +261,7 @@ sub to_string {
 }
 sub to_xml {
     my $self = shift;
-    my $ref_bad_gram = shift;
+    my $ref_bad_gram = $self->{IMPORTER}->{BAD_LEMMA_GRAMMEMS};
 
     my $out = '<dr><l t="'.$self->{LEMMA}.'">';
     my @lgram = @{$self->get_lemma_grammems($ref_bad_gram)};
@@ -274,7 +272,7 @@ sub to_xml {
     }
     $out .= '</l>';
     for my $form(@{$self->{FORMS}}) {
-        next if form_has_gram($form, '_del');
+        next if $self->form_has_gram($form, '_del');
         $out .= '<f t="'.$form->{TEXT}.'">';
         for my $gr(@{$form->{GRAMMEMS}}) {
             $out .= "<g v=\"$gr\"/>" unless exists $lgram{$gr};
@@ -318,7 +316,7 @@ sub get_lemma_grammems {
 }
 sub sort_grammems {
     my $self = shift;
-    my $ref = shift;
+    my $ref = $self->{IMPORTER}->{GRAM_ORDER};
 
     for my $form(@{$self->{FORMS}}) {
         $self->sort_form_grammems($form, $ref);
@@ -342,7 +340,7 @@ sub is_to_delete {
     my $self = shift;
 
     for my $form(@{$self->{FORMS}}) {
-        return 0 unless form_has_gram($form, '_del');
+        return 0 unless $self->form_has_gram($form, '_del');
     }
     return 1;
 }

@@ -50,6 +50,7 @@ sub new {
     $self->{LINK_TYPES} = undef;    #all existing link types so far (in order not to ask the DB if it has one)
     $self->{GRAM_ORDER} = undef;
     $self->{BAD_LEMMA_GRAMMEMS} = undef;
+    $self->{WORD_LISTS} = undef;
 
     bless $self;
     #return is implicit in bless
@@ -104,13 +105,31 @@ sub read_bad_lemma_grammems {
     my $path = shift;
 
     open F, $path;
-    binmode (F, ':utf8');
+    binmode(F, ':utf8');
     while(<F>) {
         next unless /\S/;
         next if /^\s*#/;
         chomp;
         my ($pos, $gr) = split /\t/;
         $self->{BAD_LEMMA_GRAMMEMS}->{$pos}->{$gr} = 1;
+    }
+    close F;
+}
+sub preload_list {
+    my $self = shift;
+    my $var = shift;
+    my $path = shift;
+
+    unless (open F, $path) {
+        print STDERR "failed to open $path\n";
+        return 0;
+    }
+    binmode(F, ':utf8');
+    while(<F>) {
+        next unless /\S/;
+        next if /^\s*#/;
+        s/[\r\n]//g;
+        $self->{WORD_LISTS}->{$var}->{OpenCorpora::Dict::Importer::Word::to_lower($_)} = 0;
     }
     close F;
 }
@@ -146,7 +165,7 @@ sub read_aot {
             warn "Warning: Bad string: <$_>";
         }
         elsif (scalar @forms > 0) {
-            $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms, $para_no);
+            $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms, $para_no, $self);
             $self->update_gram_stats(0);
             ++$self->{STATS}->{TOTAL}->{$para_no};
             my $applied = $self->apply_rules();
@@ -166,7 +185,7 @@ sub read_aot {
     }
     #the last word
     if (scalar @forms > 0) {
-        $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms, $para_no);
+        $self->{WORD} = new OpenCorpora::Dict::Importer::Word(\@forms, $para_no, $self);
         $self->update_gram_stats(0);
         ++$self->{STATS}->{TOTAL}->{$para_no};
         my $applied = $self->apply_rules();
@@ -598,10 +617,10 @@ sub update_gram_stats {
 }
 sub print_or_insert {
     my $self = shift;
-    $self->{WORD}->sort_grammems($self->{GRAM_ORDER}) if SORT_GRAMMEMS;
+    $self->{WORD}->sort_grammems() if SORT_GRAMMEMS;
     if (INSERT) {
         $self->{CONNECTION_LEMMA}->execute($self->{WORD}->{LEMMA}) or die $DBI::errstr;
-        $self->{CONNECTION_REVISION}->execute($self->{CONNECTION}->{'mysql_insertid'}, $self->{WORD}->to_xml($self->{BAD_LEMMA_GRAMMEMS})) or die $DBI::errstr;
+        $self->{CONNECTION_REVISION}->execute($self->{CONNECTION}->{'mysql_insertid'}, $self->{WORD}->to_xml()) or die $DBI::errstr;
         print STDERR "Committed revision ".$self->{CONNECTION}->{'mysql_insertid'}."\r" unless QUIET;
         # links
         my $link_typeid;
