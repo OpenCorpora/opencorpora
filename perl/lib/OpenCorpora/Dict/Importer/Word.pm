@@ -87,7 +87,7 @@ sub form_has_all_grams {
     my $self = shift;
     my $form = shift;
     my @search = @{shift()};
-    print STDERR "  testing if ".$form->{TEXT}." has all of ".join(',', @search).'.. ' if DEBUG;
+    print STDERR "  testing if ".$form->{TEXT}." (".join(',', @{$form->{GRAMMEMS}}).") has all of ".join(',', @search).'.. ' if DEBUG;
     my $neg = 0; #whether we have a '!'
     for my $gram(@search) {
         $neg = ($gram =~ s/^\!//);

@@ -84,7 +84,7 @@
     CHANGE (ablt,~/ёю$/ -> ablt,V-ey)
 (* NOUN) & (1 nomn&~/ье$/) & (1 nomn&~/ие$/)
     CHANGE (~/ь..?.?$/ -> V-be)
-    CHANGE (loct&~/ьи$/ -> V-bi)
+    CHANGE (loct,~/ьи$/ -> V-bi)
 (* NOUN)
     CHANGE (anim,inan -> ANim)
 1 Patr
@@ -111,6 +111,8 @@
     SPLIT (masc, femn, Ms-f)
         LINK (0, 1, SURN_MASC-SURN_FEMN)
         LINK (0, 2, SURN_MASC-SURN_PLUR)
+(* Surn&femn) & (1 sing&nomn)
+    CHANGE(Fixd,!sing,!plur -> _del)
 (1 ~/^газпром-медиа$/)
     CHANGE (masc, femn, neut, sing, nomn, gent, datv, accs, ablt, loct, Sgtm, a-pl -> Pltm, Fixd)
 (* NOUN&plur) & (* !Pltm)
