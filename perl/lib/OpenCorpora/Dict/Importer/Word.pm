@@ -19,7 +19,7 @@ sub new {
     $self->{LINKS} = undef;
     $self->{IMPORTER} = $importer;
 
-    if (!$ref) {
+    if (!defined $ref) {
         #no forms given
         bless $self;
         return $self;
@@ -191,7 +191,7 @@ sub split_lemma {
     for my $i(0..$#grammems) {
         $k = $new_grammems[$i];
         next unless exists $new_words{$k};
-        my $word = new();
+        my $word = OpenCorpora::Dict::Importer::Word->new(undef, -1, $self->{IMPORTER});
         my @forms = @{$new_words{$k}};
         $word->{LEMMA} = $forms[0]->{TEXT};
         $word->{FORMS} = \@forms;
@@ -295,6 +295,7 @@ sub get_all_grammems {
 sub get_lemma_grammems {
     my $self = shift;
     my %bad = %{shift()};
+    my %order = %{$self->{IMPORTER}->{GRAM_ORDER}};
     
     my %grams = %{$self->get_all_grammems()};
     my @out;
@@ -312,6 +313,9 @@ sub get_lemma_grammems {
             push @out, $gr;
         }
     }
+
+    @out = sort {$order{$a} <=> $order{$b}} @out;
+
     return \@out;
 }
 sub sort_grammems {
