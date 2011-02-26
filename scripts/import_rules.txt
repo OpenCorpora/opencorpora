@@ -84,7 +84,7 @@
     CHANGE (ablt,~/ёю$/ -> ablt,V-ey)
 (* NOUN) & (1 nomn&~/ье$/) & (1 nomn&~/ие$/)
     CHANGE (~/ь..?.?$/ -> V-be)
-    CHANGE (loct,~/ьи$/ -> V-bi)
+    CHANGE (loct,~/ьи$/ -> loct,V-bi)
 (* NOUN)
     CHANGE (anim,inan -> ANim)
 1 Patr
