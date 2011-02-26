@@ -25,6 +25,9 @@ if (isset($_GET['page'])) {
             $smarty->assign('stats', get_common_stats());
             $smarty->display('stats.tpl');
             break;
+        case 'export':
+            $smarty->display('static/doc/export.tpl');
+            break;
         default:
             $smarty->display('index.tpl');
     }
