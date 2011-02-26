@@ -230,6 +230,8 @@
     CHANGE(ablt,~/еюся$/ -> ablt,V-ey)
 * ADJC
     CHANGE(~/краше$/ -> litr)
+(* ADJF&Anum) & (1 @numr0)
+    CHANGE(@numr0,plur,gent -> plur,datv)
    
 (* ADJF) & (* Fixd)
     GENERATE(sing,plur; nomn,gent,datv,accs,ablt,loct)
