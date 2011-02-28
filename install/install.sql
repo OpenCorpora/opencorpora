@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS `sentences` (
     `sent_id`      INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `par_id`       INT UNSIGNED NOT NULL,
     `pos`          SMALLINT UNSIGNED NOT NULL,
+    `source`       TEXT NOT NULL,
     `check_status` SMALLINT UNSIGNED NOT NULL,
     INDEX (`par_id`),
     INDEX (`pos`)

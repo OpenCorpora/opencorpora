@@ -1,30 +1,31 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-    <form action="?" method="post" class="inline">
-        <textarea style="display: none" name="txt">{$check.full|htmlspecialchars}</textarea>
-        <a href="#" onClick="document.forms[0].submit()">{t}Обратно к форме{/t}</a>
-    </form>
+    <form action="?act=add" method="post">
+    <input type='hidden' name='source_text' value='{$check.full|htmlspecialchars}'/>
     <ol type="I">
     {foreach item=paragraph from=$check.paragraphs}
         <li><ol>
         {foreach item=sentence from=$paragraph.sentences}
             <li>
+            {$sentence.src|htmlspecialchars}<br/>
+            {strip}
+            <textarea cols="70" rows="3" name="sentence[]">
             {foreach item=token from=$sentence.tokens}
-                {if $token.class == -1}
-                    <span class='check_unpos'>{$token.text}</span>
-                {elseif $token.class == 0}
-                    <span class='check_noword'>{$token.text}</span>
-                {else}
-                    {$token.text}
-                {/if}
+            {$token.text}
+            ^^
+            {/foreach}
+            </textarea><br/>
+            {/strip}
+            В словаре нет: 
+            {foreach item=token from=$sentence.tokens}
+            {if $token.class == 0}{$token.text} {/if}
             {/foreach}
             </li>
         {/foreach}
         </ol></li>
     {/foreach}
     </ol>
-    <form action="?act=add" method="post">
         {t}Добавляем в{/t}
         <select id="book0" name="book[]" onChange="changeSelectBook(0)">
             <option value="0">-- {t}Не выбрано{/t} --</option>

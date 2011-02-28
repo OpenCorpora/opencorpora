@@ -614,7 +614,7 @@ function addtext_check($txt) {
         $par_array = array();
         $sents = split2sentences($par);
         foreach ($sents as $sent) {
-            $sent_array = array();
+            $sent_array = array('src' => $sent);
             $tokens = tokenize($sent);
             foreach ($tokens as $token) {
                 $sent_array['tokens'][] = array('text' => $token, 'class' => form_exists($token));
@@ -625,10 +625,11 @@ function addtext_check($txt) {
     }
     return $out;
 }
-function addtext_add($text, $book_id, $par_num) {
+function addtext_add($text, $sentences, $book_id, $par_num) {
     if (!$text || !$book_id || !$par_num) return 0;
     $revset_id = create_revset();
     if (!$revset_id) return 0;
+    $sent_count = 0;
     $pars = split2paragraphs($text);
     foreach($pars as $par) {
         //adding a paragraph
@@ -638,13 +639,13 @@ function addtext_add($text, $book_id, $par_num) {
         $sents = split2sentences($par);
         foreach($sents as $sent) {
             //adding a sentence
-            if (!sql_query("INSERT INTO `sentences` VALUES(NULL, '$par_id', '".($sent_num++)."', '0')")) return 0;
+            if (!sql_query("INSERT INTO `sentences` VALUES(NULL, '$par_id', '".($sent_num++)."', '".mysql_real_escape_string($sent)."', '0')")) return 0;
             $sent_id = sql_insert_id();
             $token_num = 1;
             //strip excess whitespace
-            $sent = preg_replace('/\s\s+/', ' ', $sent);
-            $tokens = tokenize($sent);
+            $tokens = explode('^^', $sentences[$sent_count++]);
             foreach ($tokens as $token) {
+                if ($token == '' || $token == ' ') continue;
                 //adding a textform
                 if (!sql_query("INSERT INTO `text_forms` VALUES(NULL, '$sent_id', '".($token_num++)."', '".mysql_real_escape_string($token)."', '0')")) return 0;
                 $tf_id = sql_insert_id();

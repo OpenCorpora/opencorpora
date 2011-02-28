@@ -8,7 +8,7 @@ if (is_admin()) {
     switch($action) {
         case 'add':
             $book_id = array_pop($_POST['book']);
-            if (!addtext_add($_POST['txt'], (int)$book_id, (int)$_POST['newpar'])) {
+            if (!addtext_add($_POST['txt'], $_POST['sentence'], (int)$book_id, (int)$_POST['newpar'])) {
                 show_error("Text adding failed");
             } else {
                 header("Location:add.php");
