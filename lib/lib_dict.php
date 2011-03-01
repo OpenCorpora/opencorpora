@@ -607,6 +607,56 @@ function tokenize($txt) {
     }
     return $txt;
 }
+function tokenize_ml($txt) {
+    $coeff = array();
+    $out = array();
+    $token = '';
+
+    $res = sql_query("SELECT * FROM tokenizer_coeff");
+    while($r = sql_fetch_array($res)) {
+        $coeff[$r['param']] = $r['coeff'];
+    }
+
+    for($i = 0; $i < mb_strlen($txt, 'UTF-8'); ++$i) {
+        $char = mb_substr($txt, $i, 1, 'UTF-8');
+        if ($i < mb_strlen($txt, 'UTF-8')-1)
+            $nextchar = mb_substr($txt, $i+1, 1, 'UTF-8');
+        else 
+            $nextchar = ' ';
+
+        $f[0] = $coeff[0];
+        $f[1] = is_cyr($char) ? $coeff[1] : 0;
+        $f[2] = $nextchar == ' ' ? $coeff[2] : 0;
+        $f[3] = is_pmark($nextchar) ? $coeff[3] : 0;
+        $f[4] = is_pmark($char) ? $coeff[4] : 0;
+        $f[5] = is_cyr($char) ? $coeff[1] : 0;
+
+        $sum = 0;
+        for ($j = 0; $j < 5; ++$j) $sum += $f[$j];
+
+        $token .= $char;
+
+        if ($sum > 0.5) {
+            $token = trim($token);
+            if ($token) $out[] = $token;
+            $token = '';
+        }
+    }
+    return $out;
+
+}
+function is_cyr($char) {
+    $re_cyr = '/[А-Яа-яЁё]/u';
+    return preg_match($re_cyr, $char);
+}
+function is_latin($char) {
+    $re_lat = '/[A-Za-z]/u';
+    return preg_match($re_lat, $char);
+}
+function is_pmark($char) {
+    $re_punctuation = '/[\.,!\?;:\(\)\[\]\/"\xAB\xBB]/u';
+    return preg_match($re_punctuation, $char);
+}
 function addtext_check($txt) {
     $out = array('full' => $txt, 'select' => books_get_select(0));
     $pars = split2paragraphs($txt);
@@ -615,7 +665,7 @@ function addtext_check($txt) {
         $sents = split2sentences($par);
         foreach ($sents as $sent) {
             $sent_array = array('src' => $sent);
-            $tokens = tokenize($sent);
+            $tokens = tokenize_ml($sent);
             foreach ($tokens as $token) {
                 $sent_array['tokens'][] = array('text' => $token, 'class' => form_exists($token));
             }

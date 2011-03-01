@@ -207,3 +207,13 @@ CREATE TABLE IF NOT EXISTS `stats_values` (
     `param_id`    SMALLINT UNSIGNED NOT NULL,
     `param_value` INT UNSIGNED NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS `tokenizer_learn_data` (
+    `vector` INT UNSIGNED NOT NULL,
+    `border` TINYINT(1) UNSIGNED NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `tokenizer_coeff` (
+    `param` SMALLINT UNSIGNED NOT NULL,
+    `coeff` FLOAT NOT NULL
+);
