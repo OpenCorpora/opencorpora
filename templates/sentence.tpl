@@ -3,7 +3,7 @@
 {block name=body}<body onload="highlight_source(); document.onkeyup=checkKeyUp; document.onkeydown=checkKeyDown; document.onmouseup=endScroll; prepareScroll();">{/block}
 {block name=content}
     {strip}
-    <div id="source_text"><b>{t}Исходный текст{/t}:</b> {$sentence.fulltext}</div>
+    <div id="source_text"><b>{t}Весь текст{/t}:</b> {$sentence.fulltext}</div>
     <form method="post" action="?id={$sentence.id}&amp;act=save">
         <div id="main_scroller">
             <div>

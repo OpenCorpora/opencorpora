@@ -1,7 +1,9 @@
 <?php
 function get_sentence($sent_id) {
+    $r = sql_fetch_array(sql_query("SELECT `check_status` FROM sentences WHERE sent_id=$sent_id LIMIT 1"));
     $out = array(
-        'id' => $sent_id
+        'id' => $sent_id,
+        'status' => $r['check_status']
     );
     $tf_text = array();
     $res = sql_query("SELECT tf_id, tf_text, dict_updated FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");

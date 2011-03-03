@@ -665,7 +665,7 @@ function addtext_check($txt) {
         $sents = split2sentences($par);
         foreach ($sents as $sent) {
             $sent_array = array('src' => $sent);
-            $tokens = tokenize_ml($sent);
+            $tokens = tokenize($sent);
             foreach ($tokens as $token) {
                 $sent_array['tokens'][] = array('text' => $token, 'class' => form_exists($token));
             }

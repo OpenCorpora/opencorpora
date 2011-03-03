@@ -28,18 +28,16 @@ function get_book_page($book_id, $ext = false) {
         $res = sql_query("SELECT p.`pos` ppos, s.sent_id, s.`pos` spos FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = $book_id ORDER BY p.`pos`, s.`pos`");
         while ($r = sql_fetch_array($res)) {
             $snippet = '';
-            $res1 = sql_query("SELECT `tf_text` AS txt FROM `text_forms` WHERE `sent_id` = ".$r['sent_id']." ORDER BY `pos` LIMIT 3", 0);
-            while ($r1 = sql_fetch_array($res1)) {
-                $snippet .= $r1['txt'].' ';
-            }
-            if ($snippet) $snippet .= '...';
-            $res1 = sql_query("SELECT `tf_text` AS txt FROM `text_forms` WHERE `sent_id` = ".$r['sent_id']." ORDER BY `pos` DESC LIMIT 3", 0);
-            $txt = '';
-            while ($r1 = sql_fetch_array($res1)) {
-                $txt = ' '.$r1['txt'].$txt;
-            }
-            $snippet .= $txt;
-            $out['paragraphs'][$r['ppos']][] = array('pos' => $r['spos'], 'id' => $r['sent_id'], 'snippet' => typo_spaces($snippet));
+
+            $r1 = sql_fetch_array(sql_query("SELECT SUBSTRING_INDEX(source, ' ', 3) AS `start` FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
+            $snippet = $r1['start'];
+
+            if ($snippet) $snippet .= '... ';
+
+            $r1 = sql_fetch_array(sql_query("SELECT SUBSTRING_INDEX(source, ' ', -3) AS `end` FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
+            $snippet .= $r1['end'];
+
+            $out['paragraphs'][$r['ppos']][] = array('pos' => $r['spos'], 'id' => $r['sent_id'], 'snippet' => $snippet);
         }
     } else {
         $res = sql_query("SELECT p.`pos`, s.sent_id FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = $book_id ORDER BY p.`pos`, s.`pos`");

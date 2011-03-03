@@ -11,7 +11,7 @@ if (is_admin()) {
             if (!addtext_add($_POST['txt'], $_POST['sentence'], (int)$book_id, (int)$_POST['newpar'])) {
                 show_error("Text adding failed");
             } else {
-                header("Location:add.php");
+                header("Location:books.php?book_id=$book_id");
             }
             return;
         case 'check':
