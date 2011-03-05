@@ -576,12 +576,16 @@ function tokenize($txt) {
             continue;
         }
         #hyphen check
-        if (preg_match('/([А-Яа-яЁё]+)-([А-Яа-яЁё]+)/u', $word, $matches)) {
+        if (preg_match('/^([А-Яа-яЁё]+)-([А-Яа-яЁё]+)(.+)?$/u', $word, $matches)) {
             $txt[] = $matches[1];
             $txt[] = '-';
             $txt[] = $matches[2];
             $last_letter = 1;
-            continue;
+            if ($matches[3]) {
+                $word = $matches[3];
+            } else {
+                continue;
+            }
         }
         for($i = 0; $i < mb_strlen($word, 'UTF-8'); ++$i) {
             $char = mb_substr($word, $i, 1, 'UTF-8');
