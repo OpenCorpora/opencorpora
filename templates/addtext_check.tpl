@@ -45,7 +45,6 @@
         </select>
         <br/>
         <p id="lastpar_info">{t}Надо выбрать книгу.{/t}</p>
-        <textarea style="display: none" name="txt">{$check.full|htmlspecialchars}</textarea>
         {t}Счёт абзацев &ndash; с{/t}
         <input id="newpar" name="newpar" size="3" maxlength="3" value="1"/>
         <input id="submitter" type="submit" value="{t}Добавить{/t}" disabled="disabled"/>
