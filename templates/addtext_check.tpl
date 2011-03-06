@@ -4,23 +4,32 @@
     <form action="?act=add" method="post">
     <input type='hidden' name='source_text' value='{$check.full|htmlspecialchars}'/>
     <ol type="I">
-    {foreach item=paragraph from=$check.paragraphs}
+    {foreach item=paragraph from=$check.paragraphs name=par}
         <li><ol>
-        {foreach item=sentence from=$paragraph.sentences}
-            <li>
-            {$sentence.src|htmlspecialchars}<br/>
+        {foreach item=sentence from=$paragraph.sentences name=s}
+            <li style='line-height: 25px'>
             {strip}
-            <textarea cols="70" rows="3" name="sentence[]">
             {foreach item=token from=$sentence.tokens}
-            {$token.text}
+            {if $token.class == 0}
+                <span class='check_noword'>{$token.text|htmlspecialchars}</span>
+            {else}
+                {$token.text|htmlspecialchars}
+            {/if}
+            {if $token.border < 1}
+                <span class='doubt_border'> ?&nbsp;</span>
+            {else}
+                <span class='ok_border'> &nbsp;</span>
+            {/if}
+            {/foreach}
+            <br/>
+            <a href="#" onclick="hide(this); show(byid('p{$smarty.foreach.par.index}s{$smarty.foreach.s.index}')); return false" class='toggle'>внести исправления</a>
+            <textarea cols="70" rows="3" name="sentence[]" style="display:none" id="p{$smarty.foreach.par.index}s{$smarty.foreach.s.index}">
+            {foreach item=token from=$sentence.tokens}
+            {$token.text|htmlspecialchars}
             ^^
             {/foreach}
             </textarea><br/>
             {/strip}
-            В словаре нет: 
-            {foreach item=token from=$sentence.tokens}
-            {if $token.class == 0}{$token.text} {/if}
-            {/foreach}
             </li>
         {/foreach}
         </ol></li>

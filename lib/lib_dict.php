@@ -618,36 +618,55 @@ function tokenize_ml($txt) {
 
     $res = sql_query("SELECT * FROM tokenizer_coeff");
     while($r = sql_fetch_array($res)) {
-        $coeff[$r['param']] = $r['coeff'];
+        $coeff[$r[0]] = $r[1];
     }
 
     for($i = 0; $i < mb_strlen($txt, 'UTF-8'); ++$i) {
         $char = mb_substr($txt, $i, 1, 'UTF-8');
-        if ($i < mb_strlen($txt, 'UTF-8')-1)
+        if (uniord($char) == 769) continue;
+        if ($i < mb_strlen($txt, 'UTF-8')-1) {
             $nextchar = mb_substr($txt, $i+1, 1, 'UTF-8');
+            if (uniord($nextchar) == 769)
+                $nextchar = mb_substr($txt, $i+2, 1, 'UTF-8');
+        }
         else 
             $nextchar = ' ';
 
-        $f[0] = $coeff[0];
-        $f[1] = is_cyr($char) ? $coeff[1] : 0;
-        $f[2] = $nextchar == ' ' ? $coeff[2] : 0;
-        $f[3] = is_pmark($nextchar) ? $coeff[3] : 0;
-        $f[4] = is_pmark($char) ? $coeff[4] : 0;
-        $f[5] = is_cyr($char) ? $coeff[1] : 0;
+        $vector = array(
+            is_space($char),
+            is_space($nextchar),
+            is_pmark($char),
+            is_pmark($nextchar),
+            is_latin($char),
+            is_latin($nextchar),
+            is_cyr($char),
+            is_cyr($nextchar)
+        );
+        $vector = implode('', $vector);
 
-        $sum = 0;
-        for ($j = 0; $j < 5; ++$j) $sum += $f[$j];
+        if (isset($coeff[bindec($vector)])) {
+            $sum = $coeff[bindec($vector)];
+        } else {
+            $sum = 0.5;
+        }
 
         $token .= $char;
 
-        if ($sum > 0.5) {
+        if ($sum > 0) {
             $token = trim($token);
-            if ($token) $out[] = $token;
+            if ($token) $out[] = array($token, $sum);
             $token = '';
         }
     }
     return $out;
 
+}
+function uniord($u) {
+    $c = unpack("N", mb_convert_encoding($u, 'UCS-4BE', 'UTF-8'));
+    return $c[1];
+}
+function is_space($char) {
+    return preg_match('/^\s$/u', $char);
 }
 function is_cyr($char) {
     $re_cyr = '/[А-Яа-яЁё]/u';
@@ -669,9 +688,9 @@ function addtext_check($txt) {
         $sents = split2sentences($par);
         foreach ($sents as $sent) {
             $sent_array = array('src' => $sent);
-            $tokens = tokenize($sent);
+            $tokens = tokenize_ml($sent);
             foreach ($tokens as $token) {
-                $sent_array['tokens'][] = array('text' => $token, 'class' => form_exists($token));
+                $sent_array['tokens'][] = array('text' => $token[0], 'class' => form_exists($token[0]), 'border' => $token[1]);
             }
             $par_array['sentences'][] = $sent_array;
         }

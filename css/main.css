@@ -115,8 +115,13 @@ span.check_unpos {
     color: #CCC;
 }
 span.check_noword {
-    background-color: #C00;
-    color: yellow;
+    background-color: yellow;
+}
+span.doubt_border {
+    background-color: #F69;
+}
+span.ok_border {
+    background-color: #6F0;
 }
 /* GRAMMEM EDITOR */
 tr.gramed_bad {
