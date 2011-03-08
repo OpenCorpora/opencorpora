@@ -79,8 +79,11 @@ function get_common_stats() {
 function get_downloads_info() {
     $dict = array();
     $stat = stat('files/export/dict/dict.opcorpora.xml.bz2');
-    $dict['size'] = sprintf("%.2f", $stat[7] / (1024 * 1024));
+    $dict['bz2']['size'] = sprintf("%.2f", $stat[7] / (1024 * 1024));
     $dict['updated'] = date('d.m.Y H:i \U\T\C', $stat[9]);
+    $stat = stat('files/export/dict/dict.opcorpora.xml.zip');
+    $dict['zip']['size'] = sprintf("%.2f", $stat[7] / (1024 * 1024));
+
     return array('dict'=>$dict);
 }
 function set_readonly_on() {
