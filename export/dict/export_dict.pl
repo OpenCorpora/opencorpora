@@ -93,35 +93,37 @@ while ($flag) {
 
 print "</lemmata>\n" unless PLAINTEXT;
 
-# link types
-print "<link_types>\n";
+unless (PLAINTEXT) {
+    # link types
+    print "<link_types>\n";
 
-$read_lt->execute();
-while($r = $read_lt->fetchrow_hashref()) {
-    print '<type id="'.$r->{'link_id'}.'">'.tidy_xml($r->{'link_name'})."</type>\n";
-}
-
-print "</link_types>\n";
-
-# links
-print "<links>\n";
-
-$min_lid = 0;
-$flag = 1;
-
-while($flag) {
-    $flag = 0;
-    $read_links->execute($min_lid);
-    while($r = $read_links->fetchrow_hashref()) {
-        $flag = 1;
-        print '    <link id="'.$r->{'link_id'}.'" from="'.$r->{'lemma1_id'}.'" to="'.$r->{'lemma2_id'}.'" type="'.$r->{'link_type'}."\"/>\n";
+    $read_lt->execute();
+    while($r = $read_lt->fetchrow_hashref()) {
+        print '<type id="'.$r->{'link_id'}.'">'.tidy_xml($r->{'link_name'})."</type>\n";
     }
-    $min_lid += 10000;
+
+    print "</link_types>\n";
+
+    # links
+    print "<links>\n";
+
+    $min_lid = 0;
+    $flag = 1;
+
+    while($flag) {
+        $flag = 0;
+        $read_links->execute($min_lid);
+        while($r = $read_links->fetchrow_hashref()) {
+            $flag = 1;
+            print '    <link id="'.$r->{'link_id'}.'" from="'.$r->{'lemma1_id'}.'" to="'.$r->{'lemma2_id'}.'" type="'.$r->{'link_type'}."\"/>\n";
+        }
+        $min_lid += 10000;
+    }
+
+    print "</links>\n";
+
+    print $footer."\n";
 }
-
-print "</links>\n";
-
-print $footer."\n";
 
 unlink($lock_path);
 
@@ -144,14 +146,14 @@ sub rev2text {
 
     $str =~ /<l(.+)\/l/;
     my $lstr = $1;
-    while ($lstr =~ /<g v="(\w+)"/g) {
+    while ($lstr =~ /<g v="([^"]+)"/g) {
         push @lgr, $1;
     }
     while ($str =~ /<f t="([^"]+)">(.+?)?<\/f>/g) {
         $out .= uc(decode('utf8', $1))."\t";
         my $fstr = $2;
         @fgr = ();
-        while ($fstr =~ /<g v="(\w+)"/g) {
+        while ($fstr =~ /<g v="([^"]+)"/g) {
             push @fgr, $1;
         }
         $out .= join(',', (@lgr, @fgr))."\n";
