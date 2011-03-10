@@ -79,10 +79,16 @@ function get_common_stats() {
 function get_downloads_info() {
     $dict = array();
     $stat = stat('files/export/dict/dict.opcorpora.xml.bz2');
-    $dict['bz2']['size'] = sprintf("%.2f", $stat[7] / (1024 * 1024));
-    $dict['updated'] = date('d.m.Y H:i \U\T\C', $stat[9]);
+    $dict['xml']['bz2']['size'] = sprintf("%.2f", $stat[7] / (1024 * 1024));
+    $dict['xml']['updated'] = date('d.m.Y H:i \U\T\C', $stat[9]);
     $stat = stat('files/export/dict/dict.opcorpora.xml.zip');
-    $dict['zip']['size'] = sprintf("%.2f", $stat[7] / (1024 * 1024));
+    $dict['xml']['zip']['size'] = sprintf("%.2f", $stat[7] / (1024 * 1024));
+
+    $stat = stat('files/export/dict/dict.opcorpora.txt.bz2');
+    $dict['txt']['bz2']['size'] = sprintf("%.2f", $stat[7] / (1024 * 1024));
+    $dict['txt']['updated'] = date('d.m.Y H:i \U\T\C', $stat[9]);
+    $stat = stat('files/export/dict/dict.opcorpora.txt.zip');
+    $dict['txt']['zip']['size'] = sprintf("%.2f", $stat[7] / (1024 * 1024));
 
     return array('dict'=>$dict);
 }

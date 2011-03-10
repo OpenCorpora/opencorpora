@@ -1,13 +1,20 @@
 #!/bin/bash
 touch /var/lock/oc_readonly.lock
-newpath=/corpus/files/export/dict/dict.opcorpora.xml
-/corpus/export/dict/export_dict.pl $1 </corpus/lib/config.php >$newpath
+newpath=/corpus/files/export/dict/dict.opcorpora
+/corpus/export/dict/export_dict.pl $1 </corpus/lib/config.php >$newpath.xml
 if [ `ls -l $newpath | awk '{print $5}'` -gt 100 ]; then
-    bzip2 -c9 $newpath >$newpath.bz2.new
-    mv $newpath.bz2.new $newpath.bz2
-    zip -9 $newpath.zip.new $newpath
-    mv $newpath.zip.new $newpath.zip
-    rm $newpath
+    bzip2 -c9 $newpath.xml >$newpath.xml.bz2.new
+    mv $newpath.xml.bz2.new $newpath.xml.bz2
+    zip -9 $newpath.xml.zip.new $newpath.xml
+    mv $newpath.xml.zip.new $newpath.xml.zip
+    rm $newpath.xml
+
+    /corpus/export/dict/export_dict.pl $1 --PLAINTEXT </corpus/lib/config.php >$newpath.txt
+    bzip2 -c9 $newpath.txt >$newpath.txt.bz2.new
+    mv $newpath.txt.bz2.new $newpath.txt.bz2
+    zip -9 $newpath.txt.zip.new $newpath.txt
+    mv $newpath.txt.zip.new $newpath.txt.zip
+    rm $newpath.txt
 else
     echo 'Generated dictionary export is too small, no overwriting' >&2
 fi
