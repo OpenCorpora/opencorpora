@@ -3,7 +3,8 @@
 use strict;
 use utf8;
 use DBI;
-use Getopt::constant('FORCE' => 0);
+use Encode;
+use Getopt::constant('FORCE' => 0, 'PLAINTEXT' => 0);
 
 my $lock_path = "/var/lock/opcorpora_export_dict.lock";
 if (-f $lock_path) {
@@ -29,6 +30,7 @@ if (!$dbh) {
     die $DBI::errstr;
 }
 $dbh->do("SET NAMES utf8");
+binmode(STDOUT, ':utf8');
 
 my $ts = $dbh->prepare("SELECT MAX(`timestamp`) `timestamp` FROM `rev_sets` WHERE `set_id` IN ((SELECT `set_id` FROM dict_revisions ORDER BY `rev_id` DESC LIMIT 1), (SELECT `set_id` FROM dict_links_revisions ORDER BY `rev_id` DESC LIMIT 1))");
 $ts->execute();
@@ -49,22 +51,26 @@ $r = $rev->fetchrow_hashref();
 my $r1;
 my $maxrev = $r->{'m'};
 
-my $header = "<?xml version=\"1.0\" encoding=\"utf8\" standalone=\"yes\"?>\n<dictionary version=\"0.8\" revision=\"$maxrev\">\n";
-my $footer = "</dictionary>";
+my $header;
+my $footer;
+unless (PLAINTEXT) {
+    $header = "<?xml version=\"1.0\" encoding=\"utf8\" standalone=\"yes\"?>\n<dictionary version=\"0.8\" revision=\"$maxrev\">\n";
+    $footer = "</dictionary>";
 
-# grammems
-my $grams = "<grammems>\n";
+    # grammems
+    my $grams = "<grammems>\n";
 
-$read_g->execute();
-while($r = $read_g->fetchrow_hashref()) {
-    $grams .= "    <grammem parent=\"$r->{'pid'}\">".tidy_xml($r->{'id'})."</grammem>\n";
+    $read_g->execute();
+    while($r = $read_g->fetchrow_hashref()) {
+        $grams .= "    <grammem parent=\"$r->{'pid'}\">".tidy_xml($r->{'id'})."</grammem>\n";
+    }
+    $grams .= "</grammems>\n";
+
+    print $header.$grams;
 }
-$grams .= "</grammems>\n";
-
-print $header.$grams;
 
 # lemmata
-print "<lemmata>\n";
+print "<lemmata>\n" unless PLAINTEXT;
 
 my $flag = 1;
 my $min_lid = 0;
@@ -75,12 +81,17 @@ while ($flag) {
     while($r = $read_l->fetchrow_hashref()) {
         $flag = 1;
         $r->{'rev_text'} =~ s/<\/?dr>//g;
-        print '    <lemma id="'.$r->{'lemma_id'}.'" rev="'.$r->{'rev_id'}.'">'.$r->{'rev_text'}."</lemma>\n";
+        if (PLAINTEXT) {
+            print $r->{'lemma_id'}."\n";
+            print rev2text($r->{'rev_text'})."\n";
+        } else {
+            print '    <lemma id="'.$r->{'lemma_id'}.'" rev="'.$r->{'rev_id'}.'">'.$r->{'rev_text'}."</lemma>\n";
+        }
     }
     $min_lid += 50000;
 }
 
-print "</lemmata>\n";
+print "</lemmata>\n" unless PLAINTEXT;
 
 # link types
 print "<link_types>\n";
@@ -122,4 +133,28 @@ sub tidy_xml {
     $arg =~ s/</&lt;/g;
     $arg =~ s/>/&gt;/g;
     return $arg;
+}
+sub rev2text {
+    my $str = shift;
+
+    my @lgr;
+    my @fgr;
+    my $fstr;
+    my $out = '';
+
+    $str =~ /<l(.+)\/l/;
+    my $lstr = $1;
+    while ($lstr =~ /<g v="(\w+)"/g) {
+        push @lgr, $1;
+    }
+    while ($str =~ /<f t="([^"]+)">(.+?)?<\/f>/g) {
+        $out .= uc(decode('utf8', $1))."\t";
+        my $fstr = $2;
+        @fgr = ();
+        while ($fstr =~ /<g v="(\w+)"/g) {
+            push @fgr, $1;
+        }
+        $out .= join(',', (@lgr, @fgr))."\n";
+    }
+    return $out;
 }
