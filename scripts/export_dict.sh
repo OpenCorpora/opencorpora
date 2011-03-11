@@ -2,7 +2,7 @@
 touch /var/lock/oc_readonly.lock
 newpath=/corpus/files/export/dict/dict.opcorpora
 /corpus/export/dict/export_dict.pl $1 </corpus/lib/config.php >$newpath.xml
-if [ `ls -l $newpath | awk '{print $5}'` -gt 100 ]; then
+if [ `ls -l $newpath.xml | awk '{print $5}'` -gt 100 ]; then
     bzip2 -c9 $newpath.xml >$newpath.xml.bz2.new
     mv $newpath.xml.bz2.new $newpath.xml.bz2
     zip -9 $newpath.xml.zip.new $newpath.xml
