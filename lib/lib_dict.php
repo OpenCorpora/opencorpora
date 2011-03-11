@@ -654,7 +654,7 @@ function tokenize_ml($txt) {
 
         if ($sum > 0) {
             $token = trim($token);
-            if ($token) $out[] = array($token, $sum);
+            if ($token !== '') $out[] = array($token, $sum);
             $token = '';
         }
     }
@@ -700,10 +700,16 @@ function addtext_check($txt) {
 }
 function addtext_add($text, $sentences, $book_id, $par_num) {
     if (!$text || !$book_id || !$par_num) return 0;
+    //removing unicode diacritics
+    $clear_text = '';
+    for($i = 0; $i < mb_strlen($text, 'UTF-8'); ++$i) {
+        $char = mb_substr($text, $i, 1, 'UTF-8');
+        if (uniord($char) != 769) $clear_text .= $char;
+    }
     $revset_id = create_revset();
     if (!$revset_id) return 0;
     $sent_count = 0;
-    $pars = split2paragraphs($text);
+    $pars = split2paragraphs($clear_text);
     foreach($pars as $par) {
         //adding a paragraph
         if (!sql_query("INSERT INTO `paragraphs` VALUES(NULL, '$book_id', '".($par_num++)."')")) return 0;
