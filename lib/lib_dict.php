@@ -181,6 +181,7 @@ function dict_add_lemma($array) {
     $lgram = $array['form_gram'];
     $lemma_gram_new = $array['lemma_gram'];
     $lemma_text = $array['lemma_text'];
+    $comment = mysql_real_escape_string($array['comment']);
     $new_paradigm = array();
     foreach($ltext as $i=>$text) {
         $text = trim($text);
@@ -213,7 +214,7 @@ function dict_add_lemma($array) {
     $lemma_id = sql_insert_id();
     //array -> xml
     $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
-    $res = new_dict_rev($lemma_id, $new_xml);
+    $res = new_dict_rev($lemma_id, $new_xml, $comment);
     if ($res) {
         header("Location:dict.php?act=edit&saved&id=$lemma_id");
         return;
