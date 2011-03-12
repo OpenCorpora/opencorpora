@@ -156,7 +156,7 @@ sub rev2text {
         while ($fstr =~ /<g v="([^"]+)"/g) {
             push @fgr, $1;
         }
-        $out .= join(',', (@lgr, @fgr))."\n";
+        $out .= join(',', @lgr).' '.join(',', @fgr)."\n";
     }
     return $out;
 }
