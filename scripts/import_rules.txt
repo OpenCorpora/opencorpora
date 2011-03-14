@@ -67,7 +67,9 @@
     CHANGE(арх -> Arch)
     CHANGE(0 -> Fixd)
     CHANGE (опч -> Erro)
-    
+
+(* ~/^-/)
+    CHANGE (-> _del)
 
 # существительное
 * NOUN    
@@ -178,7 +180,7 @@
 (1 ADJF&Name)
     CHANGE(ADJF, Name -> ADJF)
 (1 ADJC)
-	CHANGE(ADJF, ADJC -> ADJC)
+    CHANGE(ADJF, ADJC -> ADJC)
 (1 ADJS|ADJC|~/ейш/|~/айш/) & (* ADJF|ADJS|ADJC)
     SPLIT(ADJF&!~/ейш/&!~/айш/&!Supr, ADJF&~/ейш/&!~/наи/, ADJF&~/айш/&!~/наи/, ADJF&~/ейш/&~/наи/, ADJF&~/айш/&~/наи/, ADJS&!~/ейш/&!~/айш/, ADJS&~/ейш/&!~/наи/, ADJS&~/айш/&!~/наи/, ADJS&~/ейш/&~/наи/, ADJS&~/aйш/&~/наи/, ADJC&!~/ейш/&!~/айш/, ADJC&~/ейш/&!~/наи/, ADJC&~/айш/&!~/наи/, ADJC&~/айш/&~/наи/, ADJC&~/ейш/&~/наи/, ADJF&~/^наи/&!~/ейш/&!~/айш/&Supr&!~/хорош/, ADJF&!~/^наи/&!~/ейш/&!~/айш/&Supr, ADJF&~/^наи/&!~/ейш/&!~/айш/&Supr&~/хорош/, *)
         LINK(0, 1, ADJF-SUPR_ejsh)
@@ -233,9 +235,10 @@
 (* ADJF&Anum) & (1 @numr0)
     CHANGE(@numr0,plur,gent -> plur,datv)
    
-(* ADJF) & (* Fixd)
+(* ADJF&Fixd)
     GENERATE(sing,plur; nomn,gent,datv,accs,ablt,loct)
     CHANGE(anim,inan, accs -> accs)
+    CHANGE(@adjf_fixd -> _del)
     
 # глагол (инфинитив, личная форма, причастие, краткое причастие, деепричастие)
 (1 INFN)
@@ -330,4 +333,3 @@
     CHANGE( NUMR -> ADJF)
 (* NUMR) & (1 ~/^меньше$/)
     CHANGE(NUMR,ADJC -> ADVB)
-    	
