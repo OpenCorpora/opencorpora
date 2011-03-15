@@ -272,6 +272,8 @@
     CHANGE(VERB,actv -> VERB)
 (1 Impe)
     CHANGE(!tran,!intr -> intr)
+(* Impe&!sing&!neut)
+    CHANGE ( -> sing,neut)
 (1 impr)
     CHANGE (impr,1per -> impr,incl)
     CHANGE (impr,2per -> impr,excl)
