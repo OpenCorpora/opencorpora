@@ -246,6 +246,12 @@
 (1 GRND)
     CHANGE(GRND,~/ши$/ -> GRND,Infr)
     CHANGE(GRND,actv -> GRND)
+# duplicate gerunds
+(1 GRND&perf&past&~/шись$/) && (1 GRND&perf&past&~/нувшись$/)
+    CHANGE(GRND,past,perf,~/шись$/,!~/нувшись$/ -> GRND,past,perf,Infr)
+(1 GRND&perf&past&~/еревшись$/) && (1 GRND&perf&past&~/ёршись$/)
+    CHANGE(GRND,past,perf,~/ёршись$/ -> GRND,past,perf,Infr)
+
 (1 PRTF&ablt&~/ей$/)
     CHANGE(ablt,~/ею$/ -> ablt,V-ey)
 (1 PRTF&ablt&~/ейся$/)
