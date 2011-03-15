@@ -40,8 +40,6 @@
     CHANGE(притяж -> Poss)
     CHANGE(жарг -> Slng)
     CHANGE(безл -> Impe)
-#    CHANGE( -> Mult)
-#    CHANGE( -> Refl)
     CHANGE(1л -> 1per)
     CHANGE(2л -> 2per)
     CHANGE(3л -> 3per)
@@ -54,6 +52,7 @@
     CHANGE(указат -> Dmns)
     CHANGE (ЧИСЛ -> NUMR)
     CHANGE (МС -> NPRO)
+    CHANGE (МС-ПРЕДК -> NPRO)
     CHANGE (ПРЕДК -> PRED)
     CHANGE (МЕЖД -> INTJ)
     CHANGE (ПРЕДЛ -> PREP)
@@ -159,6 +158,12 @@
     CHANGE ( -> _del)
 (* Surn) & (1 ~/^целий$/)
     CHANGE ( -> _del)
+(* NOUN) & (1 nomn&@nouns_subst)
+    CHANGE ( -> _del)
+(* NOUN&anim) & (1 ~/^кривая$/)
+    CHANGE ( -> _del)
+(* NOUN&anim) & (1 ~/^русская$/)
+    CHANGE ( -> _del)
 (* NOUN) & (1 nomn&sing&@anim0)
     CHANGE (anim -> ANim)
     CHANGE (inan -> ANim)
@@ -234,6 +239,8 @@
     CHANGE(~/краше$/ -> litr)
 (* ADJF&Anum) & (1 @numr0)
     CHANGE(@numr0,plur,gent -> plur,datv)
+(* ADJF|PRTF) & (1 @nouns_subst)
+    CHANGE ( -> Subx)
    
 (* ADJF&Fixd)
     GENERATE(sing,plur; nomn,gent,datv,accs,ablt,loct)
@@ -325,8 +332,6 @@
     CHANGE(ФРАЗ -> _del) 
 (* ~/^невзирая$/)
     CHANGE(ФРАЗ -> PREP) #Невзирая на это, он успел на поезд
-* МС-ПРЕДК
-    CHANGE(МС-ПРЕДК -> PRED,Ppro)
 (* ~/^ради$/)
     CHANGE(ПОСЛ -> _del) 
 # числительное
