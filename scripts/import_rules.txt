@@ -254,6 +254,10 @@
     CHANGE(GRND,~/ши$/ -> GRND,Infr)
     CHANGE(GRND,actv -> GRND)
 # duplicate gerunds
+(1 GRND&perf&past&~/[ая]сь$/) & (1 GRND&perf&past&~/ившись$/)
+    CHANGE(GRND,past,perf,~/[ая]сь$/ -> GRND,past,perf,Fimp)
+(1 GRND&perf&past&~/я$/) & (1 GRND&perf&past&~/ив$/)
+    CHANGE(GRND,past,perf,~/я$/ -> GRND,past,perf,Fimp)
 (1 GRND&perf&past&~/шись$/) && (1 GRND&perf&past&~/нувшись$/)
     CHANGE(GRND,past,perf,~/шись$/,!~/нувшись$/ -> GRND,past,perf,Infr)
 (1 GRND&perf&past&~/еревшись$/) && (1 GRND&perf&past&~/ёршись$/)
@@ -335,7 +339,9 @@
 (* ~/^невзирая$/)
     CHANGE(ФРАЗ -> PREP) #Невзирая на это, он успел на поезд
 (* ~/^ради$/)
-    CHANGE(ПОСЛ -> _del) 
+    CHANGE(ПОСЛ -> _del)
+(1 INTJ) & (1 PRCL)
+    SPLIT(INTJ, PRCL)
 # числительное
 (* NUMR) & (1 ~/много$/|~/немножко/|~/мног..$/|~/немножечко/|~/больше/|~/мног...$/|~/более/)
     CHANGE( -> _del)
