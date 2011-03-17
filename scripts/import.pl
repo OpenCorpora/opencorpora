@@ -16,4 +16,5 @@ $importer->preload_list('anim0', '/home/grand/corpus/scripts/lists/Del_anim-inan
 $importer->preload_list('numr0', '/home/grand/corpus/scripts/lists/list_numr_dupl_gent.txt');
 $importer->preload_list('adjf_fixd', '/home/grand/corpus/scripts/lists/list_adjf_fixd_delete.txt');
 $importer->preload_list('nouns_subst', '/home/grand/corpus/scripts/lists/nouns_subst.txt');
+$importer->preload_list('arch', '/home/grand/corpus/scripts/lists/add_Arch.txt');
 $importer->read_aot('/home/grand/aot_dump.2');

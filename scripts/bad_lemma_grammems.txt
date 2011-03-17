@@ -3,6 +3,8 @@
 *	indc
 VERB	pres
 VERB	past
+VERB	masc
+VERB	neut
 GRND	pres
 GRND	past
 ADJS	neut

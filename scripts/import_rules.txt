@@ -167,6 +167,8 @@
 (* NOUN) & (1 nomn&sing&@anim0)
     CHANGE (anim -> ANim)
     CHANGE (inan -> ANim)
+(1 @arch)
+    CHANGE (@arch -> Arch)
 # АУДИ С, 0, мр-жр, но
 
 
@@ -276,7 +278,7 @@
     CHANGE(VERB,actv -> VERB)
 (1 Impe)
     CHANGE(!tran,!intr -> intr)
-(* Impe&!sing&!neut)
+(* VERB&Impe&!sing&!neut)
     CHANGE ( -> sing,neut)
 (1 impr)
     CHANGE (impr,1per -> impr,incl)
