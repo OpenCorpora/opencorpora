@@ -247,7 +247,16 @@
 (* ADJF&Fixd)
     GENERATE(sing,plur; nomn,gent,datv,accs,ablt,loct)
     CHANGE(anim,inan, accs -> accs)
-    CHANGE(@adjf_fixd -> _del)
+    CHANGE(@adjf_fixd_del -> _del)
+(* ADJF&Fixd&@adjf_fixd_advb)
+    GENERATE(masc,femn,neut)
+(* NOUN&@adjf_fixd_advb) | (* ADVB&@adjf_fixd_advb)
+    CHANGE ( -> _del)
+
+(* ADJF&Fixd)
+    CHANGE(masc,plur -> _del)
+    CHANGE(femn,plur -> _del)
+    CHANGE(neut,plur -> _del)
     
 # глагол (инфинитив, личная форма, причастие, краткое причастие, деепричастие)
 (1 INFN)
