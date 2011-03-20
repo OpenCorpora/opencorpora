@@ -8,6 +8,9 @@
     {else}
             <textarea cols="70" rows="20" name="txt" onClick="this.innerHTML=''; this.onClick=''">Товарищ, помни! Абзацы разделяются двойным переводом строки, предложения &ndash; одинарным.</textarea>
     {/if}
+    {if isset($smarty.get.to)}
+        <input type='hidden' name='book_id' value='{$smarty.get.to}'/>
+    {/if}
     <br/><br/>
     <input type="submit" value="{t}Проверить{/t}"/>
     </form>

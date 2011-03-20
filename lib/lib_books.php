@@ -71,7 +71,7 @@ function books_move($book_id, $to_id) {
     }
 }
 function books_rename($book_id, $name) {
-    if ($name == '') {
+    if ($name === '') {
         die ("Название не может быть пустым.");
     }
     if (sql_query("UPDATE `books` SET `book_name`='$name' WHERE `book_id`=$book_id LIMIT 1")) {
@@ -81,12 +81,21 @@ function books_rename($book_id, $name) {
         show_error();
     }
 }
-function books_get_select($parent = -1) {
+function books_get_select($parent = -1, $selected=0) {
     $out = '';
     $pg = $parent > -1 ? "WHERE `parent_id`=$parent " : '';
     $res = sql_query("SELECT `book_id`, `book_name` FROM `books` ".$pg."ORDER BY `book_name`", 0);
     while($r = sql_fetch_array($res)) {
         $out .= "<option value='".$r['book_id']."'>".$r['book_name']."</option>";
+    }
+    return $out;
+}
+function get_books_for_select($parent = -1) {
+    $out = array();
+    $pg = $parent > -1 ? "WHERE `parent_id`=$parent " : '';
+    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` ".$pg."ORDER BY `book_name`", 0);
+    while($r = sql_fetch_array($res)) {
+        $out[$r['book_id']] = $r['book_name'];
     }
     return $out;
 }

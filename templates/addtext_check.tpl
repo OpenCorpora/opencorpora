@@ -1,5 +1,14 @@
 {* Smarty *}
 {extends file='common.tpl'}
+{block name=body}{strip}
+{if isset($check.selected1)}
+<body onload="changeSelectBook(1)">
+{elseif isset($check.selected0)}
+<body onload="changeSelectBook(0)">
+{else}
+<body>
+{/if}
+{/strip}{/block}
 {block name=content}
     <form action="?act=add" method="post">
     <input type='hidden' name='source_text' value='{$check.full|htmlspecialchars}'/>
@@ -38,10 +47,13 @@
         {t}Добавляем в{/t}
         <select id="book0" name="book[]" onChange="changeSelectBook(0)">
             <option value="0">-- {t}Не выбрано{/t} --</option>
-            {$check.select}
+            {html_options options=$check.select0 selected=$check.selected0}
         </select>
-        <select id="book1" name="book[]" disabled="disabled" onChange="changeSelectBook(1)">
-            <option value="0">-- Не выбрано --</option>
+        <select id="book1" name="book[]"{if !isset($check.select1)} disabled="disabled"{/if} onChange="changeSelectBook(1)">
+            <option value="0">-- {t}Не выбрано{/t} --</option>
+            {if isset($check.select1)}
+            {html_options options=$check.select1 selected=$check.selected1}
+            {/if}
         </select>
         <br/>
         <p id="lastpar_info">{t}Надо выбрать книгу.{/t}</p>

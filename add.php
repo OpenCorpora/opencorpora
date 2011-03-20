@@ -15,7 +15,7 @@ if (is_admin()) {
             }
             return;
         case 'check':
-            $smarty->assign('check', addtext_check($_POST['txt']));
+            $smarty->assign('check', addtext_check($_POST));
             $smarty->display('addtext_check.tpl');
             break;
         default:

@@ -42,6 +42,7 @@
     </form>
     {* Sub-books list *}
     <h3>{t}Разделы{/t}</h3>
+    Добавить раздел <form class='inline' action='{$web_prefix}/books.php?act=add' method='post'><input name='book_name' size='30' maxlength='100' value='&lt;{t}Название{/t}&gt;'/><input type='hidden' name='book_parent' value='{$book.id}'/><input type='submit' value='{t}Добавить{/t}'/></form>
     {if isset($book.children[0])}
         <ul>
         {foreach item=subbook from=$book.children}
@@ -88,4 +89,5 @@
     {else}
         <p>{t}В тексте нет ни одного предложения.{/t}</p>
     {/if}
+    <p><a href="{$web_prefix}/add.php?to={$book.id}">Добавить текст в эту книгу</a></p>
 {/block}

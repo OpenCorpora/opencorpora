@@ -681,9 +681,9 @@ function is_pmark($char) {
     $re_punctuation = '/[\.,!\?;:\(\)\[\]\/"\xAB\xBB]/u';
     return preg_match($re_punctuation, $char);
 }
-function addtext_check($txt) {
-    $out = array('full' => $txt, 'select' => books_get_select(0));
-    $pars = split2paragraphs($txt);
+function addtext_check($array) {
+    $out = array('full' => $array['txt'], 'select0' => get_books_for_select(0));
+    $pars = split2paragraphs($array['txt']);
     foreach ($pars as $par) {
         $par_array = array();
         $sents = split2sentences($par);
@@ -696,6 +696,18 @@ function addtext_check($txt) {
             $par_array['sentences'][] = $sent_array;
         }
         $out['paragraphs'][] = $par_array;
+    }
+    //book
+    if (isset($array['book_id'])) {
+        $book_id = (int)$array['book_id'];
+        $r = sql_fetch_array(sql_query("SELECT parent_id FROM books WHERE book_id=$book_id LIMIT 1"));
+        if ($r['parent_id'] > 0) {
+            $out['selected0'] = $r['parent_id'];
+            $out['select1'] = get_books_for_select($r['parent_id']);
+            $out['selected1'] = $book_id;
+        } else {
+            $out['selected0'] = $book_id;
+        }
     }
     return $out;
 }
