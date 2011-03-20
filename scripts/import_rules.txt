@@ -244,12 +244,12 @@
 (* ADJF|PRTF) & (1 @nouns_subst)
     CHANGE ( -> Subx)
    
-(* ADJF&Fixd)
-    GENERATE(sing,plur; nomn,gent,datv,accs,ablt,loct)
-    CHANGE(anim,inan, accs -> accs)
-    CHANGE(@adjf_fixd_del -> _del)
 (* ADJF&Fixd&@adjf_fixd_advb)
-    GENERATE(masc,femn,neut)
+    GENERATE(sing,plur;nomn,gent,datv,accs,ablt,loct;masc,femn,neut)
+(* ADJF&Fixd&!@adjf_fixd_advb)
+    GENERATE(sing,plur; nomn,gent,datv,accs,ablt,loct)
+    #CHANGE(anim,inan, accs -> accs)
+    CHANGE(@adjf_fixd_del -> _del)
 (* NOUN&@adjf_fixd_advb) | (* ADVB&@adjf_fixd_advb)
     CHANGE ( -> _del)
 
