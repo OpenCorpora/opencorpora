@@ -2,6 +2,14 @@
 {extends file='common.tpl'}
 {block name=content}
     <h2>{$book.title}</h2>
+    {if isset($book.parents)}
+    <p>
+    {foreach item=prn from=$book.parents}
+    <a href="?book_id={$prn.id}">{$prn.title}</a> ::
+    {/foreach}
+    {$book.title}
+    </p>
+    {/if}
     <form action='?act=rename' method='post' class='inline'>{t}Переименовать в{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
         <input name='new_name' value='{$book.title|htmlspecialchars}'/>&nbsp;&nbsp;

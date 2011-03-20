@@ -12,18 +12,28 @@ function get_book_page($book_id, $ext = false) {
     $out = array (
         'id'     => $book_id,
         'title'  => $r['book_name'],
-        'select' => books_get_select()
+        'select' => books_get_select() //to be refactored, issue 151
     );
+    //tags
     $res = sql_query("SELECT tag_name FROM book_tags WHERE book_id=$book_id");
     while ($r = sql_fetch_array($res)) {
         if (preg_match('/^(.+?)\:(.+)$/', $r['tag_name'], $matches)) {
             $out['tags'][] = array('prefix' => $matches[1], 'body' => $matches[2]);
-        }
+        } else
+            $out['tags'][] = array('prefix' => '', 'body' => $r['tag_name']);
     }
+    //sub-books
     $res = sql_query("SELECT book_id, book_name FROM books WHERE parent_id=$book_id");
     while($r = sql_fetch_array($res)) {
         $out['children'][] = array('id' => $r['book_id'], 'title' => $r['book_name']);
     }
+    //parents
+    $res = sql_query("SELECT book_id, book_name FROM books WHERE book_id=(SELECT parent_id FROM books WHERE book_id=$book_id LIMIT 1) AND book_id>0 LIMIT 1");
+    if (sql_num_rows($res) > 0) {
+        $r = sql_fetch_array($res);
+        $out['parents'] = array(array('id' => $r['book_id'], 'title' => $r['book_name']));
+    }
+    //sentences
     if($ext) {
         $res = sql_query("SELECT p.`pos` ppos, s.sent_id, s.`pos` spos FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = $book_id ORDER BY p.`pos`, s.`pos`");
         while ($r = sql_fetch_array($res)) {
