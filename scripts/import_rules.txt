@@ -167,8 +167,13 @@
 (* NOUN) & (1 nomn&sing&@anim0)
     CHANGE (anim -> ANim)
     CHANGE (inan -> ANim)
-(1 @arch)
-    CHANGE (@arch -> Arch)
+(1 @arch) | (1 @arch0)
+    CHANGE (@arch,ablt,plur -> ablt,plur,Arch)
+    CHANGE (@arch0,nomn,plur -> nomn,plur,Arch)
+(1 NOUN&@infr0)
+    CHANGE (NOUN,nomn,plur,@infr0 -> NOUN,nomn,plur,Infr)
+(1 NOUN&~/^грома$/)
+    CHANGE (~/^грома$/,nomn,plur -> nomn,plur,Litr)
 # АУДИ С, 0, мр-жр, но
 
 
@@ -248,7 +253,6 @@
     GENERATE(sing,plur;nomn,gent,datv,accs,ablt,loct;masc,femn,neut)
 (* ADJF&Fixd&!@adjf_fixd_advb)
     GENERATE(sing,plur; nomn,gent,datv,accs,ablt,loct)
-    #CHANGE(anim,inan, accs -> accs)
     CHANGE(@adjf_fixd_del -> _del)
 (* NOUN&@adjf_fixd_advb) | (* ADVB&@adjf_fixd_advb)
     CHANGE ( -> _del)
