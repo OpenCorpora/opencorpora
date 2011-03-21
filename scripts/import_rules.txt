@@ -360,6 +360,10 @@
     CHANGE(ПОСЛ -> _del)
 (1 INTJ) & (1 PRCL)
     SPLIT(INTJ, PRCL)
+(* PRED&@pred_del)
+    CHANGE ( -> _del)
+(* ADVB&@pred_del)
+    CHANGE ( -> Prdx)
 # числительное
 (* NUMR) & (1 ~/много$/|~/немножко/|~/мног..$/|~/немножечко/|~/больше/|~/мног...$/|~/более/)
     CHANGE( -> _del)
