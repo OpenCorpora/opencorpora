@@ -27,7 +27,8 @@ function get_dict_search_results($post) {
         if ($count == 0)
             return $out;
         while ($r = sql_fetch_array($res)) {
-            $out['lemma']['found'][] = array('id' => $r['lemma_id'], 'text' => $q);
+            $r1 = sql_fetch_array(sql_query("SELECT SUBSTR(grammems, 7, 4) AS gr FROM form2lemma WHERE lemma_id=".$r['lemma_id']." LIMIT 1"));
+            $out['lemma']['found'][] = array('id' => $r['lemma_id'], 'text' => $q, 'pos' => $r1['gr']);
         }
     }
     elseif (isset($post['search_form'])) {
@@ -38,7 +39,8 @@ function get_dict_search_results($post) {
         if ($count == 0)
             return $out;
         while ($r = sql_fetch_array($res)) {
-            $out['form']['found'][] = array('id' => $r['lemma_id'], 'text' => $r['lemma_text']);
+            $r1 = sql_fetch_array(sql_query("SELECT SUBSTR(grammems, 7, 4) AS gr FROM form2lemma WHERE lemma_id=".$r['lemma_id']." LIMIT 1"));
+            $out['form']['found'][] = array('id' => $r['lemma_id'], 'text' => $r['lemma_text'], 'pos' => $r1['gr']);
         }
     }
     return $out;

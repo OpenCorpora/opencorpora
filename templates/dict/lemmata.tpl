@@ -12,7 +12,7 @@
     {if $smarty.post.search_lemma}
         {if $search.lemma.count > 0}
         {foreach item=lemma from=$search.lemma.found}
-            <a href="?act=edit&amp;id={$lemma.id}&amp;found_lemma={$smarty.post.search_lemma|urlencode}">[{$lemma.id}] {$lemma.text}</a><br/>
+            <a href="?act=edit&amp;id={$lemma.id}&amp;found_lemma={$smarty.post.search_lemma|urlencode}">[{$lemma.id}] {$lemma.text}</a> ({$lemma.pos})<br/>
         {/foreach}
         {else}
             <p>{t}Ничего не найдено.{/t} <a href="?act=edit&amp;id=-1&amp;text={$smarty.post.search_lemma|urlencode}">{t}Добавить лемму{/t} &laquo;{$smarty.post.search_lemma}&raquo;</a>?</p>
@@ -21,7 +21,7 @@
     {if $smarty.post.search_form}
         {if $search.form.count > 0}
         {foreach item=lemma from=$search.form.found}
-            <a href="?act=edit&amp;id={$lemma.id}&amp;found_form={$smarty.post.search_form}">[{$lemma.id}] {$lemma.text}</a><br/>
+            <a href="?act=edit&amp;id={$lemma.id}&amp;found_form={$smarty.post.search_form}">[{$lemma.id}] {$lemma.text}</a> ({$lemma.pos})<br/>
         {/foreach}
         {else}
             <p>{t}Ничего не найдено.{/t}</p>
