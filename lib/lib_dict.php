@@ -371,6 +371,15 @@ function del_link($link_id, $revset_id=0) {
     }
     return 0;
 }
+function add_link($from_id, $to_id, $link_type, $revset_id=0) {
+    if (!$revset_id) $revset_id = create_revset();
+    if (!$from_id || !$to_id || !$link_type) return 0;
+    if (sql_query("INSERT INTO dict_links VALUES(NULL, '$from_id', '$to_id', '$link_type')") &&
+        sql_query("INSERT INTO dict_links_revisions VALUES(NULL, '$revset_id', '$from_id', '$to_id', '$link_type', '1')")) {
+        return 1;
+    }
+    return 0;
+}
 
 // GRAMMEM EDITOR
 function get_grammem_editor($order) {

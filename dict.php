@@ -70,6 +70,15 @@ switch($action) {
         } else
             show_error($config['msg_notadmin']);
         break;
+    case 'add_link':
+        if (is_admin()) {
+            if (add_link((int)$_POST['from_id'], (int)$_POST['lemma_id'], (int)$_POST['link_type'])) {
+                header("Location:dict.php?act=edit&id=".(int)$_POST['from_id']);
+            } else
+                show_error();
+        } else
+            show_error($config['msg_notadmin']);
+        break;
     case 'del_link':
         if (is_admin()) {
             if (del_link((int)$_GET['id'])) {

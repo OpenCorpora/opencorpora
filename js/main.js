@@ -277,30 +277,6 @@ function edit_gram(tr, gram_id) {
     tr.childNodes[3].innerHTML = '<input name="descr" size="35" value="'+tr.childNodes[3].innerHTML+'"/>'
     tr.lastChild.innerHTML += ' <input type="hidden" name="id" value="'+gram_id+'"/><input type="submit" value="Сохранить"/>&nbsp;<input type="button" value="Отменить" onClick="location.reload()"/>';
 }
-function add_meta_option() {
-    var tbody = byid('tbl_meta_options');
-    if (tbody.lastChild.tagName == 'tbody') {
-        tbody = tbody.lastChild;
-    }
-    var new_tr = document.createElement('tr');
-    var new_td = document.createElement('td');
-    var new_input = document.createElement('input');
-    new_input.setAttribute('name', 'option_names[]');
-    new_td.appendChild(new_input);
-    new_tr.appendChild(new_td);
-    new_td = document.createElement('td');
-    new_input = document.createElement('input');
-    new_input.setAttribute('name', 'option_values[]');
-    new_td.appendChild(new_input);
-    new_tr.appendChild(new_td);
-    new_td = document.createElement('td');
-    new_input = document.createElement('input');
-    new_input.setAttribute('name', 'option_default[]');
-    new_input.setAttribute('value', 'default');
-    new_td.appendChild(new_input);
-    new_tr.appendChild(new_td);
-    tbody.appendChild(new_tr);
-}
 function submit_with_readonly_check(f) {
     var req = makeRequest();
     req.onreadystatechange = function() {
@@ -315,5 +291,49 @@ function submit_with_readonly_check(f) {
         }
     }
     req.open('get', 'ajax/readonly.php?', true);
+    req.send(null);
+}
+function get_lemma_search() {
+    var q = byid('find_lemma').value;
+    if (q.length < 3) {
+        alert('Слишком короткий запрос');
+        return false;
+    }
+
+    var lid;
+    var f = byid('add_link');
+    var req = makeRequest();
+    req.onreadystatechange = function() {
+        if (req.readyState==4) {
+            var root = req.responseXML.documentElement;
+            for (i = 0; i < root.childNodes.length; ++i) {
+                lid = root.childNodes[i].getAttribute('id');
+                var new_radio = document.createElement('input');
+                new_radio.setAttribute('type', 'radio');
+                new_radio.setAttribute('name', 'lemma_id');
+                new_radio.setAttribute('value', lid);
+                new_radio.setAttribute('onClick', 'byid("add_link_submitter").disabled=false');
+                var new_label = document.createElement('label');
+                var new_href = document.createElement('a');
+                new_href.setAttribute('href', '?act=edit&id=' + lid);
+                new_href.setAttribute('target', '_blank');
+                new_href.innerHTML = lid;
+                new_label.appendChild(new_radio);
+                new_label.appendChild(new_href);
+                f.appendChild(new_label);
+            }
+            if (root.childNodes.length > 0) {
+                var new_text = document.createTextNode(' ');
+                f.appendChild(new_text);
+                var new_button = document.createElement('input');
+                new_button.setAttribute('type', 'submit');
+                new_button.setAttribute('value', 'Добавить');
+                new_button.setAttribute('disabled', 'disabled');
+                new_button.setAttribute('id', 'add_link_submitter');
+                f.appendChild(new_button);
+            }
+        }
+    }
+    req.open('get', 'ajax/lemma_search.php?q=' + q, true);
     req.send(null);
 }

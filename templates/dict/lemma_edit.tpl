@@ -67,18 +67,16 @@
     </form>
     {/strip}
     <p><b>{t}Связи{/t}</b></p>
-    {* Off until there is jquery *}
-    {*
     <p><a href="#" class="toggle" onclick="show(byid('add_link')); return false">{t}Добавить связь{/t}</a></p>
-    <form id="add_link">
+    <form id="add_link" method='post' action='?act=add_link'>
+        <input type='hidden' name='from_id' value='{$editor.lemma.id}'/>
         <select name='link_type'>
             <option value='0' selected='selected'>--{t}Тип связи{/t}--</option>
             {html_options options=$link_types}
         </select>
         {t}с леммой{/t}
-        <input id="find_lemma"/> <input type='button' value='{t}Найти{/t}'/>
+        <input id="find_lemma"/> <input type='button' value='{t}Найти{/t}' onclick='get_lemma_search()'/>
     </form>
-    *}
     <ul>
     {foreach item=link from=$editor.links}
     <li><a href="?act=edit&amp;id={$link.lemma_id}">{$link.lemma_text}</a> ({$link.name}) [<a href="?act=del_link&amp;id={$link.id}&amp;lemma_id={$editor.lemma.id}" onclick="return confirm('{t}Вы уверены?{/t}')">{t}удалить{/t}</a>]
