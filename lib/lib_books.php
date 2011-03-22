@@ -12,7 +12,7 @@ function get_book_page($book_id, $ext = false) {
     $out = array (
         'id'     => $book_id,
         'title'  => $r['book_name'],
-        'select' => books_get_select() //to be refactored, issue 151
+        'select' => get_books_for_select()
     );
     //tags
     $res = sql_query("SELECT tag_name FROM book_tags WHERE book_id=$book_id");
@@ -90,15 +90,6 @@ function books_rename($book_id, $name) {
     } else {
         show_error();
     }
-}
-function books_get_select($parent = -1, $selected=0) {
-    $out = '';
-    $pg = $parent > -1 ? "WHERE `parent_id`=$parent " : '';
-    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` ".$pg."ORDER BY `book_name`", 0);
-    while($r = sql_fetch_array($res)) {
-        $out .= "<option value='".$r['book_id']."'>".$r['book_name']."</option>";
-    }
-    return $out;
 }
 function get_books_for_select($parent = -1) {
     $out = array();

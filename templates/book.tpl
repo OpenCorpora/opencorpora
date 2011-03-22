@@ -19,8 +19,9 @@
     <form action='?act=move' method='post' class='inline'>{t}Переместить в{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
         <select name='book_to' onChange='document.forms[1].submit()'>
+            <option value='-1'>-- {t}Не выбрано{/t} --</option>
             <option value='0'>&lt;root&gt;</option>
-            {$book.select}
+            {html_options options=$book.select}
         </select>
     </form>
     {* Tag list *}
