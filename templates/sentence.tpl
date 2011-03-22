@@ -3,6 +3,13 @@
 {block name=body}<body onload="highlight_source(); document.onkeyup=checkKeyUp; document.onkeydown=checkKeyDown; document.onmouseup=endScroll; prepareScroll();">{/block}
 {block name=content}
     {strip}
+    <p align='right'>
+    {if $sentence.status == 0}
+    <span class='sent_status0'>{t}Предложение разобрано автоматически.{/t}</span>
+    {elseif $sentence.status == 1}
+    <span class='sent_status1'>{t}Частично снята омонимия.{/t}</span>
+    {/if}
+    </p>
     <div id="source_text"><b>{t}Весь текст{/t}:</b> {$sentence.fulltext}</div>
     <form method="post" action="?id={$sentence.id}&amp;act=save">
         <div id="main_scroller">

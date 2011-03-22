@@ -137,6 +137,12 @@ tr.gramed_label {
     background-color: #9f9;
 }
 /* ANNOTATION PAGE */
+.sent_status0 {
+    background-color: #fc0;
+}
+.sent_status1 {
+    background-color: #c9a0dc;
+}
 div#source_text {
     margin-bottom: 20px;
 }

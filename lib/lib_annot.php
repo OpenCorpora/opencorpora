@@ -133,7 +133,10 @@ function sentence_save() {
                 die ("Internal error 4: Cannot save");
         }
     }
-    header("Location:sentence.php?id=$sent_id");
-    return;
+    if (sql_query("UPDATE sentences SET check_status='1' WHERE sent_id=$sent_id LIMIT 1")) {
+        header("Location:sentence.php?id=$sent_id");
+        return;
+    } else
+        show_error();
 }
 ?>
