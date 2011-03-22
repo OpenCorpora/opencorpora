@@ -618,6 +618,7 @@ function tokenize_ml($txt) {
     $coeff = array();
     $out = array();
     $token = '';
+    $chain = '';
 
     $res = sql_query("SELECT * FROM tokenizer_coeff");
     while($r = sql_fetch_array($res)) {
@@ -635,6 +636,12 @@ function tokenize_ml($txt) {
         else 
             $nextchar = ' ';
 
+        if (is_cyr($char) || is_hyphen($char) || $char == "'") {
+            $chain .= $char;
+        } else {
+            $chain = '';
+        }
+
         $vector = array(
             is_space($char),
             is_space($nextchar),
@@ -643,7 +650,10 @@ function tokenize_ml($txt) {
             is_latin($char),
             is_latin($nextchar),
             is_cyr($char),
-            is_cyr($nextchar)
+            is_cyr($nextchar),
+            is_hyphen($char),
+            is_hyphen($nextchar),
+            is_dict_chain($chain, $nextchar)
         );
         $vector = implode('', $vector);
 
@@ -671,6 +681,9 @@ function uniord($u) {
 function is_space($char) {
     return preg_match('/^\s$/u', $char);
 }
+function is_hyphen($char) {
+    return (int)($char == '-');
+}
 function is_cyr($char) {
     $re_cyr = '/[А-Яа-яЁё]/u';
     return preg_match($re_cyr, $char);
@@ -682,6 +695,10 @@ function is_latin($char) {
 function is_pmark($char) {
     $re_punctuation = '/[\.,!\?;:\(\)\[\]\/"\xAB\xBB]/u';
     return preg_match($re_punctuation, $char);
+}
+function is_dict_chain($chain, $nextchar) {
+    if ((!is_space($nextchar) && !is_pmark($nextchar)) || strpos($chain, '-') === false) return 0;
+    return (form_exists($chain) > 0);
 }
 function addtext_check($array) {
     $out = array('full' => $array['txt'], 'select0' => get_books_for_select(0));

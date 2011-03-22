@@ -20,6 +20,7 @@ my $sent = $dbh->prepare("SELECT `sent_id`, `source` FROM sentences");
 my $tok = $dbh->prepare("SELECT tf_text FROM text_forms WHERE sent_id=? ORDER BY `pos`");
 my $drop = $dbh->prepare("DELETE FROM `tokenizer_coeff`");
 my $insert = $dbh->prepare("INSERT INTO `tokenizer_coeff` VALUES(?,?)");
+my $check = $dbh->prepare("SELECT lemma_id FROM form2lemma WHERE form_text=? LIMIT 1");
 
 my $str;
 my @tokens;
@@ -28,6 +29,7 @@ my %total;
 my %good;
 my $vector;
 my $pos;
+my $chain;
 
 $sent->execute();
 $drop->execute();
@@ -61,7 +63,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
 }
 
 for my $k(sort {$a <=> $b} keys %total) {
-    printf("%d\t%.2f\t%d\n", $k, $good{$k}/$total{$k}, $total{$k});
+    printf("%d\t%.3f\t%d\n", $k, $good{$k}/$total{$k}, $total{$k});
     $insert->execute($k, $good{$k}/$total{$k});
 }
 
@@ -74,6 +76,12 @@ sub calc {
     my $current = substr($str, $i, 1);
     my $next = substr($str, $i+1, 1);
 
+    if (is_cyr($current) || is_hyphen($current) || $current eq "'") {
+        $chain .= $current;
+    } else {
+        $chain = '';
+    }
+
     my @out = ();
     push @out, is_space($current);
     push @out, is_space($next);
@@ -83,6 +91,9 @@ sub calc {
     push @out, is_latin($next);
     push @out, is_cyr($current);
     push @out, is_cyr($next);
+    push @out, is_hyphen($current);
+    push @out, is_hyphen($next);
+    push @out, is_dict_chain($chain, $next);
 
     return \@out;
 }
@@ -110,6 +121,24 @@ sub is_latin {
 sub is_cyr {
     my $char = shift;
     if ($char =~ /^[А-Яа-яЁё]$/) {
+        return 1;
+    }
+    return 0;
+}
+sub is_hyphen {
+    my $char = shift;
+    return $char eq '-' ? 1 : 0;
+}
+sub is_dict_chain {
+    my $chain = shift;
+    my $next = shift;
+
+    unless ((is_space($next) || is_pmark($next)) && $chain =~ /-/) {
+        return 0;
+    }
+
+    $check->execute(lc($chain));
+    if ($check->fetchrow_hashref()) {
         return 1;
     }
     return 0;
