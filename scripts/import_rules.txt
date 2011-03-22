@@ -299,6 +299,7 @@
     CHANGE(!tran,!intr -> intr)
 (* VERB&Impe&!sing&!neut)
     CHANGE (past -> past,sing,neut)
+    CHANGE (pres -> pres,sing)
     CHANGE (futr -> futr,sing)
 (1 impr)
     CHANGE (impr,1per -> impr,incl)
