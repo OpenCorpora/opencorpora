@@ -1,6 +1,12 @@
 *	sing
 *	plur
 *	indc
+*	nomn
+*	gent
+*	datv
+*	accs
+*	ablt
+*	loct
 VERB	pres
 VERB	past
 VERB	masc
