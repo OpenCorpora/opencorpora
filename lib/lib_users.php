@@ -1,4 +1,5 @@
 <?php
+require_once('lib_mail.php');
 function user_check_password($login, $password) {
     $password = md5(md5($password).substr($login, 0, 2));
     $q = sql_query("SELECT `user_id`, `user_group`  FROM `users` WHERE `user_name`='$login' AND `user_passwd`='$password' LIMIT 1");
@@ -6,6 +7,27 @@ function user_check_password($login, $password) {
 }
 function is_valid_password($string) {
     return preg_match('/^[a-z0-9_-]+$/i', $string);
+}
+function user_generate_password($email) {
+    $res = sql_query("SELECT user_id, user_name FROM `users` WHERE user_email='".mysql_real_escape_string($email)."' LIMIT 1");
+    if (sql_num_rows($res) == 0) return 2;
+    $r = sql_fetch_array($res);
+    $pwd = gen_password();
+    //send email
+    if (send_email($email, 'Восстановление пароля на opencorpora.org', "Добрый день,\n\nВаш новый пароль для входа на opencorpora.org:\n\n$pwd\n\nРекомендуем как можно быстрее изменить его через интерфейс сайта.\n\nOpenCorpora")) {
+        $md5 = md5(md5($pwd).substr($r['user_name'], 0, 2));
+        if (sql_query("UPDATE `users` SET `user_passwd`='$md5' WHERE user_id=".$r['user_id']." LIMIT 1")) {
+            return 1;
+        } else {
+            return 4;
+        }
+    } else {
+        return 3;
+    }
+}
+function gen_password() {
+    srand((double)microtime()*1000000);
+    return uniqid(rand());
 }
 function is_valid_email($string) {
     return preg_match('/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i', $string);

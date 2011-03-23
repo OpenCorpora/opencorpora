@@ -31,6 +31,8 @@ if ($action=='login') {
     $smarty->assign('change_status', user_change_password($_POST));
 } elseif ($action=='change_email') {
     $smarty->assign('change_status', user_change_email($_POST));
+} elseif ($action=='generate_passwd') {
+    $smarty->assign('gen_status', user_generate_password($_POST['email']));
 } elseif (isset($_SESSION['user_id'])) {
     header("Location:index.php");
     return;

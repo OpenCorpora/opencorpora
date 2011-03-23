@@ -13,6 +13,22 @@
     <tr><td colspan='2' align='right'><input type='button' onclick='submit_with_readonly_check(document.forms[0])' value='{t}Зарегистрироваться{/t}'/></tr>
     </table>
     </form>
+{elseif $smarty.get.act == 'lost_pwd'}
+    <form action="?act=generate_passwd" method='post'><p>
+    {t}Введите адрес электронной почты, указанный вами при регистрации{/t}:<br/>
+    <input name='email' size='40' maxlength='50'/><br/>
+    <input type='submit' value='{t}Прислать новый пароль{/t}'/>
+    </p></form>
+{elseif $smarty.get.act == 'generate_passwd'}
+    {if $gen_status == 1}
+        {t}Новый пароль отправлен на указанный электронный адрес.{/t}
+    {elseif $gen_status == 2}
+        {t}Пользователь с таким электронным адресом не зарегистрирован.{/t}
+    {elseif $gen_status == 3}
+        {t}Ошибка при отправке сообщения.{/t}
+    {else}
+        {t}Ошибка{/t} :(
+    {/if}
 {elseif $smarty.get.act == 'reg_done'}
     {if $reg_status == 1}
         {* registration ok *}
@@ -72,7 +88,7 @@
     <form action="?act=login" method="post" id='login_form'>    
     <table cellspacing='2'>
     <tr><td>{t}Имя пользователя{/t}</td><td><input type='text' name='login' size='20' maxlength='50'/></td></tr>
-    <tr><td>{t}Пароль{/t}</td><td><input type='password' name='passwd' size='20' maxlength='50'/></td></tr>
+    <tr><td>{t}Пароль{/t}</td><td><input type='password' name='passwd' size='20' maxlength='50'/> <a href='?act=lost_pwd'>{t}я забыл пароль{/t}</a></td></tr>
     <tr><td></td><td><input type='submit' value='{t}Войти{/t}'/></td></tr>
     </table>
     </form>
