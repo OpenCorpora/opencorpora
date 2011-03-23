@@ -2,7 +2,7 @@
 {extends file='common.tpl'}
 {block name='content'}
     {if isset($smarty.get.saved)}
-        <p class='p_info'>{t}Изменения сохранены.{/t}</p>
+        <div class='info'>{t}Изменения сохранены.{/t}</div>
     {/if}
     <p><form class='inline' method="post" action="?act=lemmata">
     {if $smarty.get.found_lemma}

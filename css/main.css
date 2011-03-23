@@ -103,6 +103,12 @@ span.debug_error {
 div#errata div {
     background-color: #F69;
 }
+div.info {
+    background-color: #ffe5b4;
+    width: 50%;
+    margin: auto 25%;
+    text-align: center;
+}
 /* FORMS */
 form#login_form {
     margin: 10px;
