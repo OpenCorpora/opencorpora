@@ -13,7 +13,7 @@
     <a href="?lang=ru">Русская версия</a></div>
     {/if}
 <div id='rblock'>
-{if $smarty.session.user_id}
+{if isset($smarty.session.user_id)}
     {t}Вы &ndash;{/t} <b>{$smarty.session.user_name}</b>
     {if $smarty.session.user_group > 5}
         , {t}администратор{/t}

@@ -47,7 +47,7 @@
                         <br/>
                         {foreach item=gram from=$variant.gram_list name=gramf}
                         <span class='hint' title='{$gram.descr}'>
-                        {if $smarty.session.options.1 == 1}
+                        {if isset($smarty.session.options) && $smarty.session.options.1 == 1}
                             {$gram.outer|default:"<b class='red'>`$gram.inner`</b>"}
                         {else}
                             {$gram.inner}

@@ -6,5 +6,5 @@
 <link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css'/>
 <script type="text/javascript" src="http://yandex.st/jquery/1.5.1/jquery.min.js"></script>
 <script src='{$web_prefix}/js/main.js' type='text/javascript'></script>
-<title>{$title} OpenCorpora</title>
+<title>{block name=title}OpenCorpora{/block}</title>
 </head>
