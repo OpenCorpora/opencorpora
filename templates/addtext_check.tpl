@@ -25,7 +25,7 @@
                 {$token.text|htmlspecialchars}
             {/if}
             {if $token.border < 1}
-                <span class='doubt_border'> <span title='{$token.border}'>?</span>&nbsp;</span>
+                <span class='doubt_border'> <span title='{$token.border}; {$token.vector}'>?</span>&nbsp;</span>
             {else}
                 <span class='ok_border'> &nbsp;</span>
             {/if}

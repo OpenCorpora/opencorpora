@@ -634,16 +634,20 @@ function tokenize_ml($txt) {
         $coeff[$r[0]] = $r[1];
     }
 
-    for($i = 0; $i < mb_strlen($txt, 'UTF-8'); ++$i) {
+    //let's first remove diacritics
+    $clear_txt = '';
+    for ($i = 0; $i < mb_strlen($txt, 'UTF-8'); ++$i) {
         $char = mb_substr($txt, $i, 1, 'UTF-8');
         if (uniord($char) == 769) continue;
-        if ($i < mb_strlen($txt, 'UTF-8')-1) {
-            $nextchar = mb_substr($txt, $i+1, 1, 'UTF-8');
-            if (uniord($nextchar) == 769)
-                $nextchar = mb_substr($txt, $i+2, 1, 'UTF-8');
-        }
-        else 
-            $nextchar = ' ';
+        $clear_txt .= $char;
+    }
+    $txt = $clear_txt.'  ';
+
+    for($i = 0; $i < mb_strlen($txt, 'UTF-8'); ++$i) {
+        $prevchar  = ($i > 0 ? mb_substr($txt, $i-1, 1, 'UTF-8') : '');
+        $char      =           mb_substr($txt, $i+0, 1, 'UTF-8');
+        $nextchar  =           mb_substr($txt, $i+1, 1, 'UTF-8');
+        $nnextchar =           mb_substr($txt, $i+2, 1, 'UTF-8');
 
         if (is_cyr($char) || is_hyphen($char) || $char == "'") {
             $chain .= $char;
@@ -662,6 +666,10 @@ function tokenize_ml($txt) {
             is_cyr($nextchar),
             is_hyphen($char),
             is_hyphen($nextchar),
+            is_number($prevchar),
+            is_number($char),
+            is_number($nextchar),
+            is_number($nnextchar),
             is_dict_chain($chain, $nextchar)
         );
         $vector = implode('', $vector);
@@ -676,7 +684,7 @@ function tokenize_ml($txt) {
 
         if ($sum > 0) {
             $token = trim($token);
-            if ($token !== '') $out[] = array($token, $sum);
+            if ($token !== '') $out[] = array($token, $sum, bindec($vector).'='.$vector);
             $token = '';
         }
     }
@@ -701,6 +709,9 @@ function is_latin($char) {
     $re_lat = '/[A-Za-z]/u';
     return preg_match($re_lat, $char);
 }
+function is_number($char) {
+    return (int)is_numeric($char);
+}
 function is_pmark($char) {
     $re_punctuation = '/[\.,!\?;:\(\)\[\]\/"\xAB\xBB]/u';
     return preg_match($re_punctuation, $char);
@@ -719,7 +730,7 @@ function addtext_check($array) {
             $sent_array = array('src' => $sent);
             $tokens = tokenize_ml($sent);
             foreach ($tokens as $token) {
-                $sent_array['tokens'][] = array('text' => $token[0], 'class' => form_exists($token[0]), 'border' => $token[1]);
+                $sent_array['tokens'][] = array('text' => $token[0], 'class' => form_exists($token[0]), 'border' => $token[1], 'vector' => $token[2]);
             }
             $par_array['sentences'][] = $sent_array;
         }

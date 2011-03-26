@@ -34,7 +34,7 @@ my $chain;
 $sent->execute();
 $drop->execute();
 while(my $ref = $sent->fetchrow_hashref()) {
-    $str = decode('utf8', $ref->{'source'});
+    $str = decode('utf8', $ref->{'source'}).'  ';
     @tokens = ();
     $tok->execute($ref->{'sent_id'});
     while(my $r = $tok->fetchrow_hashref()) {
@@ -55,7 +55,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
         $pos += length($token);
     }
 
-    for my $i(0..length($str)-2) {
+    for my $i(0..length($str)-1) {
         $vector = oct('0b'.join('', @{calc($str, $i)}));
         $total{$vector}++;
         $good{$vector}++ if exists $border{$i} ? 1 : 0;
@@ -63,7 +63,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
 }
 
 for my $k(sort {$a <=> $b} keys %total) {
-    printf("%d\t%.3f\t%d\n", $k, $good{$k}/$total{$k}, $total{$k});
+    printf("%d\t%.3f\t%d\t%015s\n", $k, $good{$k}/$total{$k}, $total{$k}, sprintf("%b",$k));
     $insert->execute($k, $good{$k}/$total{$k});
 }
 
@@ -73,8 +73,10 @@ sub calc {
     my $str = shift;
     my $i = shift;
 
+    my $previous = ($i > 0 ? substr($str, $i-1, 1) : '');
     my $current = substr($str, $i, 1);
     my $next = substr($str, $i+1, 1);
+    my $nnext = substr($str, $i+2, 1);
 
     if (is_cyr($current) || is_hyphen($current) || $current eq "'") {
         $chain .= $current;
@@ -93,6 +95,10 @@ sub calc {
     push @out, is_cyr($next);
     push @out, is_hyphen($current);
     push @out, is_hyphen($next);
+    push @out, is_number($previous);
+    push @out, is_number($current);
+    push @out, is_number($next);
+    push @out, is_number($nnext);
     push @out, is_dict_chain($chain, $next);
 
     return \@out;
@@ -128,6 +134,13 @@ sub is_cyr {
 sub is_hyphen {
     my $char = shift;
     return $char eq '-' ? 1 : 0;
+}
+sub is_number {
+    my $char = shift;
+    if ($char =~ /^\d$/) {
+        return 1;
+    }
+    return 0;
 }
 sub is_dict_chain {
     my $chain = shift;
