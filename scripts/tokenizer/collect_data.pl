@@ -29,7 +29,6 @@ my %total;
 my %good;
 my $vector;
 my $pos;
-my $chain;
 
 $sent->execute();
 $drop->execute();
@@ -78,10 +77,26 @@ sub calc {
     my $next = substr($str, $i+1, 1);
     my $nnext = substr($str, $i+2, 1);
 
-    if (is_cyr($current) || is_hyphen($current) || $current eq "'") {
-        $chain .= $current;
-    } else {
-        $chain = '';
+    # $chain is the current word which we will perhaps need to check in the dictionary
+    my $chain = '';
+    if (is_hyphen($next) || is_hyphen($current)) {
+        my $t;
+        for (my $j = $i; $j > 0; --$j) {
+            $t = substr($str, $j, 1);
+            if (is_cyr($t) || is_hyphen($t) || $t eq "'") {
+                $chain = $t.$chain;
+            } else {
+                last;
+            }
+        }
+        for (my $j = $i+1; $j < length($str); ++$j) {
+            $t = substr($str, $j, 1);
+            if (is_cyr($t) || is_hyphen($t) || $t eq "'") {
+                $chain .= $t;
+            } else {
+                last;
+            }
+        }
     }
 
     my @out = ();
@@ -99,7 +114,7 @@ sub calc {
     push @out, is_number($current);
     push @out, is_number($next);
     push @out, is_number($nnext);
-    push @out, is_dict_chain($chain, $next);
+    push @out, is_dict_chain($chain);
 
     return \@out;
 }
@@ -144,9 +159,8 @@ sub is_number {
 }
 sub is_dict_chain {
     my $chain = shift;
-    my $next = shift;
 
-    unless ((is_space($next) || is_pmark($next)) && $chain =~ /-/) {
+    if (!$chain) {
         return 0;
     }
 

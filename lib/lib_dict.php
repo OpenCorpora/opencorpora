@@ -627,7 +627,6 @@ function tokenize_ml($txt) {
     $coeff = array();
     $out = array();
     $token = '';
-    $chain = '';
 
     $res = sql_query("SELECT * FROM tokenizer_coeff");
     while($r = sql_fetch_array($res)) {
@@ -649,10 +648,26 @@ function tokenize_ml($txt) {
         $nextchar  =           mb_substr($txt, $i+1, 1, 'UTF-8');
         $nnextchar =           mb_substr($txt, $i+2, 1, 'UTF-8');
 
-        if (is_cyr($char) || is_hyphen($char) || $char == "'") {
-            $chain .= $char;
-        } else {
-            $chain = '';
+        //$chain is the current word which we will perhaps need to check in the dictionary
+
+        $chain = '';
+        if (is_hyphen($nextchar) || is_hyphen($char)) {
+            for ($j = $i; $j > 0; --$j) {
+                $t = mb_substr($txt, $j, 1, 'UTF-8');
+                if (is_cyr($t) || is_hyphen($t) || $t === "'") {
+                    $chain = $t.$chain;
+                } else {
+                    break;
+                }
+            }
+            for ($j = $i+1; $j < strlen($txt, 'UTF-8'); ++$j) {
+                $t = mb_substr($txt, $j, 1, 'UTF-8');
+                if (is_cyr($t) || is_hyphen($t) || $t === "'") {
+                    $chain .= $t;
+                } else {
+                    break;
+                }
+            }
         }
 
         $vector = array(
@@ -670,7 +685,7 @@ function tokenize_ml($txt) {
             is_number($char),
             is_number($nextchar),
             is_number($nnextchar),
-            is_dict_chain($chain, $nextchar)
+            is_dict_chain($chain)
         );
         $vector = implode('', $vector);
 
@@ -716,9 +731,9 @@ function is_pmark($char) {
     $re_punctuation = '/[\.,!\?;:\(\)\[\]\/"\xAB\xBB]/u';
     return preg_match($re_punctuation, $char);
 }
-function is_dict_chain($chain, $nextchar) {
-    if ((!is_space($nextchar) && !is_pmark($nextchar)) || strpos($chain, '-') === false) return 0;
-    return (form_exists($chain) > 0);
+function is_dict_chain($chain) {
+    if (!$chain) return 0;
+    return (form_exists(mb_strtolower($chain, 'UTF-8')) > 0);
 }
 function addtext_check($array) {
     $out = array('full' => $array['txt'], 'select0' => get_books_for_select(0));
