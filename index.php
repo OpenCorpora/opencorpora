@@ -5,6 +5,7 @@ if (isset($_GET['rand'])) {
     header("Location:sentence.php?id=".$r['sent_id']);
     return;
 }
+
 if (isset($_GET['page'])) {
     $page = $_GET['page'];
     switch($page) {

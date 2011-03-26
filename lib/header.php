@@ -11,6 +11,7 @@ require_once('common.php');
 
 //init Smarty
 require_once('Smarty.class.php');
+
 $smarty = new Smarty();
 $smarty->template_dir = $config['smarty_template_dir'];
 $smarty->compile_dir  = $config['smarty_compile_dir'];

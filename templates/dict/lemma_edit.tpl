@@ -1,6 +1,11 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#add_form_link").bind('click',dict_add_form)
+            })
+    </script>
     {if isset($smarty.get.saved)}
         <div class='info'>{t}Изменения сохранены.{/t}</div>
     {/if}
@@ -55,7 +60,7 @@
         </tr>
         {/foreach}
         {if $is_admin}
-            <tr><td>&nbsp;<td><a href="#" onClick="dict_add_form(this); return false">{t}Добавить ешё одну форму{/t}</a></tr>
+            <tr><td>&nbsp;<td><a id="add_form_link" href="#">{t}Добавить ешё одну форму{/t}</a></tr>
         {/if}
         </table><br/>
         {if $is_admin}

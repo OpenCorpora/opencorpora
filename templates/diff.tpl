@@ -10,7 +10,7 @@
 {/if}
 </p>
 {if $is_logged && $diff.prev_set && !$diff.next_set}
-<p><a class="hint" href="#" onclick="show(byid('revert_form')); return false">{t}Вернуть предыдущую редакцию предложения{/t}</a></p>
+<p><a class="hint" href="#" onclick="$('#revert_form').show(); return false">{t}Вернуть предыдущую редакцию предложения{/t}</a></p>
 <form id="revert_form" action="{$web_prefix}/revert.php?set_id={$diff.set_id}" method="post" style="display:none">
     {t}Комментарий{/t}: <input name='comment' value='Отмена правки {$diff.user_name}, возврат к предыдущей версии' size='60'/>&nbsp;
     <input type='button' onclick="submit_with_readonly_check(document.forms[0])" value="{t}Вернуть{/t}"/>

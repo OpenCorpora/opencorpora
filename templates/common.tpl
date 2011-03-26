@@ -1,5 +1,3 @@
-{* Smarty *}
-{* This is the main template inherited by all the others *}
 {include file='commonhtmlheader.tpl'}
 {block name=body}<body>{/block}
 <div id='main'>

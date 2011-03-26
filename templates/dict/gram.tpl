@@ -1,6 +1,12 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $(".edit_gram_link").one('click',edit_gram)
+            })
+    </script>
+
     <p><a href="?">&lt;&lt;&nbsp;{t}назад{/t}</a></p>
     <h2>{t}Граммемы{/t}</h2>
     {if $is_admin}
@@ -25,7 +31,7 @@
             {if $is_admin}<th>&nbsp;</th>{/if}
         </tr>
         {foreach key=id item=grammem from=$grammems}
-            <tr class='{$grammem.css_class}'><td><a name='g{$grammem.id}'></a>{$grammem.order}<td>{$grammem.name}</td><td>{$grammem.outer_id|default:'&nbsp;'}</td><td>{$grammem.description}</td><td>{$grammem.parent_name|default:'&mdash;'}</td>{if $is_admin}<td>[<a href='?act=move_gram&amp;dir=up&amp;id={$grammem.id}'>{t}вверх{/t}</a>] [<a href='?act=move_gram&amp;dir=down&amp;id={$grammem.id}'>{t}вниз{/t}</a>] [<a href='#' onClick='edit_gram(this, {$grammem.id}); return false;'>{t}ред.{/t}</a>] [<a href='?act=del_gram&amp;id={$grammem.id}' onClick="return confirm('{t}Вы уверены, что хотите удалить граммему?{/t}');">x</a>]</td>{/if}</tr>
+            <tr class='{$grammem.css_class}'><td><a name='g{$grammem.id}'></a>{$grammem.order}<td>{$grammem.name}</td><td>{$grammem.outer_id|default:'&nbsp;'}</td><td>{$grammem.description}</td><td>{$grammem.parent_name|default:'&mdash;'}</td>{if $is_admin}<td>[<a href='?act=move_gram&amp;dir=up&amp;id={$grammem.id}'>{t}вверх{/t}</a>] [<a href='?act=move_gram&amp;dir=down&amp;id={$grammem.id}'>{t}вниз{/t}</a>] [<a href='#' class="edit_gram_link" rel="{$grammem.id}">{t}ред.{/t}</a>] [<a href='?act=del_gram&amp;id={$grammem.id}' onClick="return confirm('{t}Вы уверены, что хотите удалить граммему?{/t}');">x</a>]</td>{/if}</tr>
         {/foreach}
     </table>
     </form>

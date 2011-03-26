@@ -1,6 +1,7 @@
 <?php
 header('Content-type: text/xml; charset=utf-8');
 require_once('../lib/header.php');
+error_reporting(0);
 $book_id = (int)$_GET['book_id'];
 $r = sql_fetch_array(sql_query("SELECT `par_id`, `pos` FROM `paragraphs` WHERE `book_id`=$book_id ORDER BY `pos` DESC LIMIT 1", 0));
 $num = $r['pos'];

@@ -11,6 +11,9 @@ function toggle(el) {
     if (el.style.display == 'none') el.style.display='block';
         else el.style.display='none';
 }
+$(".submit_link").click(function(event){
+    $(this).closest('form').submit()
+    })
 function makeRequest() {
     var req = false;
     if (window.XMLHttpRequest) {
@@ -35,87 +38,88 @@ function makeRequest() {
     }
     return req;
 }
-function addOption(sel, txt, val) {
-    var newopt = document.createElement("option");
-    newopt.setAttribute('value', val);
-    var t = document.createTextNode(txt);
-    newopt.appendChild(t);
-    sel.appendChild(newopt);
-}
-function clearCh(el) {
-    while(el.childNodes.length>0) {
-        el.removeChild(el.lastChild);
-    }
-}
-function changeSelectBook(n) {
-    var m;
-    var el;
-    var s_old = byid('book'+n);
-    var s_new = byid('book'+(n+1));
-    if (!s_new) {
-        updateLastParInfo(s_old.value);
+
+function changeSelectBook(event) {
+    var m, $el;
+    var n = parseInt($(event.target).attr('rel'))
+    var $s_old = $('#book'+n);
+    var $s_new = $('#book'+(n+1));
+    
+    // если следующего нет - обновляем блок с абзацем
+    if (!$s_new.length) {
+        updateLastParInfo($s_old.val());
         return;
     }
-    s_new.disabled = true;
-    if (s_old.value==0) m = n+1;
-        else m = n+2;
+    $s_new.attr('disabled','disabled');
+    if ($s_old.val() == 0) {
+        m = n+1;
+    }
+    else {
+        m = n+2;
+    }
+    // блокируются селекты со следующего или послеследующего
     for(var i = m; i < 2; ++i) {
-        el = byid('book'+i);
-        clearCh(el);
-        addOption(s_new, '-- Не выбрано --', 0);
-        el.disabled = true;
+        $el = $('#book'+i);
+        $el.empty().html("<option value='0'>-- Не выбрано --</option>").attr('disabled','disabled');
     }
+    // чистим блок с абзацем
     updateLastParInfo(0);
-    if (s_old.value==0) return;
-    clearCh(s_new);
-    addOption(s_new, 'Загрузка...', 0);
-    var req = makeRequest();
-    req.onreadystatechange = function() {
-        if (req.readyState==4) {
-            clearCh(s_new);
-            addOption(s_new, '-- Не выбрано --', 0);
-            el = req.responseXML.documentElement;
-            if (el.childNodes.length==0) {
-                updateLastParInfo(s_old.value);
-                return;
-            }
-            for (i = 0; i<el.childNodes.length; ++i) {
-                t = el.childNodes[i];
-                addOption(s_new, t.firstChild.data, t.getAttribute('value'));
-            }
-            s_new.disabled = false;
-        }
-    };
-    req.open('get', 'ajax/select_book.php?id='+s_old.value, true);
-    req.send(null);
-}
-function updateLastParInfo(book_id) {
-    var p = byid('lastpar_info');
-    var sub = byid('submitter');
-    if (book_id==0) {
-        sub.disabled = true;
-        p.innerHTML = 'Надо выбрать книгу.';
+    
+    if ($s_old.val() == 0) {
+        // если ничего не выбрано, закончили на этом
         return;
     }
-    var np = byid('newpar');
-    var req = makeRequest();
-    p.innerHTML = '<i>Загрузка...</i>';
-    req.onreadystatechange = function() {
-        if (req.readyState==4) {
-            var el = req.responseXML.documentElement;
-            if (el.childNodes.length==0) {
-                p.innerHTML = 'Нет ни одного абзаца.';
-                np.value = '1';
-                sub.disabled = false;
+    // очищаем и временно блокируем следующий селект
+    $s_new.empty().html("<option value='0'>Загрузка...</option>")
+        
+    $.get('ajax/select_book.php',{'id':$s_old.val()},
+        function(res){
+            $s_new.empty().html("<option value='0'>-- Не выбрано --</option>")
+            $opts = $(res).find('option')
+            if(!$opts.length) {
+                updateLastParInfo($s_old.val());
                 return;
             }
-            p.innerHTML = 'Последний абзац #' + el.getAttribute('num') + ' &laquo;<i>' + el.firstChild.data + '</i>&raquo;';
-            np.value = parseInt(el.getAttribute('num')) + 1;
-            sub.disabled = false;
+            $opts.each(function(i,el){
+                $s_new.append("<option value='"+$(el).attr('value')+"'>"+$(el).text()+"</option>")
+                })
+            $s_new.removeAttr('disabled')
         }
+        )
+}
+
+// обновление блока с абзацем
+function updateLastParInfo(book_id) {
+    
+    var $p = $('#lastpar_info');
+    var $sub = $('#submitter');
+    
+    // сброс
+    if (book_id == 0) {
+        $sub.attr('disabled','disabled');
+        $p.html('Надо выбрать книгу.');
+        return;
     }
-    req.open ('get', 'ajax/lastpar.php?book_id='+book_id, true);
-    req.send(null);
+    var $np = $('#newpar');
+    
+    $p.html('<i>Загрузка...</i>');
+    
+    $.get('ajax/lastpar.php',{'book_id':book_id},
+        function(res) {
+            $par = $(res).children().eq(0)
+            // есть ли к чему крепить?
+            if(!$par.text()) {
+                $p.html('Нет ни одного абзаца.');
+                $np.val('1');
+            }
+            else {
+                $p.html('Последний абзац #' + $par.attr('num') + ' &laquo;<i>' + $par.text() + '</i>&raquo;');
+                $np.val(parseInt($par.attr('num')) + 1);
+            }
+            // теперь можно добавлять
+            $sub.removeAttr('disabled');
+        }
+        )
 }
 
 function scroll_annot(offset) {
@@ -253,45 +257,37 @@ function dict_reload(td) {
     req.open ('get', 'ajax/dict_reload.php?tf_id='+tf_id, true);
     req.send(null);
 }
-function dict_add_form(a_el) {
-    var tbody = a_el.parentNode.parentNode.parentNode;
-    var new_tr = document.createElement('tr');
-    var new_td = document.createElement('td');
-    var new_input = document.createElement('input');
-    new_input.setAttribute('name', 'form_text[]');
-    new_td.appendChild(new_input);
-    new_tr.appendChild(new_td);
-    new_td = document.createElement('td');
-    new_input = document.createElement('input');
-    new_input.setAttribute('name', 'form_gram[]');
-    new_input.setAttribute('size', '40');
-    new_td.appendChild(new_input);
-    new_tr.appendChild(new_td);
-    tbody.appendChild(new_tr);
+function dict_add_form(event) {
+    $(event.target).closest('tbody').append("<tr><td><input name='form_text[]'></td><td><input size='40' name='form_gram[]'></td></tr>")
+    event.preventDefault()
 }
-function edit_gram(tr, gram_id) {
-    tr.setAttribute('onClick', 'return false');
-    tr = tr.parentNode.parentNode;
-    tr.childNodes[1].innerHTML = '<input name="inner_id" size="10" maxlength="20" value="'+tr.childNodes[1].innerHTML+'"/>'
-    tr.childNodes[2].innerHTML = '<input name="outer_id" size="10" maxlength="20" value="'+tr.childNodes[2].innerHTML+'"/>'
-    tr.childNodes[3].innerHTML = '<input name="descr" size="35" value="'+tr.childNodes[3].innerHTML+'"/>'
-    tr.lastChild.innerHTML += ' <input type="hidden" name="id" value="'+gram_id+'"/><input type="submit" value="Сохранить"/>&nbsp;<input type="button" value="Отменить" onClick="location.reload()"/>';
-}
-function submit_with_readonly_check(f) {
-    var req = makeRequest();
-    req.onreadystatechange = function() {
-        if (req.readyState==4) {
-            var root = req.responseXML.documentElement;
-            var ro = root.getAttribute('readonly');
-            if (ro == 1) {
-                alert('Извините, система находится в режиме "только для чтения".');
-            } else {
-                f.submit();
+function edit_gram(event) {
+    var $a = $(event.target).closest('a')
+    var names = ['','inner_id','outer_id','descr','','submit']
+    $a.closest('tr').find('td').each(function(i,el) {
+        if(names[i]) {
+            var $el = $(el)
+            if(names[i] == 'submit') {
+                $el.html($el.html()+'<input type="hidden" name="id" value="'+$a.attr('rel')+'"/><input type="submit" value="Сохранить"/>&nbsp;<input type="button" value="Отменить" onClick="location.reload()"/>')
+            }
+            else {
+                $el.html('<input name="'+names[i]+'" '+(names[i] == 'descr' ? 'size="35"' : 'size="10" maxlength="20"')+' value="'+$el.html()+'"/>')
             }
         }
-    }
-    req.open('get', 'ajax/readonly.php?', true);
-    req.send(null);
+        })
+    event.preventDefault()
+}
+
+function submit_with_readonly_check(f) {
+    
+    $.get("ajax/readonly.php",function(res){
+        if($(res).find('response').attr('readonly')=='1') {
+            alert('Извините, система находится в режиме "только для чтения".');
+        }
+        else {
+            f.submit();
+        }
+        })
 }
 function get_lemma_search() {
     var q = byid('find_lemma').value;

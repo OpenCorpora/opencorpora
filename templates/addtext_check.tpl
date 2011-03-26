@@ -2,15 +2,20 @@
 {extends file='common.tpl'}
 {block name=body}{strip}
 {if isset($check.selected1)}
-<body onload="changeSelectBook(1)">
+<body{* onload="changeSelectBook(1)"*}>
 {elseif isset($check.selected0)}
-<body onload="changeSelectBook(0)">
+<body{* onload="changeSelectBook(0)"*}>
 {else}
 <body>
 {/if}
 {/strip}{/block}
 {block name=content}
-    <form action="?act=add" method="post">
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#select_book_form").find('select').change(changeSelectBook)
+            })
+    </script>
+    <form action="?act=add" method="post" id="select_book_form">
     <input type='hidden' name='source_text' value='{$check.full|htmlspecialchars}'/>
     <ol type="I">
     {foreach item=paragraph from=$check.paragraphs name=par}
@@ -45,11 +50,11 @@
     {/foreach}
     </ol>
         {t}Добавляем в{/t}
-        <select id="book0" name="book[]" onChange="changeSelectBook(0)">
+        <select id="book0" name="book[]" rel="0">
             <option value="0">-- {t}Не выбрано{/t} --</option>
             {html_options options=$check.select0 selected=$check.selected0}
         </select>
-        <select id="book1" name="book[]"{if !isset($check.select1)} disabled="disabled"{/if} onChange="changeSelectBook(1)">
+        <select id="book1" name="book[]"{if !isset($check.select1)} disabled="disabled"{/if} rel="1">
             <option value="0">-- {t}Не выбрано{/t} --</option>
             {if isset($check.select1)}
             {html_options options=$check.select1 selected=$check.selected1}
