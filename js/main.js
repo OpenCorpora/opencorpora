@@ -39,9 +39,8 @@ function makeRequest() {
     return req;
 }
 
-function changeSelectBook(event) {
+function changeSelectBook(n) {
     var m, $el;
-    var n = parseInt($(event.target).attr('rel'))
     var $s_old = $('#book'+n);
     var $s_new = $('#book'+(n+1));
     

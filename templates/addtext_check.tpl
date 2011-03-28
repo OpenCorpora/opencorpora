@@ -1,18 +1,16 @@
 {* Smarty *}
 {extends file='common.tpl'}
-{block name=body}{strip}
-{if isset($check.selected1)}
-<body{* onload="changeSelectBook(1)"*}>
-{elseif isset($check.selected0)}
-<body{* onload="changeSelectBook(0)"*}>
-{else}
-<body>
-{/if}
-{/strip}{/block}
+
 {block name=content}
     <script type="text/javascript">
         $(document).ready(function(){
-            $("#select_book_form").find('select').change(changeSelectBook)
+            $("#select_book_form").find('select').change(function(event){
+                var n = parseInt($(event.target).closest('select').attr('rel'))
+                changeSelectBook(n)
+                })
+            {if isset($check.selected1)}changeSelectBook(1);
+            {elseif isset($check.selected0)}changeSelectBook(0);
+            {/if}
             })
     </script>
     <form action="?act=add" method="post" id="select_book_form">
