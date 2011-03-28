@@ -189,6 +189,8 @@
     CHANGE(сравн -> ADJC)
 (1 ADJS&masc&sing&~/ен$/) & (1 ADJS&masc&sing&~/енен$/)
     CHANGE (ADJS, masc, sing, ~/енен$/ -> ADJS, masc, sing, V-en)
+(1 ADJS&masc&sing&~/ан$/) & (1 ADJS&masc&sing&~/анен$/)
+    CHANGE (ADJS, masc, sing, ~/анен$/ -> ADJS, masc, sing, V-en)
 (1 ADJF&Name)
     CHANGE(ADJF, Name -> ADJF)
 (1 ADJC)
@@ -250,7 +252,8 @@
     CHANGE ( -> Subx)
    
 (* ADJF&Fixd&@adjf_fixd_advb)
-    GENERATE(sing,plur;nomn,gent,datv,accs,ablt,loct;masc,femn,neut)
+    CHANGE( -> Qual)
+    GENERATE(sing,plur;masc,femn,neut;nomn,gent,datv,accs,ablt,loct)
 (* ADJF&Fixd&!@adjf_fixd_advb)
     GENERATE(sing,plur; nomn,gent,datv,accs,ablt,loct)
     CHANGE(@adjf_fixd_del -> _del)
