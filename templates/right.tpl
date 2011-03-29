@@ -11,6 +11,12 @@
     <a href="{$web_prefix}/?rand">{t}Случайное предложение{/t}</a>
 </div>
 <div>
+<b>{t}Поиск по словарю{/t}</b>
+<form action="{$web_prefix}/dict.php?act=lemmata" method="post">
+<input name="search_form" size="20" class="small"/>
+</form>
+</div>
+<div>
     <b>{t}Свежие правки{/t}</b><br/>
     <a href='{$web_prefix}/history.php'>{t}В разметке{/t}</a><br/>
     <a href='{$web_prefix}/dict_history.php'>{t}В словаре{/t}</a>
