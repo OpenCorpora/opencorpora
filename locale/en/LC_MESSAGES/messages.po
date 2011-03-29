@@ -167,7 +167,7 @@ msgstr "Olga V. Mitrenina"
 msgid "О.А. Митрофановой"
 msgstr "Olga A. Mitrofanova"
 
-msgid "Марии Николаевой"
+msgid "Мария Николаева"
 msgstr "Maria Nikolaeva"
 
 msgid "Лидии Пивоваровой"

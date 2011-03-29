@@ -7,6 +7,7 @@
 <tr><td>{t}Светлана Бичинёва{/t}</td><td>{mailto address="bichineva@opencorpora.org" encode="javascript"}</tr>
 <tr><td>{t}Виктор Бочаров{/t}</td><td>{mailto address="bocharov@opencorpora.org" encode="javascript"}</td></tr>
 <tr><td>{t}Дмитрий Грановский{/t}</td><td>{mailto address="granovsky@opencorpora.org" encode="javascript"}</td></tr>
+<tr><td>{t}Мария Николаева{/t}</td></tr>
 <tr><td>{t}Наталья Остапук{/t}</td></tr>
 <tr><td>{t}Мария Степанова{/t}</td></tr>
 </table>
@@ -18,7 +19,6 @@
 <li>{t}Татьяне Ландо{/t},
 <li>{t}О.В. Митрениной{/t},
 <li>{t}О.А. Митрофановой{/t},
-<li>{t}Марии Николаевой{/t},
 <li>{t}Лидии Пивоваровой{/t},
 <li>{t}а также кафедре математической лингвистики СПбГУ{/t},
 <li>{t}кафедре информационных систем в гуманитарных науках и искусстве СПбГУ{/t}
