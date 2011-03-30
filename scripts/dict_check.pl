@@ -171,7 +171,7 @@ sub check {
     my @all_gram = ();
     my %form_gram_hash = ();
 
-    while($ref->{'text'} =~ /<f t="([^"]+)">(.+?)<\/f>/g) {
+    while($ref->{'text'} =~ /<f t="([^"]+)">(.*?)<\/f>/g) {
         my ($ft, $fg_str) = ($1, $2);
         @form_gram = ();
         while($fg_str =~ /<g v="([^"]+)"\/>/g) {
