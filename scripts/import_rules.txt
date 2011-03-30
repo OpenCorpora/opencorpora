@@ -178,11 +178,10 @@
     CHANGE (NOUN,accs,plur,@infr0 -> NOUN,accs,plur,Infr)
 (1 NOUN&~/^грома$/)
     CHANGE (~/^грома$/,nomn,plur -> nomn,plur,Litr)
-(1 NOUN&@count) {
+(1 NOUN&@count)
     CHANGE (@count,gent,plur -> gent,plur,Coun)
-(1 NOUN&@infr1) {
+(1 NOUN&@infr1)
     CHANGE (@infr1,gent,plur -> gent,plur,Infr)
-}
 # АУДИ С, 0, мр-жр, но
 
 
@@ -268,14 +267,14 @@
     GENERATE(sing,plur; nomn,gent,datv,accs,ablt,loct)
     CHANGE(@adjf_fixd_del -> _del)
 
-(* NOUN&@adjf_fixd_advb) | (* ADVB&@adjf_fixd_advb) | (* NOUN&@adjf_fixd_noun)
+(* NOUN&@adjf_fixd_advb) | (* ADVB&@adjf_fixd_advb) | (* NOUN&@adjf_fixd_noun) | (* ADVB&@adjf_fixd_noun)
     CHANGE ( -> _del)
 (* NOUN&@adjf_fixd_noun)
     CHANGE (~/^бордо$/, _del ->)
     CHANGE (~/^пике$/, _del ->)
 
 (* ADJF&Fixd)
-    CHANGE(masc,plur -> _del)
+    CHANGE(masc,plur -> plur)
     CHANGE(femn,plur -> _del)
     CHANGE(neut,plur -> _del)
     
@@ -385,7 +384,7 @@
 (* PRED&@pred_del)
     CHANGE ( -> _del)
 (* PRED&@pred_intj)
-    CNANGE (PRED -> INTJ)
+    CHANGE (PRED -> INTJ)
 (* ADVB&@pred_del)
     CHANGE ( -> Prdx)
 # числительное
