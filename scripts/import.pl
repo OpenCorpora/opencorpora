@@ -20,7 +20,10 @@ $importer->preload_list('adjf_fixd_advb', '/corpus/scripts/lists/list_adjf_fixd_
 $importer->preload_list('adjf_fixd_noun', '/corpus/scripts/lists/list_adjf_fixd_NOUN.txt');
 $importer->preload_list('nouns_subst', '/corpus/scripts/lists/nouns_subst.txt');
 $importer->preload_list('arch', '/corpus/scripts/lists/add_Arch.txt');
-$importer->preload_list('infr0', '/corpus/scripts/lists/add_Infr_nomn_plur.txt');
 $importer->preload_list('arch0', '/corpus/scripts/lists/add_Arch_nomn_plur.txt');
+$importer->preload_list('infr0', '/corpus/scripts/lists/add_Infr_nomn_plur.txt');
+$importer->preload_list('infr1', '/corpus/scripts/lists/add_Infr_gent_plur.txt');
 $importer->preload_list('pred_del', '/corpus/scripts/lists/pred_del.txt');
+$importer->preload_list('pred_intj', '/corpus/scripts/lists/pred_to_intj.txt');
+$importer->preload_list('count', '/corpus/scripts/lists/add_Coun_gent_plur.txt');
 $importer->read_aot('/home/grand/aot_dump.2');

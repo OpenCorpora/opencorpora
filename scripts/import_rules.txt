@@ -169,7 +169,7 @@
 #    CHANGE (inan -> ANim)
 (* NOUN) & (1 nomn&sing&@anim1)
     CHANGE (ANim -> inan)
-    CHANGE (accs,plur,inan,~/ий$/ -> accs,plur,anim)
+    CHANGE (accs,plur,~/ий$/ -> accs,plur,anim)
 (1 @arch) | (1 @arch0)
     CHANGE (@arch,ablt,plur -> ablt,plur,Arch)
     CHANGE (@arch0,nomn,plur -> nomn,plur,Arch)
@@ -178,6 +178,11 @@
     CHANGE (NOUN,accs,plur,@infr0 -> NOUN,accs,plur,Infr)
 (1 NOUN&~/^грома$/)
     CHANGE (~/^грома$/,nomn,plur -> nomn,plur,Litr)
+(1 NOUN&@count) {
+    CHANGE (@count,gent,plur -> gent,plur,Coun)
+(1 NOUN&@infr1) {
+    CHANGE (@infr1,gent,plur -> gent,plur,Infr)
+}
 # АУДИ С, 0, мр-жр, но
 
 
@@ -379,6 +384,8 @@
     SPLIT(INTJ, PRCL)
 (* PRED&@pred_del)
     CHANGE ( -> _del)
+(* PRED&@pred_intj)
+    CNANGE (PRED -> INTJ)
 (* ADVB&@pred_del)
     CHANGE ( -> Prdx)
 # числительное
