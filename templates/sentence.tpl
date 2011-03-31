@@ -3,6 +3,16 @@
 {block name=body}<body onload="highlight_source(); document.onkeyup=checkKeyUp; document.onkeydown=checkKeyDown; document.onmouseup=endScroll; prepareScroll();">{/block}
 {block name=content}
     {strip}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#source_text,#main_scroller,#scrollbar").mousewheel(function(event,delta){
+                byid('scrollbar').state = delta > 0 ? -1: 1;
+                scroll_annot( delta>0 ? -50 : 50);
+                endScroll();
+                event.preventDefault()
+                })
+            })
+    </script>
     <p align='right'>
     {if $sentence.status == 0}
     <span class='sent_status0'>{t}Предложение разобрано автоматически.{/t}</span>
