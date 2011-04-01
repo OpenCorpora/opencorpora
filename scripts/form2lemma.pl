@@ -40,10 +40,6 @@ while(my $ref = $scan->fetchrow_hashref()) {
         my ($f, $g) = ($1, $2);
         #print STDERR "$f\t".$ref->{'lemma_id'}."\t$lemma\t$g\n";
         $ins->execute($f, $ref->{'lemma_id'}, $lemma, $lemma_gr.$g);
-        if ($f =~ /ё/) {
-            $f =~ s/ё/е/g;
-            $ins->execute($f, $ref->{'lemma_id'}, $lemma, $lemma_gr.$g);
-        }
     }
     $upd->execute($ref->{'rev_id'});
     #print STDERR 'At revision '.$ref->{'rev_id'}."\n";
