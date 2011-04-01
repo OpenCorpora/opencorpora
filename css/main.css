@@ -100,8 +100,11 @@ span.debug_error {
     background-color: #CC0000;
     color: yellow;
 }
-div#errata div {
+div#errata div.error {
     background-color: #F69;
+}
+div#errata div.ok {
+    background-color: #9F9;
 }
 div.info {
     background-color: #ffe5b4;

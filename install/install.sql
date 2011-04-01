@@ -151,6 +151,12 @@ CREATE TABLE IF NOT EXISTS `dict_errata` (
     INDEX (`error_type`)
 );
 
+CREATE TABLE IF NOT EXISTS `dict_errata_exceptions` (
+    `item_id`     SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `error_type`  SMALLINT UNSIGNED NOT NULL,
+    `error_descr` TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS `updated_forms` (
     `form_text` VARCHAR(50) NOT NULL
 );

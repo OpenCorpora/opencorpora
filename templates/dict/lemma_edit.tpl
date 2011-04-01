@@ -19,7 +19,7 @@
     </form></p>
     <div id="errata">
     {foreach from=$editor.errata item=error}
-        <div>{t}Ошибка{/t}.
+        <div class="{if $error.is_ok}ok{else}error{/if}">{t}Ошибка{/t}.
         {if $error.type == 1}
             {t}Несовместимые граммемы{/t}:
         {elseif $error.type == 2}
@@ -31,7 +31,14 @@
         {elseif $error.type == 5}
             {t}Не разрешённая граммема{/t}:
         {/if}
-        {$error.descr}
+        {$error.descr}.
+        {if $is_admin}
+        {if $error.is_ok}
+        (Эта ошибка была помечена как исключение.)
+        {else}
+        <a href="?act=not_error&amp;error_id={$error.id}" onclick="return confirm('Пометить эту ошибку как исключение?')">Это не ошибка</a>
+        {/if}
+        {/if}
         </div>
     {/foreach}
     </div>

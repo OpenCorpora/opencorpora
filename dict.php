@@ -46,6 +46,12 @@ switch($action) {
         } else
             show_error($config['msg_notadmin']);
         break;
+    case 'not_error':
+        if (is_admin()) {
+            mark_dict_error_ok((int)$_GET['error_id']);
+        } else
+            show_error($config['msg_notadmin']);
+        break;
     case 'add_restr':
         if (is_admin()) {
             add_dict_restriction($_POST);

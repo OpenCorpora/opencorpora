@@ -23,9 +23,14 @@
     <th>{t}Ревизия{/t}</th>
     <th>{t}Тип ошибки{/t}</th>
     <th>{t}Описание{/t}</th>
+    {if $is_admin}<th>&nbsp;</th>{/if}
 </tr>
 {foreach item=error from=$errata.errors}
+{if $error.is_ok}
+<tr style='background-color: #9f9'>
+{else}
 <tr>
+{/if}
     <td>{$error.id}</td>
     <td>{$error.timestamp|date_format:"%d.%m.%Y, %H:%M"}</td>
     <td><a href="{$web_prefix}/dict_diff.php?lemma_id={$error.lemma_id}&amp;set_id={$error.set_id}">{$error.revision}</a></td>
@@ -43,6 +48,7 @@
         {/if}
     </td>
     <td>{$error.description}</td>
+    {if $is_admin}<td>{if !$error.is_ok}<a href="?act=not_error&amp;error_id={$error.id}" onclick="return confirm('Пометить эту ошибку как исключение?')" title="Пометить как исключение">OK</a>{else}&nbsp;{/if}</td>{/if}
 </tr>
 {/foreach}
 </table>

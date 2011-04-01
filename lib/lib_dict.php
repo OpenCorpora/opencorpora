@@ -172,9 +172,9 @@ function get_lemma_editor($id) {
         $out['links'][] = array('lemma_id' => $r['lemma_id'], 'lemma_text' => $r['lemma_text'], 'name' => $r['link_name'], 'id' => $r['link_id']);
     }
     //errata
-    $res = sql_query("SELECT * FROM dict_errata WHERE rev_id IN (SELECT rev_id FROM dict_revisions WHERE lemma_id=$id)");
+    $res = sql_query("SELECT e.*, x.item_id FROM dict_errata e LEFT JOIN dict_errata_exceptions x ON (e.error_type=x.error_type AND e.error_descr=x.error_descr) WHERE e.rev_id = (SELECT rev_id FROM dict_revisions WHERE lemma_id=$id ORDER BY rev_id DESC LIMIT 1)");
     while($r = sql_fetch_array($res)) {
-        $out['errata'][] = array('type' => $r['error_type'], 'descr' => $r['error_descr']);
+        $out['errata'][] = array('id' => $r['error_id'], 'type' => $r['error_type'], 'descr' => $r['error_descr'], 'is_ok' => ($r['item_id'] > 0 ? 1 : 0));
     }
     return $out;
 }
@@ -463,7 +463,11 @@ function get_dict_errata($all, $rand) {
     $out = array('lag' => $r['cnt_v']);
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_t FROM `dict_errata`"));
     $out['total'] = $r['cnt_t'];
-    $res = sql_query("SELECT e.*, r.lemma_id, r.set_id FROM dict_errata e LEFT JOIN dict_revisions r ON (e.rev_id=r.rev_id) ORDER BY ".($rand?'RAND()':'error_id').($all?'':' LIMIT 200'));
+    $res = sql_query("SELECT e.*, r.lemma_id, r.set_id, x.item_id
+        FROM dict_errata e
+        LEFT JOIN dict_errata_exceptions x ON (e.error_type=x.error_type AND e.error_descr=x.error_descr)
+        LEFT JOIN dict_revisions r ON (e.rev_id=r.rev_id)
+        ORDER BY ".($rand?'RAND()':'error_id').($all?'':' LIMIT 200'));
     while($r = sql_fetch_array($res)) {
         $out['errors'][] = array(
             'id' => $r['error_id'],
@@ -472,7 +476,8 @@ function get_dict_errata($all, $rand) {
             'type' => $r['error_type'],
             'description' => preg_replace('/<([^>]+)>/', '<a href="?act=edit&amp;id='.$r['lemma_id'].'">$1</a>', $r['error_descr']),
             'lemma_id' => $r['lemma_id'],
-            'set_id' => $r['set_id']
+            'set_id' => $r['set_id'],
+            'is_ok' => ($r['item_id'] > 0 ? 1 : 0)
         );
     }
     return $out;
@@ -497,6 +502,21 @@ function clear_dict_errata($old) {
         header("Location:dict.php?act=errata");
         return;
     }
+}
+function mark_dict_error_ok($id) {
+    if (!$id) {
+        header("Location:dict.php?act=errata");
+        return;
+    }
+    if (sql_query("INSERT INTO dict_errata_exceptions VALUES(
+            NULL,
+            (SELECT error_type FROM dict_errata WHERE error_id=$id LIMIT 1),
+            (SELECT error_descr FROM dict_errata WHERE error_id=$id LIMIT 1)
+        )")) {
+        header("Location:dict.php?act=errata");
+        return;
+    } else
+        show_error();
 }
 function get_gram_restrictions($hide_auto) {
     $res = sql_query("SELECT r.restr_id, r.obj_type, r.restr_type, r.auto, g1.inner_id `if`, g2.inner_id `then`
