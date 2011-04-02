@@ -240,9 +240,9 @@ function dict_reload(td) {
                     new_div.innerHTML += '<a href="dict.php?act=edit&amp;id='+cvar.firstChild.getAttribute('id')+'">'+cvar.firstChild.getAttribute('t')+'</a>';
                 else
                     new_div.innerHTML += '<span>'+cvar.firstChild.getAttribute('t')+'</span>';
-                new_div.innerHTML += '<a class="best_var" onclick="best_var(this.parentNode); return false" href="#">v</a><a class="del_var" onclick="del_var(this.parentNode); return false" href="#">x</a><br/>' + cvar.firstChild.firstChild.getAttribute('v');
+                new_div.innerHTML += '<a class="best_var" onclick="best_var(this.parentNode); return false" href="#">v</a><a class="del_var" onclick="del_var(this.parentNode); return false" href="#">x</a><br/>' + '<span class="hint" title="' + cvar.firstChild.firstChild.getAttribute('d') + '">' + cvar.firstChild.firstChild.getAttribute('v') + '</span>';
                 for (j = 1; cvar.firstChild.childNodes[j] != null; ++j) {
-                    new_div.innerHTML += ', ' + cvar.firstChild.childNodes[j].getAttribute('v');
+                    new_div.innerHTML += ', ' + '<span class="hint" title="' + cvar.firstChild.childNodes[j].getAttribute('d') + '">' + cvar.firstChild.childNodes[j].getAttribute('v') + '</span>';
                 }
                 td.appendChild(new_div);
             }
