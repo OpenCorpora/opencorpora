@@ -17,7 +17,7 @@
     {t}Вы &ndash;{/t} <b>{$smarty.session.user_name}</b>
     {if $smarty.session.user_group > 5}
         , {t}администратор{/t}
-        {if $smarty.session.debug_mode}
+        {if isset($smarty.session.debug_mode)}
             &nbsp;[<a href='?debug=off'>debug off</a>]
         {else}
             &nbsp;[<a href='?debug=on'>debug on</a>]
