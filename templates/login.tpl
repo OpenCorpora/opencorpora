@@ -10,7 +10,8 @@
     <tr><td>{t}Пароль{/t}<td><input type='password' name='passwd' size='40' maxlength='50'/></tr>
     <tr><td>{t}Пароль ещё раз{/t}<td><input type='password' name='passwd_re' size='40' maxlength='50'/></tr>
     <tr><td valign='top'>Email<td><input type='text' name='email' size='40' maxlength='50'/><br/><span class='small'>({t}необязательно, но без него вы не сможете восстановить пароль{/t})</span></tr>
-    <tr><td colspan='2' align='right'><input type='button' onclick='submit_with_readonly_check(document.forms[0])' value='{t}Зарегистрироваться{/t}'/></tr>
+    <tr><td colspan='2'><label><input type='checkbox' name='agree' onclick="$('#reg_button').attr('disabled', !$(this).attr('checked'))"/> Я согласен на неотзывную публикацию всех вносимых мной изменений в соответствии с лицензией <a href="http://creativecommons.org/licenses/by-sa/3.0/deed.ru">Creative Commons Attribution/Share-Alike 3.0</a></label>
+    <tr><td colspan='2'><input type='button' id='reg_button' disabled='disabled' onclick='submit_with_readonly_check(document.forms[0])' value='{t}Зарегистрироваться{/t}'/></tr>
     </table>
     </form>
 {elseif $smarty.get.act == 'lost_pwd'}
