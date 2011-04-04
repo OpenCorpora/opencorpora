@@ -4,14 +4,27 @@
 {block name=content}
     {strip}
     <script type="text/javascript">
+        
         $(document).ready(function(){
+            
             $("#source_text,#main_scroller,#scrollbar").mousewheel(function(event,delta){
                 byid('scrollbar').state = delta > 0 ? -1: 1;
                 scroll_annot( delta>0 ? -50 : 50);
                 endScroll();
                 event.preventDefault()
-                })
-            })
+                });
+            
+            });
+        var unload_msg = {t}"Вы уверены, что хотите уйти, не сохранив предложение?"{/t};
+        var root = window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
+        if(root) {
+            root.onbeforeunload=function () {
+                if($("#submit_button").length && !$("#submit_button").attr('disabled')) {
+                    return unload_msg;
+                    };
+                
+                };
+        }
     </script>
     <p align='right'>
     {if $sentence.status == 0}
