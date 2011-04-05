@@ -48,7 +48,7 @@
         {/if}
     </td>
     <td>{$error.description}</td>
-    {if $is_admin}<td>{if !$error.is_ok}<a href="?act=not_error&amp;error_id={$error.id}" onclick="return confirm('Пометить эту ошибку как исключение?')" title="Пометить как исключение">OK</a>{else}&nbsp;{/if}</td>{/if}
+    {if $is_admin}<td>{if !$error.is_ok}<button onclick="if (confirm('Пометить эту ошибку как исключение?')) location.href='?act=not_error&amp;error_id={$error.id}'" title="Пометить как исключение">OK</button>{else}&nbsp;{/if}</td>{/if}
 </tr>
 {/foreach}
 </table>

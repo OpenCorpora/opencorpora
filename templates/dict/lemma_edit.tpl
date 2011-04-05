@@ -36,7 +36,7 @@
         {if $error.is_ok}
         (Эта ошибка была помечена как исключение.)
         {else}
-        <a href="?act=not_error&amp;error_id={$error.id}" onclick="return confirm('Пометить эту ошибку как исключение?')">Это не ошибка</a>
+        <button onclick="if (confirm('Пометить эту ошибку как исключение?')) location.href='?act=not_error&amp;error_id={$error.id}'">Это не ошибка</button>
         {/if}
         {/if}
         </div>
