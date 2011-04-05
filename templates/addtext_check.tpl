@@ -34,7 +34,7 @@
             {/if}
             {/foreach}
             <br/>
-            <a href="#" onclick="hide(this); show(byid('p{$smarty.foreach.par.index}s{$smarty.foreach.s.index}')); return false" class='toggle'>внести исправления</a>
+            <a href="#" onclick="$(this).hide(); $('#p{$smarty.foreach.par.index}s{$smarty.foreach.s.index}').show(); return false" class='toggle'>внести исправления</a>
             <textarea cols="70" rows="3" name="sentence[]" style="display:none" id="p{$smarty.foreach.par.index}s{$smarty.foreach.s.index}">
             {foreach item=token from=$sentence.tokens}
             {$token.text|htmlspecialchars}

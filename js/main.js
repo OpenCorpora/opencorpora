@@ -9,16 +9,6 @@ $(document).ready(function(){
 function byid(id) {
     return document.getElementById(id)
 }
-function show(el) {
-    el.style.display='block';
-}
-function hide(el) {
-    el.style.display='none';
-}
-function toggle(el) {
-    if (el.style.display == 'none') el.style.display='block';
-        else el.style.display='none';
-}
 function makeRequest() {
     var req = false;
     if (window.XMLHttpRequest) {
@@ -143,7 +133,7 @@ function startScroll(offset) {
 }
 
 function endScroll() {
-    byid('scrollbar').state = 0;
+    $('#scrollbar').attr('state', 0);
 }
 
 function syncScroll() {
@@ -152,8 +142,8 @@ function syncScroll() {
 }
 
 function prepareScroll() {
-        byid('scrollbar').firstChild.style.width = byid('main_annot').firstChild.scrollWidth + "px";
-        byid('scrollbar').onscroll = syncScroll;
+    byid('scrollbar').firstChild.style.width = byid('main_annot').firstChild.scrollWidth + "px";
+    byid('scrollbar').onscroll = syncScroll;
 }
         
 function checkKeyDown(evt) {
@@ -171,9 +161,7 @@ function checkKeyUp(evt) {
 function del_var(v) {
     v.firstChild.value = 0;
     v.className = 'var inactive';
-    var b;
-    if (b = byid('submit_button'))
-        b.disabled = false;
+    $('#submit_button').removeAttr('disabled');
 }
 function best_var(v) {
     v.firstChild.value = 1;
@@ -208,7 +196,7 @@ function dehighlight_source() {
     }
 }
 function show_comment_field(btn) {
-    show(byid('comment_fld'));
+    $('#comment_fld').show();
     btn.style.fontWeight = 'bold';
     btn.setAttribute('onclick', 'submit_with_readonly_check(document.forms[0])');
 }
@@ -294,7 +282,7 @@ function submit_with_readonly_check(f) {
         })
 }
 function get_lemma_search() {
-    var q = byid('find_lemma').value;
+    var q = $('#find_lemma').val();
     if (q.length < 3) {
         alert('Слишком короткий запрос');
         return false;

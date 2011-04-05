@@ -79,7 +79,7 @@
     </form>
     {/strip}
     <p><b>{t}Связи{/t}</b></p>
-    <p><a href="#" class="toggle" onclick="show(byid('add_link')); return false">{t}Добавить связь{/t}</a></p>
+    <p><a href="#" class="toggle" onclick="$('#add_link').show(); return false">{t}Добавить связь{/t}</a></p>
     <form id="add_link" method='post' action='?act=add_link'>
         <input type='hidden' name='from_id' value='{$editor.lemma.id}'/>
         <select name='link_type'>
