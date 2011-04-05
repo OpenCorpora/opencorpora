@@ -117,33 +117,33 @@ function updateLastParInfo(book_id) {
 }
 
 function scroll_annot(offset) {
-    var el = byid('scrollbar');
-    if (el.state == (offset > 0 ? 1: -1) ) {
-        var newVal = el.scrollLeft + offset;
+    var $el = $('#scrollbar');
+    if ($el.data('state') == (offset > 0 ? 1: -1) ) {
+        var newVal = $el.scrollLeft() + offset;
         if (newVal < 0) newVal = 0;
-        el.scrollLeft = newVal;
+        $el.scrollLeft(newVal);
         highlight_source();
         setTimeout('scroll_annot(' + offset + ')', 100);
     }
 }
 
 function startScroll(offset) {
-    byid('scrollbar').state = offset > 0 ? 1: -1;
+    $('#scrollbar').data('state', offset > 0 ? 1: -1);
     setTimeout('scroll_annot(' + offset + ')', 0);
 }
 
 function endScroll() {
-    $('#scrollbar').attr('state', 0);
+    $('#scrollbar').data('state', 0);
 }
 
 function syncScroll() {
-	byid('main_annot').scrollLeft = byid('scrollbar').scrollLeft;
+	$('#main_annot').scrollLeft($('#scrollbar').scrollLeft());
 	highlight_source();
 }
 
 function prepareScroll() {
-    byid('scrollbar').firstChild.style.width = byid('main_annot').firstChild.scrollWidth + "px";
-    byid('scrollbar').onscroll = syncScroll;
+    $('#scrollbar div').width($('#main_annot table').width());
+    $('#scrollbar').scroll(syncScroll);
 }
         
 function checkKeyDown(evt) {
@@ -155,7 +155,7 @@ function checkKeyDown(evt) {
 }
 function checkKeyUp(evt) {
     var code = evt.keyCode ? evt.keyCode : evt.charCode;
-    if ( (code == 37 && byid('scrollbar').state == -1) || (code == 39 && byid('scrollbar').state == 1) )
+    if ( (code == 37 && $('#scrollbar').data('state') == -1) || (code == 39 && $('#scrollbar').data('state') == 1) )
         endScroll();
 }
 function del_var(v) {
@@ -190,9 +190,9 @@ function highlight_source() {
 }
 function dehighlight_source() {
     var i;
-    var cur_token;
-    for (i=0; cur_token = byid('src_token_' + i); i++) {
-        cur_token.className='';
+    var $cur_token;
+    for (i=0; $('#src_token_' + i).length; i++) {
+        $("#src_token_"+i).removeClass();
     }
 }
 function show_comment_field(btn) {
