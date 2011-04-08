@@ -2,13 +2,12 @@
 {extends file='common.tpl'}
 {block name=body}<body onload="highlight_source(); document.onkeyup=checkKeyUp; document.onkeydown=checkKeyDown; document.onmouseup=endScroll; prepareScroll();">{/block}
 {block name=content}
-    {strip}
     <script type="text/javascript">
         
         $(document).ready(function(){
             
             $("#source_text,#main_scroller,#scrollbar").mousewheel(function(event,delta){
-                byid('scrollbar').state = delta > 0 ? -1: 1;
+                $('#scrollbar').data('state', delta > 0 ? -1: 1);
                 scroll_annot( delta>0 ? -50 : 50);
                 endScroll();
                 event.preventDefault()
@@ -33,6 +32,7 @@
     <span class='sent_status1'>{t}Частично снята омонимия.{/t}</span>
     {/if}
     </p>
+    {strip}
     <div id="source_text"><b>{t}Весь текст{/t}:</b> {$sentence.fulltext}</div>
     <form method="post" action="?id={$sentence.id}&amp;act=save">
         <div id="main_scroller">

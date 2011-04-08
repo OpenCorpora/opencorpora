@@ -27,7 +27,7 @@
 {if $token.old_ver > 0}
         <td valign='top'><b>({t}Было{/t})</b>
         {if $is_logged}
-        <form class='inline' id='form_revert_t{$token.old_ver}' method='post' action='{$web_prefix}/revert.php?tf_rev={$token.old_ver}'><button onclick="submit_with_readonly_check(byid('form_revert_t{$token.old_ver}'))">{t}Вернуть эту версию{/t}</button></form>
+        <form class='inline' id='form_revert_t{$token.old_ver}' method='post' action='{$web_prefix}/revert.php?tf_rev={$token.old_ver}'><button type="button" onclick="submit_with_readonly_check($('#form_revert_t{$token.old_ver}'))">{t}Вернуть эту версию{/t}</button></form>
         {/if}
         <br/><b>{t}Версия{/t} {$token.old_ver} ({$token.old_user_name|default:'Робот'}, {$token.old_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b><pre>{$token.old_rev_xml|format_xml|htmlspecialchars}</pre></td>
         <td valign='top'><b>({t}Стало{/t})<br/>{t}Версия{/t} {$token.new_ver} ({$token.new_user_name|default:'Робот'}, {$token.new_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b><pre>{$token.new_rev_xml|format_xml|htmlspecialchars}</pre></td>

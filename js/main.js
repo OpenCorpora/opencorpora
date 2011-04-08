@@ -6,9 +6,6 @@ $(document).ready(function(){
     
     })
 
-function byid(id) {
-    return document.getElementById(id)
-}
 function makeRequest() {
     var req = false;
     if (window.XMLHttpRequest) {
@@ -173,24 +170,21 @@ function best_var(v) {
 }
 function highlight_source() {
     dehighlight_source();
-    var el = byid('main_annot');
-    var l = el.scrollLeft;
-    var wd = el.offsetWidth;
-    el = el.firstChild.firstChild.firstChild; //el is <tr>
-    var i;
-    var cur_token;
-    for (i=0; i < el.childNodes.length; ++i) {
-        cur_token = el.childNodes[i];
+    var l = $('#main_annot').scrollLeft();
+    var wd = $('#main_annot').width();
+    var ol;
+
+    $('#main_annot td').each(function(i){
         //if outer edge is visible + lighter if inner edge is visible
-        if (cur_token.offsetLeft >= l && cur_token.offsetLeft + cur_token.offsetWidth < l + wd)
-            byid('src_token_' + i).className = 'src_token_hlt';
-        else if (cur_token.offsetLeft + cur_token.offsetWidth > l && cur_token.offsetLeft < l + wd) 
-            byid('src_token_' + i).className = 'src_token_hlt_light';
-    }
+        ol = this.offsetLeft;
+        if (ol >= l && ol + $(this).width() < l + wd)
+            $('#src_token_' + i).removeClass().addClass('src_token_hlt');
+        else if (ol + $(this).width() > l && ol < l + wd)
+            $('#src_token_' + i).removeClass().addClass('src_token_hlt_light');
+    });
 }
 function dehighlight_source() {
     var i;
-    var $cur_token;
     for (i=0; $('#src_token_' + i).length; i++) {
         $("#src_token_"+i).removeClass();
     }
@@ -201,18 +195,16 @@ function show_comment_field(btn) {
     btn.setAttribute('onclick', 'submit_with_readonly_check(document.forms[0])');
 }
 function dict_reload_all() {
-    var tr = byid('main_annot').firstChild.firstChild.firstChild;
-    for (i=0; i<tr.childNodes.length; ++i) {
-        dict_reload(tr.childNodes[i]);
-    }
+    $('#main_annot td').each(function(i, el){
+        dict_reload(el);
+    })
     highlight_source();
 }
 function dict_reload(td) {
     var tf_id = parseInt(td.id.substr(4));
     //delete all vars
-    while (td.childNodes.length > 1) {
-        td.removeChild(td.lastChild);
-    }
+    $(td).find('.var').remove();
+
     var old_inner = td.firstChild.innerHTML;
     td.firstChild.innerHTML = 'Загрузка...';
     var req = makeRequest();
@@ -240,9 +232,7 @@ function dict_reload(td) {
                 td.appendChild(new_div);
             }
             td.firstChild.innerHTML = old_inner + '<input type="hidden" name="dict_flag['+tf_id+']" value="1"/>';
-            var sb;
-            if (sb = byid('submit_button'))
-                sb.disabled = false;
+            $('#submit_button').removeAttr('disabled');
             prepareScroll();
         }
     }
@@ -271,7 +261,6 @@ function edit_gram(event) {
 }
 
 function submit_with_readonly_check(f) {
-    
     $.get("ajax/readonly.php",function(res){
         if($(res).find('response').attr('readonly')=='1') {
             alert('Извините, система находится в режиме "только для чтения".');
@@ -289,39 +278,34 @@ function get_lemma_search() {
     }
 
     var lid;
-    var f = byid('add_link');
-    var req = makeRequest();
-    req.onreadystatechange = function() {
-        if (req.readyState==4) {
-            var root = req.responseXML.documentElement;
-            for (i = 0; i < root.childNodes.length; ++i) {
-                lid = root.childNodes[i].getAttribute('id');
-                var new_radio = document.createElement('input');
-                new_radio.setAttribute('type', 'radio');
-                new_radio.setAttribute('name', 'lemma_id');
-                new_radio.setAttribute('value', lid);
-                new_radio.setAttribute('onClick', 'byid("add_link_submitter").disabled=false');
-                var new_label = document.createElement('label');
-                var new_href = document.createElement('a');
-                new_href.setAttribute('href', '?act=edit&id=' + lid);
-                new_href.setAttribute('target', '_blank');
-                new_href.innerHTML = lid;
-                new_label.appendChild(new_radio);
-                new_label.appendChild(new_href);
-                f.appendChild(new_label);
-            }
-            if (root.childNodes.length > 0) {
-                var new_text = document.createTextNode(' ');
-                f.appendChild(new_text);
-                var new_button = document.createElement('input');
-                new_button.setAttribute('type', 'submit');
-                new_button.setAttribute('value', 'Добавить');
-                new_button.setAttribute('disabled', 'disabled');
-                new_button.setAttribute('id', 'add_link_submitter');
-                f.appendChild(new_button);
+
+    $.get('ajax/lemma_search.php', {'q':q},
+        function(res) {
+            var $lemmata = $(res).find('lemma');
+            $lemmata.each(function(i){
+                lid = $(this).attr('id');
+
+                var $new_radio = $(document.createElement('input'));
+                $new_radio.attr({'type':'radio', 'name':'lemma_id'});
+                $new_radio.val(lid);
+
+                var $new_label = $(document.createElement('label'));
+                $new_label.append($new_radio);
+                $new_label.html($new_label.html() + '<a href="?act=edit&amp;id=' + lid + '" target="_blank">' + lid + '</a>');
+
+                $('#add_link').append($new_label);
+            })
+
+            $("input[type='radio']").click(function(){
+                $('#add_link_submitter').removeAttr('disabled');
+            })
+
+            if ($lemmata.length) {
+                $('#add_link').append(document.createTextNode(' '));
+                var $new_button = $(document.createElement('input'));
+                $new_button.attr({'type':'submit', 'value':'Добавить', 'disabled':'disabled', 'id':'add_link_submitter'});
+                $('#add_link').append($new_button);
             }
         }
-    }
-    req.open('get', 'ajax/lemma_search.php?q=' + q, true);
-    req.send(null);
+    )
 }
