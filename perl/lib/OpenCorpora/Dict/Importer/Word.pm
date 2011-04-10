@@ -164,7 +164,7 @@ sub split_lemma {
         $ok = 0;
         #check if any form has more than one of @grammems
         if ($self->count_form_has_gram_set($form, \@new_grammems) > 1) {
-            printf STDERR "[rule %d, string %d] Warning: Form '%s' has several grammems among (%s), cannot split, skipping\n",
+            printf STDERR "[rule %d, line %d] Warning: Form '%s' has several grammems among (%s), cannot split, skipping\n",
                 $action->{RULE_NO}, $action->{STRING_NO}, $form->{TEXT}, join(',', @grammems);
             return [$self];
         }
@@ -180,7 +180,7 @@ sub split_lemma {
                 push @{$new_words{'*'}},  $form;
             }
             else {
-                printf STDERR "[rule %d, string %d] Warning: Form '%s' has no grammems among (%s), cannot split, skipping\n",
+                printf STDERR "[rule %d, line %d] Warning: Form '%s' has no grammems among (%s), cannot split, skipping\n",
                     $action->{RULE_NO}, $action->{STRING_NO}, $form->{TEXT}, join(',', @grammems);
                 return [$self];
             }
@@ -203,7 +203,7 @@ sub generate_paradigm {
     my $self = shift;
     my $action = shift;
     if ($self->get_form_count() > 1) {
-        printf STDERR "[rule %d, string %d] Warning: Word '%s' has more than one form, cannot generate full paradigm, skipping\n",
+        printf STDERR "[rule %d, line %d] Warning: Word '%s' has more than one form, cannot generate full paradigm, skipping\n",
             $action->{RULE_NO}, $action->{STRING_NO}, $self->{LEMMA};
         return;
     }
@@ -295,7 +295,11 @@ sub get_all_grammems {
 sub get_lemma_grammems {
     my $self = shift;
     my %bad = %{shift()};
-    my %order = %{$self->{IMPORTER}->{GRAM_ORDER}};
+    my %order = ();
+
+    if (defined $self->{IMPORTER}->{GRAM_ORDER}) {
+        %order = %{$self->{IMPORTER}->{GRAM_ORDER}};
+    }
     
     my %grams = %{$self->get_all_grammems()};
     my @out;
@@ -314,7 +318,9 @@ sub get_lemma_grammems {
         }
     }
 
-    @out = sort {$order{$a} <=> $order{$b}} @out;
+    if (%order) {
+        @out = sort {$order{$a} <=> $order{$b}} @out;
+    }
 
     return \@out;
 }
