@@ -34,9 +34,9 @@
         {$error.descr}.
         {if $is_admin}
         {if $error.is_ok}
-        (Эта ошибка была помечена как исключение.)
+        (<span class='hint' title='{$error.author_name}, {$error.exc_time|date_format:"%d.%m.%y, %H:%M"}, "{$error.comment|htmlspecialchars}"'>Эта ошибка была помечена как исключение</span>.)
         {else}
-        <button onclick="if (confirm('Пометить эту ошибку как исключение?')) location.href='?act=not_error&amp;error_id={$error.id}'">Это не ошибка</button>
+        <form action="?act=not_error&amp;error_id={$error.id}" method="post" class="inline"><button type='button' onclick='dict_add_exc_prepare($(this))'>Это не ошибка</button></form>
         {/if}
         {/if}
         </div>

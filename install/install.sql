@@ -154,7 +154,10 @@ CREATE TABLE IF NOT EXISTS `dict_errata` (
 CREATE TABLE IF NOT EXISTS `dict_errata_exceptions` (
     `item_id`     SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `error_type`  SMALLINT UNSIGNED NOT NULL,
-    `error_descr` TEXT NOT NULL
+    `error_descr` TEXT NOT NULL,
+    `author_id`   INT UNSIGNED NOT NULL,
+    `timestamp`   INT UNSIGNED NOT NULL,
+    `comment`     TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `updated_forms` (

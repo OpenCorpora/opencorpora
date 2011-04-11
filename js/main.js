@@ -309,3 +309,9 @@ function get_lemma_search() {
         }
     )
 }
+function dict_add_exc_prepare($btn) {
+    $("<textarea name='comm' cols='20' rows='2'>no comment</textarea>").insertAfter($btn);
+    $btn.click(function(event){
+        $(this).closest('form').submit()
+    })
+}

@@ -48,7 +48,7 @@
         {/if}
     </td>
     <td>{$error.description}</td>
-    {if $is_admin}<td>{if !$error.is_ok}<button onclick="if (confirm('Пометить эту ошибку как исключение?')) location.href='?act=not_error&amp;error_id={$error.id}'" title="Пометить как исключение">OK</button>{else}&nbsp;{/if}</td>{/if}
+    {if $is_admin}<td>{if !$error.is_ok}<form class="inline" method='post' action="?act=not_error&amp;error_id={$error.id}"><button type='button' onclick='dict_add_exc_prepare($(this))'>OK</button></form>{else}<span class='hint' title='{$error.author_name}, {$error.exc_time|date_format:"%d.%m.%y, %H:%M"}, "{$error.comment|htmlspecialchars}"'>исключение</span>{/if}</td>{/if}
 </tr>
 {/foreach}
 </table>
