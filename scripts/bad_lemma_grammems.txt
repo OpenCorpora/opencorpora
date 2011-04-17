@@ -14,4 +14,5 @@ VERB	neut
 GRND	pres
 GRND	past
 ADJS	neut
+PRTS	femn
 ADJC	V-ej
