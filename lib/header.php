@@ -5,6 +5,7 @@ if (!headers_sent()) {
     if (!isset($_SESSION['last_access']) || (time() - $_SESSION['last_access']) > 60) {
         $_SESSION['last_access'] = time();
     }
+    header("Content-type: text/html; charset=utf-8");
 }
 require_once('config.php');
 require_once('common.php');
