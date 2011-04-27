@@ -209,7 +209,8 @@ INSERT INTO `stats_param` VALUES
     ('1', 'total_books', '1'),
     ('2', 'total_sentences', '1'),
     ('3', 'total_tokens', '1'),
-    ('4', 'total_lemmata', '1');
+    ('4', 'total_lemmata', '1'),
+    ('5', 'total_words', '1');
 
 CREATE TABLE IF NOT EXISTS `stats_values` (
     `timestamp`   INT UNSIGNED NOT NULL,
