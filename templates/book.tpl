@@ -70,15 +70,29 @@
         {else}
             <a href="?book_id={$book.id}&amp;ext">{t}к расширенному виду{/t}</a>
         {/if}
+        {if !isset($smarty.get.full)}
+            | <a href="?book_id={$book.id}&amp;full">{t}смотреть целиком{/t}</a>
+        {/if}
         </p>
-        <ol type="I">
+        <ol type="I" style='line-height: 25px'>
         {foreach key=num item=paragraph from=$book.paragraphs}
             <li value="{$num}">
-            {if isset($smarty.get.ext)}
+            {if isset($smarty.get.ext) || isset($smarty.get.full)}
                 <ol>
             {/if}
             {foreach name=s item=sentence from=$paragraph}
-                {if isset($smarty.get.ext)}
+                {if isset($smarty.get.full)}
+                    {strip}
+                    <li value="{$sentence.pos}">{$sentence.text|htmlspecialchars}
+                    {foreach name=t item=token from=$sentence.tokens}
+                        {$token}
+                        {if $smarty.foreach.t.last != true}
+                        <span class='ok_border'>&nbsp; </span>
+                        {/if}
+                    {/foreach}
+                    </li>
+                    {/strip}
+                {elseif isset($smarty.get.ext)}
                     <li value="{$sentence.pos}"><a href="sentence.php?id={$sentence.id}">{$sentence.snippet}</a></li>
                 {else}
                     {strip}
@@ -89,7 +103,7 @@
                     {/strip}
                 {/if}
             {/foreach}
-            {if isset($smarty.get.ext)}
+            {if isset($smarty.get.ext) || isset($smarty.get.full)}
                 </ol>
             {/if}
             </li>

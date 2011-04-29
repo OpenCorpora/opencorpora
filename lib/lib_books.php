@@ -7,7 +7,7 @@ function get_books_list() {
     }
     return $out;
 }
-function get_book_page($book_id, $ext = false) {
+function get_book_page($book_id, $ext = false, $full = false) {
     $r = sql_fetch_array(sql_query("SELECT * FROM `books` WHERE `book_id`=$book_id LIMIT 1"));
     $out = array (
         'id'     => $book_id,
@@ -34,7 +34,17 @@ function get_book_page($book_id, $ext = false) {
         $out['parents'] = array(array('id' => $r['book_id'], 'title' => $r['book_name']));
     }
     //sentences
-    if($ext) {
+    if ($full) {
+        $res = sql_query("SELECT p.`pos` ppos, s.sent_id, s.`pos` spos FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = $book_id ORDER BY p.`pos`, s.`pos`");
+        while ($r = sql_fetch_array($res)) {
+            $res1 = sql_query("SELECT tf_text FROM text_forms WHERE sent_id=".$r['sent_id']." ORDER BY pos");
+            $tokens = array();
+            while ($r1 = sql_fetch_array($res1)) {
+                $tokens[] = $r1['tf_text'];
+            }
+            $out['paragraphs'][$r['ppos']][] = array('pos' => $r['spos'], 'tokens' => $tokens);
+        }
+    } elseif($ext) {
         $res = sql_query("SELECT p.`pos` ppos, s.sent_id, s.`pos` spos FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = $book_id ORDER BY p.`pos`, s.`pos`");
         while ($r = sql_fetch_array($res)) {
             $snippet = '';

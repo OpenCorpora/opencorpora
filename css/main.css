@@ -127,10 +127,10 @@ span.check_noword {
     background-color: yellow;
 }
 span.doubt_border {
-    background-color: #F69;
+    background-color: #F99;
 }
 span.ok_border {
-    background-color: #6F0;
+    background-color: #9F6;
 }
 /* GRAMMEM EDITOR */
 tr.gramed_bad {
