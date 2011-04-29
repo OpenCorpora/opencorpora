@@ -126,4 +126,31 @@ function books_del_tag($book_id, $tag_name) {
     header("Location:books.php?book_id=$book_id");
     return;
 }
+function merge_sentences($id1, $id2) {
+    if ($id1 < 1 || $id2 < 1 || ($id2-$id1 != 1)) {
+        show_error("Можно склеить только два соседних предложения!");
+        return;
+    }
+    //moving tokens
+    $r = sql_fetch_array(sql_query("SELECT MAX(pos) FROM text_forms WHERE sent_id=$id1"));
+    if (!sql_query("UPDATE text_forms SET sent_id='$id1', pos=pos+".$r[0]." WHERE sent_id=$id2")) {
+        show_error();
+    }
+    //merging source text
+    $r1 = sql_fetch_array(sql_query("SELECT `source` FROM sentences WHERE sent_id=$id1 LIMIT 1"));
+    $r2 = sql_fetch_array(sql_query("SELECT `source` FROM sentences WHERE sent_id=$id2 LIMIT 1"));
+    if (!sql_query("UPDATE sentences SET `source`='".mysql_real_escape_string($r1['source'].' '.$r2['source'])."' WHERE sent_id=$id1 LIMIT 1")) {
+        show_error();
+    }
+    //dropping status
+    if (!sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$id1 LIMIT 1")) {
+        show_error();
+    }
+    //deleting sentence
+    if (sql_query("DELETE FROM sentences WHERE sent_id=$id2 LIMIT 1")) {
+        header("Location:sentence.php?id=$id1");
+        return;
+    }
+    show_error();
+}
 ?>

@@ -29,6 +29,9 @@ if (is_admin()) {
             $tag_name = mysql_real_escape_string($_GET['tag_name']);
             books_del_tag($book_id, $tag_name);
             break;
+        case 'merge_sentences':
+            merge_sentences((int)$_POST['id1'], (int)$_POST['id2']);
+            break;
         default:
             if (isset($_GET['book_id']) && $book_id = (int)$_GET['book_id']) {
                 $smarty->assign('book', get_book_page($book_id, isset($_GET['ext'])));
