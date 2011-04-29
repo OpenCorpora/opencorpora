@@ -75,7 +75,7 @@ function changeSelectBook(n) {
                 $s_new.append("<option value='"+$(el).attr('value')+"'>"+$(el).text()+"</option>")
                 })
             $s_new.removeAttr('disabled')
-        }
+        },'xml'
         )
 }
 
@@ -109,7 +109,7 @@ function updateLastParInfo(book_id) {
             }
             // теперь можно добавлять
             $sub.removeAttr('disabled');
-        }
+        },'xml'
         )
 }
 
