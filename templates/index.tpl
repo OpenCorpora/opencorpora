@@ -8,8 +8,9 @@
     <a href='{$web_prefix}/dict.php'>{t}Редактор словаря{/t}</a><br/><br/>
     <a href='{$web_prefix}/add.php'>{t}Добавить текст{/t}</a><br/>
     <br/>
-    <form class='inline' method='post' action='{$web_prefix}/books.php?act=merge_sentences'>Склеить предложения&nbsp;<input name='id1' size='5'/> и <input name='id2' size='5'/> <input type='submit' value='Склеить' onclick="return confirm('Вы уверены?')"/></form>
-    <br/><br/>
+    <form class='inline' method='post' action='{$web_prefix}/books.php?act=merge_sentences'>Склеить предложения <input name='id1' size='5'/> и&nbsp;<input name='id2' size='5'/> <input type='submit' value='Склеить' onclick="return confirm('Вы уверены?')"/></form><br/>
+    <form class='inline' method='post' action='{$web_prefix}/books.php?act=merge_tokens'>Склеить токены с&nbsp;<input name='id1' size='5'/> по&nbsp;<input name='id2' size='5'/> <input type='submit' value='Склеить' onclick="return confirm('Вы уверены?')"/></form><br/>
+    <br/>
 {else}
 <p>{t}Здравствуйте!{/t}</p>
 <p>{t}Это сайт проекта &laquo;Открытый корпус&raquo; (OpenCorpora). Наша цель &ndash; создать морфологически, синтаксически и семантически размеченный корпус текстов на русском языке, в полном объёме доступный для исследователей и редактируемый пользователями.{/t}</p>

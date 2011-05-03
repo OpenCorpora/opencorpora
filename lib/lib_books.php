@@ -1,4 +1,5 @@
 <?php
+require_once('lib_dict.php');
 function get_books_list() {
     $res = sql_query("SELECT `book_id`, `book_name` FROM `books` WHERE `parent_id`=0 ORDER BY `book_name`");
     $out = array('num' => sql_num_rows($res));
@@ -145,16 +146,19 @@ function merge_sentences($id1, $id2) {
     $r = sql_fetch_array(sql_query("SELECT MAX(pos) FROM text_forms WHERE sent_id=$id1"));
     if (!sql_query("UPDATE text_forms SET sent_id='$id1', pos=pos+".$r[0]." WHERE sent_id=$id2")) {
         show_error();
+        return;
     }
     //merging source text
     $r1 = sql_fetch_array(sql_query("SELECT `source` FROM sentences WHERE sent_id=$id1 LIMIT 1"));
     $r2 = sql_fetch_array(sql_query("SELECT `source` FROM sentences WHERE sent_id=$id2 LIMIT 1"));
     if (!sql_query("UPDATE sentences SET `source`='".mysql_real_escape_string($r1['source'].' '.$r2['source'])."' WHERE sent_id=$id1 LIMIT 1")) {
         show_error();
+        return;
     }
     //dropping status
     if (!sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$id1 LIMIT 1")) {
         show_error();
+        return;
     }
     //deleting sentence
     if (sql_query("DELETE FROM sentences WHERE sent_id=$id2 LIMIT 1")) {
@@ -162,5 +166,42 @@ function merge_sentences($id1, $id2) {
         return;
     }
     show_error();
+}
+function merge_tokens($id_from, $id_to) {
+    if ($id_from < 1 || $id_to < 1 || $id_from >= $id_to) {
+        show_error("Неверные параметры.");
+        return;
+    }
+
+    $r = sql_fetch_array(sql_query("SELECT tf_text FROM text_forms WHERE tf_id=$id_from LIMIT 1"));
+    $new_text = $r['tf_text'];
+
+    $res = sql_query("SELECT tf_id, tf_text FROM text_forms WHERE tf_id > $id_from AND tf_id <= $id_to ORDER BY pos");
+    while($r = sql_fetch_array($res)) {
+        //saving tf_text
+        $new_text .= $r['tf_text'];
+        if (
+            //updating revisions
+            !sql_query("UPDATE tf_revisions SET tf_id = '$id_from' WHERE tf_id = ".$r['tf_id']) ||
+            //deleting from text_forms and form2tf
+            !sql_query("DELETE FROM form2tf WHERE tf_id = ".$r['tf_id']) ||
+            !sql_query("DELETE FROM text_forms WHERE tf_id = ".$r['tf_id'])
+        ) {
+            show_error();
+            return;
+        }
+    }
+    //updating text & adding a revision
+    $revset_id = create_revset("Tokens $id_from to $id_to merged");
+    if (
+        !sql_query("UPDATE text_forms SET tf_text = '".mysql_real_escape_string($new_text)."' WHERE tf_id=$id_from LIMIT 1") ||
+        !sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$id_from', '".mysql_real_escape_string(generate_tf_rev($new_text))."')")
+    ) {
+        show_error();
+        return;
+    }
+
+    $r = sql_fetch_array(sql_query("SELECT sent_id FROM text_forms WHERE tf_id=$id_from LIMIT 1"));
+    header("Location:sentence.php?id=".$r['sent_id']);
 }
 ?>

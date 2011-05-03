@@ -32,6 +32,9 @@ if (is_admin()) {
         case 'merge_sentences':
             merge_sentences((int)$_POST['id1'], (int)$_POST['id2']);
             break;
+        case 'merge_tokens':
+            merge_tokens((int)$_POST['id1'], (int)$_POST['id2']);
+            break;
         default:
             if (isset($_GET['book_id']) && $book_id = (int)$_GET['book_id']) {
                 $smarty->assign('book', get_book_page($book_id, isset($_GET['ext']), isset($_GET['full'])));

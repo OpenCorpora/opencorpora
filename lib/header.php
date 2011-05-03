@@ -1,7 +1,7 @@
 <?php
 if (!headers_sent()) {
     session_start();
-    #update access time in order that session doesn't expire due to not writing to it
+    //update access time in order that session doesn't expire due to not writing to it
     if (!isset($_SESSION['last_access']) || (time() - $_SESSION['last_access']) > 60) {
         $_SESSION['last_access'] = time();
     }
