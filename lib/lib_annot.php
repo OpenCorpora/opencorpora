@@ -5,6 +5,45 @@ function get_sentence($sent_id) {
         'id' => $sent_id,
         'status' => $r['check_status']
     );
+    //looking for source name
+    $r = sql_fetch_array(sql_query("
+        SELECT book_id
+        FROM books
+        WHERE book_id = (
+            SELECT book_id
+            FROM paragraphs
+            WHERE par_id = (
+                SELECT par_id
+                FROM sentences
+                WHERE sent_id=$sent_id
+                LIMIT 1
+            )
+        )
+    "));
+    $book_id = $r['book_id'];
+    $r = sql_fetch_array(sql_query("
+        SELECT book_name
+        FROM books
+        WHERE book_id = (
+            SELECT parent_id
+            FROM books
+            WHERE book_id = $book_id
+            LIMIT 1
+        )
+    "));
+    $out['book_name'] = $r['book_name'];
+    //looking for url
+    $res = sql_query("
+        SELECT tag_name
+        FROM book_tags
+        WHERE book_id = ".$book_id
+    );
+    while ($r = sql_fetch_array($res)) {
+        if (substr($r['tag_name'], 0, 4) == 'url:') {
+            $out['url'] = substr($r['tag_name'], 4);
+            break;
+        }
+    }
     $tf_text = array();
     $res = sql_query("SELECT tf_id, tf_text, dict_updated FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
     $j = 0; //token position, for further highlighting
