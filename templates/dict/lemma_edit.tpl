@@ -32,7 +32,7 @@
             {t}Не разрешённая граммема{/t}:
         {/if}
         {$error.descr}.
-        {if $is_admin}
+        {if $user_permission_dict}
         {if $error.is_ok}
         (<span class='hint' title='{$error.author_name}, {$error.exc_time|date_format:"%d.%m.%y, %H:%M"}, "{$error.comment|htmlspecialchars}"'>Эта ошибка была помечена как исключение</span>.)
         {else}
@@ -48,29 +48,29 @@
         <input type="hidden" name="lemma_id" value="{$editor.lemma.id}"/>
         {if $editor.lemma.id > 0}
         <input name="lemma_text" readonly="readonly" value="{$editor.lemma.text|htmlspecialchars}"/>
-        <input name="lemma_gram" {if !$is_admin}readonly="readonly"{/if} value="{$editor.lemma.grms|htmlspecialchars}" size="40"/>
+        <input name="lemma_gram" {if !$user_permission_dict}readonly="readonly"{/if} value="{$editor.lemma.grms|htmlspecialchars}" size="40"/>
         <input type="button" onClick="location.href='dict_history.php?lemma_id={$editor.lemma.id}'" value="{t}История{/t}"/>
-        {if $is_admin}<input type="button" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" value="{t}Удалить{/t}"/>{/if}
+        {if $user_permission_dict}<input type="button" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" value="{t}Удалить{/t}"/>{/if}
         {else}
         <input name="lemma_text" value="{$smarty.get.text}"/>
         <input name="lemma_gram" value="{t}граммемы{/t}" onClick="this.value=''; this.onclick=''" size="40"/>
         {/if}
         <br/>
         <b>{t}Формы{/t}
-        {if $is_admin} ({t}оставление левого поля пустым удаляет форму{/t}){/if}
+        {if $user_permission_dict} ({t}оставление левого поля пустым удаляет форму{/t}){/if}
         :</b><br/>
         <table cellpadding="3">
         {foreach item=form from=$editor.forms}
         <tr>
-            <td><input name='form_text[]' {if !$is_admin}readonly="readonly"{/if} value='{$form.text|htmlspecialchars}'/>
-            <td><input name='form_gram[]' {if !$is_admin}readonly="readonly"{/if} size='40' value='{$form.grms|htmlspecialchars}'/>
+            <td><input name='form_text[]' {if !$user_permission_dict}readonly="readonly"{/if} value='{$form.text|htmlspecialchars}'/>
+            <td><input name='form_gram[]' {if !$user_permission_dict}readonly="readonly"{/if} size='40' value='{$form.grms|htmlspecialchars}'/>
         </tr>
         {/foreach}
-        {if $is_admin}
+        {if $user_permission_dict}
             <tr><td>&nbsp;<td><a id="add_form_link" href="#">{t}Добавить ешё одну форму{/t}</a></tr>
         {/if}
         </table><br/>
-        {if $is_admin}
+        {if $user_permission_dict}
             {t}Комментарий к правке{/t}:<br/>
             <input name='comment' size='60'/><br/>
             <input type="button" onclick="submit_with_readonly_check(document.forms[1])" value="{t}Сохранить{/t}"/>&nbsp;&nbsp;

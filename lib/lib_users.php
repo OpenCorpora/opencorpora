@@ -2,8 +2,9 @@
 require_once('lib_mail.php');
 function user_check_password($login, $password) {
     $password = md5(md5($password).substr($login, 0, 2));
-    $q = sql_query("SELECT `user_id`, `user_group`  FROM `users` WHERE `user_name`='$login' AND `user_passwd`='$password' LIMIT 1");
-    return sql_fetch_array($q);
+    $r = sql_fetch_array(sql_query("SELECT `user_id` FROM `users` WHERE `user_name`='$login' AND `user_passwd`='$password' LIMIT 1"));
+    if (!$r) return false;
+    return $r['user_id'];
 }
 function is_valid_password($string) {
     return preg_match('/^[a-z0-9_-]+$/i', $string);
@@ -35,11 +36,11 @@ function is_valid_email($string) {
 }
 function user_login($login, $passwd) {
     $login = mysql_real_escape_string($login);
-    if ($row = user_check_password($login, $passwd)) {
-        $_SESSION['user_id'] = $row['user_id'];
-        $_SESSION['user_group'] = $row['user_group'];
+    if ($user_id = user_check_password($login, $passwd)) {
+        $_SESSION['user_id'] = $user_id;
         $_SESSION['user_name'] = $login;
-        $_SESSION['options'] = get_user_options($row['user_id']);
+        $_SESSION['options'] = get_user_options($user_id);
+        $_SESSION['user_permissions'] = get_user_permissions($user_id);
         return true;
     }
     return false;
@@ -55,27 +56,27 @@ function user_login_openid($token) {
     }
     $id = $arr['identity'];
     //check if the user exists
-    $res = sql_query("SELECT user_id, user_group FROM `users` WHERE user_name='$id' LIMIT 1");
+    $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
     //if he doesn't
     if (sql_num_rows($res) == 0) {
-        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', '', '1', '', '".time()."')")) {
+        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', '', '', '".time()."')")) {
             return 0;
         }
-        $res = sql_query("SELECT user_id, user_group FROM `users` WHERE user_name='$id' LIMIT 1");
+        $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
     }
     $row = sql_fetch_array($res);
     $_SESSION['user_id'] = $row['user_id'];
-    $_SESSION['user_group'] = $row['user_group'];
     $_SESSION['user_name'] = $id;
     $_SESSION['options'] = get_user_options($row['user_id']);
+    $_SESSION['user_permissions'] = get_user_permissions($row['user_id']);
     return 1;
 }
 function user_logout() {
-    unset ($_SESSION['user_id']);
-    unset ($_SESSION['user_group']);
-    unset ($_SESSION['user_name']);
-    unset ($_SESSION['debug_mode']);
-    unset ($_SESSION['options']);
+    unset($_SESSION['user_id']);
+    unset($_SESSION['user_name']);
+    unset($_SESSION['debug_mode']);
+    unset($_SESSION['options']);
+    unset($_SESSION['user_permissions']);
 }
 function user_register($post) {
     $post['login'] = trim($post['login']);
@@ -101,14 +102,14 @@ function user_register($post) {
     if ($email && sql_num_rows(sql_query("SELECT user_id FROM `users` WHERE user_email='$email' LIMIT 1")) > 0) {
         return 4;
     }
-    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '1', '$email', '".time()."')"))
+    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."')"))
         return 1;
     return 0;
 }
 function user_change_password($post) {
     //testing if the old password is correct
     $login = $_SESSION['user_name'];
-    if ($row = user_check_password($login, $post['old_pw'])) {
+    if (user_check_password($login, $post['old_pw'])) {
         //testing if the two new passwords coincide
         if ($post['new_pw'] != $post['new_pw_re'])
             return 3;
@@ -124,7 +125,7 @@ function user_change_password($post) {
 }
 function user_change_email($post) {
     $login = $_SESSION['user_name'];
-    if ($row = user_check_password($login, $post['passwd'])) {
+    if (user_check_password($login, $post['passwd'])) {
         if (is_valid_email($post['email'])) {
             if (sql_query("UPDATE `users` SET `user_email`='".mysql_real_escape_string($post['email'])."' WHERE `user_id`=".$_SESSION['user_id']." LIMIT 1"))
                 return 1;
@@ -134,14 +135,6 @@ function user_change_email($post) {
     }
     else
         return 2;
-}
-function user_pretend($act) {
-    if ($_SESSION['user_group'] < 6) return 0;
-    if ($act == 0)
-        $_SESSION['user_group'] = 7;
-    else
-        $_SESSION['user_group'] = 6;
-    return 1;
 }
 function get_user_email($user_id) {
     if (!$user_id) return;
@@ -168,6 +161,26 @@ function get_user_options($user_id) {
     $res = sql_query("SELECT option_id id, option_value value FROM user_options_values WHERE user_id=$user_id");
     while($r = sql_fetch_array($res))
         $out[$r['id']] = $r['value'];
+    return $out;
+}
+function get_user_permissions($user_id) {
+    if (!$user_id) return;
+    $out = array();
+    
+    $res = sql_query("SELECT * FROM user_permissions WHERE user_id = $user_id LIMIT 1");
+    if ($r = sql_fetch_array($res)) {
+        foreach ($r as $column_name => $val) {
+            if (is_numeric($column_name) || $column_name == 'user_id') continue;
+            $out[$column_name] = $val;
+        }
+    } else {
+        //autovivify
+        if (!sql_query("INSERT INTO user_permissions VALUES ('$user_id', '0', '0', '0', '0', '0')")) {
+            show_error();
+            return;
+        }
+    }
+
     return $out;
 }
 function get_meta_options() {
@@ -205,9 +218,19 @@ function save_user_options($post) {
     return;
 }
 function is_admin() {
-    return (isset($_SESSION['user_group']) && $_SESSION['user_group']==7);
+    return (
+        isset($_SESSION['user_permissions']['perm_admin']) &&
+        $_SESSION['user_permissions']['perm_admin'] == 1 &&
+        !$_SESSION['user_permissions']['pretend']
+    );
 }
 function is_logged() {
     return (isset($_SESSION['user_id']) && $_SESSION['user_id']>0);
+}
+function user_has_permission($perm) {
+    return (
+        isset($_SESSION['user_permissions'][$perm]) &&
+        $_SESSION['user_permissions'][$perm] == 1
+    );
 }
 ?>

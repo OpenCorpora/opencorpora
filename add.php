@@ -4,7 +4,7 @@ require('lib/lib_dict.php');
 if (isset($_GET['act']))
     $action = $_GET['act'];
 else $action = '';
-if (is_admin()) {
+if (user_has_permission('perm_adder')) {
     switch($action) {
         case 'add':
             $book_id = array_pop($_POST['book']);

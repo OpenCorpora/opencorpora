@@ -2,7 +2,7 @@
 require('lib/header.php');
 require('lib/lib_books.php');
 $action = isset($_GET['act']) ? $_GET['act'] : '';
-if (is_admin()) {
+if (user_has_permission('perm_adder')) {
     switch($action) {
         case 'add':
             $book_name = mysql_real_escape_string($_POST['book_name']);

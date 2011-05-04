@@ -13,7 +13,7 @@
     {/if}
 {/if}
 </p>
-{if $is_admin}
+{if $user_permission_dict}
 <p>{t}Сбросить флаг проверки{/t} <a href="?act=clear_errata&amp;old" onclick="return confirm('{t}Вы уверены?{/t}')">{t}у всех ревизий{/t}</a>, <a href="?act=clear_errata" onclick="return confirm('{t}Вы уверены?{/t}')">{t}у текущих ревизий{/t}</a>.</p>
 {/if}
 <table border='1' cellspacing='0' cellpadding='2'>
@@ -23,7 +23,7 @@
     <th>{t}Ревизия{/t}</th>
     <th>{t}Тип ошибки{/t}</th>
     <th>{t}Описание{/t}</th>
-    {if $is_admin}<th>&nbsp;</th>{/if}
+    {if $user_permission_dict}<th>&nbsp;</th>{/if}
 </tr>
 {foreach item=error from=$errata.errors}
 {if $error.is_ok}
@@ -48,7 +48,7 @@
         {/if}
     </td>
     <td>{$error.description}</td>
-    {if $is_admin}<td>{if !$error.is_ok}<form class="inline" method='post' action="?act=not_error&amp;error_id={$error.id}"><button type='button' onclick='dict_add_exc_prepare($(this))'>OK</button></form>{else}<span class='hint' title='{$error.author_name}, {$error.exc_time|date_format:"%d.%m.%y, %H:%M"}, "{$error.comment|htmlspecialchars}"'>исключение</span>{/if}</td>{/if}
+    {if $user_permission_dict}<td>{if !$error.is_ok}<form class="inline" method='post' action="?act=not_error&amp;error_id={$error.id}"><button type='button' onclick='dict_add_exc_prepare($(this))'>OK</button></form>{else}<span class='hint' title='{$error.author_name}, {$error.exc_time|date_format:"%d.%m.%y, %H:%M"}, "{$error.comment|htmlspecialchars}"'>исключение</span>{/if}</td>{/if}
 </tr>
 {/foreach}
 </table>

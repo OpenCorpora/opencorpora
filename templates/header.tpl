@@ -15,14 +15,14 @@
 <div id='rblock'>
 {if isset($smarty.session.user_id)}
     {t}Вы &ndash;{/t} <b>{$smarty.session.user_name}</b>
-    {if $smarty.session.user_group > 5}
+    {if $smarty.session.user_permissions.perm_admin == 1}
         , {t}администратор{/t}
         {if isset($smarty.session.debug_mode)}
             &nbsp;[<a href='?debug=off'>debug off</a>]
         {else}
             &nbsp;[<a href='?debug=on'>debug on</a>]
         {/if}
-        {if $smarty.session.user_group == 6}
+        {if $smarty.session.user_permissions.pretend == 1}
             &nbsp;[<a href='?pretend=off'>{t}перестать притворяться{/t}</a>]
         {else}
             &nbsp;[<a href='?pretend=on'>{t}притвориться юзером{/t}</a>]

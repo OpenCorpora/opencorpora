@@ -2,7 +2,7 @@
 {extends file='common.tpl'}
 {block name='content'}
     <p><a href="?">&lt;&lt;&nbsp;{t}назад{/t}</a></p>
-    {if $is_admin}
+    {if $user_permission_dict}
     <h2>{t}Редактор морфологического словаря{/t}</h2>
     {else}
     <h2>{t}Просмотр морфологического словаря{/t}</h2>

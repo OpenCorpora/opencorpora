@@ -84,11 +84,11 @@ if (isset($_GET['lang']) && $lang = $_GET['lang']) {
 }
 
 //admin pretends that he is a user
-if (is_logged() && $_SESSION['user_group'] > 5 && isset($_GET['pretend']) && $pretend = $_GET['pretend']) {
+if (is_logged() && isset($_SESSION['user_permissions']['perm_admin']) && $_SESSION['user_permissions']['perm_admin'] == 1 && isset($_GET['pretend']) && $pretend = $_GET['pretend']) {
     if ($pretend == 'on')
-        $_SESSION['user_group'] = 6;
+        $_SESSION['user_permissions']['pretend'] = 1;
     elseif ($pretend == 'off')
-        $_SESSION['user_group'] = 7;
+        unset($_SESSION['user_permissions']['pretend']);
     header("Location:".$_SERVER['HTTP_REFERER']);
     return;
 }
@@ -97,6 +97,10 @@ if (is_logged() && $_SESSION['user_group'] > 5 && isset($_GET['pretend']) && $pr
 $smarty->assign('web_prefix', $config['web_prefix']);
 $smarty->assign('is_admin', is_admin() ? 1 : 0);
 $smarty->assign('is_logged', is_logged() ? 1 : 0);
+$smarty->assign('user_permission_dict', user_has_permission('perm_dict') ? 1 : 0);
+$smarty->assign('user_permission_adder', user_has_permission('perm_adder') ? 1 : 0);
+$smarty->assign('user_permission_check_tokens', user_has_permission('perm_check_tokens') ? 1 : 0);
+$smarty->assign('user_permission_check_morph', user_has_permission('perm_check_morph') ? 1 : 0);
 $smarty->assign('readonly', file_exists('/var/lock/oc_readonly.lock') ? 1 : 0);
 $smarty->assign('dict_errors', sql_num_rows(sql_query("SELECT error_id FROM dict_errata LIMIT 1")));
 

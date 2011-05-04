@@ -47,9 +47,17 @@ CREATE TABLE IF NOT EXISTS `users` (
     `user_id`     INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `user_name`   VARCHAR(50) NOT NULL,
     `user_passwd` VARCHAR(32) NOT NULL,
-    `user_group`  SMALLINT UNSIGNED NOT NULL,
     `user_email`  VARCHAR(100) NOT NULL,
     `user_reg`    INT UNSIGNED NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `user_permissions` (
+    `user_id`           INT UNSIGNED NOT NULL,
+    `perm_admin`        TINYINT UNSIGNED NOT NULL,
+    `perm_adder`        TINYINT UNSIGNED NOT NULL,
+    `perm_dict`         TINYINT UNSIGNED NOT NULL,
+    `perm_check_tokens` TINYINT UNSIGNED NOT NULL,
+    `perm_check_morph`  TINYINT UNSIGNED NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS `user_options_values` (

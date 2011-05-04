@@ -2,7 +2,7 @@
 {extends file='common.tpl'}
 {block name='content'}
 <h1>{t}Ограничения на граммемы{/t}</h1>
-{if $is_admin}
+{if $user_permission_dict}
 <form id='addform' method='post' action='?act=add_restr'>
 {t}Новое правило{/t}:
 &laquo;{t}Если у{/t}
@@ -34,7 +34,7 @@
 </form>
 {/if}
 <p>
-{if $is_admin}
+{if $user_permission_dict}
 <a href="?act=update_restr">{t}Пересчитать{/t}</a> |
 {/if}
 {if isset($smarty.get.hide_auto)}
@@ -50,7 +50,7 @@
     <th>{t}Действует на{/t}</th>
     <th>{t}Тип{/t}</th>
     <th>{t}Выведено?{/t}</th>
-    {if $is_admin}<th>&nbsp;</th>{/if}
+    {if $user_permission_dict}<th>&nbsp;</th>{/if}
 </tr>
 {foreach item=r from=$restrictions.list}
 {if $r.type == 2}
@@ -71,7 +71,7 @@
     </td>
     <td>{if $r.type == 2}{t}запрещено{/t}{elseif $r.type == 1}{t}обязательно{/t}{else}{t}возможно{/t}{/if}</td>
     <td>{if $r.auto}{t}Да{/t}{else}{t}Нет{/t}{/if}</td>
-    {if $is_admin}<td><a href="?act=del_restr&amp;id={$r.id}" onclick="return confirm('{t}Вы уверены?{/t}')">x</a></td>{/if}
+    {if $user_permission_dict}<td><a href="?act=del_restr&amp;id={$r.id}" onclick="return confirm('{t}Вы уверены?{/t}')">x</a></td>{/if}
 </tr>
 {/foreach}
 </table>

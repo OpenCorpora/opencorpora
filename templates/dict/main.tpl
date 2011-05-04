@@ -2,7 +2,7 @@
 {extends file='common.tpl'}
 {block name='content'}
     <p>{t}Всего{/t} {$stats.cnt_g} {t}граммем{/t}, {$stats.cnt_l} {t}лемм{/t}, {$stats.cnt_f} {t}форм в индексе{/t} ({$stats.cnt_r} {t}ревизий не проверено{/t}).</p>
-    {if $is_admin}
+    {if $user_permission_dict}
         <p><a href="?act=gram">{t}Редактор граммем{/t}</a><br/>
         <a href="?act=gram_restr">{t}Ограничения на граммемы{/t}</a></p>
         <p><a href="?act=lemmata">{t}Редактор лемм{/t}</a><br/>
