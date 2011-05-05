@@ -189,11 +189,6 @@ function dehighlight_source() {
         $("#src_token_"+i).removeClass();
     }
 }
-function show_comment_field(btn) {
-    $('#comment_fld').show();
-    btn.style.fontWeight = 'bold';
-    btn.setAttribute('onclick', 'submit_with_readonly_check(document.forms[0])');
-}
 function dict_reload_all() {
     $('#main_annot td').each(function(i, el){
         dict_reload(el);

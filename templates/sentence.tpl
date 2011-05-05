@@ -13,12 +13,23 @@
                 event.preventDefault()
                 });
             
+            $("#submit_button").click(function(){
+                if($(this).data('step') == '1') {
+                    $(this).data('step','2')
+                    submit_with_readonly_check($(this).closest('form'))
+                }
+                else {
+                    $('#comment_fld').show()
+                    $(this).css('font-weight','bold').data('step','1')
+                }
+                })
+            
             });
         var unload_msg = {t}"Вы уверены, что хотите уйти, не сохранив предложение?"{/t};
         var root = window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
         if(root) {
             root.onbeforeunload=function () {
-                if($("#submit_button").length && !$("#submit_button").attr('disabled')) {
+                if($("#submit_button").length && !$("#submit_button").attr('disabled') && $("#submit_button").data('step') != '2') {
                     return unload_msg;
                     };
                 
@@ -39,7 +50,7 @@
         <div id="main_scroller">
             <div>
                 {if $is_logged == 1}
-                    <button type="button" disabled="disabled" id="submit_button" onclick="show_comment_field(this)">{t}Сохранить{/t}</button>&nbsp;
+                    <button type="button" disabled="disabled" id="submit_button">{t}Сохранить{/t}</button>&nbsp;
                 {/if}
                 <button type="reset" onclick="$('#submit_button').attr('disabled','disabled');window.location.reload()">{t}Отменить правки{/t}</button>&nbsp;
                 <button type="button" onclick="window.location.href='history.php?sent_id={$sentence.id}'">{t}История{/t}</button>&nbsp;
