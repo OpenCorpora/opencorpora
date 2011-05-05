@@ -21,6 +21,9 @@ function sql_query($q, $debug=1, $override_readonly=0) {
 function sql_fetch_array($q) {
     return mysql_fetch_array($q);
 }
+function sql_fetch_assoc($q) {
+    return mysql_fetch_assoc($q);
+}
 function sql_num_rows($q) {
     return mysql_num_rows($q);
 }

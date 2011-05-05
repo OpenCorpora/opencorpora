@@ -168,9 +168,9 @@ function get_user_permissions($user_id) {
     $out = array();
     
     $res = sql_query("SELECT * FROM user_permissions WHERE user_id = $user_id LIMIT 1");
-    if ($r = sql_fetch_array($res)) {
+    if ($r = sql_fetch_assoc($res)) {
         foreach ($r as $column_name => $val) {
-            if (is_numeric($column_name) || $column_name == 'user_id') continue;
+            if ($column_name == 'user_id') continue;
             $out[$column_name] = $val;
         }
     } else {
@@ -232,5 +232,36 @@ function user_has_permission($perm) {
         isset($_SESSION['user_permissions'][$perm]) &&
         $_SESSION['user_permissions'][$perm] == 1
     );
+}
+function get_users_page() {
+    $res = sql_query("SELECT p.*, u.user_id, user_name, user_reg FROM users u LEFT JOIN user_permissions p ON (u.user_id = p.user_id)");
+    $out = array();
+    while ($r = sql_fetch_assoc($res)) {
+        $out[] = $r;
+    }
+    return $out;
+}
+function save_users($post) {
+    foreach($post['changed'] as $id => $val) {
+        if (!$val) continue;
+        $perm = $post['perm'][$id];
+        $qa = array();
+        if (isset($perm['admin'])) $qa[] = "perm_admin='1'";
+        if (isset($perm['adder'])) $qa[] = "perm_adder='1'";
+            else $qa[] = "perm_adder='0'";
+        if (isset($perm['dict'])) $qa[] = "perm_dict='1'";
+            else $qa[] = "perm_dict='0'";
+        if (isset($perm['tokens'])) $qa[] = "perm_check_tokens='1'";
+            else $qa[] = "perm_check_tokens='0'";
+        if (isset($perm['morph'])) $qa[] = "perm_check_morph='1'";
+            else $qa[] = "perm_check_morph='0'";
+
+        $q = "UPDATE user_permissions SET ".implode(', ', $qa)." WHERE user_id=$id LIMIT 1";
+        if (!sql_query($q)) {
+            show_error();
+            return;
+        }
+    }
+    header("Location:users.php");
 }
 ?>
