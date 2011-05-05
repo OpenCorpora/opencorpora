@@ -310,3 +310,15 @@ function dict_add_exc_prepare($btn) {
         $(this).closest('form').submit()
     })
 }
+function save_check_tokens($el) {
+    $el.attr('disabled', 'disabled');
+    $.get('ajax/save_check.php', {'type':'token', 'id':$el.attr('id').substr(1), 'value':$el.attr('checked')},
+        function(res) {
+            var ok = $(res).find('result').attr('ok');
+            if (ok != 1) {
+                alert('Check failed');
+                $el.removeAttr('disabled');
+            }
+        }
+    )
+}

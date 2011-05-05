@@ -32,6 +32,13 @@ CREATE TABLE IF NOT EXISTS `sentences` (
     INDEX (`pos`)
 );
 
+CREATE TABLE IF NOT EXISTS `sentence_check` (
+    `sent_id`   INT UNSIGNED NOT NULL,
+    `user_id`   INT UNSIGNED NOT NULL,
+    `status`    TINYINT UNSIGNED NOT NULL,
+    `timestamp` INT UNSIGNED NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS `text_forms` (
     `tf_id`        INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `sent_id`      INT UNSIGNED NOT NULL,

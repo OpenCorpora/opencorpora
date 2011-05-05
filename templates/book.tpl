@@ -1,6 +1,13 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("input.tok").click(function(){
+                save_check_tokens($(this));
+            })
+        })
+    </script>
     <h2>{$book.title}</h2>
     {if isset($book.parents)}
     <p>
@@ -83,13 +90,17 @@
             {foreach name=s item=sentence from=$paragraph}
                 {if isset($smarty.get.full)}
                     {strip}
-                    <li value="{$sentence.pos}">{$sentence.text|htmlspecialchars}
-                    {foreach name=t item=token from=$sentence.tokens}
-                        {$token}
-                        {if $smarty.foreach.t.last != true}
-                        <span class='ok_border'>&nbsp; </span>
+                    <li value="{$sentence.pos}">
+                        {if $user_permission_check_tokens}
+                            <span><input type="checkbox" {if $sentence.checked}checked="checked"{/if} class="tok" id="s{$sentence.id}"/></span>&nbsp;
                         {/if}
-                    {/foreach}
+                        {$sentence.text|htmlspecialchars}   
+                        {foreach name=t item=token from=$sentence.tokens}
+                            {$token}
+                            {if $smarty.foreach.t.last != true}
+                            <span class='ok_border'>&nbsp; </span>
+                            {/if}
+                        {/foreach}
                     </li>
                     {/strip}
                 {elseif isset($smarty.get.ext)}

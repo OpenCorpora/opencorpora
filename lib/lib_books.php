@@ -36,14 +36,23 @@ function get_book_page($book_id, $ext = false, $full = false) {
     }
     //sentences
     if ($full) {
-        $res = sql_query("SELECT p.`pos` ppos, s.sent_id, s.`pos` spos FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = $book_id ORDER BY p.`pos`, s.`pos`");
+        $res = sql_query("
+            SELECT p.`pos` ppos, s.sent_id, s.`pos` spos, ss.status
+            FROM paragraphs p
+            LEFT JOIN sentences s
+            ON (p.par_id = s.par_id)
+            LEFT JOIN sentence_check ss
+            ON (s.sent_id = ss.sent_id AND ss.status=1 AND ss.user_id=".$_SESSION['user_id'].")
+            WHERE p.book_id = $book_id
+            ORDER BY p.`pos`, s.`pos`
+        ");
         while ($r = sql_fetch_array($res)) {
             $res1 = sql_query("SELECT tf_text FROM text_forms WHERE sent_id=".$r['sent_id']." ORDER BY pos");
             $tokens = array();
             while ($r1 = sql_fetch_array($res1)) {
                 $tokens[] = $r1['tf_text'];
             }
-            $out['paragraphs'][$r['ppos']][] = array('pos' => $r['spos'], 'tokens' => $tokens);
+            $out['paragraphs'][$r['ppos']][] = array('id' => $r['sent_id'], 'pos' => $r['spos'], 'tokens' => $tokens, 'checked' => $r['status']);
         }
     } elseif($ext) {
         $res = sql_query("SELECT p.`pos` ppos, s.sent_id, s.`pos` spos FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = $book_id ORDER BY p.`pos`, s.`pos`");
@@ -156,7 +165,9 @@ function merge_sentences($id1, $id2) {
         return;
     }
     //dropping status
-    if (!sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$id1 LIMIT 1")) {
+    if (!sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$id1 LIMIT 1") ||
+        !sql_query("DELETE FROM sentence_status WHERE sent_id=$id1") ||
+        !sql_query("DELETE FROM sentence_status WHERE sent_id=$id2")) {
         show_error();
         return;
     }
