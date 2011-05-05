@@ -52,7 +52,7 @@
                 {if $is_logged == 1}
                     <button type="button" disabled="disabled" id="submit_button">{t}Сохранить{/t}</button>&nbsp;
                 {/if}
-                <button type="reset" onclick="$('#submit_button').attr('disabled','disabled');window.location.reload()">{t}Отменить правки{/t}</button>&nbsp;
+                <button type="reset" onclick="window.location.reload()">{t}Отменить правки{/t}</button>&nbsp;
                 <button type="button" onclick="window.location.href='history.php?sent_id={$sentence.id}'">{t}История{/t}</button>&nbsp;
                 <button type="button" onclick="dict_reload_all()">{t}Разобрать заново{/t}</button>
                 <br/>
