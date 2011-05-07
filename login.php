@@ -11,11 +11,20 @@ if ($action=='login') {
     }
     return;
 } elseif ($action=='login_openid') {
-    if (user_login_openid($_POST['token'])) {
-        header('Location:'.$_SESSION['return_to']);
-    } else {
-        header('Location:login.php?act=error');
+    $r = user_login_openid($_POST['token'], isset($_POST['agree']));
+    switch ($r) {
+        case 1:
+            header('Location:'.$_SESSION['return_to']);
+            break;
+        case 2:
+            $smarty->display('openid_license.tpl');
+            break;
+        default:
+            header('Location:login.php?act=error');
     }
+    return;
+} elseif ($action=='login_openid2') {
+    user_login_openid_agree(isset($_POST['agree']));
     return;
 } elseif ($action=='logout') {
     user_logout();

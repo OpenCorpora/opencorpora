@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `text_forms` (
 
 CREATE TABLE IF NOT EXISTS `users` (
     `user_id`     INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `user_name`   VARCHAR(50) NOT NULL,
+    `user_name`   VARCHAR(120) NOT NULL,
     `user_passwd` VARCHAR(32) NOT NULL,
     `user_email`  VARCHAR(100) NOT NULL,
     `user_reg`    INT UNSIGNED NOT NULL

@@ -56,20 +56,31 @@ function user_login_openid($token) {
     }
     $id = $arr['identity'];
     //check if the user exists
-    $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
+    $res = sql_query("SELECT user_id, user_passwd FROM `users` WHERE user_name='$id' LIMIT 1");
     //if he doesn't
     if (sql_num_rows($res) == 0) {
-        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', '', '', '".time()."')")) {
+        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."')")) {
             return 0;
         }
-        $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
+        $res = sql_query("SELECT user_id, user_passwd FROM `users` WHERE user_name='$id' LIMIT 1");
     }
     $row = sql_fetch_array($res);
     $_SESSION['user_id'] = $row['user_id'];
     $_SESSION['user_name'] = $id;
     $_SESSION['options'] = get_user_options($row['user_id']);
     $_SESSION['user_permissions'] = get_user_permissions($row['user_id']);
+    if ($row['user_passwd'] == 'notagreed') {
+        $_SESSION['user_pending'] = 1;
+        return 2;
+    }
     return 1;
+}
+function user_login_openid_agree($agree) {
+    if ($agree) {
+        unset($_SESSION['user_pending']);
+        sql_query("UPDATE users SET user_passwd='' WHERE user_id=".$_SESSION['user_id']." LIMIT 1");
+        header('Location:'.$_SESSION['return_to']);
+    }
 }
 function user_logout() {
     unset($_SESSION['user_id']);
@@ -125,7 +136,7 @@ function user_change_password($post) {
 }
 function user_change_email($post) {
     $login = $_SESSION['user_name'];
-    if (user_check_password($login, $post['passwd'])) {
+    if (is_user_openid($_SESSION['user_id']) || user_check_password($login, $post['passwd'])) {
         if (is_valid_email($post['email'])) {
             if (sql_query("UPDATE `users` SET `user_email`='".mysql_real_escape_string($post['email'])."' WHERE `user_id`=".$_SESSION['user_id']." LIMIT 1"))
                 return 1;
@@ -225,7 +236,11 @@ function is_admin() {
     );
 }
 function is_logged() {
-    return (isset($_SESSION['user_id']) && $_SESSION['user_id']>0);
+    return (isset($_SESSION['user_id']) && $_SESSION['user_id']>0 && !isset($_SESSION['user_pending']));
+}
+function is_user_openid($user_id) {
+    $r = sql_fetch_array(sql_query("SELECT user_passwd WHERE user_id=$user_id LIMIT 1"));
+    return $r['user_passwd'] == '';
 }
 function user_has_permission($perm) {
     return (

@@ -24,6 +24,7 @@
 <input type='button' onclick="submit_with_readonly_check(document.forms[0])" value='{t}Сохранить{/t}'/>&nbsp;&nbsp;<input type='reset' value='{t}Отменить{/t}'/>
 </form>
 <h2>{t}Регистрационные данные{/t}</h2>
+{if !$is_openid}
 <form action='{$web_prefix}/login.php?act=change_pw' method='post'>
 <h3>{t}Изменить пароль{/t}</h3>
 {t}Старый пароль{/t} <input type='password' name='old_pw'/><br/>
@@ -31,12 +32,13 @@
 {t}Новый пароль ещё раз{/t} <input type='password' name='new_pw_re'/><br/>
 <input type='button' onclick="submit_with_readonly_check(document.forms[1])" value="{t}Изменить пароль{/t}"/>
 </form>
-<form action='{$web_prefix}/login.php?act=change_email' method='post'>
+{/if}
+<form action='{$web_prefix}/login.php?act=change_email' method='post' id='change_email'>
 <h3>{t}Изменить адрес электронной почты{/t}</h3>
 {t}Текущий адрес{/t}: <b>{if $current_email}{$current_email}{else}({t}отсутствует{/t}){/if}</b><br/>
 {t}Новый адрес{/t} <input name='email'/><br/>
-{t}Пароль{/t} <input type='password' name='passwd'/><br/>
-<input type='button' onclick="submit_with_readonly_check(document.forms[2])" value="{t}Изменить адрес{/t}"/>
+{if !$is_openid}{t}Пароль{/t} <input type='password' name='passwd'/><br/>{/if}
+<input type='button' onclick="submit_with_readonly_check($('#change_email'))" value="{t}Изменить адрес{/t}"/>
 </form>
 {if $is_admin}
 <h2>Readonly</h2>
