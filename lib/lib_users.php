@@ -91,7 +91,7 @@ function user_logout() {
 }
 function user_register($post) {
     $post['login'] = trim($post['login']);
-    $post['email'] = trim($post['email']);
+    $post['email'] = strtolower(trim($post['email']));
     //testing if all fields are ok
     if ($post['passwd'] != $post['passwd_re']) 
         return 2;
@@ -136,13 +136,14 @@ function user_change_password($post) {
 }
 function user_change_email($post) {
     $login = $_SESSION['user_name'];
+    $email = strtolower(trim($post['email']));
     if (is_user_openid($_SESSION['user_id']) || user_check_password($login, $post['passwd'])) {
-        if (is_valid_email($post['email'])) {
-            $res = sql_query("SELECT user_id FROM users WHERE user_email='".mysql_real_escape_string($post['email'])."' LIMIT 1");
+        if (is_valid_email($email)) {
+            $res = sql_query("SELECT user_id FROM users WHERE user_email='".mysql_real_escape_string($email)."' LIMIT 1");
             if (sql_num_rows($res) > 0) {
                 return 4;
             }
-            if (sql_query("UPDATE `users` SET `user_email`='".mysql_real_escape_string($post['email'])."' WHERE `user_id`=".$_SESSION['user_id']." LIMIT 1"))
+            if (sql_query("UPDATE `users` SET `user_email`='".mysql_real_escape_string($email)."' WHERE `user_id`=".$_SESSION['user_id']." LIMIT 1"))
                 return 1;
             return 0;
         } else
