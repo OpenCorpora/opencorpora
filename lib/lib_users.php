@@ -138,6 +138,10 @@ function user_change_email($post) {
     $login = $_SESSION['user_name'];
     if (is_user_openid($_SESSION['user_id']) || user_check_password($login, $post['passwd'])) {
         if (is_valid_email($post['email'])) {
+            $res = sql_query("SELECT user_id FROM users WHERE user_email='".mysql_real_escape_string($post['email'])."' LIMIT 1");
+            if (sql_num_rows($res) > 0) {
+                return 4;
+            }
             if (sql_query("UPDATE `users` SET `user_email`='".mysql_real_escape_string($post['email'])."' WHERE `user_id`=".$_SESSION['user_id']." LIMIT 1"))
                 return 1;
             return 0;
