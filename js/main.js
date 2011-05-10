@@ -317,8 +317,10 @@ function save_check_tokens($el) {
             var ok = $(res).find('result').attr('ok');
             if (ok != 1) {
                 alert('Check failed');
-                $el.removeAttr('disabled');
+            } else {
+                $el.closest('li').fadeTo("normal", 0.4);
             }
         }
     )
+    $el.removeAttr('disabled');
 }
