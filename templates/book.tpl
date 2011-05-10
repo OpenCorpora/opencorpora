@@ -96,7 +96,7 @@
                         {/if}
                         {$sentence.text|htmlspecialchars}   
                         {foreach name=t item=token from=$sentence.tokens}
-                            {$token}
+                            {$token|htmlspecialchars}
                             {if $smarty.foreach.t.last != true}
                             <span class='ok_border'>&nbsp; </span>
                             {/if}
