@@ -2,7 +2,16 @@
 require('lib/header.php');
 require('lib/lib_books.php');
 $action = isset($_GET['act']) ? $_GET['act'] : '';
-if (user_has_permission('perm_adder')) {
+if (!$action) {
+    if (isset($_GET['book_id']) && $book_id = (int)$_GET['book_id']) {
+        $smarty->assign('book', get_book_page($book_id, isset($_GET['ext']), isset($_GET['full'])));
+        $smarty->display('book.tpl');
+    } else {
+        $smarty->assign('books', get_books_list());
+        $smarty->display('books.tpl');
+    }
+}
+elseif (user_has_permission('perm_adder')) {
     switch($action) {
         case 'add':
             $book_name = mysql_real_escape_string($_POST['book_name']);
@@ -35,14 +44,6 @@ if (user_has_permission('perm_adder')) {
         case 'merge_tokens':
             merge_tokens((int)$_POST['id1'], (int)$_POST['id2']);
             break;
-        default:
-            if (isset($_GET['book_id']) && $book_id = (int)$_GET['book_id']) {
-                $smarty->assign('book', get_book_page($book_id, isset($_GET['ext']), isset($_GET['full'])));
-                $smarty->display('book.tpl');
-            } else {
-                $smarty->assign('books', get_books_list());
-                $smarty->display('books.tpl');
-            }
     }
 } else {
     show_error($config['msg_notadmin']);

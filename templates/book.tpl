@@ -1,6 +1,7 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
+    {if $user_permission_adder}
     <script type="text/javascript">
         $(document).ready(function(){
             $("input.tok").click(function(){
@@ -8,6 +9,7 @@
             })
         })
     </script>
+    {/if}
     <h2>{$book.title}</h2>
     {if isset($book.parents)}
     <p>
@@ -17,6 +19,7 @@
     {$book.title}
     </p>
     {/if}
+    {if $user_permission_adder}
     <form action='?act=rename' method='post' class='inline'>{t}Переименовать в{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
         <input name='new_name' value='{$book.title|htmlspecialchars}'/>&nbsp;&nbsp;
@@ -31,6 +34,7 @@
             {html_options options=$book.select}
         </select>
     </form>
+    {/if}
     {* Tag list *}
     <h3>{t}Теги{/t}</h3>
     {if isset($book.tags[0])}
@@ -38,7 +42,7 @@
         {foreach item=tag from=$book.tags}
             {strip}
             <li>
-                [<a href="?act=del_tag&amp;book_id={$book.id}&amp;tag_name={$tag.prefix|cat:":"|cat:$tag.body|urlencode}" onClick="return confirm('{t}Точно удалить этот тег?{/t}')">x</a>]&nbsp;
+                {if $user_permission_adder}[<a href="?act=del_tag&amp;book_id={$book.id}&amp;tag_name={$tag.prefix|cat:":"|cat:$tag.body|urlencode}" onClick="return confirm('{t}Точно удалить этот тег?{/t}')">x</a>]&nbsp;{/if}
                 {if $tag.prefix == 'url'}
                     url:<a href="{$tag.body}" target="_blank">{$tag.body}</a>
                 {else}
@@ -51,14 +55,18 @@
     {else}
         <p>{t}Тегов нет.{/t}</p>
     {/if}
+    {if $user_permission_adder}
     <form action='?act=add_tag' method='post' class='inline'>{t}Добавить тег{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
         <input name='tag_name' value='New_tag'/>&nbsp;&nbsp;
         <input type='submit' value='{t}Добавить{/t}'/>
     </form>
+    {/if}
     {* Sub-books list *}
     <h3>{t}Разделы{/t}</h3>
+    {if $user_permission_adder}
     Добавить раздел <form class='inline' action='{$web_prefix}/books.php?act=add' method='post'><input name='book_name' size='30' maxlength='100' value='&lt;{t}Название{/t}&gt;'/><input type='hidden' name='book_parent' value='{$book.id}'/><input type='submit' value='{t}Добавить{/t}'/></form>
+    {/if}
     {if isset($book.children[0])}
         <ul>
         {foreach item=subbook from=$book.children}
