@@ -131,5 +131,5 @@
     {else}
         <p>{t}В тексте нет ни одного предложения.{/t}</p>
     {/if}
-    <p><a href="{$web_prefix}/add.php?to={$book.id}">Добавить текст в эту книгу</a></p>
+    {if $user_permission_adder}<p><a href="{$web_prefix}/add.php?to={$book.id}">Добавить текст в эту книгу</a></p>{/if}
 {/block}

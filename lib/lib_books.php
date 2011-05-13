@@ -36,16 +36,16 @@ function get_book_page($book_id, $ext = false, $full = false) {
     }
     //sentences
     if ($full) {
-        $res = sql_query("
-            SELECT p.`pos` ppos, s.sent_id, s.`pos` spos, ss.status
-            FROM paragraphs p
+        $q = "SELECT p.`pos` ppos, s.sent_id, s.`pos` spos";
+        if (user_has_permission('perm_adder')) $q .= ", ss.status";
+        $q .= "\nFROM paragraphs p
             LEFT JOIN sentences s
-            ON (p.par_id = s.par_id)
-            LEFT JOIN sentence_check ss
-            ON (s.sent_id = ss.sent_id AND ss.status=1 AND ss.user_id=".$_SESSION['user_id'].")
-            WHERE p.book_id = $book_id
-            ORDER BY p.`pos`, s.`pos`
-        ");
+            ON (p.par_id = s.par_id)\n";
+
+        if (user_has_permission('perm_adder')) $q .= "LEFT JOIN sentence_check ss ON (s.sent_id = ss.sent_id AND ss.status=1 AND ss.user_id=".$_SESSION['user_id'].")\n";
+        $q .= "WHERE p.book_id = $book_id
+            ORDER BY p.`pos`, s.`pos`";
+        $res = sql_query($q);
         while ($r = sql_fetch_array($res)) {
             $res1 = sql_query("SELECT tf_text FROM text_forms WHERE sent_id=".$r['sent_id']." ORDER BY pos");
             $tokens = array();
