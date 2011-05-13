@@ -98,7 +98,7 @@
             {foreach name=s item=sentence from=$paragraph}
                 {if isset($smarty.get.full)}
                     {strip}
-                    <li value="{$sentence.pos}">
+                    <li value="{$sentence.id}">
                         {if $user_permission_check_tokens}
                             <span><input type="checkbox" {if $sentence.checked}checked="checked"{/if} class="tok" id="s{$sentence.id}"/></span>&nbsp;
                         {/if}
