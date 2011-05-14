@@ -5,9 +5,9 @@
     <a href="{$web_prefix}/?page=team">{t}Участники{/t}</a><br/>
 </div>
 <div>
-    <a href="{$web_prefix}/dict.php">{t}Словарь{/t}</a><br/>
-    <a href="{$web_prefix}/books.php">{t}Тексты{/t}</a>
+    <a href="{$web_prefix}/dict.php">{t}Словарь{/t}</a>
         {if $user_permission_dict && $dict_errors}(<a class="red" href="{$web_prefix}/dict.php?act=errata">{t}есть ошибки{/t}</a>){/if}<br/>
+    <a href="{$web_prefix}/books.php">{t}Тексты{/t}</a><br/>
     <a href="{$web_prefix}/?page=stats">{t}Статистика{/t}</a><br/>
     <a href="{$web_prefix}/?rand">{t}Случайное предложение{/t}</a>
 </div>

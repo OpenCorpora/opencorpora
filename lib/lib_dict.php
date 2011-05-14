@@ -612,58 +612,6 @@ function split2paragraphs($txt) {
 function split2sentences($txt) {
     return preg_split('/[\r\n]+/', $txt);
 }
-function tokenize($txt) {
-    $re_punctuation = '/[\.,!\?;:\(\)\[\]\/"\xAB\xBB]/u';
-
-    $words = explode(' ', $txt);
-    $txt = array();
-    $token = '';
-    $last_letter = 0;
-    $last_char = '';
-
-    foreach ($words as $word) {
-        #whole word check
-        if (form_exists($word) > 0) {
-            $txt[] = $word;
-            $last_letter = 1;
-            continue;
-        }
-        #hyphen check
-        if (preg_match('/^([А-Яа-яЁё]+)-([А-Яа-яЁё]+)(.+)?$/u', $word, $matches)) {
-            $txt[] = $matches[1];
-            $txt[] = '-';
-            $txt[] = $matches[2];
-            $last_letter = 1;
-            if ($matches[3]) {
-                $word = $matches[3];
-            } else {
-                continue;
-            }
-        }
-        for($i = 0; $i < mb_strlen($word, 'UTF-8'); ++$i) {
-            $char = mb_substr($word, $i, 1, 'UTF-8');
-            if (preg_match($re_punctuation, $char)) {
-                if ($token != '') {
-                    $txt[] = $token;
-                    $token = '';
-                }
-                if ($last_letter || $last_char != $char)
-                    $txt[] = $char;
-                else
-                    $txt[sizeof($txt)-1] .= $char;
-                $last_letter = 0;
-                $last_char = $char;
-            } else {
-                $token .= $char;
-                $last_letter = 1;
-            }
-        }
-        if ($token)
-            $txt[] = $token;
-        $token = '';
-    }
-    return $txt;
-}
 function tokenize_ml($txt) {
     $coeff = array();
     $out = array();
@@ -780,9 +728,11 @@ function addtext_check($array) {
     $out = array('full' => $array['txt'], 'select0' => get_books_for_select(0));
     $pars = split2paragraphs($array['txt']);
     foreach ($pars as $par) {
+        if (!preg_match('/\S/', $par)) continue;
         $par_array = array();
         $sents = split2sentences($par);
         foreach ($sents as $sent) {
+            if (!preg_match('/\S/', $sent)) continue;
             $sent_array = array('src' => $sent);
             $tokens = tokenize_ml($sent);
             foreach ($tokens as $token) {
@@ -819,6 +769,7 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
     $sent_count = 0;
     $pars = split2paragraphs($clear_text);
     foreach($pars as $par) {
+        if (!preg_match('/\S/', $par)) continue;
         //adding a paragraph
         if (!sql_query("INSERT INTO `paragraphs` VALUES(NULL, '$book_id', '".($par_num++)."')")) return 0;
         $par_id = sql_insert_id();
