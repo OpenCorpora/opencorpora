@@ -129,7 +129,7 @@ sub calc {
 }
 sub is_pmark {
     my $char = shift;
-    if ($char =~ /^[\.,\?!"\(\)\:;\[\]\/\xAB\xBB]$/) {
+    if ($char =~ /^[,\?!"\(\)\:;\[\]\/\xAB\xBB]$/) {
         return 1;
     }
     return 0;

@@ -722,7 +722,7 @@ function is_number($char) {
     return (int)is_numeric($char);
 }
 function is_pmark($char) {
-    $re_punctuation = '/[\.,!\?;:\(\)\[\]\/"\xAB\xBB]/u';
+    $re_punctuation = '/[,!\?;:\(\)\[\]\/"\xAB\xBB]/u';
     return preg_match($re_punctuation, $char);
 }
 function is_dict_chain($chain) {
