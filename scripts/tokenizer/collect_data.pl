@@ -30,6 +30,8 @@ my %good;
 my $vector;
 my $pos;
 
+my $stat_sure, my $stat_total;
+
 $sent->execute();
 $drop->execute();
 while(my $ref = $sent->fetchrow_hashref()) {
@@ -62,9 +64,14 @@ while(my $ref = $sent->fetchrow_hashref()) {
 }
 
 for my $k(sort {$a <=> $b} keys %total) {
-    printf("%d\t%.3f\t%d\t%015s\n", $k, $good{$k}/$total{$k}, $total{$k}, sprintf("%b",$k));
+    printf("%d\t%.3f\t%d\t%017s\n", $k, $good{$k}/$total{$k}, $total{$k}, sprintf("%b",$k));
+    if ($good{$k} == 0 || $good{$k} == $total{$k}) {
+        $stat_sure += $total{$k};
+    }
+    $stat_total += $total{$k};
     $insert->execute($k, $good{$k}/$total{$k});
 }
+printf "Total %d different vectors; predictor is sure in %.3f%% cases\n", scalar(keys %total), $stat_sure/$stat_total * 100;
 
 # subroutines
 
@@ -115,6 +122,8 @@ sub calc {
     push @out, is_number($next);
     push @out, is_number($nnext);
     push @out, is_dict_chain($chain);
+    push @out, is_dot($current);
+    push @out, is_dot($next);
 
     return \@out;
 }
@@ -149,6 +158,10 @@ sub is_cyr {
 sub is_hyphen {
     my $char = shift;
     return $char eq '-' ? 1 : 0;
+}
+sub is_dot {
+    my $char = shift;
+    return $char eq '.' ? 1 : 0;
 }
 sub is_number {
     my $char = shift;

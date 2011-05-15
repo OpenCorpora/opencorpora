@@ -674,7 +674,9 @@ function tokenize_ml($txt) {
             is_number($char),
             is_number($nextchar),
             is_number($nnextchar),
-            is_dict_chain($chain)
+            is_dict_chain($chain),
+            is_dot($char),
+            is_dot($nextchar)
         );
         $vector = implode('', $vector);
 
@@ -704,6 +706,9 @@ function is_space($char) {
 }
 function is_hyphen($char) {
     return (int)($char == '-');
+}
+function is_dot($char) {
+    return (int)($char == '.');
 }
 function is_cyr($char) {
     $re_cyr = '/[А-Яа-яЁё]/u';
