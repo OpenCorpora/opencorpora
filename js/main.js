@@ -329,5 +329,5 @@ function show_edit_token($el) {
     var offset = $el.offset();
     offset.top += 25;
     $("#edit_tok").offset(offset).find("b").text($el.html());
-    $("#edit_tok").find("input[type='hidden']").val(parseInt($el.attr('id').substr(1)));
+    $("#edit_tok").find("input[name='tid']").val(parseInt($el.attr('id').substr(1)));
 }

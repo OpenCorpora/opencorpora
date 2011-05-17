@@ -37,7 +37,7 @@
             {html_options options=$book.select}
         </select>
     </form>
-    <div id="edit_tok"><form action="?act=split_token" method="post"><button onclick="return confirm('Вы уверены?')">Разбить</button> токен &laquo;<b></b>&raquo;, отделив <input name="nc" value="1" size="1"/> первых символов<input type='hidden' name='tid' value='0'/></form></div>
+    <div id="edit_tok"><form action="?act=split_token" method="post"><button onclick="return confirm('Вы уверены?')">Разбить</button> токен <input name='tid' value='0' size='6' readonly='readonly'/> &laquo;<b></b>&raquo;, отделив <input name="nc" value="1" size="1"/> первых символов</form></div>
     {/if}
     {* Tag list *}
     <h3>{t}Теги{/t}</h3>

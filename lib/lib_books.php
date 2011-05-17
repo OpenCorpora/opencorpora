@@ -248,6 +248,6 @@ function split_token($token_id, $num) {
         show_error();
         return;
     }
-    header("Location:sentence.php?id=".$r['sent_id']);
+    header("Location:".$_SERVER['HTTP_REFERER']);
 }
 ?>
