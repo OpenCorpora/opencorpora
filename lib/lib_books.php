@@ -227,8 +227,8 @@ function split_token($token_id, $num) {
         return;
     }
     $r = sql_fetch_array($res);
-    $text1 = mb_substr($r['tf_text'], 0, $num);
-    $text2 = mb_substr($r['tf_text'], $num);
+    $text1 = trim(mb_substr($r['tf_text'], 0, $num));
+    $text2 = trim(mb_substr($r['tf_text'], $num));
     if (!$text1 || !$text2) {
         show_error();
         return;
