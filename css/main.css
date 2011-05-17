@@ -115,6 +115,14 @@ div.info {
     margin: auto 25%;
     text-align: center;
 }
+div#edit_tok {
+    position: absolute;
+    display: none;
+    border: 1px black solid;
+    background-color: #ffe5b4;
+    width: 150px;
+    padding: 3px;
+}
 /* FORMS */
 form#login_form {
     margin: 10px;

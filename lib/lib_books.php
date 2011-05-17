@@ -47,10 +47,10 @@ function get_book_page($book_id, $ext = false, $full = false) {
             ORDER BY p.`pos`, s.`pos`";
         $res = sql_query($q);
         while ($r = sql_fetch_array($res)) {
-            $res1 = sql_query("SELECT tf_text FROM text_forms WHERE sent_id=".$r['sent_id']." ORDER BY pos");
+            $res1 = sql_query("SELECT tf_id, tf_text FROM text_forms WHERE sent_id=".$r['sent_id']." ORDER BY pos");
             $tokens = array();
             while ($r1 = sql_fetch_array($res1)) {
-                $tokens[] = $r1['tf_text'];
+                $tokens[] = array('text' => $r1['tf_text'], 'id' => $r1['tf_id']);
             }
             $out['paragraphs'][$r['ppos']][] = array('id' => $r['sent_id'], 'pos' => $r['spos'], 'tokens' => $tokens, 'checked' => $r['status']);
         }
@@ -213,6 +213,41 @@ function merge_tokens($id_from, $id_to) {
     }
 
     $r = sql_fetch_array(sql_query("SELECT sent_id FROM text_forms WHERE tf_id=$id_from LIMIT 1"));
+    header("Location:sentence.php?id=".$r['sent_id']);
+}
+function split_token($token_id, $num) {
+    //$num is the number of characters (in the beginning) that should become a separate token
+    if (!$token_id || !$num) {
+        show_error("Неверные параметры.");
+        return;
+    }
+    $res = sql_query("SELECT tf_text, sent_id, pos FROM text_forms WHERE tf_id=$token_id LIMIT 1");
+    if (sql_num_rows($res) == 0) {
+        show_error();
+        return;
+    }
+    $r = sql_fetch_array($res);
+    $text1 = mb_substr($r['tf_text'], 0, $num);
+    $text2 = mb_substr($r['tf_text'], $num);
+    if (!$text1 || !$text2) {
+        show_error();
+        return;
+    }
+    //create revset
+    $revset_id = create_revset("Token $token_id split");
+    if (
+        //update other tokens in the sentence
+        !sql_query("UPDATE text_forms SET pos=pos+1 WHERE sent_id = ".$r['sent_id']." AND pos > ".$r['pos']) ||
+        //create new token and parse
+        !sql_query("INSERT INTO text_forms VALUES(NULL, '".$r['sent_id']."', '".($r['pos'] + 1)."', '".mysql_real_escape_string($text2)."', '0')") ||
+        !sql_query("INSERT INTO tf_revisions VALUES(NULL, '$revset_id', '".sql_insert_id()."', '".mysql_real_escape_string(generate_tf_rev($text2))."')") ||
+        //update old token and parse
+        !sql_query("UPDATE text_forms SET tf_text='".mysql_real_escape_string($text1)."', dict_updated='0' WHERE tf_id=$token_id LIMIT 1") ||
+        !sql_query("INSERT INTO tf_revisions VALUES(NULL, '$revset_id', '$token_id', '".mysql_real_escape_string(generate_tf_rev($text1))."')")
+    ) {
+        show_error();
+        return;
+    }
     header("Location:sentence.php?id=".$r['sent_id']);
 }
 ?>

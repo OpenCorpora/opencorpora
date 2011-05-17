@@ -6,7 +6,10 @@
         $(document).ready(function(){
             $("input.tok").click(function(){
                 save_check_tokens($(this));
-            })
+            });
+            $(".tok_c").click(function(){
+                show_edit_token($(this));
+            });
         })
     </script>
     {/if}
@@ -34,6 +37,7 @@
             {html_options options=$book.select}
         </select>
     </form>
+    <div id="edit_tok"><form action="?act=split_token" method="post"><button onclick="return confirm('Вы уверены?')">Разбить</button> токен &laquo;<b></b>&raquo;, отделив <input name="nc" value="1" size="1"/> первых символов<input type='hidden' name='tid' value='0'/></form></div>
     {/if}
     {* Tag list *}
     <h3>{t}Теги{/t}</h3>
@@ -104,7 +108,11 @@
                         {/if}
                         {$sentence.text|htmlspecialchars}   
                         {foreach name=t item=token from=$sentence.tokens}
-                            {$token|htmlspecialchars}
+                            {if $user_permission_adder && $token.text|count_characters > 1}
+                            <span class="tok_c" id="t{$token.id}">{$token.text|htmlspecialchars}</span>
+                            {else}
+                            {$token.text|htmlspecialchars}
+                            {/if}
                             {if $smarty.foreach.t.last != true}
                             <span class='ok_border'>&nbsp; </span>
                             {/if}
