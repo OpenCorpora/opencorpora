@@ -103,6 +103,7 @@
                 {if isset($smarty.get.full)}
                     {strip}
                     <li value="{$sentence.id}">
+                        <a class="small" href="{$web_prefix}/sentence.php?id={$sentence.id}">см.</a>
                         {if $user_permission_check_tokens}
                             <span><input type="checkbox" {if $sentence.checked}checked="checked"{/if} class="tok" id="s{$sentence.id}"/></span>&nbsp;
                         {/if}
