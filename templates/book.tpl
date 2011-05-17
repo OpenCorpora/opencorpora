@@ -46,7 +46,7 @@
         {foreach item=tag from=$book.tags}
             {strip}
             <li>
-                {if $user_permission_adder}[<a href="?act=del_tag&amp;book_id={$book.id}&amp;tag_name={$tag.prefix|cat:":"|cat:$tag.body|urlencode}" onClick="return confirm('{t}Точно удалить этот тег?{/t}')">x</a>]&nbsp;{/if}
+                {if $user_permission_adder}[<a href="?act=del_tag&amp;book_id={$book.id}&amp;tag_name={$tag.full|urlencode}" onClick="return confirm('{t}Точно удалить этот тег?{/t}')">x</a>]&nbsp;{/if}
                 {if $tag.prefix == 'url'}
                     url:<a href="{$tag.body}" target="_blank">{$tag.body}</a>
                 {else}

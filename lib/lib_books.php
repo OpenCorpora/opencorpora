@@ -19,9 +19,9 @@ function get_book_page($book_id, $ext = false, $full = false) {
     $res = sql_query("SELECT tag_name FROM book_tags WHERE book_id=$book_id");
     while ($r = sql_fetch_array($res)) {
         if (preg_match('/^(.+?)\:(.+)$/', $r['tag_name'], $matches)) {
-            $out['tags'][] = array('prefix' => $matches[1], 'body' => $matches[2]);
+            $out['tags'][] = array('prefix' => $matches[1], 'body' => $matches[2], 'full' => $r['tag_name']);
         } else
-            $out['tags'][] = array('prefix' => '', 'body' => $r['tag_name']);
+            $out['tags'][] = array('prefix' => '', 'body' => $r['tag_name'], 'full' => $r['tag_name']);
     }
     //sub-books
     $res = sql_query("SELECT book_id, book_name FROM books WHERE parent_id=$book_id ORDER BY book_name");
