@@ -7,7 +7,7 @@ if (!is_logged()) {
 }
 
 if (isset($_POST['comment']))
-    $comment = mysql_real_escape_string($_POST['comment']);
+    $comment = $_POST['comment'];
 else
     $comment = '';
 

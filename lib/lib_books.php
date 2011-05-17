@@ -203,7 +203,7 @@ function merge_tokens($id_from, $id_to) {
         }
     }
     //updating text & adding a revision
-    $revset_id = create_revset("Tokens $id_from to $id_to merged");
+    $revset_id = create_revset("Tokens $id_from to $id_to merged to <$new_text>");
     if (
         !sql_query("UPDATE text_forms SET tf_text = '".mysql_real_escape_string($new_text)."' WHERE tf_id=$id_from LIMIT 1") ||
         !sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$id_from', '".mysql_real_escape_string(generate_tf_rev($new_text))."')")
@@ -234,7 +234,7 @@ function split_token($token_id, $num) {
         return;
     }
     //create revset
-    $revset_id = create_revset("Token $token_id split");
+    $revset_id = create_revset("Token $token_id (<".$r['tf_text'].">) split to <$text1> and <$text2>");
     if (
         //update other tokens in the sentence
         !sql_query("UPDATE text_forms SET pos=pos+1 WHERE sent_id = ".$r['sent_id']." AND pos > ".$r['pos']) ||
