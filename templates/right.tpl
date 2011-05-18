@@ -1,4 +1,16 @@
 {* Smarty *}
+<script>
+    $(document).ready(function(){
+        $("#form_search_input").autocomplete("ajax/dict_substring_search.php",{
+            minChars:3,
+            maxItemsToShow:10,
+            width:200,
+            onItemSelect:function(el){
+                location.href="dict.php?act=edit&id="+el.extra
+            }
+        })
+    })
+</script>
 <div>
     <a href="{$web_prefix}/?page=about">{t}О проекте{/t}</a><br/>
     <a href="{$web_prefix}/?page=publications">{t}Публикации{/t}</a><br/>
@@ -14,7 +26,7 @@
 <div>
 <b>{t}Поиск по словарю{/t}</b>
 <form action="{$web_prefix}/dict.php?act=lemmata" method="post">
-<input name="search_form" size="20" class="small"/>
+<input name="search_form" size="20" class="small" id="form_search_input"/>
 </form>
 </div>
 <div>
