@@ -5,8 +5,13 @@
             minChars:3,
             maxItemsToShow:10,
             width:200,
+            formatItem:function (row, i, num) {
+                var result = row[0] + " <em>" +
+                row[1] + "</em>";
+                return result;
+            },
             onItemSelect:function(el){
-                location.href="dict.php?act=edit&id="+el.extra
+                location.href="dict.php?act=edit&id="+el.extra[1]
             }
         })
     })
