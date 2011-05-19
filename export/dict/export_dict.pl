@@ -48,7 +48,6 @@ my $read_links = $dbh->prepare("SELECT * FROM dict_links ORDER BY link_id LIMIT 
 
 $rev->execute();
 $r = $rev->fetchrow_hashref();
-my $r1;
 my $maxrev = $r->{'m'};
 
 my $header;
