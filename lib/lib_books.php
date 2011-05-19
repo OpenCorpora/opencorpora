@@ -166,8 +166,8 @@ function merge_sentences($id1, $id2) {
     }
     //dropping status
     if (!sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$id1 LIMIT 1") ||
-        !sql_query("DELETE FROM sentence_status WHERE sent_id=$id1") ||
-        !sql_query("DELETE FROM sentence_status WHERE sent_id=$id2")) {
+        !sql_query("DELETE FROM sentence_check WHERE sent_id=$id1") ||
+        !sql_query("DELETE FROM sentence_check WHERE sent_id=$id2")) {
         show_error();
         return;
     }
@@ -213,6 +213,13 @@ function merge_tokens($id_from, $id_to) {
     }
 
     $r = sql_fetch_array(sql_query("SELECT sent_id FROM text_forms WHERE tf_id=$id_from LIMIT 1"));
+
+    //dropping sentcnce status
+    if (!sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=".$r['sent_id']." LIMIT 1") ||
+        !sql_query("DELETE FROM sentence_check WHERE sent_id=".$r['sent_id'])) {
+        show_error();
+        return;
+    }
     header("Location:sentence.php?id=".$r['sent_id']);
 }
 function split_token($token_id, $num) {
@@ -248,6 +255,16 @@ function split_token($token_id, $num) {
         show_error();
         return;
     }
+
+    //dropping sentence status
+    $r = sql_fetch_array(sql_query("SELECT sent_id FROM text_forms WHERE tf_id=$token_id LIMIT 1"));
+
+    if (!sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=".$r['sent_id']." LIMIT 1") ||
+        !sql_query("DELETE FROM sentence_check WHERE sent_id=".$r['sent_id'])) {
+        show_error();
+        return;
+    }
+
     header("Location:".$_SERVER['HTTP_REFERER']);
 }
 ?>
