@@ -346,7 +346,6 @@ function paradigm_diff($array1, $array2) {
     return $diff;
 }
 function del_lemma($id) {
-    error_reporting(0);
     //delete links (but preserve history)
     $res = sql_query("SELECT link_id FROM dict_links WHERE lemma1_id=$id OR lemma2_id=$id");
     $revset_id = create_revset();
