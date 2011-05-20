@@ -16,7 +16,7 @@
 	<td>{$h.timestamp|date_format:"%a %d.%m.%Y, %H:%M"}</td>
 	<td><a href="sentence.php?id={$h.sent_id}">{t}Предложение{/t} {$h.sent_id}</a></td>
 	<td><a href="diff.php?sent_id={$h.sent_id}&amp;set_id={$h.set_id}">{t}Изменения{/t}</a></td>
-    <td>{if $h.comment}{$h.comment}{else}({t}без комментария{/t}){/if}</td>
+    <td>{if $h.comment}{$h.comment|htmlspecialchars}{else}({t}без комментария{/t}){/if}</td>
 </tr>
 {/foreach}
 {if !$smarty.get.sent_id}
