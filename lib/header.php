@@ -98,6 +98,7 @@ $smarty->assign('web_prefix', $config['web_prefix']);
 $smarty->assign('is_admin', is_admin() ? 1 : 0);
 $smarty->assign('is_logged', is_logged() ? 1 : 0);
 $smarty->assign('user_permission_dict', user_has_permission('perm_dict') ? 1 : 0);
+$smarty->assign('user_permission_disamb', user_has_permission('perm_disamb') ? 1 : 0);
 $smarty->assign('user_permission_adder', user_has_permission('perm_adder') ? 1 : 0);
 $smarty->assign('user_permission_check_tokens', user_has_permission('perm_check_tokens') ? 1 : 0);
 $smarty->assign('user_permission_check_morph', user_has_permission('perm_check_morph') ? 1 : 0);

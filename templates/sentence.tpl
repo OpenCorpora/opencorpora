@@ -49,7 +49,7 @@
     <form method="post" action="?id={$sentence.id}&amp;act=save">
         <div id="main_scroller">
             <div>
-                {if $is_logged == 1}
+                {if $user_permission_disamb == 1}
                     <button type="button" disabled="disabled" id="submit_button">{t}Сохранить{/t}</button>&nbsp;
                 {/if}
                 <button type="reset" onclick="window.location.reload()">{t}Отменить правки{/t}</button>&nbsp;

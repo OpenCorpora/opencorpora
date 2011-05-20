@@ -191,7 +191,7 @@ function get_user_permissions($user_id) {
         }
     } else {
         //autovivify
-        if (!sql_query("INSERT INTO user_permissions VALUES ('$user_id', '0', '0', '0', '0', '0')")) {
+        if (!sql_query("INSERT INTO user_permissions VALUES ('$user_id', '0', '0', '0', '0', '0', '0')")) {
             show_error();
             return;
         }
@@ -271,6 +271,8 @@ function save_users($post) {
             else $qa[] = "perm_adder='0'";
         if (isset($perm['dict'])) $qa[] = "perm_dict='1'";
             else $qa[] = "perm_dict='0'";
+        if (isset($perm['disamb'])) $qa[] = "perm_disamb='1'";
+            else $qa[] = "perm_disamb='0'";
         if (isset($perm['tokens'])) $qa[] = "perm_check_tokens='1'";
             else $qa[] = "perm_check_tokens='0'";
         if (isset($perm['morph'])) $qa[] = "perm_check_morph='1'";

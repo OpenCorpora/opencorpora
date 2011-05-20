@@ -13,11 +13,11 @@ if (isset($_GET['act'])) {
     $action = $_GET['act'];
     switch($action) {
         case 'save':
-            if (is_logged()) {
+            if (user_has_permission('perm_disamb')) {
                 sentence_save();
                 break;
             } else {
-                die ($config['msg_notlogged']);
+                show_error($config['msg_notlogged']);
             }
     }
 } else {

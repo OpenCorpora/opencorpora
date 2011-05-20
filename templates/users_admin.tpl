@@ -13,16 +13,20 @@
 <form action="?act=save" method="post">
 <table border='1' cellspacing='0' cellpadding='3'>
 <tr>
-    <th rowspan='2'>Логин</th>
-    <th rowspan='2'>Зарегистрирован</th>
-    <th colspan='5'>Права</th>
+    <th rowspan='3'>Логин</th>
+    <th rowspan='3'>Зарегистрирован</th>
+    <th colspan='6'>Права</th>
 </tr>
 <tr>
-    <th>Админ</th>
-    <th>Добавление текстов</th>
-    <th>Словарь</th>
-    <th>Токенизация</th>
-    <th>Морфология</th>
+    <th rowspan='2'>Админ</th>
+    <th rowspan='2'>Добавление текстов</th>
+    <th rowspan='2'>Словарь</th>
+    <th rowspan='2'>Снятие неодн-ти</th>
+    <th colspan='2'>Проверка</th>
+</tr>
+<tr>
+    <th>токенизации</th>
+    <th>морфологии</th>
 </tr>
 {foreach item=user from=$users}
 <tr>
@@ -31,6 +35,7 @@
     <td><input name='perm[{$user.user_id}][admin]' type='checkbox'{if $user.perm_admin} checked="checked" disabled="disabled"{/if}/></td>
     <td><input name='perm[{$user.user_id}][adder]' type='checkbox'{if $user.perm_adder} checked="checked"{/if}/></td>
     <td><input name='perm[{$user.user_id}][dict]' type='checkbox'{if $user.perm_dict} checked="checked"{/if}/></td>
+    <td><input name='perm[{$user.user_id}][disamb]' type='checkbox'{if $user.perm_disamb} checked="checked"{/if}/></td>
     <td><input name='perm[{$user.user_id}][tokens]' type='checkbox'{if $user.perm_check_tokens} checked="checked"{/if}/></td>
     <td><input name='perm[{$user.user_id}][morph]' type='checkbox'{if $user.perm_check_morph} checked="checked"{/if}/></td>
 </tr>

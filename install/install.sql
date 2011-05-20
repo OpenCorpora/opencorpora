@@ -63,8 +63,10 @@ CREATE TABLE IF NOT EXISTS `user_permissions` (
     `perm_admin`        TINYINT UNSIGNED NOT NULL,
     `perm_adder`        TINYINT UNSIGNED NOT NULL,
     `perm_dict`         TINYINT UNSIGNED NOT NULL,
+    `perm_disamb`       TINYINT UNSIGNED NOT NULL,
     `perm_check_tokens` TINYINT UNSIGNED NOT NULL,
-    `perm_check_morph`  TINYINT UNSIGNED NOT NULL
+    `perm_check_morph`  TINYINT UNSIGNED NOT NULL,
+    INDEX (`user_id`)
 );
 
 CREATE TABLE IF NOT EXISTS `user_options_values` (
