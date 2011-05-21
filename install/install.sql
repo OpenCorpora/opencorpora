@@ -14,6 +14,12 @@ CREATE TABLE IF NOT EXISTS `book_tags` (
     INDEX (`tag_name`)
 );
 
+CREATE TABLE IF NOT EXISTS `downloaded_urls` (
+    `url`      VARCHAR(255) NOT NULL,
+    `filename` VARCHAR(100) NOT NULL,
+    INDEX(`url`)
+);
+
 CREATE TABLE IF NOT EXISTS `paragraphs` (
     `par_id`       INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `book_id`      INT UNSIGNED NOT NULL,

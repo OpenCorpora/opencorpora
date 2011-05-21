@@ -19,7 +19,14 @@ function get_book_page($book_id, $ext = false, $full = false) {
     $res = sql_query("SELECT tag_name FROM book_tags WHERE book_id=$book_id");
     while ($r = sql_fetch_array($res)) {
         if (preg_match('/^(.+?)\:(.+)$/', $r['tag_name'], $matches)) {
-            $out['tags'][] = array('prefix' => $matches[1], 'body' => $matches[2], 'full' => $r['tag_name']);
+            $ar = array('prefix' => $matches[1], 'body' => $matches[2], 'full' => $r['tag_name']);
+            if ($matches[1] == 'url') {
+                $res1 = sql_query("SELECT filename FROM downloaded_urls WHERE url='".mysql_real_escape_string($matches[2])."' LIMIT 1");
+                if ($r1 = sql_fetch_array($res1)) {
+                    $ar['filename'] = $r1['filename'];
+                }
+            }
+            $out['tags'][] = $ar;
         } else
             $out['tags'][] = array('prefix' => '', 'body' => $r['tag_name'], 'full' => $r['tag_name']);
     }

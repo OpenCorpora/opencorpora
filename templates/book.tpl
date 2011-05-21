@@ -37,15 +37,8 @@
             {html_options options=$book.select}
         </select>
     </form>
+    <div id="edit_tok"><form action="?act=split_token" method="post"><button onclick="return confirm('Вы уверены?')">Разбить</button> токен <input name='tid' value='0' size='6' readonly='readonly'/> &laquo;<b></b>&raquo;, отделив <input name="nc" value="1" size="1"/> первых символов</form></div>
     {/if}
-    <div id="edit_tok"><div class='tid'></div>
-    {if $user_permission_adder}
-    <a href="#" onclick="$(this).parent().find('form').toggle(); return false" class="hint">разбить</a>
-    <form action="?act=split_token" method="post"><button onclick="return confirm('Вы уверены?')">Разбить</button> токен <input name='tid' value='0' size='6' readonly='readonly'/> &laquo;<b></b>&raquo;, отделив <input name="nc" value="1" size="1"/> первых символов
-    </form>
-    {/if}
-    <form><label><input type="checkbox" onclick="check_merge($(this))"/>склеить</label></form>
-    </div>
     {* Tag list *}
     <h3>{t}Теги{/t}</h3>
     {if isset($book.tags[0])}
@@ -56,6 +49,11 @@
                 {if $user_permission_adder}[<a href="?act=del_tag&amp;book_id={$book.id}&amp;tag_name={$tag.full|urlencode}" onClick="return confirm('{t}Точно удалить этот тег?{/t}')">x</a>]&nbsp;{/if}
                 {if $tag.prefix == 'url'}
                     url:<a href="{$tag.body}" target="_blank">{$tag.body}</a>
+                    {if $tag.filename}
+                    , <a class='small' href="{$web_prefix}/files/saved/{$tag.filename}.html">{t}сохранённая копия{/t}</a>
+                    {elseif $user_permission_adder}
+                    , <a class='small' href="#" onclick="download_url($(this), '{$tag.body}')">скачать</a>
+                    {/if}
                 {else}
                     {$tag.prefix|cat:":"|cat:$tag.body|htmlspecialchars}
                 {/if}
@@ -116,7 +114,11 @@
                         {/if}
                         {$sentence.text|htmlspecialchars}   
                         {foreach name=t item=token from=$sentence.tokens}
+                            {if $user_permission_adder && $token.text|count_characters > 1}
                             <span class="tok_c" id="t{$token.id}">{$token.text|htmlspecialchars}</span>
+                            {else}
+                            {$token.text|htmlspecialchars}
+                            {/if}
                             {if $smarty.foreach.t.last != true}
                             <span class='ok_border'>&nbsp; </span>
                             {/if}
