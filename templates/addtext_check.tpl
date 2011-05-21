@@ -62,6 +62,6 @@
         <p id="lastpar_info">{t}Надо выбрать книгу.{/t}</p>
         {t}Счёт абзацев &ndash; с{/t}
         <input id="newpar" name="newpar" size="3" maxlength="3" value="1"/>
-        <input id="submitter" type="submit" value="{t}Добавить{/t}" disabled="disabled"/>
+        <input id="submitter" type="button" value="{t}Добавить{/t}" disabled="disabled" onclick="submit_with_readonly_check($(this).closest('form'))"/>
     </form>
 {/block}

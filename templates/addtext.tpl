@@ -12,6 +12,6 @@
         <input type='hidden' name='book_id' value='{$smarty.get.to}'/>
     {/if}
     <br/><br/>
-    <input type="submit" value="{t}Проверить{/t}"/>
+    <input type="button" value="{t}Проверить{/t}" onclick="submit_with_readonly_check($(this).closest('form'))"/>
     </form>
 {/block}
