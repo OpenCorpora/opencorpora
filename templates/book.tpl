@@ -52,7 +52,7 @@
                     {if $tag.filename}
                     , <a class='small' href="{$web_prefix}/files/saved/{$tag.filename}.html">{t}сохранённая копия{/t}</a>
                     {elseif $user_permission_adder}
-                    , <a class='small' href="#" onclick="download_url($(this), '{$tag.body}')">скачать</a>
+                    , <a class='small' href="#" onclick="download_url($(this), '{$tag.body}'); return false">скачать</a>
                     {/if}
                 {else}
                     {$tag.prefix|cat:":"|cat:$tag.body|htmlspecialchars}

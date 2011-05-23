@@ -332,5 +332,19 @@ function show_edit_token($el) {
     $("#edit_tok").find("input[name='tid']").val(parseInt($el.attr('id').substr(1)));
 }
 function download_url($el, url) {
-    alert('Sorry, still not implemented');
+    $el.click(function(){return false;});
+    $.get('ajax/download_url.php', {'url':url},
+        function(res) {
+            var ok = $(res).find('response').attr('ok');
+            console.log($(res).find('response').attr());
+            if (ok == 1) {
+                var fname = $(res).find('response').attr('filename');
+                 $el.attr('href', '../files/saved/'+fname+'.html');               
+                 $el.click(function(){});
+                 $el.html('сохранённая копия');
+            } else {
+                 $el.html('ошибка при сохранении файла');
+            }
+        }
+    )
 }
