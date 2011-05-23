@@ -333,10 +333,11 @@ function show_edit_token($el) {
 }
 function download_url($el, url) {
     $el.click(function(){return false;});
+    $el.removeAttr('onclick');
+    $el.html('скачивается...');
     $.get('ajax/download_url.php', {'url':url},
         function(res) {
             var ok = $(res).find('response').attr('ok');
-            console.log($(res).find('response').attr());
             if (ok == 1) {
                 var fname = $(res).find('response').attr('filename');
                  $el.attr('href', '../files/saved/'+fname+'.html');               
