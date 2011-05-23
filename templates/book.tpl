@@ -37,8 +37,15 @@
             {html_options options=$book.select}
         </select>
     </form>
-    <div id="edit_tok"><form action="?act=split_token" method="post"><button onclick="return confirm('Вы уверены?')">Разбить</button> токен <input name='tid' value='0' size='6' readonly='readonly'/> &laquo;<b></b>&raquo;, отделив <input name="nc" value="1" size="1"/> первых символов</form></div>
     {/if}
+    <div id="edit_tok"><div class='tid'></div>
+    {if $user_permission_adder}
+    <a href="#" onclick="$(this).parent().find('form').toggle(); return false" class="hint">разбить</a>
+    <form action="?act=split_token" method="post"><button onclick="return confirm('Вы уверены?')">Разбить</button> токен <input name='tid' value='0' size='6' readonly='readonly'/> &laquo;<b></b>&raquo;, отделив <input name="nc" value="1" size="1"/> первых символов
+    </form>
+    {/if}
+    <form><label><input type="checkbox" onclick="check_merge($(this))"/>склеить</label></form>
+    </div>
     {* Tag list *}
     <h3>{t}Теги{/t}</h3>
     {if isset($book.tags[0])}
