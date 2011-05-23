@@ -2,6 +2,7 @@ User-agent: *
 Disallow: /books
 Disallow: /dict
 Disallow: /diff
+Disallow: /files/saved
 Disallow: /history
 Disallow: /login
 Disallow: /options
