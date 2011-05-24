@@ -60,6 +60,7 @@ $func->{'total_words'} = sub {
 $func->{'added_sentences'} = sub {
     my %user_cnt;
     my $del = $dbh->prepare("DELETE FROM user_stats WHERE param_id=6");
+    $del->execute();
     my $ins = $dbh->prepare("INSERT INTO user_stats VALUES(?, ?, '6', ?)");
     my $pre = $dbh->prepare("SELECT sent_id FROM sentences");
     my $sc = $dbh->prepare("
