@@ -61,8 +61,9 @@ $func->{'added_sentences'} = sub {
     my %user_cnt;
     my $del = $dbh->prepare("DELETE FROM user_stats WHERE param_id=6");
     $del->execute();
+    my $curr_max = $dbh->prepare("SELECT MAX(param_value) AS m FROM stats_values WHERE param_id=6");
     my $ins = $dbh->prepare("INSERT INTO user_stats VALUES(?, ?, '6', ?)");
-    my $pre = $dbh->prepare("SELECT sent_id FROM sentences");
+    my $pre = $dbh->prepare("SELECT sent_id FROM sentences WHERE sent_id>? ORDER BY sent_id");
     my $sc = $dbh->prepare("
         SELECT user_id
         FROM rev_sets
@@ -78,16 +79,24 @@ $func->{'added_sentences'} = sub {
             LIMIT 1
         )
     ");
-    $pre->execute();
-    while (my $r = $pre->fetchrow_hashref()) {
+    $curr_max->execute();
+    my $r = $curr_max->fetchrow_hashref();
+    if (!$r->{'m'}) {
+        $r->{'m'} = 0;
+    }
+    $pre->execute($r->{'m'});
+    my $new_max = 0;
+    while ($r = $pre->fetchrow_hashref()) {
         $sc->execute($r->{'sent_id'});
+        $new_max = $r->{'sent_id'};
+        print STDERR "sentence $new_max\n";
         my $u = $sc->fetchrow_hashref();
         ++$user_cnt{$u->{'user_id'}};
     }
     for my $k(keys %user_cnt) {
         $ins->execute($k, time(), $user_cnt{$k});
     }
-    return -1;
+    return $new_max;
 };
 
 # /SUBROUTINES
