@@ -59,8 +59,14 @@ $func->{'total_words'} = sub {
 };
 $func->{'added_sentences'} = sub {
     my %user_cnt;
+    #save the old data
+    my $sc = $dbh->prepare("SELECT user_id, param_value FROM user_stats WHERE param_id=6");
+    while (my $r = $sc->fetchrow_hashref()) {
+        $user_cnt{$r->{'user_id'}} = $r->{'param_value'};
+    }
     my $del = $dbh->prepare("DELETE FROM user_stats WHERE param_id=6");
     $del->execute();
+    #updating the data
     my $curr_max = $dbh->prepare("SELECT MAX(param_value) AS m FROM stats_values WHERE param_id=6");
     my $ins = $dbh->prepare("INSERT INTO user_stats VALUES(?, ?, '6', ?)");
     my $pre = $dbh->prepare("SELECT sent_id FROM sentences WHERE sent_id>? ORDER BY sent_id");
