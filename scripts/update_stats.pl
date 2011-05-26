@@ -61,6 +61,7 @@ $func->{'added_sentences'} = sub {
     my %user_cnt;
     #save the old data
     my $sc = $dbh->prepare("SELECT user_id, param_value FROM user_stats WHERE param_id=6");
+    $sc->execute();
     while (my $r = $sc->fetchrow_hashref()) {
         $user_cnt{$r->{'user_id'}} = $r->{'param_value'};
     }
