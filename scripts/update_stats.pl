@@ -57,6 +57,38 @@ $func->{'total_words'} = sub {
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };
+$func->{'added_sentences'} = sub {
+    my %user_cnt;
+    my $del = $dbh->prepare("DELETE FROM user_stats WHERE param_id=6");
+    $del->execute();
+    my $ins = $dbh->prepare("INSERT INTO user_stats VALUES(?, ?, '6', ?)");
+    my $pre = $dbh->prepare("SELECT sent_id FROM sentences");
+    my $sc = $dbh->prepare("
+        SELECT user_id
+        FROM rev_sets
+        WHERE set_id = (
+            SELECT set_id
+            FROM tf_revisions
+            WHERE tf_id IN (
+                SELECT tf_id
+                FROM text_forms
+                WHERE sent_id=?
+            )
+            ORDER BY rev_id
+            LIMIT 1
+        )
+    ");
+    $pre->execute();
+    while (my $r = $pre->fetchrow_hashref()) {
+        $sc->execute($r->{'sent_id'});
+        my $u = $sc->fetchrow_hashref();
+        ++$user_cnt{$u->{'user_id'}};
+    }
+    for my $k(keys %user_cnt) {
+        $ins->execute($k, time(), $user_cnt{$k});
+    }
+    return -1;
+};
 
 # /SUBROUTINES
 
@@ -64,7 +96,7 @@ my $value;
 while (my $ref = $scan->fetchrow_hashref()) {
     if (exists $func->{$ref->{'param_name'}}) {
         $value = $func->{$ref->{'param_name'}}->();
-        $insert->execute(time(), $ref->{'param_id'}, $value);
+        $insert->execute(time(), $ref->{'param_id'}, $value) unless $value == -1;
     }
 }
 

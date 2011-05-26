@@ -94,6 +94,14 @@ INSERT INTO `user_options` VALUES
     ('1', 'Показывать русские названия граммем', '1', '1', '1'),
     ('2', 'Язык/Language', '1=Русский|2=English', '1', '2');
 
+CREATE TABLE IF NOT EXISTS `user_stats` (
+    `user_id`     INT UNSIGNED NOT NULL,
+    `timestamp`   INT UNSIGNED NOT NULL,
+    `param_id`    SMALLINT UNSIGNED NOT NULL,
+    `param_value` INT UNSIGNED NOT NULL,
+    INDEX(`user_id`)
+);
+
 CREATE TABLE IF NOT EXISTS `tf_revisions` (
     `rev_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `set_id`   INT UNSIGNED NOT NULL,
@@ -233,7 +241,8 @@ INSERT INTO `stats_param` VALUES
     ('2', 'total_sentences', '1'),
     ('3', 'total_tokens', '1'),
     ('4', 'total_lemmata', '1'),
-    ('5', 'total_words', '1');
+    ('5', 'total_words', '1'),
+    ('6', 'added_sentences', '1');
 
 CREATE TABLE IF NOT EXISTS `stats_values` (
     `timestamp`   INT UNSIGNED NOT NULL,
