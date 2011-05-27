@@ -25,7 +25,7 @@
     {if $user_permission_adder}
     <form action='?act=rename' method='post' class='inline'>{t}Переименовать в{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
-        <input name='new_name' value='{$book.title|htmlspecialchars}'/>&nbsp;&nbsp;
+        <input name='new_name' value="{$book.title|htmlspecialchars}"/>&nbsp;&nbsp;
         <input type='submit' value='{t}Переименовать{/t}'/>
     </form>
     {t}ИЛИ{/t}

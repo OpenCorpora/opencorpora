@@ -7,8 +7,8 @@
     {else}
     <h2>{t}Просмотр морфологического словаря{/t}</h2>
     {/if}
-    <form action='?act=lemmata' method='post'>{t}Поиск леммы{/t}: <input name='search_lemma' size='25' maxlength='40' value='{$smarty.post.search_lemma|htmlspecialchars}'/> <input type='submit' value='{t}Искать{/t}'/></form>
-    <form action='?act=lemmata' method='post'>{t}Поиск формы{/t}: <input name='search_form' size='25' maxlength='40' value='{$smarty.post.search_form|htmlspecialchars}'/> <input type='submit' value='{t}Искать{/t}'/></form>
+    <form action='?act=lemmata' method='post'>{t}Поиск леммы{/t}: <input name='search_lemma' size='25' maxlength='40' value="{$smarty.post.search_lemma|htmlspecialchars}"/> <input type='submit' value='{t}Искать{/t}'/></form>
+    <form action='?act=lemmata' method='post'>{t}Поиск формы{/t}: <input name='search_form' size='25' maxlength='40' value="{$smarty.post.search_form|htmlspecialchars}"/> <input type='submit' value='{t}Искать{/t}'/></form>
     {if $smarty.post.search_lemma}
         {if $search.lemma.count > 0}
         {foreach item=lemma from=$search.lemma.found}
