@@ -249,8 +249,9 @@ function is_user_openid($user_id) {
 }
 function user_has_permission($perm) {
     return (
-        isset($_SESSION['user_permissions'][$perm]) &&
-        $_SESSION['user_permissions'][$perm] == 1
+        is_admin() ||
+        (isset($_SESSION['user_permissions'][$perm]) &&
+        $_SESSION['user_permissions'][$perm] == 1)
     );
 }
 function get_users_page() {
