@@ -1,9 +1,10 @@
 <?php
 function get_sentence($sent_id) {
-    $r = sql_fetch_array(sql_query("SELECT `check_status` FROM sentences WHERE sent_id=$sent_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query("SELECT `check_status`, source FROM sentences WHERE sent_id=$sent_id LIMIT 1"));
     $out = array(
         'id' => $sent_id,
-        'status' => $r['check_status']
+        'status' => $r['check_status'],
+        'source' => $r['source']
     );
     //looking for source name
     $r = sql_fetch_array(sql_query("
