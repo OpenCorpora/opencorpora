@@ -50,9 +50,9 @@
     </p>
     {strip}
     <div id="source_text"><b>{t}Весь текст{/t}:</b> {$sentence.fulltext}</div>
-    <p class='small' align='right'>Источник: <a href="{$sentence.url}">{$sentence.book_name}</a></p>
     <p class='small'><a href='#' class='hint' id="show_src">Показать исходный текст</a></p>
     <div class='small' style='display:none' id='source_orig'>{$sentence.source|htmlspecialchars}</div>
+    <p class='small' align='right'>Источник: <a href="{$sentence.url}">{$sentence.book_name}</a></p>
     <form method="post" action="?id={$sentence.id}&amp;act=save">
         <div id="main_scroller">
             <div>
