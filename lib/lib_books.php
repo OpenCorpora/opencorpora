@@ -265,13 +265,17 @@ function split_token($token_id, $num) {
 
     //dropping sentence status
     $r = sql_fetch_array(sql_query("SELECT sent_id FROM text_forms WHERE tf_id=$token_id LIMIT 1"));
+    $sent_id = $r['sent_id'];
 
-    if (!sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=".$r['sent_id']." LIMIT 1") ||
-        !sql_query("DELETE FROM sentence_check WHERE sent_id=".$r['sent_id'])) {
+    if (!sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$sent_id LIMIT 1") ||
+        !sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id")) {
         show_error();
         return;
     }
+    
+    $res = sql_query("SELECT book_id FROM paragraphs WHERE par_id = (SELECT par_id FROM sentences WHERE sent_id=$sent_id LIMIT 1)");
+    $r = sql_fetch_array($res);
 
-    header("Location:".$_SERVER['HTTP_REFERER']);
+    header("Location:books.php?book_id=".$r['book_id']."&full#sen$sent_id");
 }
 ?>
