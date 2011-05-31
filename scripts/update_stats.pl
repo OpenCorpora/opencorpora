@@ -92,7 +92,7 @@ $func->{'added_sentences'} = sub {
         $r->{'m'} = 0;
     }
     $pre->execute($r->{'m'});
-    my $new_max = 0;
+    my $new_max = $r->{'m'};
     while ($r = $pre->fetchrow_hashref()) {
         $sc->execute($r->{'sent_id'});
         $new_max = $r->{'sent_id'};
