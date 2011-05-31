@@ -19,6 +19,7 @@ if (sql_num_rows($res) > 0) {
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $_GET['url']);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_USERAGENT, 'OpenCorpora.org bot');
 $contents = curl_exec($ch);
 curl_close($ch);
 
