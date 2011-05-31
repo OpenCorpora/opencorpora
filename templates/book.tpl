@@ -115,7 +115,7 @@
             {foreach name=s item=sentence from=$paragraph}
                 {if isset($smarty.get.full)}
                     {strip}
-                    <tr><td></td><td valign='top'><a href="{$web_prefix}/sentence.php?id={$sentence.id}">{$sentence.id}</a>.</td><td>
+                    <tr><td></td><td valign='top'><a name="sen{$sentence.id}" href="{$web_prefix}/sentence.php?id={$sentence.id}">{$sentence.id}</a>.</td><td>
                         {if $user_permission_check_tokens}
                             <span><input type="checkbox" {if $sentence.checked}checked="checked"{/if} class="tok" id="s{$sentence.id}"/></span>&nbsp;
                         {/if}
