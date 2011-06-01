@@ -2,8 +2,9 @@
 {extends file='common.tpl'}
 {block name=content}
 <h1>Странно токенизированные места</h1>
+<p>Обновлено {$obj.timestamp|date_format:"%d.%m.%Y, %H:%M"}, однозначные решения в {$obj.coeff}% случаев.</p>
 <table border='1' cellspacing='0' cellpadding='3'>
-{foreach item=i from=$items}
+{foreach item=i from=$obj.items}
 <tr>
     <td>Предложение <a href='{$web_prefix}/sentence.php?id={$i.sent_id}'>{$i.sent_id}</a></td>
     <td>{$i.coeff}</td>

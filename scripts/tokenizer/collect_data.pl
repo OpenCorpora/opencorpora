@@ -23,6 +23,7 @@ my $drop2 = $dbh->prepare("DELETE FROM `tokenizer_strange`");
 my $insert = $dbh->prepare("INSERT INTO `tokenizer_coeff` VALUES(?,?)");
 my $ins2 = $dbh->prepare("INSERT INTO `tokenizer_strange` VALUES(?,?,?,?)");
 my $check = $dbh->prepare("SELECT lemma_id FROM form2lemma WHERE form_text=? LIMIT 1");
+my $stat = $dbh->prepare("INSERT INTO stats_values VALUES(?,'7',?)");
 
 my $str;
 my @tokens;
@@ -31,7 +32,7 @@ my %total;
 my %good;
 my $vector;
 my $pos;
-my %strange; # weight -> [vector, sign]
+my %strange;
 
 my $stat_sure, my $stat_total;
 
@@ -84,6 +85,7 @@ for my $k(sort {$a <=> $b} keys %total) {
     $insert->execute($k, $coef);
 }
 printf "Total %d different vectors; predictor is sure in %.3f%% cases\n", scalar(keys %total), $stat_sure/$stat_total * 100;
+$stat->execute(time(), int($stat_sure/$stat_total * 100000));
 
 #second pass
 $drop2->execute();
@@ -112,8 +114,6 @@ while(my $ref = $sent->fetchrow_hashref()) {
 
     for my $i(0..length($str)-1) {
         $vector = oct('0b'.join('', @{calc($str, $i)}));
-        #$total{$vector}++;
-        #$good{$vector}++ if exists $border{$i} ? 1 : 0;
         my $q = $vector.'#'.(exists $border{$i} ? 1 : 0);
         if (exists $strange{$q}) {
             #printf STDERR "strange: sentence %d, position %d, coef %.3f\n",

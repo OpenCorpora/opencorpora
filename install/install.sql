@@ -242,7 +242,8 @@ INSERT INTO `stats_param` VALUES
     ('3', 'total_tokens', '1'),
     ('4', 'total_lemmata', '1'),
     ('5', 'total_words', '1'),
-    ('6', 'added_sentences', '1');
+    ('6', 'added_sentences', '1'),
+    ('7', 'tokenizer_confidence', '1');
 
 CREATE TABLE IF NOT EXISTS `stats_values` (
     `timestamp`   INT UNSIGNED NOT NULL,
