@@ -10,6 +10,7 @@
             $(".tok_c").click(function(){
                 show_edit_token($(this));
             });
+            $('.download_url').one('click',download_url)
         })
     </script>
     {/if}
@@ -52,7 +53,7 @@
                     {if $tag.filename}
                     , <a class='small' href="{$web_prefix}/files/saved/{$tag.filename}.html">{t}сохранённая копия{/t}</a>
                     {elseif $user_permission_adder}
-                    , <a class='small' href="#" onclick="download_url($(this), '{$tag.body}'); return false">скачать</a>
+                    , <a class='small download_url' href="#" rel='{$tag.body}'>скачать</a>
                     {/if}
                 {else}
                     {$tag.full|htmlspecialchars}

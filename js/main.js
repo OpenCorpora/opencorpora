@@ -331,21 +331,21 @@ function show_edit_token($el) {
     $("#edit_tok").offset(offset).find("b").text($el.html());
     $("#edit_tok").find("input[name='tid']").val(parseInt($el.attr('id').substr(1)));
 }
-function download_url($el, url) {
-    $el.click(function(){return false;});
-    $el.removeAttr('onclick');
-    $el.html('скачивается...');
+function download_url(event) {
+    var $el = $(event.target).closest('a');
+    var url = $el.attr('rel');
+    $el.text('скачивается...');
     $.get('ajax/download_url.php', {'url':url},
         function(res) {
             var ok = $(res).find('response').attr('ok');
             if (ok == 1) {
                 var fname = $(res).find('response').attr('filename');
                  $el.attr('href', '../files/saved/'+fname+'.html');               
-                 $el.click(function(){});
                  $el.html('сохранённая копия');
             } else {
                  $el.html('ошибка при сохранении файла');
             }
         }
     )
+    event.preventDefault();
 }
