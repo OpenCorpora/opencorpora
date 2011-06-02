@@ -76,7 +76,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
 my $coef;
 for my $k(sort {$a <=> $b} keys %total) {
     $coef = $good{$k}/$total{$k};
-    printf("%d\t%.3f\t%d\t%024s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
+    printf("%d\t%.3f\t%d\t%025s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
 
     #how strange it is
     if (0 < $coef && $coef < 1) {
@@ -117,6 +117,9 @@ while(my $ref = $sent->fetchrow_hashref()) {
 
     for my $i(0..length($str)-1) {
         $vector = oct('0b'.join('', @{calc($str, $i)}));
+        #if ($vector == 294914) {
+        #    printf "sent %d, i=%d, border %d\n", $ref->{'sent_id'}, $i, exists $border{$i};
+        #}
         my $q = $vector.'#'.(exists $border{$i} ? 1 : 0);
         if (exists $strange{$q}) {
             #printf STDERR "strange: sentence %d, position %d, coef %.3f\n",
@@ -194,6 +197,7 @@ sub calc {
     push @out, is_single_quote($current);
     push @out, is_single_quote($next);
     push @out, is_suffix($chain_right);
+    push @out, is_same_pm($current, $next);
 
     return \@out;
 }
@@ -277,4 +281,7 @@ sub is_suffix {
         return 1;
     }
     return 0;
+}
+sub is_same_pm {
+    return $_[0] eq $_[1] ? 1 : 0;
 }

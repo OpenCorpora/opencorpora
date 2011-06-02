@@ -43,19 +43,19 @@ function tokenize_ml($txt) {
                 } else {
                     break;
                 }
-                if (substr($chain_left, -1) == '-') {
-                    $chain_left = substr($chain_left, 0, -1);
+                if (mb_substr($chain_left, -1) == '-') {
+                    $chain_left = mb_substr($chain_left, 0, -1);
                 }
             }
-            for ($j = $i+1; $j < strlen($txt, 'UTF-8'); ++$j) {
+            for ($j = $i+1; $j < mb_strlen($txt, 'UTF-8'); ++$j) {
                 $t = mb_substr($txt, $j, 1, 'UTF-8');
                 if (is_cyr($t) || is_hyphen($t) || $t === "'") {
                     $chain_right .= $t;
                 } else {
                     break;
                 }
-                if (substr($chain_right, 0, 1) == '-') {
-                    $chain_right = substr($chain_right, 1);
+                if (mb_substr($chain_right, 0, 1) == '-') {
+                    $chain_right = mb_substr($chain_right, 1);
                 }
             }
             $chain = $chain_left.'-'.$chain_right;
@@ -85,7 +85,8 @@ function tokenize_ml($txt) {
             is_bracket2($nextchar),
             is_single_quote($char),
             is_single_quote($nextchar),
-            is_suffix($chain_right)
+            is_suffix($chain_right),
+            is_same_pm($char, $nextchar)
         );
         $vector = implode('', $vector);
 
@@ -122,6 +123,9 @@ function is_dot($char) {
 function is_single_quote($char) {
     return (int)($char == "'");
 }
+function is_same_pm($char1, $char2) {
+    return (int)($char1===$char2);
+}
 function is_cyr($char) {
     $re_cyr = '/[А-Яа-яЁё]/u';
     return preg_match($re_cyr, $char);
@@ -147,7 +151,7 @@ function is_bracket2($char) {
 }
 function is_dict_chain($chain) {
     if (!$chain) return 0;
-    return (form_exists(mb_strtolower($chain, 'UTF-8')) > 0);
+    return (int)(form_exists(mb_strtolower($chain, 'UTF-8')) > 0);
 }
 function is_suffix($s) {
     return (int)($s == 'то');
