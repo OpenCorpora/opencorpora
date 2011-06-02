@@ -4,6 +4,9 @@ use utf8;
 use DBI;
 use Encode;
 
+binmode(STDOUT, ':utf8');
+binmode(STDERR, ':utf8');
+
 #reading config
 my %mysql;
 open F, $ARGV[0] or die "Failed to open $ARGV[0]";
@@ -73,11 +76,11 @@ while(my $ref = $sent->fetchrow_hashref()) {
 my $coef;
 for my $k(sort {$a <=> $b} keys %total) {
     $coef = $good{$k}/$total{$k};
-    printf("%d\t%.3f\t%d\t%017s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
+    printf("%d\t%.3f\t%d\t%024s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
 
     #how strange it is
     if (0 < $coef && $coef < 1) {
-        $strange{$k.'#'.($coef > 0.5 ? '0' : '1')} = abs(1-$coef);
+        $strange{$k.'#'.($coef > 0.5 ? '0' : '1')} = $coef > 0.5 ? $coef : 1-$coef;
     } else {
         $stat_sure += $total{$k};
     }
@@ -138,26 +141,32 @@ sub calc {
     my $next = substr($str, $i+1, 1);
     my $nnext = substr($str, $i+2, 1);
 
-    # $chain is the current word which we will perhaps need to check in the dictionary
+    # $chain is the current hyphenated word which we will perhaps need to check in the dictionary
     my $chain = '';
+    my $chain_left = '';
+    my $chain_right = '';
     if (is_hyphen($next) || is_hyphen($current)) {
         my $t;
         for (my $j = $i; $j > 0; --$j) {
             $t = substr($str, $j, 1);
             if (is_cyr($t) || is_hyphen($t) || $t eq "'") {
-                $chain = $t.$chain;
+                $chain_left = $t.$chain_left;
             } else {
                 last;
             }
+            $chain_left =~ s/\-$//;
         }
         for (my $j = $i+1; $j < length($str); ++$j) {
             $t = substr($str, $j, 1);
             if (is_cyr($t) || is_hyphen($t) || $t eq "'") {
-                $chain .= $t;
+                $chain_right .= $t;
             } else {
                 last;
             }
+            $chain_right =~ s/^\-//;
         }
+        $chain = $chain_left.'-'.$chain_right;
+        #print "left <$chain_left>, right <$chain_right>, full <$chain>\n";
     }
 
     my @out = ();
@@ -178,12 +187,19 @@ sub calc {
     push @out, is_dict_chain($chain);
     push @out, is_dot($current);
     push @out, is_dot($next);
+    push @out, is_bracket1($current);
+    push @out, is_bracket1($next);
+    push @out, is_bracket2($current);
+    push @out, is_bracket2($next);
+    push @out, is_single_quote($current);
+    push @out, is_single_quote($next);
+    push @out, is_suffix($chain_right);
 
     return \@out;
 }
 sub is_pmark {
     my $char = shift;
-    if ($char =~ /^[,\?!"\(\)\:;\[\]\/\xAB\xBB]$/) {
+    if ($char =~ /^[,\?!"\:;\/\xAB\xBB]$/) {
         return 1;
     }
     return 0;
@@ -217,6 +233,10 @@ sub is_dot {
     my $char = shift;
     return $char eq '.' ? 1 : 0;
 }
+sub is_single_quote {
+    my $char = shift;
+    return $char eq "'" ? 1 : 0;
+}
 sub is_number {
     my $char = shift;
     if ($char =~ /^\d$/) {
@@ -224,15 +244,36 @@ sub is_number {
     }
     return 0;
 }
+sub is_bracket1 {
+    my $char = shift;
+    if ($char =~ /^[\(\[\{\<]$/) {
+        return 1;
+    }
+    return 0;
+}
+sub is_bracket2 {
+    my $char = shift;
+    if ($char =~ /^[\)\]\}\>]$/) {
+        return 1;
+    }
+    return 0;
+}
 sub is_dict_chain {
     my $chain = shift;
 
-    if (!$chain) {
+    if (!$chain || $chain =~ /^\-/) {
         return 0;
     }
 
     $check->execute(lc($chain));
     if ($check->fetchrow_hashref()) {
+        return 1;
+    }
+    return 0;
+}
+sub is_suffix {
+    my $s = shift;
+    if ($s eq 'то') {
         return 1;
     }
     return 0;
