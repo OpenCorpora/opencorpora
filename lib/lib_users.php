@@ -255,7 +255,7 @@ function user_has_permission($perm) {
     );
 }
 function get_users_page() {
-    $res = sql_query("SELECT p.*, u.user_id, user_name, user_reg FROM users u LEFT JOIN user_permissions p ON (u.user_id = p.user_id)");
+    $res = sql_query("SELECT p.*, u.user_id, user_name, user_reg, user_email FROM users u LEFT JOIN user_permissions p ON (u.user_id = p.user_id)");
     $out = array();
     while ($r = sql_fetch_assoc($res)) {
         $out[] = $r;
