@@ -117,9 +117,6 @@ while(my $ref = $sent->fetchrow_hashref()) {
 
     for my $i(0..length($str)-1) {
         $vector = oct('0b'.join('', @{calc($str, $i)}));
-        #if ($vector == 294914) {
-        #    printf "sent %d, i=%d, border %d\n", $ref->{'sent_id'}, $i, exists $border{$i};
-        #}
         my $q = $vector.'#'.(exists $border{$i} ? 1 : 0);
         if (exists $strange{$q}) {
             #printf STDERR "strange: sentence %d, position %d, coef %.3f\n",
@@ -150,7 +147,7 @@ sub calc {
     my $chain_right = '';
     if (is_hyphen($next) || is_hyphen($current)) {
         my $t;
-        for (my $j = $i; $j > 0; --$j) {
+        for (my $j = $i; $j >= 0; --$j) {
             $t = substr($str, $j, 1);
             if (is_cyr($t) || is_hyphen($t) || $t eq "'") {
                 $chain_left = $t.$chain_left;

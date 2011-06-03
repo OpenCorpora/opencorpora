@@ -36,7 +36,7 @@ function tokenize_ml($txt) {
 
         $chain = $chain_left = $chain_right = '';
         if (is_hyphen($nextchar) || is_hyphen($char)) {
-            for ($j = $i; $j > 0; --$j) {
+            for ($j = $i; $j >= 0; --$j) {
                 $t = mb_substr($txt, $j, 1, 'UTF-8');
                 if (is_cyr($t) || is_hyphen($t) || $t === "'") {
                     $chain_left = $t.$chain_left;
