@@ -318,7 +318,7 @@ function save_check_tokens($el) {
             if (ok != 1) {
                 alert('Check failed');
             } else {
-                $el.closest('li').fadeTo("normal", 0.4);
+                $el.closest('tr').fadeTo("normal", 0.4);
             }
         }
     )
