@@ -242,7 +242,8 @@ INSERT INTO `stats_param` VALUES
     ('3', 'total_tokens', '1'),
     ('4', 'total_lemmata', '1'),
     ('5', 'total_words', '1'),
-    ('6', 'added_sentences', '1');
+    ('6', 'added_sentences', '1'),
+    ('7', 'tokenizer_confidence', '1');
 
 CREATE TABLE IF NOT EXISTS `stats_values` (
     `timestamp`   INT UNSIGNED NOT NULL,
@@ -253,4 +254,11 @@ CREATE TABLE IF NOT EXISTS `stats_values` (
 CREATE TABLE IF NOT EXISTS `tokenizer_coeff` (
     `vector` INT UNSIGNED NOT NULL,
     `coeff`  FLOAT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `tokenizer_strange` (
+    `sent_id` INT UNSIGNED NOT NULL,
+    `pos`     SMALLINT UNSIGNED NOT NULL,
+    `border`  TINYINT(1) UNSIGNED NOT NULL,
+    `coeff`   FLOAT NOT NULL
 );

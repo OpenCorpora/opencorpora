@@ -14,6 +14,12 @@
     <td><a href='{$web_prefix}/doc/articles/2011_Dialog_eng.tex'>tex</a> (англ.)</td>
 </tr>
 <tr>
+    <td>2011</td>
+    <td>Как и зачем мы делаем Открытый корпус<br/>(презентация для Семинара по автоматической обработке текста)</td>
+    <td><a href='{$web_prefix}/doc/presentations/2011_NLPSeminar.pdf'>pdf</a></td>
+    <td><a href='{$web_prefix}/doc/presentations/2011_NLPSeminar.tex'>tex</a></td>
+</tr>
+<tr>
     <td>2010</td>
     <td>Открытый корпус: принципы работы и перспективы<br/>(доклад на конференции &laquo;Интернет и современное общество&raquo;)</td>
     <td><a href='{$web_prefix}/doc/articles/2010_IMS.pdf'>pdf</a></td>

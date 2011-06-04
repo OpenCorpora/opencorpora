@@ -47,3 +47,11 @@
     <b>{t}Ревизия{/t}</b> {$svn_revision}
 </div>
 {/if}
+<br/><br/><div class='small'>
+{t}Подписаться на рассылку{/t}<br/>
+(введите свой email):
+<form action="http://groups.google.com/group/opencorpora/boxsubscribe">
+<input name='email'/><br/>
+<input type='submit' value='Подписаться'/>
+</form>
+</div>

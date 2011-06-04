@@ -14,7 +14,7 @@
             })
     </script>
     <form action="?act=add" method="post" id="select_book_form">
-    <input type='hidden' name='source_text' value='{$check.full|htmlspecialchars}'/>
+    <input type='hidden' name='source_text' value="{$check.full|htmlspecialchars}"/>
     <ol type="I">
     {foreach item=paragraph from=$check.paragraphs name=par}
         <li><ol>

@@ -318,7 +318,7 @@ function save_check_tokens($el) {
             if (ok != 1) {
                 alert('Check failed');
             } else {
-                $el.closest('li').fadeTo("normal", 0.4);
+                $el.closest('tr').fadeTo("normal", 0.4);
             }
         }
     )
@@ -354,21 +354,21 @@ function check_merge($chbox) {
         $('body').removeData("merge"+tid);
     }
 }
-function download_url($el, url) {
-    $el.click(function(){return false;});
-    $el.removeAttr('onclick');
-    $el.html('скачивается...');
+function download_url(event) {
+    var $el = $(event.target).closest('a');
+    var url = $el.attr('rel');
+    $el.text('скачивается...');
     $.get('ajax/download_url.php', {'url':url},
         function(res) {
             var ok = $(res).find('response').attr('ok');
             if (ok == 1) {
                 var fname = $(res).find('response').attr('filename');
                  $el.attr('href', '../files/saved/'+fname+'.html');               
-                 $el.click(function(){});
                  $el.html('сохранённая копия');
             } else {
                  $el.html('ошибка при сохранении файла');
             }
         }
     )
+    event.preventDefault();
 }

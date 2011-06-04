@@ -10,6 +10,7 @@
             $(".tok_c").click(function(){
                 show_edit_token($(this));
             });
+            $('.download_url').one('click',download_url)
         })
     </script>
     {/if}
@@ -25,7 +26,7 @@
     {if $user_permission_adder}
     <form action='?act=rename' method='post' class='inline'>{t}Переименовать в{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
-        <input name='new_name' value='{$book.title|htmlspecialchars}'/>&nbsp;&nbsp;
+        <input name='new_name' value="{$book.title|htmlspecialchars}"/>&nbsp;&nbsp;
         <input type='submit' value='{t}Переименовать{/t}'/>
     </form>
     {t}ИЛИ{/t}
@@ -59,7 +60,7 @@
                     {if $tag.filename}
                     , <a class='small' href="{$web_prefix}/files/saved/{$tag.filename}.html">{t}сохранённая копия{/t}</a>
                     {elseif $user_permission_adder}
-                    , <a class='small' href="#" onclick="download_url($(this), '{$tag.body}'); return false">скачать</a>
+                    , <a class='small download_url' href="#" rel='{$tag.body}'>скачать</a>
                     {/if}
                 {else}
                     {$tag.full|htmlspecialchars}
@@ -122,7 +123,7 @@
             {foreach name=s item=sentence from=$paragraph}
                 {if isset($smarty.get.full)}
                     {strip}
-                    <tr><td></td><td valign='top'><a href="{$web_prefix}/sentence.php?id={$sentence.id}">{$sentence.id}</a>.</td><td>
+                    <tr><td></td><td valign='top'><a name="sen{$sentence.id}" href="{$web_prefix}/sentence.php?id={$sentence.id}">{$sentence.id}</a>.</td><td>
                         {if $user_permission_check_tokens}
                             <span><input type="checkbox" {if $sentence.checked}checked="checked"{/if} class="tok" id="s{$sentence.id}"/></span>&nbsp;
                         {/if}

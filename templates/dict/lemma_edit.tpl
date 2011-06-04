@@ -62,8 +62,8 @@
         <table cellpadding="3">
         {foreach item=form from=$editor.forms}
         <tr>
-            <td><input name='form_text[]' {if !$user_permission_dict}readonly="readonly"{/if} value='{$form.text|htmlspecialchars}'/>
-            <td><input name='form_gram[]' {if !$user_permission_dict}readonly="readonly"{/if} size='40' value='{$form.grms|htmlspecialchars}'/>
+            <td><input name='form_text[]' {if !$user_permission_dict}readonly="readonly"{/if} value="{$form.text|htmlspecialchars}"/>
+            <td><input name='form_gram[]' {if !$user_permission_dict}readonly="readonly"{/if} size='40' value="{$form.grms|htmlspecialchars}"/>
         </tr>
         {/foreach}
         {if $user_permission_dict}

@@ -249,12 +249,13 @@ function is_user_openid($user_id) {
 }
 function user_has_permission($perm) {
     return (
-        isset($_SESSION['user_permissions'][$perm]) &&
-        $_SESSION['user_permissions'][$perm] == 1
+        is_admin() ||
+        (isset($_SESSION['user_permissions'][$perm]) &&
+        $_SESSION['user_permissions'][$perm] == 1)
     );
 }
 function get_users_page() {
-    $res = sql_query("SELECT p.*, u.user_id, user_name, user_reg FROM users u LEFT JOIN user_permissions p ON (u.user_id = p.user_id)");
+    $res = sql_query("SELECT p.*, u.user_id, user_name, user_reg, user_email FROM users u LEFT JOIN user_permissions p ON (u.user_id = p.user_id)");
     $out = array();
     while ($r = sql_fetch_assoc($res)) {
         $out[] = $r;
