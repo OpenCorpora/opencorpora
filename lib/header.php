@@ -59,6 +59,16 @@ if (!sql_query("USE ".$config['mysql_dbname'], 0, 1)) {
 }
 sql_query("SET names utf8", 0, 1);
 
+//cookie check
+if (!is_logged() && isset($_COOKIE['auth'])) {
+    if ($user_id = check_auth_cookie()) {
+        if (user_login('', '', $user_id, $_COOKIE['auth'])) {
+            header("Location:".$_SERVER['SCRIPT_NAME']);
+            return;
+        }
+    }
+}
+
 //debug mode
 if (is_admin() && isset($_GET['debug']) && $debug = $_GET['debug']) {
     if ($debug == 'on' && !isset($_SESSION['debug_mode'])) {

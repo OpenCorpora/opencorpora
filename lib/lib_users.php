@@ -34,13 +34,34 @@ function is_valid_email($string) {
     return preg_match('/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i', $string);
     //we took the regexp from regular-expressions.info
 }
-function user_login($login, $passwd) {
+function check_auth_cookie() {
+    list($user_id, $token) = explode('@', $_COOKIE['auth']);
+    $res = sql_query("SELECT user_id FROM user_tokens WHERE user_id=".mysql_real_escape_string($user_id)." AND token=".$token." LIMIT 1");
+    if (sql_num_rows($res) > 0) {
+        $r = sql_fetch_array($res);
+        return $r['user_id'];
+    }
+}
+function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
     $login = mysql_real_escape_string($login);
-    if ($user_id = user_check_password($login, $passwd)) {
+    if ($user_id=$auth_user_id || $user_id = user_check_password($login, $passwd)) {
+        //deleting the old token
+        if ($auth_token) {
+            sql_query("DELETE from user_tokens WHERE user_id=$user_id AND token='".mysql_real_escape_string(substr(strstr($auth_token, '@'), 1))."'");
+            $r = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id=$user_id LIMIT 1"));
+            $login=$r['user_name'];
+        }
+        //adding a new token
+        $token = mt_rand();
+        if (!sql_query("INSERT INTO user_tokens VALUES('$user_id','$token', '".time()."')"))
+            return false;
+        setcookie('auth', $user_id.'@'.$token, time()+60*60*24*7, '/');
+        //setting the session
         $_SESSION['user_id'] = $user_id;
         $_SESSION['user_name'] = $login;
         $_SESSION['options'] = get_user_options($user_id);
         $_SESSION['user_permissions'] = get_user_permissions($user_id);
+        $_SESSION['token'] = $token; //we may need to delete it on logout
         return true;
     }
     return false;
@@ -83,11 +104,14 @@ function user_login_openid_agree($agree) {
     }
 }
 function user_logout() {
+    setcookie('auth', '', time()-1);
+    sql_query("DELETE FROM user_tokens WHERE user_id=".$_SESSION['user_id']." AND token='".$_SESSION['token']."'");
     unset($_SESSION['user_id']);
     unset($_SESSION['user_name']);
     unset($_SESSION['debug_mode']);
     unset($_SESSION['options']);
     unset($_SESSION['user_permissions']);
+    unset($_SESSION['token']);
 }
 function user_register($post) {
     $post['login'] = trim($post['login']);

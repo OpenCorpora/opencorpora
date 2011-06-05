@@ -102,6 +102,12 @@ CREATE TABLE IF NOT EXISTS `user_stats` (
     INDEX(`user_id`)
 );
 
+CREATE TABLE IF NOT EXISTS `user_tokens` (
+    `user_id`   INT UNSIGNED NOT NULL,
+    `token`     INT UNSIGNED NOT NULL,
+    `timestamp` INT UNSIGNED NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS `tf_revisions` (
     `rev_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `set_id`   INT UNSIGNED NOT NULL,
