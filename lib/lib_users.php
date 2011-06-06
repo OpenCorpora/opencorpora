@@ -44,7 +44,7 @@ function check_auth_cookie() {
 }
 function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
     $login = mysql_real_escape_string($login);
-    if ($user_id=$auth_user_id || $user_id = user_check_password($login, $passwd)) {
+    if (($user_id=$auth_user_id) || $user_id = user_check_password($login, $passwd)) {
         //deleting the old token
         if ($auth_token) {
             sql_query("DELETE from user_tokens WHERE user_id=$user_id AND token='".mysql_real_escape_string(substr(strstr($auth_token, '@'), 1))."'");
