@@ -93,6 +93,9 @@ div#rightcol div {
 .bggreen {
     background-color: #9F6;
 }
+.bgpink {
+    background-color: #f99;
+}
 a.toggle {
     border-bottom: 1px black dashed;
     text-decoration: none;

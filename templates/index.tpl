@@ -14,8 +14,11 @@
     <br/>
 {/if}
 {if $user_permission_adder}<h2>Контроль качества</h2>{/if}
-{if $user_permission_adder}<a href='{$web_prefix}/qa.php?act=tokenizer'>Странная токенизация</a><br/>{/if}
-{if $user_permission_adder}<a href='{$web_prefix}/qa.php?act=empty_books'>Пустые тексты</a><br/>{/if}
+{if $user_permission_adder}
+<a href='{$web_prefix}/qa.php?act=tokenizer'>Странная токенизация</a><br/>
+<a href='{$web_prefix}/qa.php?act=empty_books'>Пустые тексты</a><br/>
+<a href='{$web_prefix}/qa.php?act=dl_urls'>Сохранённые копии источников</a><br/>
+{/if}
 {if !$is_admin}
 <p>{t}Здравствуйте!{/t}</p>
 <p>{t}Это сайт проекта &laquo;Открытый корпус&raquo; (OpenCorpora). Наша цель &ndash; создать морфологически, синтаксически и семантически размеченный корпус текстов на русском языке, в полном объёме доступный для исследователей и редактируемый пользователями.{/t}</p>

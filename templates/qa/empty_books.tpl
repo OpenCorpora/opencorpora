@@ -11,5 +11,4 @@
 <p>Список пуст.</p>
 {/foreach}
 </ol>
-</table>
 {/block}

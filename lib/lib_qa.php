@@ -30,4 +30,27 @@ function get_empty_books() {
     }
     return $out;
 }
+function get_downloaded_urls() {
+    $res = sql_query("
+        SELECT b.book_id, b.book_name, SUBSTR(t.tag_name, 5) url, u.filename
+        FROM book_tags t
+        LEFT JOIN books b
+        ON (t.book_id = b.book_id)
+        LEFT JOIN downloaded_urls u
+        ON (SUBSTR(t.tag_name, 5) = u.url)
+        WHERE t.tag_name LIKE 'url:%'
+        ORDER BY b.book_id DESC
+    ");
+    $out = array();
+    while($r = sql_fetch_array($res)) {
+        $out[] = array(
+            'book_id' => $r['book_id'],
+            'book_name' => $r['book_name'],
+            'url' => $r['url'],
+            'filename' => $r['filename'],
+            'exists' => file_exists('files/saved/'.$r['filename'].'.html') ? 1 : 0
+        );
+    }
+    return $out;
+}
 ?>

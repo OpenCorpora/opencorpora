@@ -23,6 +23,14 @@ switch($action) {
             show_error($config['msg_notadmin']);
         }
         break;
+    case 'dl_urls':
+        if (user_has_permission('perm_adder')) {
+            $smarty->assign('urls', get_downloaded_urls());
+            $smarty->display('qa/dl_urls.tpl');
+        } else {
+            show_error($config['msg_notadmin']);
+        }
+        break;
     default:
         header("Location:index.php");
 }
