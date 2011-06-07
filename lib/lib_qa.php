@@ -17,4 +17,17 @@ function get_page_tok_strange() {
     }
     return $out;
 }
+function get_empty_books() {
+    $res = sql_query("
+        SELECT book_id, book_name
+        FROM books
+        WHERE book_id NOT IN (SELECT DISTINCT book_id FROM paragraphs)
+        AND book_id NOT IN (SELECT DISTINCT parent_id FROM books)
+    ");
+    $out = array();
+    while ($r = sql_fetch_array($res)) {
+        $out[] = array('id' => $r['book_id'], 'name' => $r['book_name']);
+    }
+    return $out;
+}
 ?>
