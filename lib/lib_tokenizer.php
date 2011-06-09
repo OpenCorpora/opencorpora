@@ -213,11 +213,11 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
         $sent_num = 1;
         $sents = split2sentences($par);
         foreach($sents as $sent) {
+            if (!preg_match('/\S/', $sent)) continue;
             //adding a sentence
             if (!sql_query("INSERT INTO `sentences` VALUES(NULL, '$par_id', '".($sent_num++)."', '".mysql_real_escape_string(trim($sent))."', '0')")) return 0;
             $sent_id = sql_insert_id();
             $token_num = 1;
-            //strip excess whitespace
             $tokens = explode('^^', $sentences[$sent_count++]);
             foreach ($tokens as $token) {
                 if ($token == '' || $token == ' ') continue;
