@@ -53,7 +53,7 @@ $func->{'total_lemmata'} = sub {
     return $sc->fetchrow_hashref()->{'cnt'};
 };
 $func->{'total_words'} = sub {
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE tf_text REGEXP '[А-Яа-я]'");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE tf_text REGEXP '[А-Яа-яЁё]'");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };
