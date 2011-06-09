@@ -14,7 +14,7 @@
         })
     </script>
     {/if}
-    <h2>{$book.title}</h2>
+    <h2>{$book.title} (id={$book.id})</h2>
     {if isset($book.parents)}
     <p>
     {foreach item=prn from=$book.parents}
@@ -72,6 +72,7 @@
         <input type='submit' value='{t}Добавить{/t}'/>
     </form>
     {/if}
+    {if count($book.paragraphs) == 0}
     {* Sub-books list *}
     <h3>{t}Разделы{/t}</h3>
     {if $user_permission_adder}
@@ -85,6 +86,7 @@
         </ul>
     {else}
         <p>{t}Разделов нет.{/t}</p>
+    {/if}
     {/if}
     {* Sentence list *}
     {if count($book.paragraphs) > 0}
