@@ -76,7 +76,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
 my $coef;
 for my $k(sort {$a <=> $b} keys %total) {
     $coef = $good{$k}/$total{$k};
-    printf("%d\t%.3f\t%d\t%025s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
+    printf("%d\t%.3f\t%d\t%027s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
 
     #how strange it is
     if (0 < $coef && $coef < 1) {
@@ -195,12 +195,14 @@ sub calc {
     push @out, is_single_quote($next);
     push @out, is_suffix($chain_right);
     push @out, is_same_pm($current, $next);
+    push @out, is_slash($current);
+    push @out, is_slash($next);
 
     return \@out;
 }
 sub is_pmark {
     my $char = shift;
-    if ($char =~ /^[,\?!"\:;\/\xAB\xBB]$/) {
+    if ($char =~ /^[,\?!"\:;\xAB\xBB]$/) {
         return 1;
     }
     return 0;
@@ -237,6 +239,10 @@ sub is_dot {
 sub is_single_quote {
     my $char = shift;
     return $char eq "'" ? 1 : 0;
+}
+sub is_slash {
+    my $char = shift;
+    return $char eq '/' ? 1 : 0;
 }
 sub is_number {
     my $char = shift;

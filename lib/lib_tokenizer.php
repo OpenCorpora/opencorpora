@@ -86,7 +86,9 @@ function tokenize_ml($txt) {
             is_single_quote($char),
             is_single_quote($nextchar),
             is_suffix($chain_right),
-            is_same_pm($char, $nextchar)
+            is_same_pm($char, $nextchar),
+            is_slash($char),
+            is_slash($nextchar)
         );
         $vector = implode('', $vector);
 
@@ -117,6 +119,9 @@ function is_space($char) {
 function is_hyphen($char) {
     return (int)($char == '-');
 }
+function is_slash($char) {
+    return (int)($char == '/');
+}
 function is_dot($char) {
     return (int)($char == '.');
 }
@@ -138,7 +143,7 @@ function is_number($char) {
     return (int)is_numeric($char);
 }
 function is_pmark($char) {
-    $re_punctuation = '/[,!\?;:\/"\xAB\xBB]/u';
+    $re_punctuation = '/[,!\?;:"\xAB\xBB]/u';
     return preg_match($re_punctuation, $char);
 }
 function is_bracket1($char) {
