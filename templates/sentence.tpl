@@ -28,8 +28,37 @@
                 $(this).hide();
                 $("#source_orig").show();
             });
-            
+
+            function show_comments(event, need_scroll) {
+                $("#a_comments").removeAttr('href').removeClass();
+                $("#a_parse").attr('href', '#').addClass('hint');
+                $(".oc_tabs").hide();
+                $("#comments").show();
+                if ($(".comment_main").length == 0) {
+                    load_sentence_comments({$sentence.id}, {$is_logged}, need_scroll);
+                }
+                if (!need_scroll)
+                    location.hash = '#comments';
+                if (event)
+                    event.preventDefault();
+            }
+
+            $("#a_comments").click(show_comments);
+
+            $("#a_parse").click(function(event){
+                $(this).removeAttr('href').removeClass();
+                $("#a_comments").attr('href', '#').addClass('hint');
+                $(".oc_tabs").hide();
+                $("#form_annot").show();
+                location.hash = '#';
+                event.preventDefault();
             });
+
+            if (location.hash.substring(1, 5) == 'comm') {
+                show_comments(null, (location.hash.substring(5,6) == '_'));
+            }
+            
+        });
         var unload_msg = {t}"Вы уверены, что хотите уйти, не сохранив предложение?"{/t};
         var root = window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
         if(root) {
@@ -53,7 +82,8 @@
     <p class='small'><a href='#' class='hint' id="show_src">Показать исходный текст</a></p>
     <div class='small' style='display:none' id='source_orig'>{$sentence.source|htmlspecialchars}</div>
     <p class='small' align='right'>Источник: <a href="{$sentence.url}">{$sentence.book_name}</a></p>
-    <form method="post" action="?id={$sentence.id}&amp;act=save">
+    <p align="center"><a class="hint" id="a_parse">Разбор</a> &nbsp; <a href="#" class="hint" id="a_comments">Комментарии</a></p>
+    <form method="post" action="?id={$sentence.id}&amp;act=save" class='oc_tabs' id="form_annot">
         <div id="main_scroller">
             <div>
                 {if $user_permission_disamb == 1}
@@ -103,4 +133,10 @@
         </tr></table></div>
     </form>
     {/strip}
+    <div id="comments">
+    {if $is_logged}
+    <a href="#" class="hint" onclick="$('#comment_form').insertAfter($(this)).show(); return false">Добавить комментарий:</a><br/>
+    <form id="comment_form" class="hidden-block"><textarea cols="30" rows="3"></textarea><br/><button type="button" onclick="post_sentence_comment($(this), {$sentence.id}, '{$smarty.session.user_name}')">Прокомментировать</button></form>
+    {/if}
+    </div>
 {/block}

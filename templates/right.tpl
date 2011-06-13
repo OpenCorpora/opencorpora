@@ -37,7 +37,8 @@
 <div>
     <b>{t}Свежие правки{/t}</b><br/>
     <a href='{$web_prefix}/history.php'>{t}В разметке{/t}</a><br/>
-    <a href='{$web_prefix}/dict_history.php'>{t}В словаре{/t}</a>
+    <a href='{$web_prefix}/dict_history.php'>{t}В словаре{/t}</a><br/>
+    <a href='{$web_prefix}/comments.php'>{t}Свежие комментарии{/t}</a>
 </div>
 <div>
 <b><a href="{$web_prefix}/?page=downloads">Downloads</a></b>
