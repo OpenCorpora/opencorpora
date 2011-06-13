@@ -8,7 +8,7 @@ function get_books_list() {
     }
     return $out;
 }
-function get_book_page($book_id, $ext = false, $full = false) {
+function get_book_page($book_id, $full = false) {
     $r = sql_fetch_array(sql_query("SELECT * FROM `books` WHERE `book_id`=$book_id LIMIT 1"));
     $out = array (
         'id'     => $book_id,
@@ -61,9 +61,15 @@ function get_book_page($book_id, $ext = false, $full = false) {
             }
             $out['paragraphs'][$r['ppos']][] = array('id' => $r['sent_id'], 'pos' => $r['spos'], 'tokens' => $tokens, 'checked' => $r['status']);
         }
-    } elseif($ext) {
+    } else {
         $res = sql_query("SELECT p.`pos` ppos, s.sent_id, s.`pos` spos FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = $book_id ORDER BY p.`pos`, s.`pos`");
         while ($r = sql_fetch_array($res)) {
+            $r1 = sql_fetch_array(sql_query("SELECT source, SUBSTRING_INDEX(source, ' ', 6) AS `cnt` FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
+            if ($r1['source'] === $r1['cnt']) {
+                $out['paragraphs'][$r['ppos']][] = array('pos' => $r['spos'], 'id' => $r['sent_id'], 'snippet' => $r1['source']);
+                continue;
+            }
+
             $snippet = '';
 
             $r1 = sql_fetch_array(sql_query("SELECT SUBSTRING_INDEX(source, ' ', 3) AS `start` FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
@@ -76,20 +82,19 @@ function get_book_page($book_id, $ext = false, $full = false) {
 
             $out['paragraphs'][$r['ppos']][] = array('pos' => $r['spos'], 'id' => $r['sent_id'], 'snippet' => $snippet);
         }
-    } else {
-        $res = sql_query("SELECT p.`pos`, s.sent_id FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = $book_id ORDER BY p.`pos`, s.`pos`");
-        while ($r = sql_fetch_array($res)) {
-            $out['paragraphs'][$r['pos']][] = array('id' => $r['sent_id']);
-        }
     }
     return $out;
 }
-function books_add($name, $parent_id=0) {
+function books_add($name, $parent_id=0, $go=0) {
     if ($name == '') {
         die ("Название не может быть пустым.");
     }
     if (sql_query("INSERT INTO `books` VALUES(NULL, '$name', '$parent_id')")) {
-        header("Location:books.php?book_id=$parent_id");
+        if ($go) {
+            header("Location:books.php?book_id=".sql_insert_id());
+        } else {
+            header("Location:books.php?book_id=$parent_id");
+        }
         return;
     } else {
         show_error();

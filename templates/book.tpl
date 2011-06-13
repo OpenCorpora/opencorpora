@@ -14,7 +14,7 @@
         })
     </script>
     {/if}
-    <h2>{$book.title}</h2>
+    <h2>{$book.title} (id={$book.id})</h2>
     {if isset($book.parents)}
     <p>
     {foreach item=prn from=$book.parents}
@@ -79,10 +79,17 @@
         <input type='submit' value='{t}Добавить{/t}'/>
     </form>
     {/if}
+    {if count($book.paragraphs) == 0}
     {* Sub-books list *}
     <h3>{t}Разделы{/t}</h3>
     {if $user_permission_adder}
-    Добавить раздел <form class='inline' action='{$web_prefix}/books.php?act=add' method='post'><input name='book_name' size='30' maxlength='100' value='&lt;{t}Название{/t}&gt;'/><input type='hidden' name='book_parent' value='{$book.id}'/><input type='submit' value='{t}Добавить{/t}'/></form>
+    Добавить раздел
+    <form class='inline' action='{$web_prefix}/books.php?act=add' method='post'>
+        <input name='book_name' size='30' maxlength='100' value='&lt;{t}Название{/t}&gt;'/>
+        <input type='hidden' name='book_parent' value='{$book.id}'/>
+        <input type='submit' value='{t}Добавить{/t}'/>
+        <label><input type='checkbox' name='goto' checked='checked'/> и перейти в этот раздел</label>
+    </form>
     {/if}
     {if isset($book.children[0])}
         <ul>
@@ -93,17 +100,15 @@
     {else}
         <p>{t}Разделов нет.{/t}</p>
     {/if}
+    {/if}
     {* Sentence list *}
     {if count($book.paragraphs) > 0}
         <h3>{t}Предложения по абзацам{/t}</h3>
         <p>
-        {if isset($smarty.get.ext)}
+        {if isset($smarty.get.full)}
             <a href="?book_id={$book.id}">{t}к сокращённому виду{/t}</a>
         {else}
-            <a href="?book_id={$book.id}&amp;ext">{t}к расширенному виду{/t}</a>
-        {/if}
-        {if !isset($smarty.get.full)}
-            | <a href="?book_id={$book.id}&amp;full">{t}смотреть целиком{/t}</a>
+            <a href="?book_id={$book.id}&amp;full">{t}к расширенному виду{/t}</a>
         {/if}
         </p>
         {if isset($smarty.get.full)}
@@ -116,9 +121,7 @@
                 <tr><td>{$num}</td><td></td><td></td></tr>
             {else}
                 <li value="{$num}">
-                {if isset($smarty.get.ext)}
                 <ol>
-                {/if}
             {/if}
             {foreach name=s item=sentence from=$paragraph}
                 {if isset($smarty.get.full)}
@@ -139,20 +142,11 @@
                         {/foreach}
                     </td></tr>
                     {/strip}
-                {elseif isset($smarty.get.ext)}
-                    <li value="{$sentence.pos}"><a href="sentence.php?id={$sentence.id}">{$sentence.snippet}</a></li>
                 {else}
-                    {strip}
-                    <a href="sentence.php?id={$sentence.id}">{$sentence.id}</a>
-                    {if $smarty.foreach.s.last != true}
-                    , 
-                    {/if}
-                    {/strip}
+                    <li value="{$sentence.pos}"><a href="sentence.php?id={$sentence.id}">{$sentence.snippet}</a></li>
                 {/if}
             {/foreach}
-            {if isset($smarty.get.ext)}
                 </ol>
-            {/if}
             {if isset($smarty.get.full)}
             {else}
             </li>

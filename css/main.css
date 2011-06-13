@@ -77,6 +77,9 @@ div#rightcol div {
 .inline {
     display: inline;
 }
+.hidden-block {
+    display: none;
+}
 .small {
     font-size: small;
 }
@@ -92,6 +95,9 @@ div#rightcol div {
 }
 .bgblue {
     background-color: #9CF;
+}
+.bgpink {
+    background-color: #f99;
 }
 a.toggle {
     border-bottom: 1px black dashed;
@@ -256,6 +262,13 @@ div#main_annot div.var a.best_var {
 }
 div#main_annot div.var span.lt {
     display: block;
+}
+div.comment_main {
+    margin-top: 15px;
+    margin-left: 15px;
+    padding: 3px;
+    width: 200px;
+    border: 1px black solid;
 }
 .ac_results {	padding: 0px;	border: 1px solid WindowFrame;	background-color: Window;	overflow: hidden;}
 .ac_results ul {	width: 100%;	list-style-position: outside;	list-style: none;	padding: 0;	margin: 0;}
