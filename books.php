@@ -4,7 +4,7 @@ require('lib/lib_books.php');
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 if (!$action) {
     if (isset($_GET['book_id']) && $book_id = (int)$_GET['book_id']) {
-        $smarty->assign('book', get_book_page($book_id, isset($_GET['ext']), isset($_GET['full'])));
+        $smarty->assign('book', get_book_page($book_id, isset($_GET['full'])));
         $smarty->display('book.tpl');
     } else {
         $smarty->assign('books', get_books_list());

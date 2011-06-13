@@ -92,13 +92,10 @@
     {if count($book.paragraphs) > 0}
         <h3>{t}Предложения по абзацам{/t}</h3>
         <p>
-        {if isset($smarty.get.ext)}
+        {if isset($smarty.get.full)}
             <a href="?book_id={$book.id}">{t}к сокращённому виду{/t}</a>
         {else}
-            <a href="?book_id={$book.id}&amp;ext">{t}к расширенному виду{/t}</a>
-        {/if}
-        {if !isset($smarty.get.full)}
-            | <a href="?book_id={$book.id}&amp;full">{t}смотреть целиком{/t}</a>
+            <a href="?book_id={$book.id}&amp;full">{t}к расширенному виду{/t}</a>
         {/if}
         </p>
         {if isset($smarty.get.full)}
@@ -111,9 +108,7 @@
                 <tr><td>{$num}</td><td></td><td></td></tr>
             {else}
                 <li value="{$num}">
-                {if isset($smarty.get.ext)}
                 <ol>
-                {/if}
             {/if}
             {foreach name=s item=sentence from=$paragraph}
                 {if isset($smarty.get.full)}
@@ -134,20 +129,11 @@
                         {/foreach}
                     </td></tr>
                     {/strip}
-                {elseif isset($smarty.get.ext)}
-                    <li value="{$sentence.pos}"><a href="sentence.php?id={$sentence.id}">{$sentence.snippet}</a></li>
                 {else}
-                    {strip}
-                    <a href="sentence.php?id={$sentence.id}">{$sentence.id}</a>
-                    {if $smarty.foreach.s.last != true}
-                    , 
-                    {/if}
-                    {/strip}
+                    <li value="{$sentence.pos}"><a href="sentence.php?id={$sentence.id}">{$sentence.snippet}</a></li>
                 {/if}
             {/foreach}
-            {if isset($smarty.get.ext)}
                 </ol>
-            {/if}
             {if isset($smarty.get.full)}
             {else}
             </li>
