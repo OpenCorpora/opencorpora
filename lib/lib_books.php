@@ -79,12 +79,16 @@ function get_book_page($book_id, $full = false) {
     }
     return $out;
 }
-function books_add($name, $parent_id=0) {
+function books_add($name, $parent_id=0, $go=0) {
     if ($name == '') {
         die ("Название не может быть пустым.");
     }
     if (sql_query("INSERT INTO `books` VALUES(NULL, '$name', '$parent_id')")) {
-        header("Location:books.php?book_id=$parent_id");
+        if ($go) {
+            header("Location:books.php?book_id=".sql_insert_id());
+        } else {
+            header("Location:books.php?book_id=$parent_id");
+        }
         return;
     } else {
         show_error();

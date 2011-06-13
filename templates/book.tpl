@@ -76,7 +76,13 @@
     {* Sub-books list *}
     <h3>{t}Разделы{/t}</h3>
     {if $user_permission_adder}
-    Добавить раздел <form class='inline' action='{$web_prefix}/books.php?act=add' method='post'><input name='book_name' size='30' maxlength='100' value='&lt;{t}Название{/t}&gt;'/><input type='hidden' name='book_parent' value='{$book.id}'/><input type='submit' value='{t}Добавить{/t}'/></form>
+    Добавить раздел
+    <form class='inline' action='{$web_prefix}/books.php?act=add' method='post'>
+        <input name='book_name' size='30' maxlength='100' value='&lt;{t}Название{/t}&gt;'/>
+        <input type='hidden' name='book_parent' value='{$book.id}'/>
+        <input type='submit' value='{t}Добавить{/t}'/>
+        <label><input type='checkbox' name='goto' checked='checked'/> и перейти в этот раздел</label>
+    </form>
     {/if}
     {if isset($book.children[0])}
         <ul>

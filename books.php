@@ -16,7 +16,7 @@ elseif (user_has_permission('perm_adder')) {
         case 'add':
             $book_name = mysql_real_escape_string($_POST['book_name']);
             $book_parent = (int)$_POST['book_parent'];
-            books_add($book_name, $book_parent);
+            books_add($book_name, $book_parent, isset($_POST['goto']));
             break;
         case 'rename':
             $name = mysql_real_escape_string($_POST['new_name']);
