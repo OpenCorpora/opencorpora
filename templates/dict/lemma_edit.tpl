@@ -80,7 +80,7 @@
     {/strip}
     <p><b>{t}Связи{/t}</b></p>
     <p><a href="#" class="toggle" onclick="$('#add_link').show(); return false">{t}Добавить связь{/t}</a></p>
-    <form id="add_link" method='post' action='?act=add_link'>
+    <form id="add_link" method='post' class='hidden-block' action='?act=add_link'>
         <input type='hidden' name='from_id' value='{$editor.lemma.id}'/>
         <select name='link_type'>
             <option value='0' selected='selected'>--{t}Тип связи{/t}--</option>

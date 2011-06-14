@@ -393,6 +393,7 @@ function load_sentence_comments(sent_id, is_logged, need_scroll) {
                     $p.after(t);
                     var $n = $("#comm_"+$el.attr('id'));
                     var offset = $p.offset();
+                    $n.width($n.width()-offset.left);
                     offset.left += 25;
                     offset.top = $n.offset().top;
                     $n.offset(offset);
