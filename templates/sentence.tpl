@@ -30,10 +30,9 @@
             });
 
             function show_comments(event, need_scroll) {
-                $("#a_comments").removeAttr('href').removeClass();
-                $("#a_parse").attr('href', '#').addClass('hint');
                 $(".oc_tabs").hide();
                 $("#comments").show();
+                $("#a_parse").show();
                 if ($(".comment_main").length == 0) {
                     load_sentence_comments({$sentence.id}, {$is_logged}, need_scroll);
                 }
@@ -46,8 +45,7 @@
             $("#a_comments").click(show_comments);
 
             $("#a_parse").click(function(event){
-                $(this).removeAttr('href').removeClass();
-                $("#a_comments").attr('href', '#').addClass('hint');
+                $(this).hide();
                 $(".oc_tabs").hide();
                 $("#form_annot").show();
                 location.hash = '#';
@@ -82,7 +80,7 @@
     <p class='small'><a href='#' class='hint' id="show_src">Показать исходный текст</a></p>
     <div class='small' style='display:none' id='source_orig'>{$sentence.source|htmlspecialchars}</div>
     <p class='small' align='right'>Источник: <a href="{$sentence.url}">{$sentence.book_name}</a></p>
-    <p align="center"><a class="hint" id="a_parse">Разбор</a> &nbsp; <a href="#" class="hint" id="a_comments">Комментарии</a></p>
+    <button id="a_parse" class="hidden-block">{t}Вернуться к разбору{/t}</button>
     <form method="post" action="?id={$sentence.id}&amp;act=save" class='oc_tabs' id="form_annot">
         <div id="main_scroller">
             <div>
@@ -91,7 +89,14 @@
                 {/if}
                 <button type="reset" onclick="window.location.reload()">{t}Отменить правки{/t}</button>&nbsp;
                 <button type="button" onclick="window.location.href='history.php?sent_id={$sentence.id}'">{t}История{/t}</button>&nbsp;
-                <button type="button" onclick="dict_reload_all()">{t}Разобрать заново{/t}</button>
+                <button type="button" onclick="dict_reload_all()">{t}Разобрать заново{/t}</button>&nbsp;
+                <button type="button" id="a_comments">
+                    {if $sentence.comment_count > 0}
+                    {t}Комментарии ({$sentence.comment_count}){/t}
+                    {else}
+                    {t}Комментировать{/t}
+                    {/if}
+                </button>
                 <br/>
                 <span id='comment_fld'>{t}Комментарий{/t}: <input name='comment' size='60'/></span>
             </div>
