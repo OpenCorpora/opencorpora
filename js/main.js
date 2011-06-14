@@ -401,6 +401,7 @@ function load_sentence_comments(sent_id, is_logged, need_scroll) {
             $("a.reply").click(function(event){
                 $(this).closest('div').after($("#comment_form"));
                 $("#comment_form").show().attr('rel', $(this).attr('rel'));
+                $("#comment_form").find('textarea').focus();
                 event.preventDefault();
             });
             if (need_scroll)

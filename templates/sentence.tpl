@@ -135,7 +135,7 @@
     {/strip}
     <div id="comments">
     {if $is_logged}
-    <a href="#" class="hint" onclick="$('#comment_form').insertAfter($(this)).show(); return false">Добавить комментарий:</a><br/>
+    <a href="#" class="hint" onclick="$('#comment_form').insertAfter($(this)).show().find('textarea').focus(); return false">Добавить комментарий:</a><br/>
     <form id="comment_form" class="hidden-block"><textarea cols="30" rows="3"></textarea><br/><button type="button" onclick="post_sentence_comment($(this), {$sentence.id}, '{$smarty.session.user_name}')">Прокомментировать</button></form>
     {/if}
     </div>
