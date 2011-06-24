@@ -546,7 +546,7 @@ sub apply_rule {
             for my $lnk(@{$action->{LINKS}}) {
                 my ($i, $j) = ($lnk->{INDEX1}, $lnk->{INDEX2});
                 my $j1 = modify_index($j, \%absent);
-                if (defined $new_words[$i] && defined $new_words[$j]) {
+                if (defined $new_words[$i] && defined $new_words[$j] && !$new_words[$i]->is_to_delete() && !$new_words[$j]->is_to_delete()) {
                     my @for_i = ($self->{WORD_ID} + $j1, $lnk->{LINK_NAME});
                     push @{$new_words[$i]->{LINKS}}, \@for_i;
                 }
@@ -562,7 +562,7 @@ sub apply_rule {
                 $self->{WORD} = $new_word;
                 $self->apply_rules();
                 $self->update_gram_stats(1);
-                $self->print_or_insert();
+                $self->print_or_insert() unless $self->{WORD}->is_to_delete();
             }
             $self->{WORD} = undef;
         }

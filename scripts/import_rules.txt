@@ -154,6 +154,8 @@
     CHANGE (Sgtm, a-pl -> )
 (* ~/^др$/)
     CHANGE ( -> _del)
+(* ~/^эл$/)
+    CHANGE ( -> _del)
 (* ~/^неубивайменя$/)
     CHANGE ( -> _del)
 (* Surn) & (1 ~/^целий$/)
@@ -221,6 +223,10 @@
     CHANGE( -> Poss)    
 (1 сравн)
     CHANGE(сравн -> COMP)
+1 ADJS|PRTS #this rule should be before split
+    CHANGE(ADJS,anim,inan -> ADJS)
+    CHANGE(PRTS,anim,inan -> PRTS)
+    CHANGE(ADJS,Geox -> ADJS,_del)
 (1 ADJS&masc&sing&~/ен$/) & (1 ADJS&masc&sing&~/енен$/)
     CHANGE (ADJS, masc, sing, ~/енен$/ -> ADJS, masc, sing, V-en)
 (1 ADJS&masc&sing&~/ан$/) & (1 ADJS&masc&sing&~/анен$/)
@@ -284,9 +290,6 @@
     CHANGE(neut,sing,accs,anim -> neut,sing,accs)
     CHANGE(femn,sing,accs,inan -> femn,sing,accs)
     CHANGE(neut,sing,accs,inan -> neut,sing,accs)
-* ADJS|PRTS
-    CHANGE(anim,inan -> )
-    CHANGE(Geox -> _del)
 * COMP    
     CHANGE(anim,inan -> )
     CHANGE(2 -> Cmp2)
@@ -325,6 +328,8 @@
 (* NOUN&@adjf_fixd_noun)
     CHANGE (~/^бордо$/, _del ->)
     CHANGE (~/^пике$/, _del ->)
+    CHANGE (~/^миди$/, _del ->)
+    CHANGE (~/^валансьен$/, _del -> Geox)
 
 (* ADJF&Fixd)
     CHANGE(masc,plur -> plur)
