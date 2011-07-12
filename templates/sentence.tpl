@@ -4,6 +4,19 @@
 {block name=content}
     <script type="text/javascript">
         
+        function show_comments(event, need_scroll) {
+            $(".oc_tabs").hide();
+            $("#comments").show();
+            $("#a_parse").show();
+            if ($(".comment_main").length == 0) {
+                load_sentence_comments({$sentence.id}, {$is_logged}, need_scroll);
+            }
+            if (!need_scroll)
+                location.hash = '#comments';
+            if (event)
+                event.preventDefault();
+        }
+
         $(document).ready(function(){
             
             $("#source_text,#main_scroller,#scrollbar").mousewheel(function(event,delta){
@@ -29,27 +42,16 @@
                 $("#source_orig").show();
             });
 
-            function show_comments(event, need_scroll) {
-                $(".oc_tabs").hide();
-                $("#comments").show();
-                $("#a_parse").show();
-                if ($(".comment_main").length == 0) {
-                    load_sentence_comments({$sentence.id}, {$is_logged}, need_scroll);
-                }
-                if (!need_scroll)
-                    location.hash = '#comments';
-                if (event)
-                    event.preventDefault();
-            }
 
             $("#a_comments").click(show_comments);
 
-            $("#a_parse").click(function(event){
+            $("#a_parse").click(function(){
                 $(this).hide();
                 $(".oc_tabs").hide();
                 $("#form_annot").show();
+                highlight_source();
+                prepareScroll();
                 location.hash = '#';
-                event.preventDefault();
             });
 
             if (location.hash.substring(1, 5) == 'comm') {
