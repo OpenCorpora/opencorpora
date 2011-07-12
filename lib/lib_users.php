@@ -53,7 +53,7 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
         }
         //adding a new token
         $token = mt_rand();
-        if (!sql_query("INSERT INTO user_tokens VALUES('$user_id','$token', '".time()."')"))
+        if (!sql_query("INSERT INTO user_tokens VALUES('$user_id','$token', '".time()."')", 1, 1))
             return false;
         setcookie('auth', $user_id.'@'.$token, time()+60*60*24*7, '/');
         //setting the session
