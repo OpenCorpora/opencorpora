@@ -85,20 +85,14 @@ function get_book_page($book_id, $full = false) {
     }
     return $out;
 }
-function books_add($name, $parent_id=0, $go=0) {
-    if ($name == '') {
+function books_add($name, $parent_id=0) {
+    if ($name === '') {
         die ("Название не может быть пустым.");
     }
     if (sql_query("INSERT INTO `books` VALUES(NULL, '$name', '$parent_id')")) {
-        if ($go) {
-            header("Location:books.php?book_id=".sql_insert_id());
-        } else {
-            header("Location:books.php?book_id=$parent_id");
-        }
-        return;
-    } else {
-        show_error();
+        return 1;
     }
+    return 0;
 }
 function books_move($book_id, $to_id) {
     if ($book_id == $to_id) {
@@ -143,11 +137,10 @@ function get_books_for_select($parent = -1) {
 function books_add_tag($book_id, $tag_name) {
     if ($book_id && $tag_name) {
         if (!sql_query("DELETE FROM `book_tags` WHERE book_id=$book_id AND tag_name='$tag_name'") || !sql_query("INSERT INTO `book_tags` VALUES('$book_id', '$tag_name')")) {
-            die("Couldn't add tag");
+            return 0;
         }
     }
-    header("Location:books.php?book_id=$book_id");
-    return;
+    return 1;
 }
 function books_del_tag($book_id, $tag_name) {
     if ($book_id && $tag_name) {
@@ -157,6 +150,35 @@ function books_del_tag($book_id, $tag_name) {
     }
     header("Location:books.php?book_id=$book_id");
     return;
+}
+function download_url($url) {
+    if (!$url) return 0;
+    
+    //check if it has been already downloaded
+    $res = sql_query("SELECT url FROM downloaded_urls WHERE url='".mysql_real_escape_string($url)."' LIMIT 1");
+    if (sql_num_rows($res) > 0) {
+        return 0;
+    }
+
+    //downloading
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'OpenCorpora.org bot');
+    $contents = curl_exec($ch);
+    curl_close($ch);
+
+    //writing to disk
+    $filename = uniqid('', 1);
+    $res = file_put_contents("/corpus/files/saved/$filename.html", $contents);
+    if (!$res) {
+        return 0;
+    }
+
+    if (sql_query("INSERT INTO downloaded_urls VALUES('".mysql_real_escape_string($url)."', '$filename')")) {
+        return $filename;
+    }
+    return 0;
 }
 function merge_sentences($id1, $id2) {
     if ($id1 < 1 || $id2 < 1 || ($id2-$id1 != 1)) {
@@ -283,4 +305,38 @@ function split_token($token_id, $num) {
 
     header("Location:books.php?book_id=".$r['book_id']."&full#sen$sent_id");
 }
+
+// book adding queue
+
+function get_sources_page() {
+    $out = array();
+    $res = sql_query("SELECT s.source_id, s.url, s.title, s.user_id, s.book_id, u.user_name, b.book_name FROM sources s LEFT JOIN books b ON (s.book_id = b.book_id) LEFT JOIN users u ON (s.user_id = u.user_id) ORDER BY source_id LIMIT 200");
+    while ($r = sql_fetch_array($res)) {
+        $r1 = sql_fetch_array(sql_query("SELECT `user_id`, `status`, `timestamp` FROM sources_status WHERE source_id=".$r['source_id']." ORDER BY `timestamp` DESC LIMIT 1"));
+        $out[] = array(
+            'id' => $r['source_id'],
+            'url' => $r['url'],
+            'title' => $r['title'],
+            'user_id' => $r['user_id'],
+            'user_name' => $r['user_name'],
+            'book_id' => $r['book_id'],
+            'book_title' => $r['book_name'],
+            'status' => $r1['status'],
+            'status_changer' => $r1['user_id'],
+            'status_ts' => $r1['timestamp']
+        );
+    }
+    return $out;
+}
+function source_add($url, $title, $parent_id) {
+    if (!$url) {
+        show_error();
+        return;
+    }
+    
+    if (sql_query("INSERT INTO sources VALUES(NULL, '$parent_id', '".mysql_real_escape_string($url)."', '".mysql_real_escape_string($title)."', '0', '0')")) {
+        header("Location:sources.php");
+    }
+}
+
 ?>
