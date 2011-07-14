@@ -16,7 +16,13 @@ elseif (user_has_permission('perm_adder')) {
         case 'add':
             $book_name = mysql_real_escape_string($_POST['book_name']);
             $book_parent = (int)$_POST['book_parent'];
-            books_add($book_name, $book_parent, isset($_POST['goto']));
+            if (books_add($book_name, $book_parent)) {
+                if (isset($_POST['goto']))
+                    header("Location:books.php?book_id=".sql_insert_id());
+                else
+                    header("Location:books.php?book_id=$parent_id");
+            } else
+                show_error();
             break;
         case 'rename':
             $name = mysql_real_escape_string($_POST['new_name']);
@@ -31,7 +37,11 @@ elseif (user_has_permission('perm_adder')) {
         case 'add_tag':
             $book_id = (int)$_POST['book_id'];
             $tag_name = mysql_real_escape_string($_POST['tag_name']);
-            books_add_tag($book_id, $tag_name);
+            if (books_add_tag($book_id, $tag_name)) {
+                header("Location:books.php?book_id=$book_id");
+            } else {
+                die("Couldn't add tag");
+            }
             break;
         case 'del_tag':
             $book_id = (int)$_GET['book_id'];

@@ -159,7 +159,7 @@ function is_dict_chain($chain) {
     return (int)(form_exists(mb_strtolower($chain, 'UTF-8')) > 0);
 }
 function is_suffix($s) {
-    return (int)($s == 'то');
+    return (int)in_array($s, array('то', 'таки', 'с', 'ка', 'де'));
 }
 function addtext_check($array) {
     $out = array('full' => $array['txt'], 'select0' => get_books_for_select(0));

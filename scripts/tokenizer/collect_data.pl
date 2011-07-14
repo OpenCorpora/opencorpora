@@ -58,7 +58,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
         while(substr($str, $pos, length($token)) ne $token) {
             $pos++;
             if ($pos > length($str)) {
-                die "Too long";
+                die "Too long, sentence ".$ref->{'sent_id'};
             }
         }
         my $t = $pos + length($token) - 1;
@@ -280,7 +280,7 @@ sub is_dict_chain {
 }
 sub is_suffix {
     my $s = shift;
-    if ($s eq 'то') {
+    if ($s eq 'то' || $s eq 'таки' || $s eq 'с' || $s eq 'ка' || $s eq 'де') {
         return 1;
     }
     return 0;

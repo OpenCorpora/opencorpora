@@ -136,9 +136,6 @@ div#edit_tok {
 form#login_form {
     margin: 10px;
 }
-form#add_link {
-    display: none;
-}
 /* WORDS HIGHLIGHTING */
 span.check_unpos {
     color: #CCC;
@@ -267,7 +264,6 @@ div.comment_main {
     margin-top: 15px;
     margin-left: 15px;
     padding: 3px;
-    width: 200px;
     border: 1px black solid;
 }
 .ac_results {	padding: 0px;	border: 1px solid WindowFrame;	background-color: Window;	overflow: hidden;}

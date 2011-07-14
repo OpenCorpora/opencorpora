@@ -372,3 +372,64 @@ function download_url(event) {
     )
     event.preventDefault();
 }
+function post_sentence_comment($el, sent_id, username) {
+    var txt = $el.closest('form').find('textarea').val();
+    var reply_to = $el.closest('form').attr('rel');
+    $.post('ajax/post_comment.php', {'text':txt, 'sent_id':sent_id, 'reply_to':reply_to},
+        function(res) {
+            var $res = $(res).find('response');
+            if ($res.attr('ok') == 1) {
+                $el.closest('form').hide();
+                var $newcomment = $(document.createElement('div'));
+                $newcomment.attr({'id':'comm_'+$res.attr('id')});
+                $newcomment.addClass('comment_main');
+                $newcomment.append('<div class="comment_top">'+username+', '+$res.attr('ts')+'</div><div class="comment_text">'+txt+'</div>');
+                if (!reply_to) {
+                    $("#comments").append($newcomment);
+                } else {
+                    var $p = $("#comm_"+reply_to);
+                    $p.after($newcomment);
+                    var offset = $p.offset();
+                    offset.left += 25;
+                    offset.top = $newcomment.offset().top;
+                    $newcomment.offset(offset);
+                }
+            }
+        }
+    );
+}
+function load_sentence_comments(sent_id, is_logged, need_scroll) {
+    var $div = $("#comments");
+    $.get('ajax/get_comments.php', {'sent_id':sent_id},
+        function(res) {
+            var $comm = $(res).find('comment');
+            $comm.each(function(i, el) {
+                var $el = $(el);
+                var t = '<div id="comm_'+$el.attr('id')+'" class="comment_main"><div class="comment_top">'+$el.attr('author')+', '+$el.attr('ts')+'</div><div class="comment_text">'+$el.text()+'</div>';
+                if (is_logged) t += '<a href="#" class="small reply" rel="'+$el.attr('id')+'">ответить</a>';
+                t += ' <a href="#comm_'+$el.attr('id')+'" class="small">пост. ссылка</a>';
+                t += '</div>';
+                if ($el.attr('reply') == 0) {
+                    $div.append(t);
+                } else {
+                    var $p = $("#comm_"+$el.attr('reply'));
+                    $p.after(t);
+                    var $n = $("#comm_"+$el.attr('id'));
+                    var offset = $p.offset();
+                    $n.width($n.width()-offset.left);
+                    offset.left += 25;
+                    offset.top = $n.offset().top;
+                    $n.offset(offset);
+                }
+            });
+            $("a.reply").click(function(event){
+                $(this).closest('div').after($("#comment_form"));
+                $("#comment_form").show().attr('rel', $(this).attr('rel'));
+                $("#comment_form").find('textarea').focus();
+                event.preventDefault();
+            });
+            if (need_scroll)
+                window.scrollTo(0, $(location.hash).offset().top);
+        }
+    );
+}

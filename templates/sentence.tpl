@@ -4,6 +4,19 @@
 {block name=content}
     <script type="text/javascript">
         
+        function show_comments(event, need_scroll) {
+            $(".oc_tabs").hide();
+            $("#comments").show();
+            $("#a_parse").show();
+            if ($(".comment_main").length == 0) {
+                load_sentence_comments({$sentence.id}, {$is_logged}, need_scroll);
+            }
+            if (!need_scroll)
+                location.hash = '#comments';
+            if (event)
+                event.preventDefault();
+        }
+
         $(document).ready(function(){
             
             $("#source_text,#main_scroller,#scrollbar").mousewheel(function(event,delta){
@@ -28,8 +41,24 @@
                 $(this).hide();
                 $("#source_orig").show();
             });
-            
+
+
+            $("#a_comments").click(show_comments);
+
+            $("#a_parse").click(function(){
+                $(this).hide();
+                $(".oc_tabs").hide();
+                $("#form_annot").show();
+                highlight_source();
+                prepareScroll();
+                location.hash = '#';
             });
+
+            if (location.hash.substring(1, 5) == 'comm') {
+                show_comments(null, (location.hash.substring(5,6) == '_'));
+            }
+            
+        });
         var unload_msg = {t}"Вы уверены, что хотите уйти, не сохранив предложение?"{/t};
         var root = window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
         if(root) {
@@ -53,7 +82,8 @@
     <p class='small'><a href='#' class='hint' id="show_src">Показать исходный текст</a></p>
     <div class='small' style='display:none' id='source_orig'>{$sentence.source|htmlspecialchars}</div>
     <p class='small' align='right'>Источник: <a href="{$sentence.url}">{$sentence.book_name}</a></p>
-    <form method="post" action="?id={$sentence.id}&amp;act=save">
+    <button id="a_parse" class="hidden-block">{t}Вернуться к разбору{/t}</button>
+    <form method="post" action="?id={$sentence.id}&amp;act=save" class='oc_tabs' id="form_annot">
         <div id="main_scroller">
             <div>
                 {if $user_permission_disamb == 1}
@@ -61,7 +91,14 @@
                 {/if}
                 <button type="reset" onclick="window.location.reload()">{t}Отменить правки{/t}</button>&nbsp;
                 <button type="button" onclick="window.location.href='history.php?sent_id={$sentence.id}'">{t}История{/t}</button>&nbsp;
-                <button type="button" onclick="dict_reload_all()">{t}Разобрать заново{/t}</button>
+                <button type="button" onclick="dict_reload_all()">{t}Разобрать заново{/t}</button>&nbsp;
+                <button type="button" id="a_comments">
+                    {if $sentence.comment_count > 0}
+                    {t}Комментарии ({$sentence.comment_count}){/t}
+                    {else}
+                    {t}Комментировать{/t}
+                    {/if}
+                </button>
                 <br/>
                 <span id='comment_fld'>{t}Комментарий{/t}: <input name='comment' size='60'/></span>
             </div>
@@ -103,4 +140,10 @@
         </tr></table></div>
     </form>
     {/strip}
+    <div id="comments" class="oc_tabs hidden-block">
+    {if $is_logged}
+    <a href="#" class="hint" onclick="$('#comment_form').insertAfter($(this)).show().find('textarea').focus(); return false">Добавить комментарий:</a><br/>
+    <form id="comment_form" class="hidden-block"><textarea cols="30" rows="3"></textarea><br/><button type="button" onclick="post_sentence_comment($(this), {$sentence.id}, '{$smarty.session.user_name}')">Прокомментировать</button></form>
+    {/if}
+    </div>
 {/block}

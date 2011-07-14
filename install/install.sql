@@ -45,6 +45,15 @@ CREATE TABLE IF NOT EXISTS `sentence_check` (
     `timestamp` INT UNSIGNED NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS `sentence_comments` (
+    `comment_id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `parent_id`  INT UNSIGNED NOT NULL,
+    `sent_id`    INT UNSIGNED NOT NULL,
+    `user_id`    INT UNSIGNED NOT NULL,
+    `text`       TEXT NOT NULL,
+    `timestamp`  INT UNSIGNED NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS `text_forms` (
     `tf_id`        INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `sent_id`      INT UNSIGNED NOT NULL,

@@ -303,7 +303,12 @@ sub get_lemma_grammems {
     
     my %grams = %{$self->get_all_grammems()};
     my @out;
-    my $num = $self->get_form_count();
+    my $num = 0;
+    #we should ignore forms that should be deleted
+    for my $form(@{$self->{FORMS}}) {
+        ++$num unless $self->form_has_any_gram($form, ['_del']);
+    }
+
     my $pos = '';
 
     for my $gr(keys %grams) {

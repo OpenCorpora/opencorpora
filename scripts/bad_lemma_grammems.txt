@@ -15,4 +15,4 @@ GRND	pres
 GRND	past
 ADJS	neut
 PRTS	femn
-ADJC	V-ej
+COMP	V-ej

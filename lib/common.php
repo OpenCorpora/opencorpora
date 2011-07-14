@@ -3,7 +3,7 @@ require_once('lib_users.php');
 
 //sql wrappers
 function sql_query($q, $debug=1, $override_readonly=0) {
-    if (file_exists('/var/lock/oc_readonly.lock') && stripos($q, 'select') !== 0 && !$override_readonly) 
+    if (file_exists('/var/lock/oc_readonly.lock') && stripos($q, 'select') !== 0 && !$override_readonly)
         return false;
     $debug = isset($_SESSION['debug_mode']) && $debug;
     if ($debug)
@@ -11,7 +11,7 @@ function sql_query($q, $debug=1, $override_readonly=0) {
     $res = mysql_query($q);
     if ($debug) {
         $time = microtime(true)-$time_start;
-        printf ("<span class='debug'>SQL: ".htmlspecialchars($q)." # %.4f сек.</span><br/>\n", $time);
+        printf ("<span class='debug'>SQL: %s # %.4f сек.</span><br/>\n", htmlspecialchars($q), $time);
         if ($err = mysql_error()) {
             print "<span class='debug_error'>$err</span><br/>\n";
         }

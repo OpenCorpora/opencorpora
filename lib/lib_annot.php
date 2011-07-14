@@ -6,6 +6,9 @@ function get_sentence($sent_id) {
         'status' => $r['check_status'],
         'source' => $r['source']
     );
+    //counting comments
+    $r = sql_fetch_array(sql_query("SELECT COUNT(comment_id) comm_cnt FROM sentence_comments WHERE sent_id=$sent_id"));
+    $out['comment_count'] = $r['comm_cnt'];
     //looking for source name
     $r = sql_fetch_array(sql_query("
         SELECT book_id
