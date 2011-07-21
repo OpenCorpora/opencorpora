@@ -96,6 +96,9 @@ div#rightcol div {
 .bgpink {
     background-color: #f99;
 }
+.bgyellow {
+    background-color: yellow;
+}
 a.toggle {
     border-bottom: 1px black dashed;
     text-decoration: none;

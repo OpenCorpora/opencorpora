@@ -15,6 +15,7 @@
 {/if}
 {if $user_permission_adder}<h2>Контроль качества</h2>{/if}
 {if $user_permission_adder}
+<a href='{$web_prefix}/sources.php'>Координация заливки</a><br/>
 <a href='{$web_prefix}/qa.php?act=tokenizer'>Странная токенизация</a><br/>
 <a href='{$web_prefix}/qa.php?act=empty_books'>Пустые тексты</a><br/>
 <a href='{$web_prefix}/qa.php?act=dl_urls'>Сохранённые копии источников</a><br/>

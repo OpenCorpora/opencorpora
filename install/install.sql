@@ -14,6 +14,35 @@ CREATE TABLE IF NOT EXISTS `book_tags` (
     INDEX (`tag_name`)
 );
 
+CREATE TABLE IF NOT EXISTS `sources` (
+    `source_id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `parent_id` INT UNSIGNED NOT NULL,
+    `url`       VARCHAR(255) NOT NULL,
+    `title`     VARCHAR(100) NOT NULL,
+    `user_id`   INT UNSIGNED NOT NULL,
+    `book_id`   INT UNSIGNED NOT NULL,
+    INDEX(`user_id`),
+    INDEX(`book_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `sources_comments` (
+    `comment_id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `source_id`  INT UNSIGNED NOT NULL,
+    `user_id`    INT UNSIGNED NOT NULL,
+    `text`       TEXT NOT NULL,
+    `timestamp`  INT UNSIGNED NOT NULL,
+    INDEX(`source_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `sources_status` (
+    `source_id` INT UNSIGNED NOT NULL,
+    `user_id`   INT UNSIGNED NOT NULL,
+    `status`    TINYINT UNSIGNED NOT NULL,
+    `timestamp` INT UNSIGNED NOT NULL,
+    INDEX(`source_id`),
+    INDEX(`status`)
+);
+
 CREATE TABLE IF NOT EXISTS `downloaded_urls` (
     `url`      VARCHAR(255) NOT NULL,
     `filename` VARCHAR(100) NOT NULL,
