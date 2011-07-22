@@ -29,6 +29,7 @@ if ($book_id == -1) {
         return;
     }
     $book_id = sql_insert_id();
+    $r = sql_fetch_array(sql_query("SELECT url FROM sources WHERE source_id=$sid LIMIT 1"));
     if (!books_add_tag($book_id, 'url:'.$r['url']) || !download_url($r['url'])) {
         echo '<result ok="0"/>';
         return;
