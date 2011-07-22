@@ -14,7 +14,7 @@ switch($action) {
         source_add($_POST['url'], $_POST['title'], (int)$_POST['parent']);
         break;
     default:
-        $smarty->assign('sources', get_sources_page());
+        $smarty->assign('sources', get_sources_page(isset($_GET['my']), isset($_GET['active'])));
         $smarty->display('templates/sources.tpl');
 }
 ?>

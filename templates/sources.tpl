@@ -90,9 +90,19 @@
 {/literal}
 <h1>Заливаемые тексты</h1>
 {if $is_admin}
-<form action="?act=add" method="post"><button disabled='disabled'>Добавить</button> новый: <input name='url' value='http://' size='50' maxlength='255'/> название (опц.): <input name='title' value=''> <select name='parent'><option value='0'>N/A</option></select></form>
+<form action="?act=add" method="post"><button>Добавить</button> новый: <input name='url' value='http://' size='50' maxlength='255'/> название (опц.): <input name='title' value=''> <select name='parent'><option value='0'>N/A</option></select></form>
+<br/>
 {/if}
-<br/><table border='1' cellspacing='0' cellpadding='2'>
+{if isset($smarty.get.my) || isset($smarty.get.active)}
+<a href="?">обычный режим</a> |
+{/if}
+{if !isset($smarty.get.my)}
+<a href="?my">показать мои</a> | 
+{/if}
+{if !isset($smarty.get.active)}
+<a href="?active">показать начатые</a> |
+{/if}
+<br/><br/><table border='1' cellspacing='0' cellpadding='2'>
 <tr>
     <th>Источник</th>
     <th>Отв.</th>

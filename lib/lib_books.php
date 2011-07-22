@@ -308,9 +308,16 @@ function split_token($token_id, $num) {
 
 // book adding queue
 
-function get_sources_page() {
+function get_sources_page($show_my = 0, $show_started = 0) {
     $out = array();
-    $res = sql_query("SELECT s.source_id, s.url, s.title, s.user_id, s.book_id, u.user_name, b.book_name FROM sources s LEFT JOIN books b ON (s.book_id = b.book_id) LEFT JOIN users u ON (s.user_id = u.user_id) ORDER BY s.source_id LIMIT 200");
+    $q = "SELECT s.source_id, s.url, s.title, s.user_id, s.book_id, u.user_name, b.book_name FROM sources s LEFT JOIN books b ON (s.book_id = b.book_id) LEFT JOIN users u ON (s.user_id = u.user_id) ";
+    if ($show_my)
+        $q .= "WHERE s.user_id = ".$_SESSION['user_id']." ORDER BY s.book_id";
+    elseif ($show_started)
+        $q .= "WHERE s.user_id > 0 OR s.book_id > 0 ORDER BY s.book_id";
+    else
+        $q .= "ORDER BY s.book_id DESC, s.source_id LIMIT 200";
+    $res = sql_query($q);
     while ($r = sql_fetch_array($res)) {
         $r1 = sql_fetch_array(sql_query("SELECT `user_id`, `status`, `timestamp` FROM sources_status WHERE source_id=".$r['source_id']." ORDER BY `timestamp` DESC LIMIT 1"));
         $comments = array();
