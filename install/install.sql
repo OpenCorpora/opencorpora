@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `books` (
 
 CREATE TABLE IF NOT EXISTS `book_tags` (
     `book_id`   INT UNSIGNED NOT NULL,
-    `tag_name`  VARCHAR(255) NOT NULL,
+    `tag_name`  VARCHAR(512) NOT NULL,
     INDEX (`book_id`),
     INDEX (`tag_name`)
 );
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `book_tags` (
 CREATE TABLE IF NOT EXISTS `sources` (
     `source_id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `parent_id` INT UNSIGNED NOT NULL,
-    `url`       VARCHAR(255) NOT NULL,
+    `url`       VARCHAR(512) NOT NULL,
     `title`     VARCHAR(100) NOT NULL,
     `user_id`   INT UNSIGNED NOT NULL,
     `book_id`   INT UNSIGNED NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `sources_status` (
 );
 
 CREATE TABLE IF NOT EXISTS `downloaded_urls` (
-    `url`      VARCHAR(255) NOT NULL,
+    `url`      VARCHAR(512) NOT NULL,
     `filename` VARCHAR(100) NOT NULL,
     INDEX(`url`)
 );
