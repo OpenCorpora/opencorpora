@@ -93,14 +93,17 @@
 <form action="?act=add" method="post"><button>Добавить</button> новый: <input name='url' value='http://' size='50' maxlength='255'/> название (опц.): <input name='title' value=''> <select name='parent'><option value='0'>N/A</option></select></form>
 <br/>
 {/if}
-{if isset($smarty.get.my) || isset($smarty.get.active)}
+{if isset($smarty.get.what)}
 <a href="?">обычный режим</a> |
 {/if}
-{if !isset($smarty.get.my)}
-<a href="?my">показать мои</a> | 
+{if $smarty.get.what != 'my'}
+<a href="?what=my">показать мои</a> | 
 {/if}
-{if !isset($smarty.get.active)}
-<a href="?active">показать начатые</a> |
+{if $smarty.get.what != 'active'}
+<a href="?what=active">показать начатые</a> |
+{/if}
+{if $smarty.get.what != 'free'}
+<a href="?what=free">показать свободные</a> |
 {/if}
 <br/><br/><table border='1' cellspacing='0' cellpadding='2'>
 <tr>
@@ -110,7 +113,7 @@
     <th>Комментарии</th>
     <th>&nbsp;</th>
 </tr>
-{foreach from=$sources item=s}
+{foreach from=$sources.src item=s}
 <tr{if $s.user_id} {if $s.status}class='bggreen'{else}class='bgyellow'{/if}{/if}>
     <td><a href="{$s.url}">{if $s.title}{$s.title}{else}{$s.url|truncate:50}{/if}</a></td>
     <td>
@@ -152,5 +155,10 @@
     </td>
 </tr>
 {/foreach}
+<tr>
+    <td colspan="2">{if $smarty.get.skip > 0}<a href='?what={$smarty.get.what}&amp;skip={$smarty.get.skip - 200}'>&lt; {t}сюда{/t}</a>{else}&nbsp;{/if}</td>
+    <td>Всего: {$sources.total}</td>
+    <td colspan="2" align="right">{if $sources.total > ($smarty.get.skip + 200)}<a href='?what={$smarty.get.what}&amp;skip={$smarty.get.skip + 200}'>{t}туда{/t} &gt;</a>{else}&nbsp;{/if}</td>
+</tr>
 </table>
 {/block}

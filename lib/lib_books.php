@@ -308,16 +308,20 @@ function split_token($token_id, $num) {
 
 // book adding queue
 
-function get_sources_page($show_my = 0, $show_started = 0) {
+function get_sources_page($skip = 0, $show_type = '') {
     $out = array();
-    $q = "SELECT s.source_id, s.url, s.title, s.user_id, s.book_id, u.user_name, b.book_name FROM sources s LEFT JOIN books b ON (s.book_id = b.book_id) LEFT JOIN users u ON (s.user_id = u.user_id) ";
-    if ($show_my)
-        $q .= "WHERE s.user_id = ".$_SESSION['user_id']." ORDER BY s.book_id";
-    elseif ($show_started)
-        $q .= "WHERE s.user_id > 0 OR s.book_id > 0 ORDER BY s.book_id";
-    else
-        $q .= "ORDER BY s.book_id DESC, s.source_id LIMIT 200";
-    $res = sql_query($q);
+    $q_main = "SELECT s.source_id, s.url, s.title, s.user_id, s.book_id, u.user_name, b.book_name FROM sources s LEFT JOIN books b ON (s.book_id = b.book_id) LEFT JOIN users u ON (s.user_id = u.user_id) ";
+    $q_cnt = "SELECT COUNT(*) AS cnt FROM sources s ";
+    if ($show_type == 'my')
+        $q_tail = "WHERE s.user_id = ".$_SESSION['user_id'];
+    elseif ($show_type == 'active')
+        $q_tail = "WHERE s.user_id > 0 OR s.book_id > 0";
+    elseif ($show_type == 'free')
+        $q_tail = "WHERE s.user_id = 0";
+    $q_tail2 = " ORDER BY s.book_id DESC, s.source_id LIMIT $skip,200";
+    $r = sql_fetch_array(sql_query($q_cnt.$q_tail));
+    $out['total'] = $r['cnt'];
+    $res = sql_query($q_main.$q_tail.$q_tail2);
     while ($r = sql_fetch_array($res)) {
         $r1 = sql_fetch_array(sql_query("SELECT `user_id`, `status`, `timestamp` FROM sources_status WHERE source_id=".$r['source_id']." ORDER BY `timestamp` DESC LIMIT 1"));
         $comments = array();
@@ -325,7 +329,7 @@ function get_sources_page($show_my = 0, $show_started = 0) {
         while ($r2 = sql_fetch_array($res1)) {
             $comments[] = array('username' => $r2['user_name'], 'timestamp' => $r2['timestamp'], 'text' => $r2['text']);
         }
-        $out[] = array(
+        $out['src'][] = array(
             'id' => $r['source_id'],
             'url' => $r['url'],
             'title' => $r['title'],
