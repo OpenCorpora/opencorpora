@@ -2,10 +2,30 @@
 {extends file='common.tpl'}
 {block name=content}
 <h1>{t}Статистика{/t}</h1>
-<a href="{$web_prefix}/books.php">{t}Книг{/t}</a>: {$stats.total_books.value} <span class='small'>({$stats.total_books.timestamp|date_format:"%d.%m.%y, %H:%M"})</span><br/>
-{t}Предложений{/t}: {$stats.total_sentences.value} <span class='small'>({$stats.total_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"})</span><br/>
-{t}Токенов{/t}: {$stats.total_tokens.value} <span class='small'>({$stats.total_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"})</span><br/>
-&nbsp;&nbsp;&nbsp;&nbsp;{t}Словоупотреблений{/t}: {$stats.total_words.value} <span class='small'>({$stats.total_words.timestamp|date_format:"%d.%m.%y, %H:%M"})</span><br/>
+<h2>{t}Общая{/t}</h2>
+<table border='1' cellspacing='0' cellpadding='3'>
+<tr>
+    <th>{t}Источник{/t}</th>
+    <th><a href="{$web_prefix}/books.php">{t}Текстов{/t}</a></th>
+    <th>{t}Предложений{/t}</th>
+    <th>{t}Токенов{/t}</th>
+    <th>{t}Словоупотреблений{/t}</th>
+</tr>
+<tr>
+    <td align="center"><a href="books.php?book_id=1">{t}ЧасКор{/t}</a></td>
+    <td><b>{$stats.chaskor_books.value}</b> <span class='small'>({$stats.chaskor_books.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+    <td><b>{$stats.chaskor_sentences.value}</b> <span class='small'>({$stats.chaskor_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+    <td><b>{$stats.chaskor_tokens.value}</b> <span class='small'>({$stats.chaskor_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+    <td><b>{$stats.chaskor_words.value}</b> <span class='small'>({$stats.chaskor_words.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+</tr>
+<tr>
+    <th>{t}Всего{/t}</th>
+    <td><b>{$stats.total_books.value}</b> <span class='small'>({$stats.total_books.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+    <td><b>{$stats.total_sentences.value}</b> <span class='small'>({$stats.total_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+    <td><b>{$stats.total_tokens.value}</b> <span class='small'>({$stats.total_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+    <td><b>{$stats.total_words.value}</b> <span class='small'>({$stats.total_words.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+</tr>
+</table>
 <h2>{t}Словарь{/t}</h2>
 {t}Лемм{/t}: {$stats.total_lemmata.value} <span class='small'>({$stats.total_lemmata.timestamp|date_format:"%d.%m.%y, %H:%M"})</span><br/>
 <h2>{t}Пользователи{/t}</h2>

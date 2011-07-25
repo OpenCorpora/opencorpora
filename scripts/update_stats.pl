@@ -37,13 +37,28 @@ $func->{'total_books'} = sub {
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };
+$func->{'chaskor_books'} = sub {
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM books WHERE parent_id = 1");
+    $sc->execute();
+    return $sc->fetchrow_hashref()->{'cnt'};
+};
 $func->{'total_sentences'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM sentences");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };
+$func->{'chaskor_sentences'} = sub {
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = 1))");
+    $sc->execute();
+    return $sc->fetchrow_hashref()->{'cnt'};
+};
 $func->{'total_tokens'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms");
+    $sc->execute();
+    return $sc->fetchrow_hashref()->{'cnt'};
+};
+$func->{'chaskor_tokens'} = sub {
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = 1)))");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };
@@ -54,6 +69,11 @@ $func->{'total_lemmata'} = sub {
 };
 $func->{'total_words'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE tf_text REGEXP '[А-Яа-яЁё]'");
+    $sc->execute();
+    return $sc->fetchrow_hashref()->{'cnt'};
+};
+$func->{'chaskor_words'} = sub {
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = 1))) AND tf_text REGEXP '[А-Яа-яЁё]'");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };

@@ -281,13 +281,17 @@ CREATE TABLE `stats_param` (
     `is_active`  TINYINT(1) UNSIGNED NOT NULL
 );
 INSERT INTO `stats_param` VALUES
-    ('1', 'total_books', '1'),
-    ('2', 'total_sentences', '1'),
-    ('3', 'total_tokens', '1'),
-    ('4', 'total_lemmata', '1'),
-    ('5', 'total_words', '1'),
-    ('6', 'added_sentences', '1'),
-    ('7', 'tokenizer_confidence', '1');
+    ('1',  'total_books', '1'),
+    ('2',  'total_sentences', '1'),
+    ('3',  'total_tokens', '1'),
+    ('4',  'total_lemmata', '1'),
+    ('5',  'total_words', '1'),
+    ('6',  'added_sentences', '1'),
+    ('7',  'tokenizer_confidence', '1'),
+    ('8',  'chaskor_books', '1'),
+    ('9',  'chaskor_sentences', '1'),
+    ('10', 'chaskor_tokens', '1'),
+    ('11', 'chaskor_words', '1');
 
 CREATE TABLE IF NOT EXISTS `stats_values` (
     `timestamp`   INT UNSIGNED NOT NULL,
