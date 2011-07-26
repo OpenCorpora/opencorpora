@@ -19,6 +19,20 @@
     <td><b>{$stats.chaskor_words.value}</b> <span class='small'>({$stats.chaskor_words.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
 </tr>
 <tr>
+    <td align="center"><a href="books.php?book_id=8">{t}Википедия{/t}</a></td>
+    <td><b>{$stats.wikipedia_books.value}</b> <span class='small'>({$stats.wikipedia_books.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+    <td><b>{$stats.wikipedia_sentences.value}</b> <span class='small'>({$stats.wikipedia_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+    <td><b>{$stats.wikipedia_tokens.value}</b> <span class='small'>({$stats.wikipedia_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+    <td><b>{$stats.wikipedia_words.value}</b> <span class='small'>({$stats.wikipedia_words.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+</tr>
+<tr>
+    <td align="center"><a href="books.php?book_id=56">{t}Викиновости{/t}</a></td>
+    <td><b>{$stats.wikinews_books.value}</b> <span class='small'>({$stats.wikinews_books.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+    <td><b>{$stats.wikinews_sentences.value}</b> <span class='small'>({$stats.wikinews_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+    <td><b>{$stats.wikinews_tokens.value}</b> <span class='small'>({$stats.wikinews_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+    <td><b>{$stats.wikinews_words.value}</b> <span class='small'>({$stats.wikinews_words.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+</tr>
+<tr>
     <th>{t}Всего{/t}</th>
     <td><b>{$stats.total_books.value}</b> <span class='small'>({$stats.total_books.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
     <td><b>{$stats.total_sentences.value}</b> <span class='small'>({$stats.total_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>

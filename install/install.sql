@@ -291,7 +291,15 @@ INSERT INTO `stats_param` VALUES
     ('8',  'chaskor_books', '1'),
     ('9',  'chaskor_sentences', '1'),
     ('10', 'chaskor_tokens', '1'),
-    ('11', 'chaskor_words', '1');
+    ('11', 'chaskor_words', '1'),
+    ('12', 'wikinews_books', '1'),
+    ('13', 'wikinews_sentences', '1'),
+    ('14', 'wikinews_tokens', '1'),
+    ('15', 'wikinews_words', '1'),
+    ('16', 'wikipedia_books', '1'),
+    ('17', 'wikipedia_sentences', '1'),
+    ('18', 'wikipedia_tokens', '1'),
+    ('19', 'wikipedia_words', '1');
 
 CREATE TABLE IF NOT EXISTS `stats_values` (
     `timestamp`   INT UNSIGNED NOT NULL,
