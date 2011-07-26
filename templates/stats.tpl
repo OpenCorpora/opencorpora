@@ -37,7 +37,13 @@
     <td><b>{$stats.total_books.value}</b> <span class='small'>({$stats.total_books.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
     <td><b>{$stats.total_sentences.value}</b> <span class='small'>({$stats.total_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
     <td><b>{$stats.total_tokens.value}</b> <span class='small'>({$stats.total_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
-    <td><b>{$stats.total_words.value}</b> <span class='small'>({$stats.total_words.timestamp|date_format:"%d.%m.%y, %H:%M"})</span></td>
+    <td>
+        <b>{$stats.total_words.value}</b> <span class='small'>({$stats.total_words.timestamp|date_format:"%d.%m.%y, %H:%M"})</span><br/>
+        <table border='0'><tr><td>
+        <div class="progress"><div class="progress_load" style="width: {$stats.percent_words}px"></div></div>
+        </td><td>{$stats.percent_words}%</td>
+        </table>
+    </td>
 </tr>
 </table>
 <h2>{t}Словарь{/t}</h2>

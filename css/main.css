@@ -132,6 +132,22 @@ div#edit_tok {
     width: 150px;
     padding: 3px;
 }
+div.progress {
+    overflow: hidden;
+    width: 100px;
+    height: 15px;
+    border: 1px solid #000;
+    background: #9f6;
+    margin: 0;
+    padding: 0;
+}
+div.progress_load {
+    height: 15px;
+    border: 1px solid #000;
+    background: green;
+    margin: 0;
+    padding: 0;
+}
 /* FORMS */
 form#login_form {
     margin: 10px;

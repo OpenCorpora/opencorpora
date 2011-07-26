@@ -18,4 +18,6 @@ $config['smarty_template_dir'] = '/var/www/templates/';
 $config['smarty_compile_dir'] = '/var/www/smarty_dir/templates_c/';
 $config['smarty_config_dir'] = '/var/www/smarty_dir/configs/';
 $config['smarty_cache_dir'] = '/var/www/smarty_dir/cache/';
+
+$config['goals']['total_words'] = 1000000;
 ?>

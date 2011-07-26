@@ -69,6 +69,7 @@ function typo_spaces($str, $with_tags = 0) {
     return preg_replace($patterns, $replacements, $str);
 }
 function get_common_stats() {
+    global $config;
     $stats = array();
 
     $res = sql_query("SELECT * FROM stats_param WHERE is_active=1 AND param_id NOT IN(SELECT DISTINCT param_id FROM user_stats)");
@@ -76,6 +77,8 @@ function get_common_stats() {
         $arr = sql_fetch_array(sql_query("SELECT `timestamp`, param_value FROM stats_values WHERE param_id=".$r['param_id']." ORDER BY `timestamp` DESC LIMIT 1"));
         $stats[$r['param_name']] = array('timestamp' => $arr['timestamp'], 'value' => $arr['param_value']);
     }
+
+    $stats['percent_words'] = floor($stats['total_words']['value'] / $config['goals']['total_words'] * 100);
 
     //user stats
     $res = sql_query("SELECT timestamp, u.user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=6 ORDER BY param_value DESC");
