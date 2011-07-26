@@ -29,6 +29,7 @@
                 event.preventDefault();
                 var $i = $(document.createElement('input')).attr('size', '20').val('Название');
                 var $b = $(document.createElement('button')).html('Ok').click(function(event){
+                    $(this).attr('disabled', 'disabled');
                     $.get('ajax/bind_book.php', {'sid':sid, 'book_id':-1, 'book_name':$(this).closest('td').find('input').val()}, function(res) {
                         var $r = $(res).find('result');
                         if ($r.attr('ok') == 1) {
