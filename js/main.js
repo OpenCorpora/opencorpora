@@ -325,11 +325,57 @@ function save_check_tokens($el) {
     $el.removeAttr('disabled');
 }
 function show_edit_token($el) {
-    $("#edit_tok").show();
+    var tid = parseInt($el.attr('id').substr(1));
+    var $e = $("#edit_tok");
+    var $sp = $("span#t"+tid);
+    var $chb = $e.find("input[type='checkbox']");
+    $e.find("a:first").show();
+    if ($sp.data('checked') == 1) {
+        $chb.attr('checked', 'checked');
+    } else {
+        $chb.removeAttr('checked');
+    }
+    $e.find("form:first").hide();
+    if ($el.html().length < 2) $e.find("a:first").hide();
+    $e.show();
     var offset = $el.offset();
     offset.top += 25;
-    $("#edit_tok").offset(offset).find("b").text($el.html());
-    $("#edit_tok").find("input[name='tid']").val(parseInt($el.attr('id').substr(1)));
+    $e.offset(offset).find("b").text($el.html());
+    $e.find("input[name='tid']").val(tid);
+    $e.find("div.tid").html('#'+tid);
+}
+function check_merge($chbox) {
+    var tid = $chbox.closest('div').find('div:first').html().substr(1);
+    if ($chbox.attr('checked')) {
+        $("span#t"+tid).addClass('bgblue').data('checked', 1);
+    } else {
+        $("span#t"+tid).removeClass().removeData('checked');
+    }
+
+    //(de)activating button
+    var num_checked = 0;
+    $("span.bgblue").each(function(i, el){
+        if ($(el).data('checked') == 1) num_checked++;
+    });
+    if (num_checked > 1) {
+        $("#edit_tok").find('button:last').removeAttr('disabled');
+    } else {
+        $("#edit_tok").find('button:last').attr('disabled', 'disabled');
+    }
+}
+function merge_tokens() {
+    var a = new Array();
+    $("span.bgblue").each(function(i, el){
+        if ($(el).data('checked') == 1) {
+            a.push($(el).attr('id').substr(1));
+        }
+    });
+    $.get('ajax/merge_tokens.php', {'ids':a.join(',')}, function(res) {
+        if ($(res).find('result').attr('ok') == 1)
+            location.reload();
+        else
+            alert('Error');
+    });
 }
 function download_url(event) {
     var $el = $(event.target).closest('a');
@@ -340,10 +386,10 @@ function download_url(event) {
             var ok = $(res).find('response').attr('ok');
             if (ok == 1) {
                 var fname = $(res).find('response').attr('filename');
-                 $el.attr('href', '../files/saved/'+fname+'.html');               
-                 $el.html('сохранённая копия');
+                $el.attr('href', '../files/saved/'+fname+'.html');               
+                $el.html('сохранённая копия');
             } else {
-                 $el.html('ошибка при сохранении файла');
+                $el.html('ошибка при сохранении файла');
             }
         }
     )
