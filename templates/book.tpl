@@ -10,7 +10,11 @@
             $(".tok_c").click(function(){
                 show_edit_token($(this));
             });
-            $('.download_url').one('click',download_url)
+            $('.download_url').one('click',download_url);
+            $('#edit_tok').find('button:last').click(function(){
+                $(this).attr('disabled', 'disabled');
+                merge_tokens();
+            });
         })
     </script>
     {/if}
@@ -45,7 +49,7 @@
     <form action="?act=split_token" method="post"><button onclick="return confirm('Вы уверены?')">Разбить</button> токен <input name='tid' value='0' size='6' readonly='readonly'/> &laquo;<b></b>&raquo;, отделив <input name="nc" value="1" size="1"/> первых символов
     </form>
     {/if}
-    <form><label><input type="checkbox" onclick="check_merge($(this))"/>склеить</label></form>
+    <form><label><input type="checkbox" onclick="check_merge($(this))"/>склеить</label> <button disabled="disabled" type="button">Ok</button></form>
     </div>
     {* Tag list *}
     <h3>{t}Теги{/t}</h3>
@@ -131,7 +135,7 @@
                             <span><input type="checkbox" {if $sentence.checked}checked="checked"{/if} class="tok" id="s{$sentence.id}"/></span>&nbsp;
                         {/if}
                         {foreach name=t item=token from=$sentence.tokens}
-                            {if $user_permission_adder && $token.text|count_characters > 1}
+                            {if $user_permission_adder}
                             <span class="tok_c" id="t{$token.id}">{$token.text|htmlspecialchars}</span>
                             {else}
                             {$token.text|htmlspecialchars}

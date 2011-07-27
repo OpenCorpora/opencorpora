@@ -348,11 +348,34 @@ function check_merge($chbox) {
     var tid = $chbox.closest('div').find('div:first').html().substr(1);
     if ($chbox.attr('checked')) {
         $("span#t"+tid).addClass('bgblue').data('checked', 1);
-        $('body').data("merge"+tid, 1);
     } else {
         $("span#t"+tid).removeClass().removeData('checked');
-        $('body').removeData("merge"+tid);
     }
+
+    //(de)activating button
+    var num_checked = 0;
+    $("span.bgblue").each(function(i, el){
+        if ($(el).data('checked') == 1) num_checked++;
+    });
+    if (num_checked > 1) {
+        $("#edit_tok").find('button:last').removeAttr('disabled');
+    } else {
+        $("#edit_tok").find('button:last').attr('disabled', 'disabled');
+    }
+}
+function merge_tokens() {
+    var a = new Array();
+    $("span.bgblue").each(function(i, el){
+        if ($(el).data('checked') == 1) {
+            a.push($(el).attr('id').substr(1));
+        }
+    });
+    $.get('ajax/merge_tokens.php', {'ids':a.join(',')}, function(res) {
+        if ($(res).find('result').attr('ok') == 1)
+            location.reload();
+        else
+            alert('Error');
+    });
 }
 function download_url(event) {
     var $el = $(event.target).closest('a');
@@ -363,10 +386,10 @@ function download_url(event) {
             var ok = $(res).find('response').attr('ok');
             if (ok == 1) {
                 var fname = $(res).find('response').attr('filename');
-                 $el.attr('href', '../files/saved/'+fname+'.html');               
-                 $el.html('сохранённая копия');
+                $el.attr('href', '../files/saved/'+fname+'.html');               
+                $el.html('сохранённая копия');
             } else {
-                 $el.html('ошибка при сохранении файла');
+                $el.html('ошибка при сохранении файла');
             }
         }
     )

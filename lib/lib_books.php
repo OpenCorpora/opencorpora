@@ -248,13 +248,63 @@ function merge_tokens($id_from, $id_to) {
 
     $r = sql_fetch_array(sql_query("SELECT sent_id FROM text_forms WHERE tf_id=$id_from LIMIT 1"));
 
-    //dropping sentcnce status
+    //dropping sentence status
     if (!sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=".$r['sent_id']." LIMIT 1") ||
         !sql_query("DELETE FROM sentence_check WHERE sent_id=".$r['sent_id'])) {
         show_error();
         return;
     }
     header("Location:sentence.php?id=".$r['sent_id']);
+}
+function merge_tokens_ii($id_array) {
+    //ii stands for "id insensitive"
+    if (sizeof($id_array) < 2) {
+        return 0;
+    }
+    $id_array = array_map(intval, $id_array);
+    $joined = join(',', $id_array);
+
+    //check if they are all in the same sentence
+    $res = sql_query("SELECT distinct sent_id FROM text_forms WHERE tf_id IN($joined)");
+    if (sql_num_rows($res) > 1) {
+        return 0;
+    }
+    $r = sql_fetch_array($res);
+    $sent_id = $r['sent_id'];
+    //check if they all stand in a row
+    $r = sql_fetch_array(sql_query("SELECT MIN(pos) AS minpos, MAX(pos) AS maxpos FROM text_forms WHERE tf_id IN($joined)"));
+    $res = sql_query("SELECT tf_id FROM text_forms WHERE sent_id=$sent_id AND pos > ".$r['minpos']." AND pos < ".$r['maxpos']." AND tf_id NOT IN ($joined) LIMIT 1");
+    if (sql_num_rows($res) > 0) {
+        return 0;
+    }
+    //assemble new token, delete others from form2tf and text_forms, update tf_id in their revisions
+    $res = sql_query("SELECT tf_id, tf_text FROM text_forms WHERE tf_id IN ($joined) ORDER BY pos");
+    $r = sql_fetch_array($res);
+    $new_id = $r['tf_id'];
+    $new_text = $r['tf_text'];
+    while ($r = sql_fetch_array($res)) {
+        $new_text .= $r['tf_text'];
+        if (!sql_query("UPDATE tf_revisions SET tf_id=$new_id WHERE tf_id=".$r['tf_id']) ||
+            !sql_query("DELETE FROM form2tf WHERE tf_id=".$r['tf_id']) ||
+            !sql_query("DELETE FROM text_forms WHERE tf_id=".$r['tf_id'])) {
+            return 0;
+        }
+    }
+    //update tf_text, add new revision
+    $revset_id = create_revset("Tokens $joined merged to <$new_text>");
+    if (
+        !sql_query("UPDATE text_forms SET tf_text = '".mysql_real_escape_string($new_text)."' WHERE tf_id=$new_id LIMIT 1") ||
+        !sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$new_id', '".mysql_real_escape_string(generate_tf_rev($new_text))."')")
+    ) {
+        return 0;
+    }
+    //drop sentence status
+    if (!sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$sent_id LIMIT 1") ||
+        !sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id")) {
+        return 0;
+    }
+    
+    return 1;
 }
 function split_token($token_id, $num) {
     //$num is the number of characters (in the beginning) that should become a separate token
