@@ -110,6 +110,7 @@ $smarty->assign('user_permission_check_tokens', user_has_permission('perm_check_
 $smarty->assign('user_permission_check_morph', user_has_permission('perm_check_morph') ? 1 : 0);
 $smarty->assign('readonly', file_exists('/var/lock/oc_readonly.lock') ? 1 : 0);
 $smarty->assign('dict_errors', sql_num_rows(sql_query("SELECT error_id FROM dict_errata LIMIT 1")));
+$smarty->assign('goals', $config['goals']);
 
 //svn info
 $svnfile = file('.svn/entries');

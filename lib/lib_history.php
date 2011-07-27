@@ -192,13 +192,16 @@ function revert_dict($rev_id) {
     }
     return;
 }
-function get_latest_comments() {
+function get_latest_comments($skip = 0) {
     $out = array();
 
-    $res = sql_query("SELECT sc.comment_id, sc.sent_id, u.user_name, sc.timestamp, SUBSTRING_INDEX(sc.text, ' ', 8) txt FROM sentence_comments sc LEFT JOIN users u ON (sc.user_id=u.user_id) ORDER BY comment_id DESC LIMIT 20");
+    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt FROM sentence_comments"));
+    $out['total'] = $r['cnt'];
+
+    $res = sql_query("SELECT sc.comment_id, sc.sent_id, u.user_name, sc.timestamp, SUBSTRING_INDEX(sc.text, ' ', 8) txt FROM sentence_comments sc LEFT JOIN users u ON (sc.user_id=u.user_id) ORDER BY comment_id DESC LIMIT $skip,20");
 
     while ($r = sql_fetch_array($res)) {
-        $out[] = array(
+        $out['c'][] = array(
             'id' => $r['comment_id'],
             'sent_id' => $r['sent_id'],
             'user_name' => $r['user_name'],

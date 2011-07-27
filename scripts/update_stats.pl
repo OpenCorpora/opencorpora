@@ -32,20 +32,75 @@ $scan->execute();
 
 my $func;
 
+sub books_by_source {
+    my $pid = shift;
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM books WHERE parent_id = $pid");
+    $sc->execute();
+    return $sc->fetchrow_hashref()->{'cnt'};
+}
+
+sub sentences_by_source {
+    my $pid = shift;
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = $pid))");
+    $sc->execute();
+    return $sc->fetchrow_hashref()->{'cnt'};
+}
+
+sub tokens_by_source {
+    my $pid = shift;
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = $pid)))");
+    $sc->execute();
+    return $sc->fetchrow_hashref()->{'cnt'};
+}
+
+sub words_by_source {
+    my $pid = shift;
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = $pid))) AND tf_text REGEXP '[А-Яа-яЁё]'");
+    $sc->execute();
+    return $sc->fetchrow_hashref()->{'cnt'};
+}
+
 $func->{'total_books'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM books");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
+};
+$func->{'chaskor_books'} = sub {
+    return books_by_source(1);
+};
+$func->{'wikipedia_books'} = sub {
+    return books_by_source(8);
+};
+$func->{'wikinews_books'} = sub {
+    return books_by_source(56);
 };
 $func->{'total_sentences'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM sentences");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };
+$func->{'chaskor_sentences'} = sub {
+    return sentences_by_source(1);
+};
+$func->{'wikipedia_sentences'} = sub {
+    return sentences_by_source(8);
+};
+$func->{'wikinews_sentences'} = sub {
+    return sentences_by_source(56);
+};
 $func->{'total_tokens'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
+};
+$func->{'chaskor_tokens'} = sub {
+    return tokens_by_source(1);
+};
+$func->{'wikipedia_tokens'} = sub {
+    return tokens_by_source(8);
+};
+$func->{'wikinews_tokens'} = sub {
+    return tokens_by_source(56);
 };
 $func->{'total_lemmata'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM dict_lemmata");
@@ -56,6 +111,15 @@ $func->{'total_words'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE tf_text REGEXP '[А-Яа-яЁё]'");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
+};
+$func->{'chaskor_words'} = sub {
+    return words_by_source(1);
+};
+$func->{'wikipedia_words'} = sub {
+    return words_by_source(8);
+};
+$func->{'wikinews_words'} = sub {
+    return words_by_source(56);
 };
 $func->{'added_sentences'} = sub {
     my %user_cnt;

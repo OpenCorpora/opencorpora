@@ -9,13 +9,42 @@ CREATE TABLE IF NOT EXISTS `books` (
 
 CREATE TABLE IF NOT EXISTS `book_tags` (
     `book_id`   INT UNSIGNED NOT NULL,
-    `tag_name`  VARCHAR(255) NOT NULL,
+    `tag_name`  VARCHAR(512) NOT NULL,
     INDEX (`book_id`),
     INDEX (`tag_name`)
 );
 
+CREATE TABLE IF NOT EXISTS `sources` (
+    `source_id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `parent_id` INT UNSIGNED NOT NULL,
+    `url`       VARCHAR(512) NOT NULL,
+    `title`     VARCHAR(100) NOT NULL,
+    `user_id`   INT UNSIGNED NOT NULL,
+    `book_id`   INT UNSIGNED NOT NULL,
+    INDEX(`user_id`),
+    INDEX(`book_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `sources_comments` (
+    `comment_id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `source_id`  INT UNSIGNED NOT NULL,
+    `user_id`    INT UNSIGNED NOT NULL,
+    `text`       TEXT NOT NULL,
+    `timestamp`  INT UNSIGNED NOT NULL,
+    INDEX(`source_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `sources_status` (
+    `source_id` INT UNSIGNED NOT NULL,
+    `user_id`   INT UNSIGNED NOT NULL,
+    `status`    TINYINT UNSIGNED NOT NULL,
+    `timestamp` INT UNSIGNED NOT NULL,
+    INDEX(`source_id`),
+    INDEX(`status`)
+);
+
 CREATE TABLE IF NOT EXISTS `downloaded_urls` (
-    `url`      VARCHAR(255) NOT NULL,
+    `url`      VARCHAR(512) NOT NULL,
     `filename` VARCHAR(100) NOT NULL,
     INDEX(`url`)
 );
@@ -252,13 +281,25 @@ CREATE TABLE `stats_param` (
     `is_active`  TINYINT(1) UNSIGNED NOT NULL
 );
 INSERT INTO `stats_param` VALUES
-    ('1', 'total_books', '1'),
-    ('2', 'total_sentences', '1'),
-    ('3', 'total_tokens', '1'),
-    ('4', 'total_lemmata', '1'),
-    ('5', 'total_words', '1'),
-    ('6', 'added_sentences', '1'),
-    ('7', 'tokenizer_confidence', '1');
+    ('1',  'total_books', '1'),
+    ('2',  'total_sentences', '1'),
+    ('3',  'total_tokens', '1'),
+    ('4',  'total_lemmata', '1'),
+    ('5',  'total_words', '1'),
+    ('6',  'added_sentences', '1'),
+    ('7',  'tokenizer_confidence', '1'),
+    ('8',  'chaskor_books', '1'),
+    ('9',  'chaskor_sentences', '1'),
+    ('10', 'chaskor_tokens', '1'),
+    ('11', 'chaskor_words', '1'),
+    ('12', 'wikinews_books', '1'),
+    ('13', 'wikinews_sentences', '1'),
+    ('14', 'wikinews_tokens', '1'),
+    ('15', 'wikinews_words', '1'),
+    ('16', 'wikipedia_books', '1'),
+    ('17', 'wikipedia_sentences', '1'),
+    ('18', 'wikipedia_tokens', '1'),
+    ('19', 'wikipedia_words', '1');
 
 CREATE TABLE IF NOT EXISTS `stats_values` (
     `timestamp`   INT UNSIGNED NOT NULL,

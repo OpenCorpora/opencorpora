@@ -39,7 +39,6 @@ my %strange;
 
 my $stat_sure, my $stat_total;
 
-$drop->execute();
 
 #first pass
 $sent->execute();
@@ -74,6 +73,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
 }
 
 my $coef;
+$drop->execute();
 for my $k(sort {$a <=> $b} keys %total) {
     $coef = $good{$k}/$total{$k};
     printf("%d\t%.3f\t%d\t%027s\n", $k, $coef, $total{$k}, sprintf("%b",$k));

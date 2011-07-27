@@ -433,3 +433,17 @@ function load_sentence_comments(sent_id, is_logged, need_scroll) {
         }
     );
 }
+function change_source_status(event) {
+    $.get('ajax/save_check.php', {'id':$(event.target).attr('rel'), 'type':'source', 'value':$(event.target).attr('rev')}, function(res) {
+        var $b = $(event.target);
+        if ($(res).find('result').attr('ok') == 1) {
+            if($b.attr('rev') == 1) {
+                $b.attr('rev', '0').html('Не готово').closest('tr').removeClass().addClass('bggreen');
+            } else {
+                $b.attr('rev', '1').html('Готово').closest('tr').removeClass().addClass('bgyellow');
+            }
+        } else {
+            alert('Query failed');
+        }
+    });
+}

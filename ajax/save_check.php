@@ -21,6 +21,15 @@ switch($type) {
                 }
             }
         }
+    case 'source':
+        if (user_has_permission('perm_adder')) {
+            if ($value === '0' || $value === '1') {
+                if (sql_query("INSERT INTO sources_status VALUES('$id', '".$_SESSION['user_id']."', '$value', '".time()."')")) {
+                    echo '<result ok="1"/></response>';
+                    return;
+                }
+            }
+        }
 }
 echo '<result ok="0"/></response>';
 ?>

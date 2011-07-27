@@ -99,6 +99,9 @@ div#rightcol div {
 .bgpink {
     background-color: #f99;
 }
+.bgyellow {
+    background-color: yellow;
+}
 a.toggle {
     border-bottom: 1px black dashed;
     text-decoration: none;
@@ -131,6 +134,22 @@ div#edit_tok {
     background-color: #ffe5b4;
     width: 150px;
     padding: 3px;
+}
+div.progress {
+    overflow: hidden;
+    width: 100px;
+    height: 15px;
+    border: 1px solid #000;
+    background: #9f6;
+    margin: 0;
+    padding: 0;
+}
+div.progress_load {
+    height: 15px;
+    border: 1px solid #000;
+    background: green;
+    margin: 0;
+    padding: 0;
 }
 /* FORMS */
 form#login_form {
