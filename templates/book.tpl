@@ -79,7 +79,7 @@
     {if $user_permission_adder}
     <form action='?act=add_tag' method='post' class='inline'>{t}Добавить тег{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
-        <input name='tag_name' value='New_tag'/>&nbsp;&nbsp;
+        <input name='tag_name' value='New_tag' style="width: 70%"/>&nbsp;&nbsp;
         <input type='submit' value='{t}Добавить{/t}'/>
     </form>
     {/if}
