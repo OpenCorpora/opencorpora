@@ -307,6 +307,13 @@ CREATE TABLE IF NOT EXISTS `stats_values` (
     `param_value` INT UNSIGNED NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS `tag_stats` (
+    `prefix` VARCHAR(16) NOT NULL,
+    `value`  VARCHAR(500) NOT NULL,
+    `texts`  SMALLINT UNSIGNED NOT NULL,
+    `words`  INT UNSIGNED NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS `tokenizer_coeff` (
     `vector` INT UNSIGNED NOT NULL,
     `coeff`  FLOAT NOT NULL

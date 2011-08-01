@@ -26,6 +26,10 @@ if (isset($_GET['page'])) {
             $smarty->assign('stats', get_common_stats());
             $smarty->display('stats.tpl');
             break;
+        case 'tag_stats':
+            $smarty->assign('stats', get_tag_stats());
+            $smarty->display('tag_stats.tpl');
+            break;
         case 'export':
             $smarty->display('static/doc/export.tpl');
             break;

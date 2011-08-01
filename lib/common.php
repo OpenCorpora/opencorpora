@@ -91,6 +91,15 @@ function get_common_stats() {
 
     return $stats;
 }
+function get_tag_stats() {
+    $out = array();
+    $res = sql_query("SELECT prefix, value, texts, words FROM tag_stats ORDER BY prefix, texts DESC, words DESC");
+    
+    while ($r = sql_fetch_array($res)) {
+        $out[$r['prefix']][] = array('value' => $r['value'], 'texts' => $r['texts'], 'words' => $r['words']);
+    }
+    return $out;
+}
 function get_downloads_info() {
     $dict = array();
     $kb = 1024 * 1024;

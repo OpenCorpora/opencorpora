@@ -2,7 +2,7 @@
 {extends file='common.tpl'}
 {block name=content}
 <h1>{t}Статистика{/t}</h1>
-<h2>{t}Общая{/t}</h2>
+<h2>{t}Общая{/t} | <a href="?page=tag_stats">{t}По тегам{/t}</a></h2>
 <table border='1' cellspacing='0' cellpadding='3'>
 <tr>
     <th>{t}Источник{/t}</th>
