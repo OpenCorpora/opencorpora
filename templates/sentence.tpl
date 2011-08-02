@@ -81,7 +81,7 @@
     <div id="source_text"><b>{t}Весь текст{/t}:</b> {$sentence.fulltext}</div>
     <p class='small'><a href='#' class='hint' id="show_src">Показать исходный текст</a></p>
     <div class='small' style='display:none' id='source_orig'>{$sentence.source|htmlspecialchars}</div>
-    <p class='small' align='right'>Источник: <a href="{$sentence.url}">{$sentence.book_name}</a></p>
+    <p class='small' align='right'>Источник: <a href="{$sentence.url}">{$sentence.book_name}</a> (<a href="{$web_prefix}/books.php?book_id={$sentence.book_id}&amp;full">весь текст</a>)</p>
     <button id="a_parse" class="hidden-block">{t}Вернуться к разбору{/t}</button>
     <form method="post" action="?id={$sentence.id}&amp;act=save" class='oc_tabs' id="form_annot">
         <div id="main_scroller">

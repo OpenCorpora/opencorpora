@@ -24,7 +24,7 @@ function get_sentence($sent_id) {
             )
         )
     "));
-    $book_id = $r['book_id'];
+    $out['book_id'] = $book_id = $r['book_id'];
     $r = sql_fetch_array(sql_query("
         SELECT book_name
         FROM books
