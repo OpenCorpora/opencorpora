@@ -135,6 +135,9 @@ div#edit_tok {
     width: 150px;
     padding: 3px;
 }
+div#edit_tok div.close {
+    float: right;
+}
 div.progress {
     overflow: hidden;
     width: 100px;
