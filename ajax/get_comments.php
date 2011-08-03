@@ -15,7 +15,7 @@ while($r = sql_fetch_array($res)) {
         'ts' => date("d.m.y, H:i", $r['timestamp']),
         'author' => $r['user_name'],
         'parent' => $r['parent_id'],
-        'text' => $r['text'],
+        'text' => nl2br($r['text']),
     );
     $hier[$r['parent_id']][] = $r['comment_id'];
 }
