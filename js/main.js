@@ -345,7 +345,7 @@ function show_edit_token($el) {
     $e.find("div.tid").html('#'+tid);
 }
 function check_merge($chbox) {
-    var tid = $chbox.closest('div').find('div:first').html().substr(1);
+    var tid = $chbox.closest('div').find('div.tid').html().substr(1);
     if ($chbox.attr('checked')) {
         $("span#t"+tid).addClass('bgblue').data('checked', 1);
     } else {
