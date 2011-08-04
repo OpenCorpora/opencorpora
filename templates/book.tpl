@@ -19,6 +19,15 @@
                 $('#edit_tok').hide();
                 event.preventDefault();
             });
+        
+            $("#tag_name").autocomplete("ajax/tag_autocomplete.php",{
+                minChars:2,
+                maxItemsToShow:10,
+                width:400,
+                formatItem:function (row) {
+                    return row[0];
+                }
+            });
         })
     </script>
     {/if}
@@ -83,7 +92,7 @@
     {if $user_permission_adder}
     <form action='?act=add_tag' method='post' class='inline'>{t}Добавить тег{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
-        <input name='tag_name' value='New_tag' style="width: 70%"/>&nbsp;&nbsp;
+        <input id='tag_name' name='tag_name' style="width: 70%"/>&nbsp;&nbsp;
         <input type='submit' value='{t}Добавить{/t}'/>
     </form>
     {/if}
