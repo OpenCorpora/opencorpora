@@ -43,8 +43,9 @@ while ($ref = $scan_books->fetchrow_hashref()) {
     next if $bookid2wordnum{$ref->{'book_id'}} == 0;
 
     if ($ref->{'tag_name'} =~ /^([^\:]+)\:(.+)/) {
-        $tags{$1}{$2}{'texts'}++;
-        $tags{$1}{$2}{'words'} += $bookid2wordnum{$ref->{'book_id'}};
+        my $val = $2;
+        $tags{$1}{$val}{'texts'}++;
+        $tags{$1}{$val}{'words'} += $bookid2wordnum{$ref->{'book_id'}};
     }
 }
 
