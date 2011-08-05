@@ -42,10 +42,13 @@ while ($ref = $scan_books->fetchrow_hashref()) {
 
     next if $bookid2wordnum{$ref->{'book_id'}} == 0;
 
+    printf STDERR "tag_name = <%s>\n", $ref->{'tag_name'};
     if ($ref->{'tag_name'} =~ /^([^\:]+)\:(.+)/) {
-        my $val = $2;
-        $tags{$1}{$val}{'texts'}++;
-        $tags{$1}{$val}{'words'} += $bookid2wordnum{$ref->{'book_id'}};
+        my ($pre, $val) = ($1, $2);
+        $val =~ s/^\s+//;
+        $val =~ s/\s+$//;
+        $tags{$pre}{$val}{'texts'}++;
+        $tags{$pre}{$val}{'words'} += $bookid2wordnum{$ref->{'book_id'}};
     }
 }
 
