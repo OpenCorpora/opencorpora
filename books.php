@@ -51,9 +51,6 @@ elseif (user_has_permission('perm_adder')) {
         case 'merge_sentences':
             merge_sentences((int)$_POST['id1'], (int)$_POST['id2']);
             break;
-        case 'merge_tokens':
-            merge_tokens((int)$_POST['id1'], (int)$_POST['id2']);
-            break;
         case 'split_token':
             split_token((int)$_POST['tid'], (int)$_POST['nc']);
             break;

@@ -10,7 +10,6 @@
 {if $user_permission_adder}
     <br/>
     <form class='inline' method='post' action='{$web_prefix}/books.php?act=merge_sentences'>Склеить предложения <input name='id1' size='5'/> и&nbsp;<input name='id2' size='5'/> <input type='submit' value='Склеить' onclick="return confirm('Вы уверены?')"/></form><br/>
-    <form class='inline' method='post' action='{$web_prefix}/books.php?act=merge_tokens'>Склеить токены с&nbsp;<input name='id1' size='5'/> по&nbsp;<input name='id2' size='5'/> <input type='submit' value='Склеить' onclick="return confirm('Вы уверены?')"/></form><br/>
     <br/>
 {/if}
 {if $user_permission_adder}<h2>Контроль качества</h2>{/if}
