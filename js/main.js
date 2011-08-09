@@ -407,6 +407,14 @@ function post_sentence_comment($el, sent_id, username) {
                 $newcomment.attr({'id':'comm_'+$res.attr('id')});
                 $newcomment.addClass('comment_main');
                 $newcomment.append('<div class="comment_top">'+username+', '+$res.attr('ts')+'</div><div class="comment_text">'+txt+'</div>');
+                var $reply_link = $(document.createElement('a')).addClass('small').attr({'rel':$res.attr('id'), 'href':'#'}).html('ответить').click(function(){
+                    $(this).closest('div').after($("#comment_form"));
+                    $("#comment_form").show().attr('rel', $(this).attr('rel'));
+                    $("#comment_form").find('textarea').focus();
+                    event.preventDefault();
+                });
+                $newcomment.append($reply_link);
+                $newcomment.append(' <a href="#comm_'+$res.attr('id')+'" class="small">пост. ссылка</a>');
                 if (!reply_to) {
                     $("#comments").append($newcomment);
                 } else {
