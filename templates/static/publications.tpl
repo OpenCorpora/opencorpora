@@ -23,7 +23,7 @@
 <tr>
     <td>Программное обеспечение для коллективной работы над морфологической разметкой корпуса<br/>(доклад на конференции &laquo;Корпусная лингвистика&ndash;2011&raquo;)<br/><a href='#' class='small hint tog'>выходные данные</a><div class='small hidden-block'><i>Бочаров В.В., Грановский Д.В.</i> Программное обеспечение для коллективной работы над морфологической разметкой корпуса // Труды международной конференции «Корпусная лингвистика &ndash; 2011». 27&ndash;29 июня 2011 г., Санкт-Петербург. — СПб.: С.-Петербургский гос. университет, Филологический факультет, 2011. — 348 с.</div></td>
     <td><a href='{$web_prefix}/doc/articles/2011_CorpusLing.pdf'>pdf</a></td>
-    <td><a href='{$web_prefix}/doc/articles/2010_CorpusLing.tex'>tex</a></td>
+    <td><a href='{$web_prefix}/doc/articles/2011_CorpusLing.tex'>tex</a></td>
 </tr>
 <tr>
     <td rowspan="2">Инструменты контроля качества данных в проекте Открытый Корпус<br/>(для конференции &laquo;Диалог&raquo;)<br/><a href='#' class='small hint tog'>выходные данные</a><div class='small hidden-block'><i>Bocharov V., Bichineva S., Granovsky D., Ostapuk N., Stepanova M.</i> Quality assurance tools in the OpenCorpora project // Компьютерная лингвистика и интеллектуальные технологии: По материалам ежегодной Международной конференции «Диалог» (Бекасово, 25–29 мая 2011 г.). Вып. 10 (17). — М.: РГГУ, 2011.</div></td>
