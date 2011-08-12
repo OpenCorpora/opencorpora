@@ -516,10 +516,10 @@ function add_field_for_tag(book_id, s) {
     var $i = $(document.createElement('input')).css('width', '600').val(s);
     var $b = $(document.createElement('button')).html('Ok').click(function(event) {
         $(this).attr('disabled', 'disabled');
-        $.get('ajax/add_book_tag.php', {'book_id':book_id, 'tag_name':s}, function(res){
+        $.get('ajax/add_book_tag.php', {'book_id':book_id, 'tag_name':$i.val()}, function(res){
             if ($(res).find('result').attr('ok') == 1)
                 $(event.target).hide();
-                $i.replaceWith(s);
+                $i.replaceWith($i.val());
         });
     });
     $(document.createElement('li')).append($i, '&nbsp;', $b).appendTo('body ul:first');
