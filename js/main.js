@@ -478,3 +478,49 @@ function change_source_status(event) {
         }
     });
 }
+function get_wikinews_info($link) {
+    var ttl = $link.closest('div').find('span').html();
+    $.getJSON(
+        'http://ru.wikinews.org/w/api.php?callback=?',
+        {'format':'json', 'action':'query', 'titles':ttl, 'prop':'revisions|categories', 'rvdir':'newer'},
+        function(data) {
+            var lastrevid;
+            var author;
+            var categ = new Array();
+            $.each(data.query.pages, function(i, item){
+                author = item.revisions[0].user;
+                $.each(item.revisions, function(j, revitem){
+                    lastrevid = revitem.revid;
+                });
+                $.each(item.categories, function(j, catitem){
+                    categ.push(catitem.title);
+                });
+                add_field_for_tag($link.attr('rel'), 'url:http://ru.wikinews.org/w/index.php?title=' +ttl.replace(/ /g, '_') + '&oldid=' + lastrevid);
+                add_field_for_tag($link.attr('rel'), 'Автор:http://ru.wikinews.org/wiki/Участник:' + author);
+                $.get('ajax/guess_wiki_categ.php', {'cat':categ.join('|')}, function(res1){
+                    add_field_for_tag($link.attr('rel'), 'Дата:' + $(res1).find("date").attr('v'));
+                    add_field_for_tag($link.attr('rel'), 'Год:' + $(res1).find("year").attr('v'));
+                    $.each($(res1).find("topic"), function(j, catitem){
+                        add_field_for_tag($link.attr('rel'), 'Тема:ВикиКатегория:' + $(catitem).attr('v'));
+                    });
+                    $.each($(res1).find("geo"), function(j, catitem){
+                        add_field_for_tag($link.attr('rel'), 'Гео:ВикиКатегория:' + $(catitem).attr('v'));
+                    });
+                });
+            });
+            $link.hide();
+        }
+    );
+}
+function add_field_for_tag(book_id, s) {
+    var $i = $(document.createElement('input')).css('width', '600').val(s);
+    var $b = $(document.createElement('button')).html('Ok').click(function(event) {
+        $(this).attr('disabled', 'disabled');
+        $.get('ajax/add_book_tag.php', {'book_id':book_id, 'tag_name':s}, function(res){
+            if ($(res).find('result').attr('ok') == 1)
+                $(event.target).hide();
+                $i.replaceWith(s);
+        });
+    });
+    $(document.createElement('li')).append($i, '&nbsp;', $b).appendTo('body ul:first');
+}

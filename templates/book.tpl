@@ -19,6 +19,11 @@
                 $('#edit_tok').hide();
                 event.preventDefault();
             });
+            $('#wikinews_addtag_link').click(function(event){
+                $(this).html('выполняется запрос...');
+                get_wikinews_info($(this));
+                event.preventDefault();
+            });
         
             $("#tag_name").autocomplete("ajax/tag_autocomplete.php",{
                 minChars:2,
@@ -66,6 +71,7 @@
     </div>
     {* Tag list *}
     <h3>{t}Теги{/t}</h3>
+    {if $book.is_wikinews}<div><span class="hidden-block">{$book.wikinews_title}</span><a href="#" class="hint" id="wikinews_addtag_link" rel="{$book.id}">попробовать заполнить автоматически</a></div>{/if}
     {if isset($book.tags[0])}
         <ul>
         {foreach item=tag from=$book.tags}
