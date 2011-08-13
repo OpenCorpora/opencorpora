@@ -152,8 +152,7 @@ $func->{'added_sentences'} = sub {
     my $sent_max = $dbh->prepare("SELECT MAX(sent_id) AS m FROM sentences");
     $sent_max->execute();
     my $sm = $sent_max->fetchrow_hashref()->{'m'};
-    #my $basic_ts = time();
-    my $basic_ts = 1312149054;
+    my $basic_ts = time();
     while(1) {
         print STDERR "last week sentence $sm\n";
         my $a = get_sentence_adder($sm--);
