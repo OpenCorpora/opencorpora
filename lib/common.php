@@ -88,6 +88,10 @@ function get_common_stats() {
     while ($r = sql_fetch_array($res)) {
         $stats['added_sentences'][] = array('timestamp' => $r['timestamp'], 'user_name' => $r['user_name'], 'value' => $r['param_value']);
     }
+    $res = sql_query("SELECT timestamp, u.user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=7 ORDER BY param_value DESC");
+    while ($r = sql_fetch_array($res)) {
+        $stats['added_sentences_last_week'][] = array('timestamp' => $r['timestamp'], 'user_name' => $r['user_name'], 'value' => $r['param_value']);
+    }
 
     return $stats;
 }

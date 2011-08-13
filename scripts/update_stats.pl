@@ -60,6 +60,27 @@ sub words_by_source {
     return $sc->fetchrow_hashref()->{'cnt'};
 }
 
+sub get_sentence_adder {
+    my $sid = shift;
+    my $sc = $dbh->prepare("
+        SELECT user_id, timestamp
+        FROM rev_sets
+        WHERE set_id = (
+            SELECT set_id
+            FROM tf_revisions
+            WHERE tf_id IN (
+                SELECT tf_id
+                FROM text_forms
+                WHERE sent_id=?
+            )
+            ORDER BY rev_id
+            LIMIT 1
+        )
+    ");
+    $sc->execute($sid);
+    return $sc->fetchrow_hashref();
+}
+
 $func->{'total_books'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM books");
     $sc->execute();
@@ -122,34 +143,46 @@ $func->{'wikinews_words'} = sub {
     return words_by_source(56);
 };
 $func->{'added_sentences'} = sub {
+
+    #LAST WEEK
+    #we'll use param_id = 7, though it's used in different sense in stats_param
     my %user_cnt;
+    my $ins = $dbh->prepare("INSERT INTO user_stats VALUES(?, ?, ?, ?)");
+    my $del = $dbh->prepare("DELETE FROM user_stats WHERE param_id=?");
+    my $sent_max = $dbh->prepare("SELECT MAX(sent_id) AS m FROM sentences");
+    $sent_max->execute();
+    my $sm = $sent_max->fetchrow_hashref()->{'m'};
+    #my $basic_ts = time();
+    my $basic_ts = 1312149054;
+    while(1) {
+        print STDERR "last week sentence $sm\n";
+        my $a = get_sentence_adder($sm--);
+        if ($basic_ts - $a->{'timestamp'} > 60*60*24*7) {
+            last;
+        }
+        print STDERR "ts = $a->{timestamp}\n";
+        if (!$a || !$a->{'user_id'}) {
+            next;
+        }
+        $user_cnt{$a->{'user_id'}}++;
+    }
+    $del->execute(7);
+    for my $k(keys %user_cnt) {
+        $ins->execute($k, time(), 7, $user_cnt{$k});
+    }
+
+    #GLOBAL
     #save the old data
+    %user_cnt = ();
     my $sc = $dbh->prepare("SELECT user_id, param_value FROM user_stats WHERE param_id=6");
     $sc->execute();
     while (my $r = $sc->fetchrow_hashref()) {
         $user_cnt{$r->{'user_id'}} = $r->{'param_value'};
     }
-    my $del = $dbh->prepare("DELETE FROM user_stats WHERE param_id=6");
-    $del->execute();
+    $del->execute(6);
     #updating the data
     my $curr_max = $dbh->prepare("SELECT MAX(param_value) AS m FROM stats_values WHERE param_id=6");
-    my $ins = $dbh->prepare("INSERT INTO user_stats VALUES(?, ?, '6', ?)");
     my $pre = $dbh->prepare("SELECT sent_id FROM sentences WHERE sent_id>? ORDER BY sent_id");
-    my $sc = $dbh->prepare("
-        SELECT user_id
-        FROM rev_sets
-        WHERE set_id = (
-            SELECT set_id
-            FROM tf_revisions
-            WHERE tf_id IN (
-                SELECT tf_id
-                FROM text_forms
-                WHERE sent_id=?
-            )
-            ORDER BY rev_id
-            LIMIT 1
-        )
-    ");
     $curr_max->execute();
     my $r = $curr_max->fetchrow_hashref();
     if (!$r->{'m'}) {
@@ -158,14 +191,13 @@ $func->{'added_sentences'} = sub {
     $pre->execute($r->{'m'});
     my $new_max = $r->{'m'};
     while ($r = $pre->fetchrow_hashref()) {
-        $sc->execute($r->{'sent_id'});
         $new_max = $r->{'sent_id'};
-        print STDERR "sentence $new_max\n";
-        my $u = $sc->fetchrow_hashref();
-        ++$user_cnt{$u->{'user_id'}};
+        my $u = get_sentence_adder($r->{'sent_id'})->{'user_id'};
+        print STDERR "sentence $new_max by user #$u\n";
+        ++$user_cnt{$u};
     }
     for my $k(keys %user_cnt) {
-        $ins->execute($k, time(), $user_cnt{$k});
+        $ins->execute($k, time(), 6, $user_cnt{$k});
     }
     return $new_max;
 };

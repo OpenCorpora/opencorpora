@@ -73,4 +73,10 @@
     <li>{$s.user_name} ({$s.value}) <span class='small'>({$s.timestamp|date_format:"%d.%m.%y, %H:%M"})</li>
 {/foreach}
 </ol>
+<h4>{t}За последнюю неделю{/t}</h4>
+<ol>
+{foreach item=s from=$stats.added_sentences_last_week}
+    <li>{$s.user_name} ({$s.value}) <span class='small'>({$s.timestamp|date_format:"%d.%m.%y, %H:%M"})</li>
+{/foreach}
+</ol>
 {/block}

@@ -42,7 +42,7 @@ while ($ref = $scan_books->fetchrow_hashref()) {
 
     next if $bookid2wordnum{$ref->{'book_id'}} == 0;
 
-    printf STDERR "tag_name = <%s>\n", $ref->{'tag_name'};
+    #printf STDERR "tag_name = <%s>\n", $ref->{'tag_name'};
     if ($ref->{'tag_name'} =~ /^([^\:]+)\:(.+)/) {
         my ($pre, $val) = ($1, $2);
         $val =~ s/^\s+//;
@@ -55,7 +55,7 @@ while ($ref = $scan_books->fetchrow_hashref()) {
 $drop->execute();
 for my $pre(keys %tags) {
     for my $main(keys %{$tags{$pre}}) {
-        printf STDERR "%s/%s %d txt, %d wds\n", $pre, $main, $tags{$pre}{$main}{'texts'}, $tags{$pre}{$main}{'words'};
+        #printf STDERR "%s/%s %d txt, %d wds\n", $pre, $main, $tags{$pre}{$main}{'texts'}, $tags{$pre}{$main}{'words'};
         $ins->execute($pre, $main, $tags{$pre}{$main}{'texts'}, $tags{$pre}{$main}{'words'});
     }
 }
