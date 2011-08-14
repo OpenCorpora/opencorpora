@@ -272,7 +272,7 @@ function is_logged() {
     return (isset($_SESSION['user_id']) && $_SESSION['user_id']>0 && !isset($_SESSION['user_pending']));
 }
 function is_user_openid($user_id) {
-    $r = sql_fetch_array(sql_query("SELECT user_passwd WHERE user_id=$user_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query("SELECT user_passwd FROM users WHERE user_id=$user_id LIMIT 1"));
     return ($r['user_passwd'] == '' || $r['user_passwd'] == 'notagreed');
 }
 function user_has_permission($perm) {

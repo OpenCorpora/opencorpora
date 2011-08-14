@@ -104,7 +104,7 @@ $smarty->assign('web_prefix', $config['web_prefix']);
 $smarty->assign('is_admin', is_admin() ? 1 : 0);
 $smarty->assign('is_logged', is_logged() ? 1 : 0);
 if (is_logged()) {
-    $smarty->assign('is_openid', is_user_openid($_SESSION['user_id']));
+    $smarty->assign('is_openid', is_user_openid($_SESSION['user_id']) ? 1 : 0);
 }
 $smarty->assign('user_permission_dict', user_has_permission('perm_dict') ? 1 : 0);
 $smarty->assign('user_permission_disamb', user_has_permission('perm_disamb') ? 1 : 0);
