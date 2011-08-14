@@ -75,7 +75,10 @@ function user_login_openid($token) {
         print ($arr['error_message']);
         return 0;
     }
-    $id = $arr['identity'];
+    $id = '';
+    if (strpos($arr['provider'], 'google') !== false)
+        $id = 'google:';
+    $id .= ($arr['uid'] ? $arr['uid'] : $arr['identity']);
     //check if the user exists
     $res = sql_query("SELECT user_id, user_passwd FROM `users` WHERE user_name='$id' LIMIT 1");
     //if he doesn't
