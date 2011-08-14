@@ -28,7 +28,6 @@ if (is_logged()) {
         default:
             $smarty->assign('meta', get_meta_options());
             $smarty->assign('current_email', get_user_email($_SESSION['user_id']));
-            $smarty->assign('is_openid', is_user_openid($_SESSION['user_id']));
             $smarty->display('options.tpl');
     }
 } else

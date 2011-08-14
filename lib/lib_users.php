@@ -273,7 +273,7 @@ function is_logged() {
 }
 function is_user_openid($user_id) {
     $r = sql_fetch_array(sql_query("SELECT user_passwd WHERE user_id=$user_id LIMIT 1"));
-    return $r['user_passwd'] === '';
+    return ($r['user_passwd'] == '' || $r['user_passwd'] == 'notagreed');
 }
 function user_has_permission($perm) {
     return (
