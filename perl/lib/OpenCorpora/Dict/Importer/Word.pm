@@ -318,7 +318,7 @@ sub get_lemma_grammems {
         }
     }
     for my $gr(keys %grams) {
-        if ($grams{$gr} == $num && !exists $bad{'*'}{$gr} && !exists $bad{$pos}{$gr}) {
+        if ($grams{$gr} >= $num && !exists $bad{'*'}{$gr} && !exists $bad{$pos}{$gr}) {
             push @out, $gr;
         }
     }

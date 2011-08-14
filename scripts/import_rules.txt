@@ -223,10 +223,15 @@
     CHANGE( -> Poss)    
 (1 сравн)
     CHANGE(сравн -> COMP)
-1 ADJS|PRTS #this rule should be before split
-    CHANGE(ADJS,anim,inan -> ADJS)
-    CHANGE(PRTS,anim,inan -> PRTS)
+#the folowing 2 rules should be before split
+(1 ADJS|PRTS|ADJF|PRTF)
+    CHANGE(!accs,anim -> )
+    CHANGE(!accs,inan -> )
     CHANGE(ADJS,Geox -> ADJS,_del)
+    CHANGE(femn,sing,accs,anim -> femn,sing,accs)
+    CHANGE(neut,sing,accs,anim -> neut,sing,accs)
+    CHANGE(femn,sing,accs,inan -> femn,sing,accs)
+    CHANGE(neut,sing,accs,inan -> neut,sing,accs)
 (1 ADJS&masc&sing&~/ен$/) & (1 ADJS&masc&sing&~/енен$/)
     CHANGE (ADJS, masc, sing, ~/енен$/ -> ADJS, masc, sing, V-en)
 (1 ADJS&masc&sing&~/ан$/) & (1 ADJS&masc&sing&~/анен$/)
@@ -283,13 +288,6 @@
     CHANGE(~/^тою-то$/,femn,ablt-> femn,ablt,V-oy)
 * Anum
     CHANGE( -> ADJF)
-* ADJF|PRTF
-    CHANGE(!accs,anim -> )
-    CHANGE(!accs,inan -> )
-    CHANGE(femn,sing,accs,anim -> femn,sing,accs)
-    CHANGE(neut,sing,accs,anim -> neut,sing,accs)
-    CHANGE(femn,sing,accs,inan -> femn,sing,accs)
-    CHANGE(neut,sing,accs,inan -> neut,sing,accs)
 * COMP    
     CHANGE(anim,inan -> )
     CHANGE(2 -> Cmp2)

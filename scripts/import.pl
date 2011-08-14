@@ -28,3 +28,4 @@ $importer->preload_list('pred_del', '/corpus/scripts/lists/pred_del.txt');
 $importer->preload_list('pred_intj', '/corpus/scripts/lists/pred_to_intj.txt');
 $importer->preload_list('count', '/corpus/scripts/lists/add_Coun_gent_plur.txt');
 $importer->read_aot('/home/grand/aot_dump.3');
+#$importer->read_aot('test.txt');

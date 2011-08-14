@@ -224,7 +224,7 @@ sub read_rules {
             #adding the previous rule if it exists
             if ($rule_ref) {
                 push @{$self->{RULES}}, $$rule_ref;
-                print STDERR "Reading rule #".$#{$self->{RULES}}."\n" if DEBUG && !INSERT;
+                print STDERR "Reading rule #".$#{$self->{RULES}}.", condition is $_\n" if DEBUG && !INSERT;
             }
             #new rule
             my $rule = {};
