@@ -5,16 +5,23 @@ function main_history($sentence_id, $skip = 0) {
         $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT s.set_id, st.sent_id) FROM rev_sets s LEFT JOIN tf_revisions tr ON (s.set_id=tr.set_id) RIGHT JOIN text_forms tf ON (tr.tf_id=tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id)"));
         $out['total'] = $res[0];
     }
-    $res = sql_query("SELECT DISTINCT s.*, u.user_name, st.sent_id FROM rev_sets s LEFT JOIN `users` u ON (s.user_id = u.user_id) LEFT JOIN `tf_revisions` tr ON (s.set_id = tr.set_id) RIGHT JOIN `text_forms` tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN `sentences` st ON (tf.sent_id = st.sent_id)".($sentence_id?" WHERE st.sent_id=$sentence_id":"")." ORDER BY s.set_id DESC, tr.rev_id LIMIT $skip,20");
+
+    $sets = array();
+    $res = sql_query("SELECT DISTINCT tr.set_id, st.sent_id FROM tf_revisions tr RIGHT JOIN text_forms tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id)".($sentence_id?" WHERE st.sent_id=$sentence_id":"")." ORDER BY tr.rev_id DESC LIMIT $skip,20");
     while($r = sql_fetch_array($res)) {
-        $out['sets'][] = array (
+        if (!$sets[$r['set_id']]) {
+            $r1 = sql_fetch_array(sql_query("SELECT u.user_name, s.timestamp, s.comment FROM rev_sets s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE s.set_id = ".$r['set_id']." LIMIT 1"));
+            $sets[$r['set_id']] = array($r1['user_name'], $r1['timestamp'], $r1['comment']);
+        }
+        $out['sets'][] = array(
             'set_id'    => $r['set_id'],
-            'user_name' => $r['user_name'],
-            'timestamp' => $r['timestamp'],
+            'user_name' => $sets[$r['set_id']][0],
+            'timestamp' => $sets[$r['set_id']][1],
             'sent_id'   => $r['sent_id'],
-            'comment'   => $r['comment']
+            'comment'   => $sets[$r['set_id']][2]
         );
     }
+
     return $out;
 }
 function dict_history($lemma_id, $skip = 0) {
