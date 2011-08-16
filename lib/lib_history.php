@@ -1,24 +1,28 @@
 <?php
-function main_history($sentence_id, $skip = 0) {
+function main_history($sentence_id, $set_id = 0, $skip = 0) {
     $out = array();
     if (!$sentence_id) {
-        $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT s.set_id, st.sent_id) FROM rev_sets s LEFT JOIN tf_revisions tr ON (s.set_id=tr.set_id) RIGHT JOIN text_forms tf ON (tr.tf_id=tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id)"));
+        if (!$set_id)
+            $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT set_id) FROM tf_revisions"));
+        else
+            $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT sent_id) FROM text_forms WHERE tf_id IN (SELECT tf_id FROM tf_revisions WHERE set_id = $set_id)"));
+
         $out['total'] = $res[0];
     }
 
-    $sets = array();
-    $res = sql_query("SELECT DISTINCT tr.set_id, st.sent_id FROM tf_revisions tr RIGHT JOIN text_forms tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id)".($sentence_id?" WHERE st.sent_id=$sentence_id":"")." ORDER BY tr.rev_id DESC LIMIT $skip,20");
+    if (!$set_id && !$sentence_id)
+        $res = sql_query("SELECT set_id, COUNT(sent_id) cnt FROM (SELECT set_id, f.sent_id FROM tf_revisions r RIGHT JOIN text_forms f ON (r.tf_id=f.tf_id) RIGHT JOIN sentences s ON (f.sent_id=s.sent_id)".($sentence_id?" WHERE s.sent_id=$sentence_id":"")." GROUP BY set_id, f.sent_id ORDER BY set_id DESC) T GROUP BY set_id ORDER BY set_id DESC LIMIT $skip,20");
+    else
+        $res = sql_query("SELECT tr.set_id, st.sent_id FROM tf_revisions tr RIGHT JOIN text_forms tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id) WHERE ".($set_id?"tr.set_id=$set_id GROUP BY st.sent_id":"st.sent_id=$sentence_id GROUP BY tr.set_id")." ORDER BY tr.rev_id DESC LIMIT $skip,20");
     while($r = sql_fetch_array($res)) {
-        if (!$sets[$r['set_id']]) {
-            $r1 = sql_fetch_array(sql_query("SELECT u.user_name, s.timestamp, s.comment FROM rev_sets s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE s.set_id = ".$r['set_id']." LIMIT 1"));
-            $sets[$r['set_id']] = array($r1['user_name'], $r1['timestamp'], $r1['comment']);
-        }
+        $r1 = sql_fetch_array(sql_query("SELECT u.user_name, s.timestamp, s.comment FROM rev_sets s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE s.set_id = ".$r['set_id']." LIMIT 1"));
         $out['sets'][] = array(
             'set_id'    => $r['set_id'],
-            'user_name' => $sets[$r['set_id']][0],
-            'timestamp' => $sets[$r['set_id']][1],
+            'user_name' => $r1['user_name'],
+            'timestamp' => $r1['timestamp'],
+            'sent_cnt'  => $r['cnt'],
             'sent_id'   => $r['sent_id'],
-            'comment'   => $sets[$r['set_id']][2]
+            'comment'   => $r1['comment']
         );
     }
 
