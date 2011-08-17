@@ -19,7 +19,7 @@
 <div>
     <a href="{$web_prefix}/?page=about">{t}О проекте{/t}</a><br/>
     <a href="{$web_prefix}/?page=publications">{t}Публикации{/t}</a><br/>
-    <a href="{$web_prefix}/?page=team">{t}Участники{/t}</a><br/>
+    <a href="{$web_prefix}/?page=team">{t}Разработчики{/t}</a><br/>
 </div>
 <div>
     <a href="{$web_prefix}/dict.php">{t}Словарь{/t}</a>
@@ -48,7 +48,9 @@
     <b>{t}Ревизия{/t}</b> {$svn_revision}
 </div>
 {/if}
-<br/><br/><div class='small'>
+<br/>
+<div class='small'><a href="http://goo.gl/jm3ol">Сообщить о свободных текстах</a></div>
+<br/><div class='small'>
 {t}Подписаться на рассылку{/t}<br/>
 (введите свой email):
 <form action="http://groups.google.com/group/opencorpora/boxsubscribe">
