@@ -185,6 +185,28 @@ function download_url($url) {
     }
     return 0;
 }
+function split_paragraph($sentence_id) {
+    if (!$sentence_id) {
+        show_error();
+        return;
+    }
+    //get pos
+    $r = sql_fetch_array(sql_query("SELECT pos FROM sentences WHERE sent_id=$sentence_id LIMIT 1"));
+    $spos = $r['pos'];
+    //get the parahraph info
+    $r = sql_fetch_array(sql_query("SELECT par_id, book_id, pos FROM paragraphs WHERE par_id=(SELECT par_id FROM sentences WHERE sent_id=$sentence_id LIMIT 1) LIMIT 1"));
+    //move the following paragraphs
+    sql_query("UPDATE paragraphs SET pos=pos+1 WHERE book_id=".$r['book_id']." AND pos > ".$r['pos']);
+    //make a new paragraph
+    sql_query("INSERT INTO paragraphs VALUES(NULL, '".$r['book_id']."', '".($r['pos']+1)."')");
+    $new_par_id = sql_insert_id();
+    //move the following sentences to the new paragraph
+    if (sql_query("UPDATE sentences SET par_id=$new_par_id, pos=pos-$spos WHERE par_id=".$r['par_id']." AND pos > $spos")) {
+        header("Location:books.php?book_id=".$r['book_id']."&full#sen$sentence_id");
+        return;
+    }
+    show_error();
+}
 function merge_sentences($id1, $id2) {
     if ($id1 < 1 || $id2 < 1 || ($id2-$id1 != 1)) {
         show_error("Можно склеить только два соседних предложения!");

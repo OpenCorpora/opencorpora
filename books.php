@@ -54,6 +54,9 @@ elseif (user_has_permission('perm_adder')) {
         case 'split_token':
             split_token((int)$_POST['tid'], (int)$_POST['nc']);
             break;
+        case 'split_paragraph':
+            split_paragraph((int)$_GET['sid']);
+            break;
     }
 } else {
     show_error($config['msg_notadmin']);

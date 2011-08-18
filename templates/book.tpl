@@ -24,6 +24,9 @@
                 get_wikinews_info($(this));
                 event.preventDefault();
             });
+            $('a.spp').click(function(event){
+                return confirm('Разбить абзац после этого предложения?');
+            });
         
             $("#tag_name").autocomplete("ajax/tag_autocomplete.php",{
                 minChars:2,
@@ -141,7 +144,7 @@
         {/if}
         {foreach key=num item=paragraph from=$book.paragraphs}
             {if isset($smarty.get.full)}
-                <tr><td>{$num}</td><td></td><td></td></tr>
+                <tr><td>{$num}</td><td></td><td></td><td></td></tr>
             {else}
                 <li value="{$num}">
                 <ol>
@@ -149,7 +152,12 @@
             {foreach name=s item=sentence from=$paragraph}
                 {if isset($smarty.get.full)}
                     {strip}
-                    <tr><td></td><td valign='top'><a name="sen{$sentence.id}" href="{$web_prefix}/sentence.php?id={$sentence.id}">{$sentence.id}</a>.</td><td>
+                    <tr><td></td><td valign='top'><a name="sen{$sentence.id}" href="{$web_prefix}/sentence.php?id={$sentence.id}">{$sentence.id}</a>.</td><td valign="top">
+                        {if !$smarty.foreach.s.last && $user_permission_adder}
+                            <a href="?act=split_paragraph&amp;sid={$sentence.id}" title="Разбить абзац после этого предложения" class="spp">Р</a>
+                        {else}&nbsp;
+                        {/if}
+                        </td><td>
                         {if $user_permission_check_tokens}
                             <span><input type="checkbox" {if $sentence.checked}checked="checked"{/if} class="tok" id="s{$sentence.id}"/></span>&nbsp;
                         {/if}
