@@ -223,6 +223,8 @@
     CHANGE( -> Poss)    
 (1 сравн)
     CHANGE(сравн -> COMP)
+(* Anum) | (* Apro)
+    CHANGE( -> ADJF)
 #the folowing 2 rules should be before split
 (1 ADJS|PRTS|ADJF|PRTF)
     CHANGE(!accs,anim -> )
@@ -269,7 +271,6 @@
         LINK(0, 16, ADJF-SUPR_suppl)
 
 * Apro
-    CHANGE( -> ADJF)
     CHANGE(~/^какой-либо$/,masc,accs,anim -> masc,accs,inan)
     CHANGE(~/^какою-либо$/,femn,ablt-> femn,ablt,V-oy)
     CHANGE(~/^какого-нибудь$/,masc,accs,inan -> masc,accs,anim)
@@ -286,8 +287,6 @@
     CHANGE(~/^такою-то$/,femn,ablt-> femn,ablt,V-oy)
     CHANGE(~/^тот-то$/,masc,accs,anim -> masc,accs,inan)
     CHANGE(~/^тою-то$/,femn,ablt-> femn,ablt,V-oy)
-* Anum
-    CHANGE( -> ADJF)
 * COMP    
     CHANGE(anim,inan -> )
     CHANGE(2 -> Cmp2)
@@ -545,6 +544,8 @@
     CHANGE(ПОСЛ -> _del)
 (1 INTJ) & (1 PRCL)
     SPLIT(INTJ, PRCL)
+(* ~/^добро$/)
+    CHANGE (PRCL -> CONJ)
 (* PRED&@pred_del)
     CHANGE ( -> _del)
 (* PRED&@pred_intj)
