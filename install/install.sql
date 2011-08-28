@@ -299,7 +299,11 @@ INSERT INTO `stats_param` VALUES
     ('16', 'wikipedia_books', '1'),
     ('17', 'wikipedia_sentences', '1'),
     ('18', 'wikipedia_tokens', '1'),
-    ('19', 'wikipedia_words', '1');
+    ('19', 'wikipedia_words', '1'),
+    ('20', 'blogs_books', '1'),
+    ('21', 'blogs_sentences', '1'),
+    ('22', 'blogs_tokens', '1'),
+    ('23', 'blogs_words', '1');
 
 CREATE TABLE IF NOT EXISTS `stats_values` (
     `timestamp`   INT UNSIGNED NOT NULL,

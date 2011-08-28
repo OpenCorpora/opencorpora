@@ -23,4 +23,5 @@ $config['goals']['total_words'] = 1000000;
 $config['goals']['wikipedia_words'] = 100000;
 $config['goals']['chaskor_words'] = 250000;
 $config['goals']['wikinews_words'] = 250000;
+$config['goals']['blogs_words'] = 50000;
 ?>

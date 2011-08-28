@@ -51,6 +51,19 @@
     </td>
 </tr>
 <tr>
+    <td align="center"><a href="books.php?book_id=184">{t}Блоги{/t}</a></td>
+    <td align='right' valign='top'><b>{$stats.blogs_books.value|number_format}</b><br/><span class='small'>{$stats.blogs_books.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td align='right' valign='top'><b>{$stats.blogs_sentences.value|number_format}</b><br/><span class='small'>{$stats.blogs_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td align='right' valign='top'><b>{$stats.blogs_tokens.value|number_format}</b><br/><span class='small'>{$stats.blogs_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td align='right'>
+        <b>{$stats.blogs_words.value|number_format}</b><br/><span class='small'>{$stats.blogs_words.timestamp|date_format:"%d.%m.%y, %H:%M"}</span><br/>
+        <table border='0'><tr>
+        <td><span class='hint' title='Цель до конца 2011 года &ndash; {$goals.blogs_words}'>{$stats.percent_words.blogs}%</span></td>
+        <td><div class="progress"><div class="progress_load" style="width: {$stats.percent_words.blogs}px"></div></div></td>
+        </tr></table>
+    </td>
+</tr>
+<tr>
     <th>{t}Всего{/t}</th>
     <td align='right' valign='top'><b>{$stats.total_books.value|number_format}</b><br/><span class='small'>{$stats.total_books.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
     <td align='right' valign='top'><b>{$stats.total_sentences.value|number_format}</b><br/><span class='small'>{$stats.total_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>

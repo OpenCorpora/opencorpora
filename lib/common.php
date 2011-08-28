@@ -78,10 +78,9 @@ function get_common_stats() {
         $stats[$r['param_name']] = array('timestamp' => $arr['timestamp'], 'value' => $arr['param_value']);
     }
 
-    $stats['percent_words']['total'] = floor($stats['total_words']['value'] / $config['goals']['total_words'] * 100);
-    $stats['percent_words']['chaskor'] = floor($stats['chaskor_words']['value'] / $config['goals']['chaskor_words'] * 100);
-    $stats['percent_words']['wikipedia'] = floor($stats['wikipedia_words']['value'] / $config['goals']['wikipedia_words'] * 100);
-    $stats['percent_words']['wikinews'] = floor($stats['wikinews_words']['value'] / $config['goals']['wikinews_words'] * 100);
+    foreach(array('total', 'chaskor', 'wikipedia', 'wikinews', 'blogs') as $src) {
+        $stats['percent_words'][$src] = floor($stats[$src.'_words']['value'] / $config['goals'][$src.'_words'] * 100);
+    }
 
     //user stats
     $res = sql_query("SELECT timestamp, u.user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=6 ORDER BY param_value DESC");
