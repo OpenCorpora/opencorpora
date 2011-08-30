@@ -168,13 +168,11 @@ $func->{'added_sentences'} = sub {
     while(1) {
         print STDERR "last week sentence $sm\n";
         my $a = get_sentence_adder($sm--);
+        next unless $a;
         if ($basic_ts - $a->{'timestamp'} > 60*60*24*7) {
             last;
         }
         print STDERR "ts = $a->{timestamp}\n";
-        if (!$a || !$a->{'user_id'}) {
-            next;
-        }
         $user_cnt{$a->{'user_id'}}++;
     }
     $del->execute(7);
