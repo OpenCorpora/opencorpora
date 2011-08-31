@@ -35,30 +35,39 @@ function tokenize_ml($txt) {
         //$chain is the current word which we will perhaps need to check in the dictionary
 
         $chain = $chain_left = $chain_right = '';
-        if (is_hyphen($nextchar) || is_hyphen($char)) {
+        $odd_symbol = '';
+        if (is_hyphen($char) || is_hyphen($nextchar)) {
+            $odd_symbol = '-';
+        }
+        elseif (preg_match('/([\.\/\?\=\:])/u', $char, $match) || preg_match('/([\.\/\?\=\:])/u', $nextchar, $match)) {
+            $odd_symbol = $match[1];
+        }
+        if ($odd_symbol) {
             for ($j = $i; $j >= 0; --$j) {
                 $t = mb_substr($txt, $j, 1, 'UTF-8');
-                if (is_cyr($t) || is_hyphen($t) || $t === "'") {
+                if (($odd_symbol == '-' && (is_cyr($t) || is_hyphen($t) || $t === "'")) ||
+                    ($odd_symbol != '-' && !is_space($t))) {
                     $chain_left = $t.$chain_left;
                 } else {
                     break;
                 }
-                if (mb_substr($chain_left, -1) == '-') {
+                if (mb_substr($chain_left, -1) == $odd_symbol) {
                     $chain_left = mb_substr($chain_left, 0, -1);
                 }
             }
             for ($j = $i+1; $j < mb_strlen($txt, 'UTF-8'); ++$j) {
                 $t = mb_substr($txt, $j, 1, 'UTF-8');
-                if (is_cyr($t) || is_hyphen($t) || $t === "'") {
+                if (($odd_symbol == '-' && (is_cyr($t) || is_hyphen($t) || $t === "'")) ||
+                    ($odd_symbol != '-' && !is_space($t))) {
                     $chain_right .= $t;
                 } else {
                     break;
                 }
-                if (mb_substr($chain_right, 0, 1) == '-') {
+                if (mb_substr($chain_right, 0, 1) == $odd_symbol) {
                     $chain_right = mb_substr($chain_right, 1);
                 }
             }
-            $chain = $chain_left.'-'.$chain_right;
+            $chain = $chain_left.$odd_symbol.$chain_right;
         }
 
         $vector = array(
@@ -76,7 +85,7 @@ function tokenize_ml($txt) {
             is_number($char),
             is_number($nextchar),
             is_number($nnextchar),
-            is_dict_chain($chain),
+            ($odd_symbol == '-' ? is_dict_chain($chain): 0),
             is_dot($char),
             is_dot($nextchar),
             is_bracket1($char),
@@ -85,10 +94,11 @@ function tokenize_ml($txt) {
             is_bracket2($nextchar),
             is_single_quote($char),
             is_single_quote($nextchar),
-            is_suffix($chain_right),
+            ($odd_symbol == '-' ? is_suffix($chain_right) : 0),
             is_same_pm($char, $nextchar),
             is_slash($char),
-            is_slash($nextchar)
+            is_slash($nextchar),
+            (($odd_symbol && $odd_symbol != '-') ? looks_like_url($chain, $chain_right) : 0)
         );
         $vector = implode('', $vector);
 
@@ -160,6 +170,17 @@ function is_dict_chain($chain) {
 }
 function is_suffix($s) {
     return (int)in_array($s, array('то', 'таки', 'с', 'ка', 'де'));
+}
+function looks_like_url($s, $suffix) {
+    if (!$suffix)
+        return 0;
+    if (substr($s, 0, 1) === '.')
+        return 0;
+    $re1 = '/^\W*https?\:\/\/u';
+    $re2 = '/.\.(ru|ua|com|org|gov|ру)\W*$/iu';
+    if (preg_match($re1, $s) || preg_match($re2, $s)) {
+        return 1;
+    }
 }
 function addtext_check($array) {
     $out = array('full' => $array['txt'], 'select0' => get_books_for_select(0));

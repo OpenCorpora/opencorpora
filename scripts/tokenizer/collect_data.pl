@@ -67,6 +67,9 @@ while(my $ref = $sent->fetchrow_hashref()) {
 
     for my $i(0..length($str)-1) {
         $vector = oct('0b'.join('', @{calc($str, $i)}));
+        if ($vector == 8390657 && exists $border{$i}) {
+            print STDERR $ref->{'sent_id'}.' '.$i."\n";
+        }
         $total{$vector}++;
         $good{$vector}++ if exists $border{$i} ? 1 : 0;
     }
@@ -76,11 +79,12 @@ my $coef;
 $drop->execute();
 for my $k(sort {$a <=> $b} keys %total) {
     $coef = $good{$k}/$total{$k};
-    printf("%d\t%.3f\t%d\t%027s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
+    printf("%9s\t%.3f\t%d\t%028s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
+
 
     #how strange it is
     if (0 < $coef && $coef < 1) {
-        $strange{$k.'#'.($coef > 0.5 ? '0' : '1')} = $coef > 0.5 ? $coef : 1-$coef;
+        $strange{$k.'#'.($coef > 0.5 ? '0' : '1')} = [$coef > 0.5 ? $coef : 1-$coef, $total{$k}];
     } else {
         $stat_sure += $total{$k};
     }
@@ -119,16 +123,14 @@ while(my $ref = $sent->fetchrow_hashref()) {
         $vector = oct('0b'.join('', @{calc($str, $i)}));
         my $q = $vector.'#'.(exists $border{$i} ? 1 : 0);
         if (exists $strange{$q}) {
-            #printf STDERR "strange: sentence %d, position %d, coef %.3f\n",
-            #    $ref->{'sent_id'}, $i, $strange{$q};
-            $ins2->execute($ref->{'sent_id'}, $i, (exists $border{$i} ? 1 : 0), $strange{$q});
+            $ins2->execute($ref->{'sent_id'}, $i, (exists $border{$i} ? 1 : 0), $strange{$q}->[0]);
         }
     }
 }
 
-#for my $k(sort {$b <=> $a} keys %strange) {
-#    printf "%s\t%d\t%d\n", $k, $strange{$k}[0], $strange{$k}[1];
-#}
+for my $k(sort {$strange{$b}->[1] <=> $strange{$a}->[1]} keys %strange) {
+    printf "%s\t%.3f\t%d\n", $k, $strange{$k}[0], $strange{$k}[1];
+}
 
 # subroutines
 
@@ -145,27 +147,36 @@ sub calc {
     my $chain = '';
     my $chain_left = '';
     my $chain_right = '';
-    if (is_hyphen($next) || is_hyphen($current)) {
+    my $odd_symbol = '';
+    if (is_hyphen($current) || is_hyphen($next)) {
+        $odd_symbol = '-';
+    }
+    elsif ($current =~ /([\.\/\?\=\:])/ || $next =~ /([\.\/\?\=\:])/) {
+        $odd_symbol = $1;
+    }
+    if ($odd_symbol ne '') {
         my $t;
         for (my $j = $i; $j >= 0; --$j) {
             $t = substr($str, $j, 1);
-            if (is_cyr($t) || is_hyphen($t) || $t eq "'") {
+            if (($odd_symbol eq '-' && (is_cyr($t) || is_hyphen($t) || $t eq "'")) ||
+                ($odd_symbol ne '-' && !is_space($t))) {
                 $chain_left = $t.$chain_left;
             } else {
                 last;
             }
-            $chain_left =~ s/\-$//;
+            $chain_left =~ s/\Q$odd_symbol\E$//;
         }
         for (my $j = $i+1; $j < length($str); ++$j) {
             $t = substr($str, $j, 1);
-            if (is_cyr($t) || is_hyphen($t) || $t eq "'") {
+            if (($odd_symbol eq '-' && (is_cyr($t) || is_hyphen($t) || $t eq "'")) ||
+                ($odd_symbol ne '-' && !is_space($t))) {
                 $chain_right .= $t;
             } else {
                 last;
             }
-            $chain_right =~ s/^\-//;
+            $chain_right =~ s/^\Q$odd_symbol\E//;
         }
-        $chain = $chain_left.'-'.$chain_right;
+        $chain = $chain_left.$odd_symbol.$chain_right;
         #print "left <$chain_left>, right <$chain_right>, full <$chain>\n";
     }
 
@@ -184,7 +195,7 @@ sub calc {
     push @out, is_number($current);
     push @out, is_number($next);
     push @out, is_number($nnext);
-    push @out, is_dict_chain($chain);
+    push @out, $odd_symbol eq '-' ? is_dict_chain($chain) : 0;
     push @out, is_dot($current);
     push @out, is_dot($next);
     push @out, is_bracket1($current);
@@ -193,10 +204,11 @@ sub calc {
     push @out, is_bracket2($next);
     push @out, is_single_quote($current);
     push @out, is_single_quote($next);
-    push @out, is_suffix($chain_right);
+    push @out, $odd_symbol eq '-' ? is_suffix($chain_right) : 0;
     push @out, is_same_pm($current, $next);
     push @out, is_slash($current);
     push @out, is_slash($next);
+    push @out, ($odd_symbol && $odd_symbol ne '-') ? looks_like_url($chain, $chain_right): 0;
 
     return \@out;
 }
@@ -287,4 +299,14 @@ sub is_suffix {
 }
 sub is_same_pm {
     return $_[0] eq $_[1] ? 1 : 0;
+}
+sub looks_like_url {
+    my $s = shift;
+    my $suffix = shift;
+    return 0 if $suffix eq '';
+    return 0 if $s =~ /^\./;
+    if ($s =~ /^\W*https?\:\/\// || $s =~/.\.(ru|ua|com|org|gov|ру)\W*$/i) {
+        return 1;
+    }
+    return 0;
 }
