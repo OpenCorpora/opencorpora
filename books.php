@@ -54,6 +54,12 @@ elseif (user_has_permission('perm_adder')) {
         case 'split_token':
             split_token((int)$_POST['tid'], (int)$_POST['nc']);
             break;
+        case 'split_sentence':
+            if($a = split_sentence((int)$_POST['tid']))
+                header("Location:books.php?book_id=".$a[0]."&full#sen".$a[1]);
+            else
+                show_error();
+            break;
         case 'split_paragraph':
             split_paragraph((int)$_GET['sid']);
             break;

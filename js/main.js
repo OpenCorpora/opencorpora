@@ -329,14 +329,15 @@ function show_edit_token($el) {
     var $e = $("#edit_tok");
     var $sp = $("span#t"+tid);
     var $chb = $e.find("input[type='checkbox']");
-    $e.find("a:first").show();
+    $e.find("a").show();
     if ($sp.data('checked') == 1) {
         $chb.attr('checked', 'checked');
     } else {
         $chb.removeAttr('checked');
     }
     $e.find("form:first").hide();
-    if ($el.html().length < 2) $e.find("a:first").hide();
+    $e.find("form").eq(1).hide();
+    if ($el.html().length < 2) $e.find("a").eq(1).hide();
     $e.show();
     var offset = $el.offset();
     offset.top += 25;

@@ -66,10 +66,12 @@
     {/if}
     <div id="edit_tok"><div class='close'><a href="#">x</a></div><div class='tid'></div>
     {if $user_permission_adder}
-    <a href="#" onclick="$(this).parent().find('form').toggle(); return false" class="hint">разбить</a>
-    <form action="?act=split_token" method="post"><button onclick="return confirm('Вы уверены?')">Разбить</button> токен <input name='tid' value='0' size='6' readonly='readonly'/> &laquo;<b></b>&raquo;, отделив <input name="nc" value="1" size="1"/> первых символов
-    </form>
+    <a href="#" onclick="$(this).parent().find('form:first').toggle(); return false" class="hint">&#8596; токен</a><br/>
+    <form action="?act=split_token" method="post"><button onclick="return confirm('Вы уверены?')">Разбить</button> токен <input name='tid' value='0' type='hidden'/>&laquo;<b></b>&raquo;, отделив <input name="nc" value="1" size="1"/> первых символов</form>
+    <a href="#" onclick="$(this).parent().find('form').eq(1).toggle(); return false" class="hint">&#8596; предложение</a>
+    <form action="?act=split_sentence" method="post"><button onclick="return confirm('Вы уверены?')">Разбить</button> после этого токена<input name='tid' type='hidden' value='0'/></form>
     {/if}
+    <hr/>
     <form><label><input type="checkbox" onclick="check_merge($(this))"/>склеить</label> <button disabled="disabled" type="button">Ok</button></form>
     </div>
     {* Tag list *}

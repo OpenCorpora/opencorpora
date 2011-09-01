@@ -207,6 +207,51 @@ function split_paragraph($sentence_id) {
     }
     show_error();
 }
+function split_sentence($token_id) {
+    //note: comments will stay with the first sentence
+
+    //find which sentence the token is in
+    $r = sql_fetch_array(sql_query("SELECT sent_id, pos FROM text_forms WHERE tf_id=$token_id LIMIT 1"));
+    $sent_id = $r['sent_id'];
+    $tpos = $r['pos'];
+    //check that it is not the last token
+    $r = sql_fetch_array(sql_query("SELECT MAX(pos) mpos FROM text_forms WHERE sent_id=$sent_id"));
+    if ($r['mpos'] == $tpos) return 0;
+    //split the source field
+    $r = sql_fetch_array(sql_query("SELECT source, pos, par_id FROM sentences WHERE sent_id=$sent_id LIMIT 1"));
+    $source = $r['source'];
+    $spos = $r['pos'];
+    $par_id = $r['par_id'];
+    $res = sql_query("SELECT tf_text FROM text_forms WHERE sent_id=$sent_id AND pos<=$tpos ORDER BY pos");
+    $t = 0;
+    while ($r = sql_fetch_array($res)) {
+       while (mb_substr($source, $t, mb_strlen($r['tf_text'], 'UTF-8'), 'UTF-8') !== $r['tf_text']) {
+           $t++;
+           if ($t > mb_strlen($source, 'UTF-8'))
+               return 0;
+       }
+       $t += mb_strlen($r['tf_text'], 'UTF-8');
+    }
+    $source_left = trim(mb_substr($source, 0, $t-1, 'UTF-8'));
+    $source_right = trim(mb_substr($source, $t, mb_strlen($source, 'UTF-8')-1, 'UTF-8'));
+    //shift the following sentences
+    if (
+        !sql_query("UPDATE sentences SET pos=pos+1 WHERE par_id=$par_id AND pos > $spos") ||
+    //create new sentence
+        !sql_query("INSERT INTO sentences VALUES(NULL, '$par_id', '".($spos+1)."', '".mysql_real_escape_string($source_right)."', '0')")
+    ) return 0;
+    $new_sent_id = sql_insert_id();
+    //move tokens
+    if (
+        !sql_query("UPDATE text_forms SET sent_id=$new_sent_id, pos=pos-$tpos WHERE sent_id=$sent_id AND pos>$tpos") ||
+    //change source in the original sentence
+        !sql_query("UPDATE sentences SET check_status='0', source='".mysql_real_escape_string($source_left)."' WHERE sent_id=$sent_id LIMIT 1") ||
+    //drop status
+        !sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id")
+    ) return 0;
+    $r = sql_fetch_array(sql_query("SELECT book_id FROM paragraphs WHERE par_id=$par_id LIMIT 1"));
+    return array($r['book_id'], $sent_id);
+}
 function merge_sentences($id1, $id2) {
     if ($id1 < 1 || $id2 < 1 || ($id2-$id1 != 1)) {
         show_error("Можно склеить только два соседних предложения!");
