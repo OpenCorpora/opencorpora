@@ -165,13 +165,15 @@ $func->{'added_sentences'} = sub {
     $sent_max->execute();
     my $sm = $sent_max->fetchrow_hashref()->{'m'};
     my $basic_ts = time();
+    my $bad_counter = 0;
     while(1) {
         print STDERR "last week sentence $sm\n";
         my $a = get_sentence_adder($sm--);
         next unless $a;
         if ($basic_ts - $a->{'timestamp'} > 60*60*24*7) {
-            last;
+            ++$bad_counter < 10 ? next : last;
         }
+        $bad_counter = 0;
         print STDERR "ts = $a->{timestamp}\n";
         $user_cnt{$a->{'user_id'}}++;
     }
