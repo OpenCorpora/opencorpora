@@ -396,7 +396,7 @@ function get_sources_page($skip = 0, $show_type = '') {
         $q_tail = "WHERE s.user_id > 0 OR s.book_id > 0";
     elseif ($show_type == 'free')
         $q_tail = "WHERE s.user_id = 0";
-    $q_tail2 = " ORDER BY s.book_id DESC, s.source_id LIMIT $skip,200";
+    $q_tail2 = $show_type == 'free' ? " ORDER BY RAND() LIMIT 200" : " ORDER BY s.book_id DESC, s.source_id LIMIT $skip,200";
     $r = sql_fetch_array(sql_query($q_cnt.$q_tail));
     $out['total'] = $r['cnt'];
     $res = sql_query($q_main.$q_tail.$q_tail2);
