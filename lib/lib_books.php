@@ -232,7 +232,7 @@ function split_sentence($token_id) {
        }
        $t += mb_strlen($r['tf_text'], 'UTF-8');
     }
-    $source_left = trim(mb_substr($source, 0, $t-1, 'UTF-8'));
+    $source_left = trim(mb_substr($source, 0, $t, 'UTF-8'));
     $source_right = trim(mb_substr($source, $t, mb_strlen($source, 'UTF-8')-1, 'UTF-8'));
     //shift the following sentences
     if (
