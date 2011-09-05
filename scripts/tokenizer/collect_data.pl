@@ -36,11 +36,13 @@ my %good;
 my $vector;
 my $pos;
 my %strange;
+my %exceptions;
 
 my $stat_sure, my $stat_total;
 
 
 #first pass
+read_exceptions('/corpus/scripts/lists/tokenizer_exceptions.txt');
 $sent->execute();
 while(my $ref = $sent->fetchrow_hashref()) {
     $str = decode('utf8', $ref->{'source'}).'  ';
@@ -67,9 +69,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
 
     for my $i(0..length($str)-1) {
         $vector = oct('0b'.join('', @{calc($str, $i)}));
-        if ($vector == 8390657 && exists $border{$i}) {
-            print STDERR $ref->{'sent_id'}.' '.$i."\n";
-        }
+        #print $i.' <'.substr($str, $i, 1).'> '.$vector."\n";
         $total{$vector}++;
         $good{$vector}++ if exists $border{$i} ? 1 : 0;
     }
@@ -79,7 +79,7 @@ my $coef;
 $drop->execute();
 for my $k(sort {$a <=> $b} keys %total) {
     $coef = $good{$k}/$total{$k};
-    printf("%9s\t%.3f\t%d\t%028s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
+    printf("%9s\t%.3f\t%d\t%029s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
 
 
     #how strange it is
@@ -151,7 +151,7 @@ sub calc {
     if (is_hyphen($current) || is_hyphen($next)) {
         $odd_symbol = '-';
     }
-    elsif ($current =~ /([\.\/\?\=\:])/ || $next =~ /([\.\/\?\=\:])/) {
+    elsif ($current =~ /([\.\/\?\=\:&"!])/ || $next =~ /([\.\/\?\=\:&"!])/) {
         $odd_symbol = $1;
     }
     if ($odd_symbol ne '') {
@@ -179,6 +179,7 @@ sub calc {
         $chain = $chain_left.$odd_symbol.$chain_right;
         #print "left <$chain_left>, right <$chain_right>, full <$chain>\n";
     }
+    #print "prev=<$previous>, current=<$current>, next=<$next>, nnext=<$nnext>, odds=<$odd_symbol>\n";
 
     my @out = ();
     push @out, is_space($current);
@@ -209,6 +210,9 @@ sub calc {
     push @out, is_slash($current);
     push @out, is_slash($next);
     push @out, ($odd_symbol && $odd_symbol ne '-') ? looks_like_url($chain, $chain_right): 0;
+    push @out, ($odd_symbol && $odd_symbol ne '-') ? is_exception($chain): 0;
+
+    #print "will return out = ".join('', @out)."\n";
 
     return \@out;
 }
@@ -309,4 +313,25 @@ sub looks_like_url {
         return 1;
     }
     return 0;
+}
+sub is_exception {
+    my $s = shift;
+    return 1 if exists $exceptions{$s};
+    if ($s =~ /^\W|\W$/) {
+        $s =~ s/^\W+//;
+        $s =~ s/\W+$//;
+        return exists $exceptions{$s} ? 1 : 0;
+    }
+    return 0;
+}
+sub read_exceptions {
+    open F, $_[0] or warn "Failed to open $_[0]: $!";
+    binmode(F, ':encoding(utf8)');
+    while(<F>) {
+        next unless /\S/;
+        next if /^\s*#/;
+        chomp;
+        $exceptions{$_} = 1;
+    }
+    close F;
 }

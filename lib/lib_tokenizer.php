@@ -7,7 +7,7 @@ function split2paragraphs($txt) {
 function split2sentences($txt) {
     return preg_split('/[\r\n]+/', $txt);
 }
-function tokenize_ml($txt) {
+function tokenize_ml($txt, $exceptions) {
     $coeff = array();
     $out = array();
     $token = '';
@@ -39,7 +39,7 @@ function tokenize_ml($txt) {
         if (is_hyphen($char) || is_hyphen($nextchar)) {
             $odd_symbol = '-';
         }
-        elseif (preg_match('/([\.\/\?\=\:])/u', $char, $match) || preg_match('/([\.\/\?\=\:])/u', $nextchar, $match)) {
+        elseif (preg_match('/([\.\/\?\=\:&"!])/u', $char, $match) || preg_match('/([\.\/\?\=\:&"!])/u', $nextchar, $match)) {
             $odd_symbol = $match[1];
         }
         if ($odd_symbol) {
@@ -98,7 +98,8 @@ function tokenize_ml($txt) {
             is_same_pm($char, $nextchar),
             is_slash($char),
             is_slash($nextchar),
-            (($odd_symbol && $odd_symbol != '-') ? looks_like_url($chain, $chain_right) : 0)
+            (($odd_symbol && $odd_symbol != '-') ? looks_like_url($chain, $chain_right) : 0),
+            (($odd_symbol && $odd_symbol != '-') ? is_exception($chain, $exceptions) : 0)
         );
         $vector = implode('', $vector);
 
@@ -181,8 +182,22 @@ function looks_like_url($s, $suffix) {
     if (preg_match($re1, $s) || preg_match($re2, $s)) {
         return 1;
     }
+    return 0;
+}
+function is_exception($s, $exc) {
+    if (in_array($s, $exc))
+        return 1;
+    if (preg_match('/^\W|\W$/u', $s)) {
+        $s = preg_replace(array('/^[^A-Za-zА-ЯЁа-яё0-9]+/u', '/[^A-Za-zА-ЯЁа-яё0-9]+$/u'), '', $s);
+        if (in_array($s, $exc))
+            return 1;
+    }
+    return 0;
 }
 function addtext_check($array) {
+    //read file for tokenizer
+    $tok_exc = file('/corpus/scripts/lists/tokenizer_exceptions.txt', FILE_IGNORE_NEW_LINES);
+
     $out = array('full' => $array['txt'], 'select0' => get_books_for_select(0));
     $pars = split2paragraphs($array['txt']);
     foreach ($pars as $par) {
@@ -192,7 +207,7 @@ function addtext_check($array) {
         foreach ($sents as $sent) {
             if (!preg_match('/\S/', $sent)) continue;
             $sent_array = array('src' => $sent);
-            $tokens = tokenize_ml($sent);
+            $tokens = tokenize_ml($sent, $tok_exc);
             foreach ($tokens as $token) {
                 $sent_array['tokens'][] = array('text' => $token[0], 'class' => form_exists($token[0]), 'border' => $token[1], 'vector' => $token[2]);
             }
@@ -241,7 +256,7 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
             $token_num = 1;
             $tokens = explode('^^', $sentences[$sent_count++]);
             foreach ($tokens as $token) {
-                if ($token == '' || $token == ' ') continue;
+                if (trim($token) === '') continue;
                 //adding a textform
                 if (!sql_query("INSERT INTO `text_forms` VALUES(NULL, '$sent_id', '".($token_num++)."', '".mysql_real_escape_string($token)."', '0')")) return 0;
                 $tf_id = sql_insert_id();
