@@ -309,7 +309,7 @@ sub looks_like_url {
     my $suffix = shift;
     return 0 if $suffix eq '';
     return 0 if $s =~ /^\./;
-    if ($s =~ /^\W*https?\:\/\// || $s =~/.\.(ru|ua|com|org|gov|ру)\W*$/i) {
+    if ($s =~ /^\W*https?\:\/\// || $s =~/.\.(ru|ua|com|org|gov|us|ру)\W*$/i) {
         return 1;
     }
     return 0;
@@ -317,10 +317,13 @@ sub looks_like_url {
 sub is_exception {
     my $s = shift;
     return 1 if exists $exceptions{$s};
-    if ($s =~ /^\W|\W$/) {
-        $s =~ s/^\W+//;
-        $s =~ s/\W+$//;
-        return exists $exceptions{$s} ? 1 : 0;
+    if ($s !~ /^\W|\W$/) {
+        return 0;
+    }
+    $s =~ s/^\W+//;
+    return 1 if exists $exceptions{$s};
+    while ($s =~ s/\W$//) {
+        return 1 if exists $exceptions{$s};
     }
     return 0;
 }

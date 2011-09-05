@@ -178,7 +178,7 @@ function looks_like_url($s, $suffix) {
     if (substr($s, 0, 1) === '.')
         return 0;
     $re1 = '/^\W*https?\:\/\/u';
-    $re2 = '/.\.(ru|ua|com|org|gov|ру)\W*$/iu';
+    $re2 = '/.\.(ru|ua|com|org|gov|us|ру)\W*$/iu';
     if (preg_match($re1, $s) || preg_match($re2, $s)) {
         return 1;
     }
@@ -187,8 +187,13 @@ function looks_like_url($s, $suffix) {
 function is_exception($s, $exc) {
     if (in_array($s, $exc))
         return 1;
-    if (preg_match('/^\W|\W$/u', $s)) {
-        $s = preg_replace(array('/^[^A-Za-zА-ЯЁа-яё0-9]+/u', '/[^A-Za-zА-ЯЁа-яё0-9]+$/u'), '', $s);
+    if (!preg_match('/^\W|\W$/u', $s))
+        return 0;
+    preg_replace('/^[^A-Za-zА-ЯЁа-яё0-9]+/u', '', $s);
+    if (in_array($s, $exc))
+        return 1;
+    while (preg_match('/[^A-Za-zА-Яа-яЁё0-9]/u', $s)) {
+        $s = preg_replace('/[^A-Za-zА-ЯЁа-яё0-9]$/u', '', $s);
         if (in_array($s, $exc))
             return 1;
     }
