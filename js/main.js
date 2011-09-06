@@ -525,3 +525,17 @@ function add_field_for_tag(book_id, s) {
     });
     $(document.createElement('li')).append($i, '&nbsp;', $b).appendTo('body ul:first');
 }
+function check_for_whitespace() {
+    var flag = 1;
+    $('textarea').each(function(i,el){
+        $(el).removeClass('bgpink');
+        if ($(el).val().trim().indexOf(' ') != -1) {
+            $(el).addClass('bgpink').removeClass('hidden-block');
+            window.scrollTo(0, $(el).offset().top);
+            flag = 0;
+            return;
+        }
+    });
+    if (!flag) alert('Whitespace detected');
+    return flag;
+}
