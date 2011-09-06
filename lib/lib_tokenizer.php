@@ -24,7 +24,6 @@ function tokenize_ml($txt, $exceptions) {
         if (uniord($char) == 769) continue;
         $clear_txt .= $char;
     }
-    print "toknizing ".htmlspecialchars($clear_txt)."<br/>";
     $txt = $clear_txt.'  ';
 
     for($i = 0; $i < mb_strlen($txt, 'UTF-8'); ++$i) {
