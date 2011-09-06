@@ -24,6 +24,7 @@ function tokenize_ml($txt, $exceptions) {
         if (uniord($char) == 769) continue;
         $clear_txt .= $char;
     }
+    print "toknizing ".htmlspecialchars($clear_txt)."<br/>";
     $txt = $clear_txt.'  ';
 
     for($i = 0; $i < mb_strlen($txt, 'UTF-8'); ++$i) {
@@ -189,10 +190,10 @@ function is_exception($s, $exc) {
         return 1;
     if (!preg_match('/^\W|\W$/u', $s))
         return 0;
-    preg_replace('/^[^A-Za-zА-ЯЁа-яё0-9]+/u', '', $s);
+    $s = preg_replace('/^[^A-Za-zА-ЯЁа-яё0-9]+/u', '', $s);
     if (in_array($s, $exc))
         return 1;
-    while (preg_match('/[^A-Za-zА-Яа-яЁё0-9]/u', $s)) {
+    while (preg_match('/[^A-Za-zА-Яа-яЁё0-9]$/u', $s)) {
         $s = preg_replace('/[^A-Za-zА-ЯЁа-яё0-9]$/u', '', $s);
         if (in_array($s, $exc))
             return 1;
