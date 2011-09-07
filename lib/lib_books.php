@@ -141,9 +141,11 @@ function get_books_for_select($parent = -1) {
 function books_add_tag($book_id, $tag_name) {
     $tag_name = trim($tag_name);
     if ($book_id && $tag_name) {
+        sql_begin();
         if (!sql_query("DELETE FROM `book_tags` WHERE book_id=$book_id AND tag_name='$tag_name'") || !sql_query("INSERT INTO `book_tags` VALUES('$book_id', '$tag_name')")) {
             return 0;
         }
+        sql_commit();
     }
     return 1;
 }
@@ -195,6 +197,7 @@ function split_paragraph($sentence_id) {
     $spos = $r['pos'];
     //get the parahraph info
     $r = sql_fetch_array(sql_query("SELECT par_id, book_id, pos FROM paragraphs WHERE par_id=(SELECT par_id FROM sentences WHERE sent_id=$sentence_id LIMIT 1) LIMIT 1"));
+    sql_begin();
     //move the following paragraphs
     sql_query("UPDATE paragraphs SET pos=pos+1 WHERE book_id=".$r['book_id']." AND pos > ".$r['pos']);
     //make a new paragraph
@@ -202,6 +205,7 @@ function split_paragraph($sentence_id) {
     $new_par_id = sql_insert_id();
     //move the following sentences to the new paragraph
     if (sql_query("UPDATE sentences SET par_id=$new_par_id, pos=pos-$spos WHERE par_id=".$r['par_id']." AND pos > $spos")) {
+        sql_commit();
         header("Location:books.php?book_id=".$r['book_id']."&full#sen$sentence_id");
         return;
     }
@@ -234,6 +238,7 @@ function split_sentence($token_id) {
     }
     $source_left = trim(mb_substr($source, 0, $t, 'UTF-8'));
     $source_right = trim(mb_substr($source, $t, mb_strlen($source, 'UTF-8')-1, 'UTF-8'));
+    sql_begin();
     //shift the following sentences
     if (
         !sql_query("UPDATE sentences SET pos=pos+1 WHERE par_id=$par_id AND pos > $spos") ||
@@ -249,6 +254,7 @@ function split_sentence($token_id) {
     //drop status
         !sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id")
     ) return 0;
+    sql_commit();
     $r = sql_fetch_array(sql_query("SELECT book_id FROM paragraphs WHERE par_id=$par_id LIMIT 1"));
     return array($r['book_id'], $sent_id);
 }
@@ -258,6 +264,7 @@ function merge_sentences($id1, $id2) {
         return;
     }
     //moving tokens
+    sql_begin();
     $r = sql_fetch_array(sql_query("SELECT MAX(pos) FROM text_forms WHERE sent_id=$id1"));
     if (!sql_query("UPDATE text_forms SET sent_id='$id1', pos=pos+".$r[0]." WHERE sent_id=$id2")) {
         show_error();
@@ -279,6 +286,7 @@ function merge_sentences($id1, $id2) {
     }
     //deleting sentence
     if (sql_query("DELETE FROM sentences WHERE sent_id=$id2 LIMIT 1")) {
+        sql_commit();
         header("Location:sentence.php?id=$id1");
         return;
     }
@@ -310,6 +318,7 @@ function merge_tokens_ii($id_array) {
     $r = sql_fetch_array($res);
     $new_id = $r['tf_id'];
     $new_text = $r['tf_text'];
+    sql_begin();
     while ($r = sql_fetch_array($res)) {
         $new_text .= $r['tf_text'];
         if (!sql_query("UPDATE tf_revisions SET tf_id=$new_id WHERE tf_id=".$r['tf_id']) ||
@@ -331,6 +340,7 @@ function merge_tokens_ii($id_array) {
         !sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id")) {
         return 0;
     }
+    sql_commit();
     
     return 1;
 }
@@ -352,6 +362,7 @@ function split_token($token_id, $num) {
         show_error();
         return;
     }
+    sql_begin();
     //create revset
     $revset_id = create_revset("Token $token_id (<".$r['tf_text'].">) split to <$text1> and <$text2>");
     if (
@@ -377,6 +388,8 @@ function split_token($token_id, $num) {
         show_error();
         return;
     }
+
+    sql_commit();
     
     $res = sql_query("SELECT book_id FROM paragraphs WHERE par_id = (SELECT par_id FROM sentences WHERE sent_id=$sent_id LIMIT 1)");
     $r = sql_fetch_array($res);

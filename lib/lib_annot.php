@@ -122,6 +122,7 @@ function sentence_save() {
         }
         exit(0);
     }
+    sql_begin();
     foreach($tokens as $tf_id=>$v) {
         list($tf_text, $base_xml) = $v;
         //substitute the last revision's xml for one from dictionary if relevant
@@ -176,6 +177,7 @@ function sentence_save() {
         }
     }
     if (sql_query("UPDATE sentences SET check_status='1' WHERE sent_id=$sent_id LIMIT 1")) {
+        sql_commit();
         header("Location:sentence.php?id=$sent_id");
         return;
     } else

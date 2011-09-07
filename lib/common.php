@@ -30,6 +30,26 @@ function sql_num_rows($q) {
 function sql_insert_id() {
     return mysql_insert_id();
 }
+function sql_begin() {
+    global $transaction_counter;
+    global $nested_transaction_counter;
+    if (!$transaction_counter) {
+        sql_query("START TRANSACTION", 1, 1);
+        ++$transaction_counter;
+    } else {
+        ++$nested_transaction_counter;
+    }
+}
+function sql_commit() {
+    global $transaction_counter;
+    global $nested_transaction_counter;
+    if ($nested_transaction_counter) {
+        --$nested_transaction_counter;
+    } else {
+        sql_query("COMMIT", 1, 1);
+        --$transaction_counter;
+    }
+}
 //sql checks
 function sql_get_schema() {
     $res = sql_query("SHOW TABLES");

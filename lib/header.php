@@ -54,6 +54,8 @@ if (!sql_query("USE ".$config['mysql_dbname'], 0, 1)) {
     die ("Unable to open mysql database");
 }
 sql_query("SET names utf8", 0, 1);
+$transaction_counter = 0;
+$nested_transaction_counter = 0;
 
 //cookie check
 if (!is_logged() && isset($_COOKIE['auth'])) {
