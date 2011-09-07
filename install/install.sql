@@ -5,14 +5,14 @@ CREATE TABLE IF NOT EXISTS `books` (
     `book_name` VARCHAR(100) NOT NULL,
     `parent_id` INT UNSIGNED NOT NULL DEFAULT 0,
     INDEX (`parent_id`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `book_tags` (
     `book_id`   INT UNSIGNED NOT NULL,
     `tag_name`  VARCHAR(512) NOT NULL,
     INDEX (`book_id`),
     INDEX (`tag_name`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `sources` (
     `source_id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `sources` (
     `book_id`   INT UNSIGNED NOT NULL,
     INDEX(`user_id`),
     INDEX(`book_id`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `sources_comments` (
     `comment_id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `sources_comments` (
     `text`       TEXT NOT NULL,
     `timestamp`  INT UNSIGNED NOT NULL,
     INDEX(`source_id`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `sources_status` (
     `source_id` INT UNSIGNED NOT NULL,
@@ -41,13 +41,13 @@ CREATE TABLE IF NOT EXISTS `sources_status` (
     `timestamp` INT UNSIGNED NOT NULL,
     INDEX(`source_id`),
     INDEX(`status`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `downloaded_urls` (
     `url`      VARCHAR(512) NOT NULL,
     `filename` VARCHAR(100) NOT NULL,
     INDEX(`url`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `paragraphs` (
     `par_id`       INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `paragraphs` (
     `pos`          SMALLINT UNSIGNED NOT NULL,
     INDEX (`book_id`),
     INDEX (`pos`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `sentences` (
     `sent_id`      INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -65,14 +65,14 @@ CREATE TABLE IF NOT EXISTS `sentences` (
     `check_status` SMALLINT UNSIGNED NOT NULL,
     INDEX (`par_id`),
     INDEX (`pos`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `sentence_check` (
     `sent_id`   INT UNSIGNED NOT NULL,
     `user_id`   INT UNSIGNED NOT NULL,
     `status`    TINYINT UNSIGNED NOT NULL,
     `timestamp` INT UNSIGNED NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `sentence_comments` (
     `comment_id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `sentence_comments` (
     `user_id`    INT UNSIGNED NOT NULL,
     `text`       TEXT NOT NULL,
     `timestamp`  INT UNSIGNED NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `text_forms` (
     `tf_id`        INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `text_forms` (
     INDEX (`sent_id`),
     INDEX (`pos`),
     INDEX (`dict_updated`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `users` (
     `user_id`     INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS `users` (
     `user_passwd` VARCHAR(32) NOT NULL,
     `user_email`  VARCHAR(100) NOT NULL,
     `user_reg`    INT UNSIGNED NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `user_permissions` (
     `user_id`           INT UNSIGNED NOT NULL,
@@ -111,14 +111,14 @@ CREATE TABLE IF NOT EXISTS `user_permissions` (
     `perm_check_tokens` TINYINT UNSIGNED NOT NULL,
     `perm_check_morph`  TINYINT UNSIGNED NOT NULL,
     INDEX (`user_id`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `user_options_values` (
     `user_id`      INT UNSIGNED NOT NULL,
     `option_id`    SMALLINT NOT NULL,
     `option_value` SMALLINT NOT NULL,
     INDEX (`user_id`)
-);
+) ENGINE = INNODB;
 
 DROP TABLE IF EXISTS `user_options`;
 CREATE TABLE `user_options` (
@@ -127,7 +127,7 @@ CREATE TABLE `user_options` (
     `option_values` VARCHAR(64),
     `default_value` SMALLINT NOT NULL,
     `order_by`      SMALLINT UNSIGNED NOT NULL
-);
+) ENGINE = INNODB;
 INSERT INTO `user_options` VALUES
     ('1', 'Показывать русские названия граммем', '1', '1', '1'),
     ('2', 'Язык/Language', '1=Русский|2=English', '1', '2');
@@ -138,13 +138,13 @@ CREATE TABLE IF NOT EXISTS `user_stats` (
     `param_id`    SMALLINT UNSIGNED NOT NULL,
     `param_value` INT UNSIGNED NOT NULL,
     INDEX(`user_id`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `user_tokens` (
     `user_id`   INT UNSIGNED NOT NULL,
     `token`     INT UNSIGNED NOT NULL,
     `timestamp` INT UNSIGNED NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `tf_revisions` (
     `rev_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS `tf_revisions` (
     `rev_text` TEXT NOT NULL,
     INDEX (`set_id`),
     INDEX (`tf_id`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `rev_sets` (
     `set_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -162,22 +162,22 @@ CREATE TABLE IF NOT EXISTS `rev_sets` (
     `comment`   TEXT NOT NULL,
     INDEX (`timestamp`),
     INDEX (`user_id`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `dict_lemmata` (
     `lemma_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `lemma_text`  VARCHAR(50) NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `dict_lemmata_deleted` (
     `lemma_id`    INT UNSIGNED NOT NULL PRIMARY KEY,
     `lemma_text`  VARCHAR(50) NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `dict_links_types` (
     `link_id`   SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `link_name` VARCHAR(50) NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `dict_links` (
     `link_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS `dict_links` (
     `link_type` SMALLINT UNSIGNED NOT NULL,
     INDEX (`lemma1_id`),
     INDEX (`lemma2_id`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `dict_links_revisions` (
     `rev_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -195,14 +195,14 @@ CREATE TABLE IF NOT EXISTS `dict_links_revisions` (
     `lemma2_id` INT UNSIGNED NOT NULL,
     `link_type` SMALLINT UNSIGNED NOT NULL,
     `action`    TINYINT UNSIGNED NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `dict_lex` (
     `lex_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `lemma_id`  INT UNSIGNED NOT NULL,
     `lex_descr` TEXT NOT NULL,
     INDEX (`lemma_id`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `dict_revisions` (
     `rev_id`     INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -215,7 +215,7 @@ CREATE TABLE IF NOT EXISTS `dict_revisions` (
     INDEX (`lemma_id`),
     INDEX (`f2l_check`),
     INDEX (`dict_check`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `dict_errata` (
     `error_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -224,7 +224,7 @@ CREATE TABLE IF NOT EXISTS `dict_errata` (
     `error_type`  SMALLINT UNSIGNED NOT NULL,
     `error_descr` TEXT NOT NULL,
     INDEX (`error_type`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `dict_errata_exceptions` (
     `item_id`     SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -233,11 +233,11 @@ CREATE TABLE IF NOT EXISTS `dict_errata_exceptions` (
     `author_id`   INT UNSIGNED NOT NULL,
     `timestamp`   INT UNSIGNED NOT NULL,
     `comment`     TEXT NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `updated_forms` (
     `form_text` VARCHAR(50) NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `form2lemma` (
     `form_text`  VARCHAR(50) NOT NULL,
@@ -246,14 +246,14 @@ CREATE TABLE IF NOT EXISTS `form2lemma` (
     `grammems`   TEXT NOT NULL,
     INDEX (`form_text`),
     INDEX (`lemma_id`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `form2tf` (
     `form_text` VARCHAR(50) NOT NULL,
     `tf_id`     INT UNSIGNED NOT NULL,
     INDEX (`form_text`),
     INDEX (`tf_id`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `gram` (
     `gram_id`    INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -263,7 +263,7 @@ CREATE TABLE IF NOT EXISTS `gram` (
     `gram_descr` VARCHAR(50) NOT NULL,
     `orderby`    SMALLINT NOT NULL,
     INDEX (`parent_id`)
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `gram_restrictions` (
     `restr_id`   SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT, 
@@ -272,14 +272,14 @@ CREATE TABLE IF NOT EXISTS `gram_restrictions` (
     `restr_type` TINYINT(1) UNSIGNED NOT NULL,
     `obj_type`   TINYINT(1) UNSIGNED NOT NULL,
     `auto`       TINYINT(1) UNSIGNED NOT NULL
-);
+) ENGINE = INNODB;
 
 DROP TABLE IF EXISTS `stats_param`;
 CREATE TABLE `stats_param` (
     `param_id`   SMALLINT UNSIGNED NOT NULL PRIMARY KEY,
     `param_name` VARCHAR(32) NOT NULL,
     `is_active`  TINYINT(1) UNSIGNED NOT NULL
-);
+) ENGINE = INNODB;
 INSERT INTO `stats_param` VALUES
     ('1',  'total_books', '1'),
     ('2',  'total_sentences', '1'),
@@ -313,14 +313,14 @@ CREATE TABLE IF NOT EXISTS `stats_values` (
     `timestamp`   INT UNSIGNED NOT NULL,
     `param_id`    SMALLINT UNSIGNED NOT NULL,
     `param_value` INT UNSIGNED NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `tag_stats` (
     `prefix` VARCHAR(16) NOT NULL,
     `value`  VARCHAR(500) NOT NULL,
     `texts`  SMALLINT UNSIGNED NOT NULL,
     `words`  INT UNSIGNED NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `tokenizer_coeff` (
     `vector` INT UNSIGNED NOT NULL,
