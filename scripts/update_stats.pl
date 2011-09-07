@@ -34,7 +34,12 @@ my $func;
 
 sub books_by_source {
     my $pid = shift;
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM books WHERE parent_id = $pid OR parent_id IN (SELECT book_id FROM books WHERE parent_id=$pid)");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM books WHERE parent_id IN (SELECT book_id FROM books WHERE parent_id=$pid)");
+    $sc->execute();
+    my $cnt = $sc->fetchrow_hashref()->{'cnt'};
+    return $cnt if $cnt;
+
+    $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM books WHERE parent_id=$pid");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 }
@@ -82,7 +87,7 @@ sub get_sentence_adder {
 }
 
 $func->{'total_books'} = sub {
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM books");
+    my $sc = $dbh->prepare("SELECT COUNT(DISTINCT book_id) AS cnt FROM paragraphs");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };
