@@ -32,7 +32,7 @@
     <td align='right'>
         <b>{$stats.chaskor_news_words.value|number_format}</b><br/><span class='small'>{$stats.chaskor_news_words.timestamp|date_format:"%d.%m.%y, %H:%M"}</span><br/>
         <table border='0'><tr>
-        <td><span class='hint' title='Цель до конца 2011 года &ndash; {$goals.chaskor_news_words}'>{$stats.percent_words.chaskor}%</span></td>
+        <td><span class='hint' title='Цель до конца 2011 года &ndash; {$goals.chaskor_news_words}'>{$stats.percent_words.chaskor_news}%</span></td>
         <td><div class="progress"><div class="progress_load" style="width: {$stats.percent_words.chaskor_news}px"></div></div></td>
         </tr></table>
     </td>
