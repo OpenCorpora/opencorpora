@@ -325,11 +325,11 @@ CREATE TABLE IF NOT EXISTS `tag_stats` (
 CREATE TABLE IF NOT EXISTS `tokenizer_coeff` (
     `vector` INT UNSIGNED NOT NULL,
     `coeff`  FLOAT NOT NULL
-);
+) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `tokenizer_strange` (
     `sent_id` INT UNSIGNED NOT NULL,
     `pos`     SMALLINT UNSIGNED NOT NULL,
     `border`  TINYINT(1) UNSIGNED NOT NULL,
     `coeff`   FLOAT NOT NULL
-);
+) ENGINE = INNODB;
