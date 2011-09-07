@@ -178,7 +178,7 @@ function looks_like_url($s, $suffix) {
     if (substr($s, 0, 1) === '.')
         return 0;
     $re1 = '/^\W*https?\:\/\/u';
-    $re2 = '/.\.(ru|ua|com|org|gov|us|ру)\W*$/iu';
+    $re2 = '/.\.(ru|ua|com|org|gov|us|ру|рф)\W*$/iu';
     if (preg_match($re1, $s) || preg_match($re2, $s)) {
         return 1;
     }

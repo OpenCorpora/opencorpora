@@ -309,7 +309,7 @@ sub looks_like_url {
     my $suffix = shift;
     return 0 if $suffix eq '';
     return 0 if $s =~ /^\./;
-    if ($s =~ /^\W*https?\:\/\// || $s =~/.\.(ru|ua|com|org|gov|us|ру)\W*$/i) {
+    if ($s =~ /^\W*https?\:\/\// || $s =~/.\.(ru|ua|com|org|gov|us|ру|рф)\W*$/i) {
         return 1;
     }
     return 0;
