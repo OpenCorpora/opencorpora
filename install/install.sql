@@ -303,7 +303,11 @@ INSERT INTO `stats_param` VALUES
     ('20', 'blogs_books', '1'),
     ('21', 'blogs_sentences', '1'),
     ('22', 'blogs_tokens', '1'),
-    ('23', 'blogs_words', '1');
+    ('23', 'blogs_words', '1'),
+    ('24', 'chaskor_news_books', '1'),
+    ('25', 'chaskor_news_sentences', '1'),
+    ('26', 'chaskor_news_tokens', '1'),
+    ('27', 'chaskor_news_words', '1');
 
 CREATE TABLE IF NOT EXISTS `stats_values` (
     `timestamp`   INT UNSIGNED NOT NULL,

@@ -12,7 +12,7 @@
     <th>{t}Словоупотреблений{/t}</th>
 </tr>
 <tr>
-    <td align="center"><a href="books.php?book_id=1">{t}ЧасКор{/t}</a></td>
+    <td align="center"><a href="books.php?book_id=1">{t}ЧасКор{/t} (статьи)</a></td>
     <td align='right' valign='top'><b>{$stats.chaskor_books.value|number_format}</b><br/><span class='small'>{$stats.chaskor_books.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
     <td align='right' valign='top'><b>{$stats.chaskor_sentences.value|number_format}</b><br/><span class='small'>{$stats.chaskor_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
     <td align='right' valign='top'><b>{$stats.chaskor_tokens.value|number_format}</b><br/><span class='small'>{$stats.chaskor_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
@@ -21,6 +21,19 @@
         <table border='0'><tr>
         <td><span class='hint' title='Цель до конца 2011 года &ndash; {$goals.chaskor_words}'>{$stats.percent_words.chaskor}%</span></td>
         <td><div class="progress"><div class="progress_load" style="width: {$stats.percent_words.chaskor}px"></div></div></td>
+        </tr></table>
+    </td>
+</tr>
+<tr>
+    <td align="center"><a href="books.php?book_id=226">{t}ЧасКор{/t} (новости)</a></td>
+    <td align='right' valign='top'><b>{$stats.chaskor_news_books.value|number_format}</b><br/><span class='small'>{$stats.chaskor_news_books.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td align='right' valign='top'><b>{$stats.chaskor_news_sentences.value|number_format}</b><br/><span class='small'>{$stats.chaskor_news_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td align='right' valign='top'><b>{$stats.chaskor_news_tokens.value|number_format}</b><br/><span class='small'>{$stats.chaskor_news_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td align='right'>
+        <b>{$stats.chaskor_news_words.value|number_format}</b><br/><span class='small'>{$stats.chaskor_news_words.timestamp|date_format:"%d.%m.%y, %H:%M"}</span><br/>
+        <table border='0'><tr>
+        <td><span class='hint' title='Цель до конца 2011 года &ndash; {$goals.chaskor_news_words}'>{$stats.percent_words.chaskor}%</span></td>
+        <td><div class="progress"><div class="progress_load" style="width: {$stats.percent_words.chaskor_news}px"></div></div></td>
         </tr></table>
     </td>
 </tr>

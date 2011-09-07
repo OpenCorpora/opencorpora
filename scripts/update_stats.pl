@@ -94,6 +94,9 @@ $func->{'total_books'} = sub {
 $func->{'chaskor_books'} = sub {
     return books_by_source(1);
 };
+$func->{'chaskor_news_books'} = sub {
+    return books_by_source(226);
+};
 $func->{'wikipedia_books'} = sub {
     return books_by_source(8);
 };
@@ -111,6 +114,9 @@ $func->{'total_sentences'} = sub {
 $func->{'chaskor_sentences'} = sub {
     return sentences_by_source(1);
 };
+$func->{'chaskor_news_sentences'} = sub {
+    return sentences_by_source(226);
+};
 $func->{'wikipedia_sentences'} = sub {
     return sentences_by_source(8);
 };
@@ -127,6 +133,9 @@ $func->{'total_tokens'} = sub {
 };
 $func->{'chaskor_tokens'} = sub {
     return tokens_by_source(1);
+};
+$func->{'chaskor_news_tokens'} = sub {
+    return tokens_by_source(226);
 };
 $func->{'wikipedia_tokens'} = sub {
     return tokens_by_source(8);
@@ -149,6 +158,9 @@ $func->{'total_words'} = sub {
 };
 $func->{'chaskor_words'} = sub {
     return words_by_source(1);
+};
+$func->{'chaskor_news_words'} = sub {
+    return words_by_source(226);
 };
 $func->{'wikipedia_words'} = sub {
     return words_by_source(8);

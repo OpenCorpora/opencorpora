@@ -78,7 +78,7 @@ function get_common_stats() {
         $stats[$r['param_name']] = array('timestamp' => $arr['timestamp'], 'value' => $arr['param_value']);
     }
 
-    foreach(array('total', 'chaskor', 'wikipedia', 'wikinews', 'blogs') as $src) {
+    foreach(array('total', 'chaskor', 'chaskor_news', 'wikipedia', 'wikinews', 'blogs') as $src) {
         $stats['percent_words'][$src] = floor($stats[$src.'_words']['value'] / $config['goals'][$src.'_words'] * 100);
     }
 
