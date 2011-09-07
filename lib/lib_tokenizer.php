@@ -242,6 +242,7 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
         $char = mb_substr($text, $i, 1, 'UTF-8');
         if (uniord($char) != 769) $clear_text .= $char;
     }
+    sql_begin();
     $revset_id = create_revset();
     if (!$revset_id) return 0;
     $sent_count = 0;
@@ -270,6 +271,7 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
             }
         }
     }
+    sql_commit();
     return 1;
 }
 ?>

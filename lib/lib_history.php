@@ -149,6 +149,7 @@ function dict_diff($lemma_id, $set_id) {
 function revert_changeset($set_id, $comment) {
     if (!$set_id) return;
 
+    sql_begin();
     $new_set_id = create_revset($comment);
     $dict_flag = 0;
 
@@ -170,6 +171,7 @@ function revert_changeset($set_id, $comment) {
         }
         $dict_flag = 1;
     }
+    sql_commit();
 
     if ($dict_flag)
         header("Location:dict_history.php");
@@ -181,9 +183,11 @@ function revert_token($rev_id) {
     if (!$rev_id) return;
 
     $r = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE rev_id=$rev_id LIMIT 1"));
+    sql_begin();
     $new_set_id = create_revset("Отмена правки, возврат к версии t$rev_id");
 
     if (sql_query("INSERT INTO tf_revisions VALUES(NULL, '$new_set_id', '$r[0]', '$r[1]')")) {
+        sql_commit();
         header("Location:history.php");
     } else {
         show_error();
@@ -194,9 +198,11 @@ function revert_dict($rev_id) {
     if (!$rev_id) return;
 
     $r = sql_fetch_array(sql_query("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=$rev_id LIMIT 1"));
+    sql_begin();
     $new_set_id = create_revset("Отмена правки, возврат к версии d$rev_id");
 
     if (sql_query("INSERT INTO dict_revisions VALUES(NULL, '$new_set_id', '$r[0]', '$r[1]', '0', '0')")) {
+        sql_commit();
         header("Location:dict_history.php");
     } else {
         show_error();

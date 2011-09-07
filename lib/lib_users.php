@@ -45,6 +45,7 @@ function check_auth_cookie() {
 function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
     $login = mysql_real_escape_string($login);
     if (($user_id=$auth_user_id) || $user_id = user_check_password($login, $passwd)) {
+        sql_begin();
         //deleting the old token
         if ($auth_token) {
             sql_query("DELETE from user_tokens WHERE user_id=$user_id AND token='".mysql_real_escape_string(substr(strstr($auth_token, '@'), 1))."'");
@@ -62,6 +63,7 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
         $_SESSION['options'] = get_user_options($user_id);
         $_SESSION['user_permissions'] = get_user_permissions($user_id);
         $_SESSION['token'] = $token; //we may need to delete it on logout
+        sql_commit();
         return true;
     }
     return false;
@@ -195,12 +197,14 @@ function get_user_options($user_id) {
 
     //autovivify
     $res = sql_query("SELECT option_id, default_value FROM user_options WHERE option_id NOT IN (SELECT option_id FROM user_options_values WHERE user_id=$user_id)");
+    sql_begin();
     while($r = sql_fetch_array($res)) {
         if (!sql_query("INSERT INTO user_options_values VALUES('$user_id', '".$r['option_id']."', '".$r['default_value']."')")) {
             show_error("Error on autovivifying an option");
             return;
         }
     }
+    sql_commit();
 
     $res = sql_query("SELECT option_id id, option_value value FROM user_options_values WHERE user_id=$user_id");
     while($r = sql_fetch_array($res))
@@ -249,6 +253,7 @@ function save_user_options($post) {
         header('Location:options.php');
         return;
     }
+    sql_begin();
     foreach($post['options'] as $id=>$value) {
         if($_SESSION['options'][$id]['value'] != $value) {
             if(!sql_query("UPDATE user_options_values SET option_value='".mysql_real_escape_string($value)."' WHERE option_id=".mysql_real_escape_string($id)." AND user_id=".$_SESSION['user_id']." LIMIT 1")) {
@@ -258,6 +263,7 @@ function save_user_options($post) {
             $_SESSION['options'][$id] = mysql_real_escape_string($value);
         }
     }
+    sql_commit();
     header('Location:options.php?saved=1');
     return;
 }
@@ -291,6 +297,7 @@ function get_users_page() {
     return $out;
 }
 function save_users($post) {
+    sql_begin();
     foreach($post['changed'] as $id => $val) {
         if (!$val) continue;
         $perm = $post['perm'][$id];
@@ -313,6 +320,7 @@ function save_users($post) {
             return;
         }
     }
+    sql_commit();
     header("Location:users.php");
 }
 ?>
