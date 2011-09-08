@@ -39,7 +39,7 @@ function tokenize_ml($txt, $exceptions) {
         if (is_hyphen($char) || is_hyphen($nextchar)) {
             $odd_symbol = '-';
         }
-        elseif (preg_match('/([\.\/\?\=\:&"!])/u', $char, $match) || preg_match('/([\.\/\?\=\:&"!])/u', $nextchar, $match)) {
+        elseif (preg_match('/([\.\/\?\=\:&"!\+\(\)])/u', $char, $match) || preg_match('/([\.\/\?\=\:&"!\+\(\)])/u', $nextchar, $match)) {
             $odd_symbol = $match[1];
         }
         if ($odd_symbol) {

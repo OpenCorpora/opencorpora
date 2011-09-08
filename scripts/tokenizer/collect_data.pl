@@ -151,7 +151,7 @@ sub calc {
     if (is_hyphen($current) || is_hyphen($next)) {
         $odd_symbol = '-';
     }
-    elsif ($current =~ /([\.\/\?\=\:&"!])/ || $next =~ /([\.\/\?\=\:&"!])/) {
+    elsif ($current =~ /([\.\/\?\=\:&"!\+\(\)])/ || $next =~ /([\.\/\?\=\:&"!\+\(\)])/) {
         $odd_symbol = $1;
     }
     if ($odd_symbol ne '') {
