@@ -7,7 +7,7 @@ function split2paragraphs($txt) {
 function split2sentences($txt) {
     return preg_split('/[\r\n]+/', $txt);
 }
-function tokenize_ml($txt, $exceptions) {
+function tokenize_ml($txt, $exceptions, $prefixes) {
     $coeff = array();
     $out = array();
     $token = '';
@@ -99,7 +99,8 @@ function tokenize_ml($txt, $exceptions) {
             is_slash($char),
             is_slash($nextchar),
             (($odd_symbol && $odd_symbol != '-') ? looks_like_url($chain, $chain_right) : 0),
-            (($odd_symbol && $odd_symbol != '-') ? is_exception($chain, $exceptions) : 0)
+            (($odd_symbol && $odd_symbol != '-') ? is_exception($chain, $exceptions) : 0),
+            ($odd_symbol == '-' ? is_prefix($chain_left, $prefixes) : 0)
         );
         $vector = implode('', $vector);
 
@@ -199,9 +200,15 @@ function is_exception($s, $exc) {
     }
     return 0;
 }
+function is_prefix($s, $prefixes) {
+    if (in_array(mb_strtolower($s, 'UTF-8'), $prefixes))
+        return 1;
+    return 0;
+}
 function addtext_check($array) {
     //read file for tokenizer
     $tok_exc = file('/corpus/scripts/lists/tokenizer_exceptions.txt', FILE_IGNORE_NEW_LINES);
+    $tok_prefixes = file('/corpus/scripts/lists/tokenizer_prefixes.txt', FILE_IGNORE_NEW_LINES);
 
     $out = array('full' => $array['txt'], 'select0' => get_books_for_select(0));
     $pars = split2paragraphs($array['txt']);
@@ -212,7 +219,7 @@ function addtext_check($array) {
         foreach ($sents as $sent) {
             if (!preg_match('/\S/', $sent)) continue;
             $sent_array = array('src' => $sent);
-            $tokens = tokenize_ml($sent, $tok_exc);
+            $tokens = tokenize_ml($sent, $tok_exc, $tok_prefixes);
             foreach ($tokens as $token) {
                 $sent_array['tokens'][] = array('text' => $token[0], 'class' => form_exists($token[0]), 'border' => $token[1], 'vector' => $token[2]);
             }

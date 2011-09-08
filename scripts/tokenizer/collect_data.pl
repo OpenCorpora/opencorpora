@@ -37,12 +37,14 @@ my $vector;
 my $pos;
 my %strange;
 my %exceptions;
+my %prefixes;
 
 my $stat_sure, my $stat_total;
 
 
 #first pass
-read_exceptions('/corpus/scripts/lists/tokenizer_exceptions.txt');
+read_instances('/corpus/scripts/lists/tokenizer_exceptions.txt', \%exceptions);
+read_instances('/corpus/scripts/lists/tokenizer_prefixes.txt', \%prefixes);
 $sent->execute();
 while(my $ref = $sent->fetchrow_hashref()) {
     $str = decode('utf8', $ref->{'source'}).'  ';
@@ -79,7 +81,7 @@ my $coef;
 $drop->execute();
 for my $k(sort {$a <=> $b} keys %total) {
     $coef = $good{$k}/$total{$k};
-    printf("%9s\t%.3f\t%d\t%029s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
+    printf("%9s\t%.3f\t%d\t%030s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
 
 
     #how strange it is
@@ -211,6 +213,7 @@ sub calc {
     push @out, is_slash($next);
     push @out, ($odd_symbol && $odd_symbol ne '-') ? looks_like_url($chain, $chain_right): 0;
     push @out, ($odd_symbol && $odd_symbol ne '-') ? is_exception($chain): 0;
+    push @out, ($odd_symbol eq '-') ? is_prefix($chain_left) : 0;
 
     #print "will return out = ".join('', @out)."\n";
 
@@ -327,14 +330,18 @@ sub is_exception {
     }
     return 0;
 }
-sub read_exceptions {
+sub is_prefix {
+    my $s = shift;
+    return exists $prefixes{$s} ? 1 : 0;
+}
+sub read_instances {
     open F, $_[0] or warn "Failed to open $_[0]: $!";
     binmode(F, ':encoding(utf8)');
     while(<F>) {
         next unless /\S/;
         next if /^\s*#/;
         chomp;
-        $exceptions{$_} = 1;
+        $_[1]->{$_} = 1;
     }
     close F;
 }
