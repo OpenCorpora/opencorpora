@@ -21,8 +21,8 @@ my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{
 $dbh->do("SET NAMES utf8");
 my $sent = $dbh->prepare("SELECT `sent_id`, `source` FROM sentences");
 my $tok = $dbh->prepare("SELECT tf_text FROM text_forms WHERE sent_id=? ORDER BY `pos`");
-my $drop = $dbh->prepare("DELETE FROM `tokenizer_coeff`");
-my $drop2 = $dbh->prepare("DELETE FROM `tokenizer_strange`");
+my $drop = $dbh->prepare("TRUNCATE TABLE `tokenizer_coeff`");
+my $drop2 = $dbh->prepare("TRUNCATE TABLE `tokenizer_strange`");
 my $insert = $dbh->prepare("INSERT INTO `tokenizer_coeff` VALUES(?,?)");
 my $ins2 = $dbh->prepare("INSERT INTO `tokenizer_strange` VALUES(?,?,?,?)");
 my $check = $dbh->prepare("SELECT lemma_id FROM form2lemma WHERE form_text=? LIMIT 1");
@@ -61,7 +61,9 @@ while(my $ref = $sent->fetchrow_hashref()) {
         while(substr($str, $pos, length($token)) ne $token) {
             $pos++;
             if ($pos > length($str)) {
-                die "Too long, sentence ".$ref->{'sent_id'};
+                printf STDERR "Too long, sentence %d, failed token is <%s>\n",
+                    $ref->{'sent_id'}, $token;
+                exit;
             }
         }
         my $t = $pos + length($token) - 1;
