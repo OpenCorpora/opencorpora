@@ -123,8 +123,8 @@ CREATE TABLE IF NOT EXISTS `user_options_values` (
 DROP TABLE IF EXISTS `user_options`;
 CREATE TABLE `user_options` (
     `option_id`     SMALLINT UNSIGNED NOT NULL PRIMARY KEY,
-    `option_name`   VARCHAR(128),
-    `option_values` VARCHAR(64),
+    `option_name`   VARCHAR(128) NOT NULL,
+    `option_values` VARCHAR(64) NOT NULL,
     `default_value` SMALLINT NOT NULL,
     `order_by`      SMALLINT UNSIGNED NOT NULL
 ) ENGINE = INNODB;
