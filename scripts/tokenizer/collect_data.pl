@@ -20,13 +20,15 @@ close F;
 my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 my $sent = $dbh->prepare("SELECT `sent_id`, `source` FROM sentences");
-my $tok = $dbh->prepare("SELECT tf_text FROM text_forms WHERE sent_id=? ORDER BY `pos`");
+my $tok = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE sent_id=? ORDER BY `pos`");
 my $drop = $dbh->prepare("TRUNCATE TABLE `tokenizer_coeff`");
 my $drop2 = $dbh->prepare("TRUNCATE TABLE `tokenizer_strange`");
 my $insert = $dbh->prepare("INSERT INTO `tokenizer_coeff` VALUES(?,?)");
 my $ins2 = $dbh->prepare("INSERT INTO `tokenizer_strange` VALUES(?,?,?,?)");
 my $check = $dbh->prepare("SELECT lemma_id FROM form2lemma WHERE form_text=? LIMIT 1");
 my $stat = $dbh->prepare("INSERT INTO stats_values VALUES(?,'7',?)");
+my $broken_token = $dbh->prepare("INSERT INTO stats_values VALUES(?,'28',?)");
+my $drop_broken = $dbh->prepare("DELETE FROM stats_values WHERE param_id=28");
 
 my $str;
 my @tokens;
@@ -52,23 +54,24 @@ while(my $ref = $sent->fetchrow_hashref()) {
     $tok->execute($ref->{'sent_id'});
     #print STDERR $ref->{'sent_id'}."\n";
     while(my $r = $tok->fetchrow_hashref()) {
-        push @tokens, decode('utf8', $r->{'tf_text'});
+        push @tokens, [$r->{'tf_id'}, decode('utf8', $r->{'tf_text'})];
     }
 
     $pos = 0;
     %border = ();
     for my $token(@tokens) {
-        while(substr($str, $pos, length($token)) ne $token) {
+        while(substr($str, $pos, length($token->[1])) ne $token->[1]) {
             $pos++;
             if ($pos > length($str)) {
+                $broken_token->execute(time(), $token->[0]);
                 printf STDERR "Too long, sentence %d, failed token is <%s>\n",
                     $ref->{'sent_id'}, $token;
                 exit;
             }
         }
-        my $t = $pos + length($token) - 1;
+        my $t = $pos + length($token->[1]) - 1;
         $border{$t} = 1;
-        $pos += length($token);
+        $pos += length($token->[1]);
     }
 
     for my $i(0..length($str)-1) {
@@ -106,22 +109,24 @@ while(my $ref = $sent->fetchrow_hashref()) {
     @tokens = ();
     $tok->execute($ref->{'sent_id'});
     while(my $r = $tok->fetchrow_hashref()) {
-        push @tokens, decode('utf8', $r->{'tf_text'});
+        push @tokens, [$r->{'tf_id'}, decode('utf8', $r->{'tf_text'})];
     }
 
     $pos = 0;
     %border = ();
     for my $token(@tokens) {
-        while(substr($str, $pos, length($token)) ne $token) {
+        while(substr($str, $pos, length($token->[1])) ne $token->[1]) {
             $pos++;
             if ($pos > length($str)) {
+                $broken_token->execute(time(), $token->[0]);
                 die "Too long";
             }
         }
-        my $t = $pos + length($token) - 1;
+        my $t = $pos + length($token->[1]) - 1;
         $border{$t} = 1;
-        $pos += length($token);
+        $pos += length($token->[1]);
     }
+    $drop_broken->execute();
 
     for my $i(0..length($str)-1) {
         $vector = oct('0b'.join('', @{calc($str, $i)}));

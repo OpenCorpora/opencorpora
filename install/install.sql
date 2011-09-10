@@ -313,7 +313,8 @@ INSERT INTO `stats_param` VALUES
     ('24', 'chaskor_news_books', '1'),
     ('25', 'chaskor_news_sentences', '1'),
     ('26', 'chaskor_news_tokens', '1'),
-    ('27', 'chaskor_news_words', '1');
+    ('27', 'chaskor_news_words', '1'),
+    ('28', 'tokenizer_broken_token_id', '1');
 
 CREATE TABLE IF NOT EXISTS `stats_values` (
     `timestamp`   INT UNSIGNED NOT NULL,

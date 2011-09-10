@@ -3,8 +3,21 @@ function get_page_tok_strange() {
     $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE param_id=7 ORDER BY timestamp DESC LIMIT 1");
     $r = sql_fetch_array($res);
     $out = array('timestamp' => $r['timestamp'], 'coeff' => $r['param_value']/1000);
+    $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE param_id=28 ORDER BY timestamp DESC LIMIT 1");
+    if (sql_num_rows($res) > 0) {
+        $r = sql_fetch_array($res);
+        $tid = $r['param_value'];
+        $r = sql_fetch_array(sql_query("SELECT tf_text, sent_id FROM text_forms WHERE tf_id=$tid LIMIT 1"));
+        $out['broken_token_text'] = $r['tf_text'];
+        $out['broken_sent_id'] = $r['sent_id'];
+    }
+    $comments = array();
     $res = sql_query("SELECT ts.sent_id, ts.pos, ts.border, ts.coeff, s.source, p.book_id FROM tokenizer_strange ts LEFT JOIN sentences s ON (ts.sent_id=s.sent_id) LEFT JOIN paragraphs p ON (s.par_id=p.par_id) ORDER BY ts.coeff DESC");
     while ($r = sql_fetch_array($res)) {
+        if (!$comments[$r['sent_id']]) {
+            $res1 = sql_query("SELECT comment_id FROM sentence_comments WHERE sent_id=".$r['sent_id']." LIMIT 1");
+            $comments[$r['sent_id']] = sql_num_rows($res1) > 0 ? 1 : -1;
+        }
         $out['items'][] = array(
             'sent_id' => $r['sent_id'],
             'book_id' => $r['book_id'],
@@ -12,7 +25,8 @@ function get_page_tok_strange() {
             'border' => $r['border'], 
             'lcontext' => mb_substr($r['source'], max(0, $r['pos']-10), min(10, $r['pos'])),
             'focus' => mb_substr($r['source'], $r['pos'], 1),
-            'rcontext' => mb_substr($r['source'], $r['pos']+1, 9)
+            'rcontext' => mb_substr($r['source'], $r['pos']+1, 9),
+            'comments' => $comments[$r['sent_id']]
         );
     }
     return $out;
