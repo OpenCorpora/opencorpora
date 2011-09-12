@@ -3,6 +3,7 @@ use strict;
 use utf8;
 use DBI;
 use Encode;
+use POSIX qw/strftime/;
 
 my $lock_path = "/var/lock/opcorpora_updstats.lock";
 if (-f $lock_path) {
@@ -188,10 +189,10 @@ $func->{'added_sentences'} = sub {
         my $a = get_sentence_adder($sm--);
         next unless $a;
         if ($basic_ts - $a->{'timestamp'} > 60*60*24*7) {
-            ++$bad_counter < 10 ? next : last;
+            ++$bad_counter < 50 ? next : last;
         }
         $bad_counter = 0;
-        print STDERR "ts = $a->{timestamp}\n";
+        printf STDERR "ts = %s\n", strftime("%d.%m.%Y, %H:%M", localtime($a->{'timestamp'}));
         $user_cnt{$a->{'user_id'}}++;
     }
     $del->execute(7);
