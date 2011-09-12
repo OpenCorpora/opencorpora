@@ -7,5 +7,5 @@
 <script src='{$web_prefix}/js/main.js?3' type='text/javascript'></script>
 <script src='{$web_prefix}/js/jquery.mousewheel.js' type='text/javascript'></script>
 <script src='{$web_prefix}/js/jquery.autocomplete.js'></script>
-<title>{block name=title}OpenCorpora{/block}</title>
+<title>{block name=title}OpenCorpora: открытый корпус русского языка{/block}</title>
 </head>
