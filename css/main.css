@@ -129,6 +129,7 @@ div.info {
 }
 div#edit_tok {
     position: absolute;
+    z-index: 1;
     display: none;
     border: 1px black solid;
     background-color: #ffe5b4;
