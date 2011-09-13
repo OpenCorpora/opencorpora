@@ -116,7 +116,7 @@
 </tr>
 {foreach from=$sources.src item=s}
 <tr{if $s.user_id} {if $s.status}class='bggreen'{else}class='bgyellow'{/if}{/if}>
-    <td><a href="{$s.url}">{if $s.title}{$s.title}{else}{$s.url|truncate:50}{/if}</a></td>
+    <td><a href="{$s.url|replace:'?':'%3F'}">{if $s.title}{$s.title}{else}{$s.url|truncate:50}{/if}</a></td>
     <td>
         {if $s.user_id}
             {if $s.user_id == $smarty.session.user_id}
