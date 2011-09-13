@@ -30,7 +30,7 @@ my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{
 $dbh->do("SET NAMES utf8");
 my $scan_books = $dbh->prepare("SELECT book_id, tag_name FROM book_tags WHERE tag_name NOT LIKE 'url:%' AND tag_name NOT LIKE 'Дата:%' ORDER BY book_id");
 my $count_words = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id=?)) AND tf_text REGEXP '[А-Яа-яЁё]'");
-my $drop = $dbh->prepare("DELETE FROM tag_stats");
+my $drop = $dbh->prepare("TRUNCATE TABLE tag_stats");
 my $ins = $dbh->prepare("INSERT INTO tag_stats VALUES(?, ?, ?, ?)");
 
 $scan_books->execute();
