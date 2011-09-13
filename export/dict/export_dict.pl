@@ -53,7 +53,7 @@ my $maxrev = $r->{'m'};
 my $header;
 my $footer;
 unless (PLAINTEXT) {
-    $header = "<?xml version=\"1.0\" encoding=\"utf8\" standalone=\"yes\"?>\n<dictionary version=\"0.8\" revision=\"$maxrev\">\n";
+    $header = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<dictionary version=\"0.81\" revision=\"$maxrev\">\n";
     $footer = "</dictionary>";
 
     # grammems

@@ -46,7 +46,7 @@ $rev->execute();
 $r = $rev->fetchrow_hashref();
 my $maxrev = $r->{'m'};
 
-my $header = "<?xml version=\"1.0\" encoding=\"utf8\" standalone=\"yes\"?>\n<annotation version=\"0.1\" revision=\"$maxrev\">\n";
+my $header = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<annotation version=\"0.11\" revision=\"$maxrev\">\n";
 my $footer = "</annotation>";
 
 print $header;
