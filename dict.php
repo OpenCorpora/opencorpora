@@ -105,11 +105,9 @@ switch($action) {
         $smarty->display('dict/lemmata.tpl');
         break;
     case 'gram':
-        if (isset($_GET['order']))
-            $order = $_GET['order'];
-        else
-            $order = '';
+        $order = isset($_GET['order']) ? $_GET['order'] : '';
         $smarty->assign('grammems', get_grammem_editor($order));
+        $smarty->assign('order', $order);
         $smarty->assign('select', dict_get_select_gram());
         $smarty->display('dict/gram.tpl');
         break;

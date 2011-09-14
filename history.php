@@ -11,5 +11,6 @@ if (isset($_GET['skip']))
     $skip = (int)$_GET['skip'];
     else $skip = 0;
 $smarty->assign('history', main_history($sent_id, $set_id, $skip));
+$smarty->assign('skip', $skip);
 $smarty->display('history.tpl');
 ?>

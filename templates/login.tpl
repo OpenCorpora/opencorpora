@@ -1,9 +1,9 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-{if $smarty.get.act == 'error'}
+{if $action == 'error'}
     {t}Пользователь с указанной комбинацией логина и пароля не найден.{/t} {t}Попробуйте, пожалуйста,{/t} <a href='?'>{t}ещё раз{/t}</a>.
-{elseif $smarty.get.act == 'register'}
+{elseif $action == 'register'}
     <form action="?act=reg_done" method='post' id='login_form'>
     <table cellspacing='5'>
     <tr><td>{t}Имя пользователя{/t}<td><input type='text' name='login' size='40' maxlength='50'/></tr>
@@ -14,13 +14,13 @@
     <tr><td colspan='2'><input type='button' id='reg_button' disabled='disabled' onclick='submit_with_readonly_check(document.forms[0])' value='{t}Зарегистрироваться{/t}'/></tr>
     </table>
     </form>
-{elseif $smarty.get.act == 'lost_pwd'}
+{elseif $action == 'lost_pwd'}
     <form action="?act=generate_passwd" method='post'><p>
     {t}Введите адрес электронной почты, указанный вами при регистрации{/t}:<br/>
     <input name='email' size='40' maxlength='50'/><br/>
     <input type='submit' value='{t}Прислать новый пароль{/t}'/>
     </p></form>
-{elseif $smarty.get.act == 'generate_passwd'}
+{elseif $action == 'generate_passwd'}
     {if $gen_status == 1}
         {t}Новый пароль отправлен на указанный электронный адрес.{/t}
     {elseif $gen_status == 2}
@@ -30,7 +30,7 @@
     {else}
         {t}Ошибка{/t} :(
     {/if}
-{elseif $smarty.get.act == 'reg_done'}
+{elseif $action == 'reg_done'}
     {if $reg_status == 1}
         {* registration ok *}
         {t}Спасибо, регистрация успешно завершена.{/t} {t}Теперь вы можете{/t} <a href='?'>{t}войти{/t}</a> {t}под своим именем пользователя{/t}.
@@ -59,7 +59,7 @@
         {* another error *}
         {t}Ошибка{/t} :(
     {/if}
-{elseif $smarty.get.act == 'change_pw'}
+{elseif $action == 'change_pw'}
     {if $change_status == 1}
         {t}Пароль успешно изменён.{/t}
     {elseif $change_status == 2}
@@ -71,7 +71,7 @@
     {else}
         {t}Ошибка{/t} :(
     {/if}
-{elseif $smarty.get.act == 'change_email'}
+{elseif $action == 'change_email'}
     {if $change_status == 1}
         {t}Адрес электронной почты успешно изменён.{/t}
     {elseif $change_status == 2}

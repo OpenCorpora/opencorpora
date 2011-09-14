@@ -22,7 +22,7 @@
         {else}
             &nbsp;[<a href='?debug=on'>debug on</a>]
         {/if}
-        {if $smarty.session.user_permissions.pretend == 1}
+        {if isset($smarty.session.user_permissions.pretend)}
             &nbsp;[<a href='?pretend=off'>{t}перестать притворяться{/t}</a>]
         {else}
             &nbsp;[<a href='?pretend=on'>{t}притвориться юзером{/t}</a>]

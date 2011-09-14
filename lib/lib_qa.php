@@ -14,7 +14,7 @@ function get_page_tok_strange() {
     $comments = array();
     $res = sql_query("SELECT ts.sent_id, ts.pos, ts.border, ts.coeff, s.source, p.book_id FROM tokenizer_strange ts LEFT JOIN sentences s ON (ts.sent_id=s.sent_id) LEFT JOIN paragraphs p ON (s.par_id=p.par_id) ORDER BY ts.coeff DESC");
     while ($r = sql_fetch_array($res)) {
-        if (!$comments[$r['sent_id']]) {
+        if (!isset($comments[$r['sent_id']])) {
             $res1 = sql_query("SELECT comment_id FROM sentence_comments WHERE sent_id=".$r['sent_id']." LIMIT 1");
             $comments[$r['sent_id']] = sql_num_rows($res1) > 0 ? 1 : -1;
         }

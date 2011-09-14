@@ -85,7 +85,7 @@
                 {if $user_permission_adder}[<a href="?act=del_tag&amp;book_id={$book.id}&amp;tag_name={$tag.full|urlencode}" onClick="return confirm('{t}Точно удалить этот тег?{/t}')">x</a>]&nbsp;{/if}
                 {if $tag.prefix == 'url'}
                     url:<a href="{$tag.body}" target="_blank">{$tag.body}</a>
-                    {if $tag.filename}
+                    {if isset($tag.filename)}
                     , <a class='small' href="{$web_prefix}/files/saved/{$tag.filename}.html">{t}сохранённая копия{/t}</a>
                     {elseif $user_permission_adder}
                     , <a class='small download_url' href="#" rel='{$tag.body}'>скачать</a>
@@ -107,7 +107,7 @@
         <input type='submit' value='{t}Добавить{/t}'/>
     </form>
     {/if}
-    {if count($book.paragraphs) == 0}
+    {if !isset($book.paragraphs)}
     {* Sub-books list *}
     <h3>{t}Разделы{/t}</h3>
     {if $user_permission_adder}
@@ -130,7 +130,7 @@
     {/if}
     {/if}
     {* Sentence list *}
-    {if count($book.paragraphs) > 0}
+    {if isset($book.paragraphs)}
         <h3>{t}Предложения по абзацам{/t}</h3>
         <p>
         {if isset($smarty.get.full)}

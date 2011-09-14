@@ -3,8 +3,8 @@
 {block name=content}
 <table border='1' cellspacing='0' cellpadding='3'>
 <tr>
-    <td colspan="3">{if $smarty.get.skip > 0}<a href='?skip={$smarty.get.skip - 20}'>&lt; {t}позже{/t}</a>{else}&nbsp;{/if}</td>
-    <td align="right">{if $comments.total > ($smarty.get.skip + 20)}<a href='?skip={$smarty.get.skip + 20}'>{t}раньше{/t} &gt;</a>{else}&nbsp;{/if}</td>
+    <td colspan="3">{if $skip > 0}<a href='?skip={$skip - 20}'>&lt; {t}позже{/t}</a>{else}&nbsp;{/if}</td>
+    <td align="right">{if $comments.total > ($skip + 20)}<a href='?skip={$skip + 20}'>{t}раньше{/t} &gt;</a>{else}&nbsp;{/if}</td>
 </tr>
 {foreach item=comment from=$comments.c}
     <tr>
@@ -15,8 +15,8 @@
     </tr>
 {/foreach}
 <tr>
-    <td colspan="3">{if $smarty.get.skip > 0}<a href='?skip={$smarty.get.skip - 20}'>&lt; {t}позже{/t}</a>{else}&nbsp;{/if}</td>
-    <td align="right">{if $comments.total > ($smarty.get.skip + 20)}<a href='?skip={$smarty.get.skip + 20}'>{t}раньше{/t} &gt;</a>{else}&nbsp;{/if}</td>
+    <td colspan="3">{if $skip > 0}<a href='?skip={$skip - 20}'>&lt; {t}позже{/t}</a>{else}&nbsp;{/if}</td>
+    <td align="right">{if $comments.total > ($skip + 20)}<a href='?skip={$skip + 20}'>{t}раньше{/t} &gt;</a>{else}&nbsp;{/if}</td>
 </tr>
 </table>
 {/block}

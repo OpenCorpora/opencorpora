@@ -271,7 +271,7 @@ function is_admin() {
     return (
         isset($_SESSION['user_permissions']['perm_admin']) &&
         $_SESSION['user_permissions']['perm_admin'] == 1 &&
-        !$_SESSION['user_permissions']['pretend']
+        !isset($_SESSION['user_permissions']['pretend'])
     );
 }
 function is_logged() {

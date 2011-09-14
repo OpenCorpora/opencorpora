@@ -20,8 +20,8 @@ function main_history($sentence_id, $set_id = 0, $skip = 0) {
             'set_id'    => $r['set_id'],
             'user_name' => $r1['user_name'],
             'timestamp' => $r1['timestamp'],
-            'sent_cnt'  => $r['cnt'],
-            'sent_id'   => $r['sent_id'],
+            'sent_cnt'  => isset($r['cnt']) ? $r['cnt'] : 0,
+            'sent_id'   => isset($r['sent_id']) ? $r['sent_id'] : 0,
             'comment'   => $r1['comment']
         );
     }

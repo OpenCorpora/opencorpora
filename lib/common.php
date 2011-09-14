@@ -23,12 +23,15 @@ function sql_query($q, $debug=1, $override_readonly=0) {
     return $res;
 }
 function sql_fetch_array($q) {
+    if (!$q) return false;
     return mysql_fetch_array($q);
 }
 function sql_fetch_assoc($q) {
+    if (!$q) return false;
     return mysql_fetch_assoc($q);
 }
 function sql_num_rows($q) {
+    if (!$q) return false;
     return mysql_num_rows($q);
 }
 function sql_insert_id() {

@@ -297,7 +297,7 @@ function merge_tokens_ii($id_array) {
     if (sizeof($id_array) < 2) {
         return 0;
     }
-    $id_array = array_map(intval, $id_array);
+    $id_array = array_map('intval', $id_array);
     $joined = join(',', $id_array);
 
     //check if they are all in the same sentence
@@ -402,6 +402,7 @@ function split_token($token_id, $num) {
 function get_sources_page($skip = 0, $show_type = '') {
     $out = array();
     $q_main = "SELECT s.source_id, s.url, s.title, s.user_id, s.book_id, u.user_name, b.book_name FROM sources s LEFT JOIN books b ON (s.book_id = b.book_id) LEFT JOIN users u ON (s.user_id = u.user_id) ";
+    $q_tail = '';
     $q_cnt = "SELECT COUNT(*) AS cnt FROM sources s ";
     if ($show_type == 'my')
         $q_tail = "WHERE s.user_id = ".$_SESSION['user_id'];

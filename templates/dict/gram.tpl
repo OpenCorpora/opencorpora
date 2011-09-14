@@ -23,9 +23,9 @@
     <form action="?act=edit_gram" method="post">
     <table border="1" cellspacing="0" cellpadding="2">
         <tr>
-            <th>{if $smarty.get.order == 'priority'}{t}Порядок{/t}{else}<a href="?act=gram&amp;order=priority">{t}Порядок{/t}</a>{/if}</th>
-            <th>{if $smarty.get.order == 'id'}{t}Внутр. ID{/t}{else}<a href="?act=gram&amp;order=id">{t}Внутр. ID{/t}</a>{/if}</th>
-            <th>{if $smarty.get.order == 'outer'}{t}Внешн. ID{/t}{else}<a href="?act=gram&amp;order=outer">{t}Внешн. ID{/t}</a>{/if}</th>
+            <th>{if $order == 'priority'}{t}Порядок{/t}{else}<a href="?act=gram&amp;order=priority">{t}Порядок{/t}</a>{/if}</th>
+            <th>{if $order == 'id'}{t}Внутр. ID{/t}{else}<a href="?act=gram&amp;order=id">{t}Внутр. ID{/t}</a>{/if}</th>
+            <th>{if $order == 'outer'}{t}Внешн. ID{/t}{else}<a href="?act=gram&amp;order=outer">{t}Внешн. ID{/t}</a>{/if}</th>
             <th>{t}Описание{/t}</th>
             <th>Parent</th>
             {if $user_permission_dict}<th>&nbsp;</th>{/if}
