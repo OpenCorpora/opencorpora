@@ -6,7 +6,7 @@
     {if isset($txt)}
             <textarea cols="70" rows="20" name="txt">{$txt}</textarea>
     {else}
-            <textarea cols="70" rows="20" name="txt" onClick="this.innerHTML=''; this.onClick=''">Товарищ, помни! Абзацы разделяются двойным переводом строки, предложения &ndash; одинарным.</textarea>
+            <textarea cols="70" rows="20" name="txt" onClick="this.innerHTML=''; this.setAttribute('onClick','')">Товарищ, помни! Абзацы разделяются двойным переводом строки, предложения &ndash; одинарным.</textarea>
     {/if}
     {if isset($smarty.get.to)}
         <input type='hidden' name='book_id' value='{$smarty.get.to}'/>
