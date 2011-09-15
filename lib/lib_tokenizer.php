@@ -17,14 +17,7 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
         $coeff[$r[0]] = $r[1];
     }
 
-    //let's first remove diacritics
-    $clear_txt = '';
-    for ($i = 0; $i < mb_strlen($txt, 'UTF-8'); ++$i) {
-        $char = mb_substr($txt, $i, 1, 'UTF-8');
-        if (uniord($char) == 769) continue;
-        $clear_txt .= $char;
-    }
-    $txt = $clear_txt.'  ';
+    $txt .= '  ';
 
     for($i = 0; $i < mb_strlen($txt, 'UTF-8'); ++$i) {
         $prevchar  = ($i > 0 ? mb_substr($txt, $i-1, 1, 'UTF-8') : '');
@@ -210,8 +203,22 @@ function addtext_check($array) {
     $tok_exc = file('/corpus/scripts/lists/tokenizer_exceptions.txt', FILE_IGNORE_NEW_LINES);
     $tok_prefixes = file('/corpus/scripts/lists/tokenizer_prefixes.txt', FILE_IGNORE_NEW_LINES);
 
-    $out = array('full' => $array['txt'], 'select0' => get_books_for_select(0));
-    $pars = split2paragraphs($array['txt']);
+    //removing bad symbols
+    $clear_text = '';
+    for($i = 0; $i < mb_strlen($array['txt'], 'UTF-8'); ++$i) {
+        $char = mb_substr($array['txt'], $i, 1, 'UTF-8');
+        if (
+            //remove diacritic modifier
+            uniord($char) != 769 &&
+            //remove different spaces
+            (uniord($char) < 8192 || uniord($char) > 8203) &&
+            !in_array(uniord($char), array(8237, 8239, 8288, 12288))
+            //the numbers are decimal unicode codes
+        ) $clear_text .= $char;
+    }
+
+    $out = array('full' => $clear_text, 'select0' => get_books_for_select(0));
+    $pars = split2paragraphs($clear_text);
     foreach ($pars as $par) {
         if (!preg_match('/\S/', $par)) continue;
         $par_array = array();
@@ -243,17 +250,11 @@ function addtext_check($array) {
 }
 function addtext_add($text, $sentences, $book_id, $par_num) {
     if (!$text || !$book_id || !$par_num) return 0;
-    //removing unicode diacritics
-    $clear_text = '';
-    for($i = 0; $i < mb_strlen($text, 'UTF-8'); ++$i) {
-        $char = mb_substr($text, $i, 1, 'UTF-8');
-        if (uniord($char) != 769) $clear_text .= $char;
-    }
     sql_begin();
     $revset_id = create_revset();
     if (!$revset_id) return 0;
     $sent_count = 0;
-    $pars = split2paragraphs($clear_text);
+    $pars = split2paragraphs($text);
     foreach($pars as $par) {
         if (!preg_match('/\S/', $par)) continue;
         //adding a paragraph
