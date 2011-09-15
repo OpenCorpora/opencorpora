@@ -86,7 +86,7 @@ my $coef;
 $drop->execute();
 for my $k(sort {$a <=> $b} keys %total) {
     $coef = $good{$k}/$total{$k};
-    printf("%9s\t%.3f\t%d\t%030s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
+    printf("%6s\t%.3f\t%d\t%017s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
 
 
     #how strange it is
@@ -191,44 +191,42 @@ sub calc {
     #print "prev=<$previous>, current=<$current>, next=<$next>, nnext=<$nnext>, odds=<$odd_symbol>\n";
 
     my @out = ();
-    push @out, is_space($current);
-    push @out, is_space($next);
-    push @out, is_pmark($current);
-    push @out, is_pmark($next);
-    push @out, is_latin($current);
-    push @out, is_latin($next);
-    push @out, is_cyr($current);
-    push @out, is_cyr($next);
-    push @out, is_hyphen($current);
-    push @out, is_hyphen($next);
+    push @out, char_class($current);
+    push @out, char_class($next);
     push @out, is_number($previous);
-    push @out, is_number($current);
-    push @out, is_number($next);
     push @out, is_number($nnext);
     push @out, $odd_symbol eq '-' ? is_dict_chain($chain) : 0;
-    push @out, is_dot($current);
-    push @out, is_dot($next);
-    push @out, is_bracket1($current);
-    push @out, is_bracket1($next);
-    push @out, is_bracket2($current);
-    push @out, is_bracket2($next);
-    push @out, is_single_quote($current);
-    push @out, is_single_quote($next);
     push @out, $odd_symbol eq '-' ? is_suffix($chain_right) : 0;
     push @out, is_same_pm($current, $next);
-    push @out, is_slash($current);
-    push @out, is_slash($next);
     push @out, ($odd_symbol && $odd_symbol ne '-') ? looks_like_url($chain, $chain_right): 0;
     push @out, ($odd_symbol && $odd_symbol ne '-') ? is_exception($chain): 0;
     push @out, ($odd_symbol eq '-') ? is_prefix($chain_left) : 0;
+    push @out, ($odd_symbol eq ':' && $chain_right ne '') ? looks_like_time($chain_left, $chain_right) : 0;
 
     #print "will return out = ".join('', @out)."\n";
 
     return \@out;
 }
+sub char_class {
+    my $char = shift;
+    my $ret = 
+        is_cyr($char)          ? '0001' :
+        is_space($char)        ? '0010' :
+        is_dot($char)          ? '0011' :
+        is_pmark($char)        ? '0100' :
+        is_hyphen($char)       ? '0101' :
+        is_number($char)       ? '0110' :
+        is_latin($char)        ? '0111' :
+        is_bracket1($char)     ? '1000' :
+        is_bracket2($char)     ? '1001' :
+        is_single_quote($char) ? '1010' :
+        is_slash($char)        ? '1011' :
+        is_colon($char)        ? '1100' : '0000';
+    return split //, $ret;
+}
 sub is_pmark {
     my $char = shift;
-    if ($char =~ /^[,\?!"\:;\xAB\xBB]$/) {
+    if ($char =~ /^[,\?!";\xAB\xBB]$/) {
         return 1;
     }
     return 0;
@@ -269,6 +267,10 @@ sub is_single_quote {
 sub is_slash {
     my $char = shift;
     return $char eq '/' ? 1 : 0;
+}
+sub is_colon {
+    my $char = shift;
+    return $char eq ':' ? 1 : 0;
 }
 sub is_number {
     my $char = shift;
@@ -322,6 +324,23 @@ sub looks_like_url {
     if ($s =~ /^\W*https?\:\/\// || $s =~/.\.(ru|ua|com|org|gov|us|ру|рф)\W*$/i) {
         return 1;
     }
+    return 0;
+}
+sub looks_like_time {
+    my $left = shift;
+    my $right = shift;
+
+    $left =~ s/^\D+//;
+    $right =~ s/\D+$//;
+
+    unless ($left =~ /^\d\d?$/ && $right =~ /^\d\d$/) {
+        return 0;
+    }
+
+    if ($left < 24 && $right < 60) {
+        return 1;
+    }
+
     return 0;
 }
 sub is_exception {

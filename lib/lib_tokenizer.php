@@ -63,38 +63,18 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
             $chain = $chain_left.$odd_symbol.$chain_right;
         }
 
-        $vector = array(
-            is_space($char),
-            is_space($nextchar),
-            is_pmark($char),
-            is_pmark($nextchar),
-            is_latin($char),
-            is_latin($nextchar),
-            is_cyr($char),
-            is_cyr($nextchar),
-            is_hyphen($char),
-            is_hyphen($nextchar),
-            is_number($prevchar),
-            is_number($char),
-            is_number($nextchar),
-            is_number($nnextchar),
-            ($odd_symbol == '-' ? is_dict_chain($chain): 0),
-            is_dot($char),
-            is_dot($nextchar),
-            is_bracket1($char),
-            is_bracket1($nextchar),
-            is_bracket2($char),
-            is_bracket2($nextchar),
-            is_single_quote($char),
-            is_single_quote($nextchar),
-            ($odd_symbol == '-' ? is_suffix($chain_right) : 0),
-            is_same_pm($char, $nextchar),
-            is_slash($char),
-            is_slash($nextchar),
-            (($odd_symbol && $odd_symbol != '-') ? looks_like_url($chain, $chain_right) : 0),
-            (($odd_symbol && $odd_symbol != '-') ? is_exception($chain, $exceptions) : 0),
-            ($odd_symbol == '-' ? is_prefix($chain_left, $prefixes) : 0)
-        );
+        $vector = array_merge(char_class($char), char_class($nextchar),
+            array(
+                is_number($prevchar),
+                is_number($nnextchar),
+                ($odd_symbol == '-' ? is_dict_chain($chain): 0),
+                ($odd_symbol == '-' ? is_suffix($chain_right) : 0),
+                is_same_pm($char, $nextchar),
+                (($odd_symbol && $odd_symbol != '-') ? looks_like_url($chain, $chain_right) : 0),
+                (($odd_symbol && $odd_symbol != '-') ? is_exception($chain, $exceptions) : 0),
+                ($odd_symbol == '-' ? is_prefix($chain_left, $prefixes) : 0),
+                (($odd_symbol == ':' && $chain_right !== '') ? looks_like_time($chain_left, $chain_right) : 0)
+        ));
         $vector = implode('', $vector);
 
         if (isset($coeff[bindec($vector)])) {
@@ -118,6 +98,22 @@ function uniord($u) {
     $c = unpack("N", mb_convert_encoding($u, 'UCS-4BE', 'UTF-8'));
     return $c[1];
 }
+function char_class($char) {
+    $ret = 
+        is_cyr($char)           ? '0001' :
+        (is_space($char)        ? '0010' :
+        (is_dot($char)          ? '0011' :
+        (is_pmark($char)        ? '0100' :
+        (is_hyphen($char)       ? '0101' :
+        (is_number($char)       ? '0110' :
+        (is_latin($char)        ? '0111' :
+        (is_bracket1($char)     ? '1000' :
+        (is_bracket2($char)     ? '1001' :
+        (is_single_quote($char) ? '1010' :
+        (is_slash($char)        ? '1011' :
+        (is_colon($char)        ? '1100' : '0000')))))))))));
+    return str_split($ret);
+}
 function is_space($char) {
     return preg_match('/^\s$/u', $char);
 }
@@ -129,6 +125,9 @@ function is_slash($char) {
 }
 function is_dot($char) {
     return (int)($char == '.');
+}
+function is_colon($char) {
+    return (int)($char == ':');
 }
 function is_single_quote($char) {
     return (int)($char == "'");
@@ -148,7 +147,7 @@ function is_number($char) {
     return (int)is_numeric($char);
 }
 function is_pmark($char) {
-    $re_punctuation = '/[,!\?;:"\xAB\xBB]/u';
+    $re_punctuation = '/[,!\?;"\xAB\xBB]/u';
     return preg_match($re_punctuation, $char);
 }
 function is_bracket1($char) {
@@ -176,6 +175,18 @@ function looks_like_url($s, $suffix) {
     if (preg_match($re1, $s) || preg_match($re2, $s)) {
         return 1;
     }
+    return 0;
+}
+function looks_like_time($left, $right) {
+    $left = preg_replace('/^\D+/u', '', $left);
+    $right = preg_replace('/\D+$/u', '', $right);
+
+    if (!preg_match('/^\d\d?$/u', $left) || !preg_match('/^\d\d$/u', $right))
+        return 0;
+
+    if ($left < 24 && $right < 60)
+        return 1;
+
     return 0;
 }
 function is_exception($s, $exc) {
