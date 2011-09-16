@@ -249,10 +249,12 @@ function split_sentence($token_id) {
     //move tokens
     if (
         !sql_query("UPDATE text_forms SET sent_id=$new_sent_id, pos=pos-$tpos WHERE sent_id=$sent_id AND pos>$tpos") ||
-    //change source in the original sentence
+        //change source in the original sentence
         !sql_query("UPDATE sentences SET check_status='0', source='".mysql_real_escape_string($source_left)."' WHERE sent_id=$sent_id LIMIT 1") ||
-    //drop status
-        !sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id")
+        //drop status
+        !sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id") ||
+        //delete from strange splitting
+        !sql_query("DELETE FROM sentences_strange WHERE sent_id=$sent_id LIMIT 1")
     ) return 0;
     sql_commit();
     $r = sql_fetch_array(sql_query("SELECT book_id FROM paragraphs WHERE par_id=$par_id LIMIT 1"));
