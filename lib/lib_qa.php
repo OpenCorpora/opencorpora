@@ -31,6 +31,16 @@ function get_page_tok_strange() {
     }
     return $out;
 }
+function get_page_sent_strange() {
+    $out = array();
+    $res = sql_query("SELECT sent_id FROM sentences_strange ORDER BY sent_id DESC");
+    while ($r = sql_fetch_array($res)) {
+        $r1 = sql_fetch_array(sql_query("SELECT source FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
+        $r2 = sql_fetch_array(sql_query("SELECT book_id FROM paragraphs WHERE par_id = (SELECT par_id FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1) LIMIT 1"));
+        $out[] = array('id' => $r['sent_id'], 'text' => $r1['source'], 'book_id' => $r2['book_id']);
+    }
+    return $out;
+}
 function get_empty_books() {
     $res = sql_query("
         SELECT book_id, book_name

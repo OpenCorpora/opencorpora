@@ -7,6 +7,14 @@ if (isset($_GET['act']))
     $action = $_GET['act'];
 
 switch($action) {
+    case 'sent_split':
+        if (user_has_permission('perm_adder')) {
+            $smarty->assign('sentences', get_page_sent_strange());
+            $smarty->display('qa/sent_split.tpl');
+        } else {
+            show_error($config['msg_notadmin']);
+        }
+        break;
     case 'tokenizer':
         if (user_has_permission('perm_adder')) {
             $smarty->assign('obj', get_page_tok_strange());

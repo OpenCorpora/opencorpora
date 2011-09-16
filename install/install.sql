@@ -345,3 +345,7 @@ CREATE TABLE IF NOT EXISTS `tokenizer_strange` (
     `coeff`   FLOAT NOT NULL,
     INDEX(`coeff`)
 ) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `sentences_strange` (
+    `sent_id` MEDIUMINT UNSIGNED NOT NULL
+) ENGINE = INNODB;
