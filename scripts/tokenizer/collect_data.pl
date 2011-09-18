@@ -65,7 +65,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
             if ($pos > length($str)) {
                 $broken_token->execute(time(), $token->[0]);
                 printf STDERR "Too long, sentence %d, failed token is <%s>\n",
-                    $ref->{'sent_id'}, $token;
+                    $ref->{'sent_id'}, $token->[1];
                 exit;
             }
         }
