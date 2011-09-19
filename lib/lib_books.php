@@ -261,8 +261,15 @@ function split_sentence($token_id) {
     return array($r['book_id'], $sent_id);
 }
 function merge_sentences($id1, $id2) {
-    if ($id1 < 1 || $id2 < 1 || ($id2-$id1 != 1)) {
-        show_error("Можно склеить только два соседних предложения!");
+    if ($id1 < 1 || $id2 < 1) {
+        show_error();
+        return;
+    }
+    $res = sql_query("SELECT pos, par_id FROM sentences WHERE sent_id IN ($id1, $id2) LIMIT 2");
+    $r1 = sql_fetch_array($res);
+    $r2 = sql_fetch_array($res);
+    if ($r1['par_id'] != $r2['par_id'] || abs($r1['pos']-$r2['pos']) > 1) {
+        show_error("Предложения должны идти подряд!");
         return;
     }
     //moving tokens
