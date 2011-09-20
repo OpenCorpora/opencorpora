@@ -15,7 +15,7 @@ if (is_logged()) {
                 header('Location:options.php');
                 return;
             } else
-                show_error($config['msg_notadmin']);
+                show_error($config['msg']['notadmin']);
             break;
         case 'readonly_off':
             if (is_admin()) {
@@ -23,7 +23,7 @@ if (is_logged()) {
                 header('Location:options.php');
                 return;
             } else
-                show_error($config['msg_notadmin']);
+                show_error($config['msg']['notadmin']);
             break;
         default:
             $smarty->assign('meta', get_meta_options());
@@ -31,5 +31,5 @@ if (is_logged()) {
             $smarty->display('options.tpl');
     }
 } else
-    show_error($config['msg_notlogged']);
+    show_error($config['msg']['notlogged']);
 ?>

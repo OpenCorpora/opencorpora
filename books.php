@@ -65,6 +65,6 @@ elseif (user_has_permission('perm_adder')) {
             break;
     }
 } else {
-    show_error($config['msg_notadmin']);
+    show_error($config['msg']['notadmin']);
 }
 ?>

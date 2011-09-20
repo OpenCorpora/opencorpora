@@ -3,7 +3,7 @@ require('lib/header.php');
 require_once('lib/lib_books.php');
 
 if (!user_has_permission('perm_adder')) {
-    show_error($config['msg_notadmin']);
+    show_error($config['msg']['notadmin']);
     return;
 }
 

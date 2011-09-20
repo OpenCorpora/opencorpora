@@ -13,7 +13,7 @@ switch($action) {
             $descr = mysql_real_escape_string($_POST['descr']);
             add_grammem($name, $group, $outer_id, $descr);
         } else
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         break;
     case 'move_gram':
         if (user_has_permission('perm_dict')) {
@@ -21,14 +21,14 @@ switch($action) {
             $dir = $_GET['dir'];
             move_grammem($grm, $dir);
         } else
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         break;
     case 'del_gram':
         if (user_has_permission('perm_dict')) {
             $grm = (int)$_GET['id'];
             del_grammem($grm);
         } else
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         break;
     case 'edit_gram':
         if (user_has_permission('perm_dict')) {
@@ -38,43 +38,43 @@ switch($action) {
             $descr = mysql_real_escape_string($_POST['descr']);
             edit_grammem($id, $inner_id, $outer_id, $descr);
         } else
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         break;
     case 'clear_errata':
         if (user_has_permission('perm_dict')) {
             clear_dict_errata(isset($_GET['old']));
         } else
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         break;
     case 'not_error':
         if (user_has_permission('perm_dict')) {
             mark_dict_error_ok((int)$_GET['error_id'], $_POST['comm']);
         } else
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         break;
     case 'add_restr':
         if (user_has_permission('perm_dict')) {
             add_dict_restriction($_POST);
         } else
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         break;
     case 'del_restr':
         if (user_has_permission('perm_dict')) {
             del_dict_restriction((int)$_GET['id']);
         } else
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         break;
     case 'update_restr':
         if (user_has_permission('perm_dict')) {
             calculate_gram_restrictions();
         } else
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         break;
     case 'save':
         if (user_has_permission('perm_dict')) {
             dict_save($_POST);
         } else
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         break;
     case 'add_link':
         if (user_has_permission('perm_dict')) {
@@ -83,7 +83,7 @@ switch($action) {
             } else
                 show_error();
         } else
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         break;
     case 'del_link':
         if (user_has_permission('perm_dict')) {
@@ -92,13 +92,13 @@ switch($action) {
             } else
                 show_error();
         } else
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         break;
     case 'del_lemma':
         if (user_has_permission('perm_dict')) {
             del_lemma((int)$_GET['lemma_id']);
         } else
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         break;
     case 'lemmata':
         $smarty->assign('search', get_dict_search_results($_POST));

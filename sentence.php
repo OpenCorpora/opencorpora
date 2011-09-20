@@ -17,7 +17,7 @@ if (isset($_GET['act'])) {
                 sentence_save();
                 break;
             } else {
-                show_error($config['msg_notlogged']);
+                show_error($config['msg']['notlogged']);
             }
     }
 } else {

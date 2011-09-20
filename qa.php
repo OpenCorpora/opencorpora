@@ -12,7 +12,7 @@ switch($action) {
             $smarty->assign('sentences', get_page_sent_strange());
             $smarty->display('qa/sent_split.tpl');
         } else {
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         }
         break;
     case 'tokenizer':
@@ -20,7 +20,7 @@ switch($action) {
             $smarty->assign('obj', get_page_tok_strange());
             $smarty->display('qa/tokenizer.tpl');
         } else {
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         }
         break;
     case 'empty_books':
@@ -28,7 +28,7 @@ switch($action) {
             $smarty->assign('books', get_empty_books());
             $smarty->display('qa/empty_books.tpl');
         } else {
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         }
         break;
     case 'dl_urls':
@@ -36,7 +36,7 @@ switch($action) {
             $smarty->assign('urls', get_downloaded_urls());
             $smarty->display('qa/dl_urls.tpl');
         } else {
-            show_error($config['msg_notadmin']);
+            show_error($config['msg']['notadmin']);
         }
         break;
     default:

@@ -12,6 +12,6 @@ if (is_admin()) {
             $smarty->display('users_admin.tpl');
     }
 } else {
-    show_error($config['msg_notadmin']);
+    show_error($config['msg']['notadmin']);
 }
 ?>
