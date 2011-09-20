@@ -2,6 +2,7 @@
 use strict;
 use utf8;
 use DBI;
+use Config::INI::Reader;
 
 my $lock_path = "/var/lock/opcorpora_dict_uf.lock";
 if (-f $lock_path) {
@@ -9,19 +10,15 @@ if (-f $lock_path) {
 }
 
 #reading config
-my %mysql;
-while(<>) {
-    if (/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
-        $mysql{$1} = $2;
-    }
-}
+my $conf = Config::INI::Reader->read_handle(\*STDIN);
+$conf = $conf->{mysql};
 
 open my $lock, ">$lock_path";
 print $lock 'lock';
 close $lock;
 
 #main
-my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
+my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 
 #if there are any words still not checked by form2tf, we should do nothing

@@ -4,6 +4,7 @@ use strict;
 use utf8;
 use DBI;
 use Encode;
+use Config::INI::Reader;
 use Getopt::constant('FORCE' => 0, 'PLAINTEXT' => 0);
 
 my $lock_path = "/var/lock/opcorpora_export_dict.lock";
@@ -12,19 +13,15 @@ if (-f $lock_path) {
 }
 
 #reading config
-my %mysql;
-while(<>) {
-    if (/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
-        $mysql{$1} = $2;
-    }
-}
+my $conf = Config::INI::Reader->read_handle(\*STDIN);
+$conf = $conf->{mysql};
 
 open my $lock, ">$lock_path";
 print $lock 'lock';
 close $lock;
 
 #main
-my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'});
+my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'});
 if (!$dbh) {
     unlink $lock_path;
     die $DBI::errstr;

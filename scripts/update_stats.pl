@@ -4,6 +4,7 @@ use utf8;
 use DBI;
 use Encode;
 use POSIX qw/strftime/;
+use Config::INI::Reader;
 
 my $lock_path = "/var/lock/opcorpora_updstats.lock";
 if (-f $lock_path) {
@@ -11,18 +12,14 @@ if (-f $lock_path) {
 }
 
 #reading config
-my %mysql;
-while(<>) {
-    if (/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
-        $mysql{$1} = $2;
-    }
-}
+my $conf = Config::INI::Reader->read_handle(\*STDIN);
+$conf = $conf->{mysql};
 
 open my $lock, ">$lock_path";
 print $lock 'lock';
 close $lock;
 
-my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
+my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 my $scan = $dbh->prepare("SELECT * FROM `stats_param` WHERE is_active=1 ORDER BY param_id");
 my $insert = $dbh->prepare("INSERT INTO `stats_values` VALUES(?, ?, ?)");

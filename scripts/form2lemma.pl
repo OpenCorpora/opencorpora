@@ -3,6 +3,7 @@ use strict;
 use utf8;
 use DBI;
 use Encode;
+use Config::INI::Reader;
 
 my $lock_path = "/var/lock/opcorpora_f2l.lock";
 if (-f $lock_path) {
@@ -10,19 +11,15 @@ if (-f $lock_path) {
 }
 
 #reading config
-my %mysql;
-while(<>) {
-    if (/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
-        $mysql{$1} = $2;
-    }
-}
+my $conf = Config::INI::Reader->read_handle(\*STDIN);
+$conf = $conf->{mysql};
 
 open my $lock, ">$lock_path";
 print $lock 'lock';
 close $lock;
 
 #main
-my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
+my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 
 my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE f2l_check=0 ORDER BY rev_id LIMIT 2000");

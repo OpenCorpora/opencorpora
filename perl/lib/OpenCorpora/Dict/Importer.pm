@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use utf8;
 use DBI;
+use Config::INI;
 
 use Getopt::constant (
     'DEBUG' => 0,
@@ -57,15 +58,11 @@ sub new {
 }
 sub sql_connect {
     my $self = shift;
-    my %mysql;
-    open F, CONFIG or die "Error: Cannot read ".CONFIG;
-    while(<F>) {
-        if (/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
-             $mysql{$1} = $2;
-         }
-    }
-    close F;
-    my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
+
+    my $conf = Config::INI::Reader->new(CONFIG);
+    $conf = $conf->{mysql};
+
+    my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
     $dbh->do("SET NAMES utf8");
     $self->{CONNECTION} = $dbh;
 }

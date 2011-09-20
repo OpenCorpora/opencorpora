@@ -4,6 +4,7 @@ use strict;
 use utf8;
 use DBI;
 use Encode;
+use Config::INI::Reader;
 
 my $lock_path = "/var/lock/opcorpora_export_annot.lock";
 if (-f $lock_path) {
@@ -11,21 +12,15 @@ if (-f $lock_path) {
 }
 
 #reading config
-my %mysql;
-open F, $ARGV[0] or die "Failed to open file: $!";
-while(<F>) {
-    if (/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
-        $mysql{$1} = $2;
-    }
-}
-close F;
+my $conf = Config::INI::Reader->read_file($ARGV[0]);
+$conf = $conf->{mysql};
 
 open my $lock, ">$lock_path";
 print $lock 'lock';
 close $lock;
 
 #main
-my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'});
+my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'});
 if (!$dbh) {
     unlink $lock_path;
     die $DBI::errstr;

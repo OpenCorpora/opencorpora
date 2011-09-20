@@ -3,6 +3,7 @@ use strict;
 use utf8;
 use Encode;
 use DBI;
+use Config::INI::Reader;
 
 binmode(STDERR, ':utf8');
 
@@ -12,19 +13,15 @@ if (-f $lock_path) {
 }
 
 #reading config
-my %mysql;
-while(<>) {
-    if (/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
-        $mysql{$1} = $2;
-    }
-}
+my $conf = Config::INI::Reader->read_handle(\*STDIN);
+$conf = $conf->{mysql};
 
 open my $lock, ">$lock_path";
 print $lock 'lock';
 close $lock;
 
 #main
-my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
+my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 
 my $scan = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE tf_id NOT IN (SELECT tf_id FROM form2tf) LIMIT ?");

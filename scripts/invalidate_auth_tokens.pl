@@ -1,16 +1,11 @@
 #!/usr/bin/perl
 use strict;
 use DBI;
+use Config::INI::Reader;
 
 #reading config
-my %mysql;
-open F, $ARGV[0] or die "Failed to open $ARGV[0]";
-while(<F>) {
-    if (/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
-        $mysql{$1} = $2;
-    }
-}
-close F;
+my $conf = Config::INI::Reader->read_file($ARGV[0]);
+$conf = $conf->{mysql};
 
-my $dbh = DBI->connect('DBI:mysql:'.$mysql{'dbname'}.':'.$mysql{'host'}, $mysql{'user'}, $mysql{'passwd'}) or die $DBI::errstr;
+my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
 $dbh->do("DELETE FROM user_tokens WHERE timestamp<".(time()-60*60*24*7));

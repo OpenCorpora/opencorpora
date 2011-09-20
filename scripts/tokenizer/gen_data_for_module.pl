@@ -6,27 +6,22 @@ use warnings;
 
 use DBI;
 use Digest::MD5;
+use Config::INI::Reader;
 use IO::Compress::Gzip qw($GzipError);
 use IO::Uncompress::Gunzip qw($GunzipError);
 
 @ARGV == 2 or die "Usage: $@ <config> <path>";
 
-my $config = shift;
-my $path   = shift;
+my $config_file = shift;
+my $path        = shift;
 
-my %conf;
-open my $fh, '<', $config or die "$config: $!";
-while(<$fh>) {
-    if(/\$config\['mysql_(\w+)'\]\s*=\s*'([^']+)'/) {
-        $conf{$1} = $2;
-    }
-}
-close $fh;
+my $conf = Config::INI::Reader->read_file($config_file);
+$conf = $conf->{mysql};
 
 my $dbh = DBI->connect(
-    "DBI:mysql:database=$conf{dbname};host=$conf{host}",
-    $conf{user},
-    $conf{passwd},
+    "DBI:mysql:database=$conf->{dbname};host=$conf->{host}",
+    $conf->{user},
+    $conf->{passwd},
     {
         mysql_enable_utf8 => 1,
     },
