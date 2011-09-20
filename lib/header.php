@@ -3,17 +3,19 @@ if (!headers_sent()) {
     session_start();
     header("Content-type: text/html; charset=utf-8");
 }
-require_once('config.php');
+
+$config = parse_ini_file('config.ini', true);
+
 require_once('common.php');
 
 //init Smarty
 require_once('Smarty.class.php');
 
 $smarty = new Smarty();
-$smarty->template_dir = $config['smarty_template_dir'];
-$smarty->compile_dir  = $config['smarty_compile_dir'];
-$smarty->config_dir   = $config['smarty_config_dir'];
-$smarty->cache_dir    = $config['smarty_cache_dir'];
+$smarty->template_dir = $config['smarty']['template_dir'];
+$smarty->compile_dir  = $config['smarty']['compile_dir'];
+$smarty->config_dir   = $config['smarty']['config_dir'];
+$smarty->cache_dir    = $config['smarty']['cache_dir'];
 $smarty->registerPlugin("block", "t", "translate");
 
 //language issues
@@ -49,8 +51,8 @@ bind_textdomain_codeset('messages', 'UTF-8');
 textdomain('messages');
 
 //database connect
-$db = mysql_connect($config['mysql_host'], $config['mysql_user'], $config['mysql_passwd']) or die ("Unable to connect to mysql server");
-if (!sql_query("USE ".$config['mysql_dbname'], 0, 1)) {
+$db = mysql_connect($config['mysql']['host'], $config['mysql']['user'], $config['mysql']['passwd']) or die ("Unable to connect to mysql server");
+if (!sql_query("USE ".$config['mysql']['dbname'], 0, 1)) {
     die ("Unable to open mysql database");
 }
 sql_query("SET names utf8", 0, 1);
@@ -103,7 +105,7 @@ if (is_logged() && isset($_SESSION['user_permissions']['perm_admin']) && $_SESSI
 }
 
 //some globals
-$smarty->assign('web_prefix', $config['web_prefix']);
+$smarty->assign('web_prefix', $config['web']['prefix']);
 $smarty->assign('is_admin', is_admin() ? 1 : 0);
 $smarty->assign('is_logged', is_logged() ? 1 : 0);
 if (is_logged()) {
