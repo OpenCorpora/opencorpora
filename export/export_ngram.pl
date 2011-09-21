@@ -2,8 +2,6 @@
 
 use strict;
 use utf8;
-use DBI;
-use Encode;
 use XML::Parser;
 use Getopt::Std;
 
