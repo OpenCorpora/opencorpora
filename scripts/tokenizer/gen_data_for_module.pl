@@ -48,22 +48,38 @@ my $hyphens_data = $dbh->selectall_arrayref("
 $hyphens_data = join "\n", map @$_, @$hyphens_data;
 update_file('hyphens', $hyphens_data);
 
+open my $fh, '<', '../lists/tokenizer_exceptions.txt';
+my $exceptions_data = do { <$fh>; local $/; <$fh> };
+close $fh;
+update_file('exceptions', $exceptions_data);
+
+open $fh, '<', '../lists/tokenizer_prefixes.txt';
+my $prefixes_data = do { <$fh>; local $/; <$fh> };
+close $fh;
+update_file('prefixes', $prefixes_data);
+
 sub update_file {
     my($mode, $data) = @_;
 
     my $version = time;
 
+    print "$mode: ";
+
     my $fn = "$path/$mode.gz";
     if(-e $fn and -s $fn) {
-        my $fh = IO::Uncompress::Gunzip->new($fn) or die "$fn: $GunzipError";
         my $hash_old = Digest::MD5->new;
-        $hash_old->add($_) while $_ = $fh->getline; # stupid Digest::MD5 won't take FileHandle instance as input
-        $hash_old = $hash_old->hexdigest;
+        my $fh = IO::Uncompress::Gunzip->new($fn) or die "$fn: $GunzipError";
+        $fh->getline; # skip version
+        $hash_old->add(join '', $fh->getlines);
         $fh->close;
 
-        my $hash_new = Digest::MD5->new->add($data)->hexdigest;
+        my $hash_new = Digest::MD5->new;
+        $hash_new->add($data);
 
-        return if $hash_new eq $hash_old;
+        if($hash_new->hexdigest eq $hash_old->hexdigest) {
+            print "no update needed\n";
+            return;
+        }
     }
 
     my $fh = IO::Compress::Gzip->new($fn) or die "$fn: $GzipError";
@@ -74,6 +90,8 @@ sub update_file {
     open $fh, '>', $fn or die $!;
     print $fh $version;
     close $fh;
+
+    print "updated\n";
 
     return;
 }
