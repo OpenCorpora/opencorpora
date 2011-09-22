@@ -183,61 +183,44 @@ $func->{'blogs_words'} = sub {
 };
 $func->{'added_sentences'} = sub {
 
-    #LAST WEEK
-    #we'll use param_id = 7, though it's used in different sense in stats_param
-    my %user_cnt;
+    #find the authors of all sentences which haven't been found yet
+    my $absent = $dbh->prepare("SELECT sent_id FROM sentences WHERE sent_id NOT IN (SELECT sent_id FROM sentence_authors)");
+    $absent->execute();
+    my $r;
+
+    print STDERR "Catching up with new sentences...\n";
+    while ($r = $absent->fetchrow_hashref()) {
+        get_sentence_adder($r->{'sent_id'});
+    }
+    print STDERR "Done.\n";
+
     my $ins = $dbh->prepare("INSERT INTO user_stats VALUES(?, ?, ?, ?)");
     my $del = $dbh->prepare("DELETE FROM user_stats WHERE param_id=?");
-    my $sent_max = $dbh->prepare("SELECT MAX(sent_id) AS m FROM sentences");
-    $sent_max->execute();
-    my $sm = $sent_max->fetchrow_hashref()->{'m'};
-    my $basic_ts = time();
-    my $bad_counter = 0;
-    while(1) {
-        print STDERR "last week sentence $sm\n";
-        my $a = get_sentence_adder($sm--);
-        next unless $a;
-        if ($basic_ts - $a->{'timestamp'} > 60*60*24*7) {
-            ++$bad_counter < 50 ? next : last;
-        }
-        $bad_counter = 0;
-        printf STDERR "ts = %s\n", strftime("%d.%m.%Y, %H:%M", localtime($a->{'timestamp'}));
-        $user_cnt{$a->{'user_id'}}++;
-    }
+
+    #LAST WEEK
+    #we'll use param_id = 7, though it's used in different sense in stats_param
+    print STDERR "Counting last week's sentences...";
+    my $cnt = $dbh->prepare("SELECT user_id, COUNT(sent_id) as cnt FROM sentence_authors WHERE timestamp>=? GROUP BY user_id");
+
+    my $basic_ts = time()-60*60*24*7;
+    print STDERR "    will count sentences not older than UNIX $basic_ts\n";
+
+    $cnt->execute($basic_ts);
     $del->execute(7);
-    for my $k(keys %user_cnt) {
-        $ins->execute($k, time(), 7, $user_cnt{$k});
+    while ($r = $cnt->fetchrow_hashref()) {
+        $ins->execute($r->{'user_id'}, time(), 7, $r->{'cnt'});
     }
+    print STDERR "    done.\n";
 
     #GLOBAL
-    #save the old data
-    %user_cnt = ();
-    my $sc = $dbh->prepare("SELECT user_id, param_value FROM user_stats WHERE param_id=6");
-    $sc->execute();
-    while (my $r = $sc->fetchrow_hashref()) {
-        $user_cnt{$r->{'user_id'}} = $r->{'param_value'};
-    }
-    #updating the data
-    my $curr_max = $dbh->prepare("SELECT MAX(param_value) AS m FROM stats_values WHERE param_id=6");
-    my $pre = $dbh->prepare("SELECT sent_id FROM sentences WHERE sent_id>? ORDER BY sent_id");
-    $curr_max->execute();
-    my $r = $curr_max->fetchrow_hashref();
-    if (!$r->{'m'}) {
-        $r->{'m'} = 0;
-    }
-    $pre->execute($r->{'m'});
-    my $new_max = $r->{'m'};
-    while ($r = $pre->fetchrow_hashref()) {
-        $new_max = $r->{'sent_id'};
-        my $u = get_sentence_adder($r->{'sent_id'})->{'user_id'};
-        print STDERR "sentence $new_max by user #$u\n";
-        ++$user_cnt{$u};
-    }
+    print STDERR "Counting all sentences... ";
+    $cnt->execute(0);
     $del->execute(6);
-    for my $k(keys %user_cnt) {
-        $ins->execute($k, time(), 6, $user_cnt{$k});
+    while ($r = $cnt->fetchrow_hashref()) {
+        $ins->execute($r->{'user_id'}, time(), 6, $r->{'cnt'});
     }
-    return $new_max;
+    print STDERR "Done.\n";
+    return -1;
 };
 
 # /SUBROUTINES
