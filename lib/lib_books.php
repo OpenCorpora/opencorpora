@@ -294,7 +294,8 @@ function merge_sentences($id1, $id2) {
         return;
     }
     //deleting sentence
-    if (sql_query("DELETE FROM sentences WHERE sent_id=$id2 LIMIT 1")) {
+    if (sql_query("DELETE FROM sentence_authors WHERE sent_id=$id2 LIMIT 1") &&
+        sql_query("DELETE FROM sentences WHERE sent_id=$id2 LIMIT 1")) {
         sql_commit();
         header("Location:sentence.php?id=$id1");
         return;

@@ -87,6 +87,14 @@ CREATE TABLE IF NOT EXISTS `sentence_comments` (
     INDEX(`parent_id`)
 ) ENGINE = INNODB;
 
+CREATE TABLE IF NOT EXISTS `sentence_authors` (
+    `sent_id`   MEDIUMINT UNSIGNED NOT NULL,
+    `user_id`   SMALLINT UNSIGNED NOT NULL,
+    `timestamp` INT UNSIGNED NOT NULL,
+    INDEX(`sent_id`),
+    INDEX(`user_id`)
+) ENGINE = INNODB;
+
 CREATE TABLE IF NOT EXISTS `text_forms` (
     `tf_id`        INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `sent_id`      MEDIUMINT UNSIGNED NOT NULL,

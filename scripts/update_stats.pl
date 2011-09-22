@@ -23,6 +23,8 @@ my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf
 $dbh->do("SET NAMES utf8");
 my $scan = $dbh->prepare("SELECT * FROM `stats_param` WHERE is_active=1 ORDER BY param_id");
 my $insert = $dbh->prepare("INSERT INTO `stats_values` VALUES(?, ?, ?)");
+my $scan_author = $dbh->prepare("SELECT user_id, timestamp FROM sentence_authors WHERE sent_id=? LIMIT 1");
+my $insert_author = $dbh->prepare("INSERT INTO sentence_authors VALUES(?, ?, ?)");
 
 $scan->execute();
 
@@ -65,6 +67,13 @@ sub words_by_source {
 
 sub get_sentence_adder {
     my $sid = shift;
+    my $r;
+
+    $scan_author->execute($sid);
+    if ($r = $scan_author->fetchrow_hashref()) {
+        return $r;
+    }
+
     my $sc = $dbh->prepare("
         SELECT user_id, timestamp
         FROM rev_sets
@@ -79,9 +88,12 @@ sub get_sentence_adder {
             ORDER BY rev_id
             LIMIT 1
         )
+        LIMIT 1
     ");
     $sc->execute($sid);
-    return $sc->fetchrow_hashref();
+    $r = $sc->fetchrow_hashref();
+    $insert_author->execute($sid, $r->{'user_id'}, $r->{'timestamp'});
+    return $r;
 }
 
 $func->{'total_books'} = sub {
@@ -205,7 +217,6 @@ $func->{'added_sentences'} = sub {
     while (my $r = $sc->fetchrow_hashref()) {
         $user_cnt{$r->{'user_id'}} = $r->{'param_value'};
     }
-    $del->execute(6);
     #updating the data
     my $curr_max = $dbh->prepare("SELECT MAX(param_value) AS m FROM stats_values WHERE param_id=6");
     my $pre = $dbh->prepare("SELECT sent_id FROM sentences WHERE sent_id>? ORDER BY sent_id");
@@ -222,6 +233,7 @@ $func->{'added_sentences'} = sub {
         print STDERR "sentence $new_max by user #$u\n";
         ++$user_cnt{$u};
     }
+    $del->execute(6);
     for my $k(keys %user_cnt) {
         $ins->execute($k, time(), 6, $user_cnt{$k});
     }
