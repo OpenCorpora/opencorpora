@@ -10,9 +10,10 @@ binmode(STDERR, ':utf8');
 
 #reading config
 my $conf = Config::INI::Reader->read_file($ARGV[0]);
-$conf = $conf->{mysql};
+my $root_path = $conf->{project}{root};
+my $mysql     = $conf->{mysql};
 
-my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
+my $dbh = DBI->connect('DBI:mysql:'.$mysql->{'dbname'}.':'.$mysql->{'host'}, $mysql->{'user'}, $mysql->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 my $sent = $dbh->prepare("SELECT `sent_id`, `source` FROM sentences");
 my $tok = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE sent_id=? ORDER BY `pos`");
@@ -40,8 +41,8 @@ my $stat_sure, my $stat_total;
 
 
 #first pass
-read_instances('/corpus/scripts/lists/tokenizer_exceptions.txt', \%exceptions);
-read_instances('/corpus/scripts/lists/tokenizer_prefixes.txt', \%prefixes);
+read_instances("$root_path/scripts/lists/tokenizer_exceptions.txt", \%exceptions);
+read_instances("$root_path/scripts/lists/tokenizer_prefixes.txt", \%prefixes);
 $sent->execute();
 while(my $ref = $sent->fetchrow_hashref()) {
     $str = decode('utf8', $ref->{'source'}).'  ';

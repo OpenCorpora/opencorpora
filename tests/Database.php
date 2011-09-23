@@ -1,11 +1,19 @@
 <?php
 require_once 'PHPUnit/Framework.php';
-require_once '../lib/config.php';
 require_once '../lib/common.php';
+
 
 class Database extends PHPUnit_Framework_TestCase {
     protected $conn;
     protected $db_schema = array();
+
+    private $conf;
+
+    function __construct() {
+        $this->conf = parse_ini_file('../config.ini', true);
+
+        parent::__construct();
+    }
 
     protected function parse_installer() {
         $arr = file('../install/install.sql');
@@ -50,10 +58,9 @@ class Database extends PHPUnit_Framework_TestCase {
     }
 
     public function testConnect() {
-        global $config;
-        $this->conn = mysql_connect($config['mysql_host'], $config['mysql_user'], $config['mysql_passwd']);
+        $this->conn = mysql_connect($this->conf['mysql']['host'], $this->conf['mysql']['user'], $this->conf['mysql']['passwd']);
         $this->assertType('resource', $this->conn);
-        $this->assertTrue(sql_query('USE '.$config['mysql_dbname']));
+        $this->assertTrue(sql_query('USE '.$this->conf['mysql']['dbname']));
     }
     public function testTables() {
         $this->parse_installer();

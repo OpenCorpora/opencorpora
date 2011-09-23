@@ -159,6 +159,8 @@ function books_del_tag($book_id, $tag_name) {
     return;
 }
 function download_url($url) {
+    global $config;
+
     if (!$url) return 0;
     
     //check if it has been already downloaded
@@ -177,7 +179,7 @@ function download_url($url) {
 
     //writing to disk
     $filename = uniqid('', 1);
-    $res = file_put_contents("/corpus/files/saved/$filename.html", $contents);
+    $res = file_put_contents($config['project']['root'] . "/files/saved/$filename.html", $contents);
     if (!$res) {
         return 0;
     }

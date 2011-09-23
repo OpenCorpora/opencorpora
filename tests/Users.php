@@ -1,6 +1,5 @@
 <?php
 require_once 'PHPUnit/Framework.php';
-require_once '../lib/config.php';
 require_once '../lib/common.php';
 
 class Users extends PHPUnit_Framework_TestCase {
