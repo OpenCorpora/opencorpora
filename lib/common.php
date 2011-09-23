@@ -132,27 +132,29 @@ function get_tag_stats() {
 }
 function get_downloads_info() {
     $dict = array();
-    $kb = 1024 * 1024;
-    $stat = stat('files/export/dict/dict.opcorpora.xml.bz2');
-    $dict['xml']['bz2']['size'] = sprintf("%.2f", $stat[7] / $kb);
-    $dict['xml']['updated'] = date('d.m.Y H:i \M\S\K', $stat[9]);
-    $stat = stat('files/export/dict/dict.opcorpora.xml.zip');
-    $dict['xml']['zip']['size'] = sprintf("%.2f", $stat[7] / $kb);
-
-    $stat = stat('files/export/dict/dict.opcorpora.txt.bz2');
-    $dict['txt']['bz2']['size'] = sprintf("%.2f", $stat[7] / $kb);
-    $dict['txt']['updated'] = date('d.m.Y H:i \M\S\K', $stat[9]);
-    $stat = stat('files/export/dict/dict.opcorpora.txt.zip');
-    $dict['txt']['zip']['size'] = sprintf("%.2f", $stat[7] / $kb);
-
     $annot = array();
-    $stat = stat('files/export/annot/annot.opcorpora.xml.bz2');
-    $annot['xml']['bz2']['size'] = sprintf("%.2f", $stat[7] / $kb);
-    $annot['xml']['updated'] = date('d.m.Y H:i \M\S\K', $stat[9]);
-    $stat = stat('files/export/annot/annot.opcorpora.xml.zip');
-    $annot['xml']['zip']['size'] = sprintf("%.2f", $stat[7] / $kb);
+    $ngram = array();
 
-    return array('dict'=>$dict, 'annot'=>$annot);
+    $dict['xml'] = get_file_info('files/export/dict/dict.opcorpora.xml');
+    $dict['txt'] = get_file_info('files/export/dict/dict.opcorpora.txt');
+    $annot['xml'] = get_file_info('files/export/annot/annot.opcorpora.xml');
+    $ngram[1]['exact'] = get_file_info('files/export/ngrams/unigrams');
+    $ngram[1]['exact_lc'] = get_file_info('files/export/ngrams/unigrams.lc');
+    $ngram[2]['exact'] = get_file_info('files/export/ngrams/bigrams');
+    $ngram[2]['exact_lc'] = get_file_info('files/export/ngrams/bigrams.lc');
+
+    return array('dict'=>$dict, 'annot'=>$annot, 'ngram'=>$ngram);
+}
+function get_file_info($path) {
+    //get size and time info about a group of archives
+    $mb = 1024 * 1024;
+    $out = array();
+    $stat = stat($path.'.bz2');
+    $out['bz2']['size'] = sprintf("%.2f", $stat[7] / $mb);
+    $out['updated'] = date('d.m.Y H:i \M\S\K', $stat[9]);
+    $stat = stat($path.'.zip');
+    $out['zip']['size'] = sprintf("%.2f", $stat[7] / $mb);
+    return $out;
 }
 function set_readonly_on() {
     if (!is_admin()) return 0;

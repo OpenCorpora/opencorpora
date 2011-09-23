@@ -40,6 +40,9 @@ h1 {
 h2 {
     font-size: 20px;
 }
+h3 {
+    font-size: 16px;
+}
 div#pre_header {
     padding: 5px 10px;
     background-color: #F69;
