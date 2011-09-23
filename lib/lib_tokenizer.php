@@ -213,8 +213,8 @@ function addtext_check($array) {
     global $config;
 
     //read file for tokenizer
-    $tok_exc = file($config['project']['root'] . 'scripts/lists/tokenizer_exceptions.txt', FILE_IGNORE_NEW_LINES);
-    $tok_prefixes = file($config['project']['root'] . 'scripts/lists/tokenizer_prefixes.txt', FILE_IGNORE_NEW_LINES);
+    $tok_exc = file($config['project']['root'] . '/scripts/lists/tokenizer_exceptions.txt', FILE_IGNORE_NEW_LINES);
+    $tok_prefixes = file($config['project']['root'] . '/scripts/lists/tokenizer_prefixes.txt', FILE_IGNORE_NEW_LINES);
 
     //removing bad symbols
     $clear_text = '';
