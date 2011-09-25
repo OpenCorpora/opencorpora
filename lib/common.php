@@ -156,6 +156,36 @@ function get_file_info($path) {
     $out['zip']['size'] = sprintf("%.2f", $stat[7] / $mb);
     return $out;
 }
+function get_ngram_top100_info($type) {
+    global $config;
+    $stats = array();
+
+    $filename = '';
+    switch($type) {
+        case '1_exact':
+            $filename = 'unigrams';
+            break;
+        case '1_exact_lc':
+            $filename = 'unigrams.lc';
+            break;
+        case '2_exact':
+            $filename = 'bigrams';
+            break;
+        case '2_exact_lc':
+            $filename = 'bigrams.lc';
+            break;
+        default:
+            return $stats;
+    }
+
+    $f = file($config['project']['root']."/files/export/ngrams/$filename.top100");
+    foreach($f as $s) {
+        list($token, $abs, $ipm) = explode("\t", $s);
+        $stats[] = array('token' => $token, 'abs' => $abs, 'ipm' => $ipm);
+    }
+    
+    return $stats;
+}
 function set_readonly_on() {
     if (!is_admin()) return 0;
     touch_file('/var/lock/oc_readonly.lock');

@@ -10,14 +10,17 @@ binmode(STDOUT, ':encoding(utf8)');
 
 my %options;
 my %dict;
+my $unit_counter = 0;
 my @context = ();
 
-getopts('Ccf:ln:s', \%options);
+getopts('Ccf:iln:ps', \%options);
 # C - count only n-grams having at least one cyrillic letter in each token
 # c - skip tokens without cyrillic symbols
 # f - path to xml with annotation
+# i - show ipm (items per million) as well as absolute frequency
 # l - whether we should lowercase
 # n - make n-grams
+# p - show kind of a progress bar
 # s - whether we should include sentence borders as tokens
 
 if (!$options{'n'}) {
@@ -36,10 +39,17 @@ if ($options{'f'}) {
 } else {
     $parser->parse(*STDIN);
 }
+if ($options{'p'}) {
+    print STDERR "\n";
+}
 
 # output
 for my $k(sort {$dict{$b} <=> $dict{$a}} keys %dict) {
-    printf "%s\t%d\n", $k, $dict{$k};
+    if ($options{'i'}) {
+        printf "%s\t%d\t%d\n", $k, $dict{$k}, $dict{$k} / $unit_counter * 1000000;
+    } else {
+        printf "%s\t%d\n", $k, $dict{$k};
+    }
 }
 
 # subroutines
@@ -55,6 +65,10 @@ sub tag_start {
         my $tt = $options{'l'} ? to_lower($attr{'text'}) : $attr{'text'};
         if ($options{'n'} == 1) {
             $dict{$tt}++;
+            $unit_counter++;
+            if ($options{'p'} && $unit_counter % 10000 == 0) {
+                print STDERR '.';
+            }
             return;
         }
 
@@ -102,5 +116,9 @@ sub flush_buffer {
     }
     
     $dict{join(' ', @$aref)}++;
+    $unit_counter++;
+    if ($options{'p'} && $unit_counter % 10000 == 0) {
+        print STDERR '.';
+    }
     shift @$aref;
 }

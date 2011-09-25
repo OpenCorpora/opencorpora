@@ -23,14 +23,14 @@ function process() {
     rm -f $1
 }
 
-$ROOT_PATH/export/export_ngram.pl -f $dump_path -n 1 >$export_path/unigrams
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -n 1 >$export_path/unigrams
 process $export_path/unigrams
 
-$ROOT_PATH/export/export_ngram.pl -f $dump_path -l -n 1 >$export_path/unigrams.lc
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -l -n 1 >$export_path/unigrams.lc
 process $export_path/unigrams.lc
 
-$ROOT_PATH/export/export_ngram.pl -f $dump_path -n 2 >$export_path/bigrams
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -n 2 >$export_path/bigrams
 process $export_path/bigrams
 
-$ROOT_PATH/export/export_ngram.pl -f $dump_path -l -n 2 >$export_path/bigrams.lc
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -l -n 2 >$export_path/bigrams.lc
 process $export_path/bigrams.lc

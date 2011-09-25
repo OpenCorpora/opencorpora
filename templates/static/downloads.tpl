@@ -15,6 +15,7 @@
     <th>&nbsp;</th>
     <th>Леммы</th>
     <th>Учёт регистра</th>
+    <th>Только слова*</th>
     <th colspan='3'>&nbsp;</th>
     <th>Обновлено</th>
 </tr>
@@ -22,18 +23,20 @@
     <td>exact</td>
     <td align='center'>&mdash;</td>
     <td align='center'>+</td>
+    <td align='center'>&mdash;</td>
     <td><a href="{$web_prefix}/files/export/ngrams/unigrams.bz2">архив .bz2</a> ({$dl.ngram.1.exact.bz2.size} Мб)</td>
     <td><a href="{$web_prefix}/files/export/ngrams/unigrams.zip">архив .zip</a> ({$dl.ngram.1.exact.zip.size} Мб)</td>
-    <td><a href="{$web_prefix}/files/export/ngrams/unigrams.top100">top100</a></td>
+    <td><a href="?page=top100&amp;type=1_exact">top100</a></td>
     <td>{$dl.ngram.1.exact.updated}</td>
 </tr>
 <tr>
     <td>exact_lc</td>
     <td align='center'>&mdash;</td>
     <td align='center'>&mdash;</td>
+    <td align='center'>&mdash;</td>
     <td><a href="{$web_prefix}/files/export/ngrams/unigrams.lc.bz2">архив .bz2</a> ({$dl.ngram.1.exact_lc.bz2.size} Мб)</td>
     <td><a href="{$web_prefix}/files/export/ngrams/unigrams.lc.zip">архив .zip</a> ({$dl.ngram.1.exact_lc.zip.size} Мб)</td>
-    <td><a href="{$web_prefix}/files/export/ngrams/unigrams.lc.top100">top100</a></td>
+    <td><a href="?page=top100&amp;type=1_exact_lc">top100</a></td>
     <td>{$dl.ngram.1.exact_lc.updated}</td>
 </tr>
 </table>
@@ -43,6 +46,7 @@
     <th>&nbsp;</th>
     <th>Леммы</th>
     <th>Учёт регистра</th>
+    <th>Только слова*</th>
     <th colspan='3'>&nbsp;</th>
     <th>Обновлено</th>
 </tr>
@@ -50,21 +54,24 @@
     <td>exact</td>
     <td align='center'>&mdash;</td>
     <td align='center'>+</td>
+    <td align='center'>&mdash;</td>
     <td><a href="{$web_prefix}/files/export/ngrams/bigrams.bz2">архив .bz2</a> ({$dl.ngram.2.exact.bz2.size} Мб)</td>
     <td><a href="{$web_prefix}/files/export/ngrams/bigrams.zip">архив .zip</a> ({$dl.ngram.2.exact.zip.size} Мб)</td>
-    <td><a href="{$web_prefix}/files/export/ngrams/bigrams.top100">top100</a></td>
+    <td><a href="?page=top100&amp;type=2_exact">top100</a></td>
     <td>{$dl.ngram.2.exact.updated}</td>
 </tr>
 <tr>
     <td>exact_lc</td>
     <td align='center'>&mdash;</td>
     <td align='center'>&mdash;</td>
+    <td align='center'>&mdash;</td>
     <td><a href="{$web_prefix}/files/export/ngrams/bigrams.lc.bz2">архив .bz2</a> ({$dl.ngram.2.exact_lc.bz2.size} Мб)</td>
     <td><a href="{$web_prefix}/files/export/ngrams/bigrams.lc.zip">архив .zip</a> ({$dl.ngram.2.exact_lc.zip.size} Мб)</td>
-    <td><a href="{$web_prefix}/files/export/ngrams/bigrams.lc.top100">top100</a></td>
+    <td><a href="?page=top100&amp;type=2_exact_lc">top100</a></td>
     <td>{$dl.ngram.2.exact_lc.updated}</td>
 </tr>
 </table>
+<p class='small'>* Словами мы считаем токены, имеющие в своём составе хотя бы одну кириллическую букву.</p>
 <h2>{t}Морфологический словарь{/t}</h2>
 <p>XML, {t}обновлён{/t} {$dl.dict.xml.updated}, см. <a href="{$web_prefix}/?page=export">описание формата</a></p>
 <ul>
