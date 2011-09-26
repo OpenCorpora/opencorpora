@@ -13,13 +13,14 @@ my %dict;
 my $unit_counter = 0;
 my @context = ();
 
-getopts('Ccf:iln:ps', \%options);
+getopts('Ccf:iln:ops', \%options);
 # C - count only n-grams having at least one cyrillic letter in each token
 # c - skip tokens without cyrillic symbols
 # f - path to xml with annotation
 # i - show ipm (items per million) as well as absolute frequency
 # l - whether we should lowercase
 # n - make n-grams
+# o - ignore order of terms
 # p - show kind of a progress bar
 # s - whether we should include sentence borders as tokens
 
@@ -115,7 +116,12 @@ sub flush_buffer {
         }
     }
     
-    $dict{join(' ', @$aref)}++;
+    if ($options{'o'}) {
+        $dict{join(' ', sort @$aref)}++;
+    } else {
+        $dict{join(' ', @$aref)}++;
+    }
+
     $unit_counter++;
     if ($options{'p'} && $unit_counter % 10000 == 0) {
         print STDERR '.';
