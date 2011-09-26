@@ -59,11 +59,12 @@ sub tag_start {
     my ($expat, $tag_name, %attr) = @_;
     
     if ($tag_name eq 'token') {
-        if ($options{'c'} && $attr{'text'} !~ /[А-ЯЁа-яё]/) {
+        if ($options{'c'} && $attr{'text'} !~ /[А-ЯЁа-яё0-9]/) {
             return;
         }
 
         my $tt = $options{'l'} ? to_lower($attr{'text'}) : $attr{'text'};
+        $tt =~ tr/[Ёё]/[Ее]/;
         if ($options{'n'} == 1) {
             $dict{$tt}++;
             $unit_counter++;
@@ -109,7 +110,7 @@ sub flush_buffer {
     #perhaps (if -c is set) we shouldn't include this n-gram if there are non-cyr tokens
     if ($options{'C'}) {
         for my $t(@$aref) {
-            if ($t !~ /[А-ЯЁа-яё]/ && $t ne '@border@') {
+            if ($t !~ /[А-ЯЁа-яё0-9]/ && $t ne '@border@') {
                 shift @$aref;
                 return;
             }
