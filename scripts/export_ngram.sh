@@ -18,7 +18,7 @@ function process() {
     cat $1 | head -100 >$1.top100
     bzip2 -c9 $1 > $1.bz2.new
     mv $1.bz2.new $1.bz2
-    zip -9 $1.zip.new $1
+    zip -q9 $1.zip.new $1
     mv $1.zip.new $1.zip
     rm -f $1
 }
@@ -29,8 +29,26 @@ process $export_path/unigrams
 $ROOT_PATH/export/export_ngram.pl -f $dump_path -i -l -n 1 >$export_path/unigrams.lc
 process $export_path/unigrams.lc
 
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -c -n 1 >$export_path/unigrams.cyr
+process $export_path/unigrams.cyr
+
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -c -l -n 1 >$export_path/unigrams.cyr.lc
+process $export_path/unigrams.cyr.lc
+
 $ROOT_PATH/export/export_ngram.pl -f $dump_path -i -n 2 >$export_path/bigrams
 process $export_path/bigrams
 
 $ROOT_PATH/export/export_ngram.pl -f $dump_path -i -l -n 2 >$export_path/bigrams.lc
 process $export_path/bigrams.lc
+
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -c -n 2 >$export_path/bigrams.cyrA
+process $export_path/bigrams.cyrA
+
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -C -n 2 >$export_path/bigrams.cyrB
+process $export_path/bigrams.cyrB
+
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -c -l -n 2 >$export_path/bigrams.cyrA.lc
+process $export_path/bigrams.cyrA.lc
+
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -C -l -n 2 >$export_path/bigrams.cyrB.lc
+process $export_path/bigrams.cyrB.lc

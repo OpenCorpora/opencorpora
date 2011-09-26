@@ -140,8 +140,14 @@ function get_downloads_info() {
     $annot['xml'] = get_file_info('files/export/annot/annot.opcorpora.xml');
     $ngram[1]['exact'] = get_file_info('files/export/ngrams/unigrams');
     $ngram[1]['exact_lc'] = get_file_info('files/export/ngrams/unigrams.lc');
+    $ngram[1]['exact_cyr'] = get_file_info('files/export/ngrams/unigrams.cyr');
+    $ngram[1]['exact_cyr_lc'] = get_file_info('files/export/ngrams/unigrams.cyr.lc');
     $ngram[2]['exact'] = get_file_info('files/export/ngrams/bigrams');
     $ngram[2]['exact_lc'] = get_file_info('files/export/ngrams/bigrams.lc');
+    $ngram[2]['exact_cyrA'] = get_file_info('files/export/ngrams/bigrams.cyrA');
+    $ngram[2]['exact_cyrB'] = get_file_info('files/export/ngrams/bigrams.cyrB');
+    $ngram[2]['exact_cyrA_lc'] = get_file_info('files/export/ngrams/bigrams.cyrA.lc');
+    $ngram[2]['exact_cyrB_lc'] = get_file_info('files/export/ngrams/bigrams.cyrB.lc');
 
     return array('dict'=>$dict, 'annot'=>$annot, 'ngram'=>$ngram);
 }
@@ -168,11 +174,29 @@ function get_ngram_top100_info($type) {
         case '1_exact_lc':
             $filename = 'unigrams.lc';
             break;
+        case '1_exact_cyr':
+            $filename = 'unigrams.cyr';
+            break;
+        case '1_exact_cyr_lc':
+            $filename = 'unigrams.cyr.lc';
+            break;
         case '2_exact':
             $filename = 'bigrams';
             break;
         case '2_exact_lc':
             $filename = 'bigrams.lc';
+            break;
+        case '2_exact_cyrA':
+            $filename = 'bigrams.cyrA';
+            break;
+        case '2_exact_cyrB':
+            $filename = 'bigrams.cyrB';
+            break;
+        case '2_exact_cyrA_lc':
+            $filename = 'bigrams.cyrA.lc';
+            break;
+        case '2_exact_cyrB_lc':
+            $filename = 'bigrams.cyrB.lc';
             break;
         default:
             return $stats;
