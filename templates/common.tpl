@@ -1,7 +1,7 @@
 {include file='commonhtmlheader.tpl'}
 {block name=body}<body>{/block}
 <div id='main'>
-{include file='header.tpl'}
+{nocache}{include file='header.tpl'}{/nocache}
 <div id='content'>
 {block name=content}{/block}
 </div>
