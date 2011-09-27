@@ -51,6 +51,7 @@ function get_sentence($sent_id) {
     $tf_text = array();
     $res = sql_query("SELECT tf_id, tf_text, dict_updated FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
     $j = 0; //token position, for further highlighting
+    $gram_descr = array();  //associative array to keep info about grammemes
     while($r = sql_fetch_array($res)) {
         array_push ($tf_text, '<span id="src_token_'.($j++).'">'.$r['tf_text'].'</span>');
         $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." ORDER BY rev_id DESC LIMIT 1"));
@@ -60,23 +61,43 @@ function get_sentence($sent_id) {
             'tf_id'        => $r['tf_id'],
             'tf_text'      => $r['tf_text'],
             'dict_updated' => $r['dict_updated'],
-            'variants'     => get_morph_vars($arr['tfr']['_c']['v'])
+            'variants'     => get_morph_vars($arr['tfr']['_c']['v'], $gram_descr)
         );
     }
     $out['fulltext'] = typo_spaces(implode(' ', $tf_text), 1);
     return $out;
 }
-function get_morph_vars($xml_arr) {
+function get_morph_vars($xml_arr, &$gram_descr) {
     if (isset($xml_arr['_c']) && is_array($xml_arr['_c'])) {
         //the only variant
-        return array(get_morph_vars_inner($xml_arr, 1));
+        $var = get_morph_vars_inner($xml_arr, 1);
+        $t = array();
+        foreach($var['gram_list'] as $gr) {
+            if (!$gram_descr[$gr['inner']]) {
+                $r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='".$gr['inner']."' LIMIT 1"));
+                $gram_descr[$gr['inner']] = array($r[0], $r[1]);
+            }
+            $t[] = array('inner' => $gr['inner'], 'outer' => $gram_descr[$gr['inner']][0], 'descr' => $gram_descr[$gr['inner']][1]);
+        }
+        $var['gram_list'] = $t;
+        return array($var);
     } else {
         //multiple variants
         $out = array();
         $i = 1;
         if (is_array($xml_arr)) {
             foreach($xml_arr as $xml_var_arr) {
-                $out[] = get_morph_vars_inner($xml_var_arr, $i++);
+                $var = get_morph_vars_inner($xml_var_arr, $i++);
+                $t = array();
+                foreach($var['gram_list'] as $gr) {
+                    if (!$gram_descr[$gr['inner']]) {
+                        $r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='".$gr['inner']."' LIMIT 1"));
+                        $gram_descr[$gr['inner']] = array($r[0], $r[1]);
+                    }
+                    $t[] = array('inner' => $gr['inner'], 'outer' => $gram_descr[$gr['inner']][0], 'descr' => $gram_descr[$gr['inner']][1]);
+                }
+                $var['gram_list'] = $t;
+                $out[] = $var;
             }
         }
         return $out;
@@ -86,14 +107,14 @@ function get_morph_vars_inner($xml_arr, $num) {
     $lemma_grm = $xml_arr['_c']['l']['_c']['g'];
     $grm_arr = array();
     if (isset ($lemma_grm['_a']) && is_array($lemma_grm['_a'])) {
-        $inner_id = $lemma_grm['_a']['v'];
-        $r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='$inner_id' LIMIT 1"));
-        array_push($grm_arr, array('inner' => $inner_id, 'outer' => $r[0], 'descr' => $r[1]));
+        //$r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='$inner_id' LIMIT 1"));
+        //array_push($grm_arr, array('inner' => $inner_id, 'outer' => $r[0], 'descr' => $r[1]));
+        $grm_arr[] = array('inner' => $lemma_grm['_a']['v']);
     } elseif(is_array($lemma_grm)) {
         foreach($lemma_grm as $t) {
-            $inner_id = $t['_a']['v'];
-            $r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='$inner_id' LIMIT 1"));
-            array_push($grm_arr, array('inner' => $inner_id, 'outer' => $r[0], 'descr' => $r[1]));
+            //$r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='$inner_id' LIMIT 1"));
+            //array_push($grm_arr, array('inner' => $inner_id, 'outer' => $r[0], 'descr' => $r[1]));
+            $grm_arr[] = array('inner' => $t['_a']['v']);
         }
     }
     return array(
