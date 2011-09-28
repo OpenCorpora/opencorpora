@@ -10,7 +10,7 @@ use Config::INI::Reader;
 use IO::Compress::Gzip qw($GzipError);
 use IO::Uncompress::Gunzip qw($GunzipError);
 
-@ARGV == 2 or die "Usage: $@ <config> <path>";
+@ARGV == 2 or die "Usage: $0 <config> <path>";
 
 my $config_file = shift;
 my $path        = shift;
