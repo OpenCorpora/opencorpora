@@ -52,3 +52,5 @@ process $export_path/bigrams.cyrA.lc
 
 $ROOT_PATH/export/export_ngram.pl -f $dump_path -i -C -l -n 2 >$export_path/bigrams.cyrB.lc
 process $export_path/bigrams.cyrB.lc
+
+rm -f $dump_path
