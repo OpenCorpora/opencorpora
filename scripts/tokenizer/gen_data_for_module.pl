@@ -6,6 +6,7 @@ use warnings;
 
 use DBI;
 use Digest::MD5;
+use Encode qw(_utf8_off);
 use Config::INI::Reader;
 use IO::Compress::Gzip qw($GzipError);
 use IO::Uncompress::Gunzip qw($GunzipError);
@@ -39,7 +40,7 @@ update_file('vectors', $vectors_data);
 
 my $hyphens_data = $dbh->selectall_arrayref("
     select
-        form_text
+        distinct form_text
     from
         form2lemma
     where
@@ -73,6 +74,7 @@ sub update_file {
         $hash_old->add(join '', $fh->getlines);
         $fh->close;
 
+        _utf8_off($data);
         my $hash_new = Digest::MD5->new;
         $hash_new->add($data);
 
