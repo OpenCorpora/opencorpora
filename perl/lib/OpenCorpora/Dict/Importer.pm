@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use utf8;
 use DBI;
-use Config::INI;
+use Config::INI::Reader;
 
 use Getopt::constant (
     'DEBUG' => 0,
