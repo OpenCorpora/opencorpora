@@ -6,6 +6,7 @@ use warnings;
 
 use DBI;
 use Digest::MD5;
+use Cwd qw(abs_path);
 use Encode qw(_utf8_off);
 use Config::INI::Reader;
 use IO::Compress::Gzip qw($GzipError);
@@ -49,12 +50,12 @@ my $hyphens_data = $dbh->selectall_arrayref("
 $hyphens_data = join "\n", map @$_, @$hyphens_data;
 update_file('hyphens', $hyphens_data);
 
-open my $fh, '<', '../lists/tokenizer_exceptions.txt';
+open my $fh, '<', abs_path('../lists/tokenizer_exceptions.txt') or die "exceptions: $!";
 my $exceptions_data = do { <$fh>; local $/; <$fh> };
 close $fh;
 update_file('exceptions', $exceptions_data);
 
-open $fh, '<', '../lists/tokenizer_prefixes.txt';
+open $fh, '<', abs_path('../lists/tokenizer_prefixes.txt') or die "prefixes: $!";
 my $prefixes_data = do { <$fh>; local $/; <$fh> };
 close $fh;
 update_file('prefixes', $prefixes_data);
