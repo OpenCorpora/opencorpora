@@ -11,6 +11,14 @@ if (!$action) {
         $smarty->display('books.tpl');
     }
 }
+elseif (is_admin() && $action == 'del_sentence') {
+    $sid = (int)$_GET['sid'];
+    if (!delete_sentence($sid)) {
+        show_error();
+    } else {
+        header("Location:books.php?book_id=".(int)$_GET['book_id'].'&full');
+    }
+}
 elseif (user_has_permission('perm_adder')) {
     switch($action) {
         case 'add':

@@ -27,6 +27,9 @@
             $('a.spp').click(function(event){
                 return confirm('Разбить абзац после этого предложения?');
             });
+            $('a.dls').click(function(event){
+                return confirm('Удалить это предложение? Подумайте дважды.');
+            });
         
             $("#tag_name").autocomplete("ajax/tag_autocomplete.php",{
                 minChars:2,
@@ -157,7 +160,10 @@
                     <tr><td></td><td valign='top'><a name="sen{$sentence.id}" href="{$web_prefix}/sentence.php?id={$sentence.id}">{$sentence.id}</a>.</td><td valign="top">
                         {if !$smarty.foreach.s.last && $user_permission_adder}
                             <a href="?act=split_paragraph&amp;sid={$sentence.id}" title="Разбить абзац после этого предложения" class="spp">Р</a>
-                        {else}&nbsp;
+                        {/if}
+                        &nbsp;
+                        {if $is_admin}
+                            <a href="?act=del_sentence&amp;sid={$sentence.id}&amp;book_id={$book.id}" title="Удалить предложение" class="dls">X</a>
                         {/if}
                         </td><td>
                         {if $user_permission_check_tokens}

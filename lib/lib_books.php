@@ -304,6 +304,22 @@ function merge_sentences($id1, $id2) {
     }
     show_error();
 }
+function delete_sentence($sid) {
+    sql_begin();
+    if (
+        sql_query("DELETE FROM form2tf WHERE tf_id IN (SELECT tf_id FROM text_forms WHERE sent_id=$sid)") &&
+        sql_query("DELETE FROM tf_revisions WHERE tf_id IN (SELECT tf_id FROM text_forms WHERE sent_id=$sid)") &&
+        sql_query("DELETE FROM text_forms WHERE sent_id=$sid") &&
+        sql_query("DELETE FROM sentence_authors WHERE sent_id=$sid LIMIT 1") &&
+        sql_query("DELETE FROM sentence_check WHERE sent_id=$sid") &&
+        sql_query("DELETE FROM sentence_comments WHERE sent_id=$sid") &&
+        sql_query("DELETE FROM sentences WHERE sent_id=$sid LIMIT 1")
+    ) {
+        sql_commit();
+        return 1;
+    }
+    return 0;
+}
 function merge_tokens_ii($id_array) {
     //ii stands for "id insensitive"
     if (sizeof($id_array) < 2) {
