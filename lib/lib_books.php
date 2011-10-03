@@ -288,10 +288,10 @@ function merge_sentences($id1, $id2) {
         show_error();
         return;
     }
-    //dropping status
+    //dropping status, moving comments
     if (!sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$id1 LIMIT 1") ||
-        !sql_query("DELETE FROM sentence_check WHERE sent_id=$id1") ||
-        !sql_query("DELETE FROM sentence_check WHERE sent_id=$id2")) {
+        !sql_query("UPDATE sentence_comments SET sent_id=$id1 WHERE sent_id=$id2") ||
+        !sql_query("DELETE FROM sentence_check WHERE sent_id=$id1 OR sent_id=$id2")) {
         show_error();
         return;
     }
