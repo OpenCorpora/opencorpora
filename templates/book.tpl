@@ -2,6 +2,7 @@
 {extends file='common.tpl'}
 {block name=content}
     {if $user_permission_adder}
+    {literal}
     <script type="text/javascript">
         $(document).ready(function(){
             $("input.tok").click(function(){
@@ -41,6 +42,7 @@
             });
         })
     </script>
+    {/literal}
     {/if}
     <h2>{$book.title} (id={$book.id})</h2>
     {if isset($book.parents)}
