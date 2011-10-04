@@ -13,7 +13,7 @@ my %options;
 getopts('b:m:tu:', \%options);
 # b - file with bigram frequencies
 # m - metric to use (currently only MI)
-# t - use threshold (5th root for MI)
+# t - use threshold (4th root for MI)
 # u - file with unigram frequencies
 
 if (!$options{'m'} || !$options{'b'} || !$options{'u'}) {
@@ -35,7 +35,7 @@ while(<F>) {
 }
 close F;
 
-my $MI_freq_threshold = $sum_freq ** 0.2;
+my $MI_freq_threshold = $sum_freq ** 0.25;
 
 open F, $options{'b'} or die "Error opening bigram file: $!";
 binmode(F, ':encoding(utf8)');
@@ -48,14 +48,14 @@ while(<F>) {
         if ($options{'t'} && $abs < $MI_freq_threshold) {
             next;
         }
-        $main_dict{$bigram} = MI($unigram_freq{$n}[0], $unigram_freq{$c}[0], $abs, $sum_freq);
+        $main_dict{$bigram} = [$abs, MI($unigram_freq{$n}[0], $unigram_freq{$c}[0], $abs, $sum_freq)];
     }
 }
 close F;
 
-for my $colloc(sort {$main_dict{$b} <=> $main_dict{$a}} keys %main_dict) {
+for my $colloc(sort {$main_dict{$b}->[1] <=> $main_dict{$a}->[1]} keys %main_dict) {
     my ($part1, $part2) = split / /, $colloc;
-    printf "%s\t%s\t%d\t%d\t%.3f\n", $part1, $part2, $unigram_freq{$part1}[1], $unigram_freq{$part2}[1], $main_dict{$colloc};
+    printf "%s\t%s\t%d\t%d\t%d\t%.3f\n", $part1, $part2, $unigram_freq{$part1}[1], $unigram_freq{$part2}[1], $main_dict{$colloc}->[0], $main_dict{$colloc}->[1];
 }
 
 # subroutines
