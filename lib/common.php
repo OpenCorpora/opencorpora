@@ -148,6 +148,12 @@ function get_downloads_info() {
     $ngram[2]['exact_cyrB'] = get_file_info('files/export/ngrams/bigrams.cyrB');
     $ngram[2]['exact_cyrA_lc'] = get_file_info('files/export/ngrams/bigrams.cyrA.lc');
     $ngram[2]['exact_cyrB_lc'] = get_file_info('files/export/ngrams/bigrams.cyrB.lc');
+    $ngram[3]['exact'] = get_file_info('files/export/ngrams/trigrams');
+    $ngram[3]['exact_lc'] = get_file_info('files/export/ngrams/trigrams.lc');
+    $ngram[3]['exact_cyrA'] = get_file_info('files/export/ngrams/trigrams.cyrA');
+    $ngram[3]['exact_cyrB'] = get_file_info('files/export/ngrams/trigrams.cyrB');
+    $ngram[3]['exact_cyrA_lc'] = get_file_info('files/export/ngrams/trigrams.cyrA.lc');
+    $ngram[3]['exact_cyrB_lc'] = get_file_info('files/export/ngrams/trigrams.cyrB.lc');
 
     return array('dict'=>$dict, 'annot'=>$annot, 'ngram'=>$ngram);
 }
@@ -197,6 +203,24 @@ function get_ngram_top100_info($type) {
             break;
         case '2_exact_cyrB_lc':
             $filename = 'bigrams.cyrB.lc';
+            break;
+        case '3_exact':
+            $filename = 'trigrams';
+            break;
+        case '3_exact_lc':
+            $filename = 'trigrams.lc';
+            break;
+        case '3_exact_cyrA':
+            $filename = 'trigrams.cyrA';
+            break;
+        case '3_exact_cyrB':
+            $filename = 'trigrams.cyrB';
+            break;
+        case '3_exact_cyrA_lc':
+            $filename = 'trigrams.cyrA.lc';
+            break;
+        case '3_exact_cyrB_lc':
+            $filename = 'trigrams.cyrB.lc';
             break;
         default:
             return $stats;
