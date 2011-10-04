@@ -53,4 +53,22 @@ process $export_path/bigrams.cyrA.lc
 $ROOT_PATH/export/export_ngram.pl -f $dump_path -i -C -l -n 2 >$export_path/bigrams.cyrB.lc
 process $export_path/bigrams.cyrB.lc
 
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -n 3 >$export_path/trigrams
+process $export_path/trigrams
+
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -l -n 3 >$export_path/trigrams.lc
+process $export_path/trigrams.lc
+
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -c -n 3 >$export_path/trigrams.cyrA
+process $export_path/trigrams.cyrA
+
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -C -n 3 >$export_path/trigrams.cyrB
+process $export_path/trigrams.cyrB
+
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -c -l -n 3 >$export_path/trigrams.cyrA.lc
+process $export_path/trigrams.cyrA.lc
+
+$ROOT_PATH/export/export_ngram.pl -f $dump_path -i -C -l -n 3 >$export_path/trigrams.cyrB.lc
+process $export_path/trigrams.cyrB.lc
+
 rm -f $dump_path
