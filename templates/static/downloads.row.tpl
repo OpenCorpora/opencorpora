@@ -6,7 +6,7 @@
         $lemma
         $words
 *}
-<tr>
+<tr class="nval_{$N}{if $lowercase} lc{/if}{if $words != ''} wds{/if}">
     <td>{$N}_{$suffix}</td>
     <td align='center'>{if $lemma}+{else}&mdash;{/if}</td>
     <td align='center'>{if $lowercase}&mdash;{else}+{/if}</td>
