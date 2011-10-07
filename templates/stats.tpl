@@ -2,6 +2,7 @@
 {extends file='common.tpl'}
 {block name=content}
 <script type="text/javascript" src="{$web_prefix}/js/jquery.flot.min.js"></script>
+<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="excanvas.min.js"></script><![endif]-->
 <script type="text/javascript">
 $(document).ready(function(){
 {literal}
