@@ -2,7 +2,7 @@ SET NAMES utf8;
 
 CREATE TABLE IF NOT EXISTS `books` (
     `book_id`   MEDIUMINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `book_name` VARCHAR(100) NOT NULL,
+    `book_name` VARCHAR(255) NOT NULL,
     `parent_id` INT UNSIGNED NOT NULL DEFAULT 0,
     INDEX (`parent_id`)
 ) ENGINE = INNODB;
