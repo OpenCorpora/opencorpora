@@ -119,6 +119,43 @@ function get_common_stats() {
         $stats['added_sentences_last_week'][] = array('timestamp' => $r['timestamp'], 'user_name' => $r['user_name'], 'value' => $r['param_value']);
     }
 
+    //for the chart
+    $chart = array();
+
+    $t = array();
+    $tchart = array();
+
+    $param_set = array(27, 23, 19, 15, 11);
+
+    foreach($param_set as $param_id) {
+        $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE param_id = $param_id ORDER BY timestamp");
+        while ($r = sql_fetch_array($res)) {
+            $day = intval($r['timestamp'] / 86400);
+            $t[$day][$param_id] = $r['param_value'];
+        }
+    }
+    ksort($t);
+
+    // we need two cycles for cases when a parameter was measured more than once a day
+    // we suppose that all parameters were measured simultaneously
+
+    foreach($t as $day => $ar) {
+        print "day $day<br/>";
+        $sum = 0;
+        foreach($param_set as $param_id) {
+            $sum += $ar[$param_id];
+            $tchart[$param_id][] = '['.($day * 86400000).','.$sum.']';
+        }
+    }
+
+    $chart['chaskor_words'] = join(',', $tchart[11]);
+    $chart['wikinews_words'] = join(',', $tchart[15]);
+    $chart['wikipedia_words'] = join(',', $tchart[19]);
+    $chart['blogs_words'] = join(',', $tchart[23]);
+    $chart['chaskor_news_words'] = join(',', $tchart[27]);
+
+    $stats['_chart'] = $chart;
+
     return $stats;
 }
 function get_tag_stats() {

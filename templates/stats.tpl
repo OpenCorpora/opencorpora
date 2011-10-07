@@ -1,8 +1,29 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
+<script type="text/javascript" src="{$web_prefix}/js/jquery.flot.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+{literal}
+    var options = {
+        xaxis: {mode:"time", timeformat: "%d %b", monthNames: ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"]},
+        legend: {position: "nw"},
+        series: {lines: {fill: true}}
+    };
+    var chaskor_words = {label: "ЧасКор (статьи)", data: [{/literal}{$stats._chart.chaskor_words}{literal}]};
+    var wikinews_words = {label: "Викиновости", data: [{/literal}{$stats._chart.wikinews_words}{literal}]};
+    var wikipedia_words = {label: "Википедия", data: [{/literal}{$stats._chart.wikipedia_words}{literal}]};
+    var blogs_words = {label: "Блоги", data: [{/literal}{$stats._chart.blogs_words}{literal}]};
+    var chaskor_news_words = {label: "ЧасКор (новости)", data: [{/literal}{$stats._chart.chaskor_news_words}{literal}]};
+                                    
+    $.plot($("#chart"), [ chaskor_words, wikinews_words, wikipedia_words, blogs_words, chaskor_news_words], options);
+{/literal}
+});
+</script>
 <h1>{t}Статистика{/t}</h1>
 <h2>{t}Общая{/t} | <a href="?page=tag_stats">{t}По тегам{/t}</a></h2>
+<div id="chart" style="width:700px; height: 400px"></div>
+<br/>
 <table border='1' cellspacing='0' cellpadding='3'>
 <tr>
     <th>{t}Источник{/t}</th>
