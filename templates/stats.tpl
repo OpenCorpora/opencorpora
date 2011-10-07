@@ -7,6 +7,7 @@ $(document).ready(function(){
 {literal}
     var options = {
         xaxis: {mode:"time", timeformat: "%d %b", monthNames: ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"]},
+        yaxis: {max: 1000000},
         legend: {position: "nw"},
         series: {lines: {fill: true}}
     };

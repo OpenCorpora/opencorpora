@@ -140,7 +140,6 @@ function get_common_stats() {
     // we suppose that all parameters were measured simultaneously
 
     foreach($t as $day => $ar) {
-        print "day $day<br/>";
         $sum = 0;
         foreach($param_set as $param_id) {
             $sum += $ar[$param_id];
