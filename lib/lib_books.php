@@ -427,7 +427,7 @@ function split_token($token_id, $num) {
 
 // book adding queue
 
-function get_sources_page($skip = 0, $show_type = '') {
+function get_sources_page($skip = 0, $show_type = '', $src = 0) {
     $out = array();
     $q_main = "SELECT s.source_id, s.url, s.title, s.user_id, s.book_id, u.user_name, b.book_name FROM sources s LEFT JOIN books b ON (s.book_id = b.book_id) LEFT JOIN users u ON (s.user_id = u.user_id) ";
     $q_tail = '';
@@ -437,7 +437,7 @@ function get_sources_page($skip = 0, $show_type = '') {
     elseif ($show_type == 'active')
         $q_tail = "WHERE s.user_id > 0 OR s.book_id > 0";
     elseif ($show_type == 'free')
-        $q_tail = "WHERE s.url LIKE '%/news/%' AND s.user_id = 0";
+        $q_tail = "WHERE s.parent_id=$src AND s.user_id = 0";
     $q_tail2 = $show_type == 'free' ? " ORDER BY RAND() LIMIT 200" : " ORDER BY s.book_id DESC, s.source_id LIMIT $skip,200";
     $r = sql_fetch_array(sql_query($q_cnt.$q_tail));
     $out['total'] = $r['cnt'];

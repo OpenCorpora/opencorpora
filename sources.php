@@ -16,7 +16,8 @@ switch($action) {
     default:
         $what = isset($_GET['what']) ? $_GET['what'] : '';
         $skip = isset($_GET['skip']) ? $_GET['skip'] : 0;
-        $smarty->assign('sources', get_sources_page($skip, $what));
+        $src  = isset($_GET['src'])  ? $_GET['src']  : 0;
+        $smarty->assign('sources', get_sources_page($skip, $what, $src));
         $smarty->assign('what', $what);
         $smarty->assign('skip', $skip);
         $smarty->display('templates/sources.tpl');

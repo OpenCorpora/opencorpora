@@ -104,7 +104,13 @@
 <a href="?what=active">показать начатые</a> |
 {/if}
 {if $what != 'free'}
-<a href="?what=free">показать свободные</a> |
+<a href="?what=free&amp;src=10881">показать свободные</a> |
+{else}
+<br/>Свободные:
+<a href="?what=free&amp;src=1">ЧасКор (статьи)</a> |
+<a href="?what=free&amp;src=8283">Викиновости</a> |
+<a href="?what=free&amp;src=10881">ЧасКор (новости)</a> |
+<a href="?what=free&amp;src=17674">Блоги</a> |
 {/if}
 <br/><br/><table border='1' cellspacing='0' cellpadding='2'>
 <tr>
