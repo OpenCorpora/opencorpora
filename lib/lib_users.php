@@ -143,8 +143,18 @@ function user_register($post) {
     if ($email && sql_num_rows(sql_query("SELECT user_id FROM `users` WHERE user_email='$email' LIMIT 1")) > 0) {
         return 4;
     }
-    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."')"))
+    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."')")) {
+        if ($email) {
+            //perhaps we should subscribe the user
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_URL, "http://groups.google.com/group/opencorpora/boxsubscribe?email=$email");
+            curl_exec($ch);
+            curl_close($ch);
+        }
+
         return 1;
+    }
     return 0;
 }
 function user_change_password($post) {
