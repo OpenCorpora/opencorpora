@@ -116,6 +116,9 @@ $func->{'wikinews_books'} = sub {
 $func->{'blogs_books'} = sub {
     return books_by_source(184);
 };
+$func->{'fiction_books'} = sub {
+    return books_by_source(806);
+};
 $func->{'total_sentences'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM sentences");
     $sc->execute();
@@ -136,6 +139,9 @@ $func->{'wikinews_sentences'} = sub {
 $func->{'blogs_sentences'} = sub {
     return sentences_by_source(184);
 };
+$func->{'fiction_sentences'} = sub {
+    return sentences_by_source(806);
+};
 $func->{'total_tokens'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms");
     $sc->execute();
@@ -155,6 +161,9 @@ $func->{'wikinews_tokens'} = sub {
 };
 $func->{'blogs_tokens'} = sub {
     return tokens_by_source(184);
+};
+$func->{'fiction_tokens'} = sub {
+    return tokens_by_source(806);
 };
 $func->{'total_lemmata'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM dict_lemmata");
@@ -180,6 +189,9 @@ $func->{'wikinews_words'} = sub {
 };
 $func->{'blogs_words'} = sub {
     return words_by_source(184);
+};
+$func->{'fiction_words'} = sub {
+    return words_by_source(806);
 };
 $func->{'added_sentences'} = sub {
 

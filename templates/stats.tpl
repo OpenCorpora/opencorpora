@@ -2,23 +2,60 @@
 {extends file='common.tpl'}
 {block name=content}
 <script type="text/javascript" src="{$web_prefix}/js/jquery.flot.min.js"></script>
+<!--script type="text/javascript" src="{$web_prefix}/js/jquery.flot.selection.min.js"></script>
+<script type="text/javascript" src="{$web_prefix}/js/jquery.flot.pie.js"></script-->
 <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{$web_prefix}/js/excanvas.min.js"></script><![endif]-->
 <script type="text/javascript">
 $(document).ready(function(){
 {literal}
-    var options = {
+    var options1 = {
         xaxis: {mode:"time", timeformat: "%d %b", monthNames: ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"]},
         yaxis: {max: 1000000},
         legend: {position: "nw"},
-        series: {lines: {fill: true}}
+        series: {lines: {fill: true}},
+        selection: {mode: "x"}
     };
     var chaskor_words = {label: "ЧасКор (статьи)", data: [{/literal}{$stats._chart.chaskor_words}{literal}]};
     var wikinews_words = {label: "Викиновости", data: [{/literal}{$stats._chart.wikinews_words}{literal}]};
     var wikipedia_words = {label: "Википедия", data: [{/literal}{$stats._chart.wikipedia_words}{literal}]};
     var blogs_words = {label: "Блоги", data: [{/literal}{$stats._chart.blogs_words}{literal}]};
     var chaskor_news_words = {label: "ЧасКор (новости)", data: [{/literal}{$stats._chart.chaskor_news_words}{literal}]};
+    var fiction_words = {label: "Худож. литература", data: [{/literal}{$stats._chart.fiction_words}{literal}]};
+    var data = [chaskor_words, wikinews_words, wikipedia_words, blogs_words, chaskor_news_words, fiction_words];
                                     
-    $.plot($("#chart"), [ chaskor_words, wikinews_words, wikipedia_words, blogs_words, chaskor_news_words], options);
+    $.plot($("#chart"), data, options1);
+    $("#chart").bind("plotselected", function(event, ranges){
+        $.plot("#chart", data, $.extend(true, {}, options1, {
+            xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to }
+        }));
+    });
+    
+    var options2 = {
+        series: {
+            pie: {
+                show: true,
+                radius: 1,
+                label: {
+                    show: true,
+                    radius: 2/3,
+                    formatter: function(label, series) {
+                        return '<div style="font-size:12px;text-align:center;padding:2px;color:white;">'+label+'<br/>'+series.data.toString().substring(2)+'</div>';
+                    }
+                },
+                combine: {
+                    threshold: 0.05,
+                    color: '#999',
+                    label: "Остальные"
+                }
+            }
+        },
+        legend: {
+            show: false
+        }
+    };
+    //$.plot($("#adder_chart"), [{/literal}{$stats._chart.user_stats_full}{literal}], options2);
+    //$.plot($("#week_adder_chart"), [{/literal}{$stats._chart.user_stats_week}{literal}], options2);
+
 {/literal}
 });
 </script>
@@ -100,6 +137,20 @@ $(document).ready(function(){
     </td>
 </tr>
 <tr>
+
+    <td align="center"><a href="books.php?book_id=806">{t}Худож. литература{/t}</a></td>
+    <td align='right' valign='top'><b>{$stats.fiction_books.value|number_format}</b><br/><span class='small'>{$stats.fiction_books.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td align='right' valign='top'><b>{$stats.fiction_sentences.value|number_format}</b><br/><span class='small'>{$stats.fiction_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td align='right' valign='top'><b>{$stats.fiction_tokens.value|number_format}</b><br/><span class='small'>{$stats.fiction_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td align='right'>
+        <b>{$stats.fiction_words.value|number_format}</b><br/><span class='small'>{$stats.fiction_words.timestamp|date_format:"%d.%m.%y, %H:%M"}</span><br/>
+        <table border='0'><tr>
+        <td><span class='hint' title='Цель до конца 2011 года &ndash; {$goals.fiction_words}'>{$stats.percent_words.fiction}%</span></td>
+        <td><div class="progress"><div class="progress_load" style="width: {$stats.percent_words.fiction}px"></div></div></td>
+        </tr></table>
+    </td>
+</tr>
+<tr>
     <th>{t}Всего{/t}</th>
     <td align='right' valign='top'><b>{$stats.total_books.value|number_format}</b><br/><span class='small'>{$stats.total_books.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
     <td align='right' valign='top'><b>{$stats.total_sentences.value|number_format}</b><br/><span class='small'>{$stats.total_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
@@ -122,10 +173,12 @@ $(document).ready(function(){
     <li>{$s.user_name} ({$s.value}) <span class='small'>({$s.timestamp|date_format:"%d.%m.%y, %H:%M"})</li>
 {/foreach}
 </ol>
+<!--div id="adder_chart" style="width:700px; height:400px"></div-->
 <h4>{t}За последнюю неделю{/t}</h4>
 <ol>
 {foreach item=s from=$stats.added_sentences_last_week}
     <li>{$s.user_name} ({$s.value}) <span class='small'>({$s.timestamp|date_format:"%d.%m.%y, %H:%M"})</li>
 {/foreach}
 </ol>
+<!--div id="week_adder_chart" style="width:700px; height:400px"></div-->
 {/block}

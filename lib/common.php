@@ -105,7 +105,7 @@ function get_common_stats() {
         $stats[$r['param_name']] = array('timestamp' => $arr['timestamp'], 'value' => $arr['param_value']);
     }
 
-    foreach(array('total', 'chaskor', 'chaskor_news', 'wikipedia', 'wikinews', 'blogs') as $src) {
+    foreach(array('total', 'chaskor', 'chaskor_news', 'wikipedia', 'wikinews', 'blogs', 'fiction') as $src) {
         $stats['percent_words'][$src] = floor($stats[$src.'_words']['value'] / $config['goals'][$src.'_words'] * 100);
     }
 
@@ -119,13 +119,13 @@ function get_common_stats() {
         $stats['added_sentences_last_week'][] = array('timestamp' => $r['timestamp'], 'user_name' => $r['user_name'], 'value' => $r['param_value']);
     }
 
-    //for the chart
+    //for the charts
     $chart = array();
 
     $t = array();
     $tchart = array();
 
-    $param_set = array(27, 23, 19, 15, 11);
+    $param_set = array(32, 27, 23, 19, 15, 11);
 
     foreach($param_set as $param_id) {
         $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE param_id = $param_id ORDER BY timestamp");
@@ -152,6 +152,21 @@ function get_common_stats() {
     $chart['wikipedia_words'] = join(',', $tchart[19]);
     $chart['blogs_words'] = join(',', $tchart[23]);
     $chart['chaskor_news_words'] = join(',', $tchart[27]);
+    $chart['fiction_words'] = join(',', $tchart[32]);
+
+    //user stats
+    $res = sql_query("SELECT timestamp, u.user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=6 ORDER BY param_value DESC");
+    $t = array();
+    while ($r = sql_fetch_array($res)) {
+        $t[] = '{label: "'.$r['user_name'].'", data: '.$r['param_value'].'}';
+    }
+    $chart['user_stats_full'] = join(', ', $t);
+    $res = sql_query("SELECT timestamp, u.user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=7 ORDER BY param_value DESC");
+    $t = array();
+    while ($r = sql_fetch_array($res)) {
+        $t[] = '{label: "'.$r['user_name'].'", data: '.$r['param_value'].'}';
+    }
+    $chart['user_stats_week'] = join(', ', $t);
 
     $stats['_chart'] = $chart;
 
