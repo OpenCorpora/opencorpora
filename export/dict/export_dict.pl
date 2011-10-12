@@ -81,7 +81,7 @@ while ($flag) {
             print $r->{'lemma_id'}."\n";
             print rev2text($r->{'rev_text'})."\n";
         } else {
-            print '    <lemma id="'.$r->{'lemma_id'}.'" rev="'.$r->{'rev_id'}.'">'.$r->{'rev_text'}."</lemma>\n";
+            print '    <lemma id="'.$r->{'lemma_id'}.'" rev="'.$r->{'rev_id'}.'">'.decode('utf8', $r->{'rev_text'})."</lemma>\n";
         }
     }
     $min_lid += 50000;
