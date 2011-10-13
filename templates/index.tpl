@@ -3,7 +3,10 @@
 {block name=content}
 <h1>{t}Открытый корпус{/t}</h1>
 {* Admin options *}
-{if $is_admin}<a href='{$web_prefix}/users.php'>{t}Управление пользователями{/t}</a><br/><br/>{/if}
+{if $is_admin}
+<a href='{$web_prefix}/users.php'>{t}Управление пользователями{/t}</a><br/><br/>
+<a href='{$web_prefix}/generator_cp.php'>{t}Генерация данных для CPAN-токенизатора{/t}</a><br/><br/>
+{/if}
 {if $user_permission_adder}<a href='{$web_prefix}/books.php'>{t}Редактор источников{/t}</a><br/>{/if}
 {if $user_permission_dict}<a href='{$web_prefix}/dict.php'>{t}Редактор словаря{/t}</a><br/><br/>{/if}
 {if $user_permission_adder}<a href='{$web_prefix}/add.php'>{t}Добавить текст{/t}</a><br/>{/if}
