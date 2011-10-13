@@ -46,7 +46,7 @@ function run_generator($tag) {
     global $config;
 
     $pieces = array(
-        '/home/ksurent/perl5/perlbrew/perls/perl-5.14.1/bin/perl',
+        'perl',
         $config['generator']['script'],
         $tag,
         dirname(__FILE__) . '/../config.ini',
