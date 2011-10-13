@@ -6,14 +6,15 @@ use warnings;
 
 use DBI;
 use Digest::MD5;
-use Cwd qw(abs_path);
+use FindBin qw($Bin);
 use Encode qw(_utf8_off);
 use Config::INI::Reader;
 use IO::Compress::Gzip qw($GzipError);
 use IO::Uncompress::Gunzip qw($GunzipError);
 
-@ARGV == 2 or die "Usage: $0 <config> <path>";
+@ARGV == 3 or die "Usage: $0 <tag> <config> <path>";
 
+my $tag         = shift;
 my $config_file = shift;
 my $path        = shift;
 
@@ -50,12 +51,12 @@ my $hyphens_data = $dbh->selectall_arrayref("
 $hyphens_data = join "\n", map @$_, @$hyphens_data;
 update_file('hyphens', $hyphens_data);
 
-open my $fh, '<', abs_path('../lists/tokenizer_exceptions.txt') or die "exceptions: $!";
+open my $fh, '<', "$Bin/../lists/tokenizer_exceptions.txt" or die "exceptions: $!";
 my $exceptions_data = do { <$fh>; local $/; <$fh> };
 close $fh;
 update_file('exceptions', $exceptions_data);
 
-open $fh, '<', abs_path('../lists/tokenizer_prefixes.txt') or die "prefixes: $!";
+open $fh, '<', "$Bin/../lists/tokenizer_prefixes.txt" or die "prefixes: $!";
 my $prefixes_data = do { <$fh>; local $/; <$fh> };
 close $fh;
 update_file('prefixes', $prefixes_data);
@@ -67,6 +68,8 @@ sub update_file {
 
     print "$mode: ";
 
+    my $path = "$path/$tag";
+    mkdir $path, 0755 unless -d $path;
     my $fn = "$path/$mode.gz";
     if(-e $fn and -s $fn) {
         my $hash_old = Digest::MD5->new;
@@ -89,7 +92,7 @@ sub update_file {
     $fh->print(join "\n", $version, $data);
     $fh->close;
 
-    $fn = "$path/$mode.latest";
+    $fn =~ s/\.gz$/.latest/;
     open $fh, '>', $fn or die $!;
     print $fh $version;
     close $fh;
