@@ -32,8 +32,10 @@ $importer->preload_list('arch0', "$root_path/scripts/lists/add_Arch_nomn_plur.tx
 $importer->preload_list('infr0', "$root_path/scripts/lists/add_Infr_nomn_plur.txt");
 $importer->preload_list('infr1', "$root_path/scripts/lists/add_Infr_gent_plur.txt");
 $importer->preload_list('infr2', "$root_path/scripts/lists/add_Infr_VERB.txt");
+$importer->preload_list('infr3', "$root_path/scripts/lists/add_Infr_ADJS.txt");
 $importer->preload_list('pred_del', "$root_path/scripts/lists/pred_del.txt");
 $importer->preload_list('pred_intj', "$root_path/scripts/lists/pred_to_intj.txt");
+$importer->preload_list('erro_adjs', "$root_path/scripts/lists/add_Erro_ADJS.txt");
 $importer->preload_list('count', "$root_path/scripts/lists/add_Coun_gent_plur.txt");
-$importer->read_aot("$root_path/scripts/lists/aot_dump.3");
-#$importer->read_aot("test.txt");
+$importer->read_aot("/data/files/aot_dump.3");
+#$importer->read_aot("$root_path/scripts/test.txt");

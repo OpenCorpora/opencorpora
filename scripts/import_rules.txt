@@ -240,6 +240,10 @@
     CHANGE (ADJS, masc, sing, ~/анен$/ -> ADJS, masc, sing, V-en)
 (1 ADJF&Name)
     CHANGE(ADJF, Name -> ADJF)
+(1 ADJS&@erro_adjs)
+    CHANGE (ADJS, @erro_adjs -> ADJS, Erro)
+(1 ADJS&@infr3)
+    CHANGE (ADJS, @infr3 -> ADJS, Infr)
 (1 COMP)
     CHANGE(ADJF, COMP -> COMP)
 (1 ADJS|COMP|~/ейш/|~/айш/) & (* ADJF|ADJS|COMP)
@@ -318,6 +322,7 @@
 
 (* ADJF&Fixd&!@adjf_fixd_advb&!@adjf_fixd_noun)
 #    GENERATE(sing,plur;masc,femn,neut;nomn,gent,datv,accs,ablt,loct)
+# ^ temporary, uncomment when necessary
     CHANGE(@adjf_fixd_del -> _del)
 
 (* NOUN&@adjf_fixd_advb) | (* ADVB&@adjf_fixd_advb) | (* NOUN&@adjf_fixd_noun) | (* ADVB&@adjf_fixd_noun)
