@@ -1,19 +1,19 @@
 <?php
-function main_history($sentence_id, $set_id = 0, $skip = 0) {
+function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0) {
     $out = array();
     if (!$sentence_id) {
         if (!$set_id)
-            $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT set_id) FROM tf_revisions"));
+            $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT tfr.set_id) FROM tf_revisions tfr".($maa ? " LEFT JOIN rev_sets s ON (tfr.set_id=s.set_id) WHERE s.comment LIKE '% merged %' or s.comment LIKE '% split %'" : '')));
         else
-            $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT sent_id) FROM text_forms WHERE tf_id IN (SELECT tf_id FROM tf_revisions WHERE set_id = $set_id)"));
+            $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT sent_id) FROM text_forms WHERE tf_id IN (SELECT tf_id FROM tf_revisions WHERE set_id = $set_id ".($maa ? " AND set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %')" : '').")"));
 
         $out['total'] = $res[0];
     }
 
     if (!$set_id && !$sentence_id)
-        $res = sql_query("SELECT set_id, COUNT(sent_id) cnt FROM (SELECT set_id, f.sent_id FROM tf_revisions r RIGHT JOIN text_forms f ON (r.tf_id=f.tf_id) RIGHT JOIN sentences s ON (f.sent_id=s.sent_id)".($sentence_id?" WHERE s.sent_id=$sentence_id":"")." GROUP BY set_id, f.sent_id ORDER BY set_id DESC) T GROUP BY set_id ORDER BY set_id DESC LIMIT $skip,20");
+        $res = sql_query("SELECT set_id, COUNT(sent_id) cnt FROM (SELECT set_id, f.sent_id FROM tf_revisions r RIGHT JOIN text_forms f ON (r.tf_id=f.tf_id) RIGHT JOIN sentences s ON (f.sent_id=s.sent_id)".($sentence_id?" WHERE s.sent_id=$sentence_id":"")." GROUP BY set_id, f.sent_id ORDER BY set_id DESC) T ".($maa ? "WHERE set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %')" : '')." GROUP BY set_id ORDER BY set_id DESC LIMIT $skip,20");
     else
-        $res = sql_query("SELECT tr.set_id, st.sent_id FROM tf_revisions tr RIGHT JOIN text_forms tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id) WHERE ".($set_id?"tr.set_id=$set_id GROUP BY st.sent_id":"st.sent_id=$sentence_id GROUP BY tr.set_id")." ORDER BY tr.rev_id DESC LIMIT $skip,20");
+        $res = sql_query("SELECT tr.set_id, st.sent_id FROM tf_revisions tr RIGHT JOIN text_forms tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id) ".($maa ? "WHERE tr.set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %') AND " : 'WHERE ').($set_id?"tr.set_id=$set_id GROUP BY st.sent_id":"st.sent_id=$sentence_id GROUP BY tr.set_id")." ORDER BY tr.rev_id DESC LIMIT $skip,20");
     while($r = sql_fetch_array($res)) {
         $r1 = sql_fetch_array(sql_query("SELECT u.user_name, s.timestamp, s.comment FROM rev_sets s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE s.set_id = ".$r['set_id']." LIMIT 1"));
         $out['sets'][] = array(
