@@ -303,7 +303,6 @@ function safe_read($file, $length) {
         return FALSE;
     }
     flock($fp, LOCK_SH);
-    $fstat = fstat($fp);
     $data = fread($fp, $length);
     flock($fp, LOCK_UN);
     fclose($fp);
