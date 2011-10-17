@@ -4,27 +4,96 @@
 <script type="text/javascript">
     $(document).ready(
         function() {
-            $('#tag').bind(
-                'change keyup',
-                function(ev) {
-                    if($.trim($(ev.currentTarget).val()).length) {
-                        $('#run').removeAttr('disabled');
+            $('#details').click(function() {
+                $('#output').toggle();
+            });
+
+            function show_output(res, action) {
+                $indicator = $('#result-' + action).removeClass()
+                                                   .addClass('result');
+                if($(res).find('success').text() == 'ok') {
+                    $indicator.addClass('green');
+                }
+                else {
+                    $indicator.addClass('red');
+                }
+
+                $('#details').removeClass('hidden');
+
+                $('#output').html(
+                      '<pre>'
+                    + $(res).find('output').text()
+                    + '</pre>'
+                );
+            }
+
+            function do_request(action, control) {
+                $('#result-' + action).ajaxStart(function() {
+                    $(this).addClass('progress');
+                    $('input[type=button]').attr('disabled', 'disabled');
+                }).ajaxComplete(function() {
+                    $(this).removeClass('progress');
+                    $('input[type=button]').removeAttr('disabled');
+                });
+                $.get(
+                    control.url,
+                    function(res) { control.handler(res); },
+                    'xml'
+                );
+            }
+
+            var controls = {
+                'run': {
+                    'url': '/ajax/run_generator.php',
+                    'handler': function(res) {
+                        show_output(res, 'run');
+
+                        $('#controls-test').removeClass('hidden');
+                        $('#result-test').removeClass()
+                                         .addClass('grey result');
+                        $('#controls-publish').addClass('hidden');
                     }
-                    else {
-                        $('#run').attr('disabled', 'disabled');
+                },
+                'test': {
+                    'url': '/ajax/run_test.php',
+                    'handler': function(res) {
+                        show_output(res, 'test');
+
+                        $('#result-publish').removeClass()
+                                            .addClass('grey result');
+                        $('#controls-publish').removeClass('hidden');
+                    }
+                },
+                'publish': {
+                    'url': '/ajax/publish_update.php',
+                    'handler': function(res) {
+                        show_output(res, 'publish');
+                        $('#current-tag').text($('#next-tag').text());
+                        $('#next-tag').text('n/a');
                     }
                 }
+            };
+
+            $.each(
+                controls,
+                function(k, v) {
+                    $('#button-' + k).click(function() {
+                        do_request(k, v);
+                    });
+                }
             );
-            $('#details').click( function() {
-                $('#output').toggle();
-            } );
         }
     );
 </script>
 <style type="text/css">
-    .enabled  { background-color: #0c3; }
-    .disabled { background-color: #ccc; }
-    .error    { background-color: #f00; }
+    .green, .enabled  { background-color: #0c3; }
+    .grey, .disabled  { background-color: #ccc; }
+    .red, .error      { background-color: #f00; }
+    .hidden { display: none; }
+    .result { width: 30px;   }
+    .progress {
+        background: url(/img/ajax-loader.gif) no-repeat center center;
+    }
     .pseudo-link {
         border-bottom: 1px dotted;
         cursor: pointer;
@@ -42,39 +111,39 @@
 <div>
     <div style="margin-bottom: 2em;">
         <form action="?act=toggle" method="post">
-            Текущий статус:
+            {t}Статус{/t}:
             <span class="{$status}" id="status" title="{t}Установлен{/t} {$since}">
                 {if $status == "enabled"}{t}Включен{/t}
                 {elseif $status == "disabled"}{t}Выключен{/t}
-                {elseif $status == "running"}{t}Запущен{/t}
                 {else}{t}Ошибка{/t}
                 {/if}
             </span>
-            {if $status !== "running"}
-                <input type="submit" id="toggle" value="Переключить статус" style="margin-left: 1em;"/>
-            {/if}
+            <br/>
+            {t}Текущий тэг{/t}: <span id="current-tag">{$tag}</span>
+            <br/>
+            {t}Следующий тэг:{/t} <span id="next-tag">{$next}<span>
+            <br/>
+            <input type="submit" value="{t}Переключить статус{/t}"/>
         </form>
     </div>
-    {if $status == "disabled"}
+    {if $status == "enabled" && $next !== "n/a"}
         <div style="margin-bottom: 1em;">
-            <form action="?act=run" method="post">
-                <label for="tag">Тэг:</label>
-                <input type="text" name="tag" id="tag"/>
-                <input type="submit" id="run" value="Запустить генератор" disabled="disabled"/>
-            </form>
-        </div>
-    {/if}
-    {if isset($success)}
-        <div>
-            {if $success}
-                <span class="enabled">{t}Обновление закончено{/t}</span>
-            {else}
-                <span class="error">{t}Произошла ошибка{/t}</span>
-            {/if}
-            <div>
-                <a class="pseudo-link" id="details">Подробности</a>
-                <div style="display: none;" id="output"><pre>{$output}</pre></div>
-            </div>
+            <table id="controls">
+                <tr id="controls-run">
+                    <td id="result-run" class="grey result">&nbsp;</td>
+                    <td><input type="button" id="button-run" value="{t}Запустить{/t}"/></td>
+                </tr>
+                <tr id="controls-test" class="hidden">
+                    <td id="result-test" class="grey result">&nbsp;</td>
+                    <td><input type="button" id="button-test" value="{t}Протестировать{/t}"/></td>
+                </tr>
+                <tr id="controls-publish" class="hidden">
+                    <td id="result-publish" class="grey result">&nbsp;</td>
+                    <td><input type="button" id="button-publish" value="{t}Опубликовать{/t}"/></td>
+                </tr>
+            </table>
+            <span class="pseudo-link hidden" id="details">{t}Подробности{/t}</span>
+            <div id="output" class="hidden"></div>
         </div>
     {/if}
 </div>

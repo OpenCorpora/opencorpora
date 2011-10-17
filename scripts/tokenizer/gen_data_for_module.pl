@@ -12,9 +12,8 @@ use Config::INI::Reader;
 use IO::Compress::Gzip qw($GzipError);
 use IO::Uncompress::Gunzip qw($GunzipError);
 
-@ARGV == 3 or die "Usage: $0 <tag> <config> <path>";
+@ARGV == 2 or die "Usage: $0 <config> <path>";
 
-my $tag         = shift;
 my $config_file = shift;
 my $path        = shift;
 
@@ -68,7 +67,6 @@ sub update_file {
 
     print "$mode: ";
 
-    my $path = "$path/$tag";
     mkdir $path, 0755 unless -d $path;
     my $fn = "$path/$mode.gz";
     if(-e $fn and -s $fn) {

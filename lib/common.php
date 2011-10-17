@@ -296,4 +296,32 @@ function set_readonly_off() {
 function touch_file($path) {
     exec("touch {$path}");
 }
+
+function safe_read($file, $length) {
+    $fp = fopen($file, 'r');
+    if(!is_resource($fp)) {
+        return FALSE;
+    }
+    flock($fp, LOCK_SH);
+    $fstat = fstat($fp);
+    $data = fread($fp, $length);
+    flock($fp, LOCK_UN);
+    fclose($fp);
+
+    return $data;
+}
+
+function safe_write($file, $mode, $data) {
+    $fp = fopen($file, $mode);
+    if(!is_resource($fp)) {
+        return FALSE;
+    }
+    flock($fp, LOCK_EX);
+    fwrite($fp, $data);
+    flock($fp, LOCK_UN);
+    fclose($fp);
+
+    return TRUE;
+}
+
 ?>
