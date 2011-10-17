@@ -14,7 +14,7 @@ $published = publish_update();
 echo '<?xml version="1.0" encoding="utf-8"?>';
 echo '<response>';
 echo '<success>' . ($published ? 'ok' : 'failed') . '</success>';
-echo '<output>' . ($published ? 'OK' : 'FAILED') . '</output>';
+echo '<output>' . ($published ? 'Update finished' : 'Update failed') . '</output>';
 echo '</response>';
 
 ?>
