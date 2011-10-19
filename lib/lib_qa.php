@@ -1,5 +1,5 @@
 <?php
-function get_page_tok_strange() {
+function get_page_tok_strange($newest = false) {
     $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE param_id=7 ORDER BY timestamp DESC LIMIT 1");
     $r = sql_fetch_array($res);
     $out = array('timestamp' => $r['timestamp'], 'coeff' => $r['param_value']/1000);
@@ -12,7 +12,7 @@ function get_page_tok_strange() {
         $out['broken_sent_id'] = $r['sent_id'];
     }
     $comments = array();
-    $res = sql_query("SELECT ts.sent_id, ts.pos, ts.border, ts.coeff, s.source, p.book_id FROM tokenizer_strange ts LEFT JOIN sentences s ON (ts.sent_id=s.sent_id) LEFT JOIN paragraphs p ON (s.par_id=p.par_id) ORDER BY ts.coeff DESC");
+    $res = sql_query("SELECT ts.sent_id, ts.pos, ts.border, ts.coeff, s.source, p.book_id FROM tokenizer_strange ts LEFT JOIN sentences s ON (ts.sent_id=s.sent_id) LEFT JOIN paragraphs p ON (s.par_id=p.par_id) ORDER BY ".($newest ? "ts.sent_id DESC" : "ts.coeff DESC"));
     while ($r = sql_fetch_array($res)) {
         if (!isset($comments[$r['sent_id']])) {
             $res1 = sql_query("SELECT comment_id FROM sentence_comments WHERE sent_id=".$r['sent_id']." LIMIT 1");

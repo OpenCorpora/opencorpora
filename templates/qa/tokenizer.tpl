@@ -6,6 +6,13 @@
 {if isset($obj.broken_sent_id)}
 <p class='bgpink'>Сломалось на <a href="{$web_prefix}/sentence.php?id={$obj.broken_sent_id}">предложении {$obj.broken_sent_id}</a>, токен &laquo;<b>{$obj.broken_token_text|htmlspecialchars}</b>&raquo;.</p>
 {/if}
+<p>
+{if isset($smarty.get.newest)}
+<a href="?act=tokenizer">важные сверху</a>
+{else}
+<a href="?act=tokenizer&amp;newest">новые сверху</a>
+{/if}
+</p>
 <table border='1' cellspacing='0' cellpadding='3'>
 {foreach item=i from=$obj.items}
 <tr>

@@ -17,7 +17,7 @@ switch($action) {
         break;
     case 'tokenizer':
         if (user_has_permission('perm_adder')) {
-            $smarty->assign('obj', get_page_tok_strange());
+            $smarty->assign('obj', get_page_tok_strange(isset($_GET['newest'])));
             $smarty->display('qa/tokenizer.tpl');
         } else {
             show_error($config['msg']['notadmin']);
