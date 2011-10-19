@@ -7,7 +7,7 @@ if(!is_admin()) {
     return;
 }
 
-header('Conten-Type: text/xml; charset=utf-8');
+header('Content-Type: text/xml; charset=utf-8');
 
 $result = run_test();
 
