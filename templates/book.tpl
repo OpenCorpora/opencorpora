@@ -45,7 +45,7 @@
     {/literal}
     {/if}
     <h2>{$book.title} (id={$book.id})</h2>
-    {if isset($book.parents)}
+    {if isset($book.parents.0)}
     <p>
     {foreach item=prn from=$book.parents}
     <a href="?book_id={$prn.id}">{$prn.title}</a> ::

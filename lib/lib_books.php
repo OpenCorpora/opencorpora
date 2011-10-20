@@ -40,10 +40,16 @@ function get_book_page($book_id, $full = false) {
         $out['children'][] = array('id' => $r['book_id'], 'title' => $r['book_name']);
     }
     //parents
-    $res = sql_query("SELECT book_id, book_name FROM books WHERE book_id=(SELECT parent_id FROM books WHERE book_id=$book_id LIMIT 1) AND book_id>0 LIMIT 1");
-    if (sql_num_rows($res) > 0) {
-        $r = sql_fetch_array($res);
-        $out['parents'] = array(array('id' => $r['book_id'], 'title' => $r['book_name']));
+    $out['parents'] = array();
+    $tid = $book_id;
+    while($tid) {
+        $res = sql_query("SELECT book_id, book_name FROM books WHERE book_id=(SELECT parent_id FROM books WHERE book_id=$tid LIMIT 1) AND book_id>0 LIMIT 1");
+        if (sql_num_rows($res) > 0) {
+            $r = sql_fetch_array($res);
+            array_unshift($out['parents'], array('id' => $r['book_id'], 'title' => $r['book_name']));
+            $tid = $r['book_id'];
+        } else
+            break;
     }
     //sentences
     if ($full) {
