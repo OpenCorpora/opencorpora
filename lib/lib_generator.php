@@ -100,7 +100,10 @@ function publish_update() {
 
     $next_tag = safe_read($config['generator']['next_tag'], 32);
     if($next_tag === FALSE) {
-        return FALSE;
+        return array(
+            'success' => FALSE,
+            'output'  => 'No tag to publish',
+        );
     }
 
     $tag_dir = $config['generator']['data_dir'] . '/' . $next_tag;
@@ -115,7 +118,10 @@ function publish_update() {
             $production = $tag_dir . '/' . $file;
 
             if(rename($tmp, $production) == FALSE) {
-                return FALSE;
+                return array(
+                    'success' => FALSE,
+                    'output'  => 'Failed moving ' . $tmp . ' to ' . $production,
+                );
             }
         }
     }
@@ -123,7 +129,10 @@ function publish_update() {
 
     safe_write($config['generator']['current_tag'], 'w', $next_tag);
 
-    return TRUE;
+    return array(
+        'success' => TRUE,
+        'output'  => 'Tag "' . $next_tag . '" has been published'
+    );
 }
 
 ?>
