@@ -55,7 +55,8 @@ my $sth = $dbh->prepare("
 ");
 
 my @wrong;
-my $seen = my $good = my $confident = my $bounds = 0;
+my($sentences_seen, $sentences_good) = (0, 0);
+my($tokens_total, $tokens_good, $tokens_expected) = (0, 0, 0);
 
 while(my($id, $data) = each %$sent) {
     my @ethalon = map @$_, @{ $dbh->selectall_arrayref($sth, undef, $id) };
@@ -67,18 +68,25 @@ while(my($id, $data) = each %$sent) {
         },
     );
 
-    $seen++;
+    $sentences_seen++;
     if(join('º', @$tokenized) eq join('º', @ethalon)) {
-        $good++;
+        $sentences_good++;
     }
     elsif($opts{wrong}) {
-        push @wrong, [[@$tokenized], \@ethalon];
+        push @wrong, [$tokenized, \@ethalon];
     }
 
-    $tokenized = $tokenizer->tokens_bounds(lc $data->{source});
+    $tokens_total    += @$tokenized;
+    $tokens_expected += @ethalon;
+    for(0 .. max(scalar @ethalon, scalar @$tokenized)) {
+        my $got = $tokenized->[$_];
+        next unless defined $got;
 
-    $bounds    += @$tokenized;
-    $confident += grep { $_->[1] == 1 or $_->[1] == 0 } @$tokenized;
+        my $expected = $ethalon[$_];
+        next unless defined $expected;
+
+        $tokens_good++ if $got eq $expected;
+    }
 }
 
 if($opts{wrong}) {
@@ -90,8 +98,20 @@ if($opts{wrong}) {
     close $fh;
 }
 
-printf "%i/%i, %.2f%% correctness, %.2f%% confidence\n",
-    $good,
-    $seen,
-    $good / $seen * 100,
-    $confident / $bounds * 100;
+my $precision = $tokens_good / $tokens_total;
+my $recall    = $tokens_good / $tokens_expected;
+printf "%i/%i, Correctness: %.2f%%, Precision: %.2f, Recall: %.2f, F1: %.4f\n",
+    $sentences_good,
+    $sentences_seen,
+    $sentences_good / $sentences_seen * 100,
+    $precision,
+    $recall,
+    F_score(1, $precision, $recall);
+
+sub F_score {
+    my($B, $P, $R) = @_;
+
+    ((1 + $B ** 2) * ($P * $R)) / ($B ** 2 * $P + $R)
+}
+
+sub max { $_[0] > $_[1] ? $_[0] : $_[1] } 
