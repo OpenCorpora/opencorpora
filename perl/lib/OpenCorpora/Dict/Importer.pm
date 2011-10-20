@@ -59,7 +59,7 @@ sub new {
 sub sql_connect {
     my $self = shift;
 
-    my $conf = Config::INI::Reader->new(CONFIG);
+    my $conf = Config::INI::Reader->read_file(CONFIG);
     $conf = $conf->{mysql};
 
     my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
