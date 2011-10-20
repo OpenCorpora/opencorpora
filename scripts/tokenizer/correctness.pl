@@ -11,12 +11,11 @@ use Lingua::RU::OpenCorpora::Tokenizer;
 
 GetOptions(
     \my %opts,
-    'hard',
-    'wrong',
+    'strict',
     'config=s',
     'data_dir=s',
 );
-exit print "Usage: $0 --config=config [--data_dir=<path> --hard --wrong]"
+exit print "Usage: $0 --config=config [--data_dir=<path> --strict]"
     unless $opts{config};
 
 my $conf = Config::INI::Reader->read_file($opts{config});
@@ -54,7 +53,6 @@ my $sth = $dbh->prepare("
         pos
 ");
 
-my @wrong;
 my($sentences_seen, $sentences_good) = (0, 0);
 my($tokens_total, $tokens_good, $tokens_expected) = (0, 0, 0);
 
@@ -64,16 +62,13 @@ while(my($id, $data) = each %$sent) {
     my $tokenized = $tokenizer->tokens(
         lc $data->{source},
         {
-            threshold => $opts{hard} ? 1 : 0.001,
+            threshold => $opts{strict} ? 1 : 0.001,
         },
     );
 
     $sentences_seen++;
     if(join('º', @$tokenized) eq join('º', @ethalon)) {
         $sentences_good++;
-    }
-    elsif($opts{wrong}) {
-        push @wrong, [$tokenized, \@ethalon];
     }
 
     $tokens_total    += @$tokenized;
@@ -89,18 +84,9 @@ while(my($id, $data) = each %$sent) {
     }
 }
 
-if($opts{wrong}) {
-    open my $fh, '>:utf8', 'wrong.log';
-    for(@wrong) {
-        print $fh join "\n", map { join 'º', @$_ } @$_;
-        print $fh "\n" x 2;
-    }
-    close $fh;
-}
-
 my $precision = $tokens_good / $tokens_total;
 my $recall    = $tokens_good / $tokens_expected;
-printf "%i/%i, Correctness: %.2f%%, Precision: %.2f, Recall: %.2f, F1: %.4f\n",
+printf "%i/%i, Correctness: %.2f%%, Precision: %.4f, Recall: %.4f, F1: %.4f\n",
     $sentences_good,
     $sentences_seen,
     $sentences_good / $sentences_seen * 100,
