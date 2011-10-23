@@ -485,18 +485,13 @@ function get_wikinews_info($link) {
         'http://ru.wikinews.org/w/api.php?callback=?',
         {'format':'json', 'action':'query', 'titles':ttl, 'prop':'revisions|categories', 'rvdir':'newer'},
         function(data) {
-            var lastrevid;
             var author;
             var categ = new Array();
             $.each(data.query.pages, function(i, item){
                 author = item.revisions[0].user;
-                $.each(item.revisions, function(j, revitem){
-                    lastrevid = revitem.revid;
-                });
                 $.each(item.categories, function(j, catitem){
                     categ.push(catitem.title);
                 });
-                add_field_for_tag($link.attr('rel'), 'url:http://ru.wikinews.org/w/index.php?title=' +ttl.replace(/ /g, '_') + '&oldid=' + lastrevid);
                 add_field_for_tag($link.attr('rel'), 'Автор:http://ru.wikinews.org/wiki/Участник:' + author);
                 $.get('ajax/guess_wiki_categ.php', {'cat':categ.join('|')}, function(res1){
                     add_field_for_tag($link.attr('rel'), 'Дата:' + $(res1).find("date").attr('v'));
@@ -508,6 +503,17 @@ function get_wikinews_info($link) {
                         add_field_for_tag($link.attr('rel'), 'Гео:ВикиКатегория:' + $(catitem).attr('v'));
                     });
                 });
+                $.getJSON(
+                    'http://ru.wikinews.org/w/api.php?callback=?',
+                    {'format':'json', 'action':'query', 'titles':ttl, 'prop':'revisions'},
+                    function(rdata) {
+                        var lastrevid;
+                        $.each(rdata.query.pages, function(i, item){
+                            lastrevid = item.revisions[0].revid;
+                        });
+                        add_field_for_tag($link.attr('rel'), 'url:http://ru.wikinews.org/w/index.php?title=' +ttl.replace(/ /g, '_') + '&oldid=' + lastrevid);
+                    }
+                );
             });
             $link.hide();
         }

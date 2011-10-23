@@ -81,7 +81,7 @@
     </div>
     {* Tag list *}
     <h3>{t}Теги{/t}</h3>
-    {if $book.is_wikinews}<div><span class="hidden-block">{$book.wikinews_title}</span><a href="#" class="hint" id="wikinews_addtag_link" rel="{$book.id}">попробовать заполнить автоматически</a></div>{/if}
+    {if $book.is_wikinews && $user_permission_adder}<div><span class="hidden-block">{$book.wikinews_title}</span><a href="#" class="hint" id="wikinews_addtag_link" rel="{$book.id}">попробовать заполнить автоматически</a></div>{/if}
     {if isset($book.tags[0])}
         <ul>
         {foreach item=tag from=$book.tags}

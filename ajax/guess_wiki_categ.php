@@ -6,7 +6,6 @@ if (isset($_GET['cat'])) {
     $categ = explode('|', $_GET['cat']);
     foreach ($categ as $cat) {
         $cat = str_replace('Категория:', '', $cat);
-        echo '<raw v="'.$cat.'"/>';
         if (in_array($cat, array('Опубликовано'))) {
             continue;
         }
