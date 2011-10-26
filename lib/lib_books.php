@@ -14,7 +14,8 @@ function get_book_page($book_id, $full = false) {
         'id'     => $book_id,
         'title'  => $r['book_name'],
         'select' => get_books_for_select(),
-        'is_wikinews' => (int)$r['parent_id'] == 56
+        'is_wikinews' => (int)$r['parent_id'] == 56,
+        'is_chaskor_news' => (int)$r['parent_id'] == 226
     );
     //tags
     $res = sql_query("SELECT tag_name FROM book_tags WHERE book_id=$book_id");
@@ -28,6 +29,9 @@ function get_book_page($book_id, $full = false) {
                 }
                 if (preg_match('/^http:\/\/ru.wikinews.org\/wiki\/(.+)$/', $matches[2], $wn_matches)) {
                     $out['wikinews_title'] = str_replace('_', ' ', $wn_matches[1]);
+                }
+                elseif (preg_match('/^http:\/\/(?:www\.)?chaskor\.ru\/news\/(.+)$/', $matches[2], $wn_matches)) {
+                    $out['chaskor_news_title'] = $wn_matches[1];
                 }
             }
             $out['tags'][] = $ar;

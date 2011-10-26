@@ -519,6 +519,17 @@ function get_wikinews_info($link) {
         }
     );
 }
+function get_chaskor_info($link) {
+    var ttl = $link.closest('div').find('span').html();
+    $.get('python/chaskor.py', {'url':'news/'+ttl}, function(res){
+        var $res = $(res);
+        add_field_for_tag($link.attr('rel'), $res.find('year').text());
+        add_field_for_tag($link.attr('rel'), $res.find('date').text());
+        add_field_for_tag($link.attr('rel'), $res.find('mainSubject').text());
+        add_field_for_tag($link.attr('rel'), $res.find('subSubject').text());
+        $link.hide();
+    });
+}
 function add_field_for_tag(book_id, s) {
     var $i = $(document.createElement('input')).css('width', '600').val(s);
     var $b = $(document.createElement('button')).html('Ok').click(function(event) {
