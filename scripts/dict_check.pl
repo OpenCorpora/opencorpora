@@ -12,7 +12,7 @@ if (-f $lock_path) {
 }
 
 #reading config
-my $conf = Config::INI::Reader->read_handle(\*STDIN);
+my $conf = Config::INI::Reader->read_file($ARGV[0]);
 $conf = $conf->{mysql};
 
 open my $lock, ">$lock_path";
