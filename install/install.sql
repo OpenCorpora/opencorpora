@@ -361,3 +361,11 @@ CREATE TABLE IF NOT EXISTS `tokenizer_strange` (
 CREATE TABLE IF NOT EXISTS `sentences_strange` (
     `sent_id` MEDIUMINT UNSIGNED NOT NULL
 ) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `tag_errors` (
+    `book_id`    MEDIUMINT UNSIGNED NOT NULL,
+    `tag_name`   VARCHAR(512) NOT NULL,
+    `error_type` TINYINT UNSIGNED NOT NULL,
+    INDEX(`book_id`),
+    INDEX(`error_type`)
+) ENGINE = INNODB;
