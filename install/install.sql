@@ -43,6 +43,45 @@ CREATE TABLE IF NOT EXISTS `sources_status` (
     INDEX(`status`)
 ) ENGINE = INNODB;
 
+CREATE TABLE IF NOT EXISTS `morph_annot_pools` (
+    `pool_id`      SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `pool_name`    VARCHAR(120) NOT NULL,
+    `grammemes`    VARCHAR(120) NOT NULL,
+    `token_check`  TINYINT UNSIGNED NOT NULL,
+    `users_needed` TINYINT UNSIGNED NOT NULL,
+    `timeout`      SMALLINT UNSIGNED NOT NULL,
+    `created_ts`   INT UNSIGNED NOT NULL,
+    `updated_ts`   INT UNSIGNED NOT NULL,
+    `author_id`    SMALLINT UNSIGNED NOT NULL,
+    `status`       TINYINT UNSIGNED NOT NULL,
+    `comment`      TEXT NOT NULL,
+    INDEX(`status`)
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `morph_annot_candidate_samples` (
+    `pool_id` SMALLINT UNSIGNED NOT NULL,
+    `tf_id`   INT UNSIGNED NOT NULL,
+    INDEX(`pool_id`),
+    INDEX(`tf_id`)
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `morph_annot_samples` (
+    `sample_id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `pool_id`   SMALLINT UNSIGNED NOT NULL,
+    `tf_id`     INT UNSIGNED NOT NULL,
+    INDEX(`pool_id`)
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `morph_annot_instances` (
+    `instance_id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `sample_id`   INT UNSIGNED NOT NULL,
+    `user_id`     SMALLINT UNSIGNED NOT NULL,
+    `ts_start`    INT UNSIGNED NOT NULL,
+    `answer`      TINYINT UNSIGNED NOT NULL,
+    INDEX(`sample_id`),
+    INDEX(`user_id`)
+) ENGINE = INNODB;
+
 CREATE TABLE IF NOT EXISTS `downloaded_urls` (
     `url`      VARCHAR(512) NOT NULL,
     `filename` VARCHAR(100) NOT NULL,
