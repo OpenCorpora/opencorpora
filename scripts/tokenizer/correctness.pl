@@ -5,18 +5,20 @@ use strict;
 use warnings;
 
 use DBI;
+use Pod::Usage;
 use Getopt::Long;
 use Config::INI::Reader;
 use Lingua::RU::OpenCorpora::Tokenizer;
 
 GetOptions(
     \my %opts,
+    'help',
     'strict',
     'config=s',
     'data_dir=s',
 );
-exit print "Usage: $0 --config=config [--data_dir=<path> --strict]"
-    unless $opts{config};
+usage(2) if $opts{help};
+usage() unless defined $opts{config};
 
 my $conf = Config::INI::Reader->read_file($opts{config});
 $conf    = $conf->{mysql};
@@ -62,7 +64,7 @@ while(my($id, $data) = each %$sent) {
     my $tokenized = $tokenizer->tokens(
         lc $data->{source},
         {
-            threshold => $opts{strict} ? 1 : 0.001,
+            threshold => $opts{strict} ? 1 : 0.01,
         },
     );
 
@@ -100,4 +102,46 @@ sub F_score {
     ((1 + $B ** 2) * ($P * $R)) / ($B ** 2 * $P + $R)
 }
 
-sub max { $_[0] > $_[1] ? $_[0] : $_[1] } 
+sub max { $_[0] > $_[1] ? $_[0] : $_[1] }
+
+sub usage {
+    pod2usage({-verbose => $_[0]});
+}
+
+__END__
+
+=head1 SYNOPSIS
+
+perl correctness.pl --options
+
+=head1 DESCRIPTION
+
+This script is to be used to compare results produced by Perl tokenizer against what's currently in database.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --config
+
+Required.
+
+Path to opencorpora config file.
+
+=item --strict
+
+Optional.
+
+Set tokenizer threshold to 1.
+
+=item --data_dir
+
+Optional.
+
+Path to tokenizer's data directory. Defaults to distribution directory.
+
+=item --help
+
+Show this message.
+
+=back
