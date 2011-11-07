@@ -156,6 +156,8 @@
         {else}
         <button class="bgo" rel="{$s.id}" rev="0">Не готово</button>
         {/if}
+        {elseif $s.status}
+        <span class='small'>{$s.status_ts|date_format:"%d.%m.%Y, %H:%M"}</span>
         {else}
         &nbsp;
         {/if}
