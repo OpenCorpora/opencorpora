@@ -84,11 +84,12 @@ for my $ethalon (@$ethalons) {
     }
 }
 
-my $precision = $tokens{good} / $tokens{total};
-my $recall    = $tokens{good} / $tokens{expected};
-printf "Threshold: %s, Correctness: %.2f%%, Precision: %.4f, Recall: %.4f, F1: %.4f\n",
+my $precision   = $tokens{good} / $tokens{total};
+my $recall      = $tokens{good} / $tokens{expected};
+my $correctness = $sentences{good} / $sentences{total};
+printf "Threshold: %s, Correctness: %.4f, Precision: %.4f, Recall: %.4f, F1: %.4f\n",
     $opts{threshold},
-    $sentences{good} / $sentences{total} * 100,
+    $correctness, # how much what's produced by Perl module is similar to what's in database
     $precision,
     $recall,
     F_score(1, $precision, $recall);
