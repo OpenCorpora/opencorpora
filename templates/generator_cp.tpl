@@ -106,7 +106,7 @@
 <li>все согласны, что в текущей токенизации нет глупостей (глупости обычно видны <a href='{$web_prefix}/qa.php?act=tokenizer'>здесь</a>),
 <li>(если мы впервые генерируем данные для этого тэга) Алексей подтверил, что модуль синхронизирован с продакшен-токенизатором.
 </ol>
-<p>Правильный тэг смотреть <a href="http://search.cpan.org/perldoc?Lingua::RU::OpenCorpora::Tokenizer">в модуле</a> (совпадает с его текущей версией). Для верности можно спросить у Алексея ({mailto address="ksurent@gmail.com" encode="javascript"}).</p>
+<p>Правильный тэг смотреть <a href="http://search.cpan.org/perldoc?Lingua::RU::OpenCorpora::Tokenizer">в модуле</a> (<code>Lingua::RU::OpenCorpora::Tokenizer::Updater->data_version()</code>). Для верности можно спросить у Алексея ({mailto address="ksurent@gmail.com" encode="javascript"}).</p>
 <br/><br/>
 <div>
     <div style="margin-bottom: 2em;">
