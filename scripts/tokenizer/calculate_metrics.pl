@@ -86,9 +86,7 @@ for my $ethalon (@$ethalons) {
 
 my $precision = $tokens{good} / $tokens{total};
 my $recall    = $tokens{good} / $tokens{expected};
-printf "%i/%i, Threshold: %s, Correctness: %.2f%%, Precision: %.4f, Recall: %.4f, F1: %.4f\n",
-    $sentences{good},
-    $sentences{total},
+printf "Threshold: %s, Correctness: %.2f%%, Precision: %.4f, Recall: %.4f, F1: %.4f\n",
     $opts{threshold},
     $sentences{good} / $sentences{total} * 100,
     $precision,
