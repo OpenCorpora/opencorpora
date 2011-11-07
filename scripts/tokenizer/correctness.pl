@@ -13,12 +13,13 @@ use Lingua::RU::OpenCorpora::Tokenizer;
 GetOptions(
     \my %opts,
     'help',
-    'strict',
     'config=s',
     'data_dir=s',
+    'threshold=f',
 );
 usage(2) if $opts{help};
-usage() unless defined $opts{config};
+usage() if not defined $opts{config}
+           or not defined $opts{threshold};
 
 my $conf = Config::INI::Reader->read_file($opts{config});
 $conf    = $conf->{mysql};
@@ -36,62 +37,60 @@ my $tokenizer = Lingua::RU::OpenCorpora::Tokenizer->new(
     (data_dir => $opts{data_dir}) x !!$opts{data_dir},
 );
 
-my $sent = $dbh->selectall_hashref("
+my $_separator = 'º';
+my $ethalons   = $dbh->selectall_arrayref("
     select
-        sent_id,
-        source
+        source,
+        group_concat(tf_text order by text_forms.pos separator '$_separator')
     from
         sentences
-", "sent_id");
-
-my $sth = $dbh->prepare("
-    select
-        lower(tf_text)
-    from
+    join
         text_forms
-    where
-        sent_id = ?
-    order by
-        pos
+    using
+        (sent_id)
+    group by
+        source
 ");
+push @$_, [split $_separator, $_->[1]] for @$ethalons;
 
-my($sentences_seen, $sentences_good) = (0, 0);
-my($tokens_total, $tokens_good, $tokens_expected) = (0, 0, 0);
+my %sentences = (
+    good  => 0,
+    total => 0,
+);
+my %tokens = (
+    expected => 0,
+    good     => 0,
+    total    => 0,
+);
 
-while(my($id, $data) = each %$sent) {
-    my @ethalon = map @$_, @{ $dbh->selectall_arrayref($sth, undef, $id) };
-
+for my $ethalon (@$ethalons) {
     my $tokenized = $tokenizer->tokens(
-        lc $data->{source},
+        $ethalon->[0],
         {
-            threshold => $opts{strict} ? 1 : 0.01,
+            threshold => $opts{threshold},
         },
     );
 
-    $sentences_seen++;
-    if(join('º', @$tokenized) eq join('º', @ethalon)) {
-        $sentences_good++;
+    $sentences{total}++;
+    if(join($_separator, @$tokenized) eq $ethalon->[1]) {
+        $sentences{good}++;
     }
 
-    $tokens_total    += @$tokenized;
-    $tokens_expected += @ethalon;
-    for(0 .. max(scalar @ethalon, scalar @$tokenized)) {
-        my $got = $tokenized->[$_];
-        next unless defined $got;
-
-        my $expected = $ethalon[$_];
-        next unless defined $expected;
-
-        $tokens_good++ if $got eq $expected;
+    $tokens{total}    += @$tokenized;
+    $tokens{expected} += @{ $ethalon->[2] };
+    for(0 .. max(scalar @{ $ethalon->[2] }, scalar @$tokenized)) {
+        no warnings;
+        $tokens{good}++ if $ethalon->[2][$_] eq $tokenized->[$_];
     }
 }
 
-my $precision = $tokens_good / $tokens_total;
-my $recall    = $tokens_good / $tokens_expected;
-printf "%i/%i, Correctness: %.2f%%, Precision: %.4f, Recall: %.4f, F1: %.4f\n",
-    $sentences_good,
-    $sentences_seen,
-    $sentences_good / $sentences_seen * 100,
+my $precision = $tokens{good} / $tokens{total};
+my $recall    = $tokens{good} / $tokens{expected};
+printf "%i/%i, Threshold: %s, Correctness: %.2f%%, Precision: %.4f, Recall: %.4f, F1: %.4f\n",
+    $sentences{good},
+    $sentences{total},
+    $opts{threshold},
+    $sentences{good} / $sentences{total} * 100,
     $precision,
     $recall,
     F_score(1, $precision, $recall);
@@ -104,9 +103,7 @@ sub F_score {
 
 sub max { $_[0] > $_[1] ? $_[0] : $_[1] }
 
-sub usage {
-    pod2usage({-verbose => $_[0]});
-}
+sub usage { pod2usage({-verbose => $_[0]}) }
 
 __END__
 
@@ -128,11 +125,11 @@ Required.
 
 Path to opencorpora config file.
 
-=item --strict
+=item --threshold
 
-Optional.
+Required.
 
-Set tokenizer threshold to 1.
+Tokenizer's threshold.
 
 =item --data_dir
 
