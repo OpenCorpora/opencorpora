@@ -101,7 +101,7 @@ sub check_revision {
     # is the current revision this token's latest?
     $last_rev->execute($tf_id, $rev_id);
     if ($last_rev->rows > 0) {
-        print STDERR "failed\n";
+        print STDERR "failed: old revision\n";
         return 0;
     }
 
@@ -126,7 +126,7 @@ sub check_revision {
     $add->execute($pool_id, $tf_id);
 }
 sub var_has_all_gram {
-    my ($rev_text, $aref) = shift;
+    my ($rev_text, $aref) = @_;
 
     my $cnt;
     my $v;
