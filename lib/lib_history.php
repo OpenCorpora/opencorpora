@@ -10,20 +10,32 @@ function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0) {
         $out['total'] = $res[0];
     }
 
-    if (!$set_id && !$sentence_id)
-        $res = sql_query("SELECT set_id, COUNT(sent_id) cnt FROM (SELECT set_id, f.sent_id FROM tf_revisions r RIGHT JOIN text_forms f ON (r.tf_id=f.tf_id) RIGHT JOIN sentences s ON (f.sent_id=s.sent_id) GROUP BY set_id, f.sent_id ORDER BY set_id DESC) T ".($maa ? "WHERE set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %')" : '')." GROUP BY set_id ORDER BY set_id DESC LIMIT $skip,20");
-    else
-        $res = sql_query("SELECT tr.set_id, st.sent_id FROM tf_revisions tr RIGHT JOIN text_forms tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id) ".($maa ? "WHERE tr.set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %') AND " : 'WHERE ').($set_id?"tr.set_id=$set_id GROUP BY st.sent_id":"st.sent_id=$sentence_id GROUP BY tr.set_id")." ORDER BY tr.rev_id DESC LIMIT $skip,20");
-    while($r = sql_fetch_array($res)) {
-        $r1 = sql_fetch_array(sql_query("SELECT u.user_name, s.timestamp, s.comment FROM rev_sets s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE s.set_id = ".$r['set_id']." LIMIT 1"));
-        $out['sets'][] = array(
-            'set_id'    => $r['set_id'],
-            'user_name' => $r1['user_name'],
-            'timestamp' => $r1['timestamp'],
-            'sent_cnt'  => isset($r['cnt']) ? $r['cnt'] : 0,
-            'sent_id'   => isset($r['sent_id']) ? $r['sent_id'] : 0,
-            'comment'   => $r1['comment']
-        );
+    if (!$set_id && !$sentence_id) {
+        $res = sql_query("SELECT DISTINCT tfr.set_id FROM tf_revisions tfr".($maa ? " LEFT JOIN rev_sets s ON (tfr.set_id=s.set_id) WHERE s.comment LIKE '% merged %' or s.comment LIKE '% split %'" : ''). " ORDER BY tfr.set_id DESC LIMIT $skip,20");
+        while ($r = sql_fetch_array($res)) {
+            $r1 = sql_fetch_array(sql_query("SELECT s.comment, s.timestamp, u.user_name FROM rev_sets s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE s.set_id=".$r['set_id']." LIMIT 1"));
+            $r2 = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT f.sent_id) FROM tf_revisions tfr LEFT JOIN text_forms f ON (tfr.tf_id=f.tf_id) WHERE tfr.set_id=".$r['set_id']));
+            $out['sets'][] = array(
+                'set_id'    => $r['set_id'],
+                'user_name' => $r1['user_name'],
+                'timestamp' => $r1['timestamp'],
+                'sent_cnt'  => $r2[0],
+                'comment'   => $r1['comment']
+            );
+        }
+        //$res = sql_query("SELECT set_id, COUNT(sent_id) cnt FROM (SELECT set_id, f.sent_id FROM tf_revisions r RIGHT JOIN text_forms f ON (r.tf_id=f.tf_id) RIGHT JOIN sentences s ON (f.sent_id=s.sent_id) GROUP BY set_id, f.sent_id ORDER BY set_id DESC) T ".($maa ? "WHERE set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %')" : '')." GROUP BY set_id ORDER BY set_id DESC LIMIT $skip,20");
+    } else {
+        $res = sql_query("SELECT tr.set_id, st.sent_id, s.timestamp, s.comment, u.user_name FROM tf_revisions tr LEFT JOIN rev_sets s ON (tr.set_id=s.set_id) LEFT JOIN users u ON (s.user_id=u.user_id) RIGHT JOIN text_forms tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id) ".($maa ? "WHERE tr.set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %') AND " : 'WHERE ').($set_id?"tr.set_id=$set_id GROUP BY st.sent_id":"st.sent_id=$sentence_id GROUP BY tr.set_id")." ORDER BY tr.rev_id DESC LIMIT $skip,20");
+        while($r = sql_fetch_array($res)) {
+            $out['sets'][] = array(
+                'set_id'    => $r['set_id'],
+                'user_name' => $r['user_name'],
+                'timestamp' => $r['timestamp'],
+                'sent_cnt'  => isset($r['cnt']) ? $r['cnt'] : 0,
+                'sent_id'   => isset($r['sent_id']) ? $r['sent_id'] : 0,
+                'comment'   => $r['comment']
+            );
+        }
     }
 
     return $out;
