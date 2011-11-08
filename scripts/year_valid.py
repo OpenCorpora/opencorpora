@@ -42,9 +42,9 @@ for element in data:
                 c.execute(sql)
         i = i + 1       
 db.commit()
-c.execute("SELECT * from tag_errors")
-d = c.fetchall()
-print d
+#c.execute("SELECT * from tag_errors")
+#d = c.fetchall()
+#print d
 
 #print c.description 
 db.close()
