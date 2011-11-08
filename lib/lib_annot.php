@@ -73,7 +73,7 @@ function get_morph_vars($xml_arr, &$gram_descr) {
         $var = get_morph_vars_inner($xml_arr, 1);
         $t = array();
         foreach($var['gram_list'] as $gr) {
-            if (!$gram_descr[$gr['inner']]) {
+            if (!isset($gram_descr[$gr['inner']])) {
                 $r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='".$gr['inner']."' LIMIT 1"));
                 $gram_descr[$gr['inner']] = array($r[0], $r[1]);
             }
@@ -90,7 +90,7 @@ function get_morph_vars($xml_arr, &$gram_descr) {
                 $var = get_morph_vars_inner($xml_var_arr, $i++);
                 $t = array();
                 foreach($var['gram_list'] as $gr) {
-                    if (!$gram_descr[$gr['inner']]) {
+                    if (!isset($gram_descr[$gr['inner']])) {
                         $r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='".$gr['inner']."' LIMIT 1"));
                         $gram_descr[$gr['inner']] = array($r[0], $r[1]);
                     }
