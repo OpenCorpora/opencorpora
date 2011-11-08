@@ -16,7 +16,7 @@
 	<td>{$h.user_name|default:'Робот'}</td>
 	<td>{$h.timestamp|date_format:"%a %d.%m.%Y, %H:%M"}</td>
 	{if $h.sent_cnt}
-        <td><a href="?set_id={$h.set_id}&amp;maa = {$maa}">{$h.sent_cnt} предл.</a></td>
+        <td><a href="?set_id={$h.set_id}&amp;maa={$maa}">{$h.sent_cnt} предл.</a></td>
     {/if}
     {if $h.sent_id}
         <td><a href="sentence.php?id={$h.sent_id}">{t}Предложение{/t} {$h.sent_id}</a></td>
