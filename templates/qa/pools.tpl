@@ -29,7 +29,7 @@ $(document).ready(function(){
 <tr>
     <td>{$pool.pool_id}</td>
     <td>{$pool.pool_name|htmlspecialchars}{if $pool.comment}<br/><span class='small'>{$pool.comment|htmlspecialchars}</span>{/if}</td>
-    <td>{$pool.grammemes|htmlspecialchars}<br/>Оценок: {$pool.users_needed}<br/>Токенизация: {$pool.token_check}<br/>Таймаут: {$pool.timeout} c</td>
+    <td>{$pool.grammemes|htmlspecialchars}<br/><span class='small'>{$pool.gram_descr|htmlspecialchars}</span><br/>Оценок: {$pool.users_needed}<br/>Токенизация: {$pool.token_check}<br/>Таймаут: {$pool.timeout} c</td>
     <td>{$pool.created_ts|date_format:"%a %d.%m.%Y, %H:%M"}</td>{if $pool.created_ts != $pool.updated_ts}{$pool.updated_ts|date_format:"%a %d.%m.%Y, %H:%M"}{/if}</td>
     <td>{$pool.user_name|htmlspecialchars}</td>
     <td>{strip}
@@ -52,6 +52,7 @@ $(document).ready(function(){
 <form id="f_add" style="display:none" method="post" action="?act=add"><table border="0" cellspacing="5">
 <tr><td>Название:<td><input name="pool_name" maxlength="120" size="60" placeholder="Название пула"/></tr>
 <tr><td>Граммемы:<td><input name="gram1" placeholder="gram1&gram2"/> <input name="gram2" placeholder="gram3|gram4"/></tr>
+<tr><td>Описания к ним:<br/><span class='small'>их увидят разметчики</span><td><input name="descr1" placeholder="глагол" maxlength='127'/> <input name="descr2" placeholder="не глагол" maxlength='127'/></tr>
 <tr><td valign="top">Комментарий:<td><textarea name="comment" cols="40" rows="4"></textarea></tr>
 <tr><td>Желаемое число оценок<td><input name="users_needed" maxlength="2" size="3" value="5"/>
 <tr><td>Таймаут по умолчанию<td><input name="timeout" maxlength="5" size="5" value="60"/> секунд на пример</tr>

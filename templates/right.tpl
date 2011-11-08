@@ -28,6 +28,11 @@
     <a href="{$web_prefix}/?page=stats">{t}Статистика{/t}</a><br/>
     <a href="{$web_prefix}/?rand">{t}Случайное предложение{/t}</a>
 </div>
+{if $is_admin}
+<div>
+    <a href="{$web_prefix}/tasks.php">{t}Задания{/t}</a>
+</div>
+{/if}
 <div>
 <b>{t}Поиск по словарю{/t}</b>
 <form action="{$web_prefix}/dict.php?act=lemmata" method="post">

@@ -11,12 +11,25 @@
 {/if}
 <br/>
 <table border="1" cellspacing="0" cellpadding="3">
-<tr><th>id</th><th>&nbsp;</th><th>Ответов</th></tr>
+<tr>
+    <th>id</th>
+    <th>&nbsp;</th>
+    <th>Ответов</th>
+    {if isset($smarty.get.ext)}
+    {for $i=1 to $pool.num_users}<th>{$i}</th>{/for}
+    {else}
+    {/if}
+</tr>
 {foreach from=$pool.samples item=sample}
 <tr>
     <td>{$sample.id}</td>
     <td>{foreach from=$sample.context item=word name=x}{if $smarty.foreach.x.index == $sample.mainword}<b class='bggreen'>{$word|htmlspecialchars}</b>{else}{$word|htmlspecialchars}{/if} {/foreach}</td>
     <td>{$sample.answered}/{$pool.num_users}</td>
+    {if isset($smarty.get.ext)}
+    {foreach from=$sample.instances item=instance}
+    <td>{if $instance.answer > 0}{$instance.answer}{else}&ndash;{/if}</td>
+    {/foreach}
+    {/if}
 </tr>
 {/foreach}
 </table>

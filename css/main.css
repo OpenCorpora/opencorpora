@@ -298,3 +298,18 @@ div.comment_main {
 .ac_results li {	position:relative;    margin: 0px;	padding: 2px 5px;	cursor: pointer;	display: block;	width: 100%;	font: menu;	font-size: 12px;	overflow: hidden;}
 .ac_results li em {color:#666666;}
 .ac_over {	background-color: Highlight;	color: HighlightText;}
+/* DISAMBIGUATION PAGE */
+div.ma_instance {
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+div.ma_instance b {
+    font-size: 20px;
+}
+div.ma_instance button {
+    font-size: 16px;
+}
+div.ma_instance button.reject {
+    background-color: brown;
+    color: #fff;
+}

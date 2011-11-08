@@ -88,7 +88,7 @@ function get_morph_pools_page() {
     }
     return $pools;
 }
-function get_morph_samples_page($pool_id) {
+function get_morph_samples_page($pool_id, $extended=false) {
     $res = sql_query("SELECT pool_name, status, users_needed FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1");
     $r = sql_fetch_array($res);
     $out = array('id' => $pool_id, 'name' => $r['pool_name'], 'status' => $r['status'], 'num_users' => $r['users_needed']);
@@ -96,8 +96,14 @@ function get_morph_samples_page($pool_id) {
     while ($r = sql_fetch_array($res)) {
         $t = get_context_for_word($r['tf_id'], 3);
         $t['id'] = $r['sample_id'];
-        $res1 = sql_query("SELECT instance_id FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." AND answer>0");
-        $t['answered'] = sql_num_rows($res1);
+        $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." AND answer>0"));
+        $t['answered'] = $r1[0];
+        if ($extended) {
+            $res1 = sql_query("SELECT instance_id, answer FROM morph_annot_instances WHERE sample_id=".$r['sample_id']);
+            while ($r1 = sql_fetch_array($res1)) {
+                $t['instances'][] = array('id' => $r1['instance_id'], 'answer' => $r1['answer']);
+            }
+        }
         $out['samples'][] = $t;
     }
     return $out;
@@ -125,12 +131,14 @@ function add_morph_pool() {
     $gr1 = mysql_real_escape_string(str_replace(' ', '', trim($_POST['gram1'])));
     $gr2 = mysql_real_escape_string(str_replace(' ', '', trim($_POST['gram2'])));
     $comment = mysql_real_escape_string(trim($_POST['comment']));
+    $gram_descr1 = mysql_real_escape_string(trim($_POST['descr1']));
+    $gram_descr2 = mysql_real_escape_string(trim($_POST['descr2']));
     $users = (int)$_POST['users_needed'];
     $timeout = (int)$_POST['timeout'];
     $token_check = (int)$_POST['token_checked'];
     $ts = time();
     sql_begin();
-    if (sql_query("INSERT INTO morph_annot_pools VALUES(NULL, '$pool_name', '$gr1@$gr2', '$token_check', '$users', '$timeout', '$ts', '$ts', '".$_SESSION['user_id']."', '0', '$comment')")) {
+    if (sql_query("INSERT INTO morph_annot_pools VALUES(NULL, '$pool_name', '$gr1@$gr2', '$gram_descr1@$gram_descr2', '$token_check', '$users', '$timeout', '$ts', '$ts', '".$_SESSION['user_id']."', '0', '$comment')")) {
         sql_commit();
         return true;
     }
@@ -165,13 +173,78 @@ function publish_pool($pool_id) {
     $r = sql_fetch_array(sql_query("SELECT users_needed FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
     $N = $r['users_needed'];
     sql_begin();
-    if (
-        sql_query("INSERT INTO morph_annot_instances(SELECT NULL, sample_id, 0, 0, 0 FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id)") &&
-        sql_query("UPDATE morph_annot_pools SET `status`='3', `updated_ts`='".time()."' WHERE pool_id=$pool_id LIMIT 1")
-    ) {
+    for ($i = 0; $i < $N; ++$i) {
+        if (!sql_query("INSERT INTO morph_annot_instances(SELECT NULL, sample_id, 0, 0, 0 FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id)")) {
+            return false;
+        }
+    }
+    if (sql_query("UPDATE morph_annot_pools SET `status`='3', `updated_ts`='".time()."' WHERE pool_id=$pool_id LIMIT 1")) {
         sql_commit();
         return true;
     }
     return false;
+}
+function get_available_tasks($user_id) {
+    $tasks = array();
+    $res = sql_query("SELECT pool_id, pool_name FROM morph_annot_pools WHERE status=3");
+    while ($r = sql_fetch_array($res)) {
+        $pool = array('id' => $r['pool_id'], 'name' => $r['pool_name']);
+        $r1 = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT sample_id) FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND sample_id NOT IN (SELECT DISTINCT sample_id FROM morph_annot_instances WHERE user_id=$user_id) AND sample_id NOT IN (SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id) AND ts_finish=0"));
+        $pool['num'] = $r1[0];
+        $r1 = sql_fetch_array(sql_query("SELECT COUNT(instance_id) FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND user_id=$user_id AND answer=0"));
+        $pool['num_started'] = $r1[0];
+        $tasks[] = $pool;
+    }
+    return $tasks;
+}
+function get_annotation_packet($pool_id, $size) {
+    $packet = array();
+    $r = sql_fetch_array(sql_query("SELECT status, timeout, grammemes, gram_descr FROM morph_annot_pools WHERE pool_id=$pool_id"));
+    if ($r['status'] != 3) return false;
+    $packet['gram_descr'] = explode('@', $r['gram_descr']);
+    $user_id = $_SESSION['user_id'];
+    $timeout = $r['timeout'];
+    $flag_new = 0;
+
+    //if the user has something already reserved, let's start with that
+    $res = sql_query("SELECT instance_id, sample_id FROM morph_annot_instances WHERE user_id=$user_id AND answer=0 LIMIT $size");
+    if (!sql_num_rows($res)) {
+        $res = sql_query("SELECT instance_id, sample_id FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id) AND sample_id NOT IN (SELECT DISTINCT sample_id FROM morph_annot_instances WHERE user_id=$user_id) AND sample_id NOT IN (SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id) AND ts_finish=0 AND answer=0 LIMIT $size");
+        $flag_new = 1;
+    }
+    if (!sql_num_rows($res)) return false;
+
+    //when the timeout will be - same for each sample
+    $ts_finish = time() + $timeout * sql_num_rows($res);
+    if ($flag_new) sql_begin();
+    while ($r = sql_fetch_array($res)) {
+        $r1 = sql_fetch_array(sql_query("SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
+        $instance = get_context_for_word($r1['tf_id'], 4);
+        $instance['id'] = $r['instance_id'];
+        $packet['instances'][] = $instance;
+        if ($flag_new) {
+            if (!sql_query("UPDATE morph_annot_instances SET user_id='$user_id', ts_finish='$ts_finish' WHERE instance_id= ".$r['instance_id']." LIMIT 1")) return false;
+        }
+    }
+    if ($flag_new) sql_commit();
+    return $packet;
+}
+function update_annot_instance($id, $answer) {
+    $user_id = $_SESSION['user_id'];
+    if (!$id || !$answer) return 0;
+    sql_begin();
+    // a valid answer
+    if ($answer > 0) {
+        if (!sql_query("UPDATE morph_annot_instances SET answer='$answer' WHERE instance_id=$id LIMIT 1")) return 0;
+    }
+    // or a rejected question
+    elseif ($answer == -1) {
+        if (
+            !sql_query("INSERT INTO morph_annot_rejected_samples (SELECT sample_id, $user_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1)") ||
+            !sql_query("UPDATE morph_annot_instances SET user_id='0', ts_finish='0' WHERE instance_id=$id LIMIT 1")
+        ) return 0;
+    }
+    sql_commit();
+    return 1;
 }
 ?>

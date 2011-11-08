@@ -22,7 +22,7 @@ switch($action) {
         $smarty->display('qa/pool_candidates.tpl');
         break;
     case 'samples':
-        $smarty->assign('pool', get_morph_samples_page((int)$_GET['pool_id']));
+        $smarty->assign('pool', get_morph_samples_page((int)$_GET['pool_id'], isset($_GET['ext'])));
         $smarty->display('qa/pool.tpl');
         break;
     case 'promote':
