@@ -26,22 +26,25 @@ for element in data:
             pass
         else:
             year = element[i].split(":")[1]
-            if int(year) < 1900:
-                el = []
+            try:
+                if int(year) < 1900 or int(year)>2011:
+                    el = []
   #              print "book_id  " + str(element[0])
    #             print element[i] + "\n"
              
-                sql = """INSERT INTO tag_errors(book_id, tag_name, error_type) VALUES(%d, '%s', %d)""" % (element[0], element[i], 1)
+                    sql = """INSERT INTO tag_errors(book_id, tag_name, error_type) VALUES(%d, '%s', %d)""" % (element[0], element[i], 1)
                 
+                    c.execute(sql)
+                else: 
+                       pass 
+            except:
+                sql =  """INSERT INTO tag_errors(book_id, tag_name, error_type) VALUES(%d, '%s', %d)""" % (element[0], element[i], 1)   
                 c.execute(sql)
-            
-            else: 
-                   pass 
-        i = i + 1
+        i = i + 1       
 db.commit()
-c.execute("SELECT * FROM tag_errors WHERE error_type=1")        
+c.execute("SELECT * from tag_errors")
 d = c.fetchall()
-#print d
+print d
 
 #print c.description 
 db.close()
