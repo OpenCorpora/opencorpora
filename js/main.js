@@ -546,13 +546,17 @@ function check_for_whitespace() {
     var flag = 1;
     $('textarea').each(function(i,el){
         $(el).removeClass('bgpink');
-        if ($(el).val().trim().indexOf(' ') != -1) {
+        if (
+            $(el).val().trim().indexOf(' ') != -1 ||
+            $(el).val().trim().indexOf(String.fromCharCode(10)) != -1 ||
+            $(el).val().trim().indexOf(String.fromCharCode(13)) != -1
+        ) {
             $(el).addClass('bgpink').removeClass('hidden-block');
             window.scrollTo(0, $(el).offset().top);
             flag = 0;
             return;
         }
     });
-    if (!flag) alert('Whitespace detected');
+    if (!flag) alert('Bad symbols (whitespace or line break) detected');
     return flag;
 }
