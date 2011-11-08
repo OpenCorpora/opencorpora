@@ -21,7 +21,7 @@ if (isset($_GET['page'])) {
         case 'downloads':
             $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
             $smarty->setCacheLifetime(600);
-            if (!$smarty->isCached('static/downloads.tpl')) {
+            if (!is_cached('static/downloads.tpl')) {
                 $smarty->assign('dl', get_downloads_info());
             }
             $smarty->display('static/downloads.tpl');
@@ -33,7 +33,7 @@ if (isset($_GET['page'])) {
         case 'stats':
             $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
             $smarty->setCacheLifetime(300);
-            if (!$smarty->isCached('stats.tpl')) {
+            if (!is_cached('stats.tpl')) {
                 $smarty->assign('stats', get_common_stats());
             }
             $smarty->display('stats.tpl');

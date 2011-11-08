@@ -74,6 +74,12 @@ function sql_get_schema() {
 function translate($params, $content, $smarty, &$repeat) {
     return _($content);
 }
+function is_cached($template_name, $cache_id = false) {
+    if (isset($_SESSION['debug_mode'])) return false;
+    global $smarty;
+    return $cache_id ? $smarty->isCached($template_name, $cache_id)
+                     : $smarty->isCached($template_name);
+}
 function show_error($text = "Произошла ошибка.") {
     global $smarty;
     $smarty->assign('error_text', $text);

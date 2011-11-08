@@ -18,7 +18,7 @@ $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
 $smarty->setCacheLifetime(90);
 $cache_id = "$sent_id@$set_id@$skip@$maa";
 
-if (!$smarty->isCached('history.tpl', $cache_id)) {
+if (!is_cached('history.tpl', $cache_id)) {
     $smarty->assign('history', main_history($sent_id, $set_id, $skip, $maa));
     $smarty->assign('skip', $skip);
     $smarty->assign('maa', $maa);
