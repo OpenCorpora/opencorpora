@@ -232,6 +232,11 @@ function get_annotation_packet($pool_id, $size) {
 function update_annot_instance($id, $answer) {
     $user_id = $_SESSION['user_id'];
     if (!$id || !$answer) return 0;
+
+    // does the instance really belong to this user?
+    $res = sql_query("SELECT instance_id FROM morph_annot_instances WHERE instance_id=$id AND user_id=$user_id LIMIT 1");
+    if (!sql_num_rows($res)) return 0;
+
     sql_begin();
     // a valid answer
     if ($answer > 0) {
