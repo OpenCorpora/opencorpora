@@ -122,6 +122,13 @@ sub check_revision {
         }
     }
 
+    # are there any variants that don't match any of the grammeme sets?
+
+    if (has_extra_variants($rev_text, $gr1, $gr2)) {
+        print STDERR "failed: extra variants\n";
+        return 0;
+    }
+
     print STDERR "ok\n";
     $add->execute($pool_id, $tf_id);
 }
@@ -143,6 +150,52 @@ sub var_has_all_gram {
         if ($cnt == $goal) {
             return 1;
         }
+    }
+    return 0;
+}
+sub has_extra_variants {
+    my ($rev_text, $gr1, $gr2) = @_;
+
+    # we shall check whether there are variants that do not satisfy any grammem sets
+    MW:while ($rev_text =~ /<v(.+?)<\/v>/g) {
+        my $v = $1;
+        for my $g($gr1, $gr2) {
+            my @gr = ();
+            my $flag_and = 0;
+
+            if ($g =~ /\|/) {
+                @gr = split /\|/, $g;
+            }
+            else {
+                @gr = split /\&/, $g;
+                $flag_and = 1;
+            }
+            
+            if ($flag_and) {
+                #all grammemes must be there
+                my $flag_ok = 1;
+                for my $gg(@gr) {
+                    if ($v !~ /g v="$gg"/) {
+                        $flag_ok = 0;
+                        last;
+                    }
+                }
+                if ($flag_ok) {
+                    #variant is ok, check next variant
+                    next MW;
+                }
+            }
+            else {
+                #any grammeme will suffice
+                for my $gg(@gr) {
+                    if ($v =~ /g v="$gg"/) {
+                        #found grammeme, check next variant
+                        next MW;
+                    }
+                }
+            }
+        }
+        return 1;
     }
     return 0;
 }
