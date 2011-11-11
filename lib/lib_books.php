@@ -23,7 +23,7 @@ function get_book_page($book_id, $full = false) {
         if (preg_match('/^(.+?)\:(.+)$/', $r['tag_name'], $matches)) {
             $ar = array('prefix' => $matches[1], 'body' => $matches[2], 'full' => $r['tag_name']);
             if ($matches[1] == 'url') {
-                $res1 = sql_query("SELECT filename FROM downloaded_urls WHERE url='".mysql_real_escape_string($matches[2])."' LIMIT 1");
+                $res1 = sql_query("SELECT filename FROM downloaded_urls WHERE url='".mysql_real_escape_string(htmlspecialchars_decode($matches[2]))."' LIMIT 1");
                 if ($r1 = sql_fetch_array($res1)) {
                     $ar['filename'] = $r1['filename'];
                 }
