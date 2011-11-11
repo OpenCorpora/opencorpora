@@ -12,3 +12,4 @@ Disallow: /sentence
 Disallow: /w/
 Disallow: /wiki/Special:Search
 Disallow: /wiki/Special:Random
+Disallow: /?page=top100
