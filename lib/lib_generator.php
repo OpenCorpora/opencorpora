@@ -82,7 +82,7 @@ function run_test() {
         $config['generator']['test_script'],
         '--config=' . dirname(__FILE__) . '/../config.ini',
         '--data_dir=' . $config['generator']['tmp_dir'],
-        '--threshold=0.05', # FIXME set proper threshold value (now it's semi-random)
+        '--threshold=0.878', # graph_metrics.pl @ 2011-11-12
         '2>&1'
     );
     $cmd = implode(' ', $pieces);
