@@ -7,7 +7,6 @@ use warnings;
 use DBI;
 use Digest::MD5;
 use Getopt::Long;
-use FindBin qw($Bin);
 use Encode qw(_utf8_off);
 use Config::INI::Reader;
 use IO::Compress::Gzip qw($GzipError);
@@ -16,10 +15,12 @@ use IO::Uncompress::Gunzip qw($GunzipError);
 GetOptions(
     \my %opts,
     'config=s',
+    'data_dir=s',
     'output_dir=s',
 );
-die "Usage: $0 --config=<config> --output_dir=<path>"
+die "Usage: $0 --config=<config> --output_dir=<path> --data_dir=<path>"
     if not defined $opts{config}
+    or not defined $opts{data_dir}
     or not defined $opts{output_dir};
 
 my $conf = Config::INI::Reader->read_file($opts{config});
@@ -55,12 +56,12 @@ my $hyphens_data = $dbh->selectall_arrayref("
 $hyphens_data = join "\n", map @$_, @$hyphens_data;
 update_file('hyphens', $hyphens_data, $opts{output_dir});
 
-open my $fh, '<', "$Bin/../lists/tokenizer_exceptions.txt" or die "exceptions: $!";
+open my $fh, '<', "$opts{data_dir}/tokenizer_exceptions.txt" or die "exceptions: $!";
 my $exceptions_data = do { <$fh>; local $/; <$fh> };
 close $fh;
 update_file('exceptions', $exceptions_data, $opts{output_dir});
 
-open $fh, '<', "$Bin/../lists/tokenizer_prefixes.txt" or die "prefixes: $!";
+open $fh, '<', "$opts{data_dir}/tokenizer_prefixes.txt" or die "prefixes: $!";
 my $prefixes_data = do { <$fh>; local $/; <$fh> };
 close $fh;
 update_file('prefixes', $prefixes_data, $opts{output_dir});
