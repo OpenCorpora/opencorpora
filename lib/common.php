@@ -211,8 +211,9 @@ function get_downloads_info() {
     $ngram[3]['exact_cyrB'] = get_file_info('files/export/ngrams/trigrams.cyrB');
     $ngram[3]['exact_cyrA_lc'] = get_file_info('files/export/ngrams/trigrams.cyrA.lc');
     $ngram[3]['exact_cyrB_lc'] = get_file_info('files/export/ngrams/trigrams.cyrB.lc');
+    $colloc['mi'] = get_file_info('files/export/ngrams/colloc.MI');
 
-    return array('dict'=>$dict, 'annot'=>$annot, 'ngram'=>$ngram);
+    return array('dict'=>$dict, 'annot'=>$annot, 'ngram'=>$ngram, 'colloc'=>$colloc);
 }
 function get_file_info($path) {
     //get size and time info about a group of archives
@@ -225,7 +226,7 @@ function get_file_info($path) {
     $out['zip']['size'] = sprintf("%.2f", $stat[7] / $mb);
     return $out;
 }
-function get_ngram_top100_info($type) {
+function get_top100_info($what, $type) {
     global $config;
     $stats = array();
 
@@ -279,14 +280,25 @@ function get_ngram_top100_info($type) {
         case '3_exact_cyrB_lc':
             $filename = 'trigrams.cyrB.lc';
             break;
+        case 'MI':
+            $filename = 'colloc.MI';
+            break;
         default:
             return $stats;
     }
 
     $f = file($config['project']['root']."/files/export/ngrams/$filename.top100");
-    foreach($f as $s) {
-        list($token, $abs, $ipm) = explode("\t", $s);
-        $stats[] = array('token' => $token, 'abs' => $abs, 'ipm' => $ipm);
+
+    if ($what == 'colloc') {
+        foreach($f as $s) {
+            list($lterm, $rterm, $lfreq, $rfreq, $cfreq, $coeff) = explode("\t", $s);
+            $stats[] = array('lterm' => $lterm, 'rterm' => $rterm, 'lfreq' => $lfreq, 'rfreq' => $rfreq, 'cfreq' => $cfreq, 'coeff' => $coeff);
+        }
+    } else {
+        foreach($f as $s) {
+            list($token, $abs, $ipm) = explode("\t", $s);
+            $stats[] = array('token' => $token, 'abs' => $abs, 'ipm' => $ipm);
+        }
     }
     
     return $stats;

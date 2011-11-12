@@ -1,7 +1,7 @@
 #!/bin/bash
 ROOT_PATH=${ROOT_PATH:-/corpus}
 
-dump_path=$ROOT_PATH/files/export/annot/annot.opcorpora.xml
+dump_path=/home/grand/annot.opcorpora.xml
 export_path=$ROOT_PATH/files/export/ngrams
 
 if [ ! -f $dump_path ]; then

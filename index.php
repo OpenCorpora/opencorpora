@@ -27,7 +27,7 @@ if (isset($_GET['page'])) {
             $smarty->display('static/downloads.tpl');
             break;
         case 'top100':
-            $smarty->assign('stats', get_ngram_top100_info($_GET['type']));
+            $smarty->assign('stats', get_top100_info($_GET['what'], $_GET['type']));
             $smarty->display('top100.tpl');
             break;
         case 'stats':
