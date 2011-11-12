@@ -8,6 +8,7 @@ use DBI;
 use Pod::Usage;
 use Getopt::Long;
 use Config::INI::Reader;
+use List::MoreUtils qw(any);
 use Lingua::RU::OpenCorpora::Tokenizer;
 
 GetOptions(
@@ -51,12 +52,8 @@ my $ethalons   = $dbh->selectall_arrayref("
     group by
         source
 ");
-push @$_, [split $_separator, $_->[1]] for @$ethalons;
+$_->[1] = all_occurences($_->[1], $_separator) for @$ethalons;
 
-my %sentences = (
-    good  => 0,
-    total => 0,
-);
 my %tokens = (
     expected => 0,
     good     => 0,
@@ -64,32 +61,21 @@ my %tokens = (
 );
 
 for my $ethalon (@$ethalons) {
-    my $tokenized = $tokenizer->tokens(
-        $ethalon->[0],
-        {
-            threshold => $opts{threshold},
-        },
-    );
+    my @tokenized = map  $_->[0],
+                    grep $_->[1] >= $opts{threshold},
+                    @{ $tokenizer->tokens_bounds($ethalon->[0]) };
 
-    $sentences{total}++;
-    if(join($_separator, @$tokenized) eq $ethalon->[1]) {
-        $sentences{good}++;
-    }
-
-    $tokens{total}    += @$tokenized;
-    $tokens{expected} += @{ $ethalon->[2] };
-    for(0 .. max(scalar @{ $ethalon->[2] }, scalar @$tokenized)) {
-        no warnings;
-        $tokens{good}++ if $ethalon->[2][$_] eq $tokenized->[$_];
+    $tokens{total}    += @tokenized;
+    $tokens{expected} += @{ $ethalon->[1] };
+    for my $pos (@tokenized) {
+        $tokens{good}++ if any { $pos == $_ } @{ $ethalon->[1] };
     }
 }
 
-my $precision   = $tokens{good} / $tokens{total};
-my $recall      = $tokens{good} / $tokens{expected};
-my $correctness = $sentences{good} / $sentences{total};
-printf "Threshold: %s, Correctness: %.4f, Precision: %.4f, Recall: %.4f, F1: %.4f\n",
+my $precision = $tokens{good} / $tokens{total};
+my $recall    = $tokens{good} / $tokens{expected};
+printf "Threshold: %s, Precision: %.4f, Recall: %.4f, F1: %.4f\n",
     $opts{threshold},
-    $correctness, # how much what's produced by Perl module is similar to what's in database
     $precision,
     $recall,
     F_score(1, $precision, $recall);
@@ -100,7 +86,21 @@ sub F_score {
     ((1 + $B ** 2) * ($P * $R)) / ($B ** 2 * $P + $R)
 }
 
-sub max { $_[0] > $_[1] ? $_[0] : $_[1] }
+sub all_occurences {
+    my($str, $substr) = @_;
+
+    my @occurences;
+    my $offset = 0;
+    while($offset < length $str) {
+        my $pos = index $str, $substr, $offset;
+        last if $pos < 0;
+
+        push @occurences, $pos + 1;
+        $offset = $pos + 1;
+    }
+
+    \@occurences;
+}
 
 sub usage { pod2usage({-verbose => $_[0]}) }
 
@@ -108,11 +108,13 @@ __END__
 
 =head1 SYNOPSIS
 
-perl correctness.pl --options
+perl calculate_metrics.pl --options
 
 =head1 DESCRIPTION
 
-This script is to be used to compare results produced by Perl tokenizer against what's currently in database.
+QA tool for Perl tokenizer.
+
+Calculates IR-related metrics for what Perl tokenizer produces. This includes precision, recall and F-score.
 
 =head1 OPTIONS
 
