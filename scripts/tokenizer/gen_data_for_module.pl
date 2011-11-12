@@ -6,18 +6,23 @@ use warnings;
 
 use DBI;
 use Digest::MD5;
+use Getopt::Long;
 use FindBin qw($Bin);
 use Encode qw(_utf8_off);
 use Config::INI::Reader;
 use IO::Compress::Gzip qw($GzipError);
 use IO::Uncompress::Gunzip qw($GunzipError);
 
-@ARGV == 2 or die "Usage: $0 <config> <path>";
+GetOptions(
+    \my %opts,
+    'config=s',
+    'output_dir=s',
+);
+die "Usage: $0 --config=<config> --output_dir=<path>"
+    if not defined $opts{config}
+    or not defined $opts{output_dir};
 
-my $config_file = shift;
-my $path        = shift;
-
-my $conf = Config::INI::Reader->read_file($config_file);
+my $conf = Config::INI::Reader->read_file($opts{config});
 $conf = $conf->{mysql};
 
 my $dbh = DBI->connect(
@@ -37,7 +42,7 @@ my $vectors_data = $dbh->selectall_arrayref("
         tokenizer_coeff
 ");
 $vectors_data = join "\n", map { join ' ', @$_ } @$vectors_data;
-update_file('vectors', $vectors_data);
+update_file('vectors', $vectors_data, $opts{output_dir});
 
 my $hyphens_data = $dbh->selectall_arrayref("
     select
@@ -48,20 +53,20 @@ my $hyphens_data = $dbh->selectall_arrayref("
         form_text like '%-%'
 ");
 $hyphens_data = join "\n", map @$_, @$hyphens_data;
-update_file('hyphens', $hyphens_data);
+update_file('hyphens', $hyphens_data, $opts{output_dir});
 
 open my $fh, '<', "$Bin/../lists/tokenizer_exceptions.txt" or die "exceptions: $!";
 my $exceptions_data = do { <$fh>; local $/; <$fh> };
 close $fh;
-update_file('exceptions', $exceptions_data);
+update_file('exceptions', $exceptions_data, $opts{output_dir});
 
 open $fh, '<', "$Bin/../lists/tokenizer_prefixes.txt" or die "prefixes: $!";
 my $prefixes_data = do { <$fh>; local $/; <$fh> };
 close $fh;
-update_file('prefixes', $prefixes_data);
+update_file('prefixes', $prefixes_data, $opts{output_dir});
 
 sub update_file {
-    my($mode, $data) = @_;
+    my($mode, $data, $path) = @_;
 
     my $version = time;
 
