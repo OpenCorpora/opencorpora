@@ -36,6 +36,11 @@ my $pos;
 my %strange;
 my %exceptions;
 my %prefixes;
+my @thresholds = qw/0.0 0.01 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 0.99 1.0/;
+my %vector2coeff;
+my %stats_correct;
+my %stats_falsepos;
+my %stats_total;
 
 my $stat_sure, my $stat_total;
 
@@ -82,6 +87,7 @@ my $coef;
 $drop->execute();
 for my $k(sort {$a <=> $b} keys %total) {
     $coef = $good{$k}/$total{$k};
+    $vector2coeff{$k} = $coef;
     printf("%6s\t%.3f\t%d\t%017s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
 
 
@@ -125,7 +131,31 @@ while(my $ref = $sent->fetchrow_hashref()) {
     $drop_broken->execute();
 
     for my $i(0..length($str)-1) {
-        $vector = oct('0b'.join('', @{calc($str, $i)}));
+        my $s = calc($str, $i);
+        $vector = oct('0b'.join('', @$s));
+        my $flag_space = 0; # whether the following character is a space
+        if ($$s[4] == 0 && $$s[5] == 0 && $$s[6] == 1 && $$s[7] == 0) {
+            $flag_space = 1;
+        }
+
+        #to calculate Pre and Rec
+        for my $t(@thresholds) {
+            if (exists $border{$i}) {
+                if ($vector2coeff{$vector} >= $t) {
+                    $stats_correct{0}{$t}++;
+                    $stats_correct{1}{$t}++ unless $flag_space;
+                }
+            }
+            elsif ($vector2coeff{$vector} >= $t) {
+                $stats_falsepos{0}{$t}++;
+                $stats_falsepos{1}{$t}++ unless $flag_space;
+            }
+        }
+        if (exists $border{$i}) {
+            $stats_total{0}++;
+            $stats_total{1}++ unless $flag_space;
+        }
+
         my $q = $vector.'#'.(exists $border{$i} ? 1 : 0);
         if (exists $strange{$q}) {
             $ins2->execute($ref->{'sent_id'}, $i, (exists $border{$i} ? 1 : 0), $strange{$q}->[0]);
@@ -135,6 +165,16 @@ while(my $ref = $sent->fetchrow_hashref()) {
 
 for my $k(sort {$strange{$b}->[1] <=> $strange{$a}->[1]} keys %strange) {
     printf "%s\t%.3f\t%d\n", $k, $strange{$k}[0], $strange{$k}[1];
+}
+
+for my $type(0..1) {
+    for my $t(@thresholds) {
+        my $pr = $stats_correct{$type}{$t}/($stats_correct{$type}{$t} + $stats_falsepos{$type}{$t});
+        my $re = $stats_correct{$type}{$t}/$stats_total{$type};
+        printf "Threshold: %.2f, total borders: %8s, correct: %8s, false pos: %8s, precision: %.2f%%, recall: %.2f%%, F1: %.2f%%\n",
+            $t, $stats_total{$type}, $stats_correct{$type}{$t}, int($stats_falsepos{$type}{$t}), 100*$pr, 100*$re, 50*($pr + $re);
+    }
+    print "\n";
 }
 
 # subroutines
