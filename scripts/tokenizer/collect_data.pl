@@ -357,8 +357,7 @@ sub looks_like_url {
     my $suffix = shift;
     return 0 if $suffix eq '';
     return 0 if $s =~ /^\./;
-    return 0 if length($s) < 5; 
-    if ($s =~ /^\W*https?\:\/\// || $s =~ /^\W*www\./ || $s =~/.\.(?:[a-z]{2,3}|ру|рф)\W*$/i) {
+    if ($s =~ /^\W*https?\:\/\// || $s =~/.\.(ru|ua|de|com|org|gov|us|ру|рф)\W*$/i) {
         return 1;
     }
     return 0;
