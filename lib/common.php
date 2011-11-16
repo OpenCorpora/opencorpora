@@ -112,6 +112,7 @@ function get_common_stats() {
     }
 
     foreach(array('total', 'chaskor', 'chaskor_news', 'wikipedia', 'wikinews', 'blogs', 'fiction') as $src) {
+        $stats['goals'][$src.'_words'] = $config['goals'][$src.'_words'];
         $stats['percent_words'][$src] = floor($stats[$src.'_words']['value'] / $config['goals'][$src.'_words'] * 100);
     }
 
