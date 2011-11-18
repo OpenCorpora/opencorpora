@@ -277,10 +277,11 @@ function merge_sentences($id1, $id2) {
         show_error();
         return;
     }
-    $res = sql_query("SELECT pos, par_id FROM sentences WHERE sent_id IN ($id1, $id2) LIMIT 2");
+    $res = sql_query("SELECT pos, par_id FROM sentences WHERE sent_id IN ($id1, $id2) ORDER BY pos LIMIT 2");
     $r1 = sql_fetch_array($res);
     $r2 = sql_fetch_array($res);
-    if ($r1['par_id'] != $r2['par_id'] || abs($r1['pos']-$r2['pos']) > 1) {
+    $res = sql_query("SELECT pos FROM sentences WHERE par_id = ".$r1['par_id']." AND pos > ".$r1['pos']." AND pos < ".$r2['pos']." LIMIT 1");
+    if ($r1['par_id'] != $r2['par_id'] || sql_num_rows($res) > 0) {
         show_error("Предложения должны идти подряд!");
         return;
     }
