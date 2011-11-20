@@ -58,8 +58,9 @@ function run_generator() {
     $pieces = array(
         $config['project']['perl'],
         $config['generator']['gen_script'],
-        dirname(__FILE__) . '/../config.ini',
-        $config['generator']['tmp_dir'],
+        '--config=' . dirname(__FILE__) . '/../config.ini',
+        '--output_dir=' . $config['generator']['tmp_dir'],
+        '--data_dir=' . dirname(__FILE__) . '/../scripts/lists',
         '2>&1'
     );
     $cmd = implode(' ', $pieces);
