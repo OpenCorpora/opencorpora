@@ -67,6 +67,7 @@ function run_generator() {
 
     $output = array();
     exec($cmd, $output, $retval);
+    $output = preg_grep('/^(?!perl|\s+(?:L|are supported))/', $output);
 
     return array(
         'success' => (bool)!$retval,
