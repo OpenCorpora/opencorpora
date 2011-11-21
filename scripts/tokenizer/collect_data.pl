@@ -15,7 +15,7 @@ my $mysql     = $conf->{mysql};
 
 my $dbh = DBI->connect('DBI:mysql:'.$mysql->{'dbname'}.':'.$mysql->{'host'}, $mysql->{'user'}, $mysql->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
-my $sent = $dbh->prepare("SELECT `sent_id`, `source` FROM sentences");
+my $sent = $dbh->prepare("SELECT `sent_id`, `source` FROM sentences WHERE sent_id NOT IN(?)");
 my $tok = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE sent_id=? ORDER BY `pos`");
 my $drop = $dbh->prepare("TRUNCATE TABLE `tokenizer_coeff`");
 my $drop2 = $dbh->prepare("TRUNCATE TABLE `tokenizer_strange`");
@@ -36,6 +36,8 @@ my $pos;
 my %strange;
 my %exceptions;
 my %prefixes;
+my %bad_sentences;
+
 my @thresholds = qw/0.0 0.01 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 0.99 1.0/;
 my %vector2coeff;
 my %stats_correct;
@@ -48,7 +50,8 @@ my $stat_sure, my $stat_total;
 #first pass
 read_instances("$root_path/scripts/lists/tokenizer_exceptions.txt", \%exceptions);
 read_instances("$root_path/scripts/lists/tokenizer_prefixes.txt", \%prefixes);
-$sent->execute();
+read_instances("$root_path/scripts/tokenizer/bad_sentences.txt", \%bad_sentences);
+$sent->execute(join(',', keys %bad_sentences));
 while(my $ref = $sent->fetchrow_hashref()) {
     $str = decode('utf8', $ref->{'source'}).'  ';
     @tokens = ();
@@ -105,7 +108,7 @@ $stat->execute(time(), int($stat_sure/$stat_total * 100000));
 
 #second pass
 $drop2->execute();
-$sent->execute();
+$sent->execute(join(',', keys %bad_sentences));
 while(my $ref = $sent->fetchrow_hashref()) {
     $str = decode('utf8', $ref->{'source'}).'  ';
     @tokens = ();
@@ -381,7 +384,7 @@ sub looks_like_time {
     return 0;
 }
 sub is_exception {
-    my $s = shift;
+    my $s = lc(shift());
     return 1 if exists $exceptions{$s};
     if ($s !~ /^\W|\W$/) {
         return 0;
@@ -404,7 +407,7 @@ sub read_instances {
         next unless /\S/;
         next if /^\s*#/;
         chomp;
-        $_[1]->{$_} = 1;
+        $_[1]->{lc($_)} = 1;
     }
     close F;
 }

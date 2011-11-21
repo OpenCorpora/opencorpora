@@ -189,6 +189,7 @@ function looks_like_time($left, $right) {
     return 0;
 }
 function is_exception($s, $exc) {
+    $s = mb_strtolower($s);
     if (in_array($s, $exc))
         return 1;
     if (!preg_match('/^\W|\W$/u', $s))
@@ -212,7 +213,7 @@ function addtext_check($array) {
     global $config;
 
     //read file for tokenizer
-    $tok_exc = file($config['project']['root'] . '/scripts/lists/tokenizer_exceptions.txt', FILE_IGNORE_NEW_LINES);
+    $tok_exc = array_map('mb_strtolower', file($config['project']['root'] . '/scripts/lists/tokenizer_exceptions.txt', FILE_IGNORE_NEW_LINES));
     $tok_prefixes = file($config['project']['root'] . '/scripts/lists/tokenizer_prefixes.txt', FILE_IGNORE_NEW_LINES);
 
     //removing bad symbols
