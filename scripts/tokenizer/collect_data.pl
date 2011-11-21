@@ -15,7 +15,7 @@ my $mysql     = $conf->{mysql};
 
 my $dbh = DBI->connect('DBI:mysql:'.$mysql->{'dbname'}.':'.$mysql->{'host'}, $mysql->{'user'}, $mysql->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
-my $sent = $dbh->prepare("SELECT `sent_id`, `source` FROM sentences WHERE sent_id NOT IN(?)");
+my $sent = $dbh->prepare("SELECT `sent_id`, `source` FROM sentences");
 my $tok = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE sent_id=? ORDER BY `pos`");
 my $drop = $dbh->prepare("TRUNCATE TABLE `tokenizer_coeff`");
 my $drop2 = $dbh->prepare("TRUNCATE TABLE `tokenizer_strange`");
@@ -51,8 +51,9 @@ my $stat_sure, my $stat_total;
 read_instances("$root_path/scripts/lists/tokenizer_exceptions.txt", \%exceptions);
 read_instances("$root_path/scripts/lists/tokenizer_prefixes.txt", \%prefixes);
 read_instances("$root_path/scripts/tokenizer/bad_sentences.txt", \%bad_sentences);
-$sent->execute(join(',', keys %bad_sentences));
+$sent->execute();
 while(my $ref = $sent->fetchrow_hashref()) {
+    next if exists $bad_sentences{$ref->{'sent_id'}};
     $str = decode('utf8', $ref->{'source'}).'  ';
     @tokens = ();
     $tok->execute($ref->{'sent_id'});
@@ -108,8 +109,9 @@ $stat->execute(time(), int($stat_sure/$stat_total * 100000));
 
 #second pass
 $drop2->execute();
-$sent->execute(join(',', keys %bad_sentences));
+$sent->execute();
 while(my $ref = $sent->fetchrow_hashref()) {
+    next if exists $bad_sentences{$ref->{'sent_id'}};
     $str = decode('utf8', $ref->{'source'}).'  ';
     @tokens = ();
     $tok->execute($ref->{'sent_id'});
