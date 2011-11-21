@@ -166,13 +166,12 @@ function is_suffix($s) {
     return (int)in_array($s, array('то', 'таки', 'с', 'ка', 'де'));
 }
 function looks_like_url($s, $suffix) {
-    if (!$suffix)
-        return 0;
-    if (substr($s, 0, 1) === '.')
+    if (!$suffix || substr($s, 0, 1) === '.' || mb_strlen($s) < 5)
         return 0;
     $re1 = '/^\W*https?\:\/\//u';
-    $re2 = '/.\.(ru|ua|com|org|gov|us|ру|рф)\W*$/iu';
-    if (preg_match($re1, $s) || preg_match($re2, $s)) {
+    $re2 = '/^\W*www\./u';
+    $re3 = '/.\.(?:[a-z]{2,3}|ру|рф)\W*$/iu';
+    if (preg_match($re1, $s) || preg_match($re2, $s) || preg_match($re3, $s)) {
         return 1;
     }
     return 0;
