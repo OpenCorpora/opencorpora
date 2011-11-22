@@ -44,7 +44,7 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
                 } else {
                     break;
                 }
-                if (mb_substr($chain_left, -1) == $odd_symbol) {
+                if (mb_substr($chain_left, -1) === $odd_symbol) {
                     $chain_left = mb_substr($chain_left, 0, -1);
                 }
             }
@@ -56,7 +56,7 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
                 } else {
                     break;
                 }
-                if (mb_substr($chain_right, 0, 1) == $odd_symbol) {
+                if (mb_substr($chain_right, 0, 1) === $odd_symbol) {
                     $chain_right = mb_substr($chain_right, 1);
                 }
             }
@@ -168,7 +168,7 @@ function is_suffix($s) {
 function looks_like_url($s, $suffix) {
     if (!$suffix || substr($s, 0, 1) === '.' || mb_strlen($s) < 5)
         return 0;
-    $re1 = '/^\W*https?\:\/\//u';
+    $re1 = '/^\W*https?\:\/\/?/u';
     $re2 = '/^\W*www\./u';
     $re3 = '/.\.(?:[a-z]{2,3}|ру|рф)\W*$/iu';
     if (preg_match($re1, $s) || preg_match($re2, $s) || preg_match($re3, $s)) {
