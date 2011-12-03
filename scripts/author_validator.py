@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import ConfigParser, MySQLdb
 config = ConfigParser.ConfigParser()
 config.read('/corpus/config.ini')
@@ -14,7 +16,7 @@ cursor.execute('SET NAMES utf8')
 cursor.execute("""DELETE FROM tag_errors WHERE error_type = 3""")
 cursor.execute("""SELECT book_id  FROM books 
 		  WHERE book_id NOT IN 
-			(SELECT book_id FROM book_tags WHERE tag_name LIKE 'Author:%') 
+			(SELECT book_id FROM book_tags WHERE tag_name LIKE 'Автор:%') 
 		  AND parent_id != 226 
 		  AND parent_id NOT IN 
 			(SELECT book_id FROM books WHERE parent_id = 184) 
