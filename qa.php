@@ -39,6 +39,11 @@ switch($action) {
             show_error($config['msg']['notadmin']);
         }
         break;
+    case 'book_tags':
+        if (user_has_permission('perm_adder')) {
+            $smarty->assign('errata', get_tag_errors());
+            $smarty->display('qa/book_tags.tpl');
+        }
     default:
         header("Location:index.php");
 }

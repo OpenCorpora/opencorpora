@@ -77,6 +77,18 @@ function get_downloaded_urls() {
     }
     return $out;
 }
+function get_tag_errors() {
+    $res = sql_query("SELECT * FROM tag_errors ORDER BY book_id DESC");
+    $out = array();
+    while ($r = sql_fetch_array($res)) {
+        $out[] = array(
+            'book_id' => $r['book_id'],
+            'tag_name' => $r['tag_name'],
+            'error_type' => $r['error_type']
+        );
+    }
+    return $out;
+}
 //annotation pools
 function get_morph_pools_page() {
     $pools = array();

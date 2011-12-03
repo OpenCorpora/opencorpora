@@ -23,6 +23,7 @@
 <a href='{$web_prefix}/qa.php?act=tokenizer'>Странная токенизация</a><br/>
 <a href='{$web_prefix}/qa.php?act=sent_split'>Странное разделение на предложения</a><br/>
 <a href='{$web_prefix}/qa.php?act=empty_books'>Пустые тексты</a><br/>
+<a href='{$web_prefix}/qa.php?act=book_tags'>Ошибки в тегах текстов</a><br/>
 <a href='{$web_prefix}/qa.php?act=dl_urls'>Сохранённые копии источников</a><br/>
 {/if}
 {if !$is_admin}
