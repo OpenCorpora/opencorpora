@@ -20,7 +20,9 @@ function process() {
     mv $1.bz2.new $1.bz2
     zip -q9 $1.zip.new $1
     mv $1.zip.new $1.zip
-    rm -f $1
+    if [ -z "$2" ]; then
+        rm -f $1
+    fi
 }
 
 $ROOT_PATH/export/export_ngram.pl -f $dump_path -i -n 1 >$export_path/unigrams
@@ -33,7 +35,7 @@ $ROOT_PATH/export/export_ngram.pl -f $dump_path -i -c -n 1 >$export_path/unigram
 process $export_path/unigrams.cyr
 
 $ROOT_PATH/export/export_ngram.pl -f $dump_path -i -c -l -n 1 >$export_path/unigrams.cyr.lc
-process $export_path/unigrams.cyr.lc
+process $export_path/unigrams.cyr.lc no_del
 
 $ROOT_PATH/export/export_ngram.pl -f $dump_path -i -n 2 >$export_path/bigrams
 process $export_path/bigrams
@@ -51,7 +53,7 @@ $ROOT_PATH/export/export_ngram.pl -f $dump_path -i -c -l -n 2 >$export_path/bigr
 process $export_path/bigrams.cyrA.lc
 
 $ROOT_PATH/export/export_ngram.pl -f $dump_path -i -C -l -n 2 >$export_path/bigrams.cyrB.lc
-process $export_path/bigrams.cyrB.lc
+process $export_path/bigrams.cyrB.lc no_del
 
 $ROOT_PATH/export/export_ngram.pl -f $dump_path -i -n 3 >$export_path/trigrams
 process $export_path/trigrams
@@ -70,5 +72,11 @@ process $export_path/trigrams.cyrA.lc
 
 $ROOT_PATH/export/export_ngram.pl -f $dump_path -i -C -l -n 3 >$export_path/trigrams.cyrB.lc
 process $export_path/trigrams.cyrB.lc
+
+$ROOT_PATH/export/colloc.pl -m MI -u $export_path/unigrams.cyr.lc -b $export_path/bigrams.cyrB.lc -t >$export_path/colloc.MI
+process $export_path/colloc.MI
+
+rm -f $export_path/unigrams.cyr.lc
+rm -f $export_path/bigrams.cyrB.lc
 
 rm -f $dump_path
