@@ -415,3 +415,12 @@ CREATE TABLE IF NOT EXISTS `tag_errors` (
     INDEX(`book_id`),
     INDEX(`error_type`)
 ) ENGINE = INNODB;
+
+CREATE TABLE `tokenizer_qa` (
+  `run` date NOT NULL,
+  `threshold` float unsigned NOT NULL DEFAULT '0',
+  `precision` float unsigned NOT NULL DEFAULT '0',
+  `recall` float unsigned NOT NULL DEFAULT '0',
+  `F1` float unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`run`,`threshold`)
+) ENGINE=INNODB;
