@@ -13,6 +13,8 @@ my $conf = Config::INI::Reader->read_file($ARGV[0]);
 my $root_path = $conf->{project}{root};
 my $mysql     = $conf->{mysql};
 
+my $dry_run = $ARGV[1] && $ARGV[1] eq '--dry-run';
+
 my $dbh = DBI->connect('DBI:mysql:'.$mysql->{'dbname'}.':'.$mysql->{'host'}, $mysql->{'user'}, $mysql->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 my $sent = $dbh->prepare("SELECT `sent_id`, `source` FROM sentences");
@@ -25,6 +27,7 @@ my $check = $dbh->prepare("SELECT lemma_id FROM form2lemma WHERE form_text=? LIM
 my $stat = $dbh->prepare("INSERT INTO stats_values VALUES(?,'7',?)");
 my $broken_token = $dbh->prepare("INSERT INTO stats_values VALUES(?,'28',?)");
 my $drop_broken = $dbh->prepare("DELETE FROM stats_values WHERE param_id=28");
+my $qa = $dbh->prepare("INSERT INTO tokenizer_qa VALUES(?, ?, ?, ?, ?)");
 
 my $str;
 my @tokens;
@@ -43,7 +46,6 @@ my %stats_falsepos;
 my %stats_total;
 
 my $stat_sure, my $stat_total;
-
 
 #first pass
 read_instances("$root_path/scripts/lists/tokenizer_exceptions.txt", \%exceptions);
@@ -64,7 +66,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
         while(substr($str, $pos, length($token->[1])) ne $token->[1]) {
             $pos++;
             if ($pos > length($str)) {
-                $broken_token->execute(time(), $token->[0]);
+                query_wrapper($dry_run, $broken_token, time(), $token->[0]);
                 printf STDERR "Too long, sentence %d, failed token is <%s>\n",
                     $ref->{'sent_id'}, $token->[1];
                 exit;
@@ -84,7 +86,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
 }
 
 my $coef;
-$drop->execute();
+query_wrapper($dry_run, $drop);
 for my $k(sort {$a <=> $b} keys %total) {
     $coef = $good{$k}/$total{$k};
     $vector2coeff{$k} = $coef;
@@ -98,13 +100,13 @@ for my $k(sort {$a <=> $b} keys %total) {
         $stat_sure += $total{$k};
     }
     $stat_total += $total{$k};
-    $insert->execute($k, $coef);
+    query_wrapper($dry_run, $insert, $k, $coef);
 }
 printf "Total %d different vectors; predictor is sure in %.3f%% cases\n", scalar(keys %total), $stat_sure/$stat_total * 100;
-$stat->execute(time(), int($stat_sure/$stat_total * 100000));
+query_wrapper($dry_run, $stat, time(), int($stat_sure/$stat_total * 100000));
 
 #second pass
-$drop2->execute();
+query_wrapper($dry_run, $drop2);
 $sent->execute();
 while(my $ref = $sent->fetchrow_hashref()) {
     $str = decode('utf8', $ref->{'source'}).'  ';
@@ -120,7 +122,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
         while(substr($str, $pos, length($token->[1])) ne $token->[1]) {
             $pos++;
             if ($pos > length($str)) {
-                $broken_token->execute(time(), $token->[0]);
+                query_wrapper($dry_run, $broken_token, time(), $token->[0]);
                 die "Too long";
             }
         }
@@ -128,7 +130,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
         $border{$t} = 1;
         $pos += length($token->[1]);
     }
-    $drop_broken->execute();
+    query_wrapper($dry_run, $drop_broken);
 
     for my $i(0..length($str)-1) {
         my $s = calc($str, $i);
@@ -158,7 +160,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
 
         my $q = $vector.'#'.(exists $border{$i} ? 1 : 0);
         if (exists $strange{$q}) {
-            $ins2->execute($ref->{'sent_id'}, $i, (exists $border{$i} ? 1 : 0), $strange{$q}->[0]);
+            query_wrapper($dry_run, $ins2, $ref->{'sent_id'}, $i, (exists $border{$i} ? 1 : 0), $strange{$q}->[0]);
         }
     }
 }
@@ -167,12 +169,17 @@ for my $k(sort {$strange{$b}->[1] <=> $strange{$a}->[1]} keys %strange) {
     printf "%s\t%.3f\t%d\n", $k, $strange{$k}[0], $strange{$k}[1];
 }
 
+my $date = sub { sprintf '%i-%02i-%02i', $_[5]+1900,$_[4]+1,$_[3] }->(localtime);
 for my $type(0..1) {
     for my $t(@thresholds) {
         my $pr = $stats_correct{$type}{$t}/($stats_correct{$type}{$t} + $stats_falsepos{$type}{$t});
         my $re = $stats_correct{$type}{$t}/$stats_total{$type};
         printf "Threshold: %.2f, total borders: %8s, correct: %8s, false pos: %8s, precision: %.2f%%, recall: %.2f%%, F1: %.2f%%\n",
             $t, $stats_total{$type}, $stats_correct{$type}{$t}, int($stats_falsepos{$type}{$t}), 100*$pr, 100*$re, 50*($pr + $re);
+
+        if($dry_run and not $type) {
+            $qa->execute($date, $t, $pr, $re, 2*$pr*$re/($pr+$re));
+        }
     }
     print "\n";
 }
@@ -407,4 +414,11 @@ sub read_instances {
         $_[1]->{$_} = 1;
     }
     close F;
+}
+sub query_wrapper {
+    my($dry_run, $sth, @bindings) = @_;
+
+    return if $dry_run;
+
+    $sth->execute(@bindings);
 }
