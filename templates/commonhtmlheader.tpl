@@ -3,7 +3,9 @@
 <head>
 <meta http-equiv='content' content='text/html;charset=utf-8'/>
 <link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css?4'/>
+<link rel='stylesheet' type='text/css' href='http://yandex.st/jquery-ui/1.8.16/themes/smoothness/jquery.ui.all.min.css'/>
 <script type="text/javascript" src="http://yandex.st/jquery/1.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="http://yandex.st/jquery-ui/1.8.16/jquery-ui.min.js"></script>
 <script src='{$web_prefix}/js/main.js?3' type='text/javascript'></script>
 <script src='{$web_prefix}/js/jquery.mousewheel.js' type='text/javascript'></script>
 <script src='{$web_prefix}/js/jquery.autocomplete.js'></script>
