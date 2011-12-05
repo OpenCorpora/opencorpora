@@ -294,4 +294,35 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
     sql_commit();
     return 1;
 }
+function get_qa_data($from, $until, $threshold) {
+    $query = "
+        SELECT
+            run,
+            `precision`,
+            recall,
+            F1
+        FROM
+            tokenizer_qa
+        WHERE
+            run >= '" . mysql_real_escape_string($from) . "'
+            AND run <= '" . mysql_real_escape_string($until) . "'
+            AND threshold = '" . mysql_real_escape_string((float)$threshold) . "'
+    ";
+
+    $qa_data = array(
+        'precision' => array(),
+        'recall' => array(),
+        'F1' => array()
+    );
+    $q = sql_query($query);
+    while($res = sql_fetch_assoc($q)) {
+        $run_date = strtotime($res['run']) * 1000;
+
+        $qa_data['precision'][] = array($run_date, (float)$res['precision']);
+        $qa_data['recall'][] = array($run_date, (float)$res['recall']);
+        $qa_data['F1'][] = array($run_date, (float)$res['F1']);
+    }
+
+    return $qa_data;
+}
 ?>
