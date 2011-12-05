@@ -124,10 +124,10 @@ function get_morph_vars_inner($xml_arr, $num) {
         'gram_list'  => $grm_arr
     );
 }
-function sentence_save() {
+function sentence_save($sent_id) {
+    if (!$sent_id) return false;
     $flag = $_POST['var_flag'];  //what morphovariants are checked as possible (array of arrays)
     $dict = $_POST['dict_flag']; //whether this token has been reloaded from the dictionary (array)
-    $sent_id = (int)$_GET['id'];
     $res = sql_query("SELECT tf_id, tf_text, `pos` FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
     while($r = sql_fetch_array($res)) {
         $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." ORDER BY rev_id DESC LIMIT 1"));
@@ -199,9 +199,8 @@ function sentence_save() {
     }
     if (sql_query("UPDATE sentences SET check_status='1' WHERE sent_id=$sent_id LIMIT 1")) {
         sql_commit();
-        header("Location:sentence.php?id=$sent_id");
-        return;
-    } else
-        show_error();
+        return true;
+    }
+    return false;
 }
 ?>

@@ -35,12 +35,20 @@ elseif (user_has_permission('perm_adder')) {
         case 'rename':
             $name = mysql_real_escape_string($_POST['new_name']);
             $book_id = (int)$_POST['book_id'];
-            books_rename($book_id, $name);
+            if (books_rename($book_id, $name)) {
+                header("Location:books.php?book_id=$book_id");
+            } else {
+                show_error();
+            }
             break;
         case 'move':
             $book_id = (int)$_POST['book_id'];
             $book_to = (int)$_POST['book_to'];
-            books_move($book_id, $book_to);
+            if (books_move($book_id, $book_to)) {
+                header("Location:books.php?book_id=$book_to");
+            } else {
+                show_error();
+            }
             break;
         case 'add_tag':
             $book_id = (int)$_POST['book_id'];
@@ -54,13 +62,27 @@ elseif (user_has_permission('perm_adder')) {
         case 'del_tag':
             $book_id = (int)$_GET['book_id'];
             $tag_name = mysql_real_escape_string($_GET['tag_name']);
-            books_del_tag($book_id, $tag_name);
+            if (books_del_tag($book_id, $tag_name)) {
+                header("Location:books.php?book_id=$book_id");
+            } else {
+                show_error("Failed to delete tag");
+            }
             break;
         case 'merge_sentences':
-            merge_sentences((int)$_POST['id1'], (int)$_POST['id2']);
+            $sent1 = (int)$_POST['id1'];
+            $sent2 = (int)$_POST['id2'];
+            if (merge_sentences($sent1, $sent2)) {
+                header("Location:sentence.php?id=$sent1");
+            } else {
+                show_error();
+            }
             break;
         case 'split_token':
-            split_token((int)$_POST['tid'], (int)$_POST['nc']);
+            if ($val = split_token((int)$_POST['tid'], (int)$_POST['nc'])) {
+                header("Location:books.php?book_id=".$val[0]."&full#sen".$val[1]);
+            } else {
+                show_error();
+            }
             break;
         case 'split_sentence':
             if($a = split_sentence((int)$_POST['tid']))
@@ -69,7 +91,12 @@ elseif (user_has_permission('perm_adder')) {
                 show_error();
             break;
         case 'split_paragraph':
-            split_paragraph((int)$_GET['sid']);
+            $sent_id = (int)$_GET['sid'];
+            if ($book_id = split_paragraph($sent_id)) {
+                header("Location:books.php?book_id=$book_id&full#sen$sent_id");
+            } else {
+                show_error();
+            }
             break;
     }
 } else {

@@ -14,7 +14,11 @@ if (isset($_GET['act'])) {
     switch($action) {
         case 'save':
             if (user_has_permission('perm_disamb')) {
-                sentence_save();
+                if (isset($_GET['id']) && sentence_save($sent_id = (int)$_GET['id'])) {
+                    header("Location:sentence.php?id=$sent_id");
+                } else {
+                    show_error();
+                }
                 break;
             } else {
                 show_error($config['msg']['notlogged']);

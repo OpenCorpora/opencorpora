@@ -110,34 +110,28 @@ function books_add($name, $parent_id=0) {
 }
 function books_move($book_id, $to_id) {
     if ($book_id == $to_id) {
-        header("Location:books.php?book_id=$book_id");
-        return;
+        return false;
     }
 
     //to avoid loops
     $r = sql_fetch_array(sql_query("SELECT parent_id FROM books WHERE book_id=$to_id LIMIT 1"));
     if ($r['parent_id'] == $book_id) {
-        header("Location:books.php?book_id=$book_id");
-        return;
+        return false;
     }
 
     if (sql_query("UPDATE `books` SET `parent_id`='$to_id' WHERE `book_id`=$book_id LIMIT 1")) {
-        header("Location:books.php?book_id=$to_id");
-        return;
-    } else {
-        show_error();
+        return true;
     }
+    return false;
 }
 function books_rename($book_id, $name) {
     if ($name === '') {
         die ("Название не может быть пустым.");
     }
     if (sql_query("UPDATE `books` SET `book_name`='$name' WHERE `book_id`=$book_id LIMIT 1")) {
-        header("Location:books.php?book_id=$book_id");
-        return;
-    } else {
-        show_error();
+        return true;
     }
+    return false;
 }
 function get_books_for_select($parent = -1) {
     $out = array();
@@ -160,13 +154,10 @@ function books_add_tag($book_id, $tag_name) {
     return 1;
 }
 function books_del_tag($book_id, $tag_name) {
-    if ($book_id && $tag_name) {
-        if (!sql_query("DELETE FROM `book_tags` WHERE book_id=$book_id AND tag_name='$tag_name'")) {
-            die("Couldn't remove tag");
-        }
-    }
-    header("Location:books.php?book_id=$book_id");
-    return;
+    if (!$book_id || !$tag_name) return false;
+    if (!sql_query("DELETE FROM `book_tags` WHERE book_id=$book_id AND tag_name='$tag_name'"))
+        return false;
+    return true;
 }
 function download_url($url) {
     global $config;
@@ -201,8 +192,7 @@ function download_url($url) {
 }
 function split_paragraph($sentence_id) {
     if (!$sentence_id) {
-        show_error();
-        return;
+        return false;
     }
     //get pos
     $r = sql_fetch_array(sql_query("SELECT pos FROM sentences WHERE sent_id=$sentence_id LIMIT 1"));
@@ -218,10 +208,9 @@ function split_paragraph($sentence_id) {
     //move the following sentences to the new paragraph
     if (sql_query("UPDATE sentences SET par_id=$new_par_id, pos=pos-$spos WHERE par_id=".$r['par_id']." AND pos > $spos")) {
         sql_commit();
-        header("Location:books.php?book_id=".$r['book_id']."&full#sen$sentence_id");
-        return;
+        return $r['book_id'];
     }
-    show_error();
+    return false;
 }
 function split_sentence($token_id) {
     //note: comments will stay with the first sentence
@@ -274,46 +263,40 @@ function split_sentence($token_id) {
 }
 function merge_sentences($id1, $id2) {
     if ($id1 < 1 || $id2 < 1) {
-        show_error();
-        return;
+        return false;
     }
     $res = sql_query("SELECT pos, par_id FROM sentences WHERE sent_id IN ($id1, $id2) ORDER BY pos LIMIT 2");
     $r1 = sql_fetch_array($res);
     $r2 = sql_fetch_array($res);
     $res = sql_query("SELECT pos FROM sentences WHERE par_id = ".$r1['par_id']." AND pos > ".$r1['pos']." AND pos < ".$r2['pos']." LIMIT 1");
     if ($r1['par_id'] != $r2['par_id'] || sql_num_rows($res) > 0) {
-        show_error("Предложения должны идти подряд!");
-        return;
+        return false;
     }
     //moving tokens
     sql_begin();
     $r = sql_fetch_array(sql_query("SELECT MAX(pos) FROM text_forms WHERE sent_id=$id1"));
     if (!sql_query("UPDATE text_forms SET sent_id='$id1', pos=pos+".$r[0]." WHERE sent_id=$id2")) {
-        show_error();
-        return;
+        return false;
     }
     //merging source text
     $r1 = sql_fetch_array(sql_query("SELECT `source` FROM sentences WHERE sent_id=$id1 LIMIT 1"));
     $r2 = sql_fetch_array(sql_query("SELECT `source` FROM sentences WHERE sent_id=$id2 LIMIT 1"));
     if (!sql_query("UPDATE sentences SET `source`='".mysql_real_escape_string($r1['source'].' '.$r2['source'])."' WHERE sent_id=$id1 LIMIT 1")) {
-        show_error();
-        return;
+        return false;
     }
     //dropping status, moving comments
     if (!sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$id1 LIMIT 1") ||
         !sql_query("UPDATE sentence_comments SET sent_id=$id1 WHERE sent_id=$id2") ||
         !sql_query("DELETE FROM sentence_check WHERE sent_id=$id1 OR sent_id=$id2")) {
-        show_error();
-        return;
+        return false;;
     }
     //deleting sentence
     if (sql_query("DELETE FROM sentence_authors WHERE sent_id=$id2 LIMIT 1") &&
         sql_query("DELETE FROM sentences WHERE sent_id=$id2 LIMIT 1")) {
         sql_commit();
-        header("Location:sentence.php?id=$id1");
-        return;
+        return true;
     }
-    show_error();
+    return false;
 }
 function delete_sentence($sid) {
     sql_begin();
@@ -386,20 +369,17 @@ function merge_tokens_ii($id_array) {
 function split_token($token_id, $num) {
     //$num is the number of characters (in the beginning) that should become a separate token
     if (!$token_id || !$num) {
-        show_error("Неверные параметры.");
-        return;
+        return false;
     }
     $res = sql_query("SELECT tf_text, sent_id, pos FROM text_forms WHERE tf_id=$token_id LIMIT 1");
     if (sql_num_rows($res) == 0) {
-        show_error();
-        return;
+        return false;
     }
     $r = sql_fetch_array($res);
     $text1 = trim(mb_substr($r['tf_text'], 0, $num));
     $text2 = trim(mb_substr($r['tf_text'], $num));
     if (!$text1 || !$text2) {
-        show_error();
-        return;
+        return false;
     }
     sql_begin();
     //create revset
@@ -414,8 +394,7 @@ function split_token($token_id, $num) {
         !sql_query("UPDATE text_forms SET tf_text='".mysql_real_escape_string($text1)."', dict_updated='0' WHERE tf_id=$token_id LIMIT 1") ||
         !sql_query("INSERT INTO tf_revisions VALUES(NULL, '$revset_id', '$token_id', '".mysql_real_escape_string(generate_tf_rev($text1))."')")
     ) {
-        show_error();
-        return;
+        return false;
     }
 
     //dropping sentence status
@@ -424,8 +403,7 @@ function split_token($token_id, $num) {
 
     if (!sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$sent_id LIMIT 1") ||
         !sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id")) {
-        show_error();
-        return;
+        return false;
     }
 
     sql_commit();
@@ -433,7 +411,7 @@ function split_token($token_id, $num) {
     $res = sql_query("SELECT book_id FROM paragraphs WHERE par_id = (SELECT par_id FROM sentences WHERE sent_id=$sent_id LIMIT 1)");
     $r = sql_fetch_array($res);
 
-    header("Location:books.php?book_id=".$r['book_id']."&full#sen$sent_id");
+    return array($r['book_id'], $sent_id);
 }
 
 // book adding queue
@@ -478,13 +456,13 @@ function get_sources_page($skip = 0, $show_type = '', $src = 0) {
 }
 function source_add($url, $title, $parent_id) {
     if (!$url) {
-        show_error();
-        return;
+        return false;
     }
     
     if (sql_query("INSERT INTO sources VALUES(NULL, '$parent_id', '".mysql_real_escape_string($url)."', '".mysql_real_escape_string($title)."', '0', '0')")) {
-        header("Location:sources.php");
+        return true;
     }
+    return false;
 }
 
 ?>
