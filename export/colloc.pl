@@ -49,6 +49,8 @@ while(<F>) {
             next;
         }
         $main_dict{$bigram} = [$abs, MI($unigram_freq{$n}[0], $unigram_freq{$c}[0], $abs, $sum_freq)];
+    } elsif ($options{'m'} eq 'T-score') {
+      $main_dict{$bigram} = [$abs, TScore($unigram_freq{$n}[0], $unigram_freq{$c}[0], $abs, $sum_freq)];
     }
 }
 close F;
@@ -63,7 +65,13 @@ for my $colloc(sort {$main_dict{$b}->[1] <=> $main_dict{$a}->[1]} keys %main_dic
 sub log2 {
     return log($_[0])/log(2);
 }
+
 sub MI {
     my ($n, $c, $nc, $N) = @_;
     return log2($nc * $N / ($n * $c));
+}
+
+sub TScore {
+    my ($n, $c, $nc, $N) = @_;
+    return ($nc - ($n*$c)/$N)/(sqrt($nc));
 }
