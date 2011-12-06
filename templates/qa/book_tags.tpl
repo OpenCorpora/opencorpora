@@ -7,7 +7,7 @@
 {foreach item=err from=$errata}
 <tr>
     <td><a href='{$web_prefix}/books.php?book_id={$err.book_id}'>{$err.book_id}</a></td>
-    <td>{$err.tag_name|htmlspecialchars|default:"&nbsp;"}</td>
+    <td>{$err.tag_name|htmlspecialchars|truncate:100|default:"&nbsp;"}</td>
     {strip}
     <td>{if $err.error_type == 1}Ошибка в годе
         {elseif $err.error_type == 2}Ошибка в дате
