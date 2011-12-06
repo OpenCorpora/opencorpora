@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import ConfigParser, MySQLdb
+import sys
 config = ConfigParser.ConfigParser()
-config.read('/corpus/config.ini')
+config.read(sys.argv[1])
 
 hostname =  config.get ('mysql', 'host')
 dbname =  config.get ('mysql', 'dbname')
