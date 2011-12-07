@@ -112,7 +112,7 @@
     <input type="button" id="update" value="{t}Обновить{/t}"/>
 
     <input type="checkbox" id="precision" checked="checked"/>
-    <label for="precision">precision<label>
+    <label for="precision">precision</label>
 
     <input type="checkbox" id="recall" checked="checked"/>
     <label for="recall">recall</label>
