@@ -93,6 +93,10 @@
             update();
         });
 
+        $('#threshold').change(function() {
+            update();
+        });
+
         $('#update').click();
     });
 {/literal}
