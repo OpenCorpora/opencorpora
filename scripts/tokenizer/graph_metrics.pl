@@ -25,7 +25,7 @@ if(
     defined $opts{step}
     and (
         $opts{step} > 1
-        or $opts{step} <= 0
+        or $opts{step} < 0
     )
 )
 {
@@ -41,7 +41,7 @@ my $fmt =()= (split /\./, $opts{step})[1] =~ /([0-9])/g;
 
 my(@precision, @recall, @F);
 
-my $threshold = $opts{step};
+my $threshold = 0;
 while($threshold < 1) {
     for(1 .. $opts{jobs}) {
         my @cmd = (
@@ -175,7 +175,7 @@ Path to opencorpora config file.
 
 Optional.
 
-Increment value for tokenizer's threshold. Must be between (0, 1]. Defaults to 0.01.
+Increment value for tokenizer's threshold. Must be between [0, 1]. Defaults to 0.01.
 
 Be careful with this value, it can cause the script to consume a whole lot of time.
 
