@@ -8,7 +8,7 @@ my $conf = Config::INI::Reader->read_file($ARGV[0]);
 $conf = $conf->{mysql};
 
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
-my $scan = $dbh->prepare("SELECT url FROM downloaded_urls WHERE filename=?");
+my $scan = $dbh->prepare("SELECT book_id from book_tags WHERE tag_name = (SELECT CONCAT('url:', url) FROM downloaded_urls WHERE filename=?)");
 
 my $GO = $ARGV[1] eq 'go' ? 1 : 0;
 my $count_all = 0;
