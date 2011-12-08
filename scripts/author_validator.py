@@ -18,7 +18,7 @@ cursor.execute("""DELETE FROM tag_errors WHERE error_type = 3""")
 cursor.execute("""SELECT book_id  FROM books 
 		  WHERE book_id NOT IN 
 			(SELECT book_id FROM book_tags WHERE tag_name LIKE 'Автор:%') 
-		  AND parent_id != 226 
+		  AND parent_id NOT IN (8, 226)
 		  AND parent_id NOT IN 
 			(SELECT book_id FROM books WHERE parent_id = 184) 
 		  AND parent_id NOT IN 
