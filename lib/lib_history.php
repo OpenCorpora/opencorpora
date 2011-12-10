@@ -159,7 +159,7 @@ function dict_diff($lemma_id, $set_id) {
     return $out;
 }
 function revert_changeset($set_id, $comment) {
-    if (!$set_id) return;
+    if (!$set_id) return false;
 
     sql_begin();
     $new_set_id = create_revset($comment);
@@ -169,8 +169,7 @@ function revert_changeset($set_id, $comment) {
     while ($r = sql_fetch_array($res)) {
         $arr = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=$r[0] AND set_id<$set_id ORDER BY rev_id DESC LIMIT 1"));
         if (!sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$new_set_id', '$r[0]', '$arr[0]')")) {
-            show_error();
-            return;
+            return false;
         }
     }
 
@@ -178,21 +177,18 @@ function revert_changeset($set_id, $comment) {
     while ($r = sql_fetch_array($res)) {
         $arr = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$r[0] AND set_id<$set_id ORDER BY rev_id DESC LIMIT 1"));
         if (!sql_query("INSERT INTO `dict_revisions` VALUES(NULL, '$new_set_id', '$r[0]', '$arr[0]')")) {
-            show_error();
-            return;
+            return false;
         }
         $dict_flag = 1;
     }
     sql_commit();
 
     if ($dict_flag)
-        header("Location:dict_history.php");
-    else
-        header("Location:history.php");
-    return;
+        return 'dict_history.php';
+    return 'history.php';
 }
 function revert_token($rev_id) {
-    if (!$rev_id) return;
+    if (!$rev_id) return false;
 
     $r = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE rev_id=$rev_id LIMIT 1"));
     sql_begin();
@@ -200,14 +196,12 @@ function revert_token($rev_id) {
 
     if (sql_query("INSERT INTO tf_revisions VALUES(NULL, '$new_set_id', '$r[0]', '$r[1]')")) {
         sql_commit();
-        header("Location:history.php");
-    } else {
-        show_error();
+        return true;
     }
-    return;
+    return false;
 }
 function revert_dict($rev_id) {
-    if (!$rev_id) return;
+    if (!$rev_id) return false;
 
     $r = sql_fetch_array(sql_query("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=$rev_id LIMIT 1"));
     sql_begin();
@@ -215,11 +209,9 @@ function revert_dict($rev_id) {
 
     if (sql_query("INSERT INTO dict_revisions VALUES(NULL, '$new_set_id', '$r[0]', '$r[1]', '0', '0')")) {
         sql_commit();
-        header("Location:dict_history.php");
-    } else {
-        show_error();
+        return true;
     }
-    return;
+    return false;
 }
 function get_latest_comments($skip = 0) {
     $out = array();
