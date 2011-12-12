@@ -279,6 +279,7 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
             //adding a sentence
             if (!sql_query("INSERT INTO `sentences` VALUES(NULL, '$par_id', '".($sent_num++)."', '".mysql_real_escape_string(trim($sent))."', '0')")) return 0;
             $sent_id = sql_insert_id();
+            if (!sql_query("INSERT INTO sentence_authors VALUES($sent_id, ".$_SESSION['user_id'].", ".time().")")) return 0;
             $token_num = 1;
             $tokens = explode('^^', $sentences[$sent_count++]);
             foreach ($tokens as $token) {
