@@ -313,3 +313,7 @@ div.ma_instance button.reject {
     background-color: brown;
     color: #fff;
 }
+div.ma_instance button.chosen {
+    border: 3px green solid;
+    font-weight: bold;
+}

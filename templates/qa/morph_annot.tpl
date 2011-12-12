@@ -4,15 +4,15 @@
 {literal}
 <script type="text/javascript">
 $(document).ready(function() {
-    $('button:not(.reject)').click(function(event) {
-        $(this).closest('div').find('button').attr('disabled', 'disabled');
+    $('.ma_instance button').click(function(event) {
+        $(this).closest('div').find('button').attr('disabled', 'disabled').removeClass('chosen');
+        $(event.target).addClass('chosen');
         $.get('ajax/annot.php', {'id':$(this).attr('rel'), 'answer':$(this).attr('rev')}, function(res){
             var $r = $(res).find('result');
             if ($r.attr('ok') == 1) {
-                $(event.target).closest('div').fadeTo('slow', 0.3);
-            } else {
-                $(event.target).closest('div').find('button').removeAttr('disabled');
+                $(event.target).closest('div').fadeTo('slow', 0.5);
             }
+            $(event.target).closest('div').find('button').removeAttr('disabled');
         });
     });
 });
@@ -33,7 +33,7 @@ $(document).ready(function() {
     {foreach from=$packet.gram_descr item=var name=x}
     <button rel='{$instance.id}' rev='{$smarty.foreach.x.index + 1}'>{$var|htmlspecialchars}</button>
     {/foreach}
-    <button rel='{$instance.id}' class='reject'>Пропустить</button>
+    <button rel='{$instance.id}' rev='-1' class='reject'>Пропустить</button>
 </div>
 {/foreach}{/strip}
 {/block}
