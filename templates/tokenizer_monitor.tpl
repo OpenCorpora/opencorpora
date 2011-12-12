@@ -51,15 +51,25 @@
         }
 
         function plot(json) {
+            var datasets = [];
+            $.each(
+                json,
+                function(idx) {
+                    if($('#' + idx + ':checked').length == 0) return;
+
+                    var dataset = {
+                        label: idx,
+                        data: json[idx][$('#threshold').val()]
+                    };
+                    datasets.push(dataset);
+                }
+            );
+
             var options = {
                 xaxis: {
                     mode: 'time',
                     timeformat: '%d-%m-%y',
                     minTickSize: [1, 'day']
-                },
-                yaxis: {
-                    max: 1,
-                    min: 0
                 },
                 legend: {
                     show: true,
@@ -71,20 +81,6 @@
                     points: {show: true}
                 }
             };
-
-            var datasets = [];
-            $.each(
-                json,
-                function(idx) {
-                    if($('#' + idx + ':checked').length == 0) return;
-
-                    var dataset = {
-                        label: idx,
-                        data: json[idx]
-                    };
-                    datasets.push(dataset);
-                }
-            );
 
             $.plot($('#chart'), datasets, options);
         }
@@ -125,29 +121,29 @@
     <label for="F1">F1</label>
 
     <select name="threshold" id="threshold">
-        <option>0.0</option>
+        <option>0</option>
         <option>0.01</option>
         <option>0.05</option>
-        <option>0.10</option>
+        <option>0.1</option>
         <option>0.15</option>
-        <option>0.20</option>
+        <option>0.2</option>
         <option>0.25</option>
-        <option>0.30</option>
+        <option>0.3</option>
         <option>0.35</option>
-        <option>0.40</option>
+        <option>0.4</option>
         <option>0.45</option>
-        <option>0.50</option>
+        <option>0.5</option>
         <option>0.55</option>
-        <option>0.60</option>
+        <option>0.6</option>
         <option>0.65</option>
-        <option>0.70</option>
+        <option>0.7</option>
         <option>0.75</option>
-        <option>0.80</option>
+        <option>0.8</option>
         <option>0.85</option>
-        <option>0.90</option>
+        <option>0.9</option>
         <option>0.95</option>
         <option>0.99</option>
-        <option>1.0</option>
+        <option>1</option>
     </select>
 </div>
 

@@ -295,10 +295,11 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
     sql_commit();
     return 1;
 }
-function get_monitor_data($from, $until, $threshold) {
+function get_monitor_data($from, $until) {
     $query = "
         SELECT
             run,
+            threshold,
             `precision`,
             recall,
             F1
@@ -307,7 +308,6 @@ function get_monitor_data($from, $until, $threshold) {
         WHERE
             run >= '" . mysql_real_escape_string($from) . "'
             AND run <= '" . mysql_real_escape_string($until) . "'
-            AND threshold = '" . mysql_real_escape_string((float)$threshold) . "'
     ";
 
     $qa_data = array(
@@ -318,10 +318,11 @@ function get_monitor_data($from, $until, $threshold) {
     $q = sql_query($query);
     while($res = sql_fetch_assoc($q)) {
         $run_date = strtotime($res['run']) * 1000;
+        $thrshld  = $res['threshold'];
 
-        $qa_data['precision'][] = array($run_date, (float)$res['precision']);
-        $qa_data['recall'][] = array($run_date, (float)$res['recall']);
-        $qa_data['F1'][] = array($run_date, (float)$res['F1']);
+        $qa_data['precision'][$thrshld][] = array($run_date, (float)$res['precision']);
+        $qa_data['recall'][$thrshld][] = array($run_date, (float)$res['recall']);
+        $qa_data['F1'][$thrshld][] = array($run_date, (float)$res['F1']);
     }
 
     return $qa_data;
