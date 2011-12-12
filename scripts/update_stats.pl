@@ -46,21 +46,21 @@ sub books_by_source {
 
 sub sentences_by_source {
     my $pid = shift;
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = $pid OR parent_id IN (SELECT book_id FROM books WHERE parent_id=$pid)))");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = $pid OR parent_id IN (SELECT book_id FROM books WHERE parent_id=$pid) OR parent_id IN (SELECT book_id FROM books WHERE parent_id IN(SELECT book_id FROM books WHERE parent_id = $pid))))");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 }
 
 sub tokens_by_source {
     my $pid = shift;
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = $pid OR parent_id IN (SELECT book_id FROM books WHERE parent_id = $pid))))");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = $pid OR parent_id IN (SELECT book_id FROM books WHERE parent_id = $pid) OR parent_id IN (SELECT book_id FROM books WHERE parent_id IN(SELECT book_id FROM books WHERE parent_id = $pid)))))");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 }
 
 sub words_by_source {
     my $pid = shift;
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = $pid OR parent_id IN (SELECT book_id FROM books WHERE parent_id = $pid)))) AND tf_text REGEXP '[А-Яа-яЁё]'");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = $pid OR parent_id IN (SELECT book_id FROM books WHERE parent_id = $pid) OR parent_id IN (SELECT book_id FROM books WHERE parent_id IN(SELECT book_id FROM books WHERE parent_id = $pid))))) AND tf_text REGEXP '[А-Яа-яЁё]'");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 }

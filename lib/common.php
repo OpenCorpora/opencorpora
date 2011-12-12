@@ -135,7 +135,7 @@ function get_common_stats() {
     $param_set = array(32, 27, 23, 19, 15, 11);
 
     foreach($param_set as $param_id) {
-        $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE param_id = $param_id ORDER BY timestamp");
+        $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE timestamp > ".(time() - 90*24*60*60)." AND param_id = $param_id ORDER BY timestamp");
         while ($r = sql_fetch_array($res)) {
             $day = intval($r['timestamp'] / 86400);
             $t[$day][$param_id] = $r['param_value'];
