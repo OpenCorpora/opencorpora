@@ -37,7 +37,7 @@
 
         function update() {
             $.get(
-                '/ajax/tokenizer_qa_data.php',
+                '/ajax/tokenizer_monitor.php',
                 {
                     from: $('#from').val(),
                     until: $('#until').val(),

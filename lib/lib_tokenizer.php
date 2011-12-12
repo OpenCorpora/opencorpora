@@ -295,7 +295,7 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
     sql_commit();
     return 1;
 }
-function get_qa_data($from, $until, $threshold) {
+function get_monitor_data($from, $until, $threshold) {
     $query = "
         SELECT
             run,
