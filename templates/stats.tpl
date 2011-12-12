@@ -166,7 +166,7 @@ $(document).ready(function(){
 </table>
 <h2>{t}Словарь{/t}</h2>
 {t}Лемм{/t}: {$stats.total_lemmata.value|number_format} <span class='small'>({$stats.total_lemmata.timestamp|date_format:"%d.%m.%y, %H:%M"})</span><br/>
-<h2>{t}Пользователи{/t}</h2>
+<a name="users"></a><h2>{t}Пользователи{/t}</h2>
 <h3>{t}По количеству добавленных предложений{/t}</h3>
 <ol>
 {foreach item=s from=$stats.added_sentences}
