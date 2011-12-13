@@ -9,6 +9,6 @@ if(!is_admin()) {
 
 header('Content-Type: application/x-json; charset=utf-8');
 
-echo json_encode(get_monitor_data($_GET['from'], $_GET['until'], $_GET['threshold']));
+echo json_encode(get_monitor_data($_GET['from'], $_GET['until']));
 
 ?>

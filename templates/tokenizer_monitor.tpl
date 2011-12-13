@@ -40,8 +40,7 @@
                 '/ajax/tokenizer_monitor.php',
                 {
                     from: $('#from').val(),
-                    until: $('#until').val(),
-                    threshold: $('#threshold').val()
+                    until: $('#until').val()
                 },
                 function(json) {
                     plot(json);
