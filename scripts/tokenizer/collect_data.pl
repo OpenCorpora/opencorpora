@@ -5,6 +5,8 @@ use DBI;
 use Encode;
 use Config::INI::Reader;
 
+use constant CROSSVAL_FOLDS => 10;
+
 binmode(STDOUT, ':utf8');
 binmode(STDERR, ':utf8');
 
@@ -44,6 +46,10 @@ my %vector2coeff;
 my %stats_correct;
 my %stats_falsepos;
 my %stats_total;
+my $crossval_id;
+my %crossval_correct;
+my %crossval_falsepos;
+my %crossval_total;
 
 my $stat_sure, my $stat_total;
 
@@ -55,6 +61,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
     $str = decode('utf8', $ref->{'source'}).'  ';
     @tokens = ();
     $tok->execute($ref->{'sent_id'});
+    $crossval_id = $ref->{'sent_id'} % CROSSVAL_FOLDS;
     #print STDERR $ref->{'sent_id'}."\n";
     while(my $r = $tok->fetchrow_hashref()) {
         push @tokens, [$r->{'tf_id'}, decode('utf8', $r->{'tf_text'})];
@@ -80,26 +87,36 @@ while(my $ref = $sent->fetchrow_hashref()) {
     for my $i(0..length($str)-1) {
         $vector = oct('0b'.join('', @{calc($str, $i)}));
         #print $i.' <'.substr($str, $i, 1).'> '.$vector."\n";
-        $total{$vector}++;
-        $good{$vector}++ if exists $border{$i} ? 1 : 0;
+        $total{'all'}{$vector}++;
+        $total{$crossval_id}{$vector}++;
+        if (exists $border{$i}) {
+            $good{'all'}{$vector}++;
+            $good{$crossval_id}{$vector}++;
+        }
     }
 }
 
 my $coef;
 query_wrapper($dry_run, $drop);
-for my $k(sort {$a <=> $b} keys %total) {
-    $coef = $good{$k}/$total{$k};
-    $vector2coeff{$k} = $coef;
-    printf("%6s\t%.3f\t%d\t%017s\n", $k, $coef, $total{$k}, sprintf("%b",$k));
+for my $k(sort {$a <=> $b} keys %{$total{'all'}}) {
+    $coef = $good{'all'}{$k}/$total{'all'}{$k};
+    $vector2coeff{'all'}{$k} = $coef;
+
+    for (my $j = 0; $j < CROSSVAL_FOLDS; ++$j) {
+        if ($total{$j}{$k}) {
+            $vector2coeff{$j}{$k} = $good{$j}{$k}/$total{$j}{$k};
+        }
+    }
+    printf("%6s\t%.3f\t%d\t%017s\n", $k, $coef, $total{'all'}{$k}, sprintf("%b",$k));
 
 
     #how strange it is
     if (0 < $coef && $coef < 1) {
-        $strange{$k.'#'.($coef > 0.5 ? '0' : '1')} = [$coef > 0.5 ? $coef : 1-$coef, $total{$k}];
+        $strange{$k.'#'.($coef > 0.5 ? '0' : '1')} = [$coef > 0.5 ? $coef : 1-$coef, $total{'all'}{$k}];
     } else {
-        $stat_sure += $total{$k};
+        $stat_sure += $total{'all'}{$k};
     }
-    $stat_total += $total{$k};
+    $stat_total += $total{'all'}{$k};
     query_wrapper($dry_run, $insert, $k, $coef);
 }
 printf "Total %d different vectors; predictor is sure in %.3f%% cases\n", scalar(keys %total), $stat_sure/$stat_total * 100;
@@ -112,6 +129,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
     $str = decode('utf8', $ref->{'source'}).'  ';
     @tokens = ();
     $tok->execute($ref->{'sent_id'});
+    $crossval_id = $ref->{'sent_id'} % CROSSVAL_FOLDS;
     while(my $r = $tok->fetchrow_hashref()) {
         push @tokens, [$r->{'tf_id'}, decode('utf8', $r->{'tf_text'})];
     }
@@ -140,22 +158,21 @@ while(my $ref = $sent->fetchrow_hashref()) {
             $flag_space = 1;
         }
 
-        #to calculate Pre and Rec
-        for my $t(@thresholds) {
-            if (exists $border{$i}) {
-                if ($vector2coeff{$vector} >= $t) {
-                    $stats_correct{0}{$t}++;
-                    $stats_correct{1}{$t}++ unless $flag_space;
+        #to calculate Pre and Rec (for each crossvalidation fold); not counting iff flag_space
+        if (!$flag_space && $dry_run) {
+            for my $t(@thresholds) {
+                if (exists $border{$i}) {
+                    if ($vector2coeff{$crossval_id}{$vector} >= $t) {
+                        $crossval_correct{$crossval_id}{$t}++;
+                    }
+                }
+                elsif ($vector2coeff{$crossval_id}{$vector} >= $t) {
+                    $crossval_falsepos{$crossval_id}{$t}++;
                 }
             }
-            elsif ($vector2coeff{$vector} >= $t) {
-                $stats_falsepos{0}{$t}++;
-                $stats_falsepos{1}{$t}++ unless $flag_space;
+            if (exists $border{$i}) {
+                $crossval_total{$crossval_id}++;
             }
-        }
-        if (exists $border{$i}) {
-            $stats_total{0}++;
-            $stats_total{1}++ unless $flag_space;
         }
 
         my $q = $vector.'#'.(exists $border{$i} ? 1 : 0);
@@ -169,17 +186,33 @@ for my $k(sort {$strange{$b}->[1] <=> $strange{$a}->[1]} keys %strange) {
     printf "%s\t%.3f\t%d\n", $k, $strange{$k}[0], $strange{$k}[1];
 }
 
-my $date = sub { sprintf '%i-%02i-%02i', $_[5]+1900,$_[4]+1,$_[3] }->(localtime);
-for my $type(0..1) {
+if ($dry_run) {
+# average crossvalidation results
+    my %precision;
+    my %recall;
     for my $t(@thresholds) {
-        my $pr = $stats_correct{$type}{$t}/($stats_correct{$type}{$t} + $stats_falsepos{$type}{$t});
-        my $re = $stats_correct{$type}{$t}/$stats_total{$type};
-        printf "Threshold: %.2f, total borders: %8s, correct: %8s, false pos: %8s, precision: %.2f%%, recall: %.2f%%, F1: %.2f%%\n",
-            $t, $stats_total{$type}, $stats_correct{$type}{$t}, int($stats_falsepos{$type}{$t}), 100*$pr, 100*$re, 50*($pr + $re);
-
-        if($dry_run and not $type) {
-            $qa->execute($date, $t, $pr, $re, 2*$pr*$re/($pr+$re));
+        for my $j(0.. CROSSVAL_FOLDS - 1) {
+            $stats_total{$t} += $crossval_total{$j};
+            $stats_correct{$t} += $crossval_correct{$j}{$t};
+            $stats_falsepos{$t} += $crossval_falsepos{$j}{$t};
+            $precision{$t} += ($crossval_correct{$j}{$t} / ($crossval_correct{$j}{$t} + $crossval_falsepos{$j}{$t}));
+            $recall{$t} += ($crossval_correct{$j}{$t} / $crossval_total{$j});
         }
+        $precision{$t} /= CROSSVAL_FOLDS;
+        $recall{$t} /= CROSSVAL_FOLDS;
+        $stats_total{$t} /= CROSSVAL_FOLDS;
+        $stats_correct{$t} /= CROSSVAL_FOLDS;
+        $stats_falsepos{$t} /= CROSSVAL_FOLDS;
+    }
+
+    my $date = sub { sprintf '%i-%02i-%02i', $_[5]+1900,$_[4]+1,$_[3] }->(localtime);
+    for my $t(@thresholds) {
+        my $pr = $precision{$t};
+        my $re = $recall{$t};
+        printf "Threshold: %.2f, total borders: %8s, correct: %8s, false pos: %8s, precision: %.2f%%, recall: %.2f%%, F1: %.2f%%\n",
+            $t, int($stats_total{$t}), int($stats_correct{$t}), int($stats_falsepos{$t}), 100*$pr, 100*$re, 50*($pr + $re);
+
+        $qa->execute($date, $t, $pr, $re, 2*$pr*$re/($pr+$re));
     }
     print "\n";
 }
