@@ -136,11 +136,11 @@ function is_same_pm($char1, $char2) {
     return (int)($char1===$char2);
 }
 function is_cyr($char) {
-    $re_cyr = '/[А-Яа-яЁё]/u';
+    $re_cyr = '/\p{Cyrillic}/u';
     return preg_match($re_cyr, $char);
 }
 function is_latin($char) {
-    $re_lat = '/[A-Za-z]/u';
+    $re_lat = '/\p{Latin}/u';
     return preg_match($re_lat, $char);
 }
 function is_number($char) {

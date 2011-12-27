@@ -281,14 +281,14 @@ sub is_space {
 }
 sub is_latin {
     my $char = shift;
-    if ($char =~ /^[A-Za-z]$/) {
+    if ($char =~ /^\p{Latin}$/) {
         return 1;
     }
     return 0;
 }
 sub is_cyr {
     my $char = shift;
-    if ($char =~ /^[А-Яа-яЁё]$/) {
+    if ($char =~ /^\p{Cyrillic}$/) {
         return 1;
     }
     return 0;
