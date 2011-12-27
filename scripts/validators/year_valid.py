@@ -15,16 +15,45 @@ c.execute("SET NAMES utf8")
 c.execute("SELECT *  FROM book_tags")
 data = c.fetchall()
 n = len(c.description)
-list = []
-c.execute("DELETE FROM tag_errors WHERE error_type=1")
+string = ""
+
+c.execute("DELETE FROM tag_errors WHERE error_type IN (1, 2)")
+for element in data:
+    list = []
+    c.execute("SELECT * from book_tags WHERE book_id=%d" % (element[0]))
+    f = c.fetchall()
+    for el  in f:
+        list = list + [el[1]]
+       #// print list 
+    m = 0   
+    for l in list:
+        pattern = 'Год:\d+'
+        match = re.search(pattern, l)
+        if match is None:
+             pass
+        
+        else:
+             m = 1
+    
+             
+    if  m == 0:
+         #print element[0]  
+         c.execute("DELETE FROM tag_errors WHERE error_type=1 AND book_id=%d" % (element[0]))
+         sql = """INSERT INTO tag_errors(book_id, tag_name, error_type) VALUES (%d, '%s', %d)""" % (element[0], 'no year_tag', 1)
+         c.execute(sql)
 for element in data:
     i = 1
+    
     while i< n :
         pattern = 'Год:\d+'
+        pattern1 = 'Дата:.*'
         match = re.search(pattern, element[i])
+        match1 = re.search(pattern1, element[i])
         if match is None:
+            pass     
+        if match1 is None:
             pass
-        else:
+        if match is not None:
             year = element[i].split(":")[1]
             try:
                 if int(year) < 1900 or int(year)>2011:
@@ -40,10 +69,39 @@ for element in data:
             except:
                 sql =  """INSERT INTO tag_errors(book_id, tag_name, error_type) VALUES(%d, '%s', %d)""" % (element[0], element[i], 1)   
                 c.execute(sql)
-        i = i + 1       
+           
+        if match1 is not None:
+            #print match1
+            date = element[i].split(":")[1]
+            try:
+                pat = '(\d{2})'
+                day = date.split("/")[0]
+                month = date.split("/")[1]
+
+                mat = re.search(pat, day)
+                mat1 = re.search(pat, month)
+                if mat is None or mat1 is None:
+                  #  print element[i]
+                    sql = """INSERT INTO tag_errors(book_id, tag_name, error_type) VALUES (%d, '%s', %d)""" % (element[0], element[i], 2)
+                    c.execute(sql)
+                #day = date.split("/")[0]
+                #month = date.split("/")[1]
+                if int(month)>12 or int(day)>31:
+                   # print "mon    " + month 
+                   # print "day  " + day 
+                    sql = """INSERT INTO tag_errors(book_id, tag_name, error_type) VALUES(%d, '%s', %d)""" % (element[0], element[i], 2)
+                    c.execute(sql)
+                else:
+                    pass
+            except:
+                pass# print element[i]   #pass
+                 #sql = """INSERT INTO tag_errors(book_id, tag_name, error_type) VALUES(%d, '%s', '%d')""" % (element[0], element[i], 2)
+                 #c.execute(sql)
+        i = i + 1
+                
 db.commit()
-#c.execute("SELECT * from tag_errors")
-#d = c.fetchall()
+c.execute("SELECT * from tag_errors")
+d = c.fetchall()
 #print d
 
 #print c.description 
