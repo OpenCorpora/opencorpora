@@ -64,7 +64,7 @@ $total_time = 0;
 if (!is_logged() && isset($_COOKIE['auth'])) {
     if ($user_id = check_auth_cookie()) {
         if (user_login('', '', $user_id, $_COOKIE['auth'])) {
-            header("Location:".$_SERVER['SCRIPT_NAME']);
+            header("Location:".$_SERVER['REQUEST_URI']);
             return;
         }
     }
