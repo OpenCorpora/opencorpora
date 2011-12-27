@@ -57,10 +57,6 @@ for element in data:
             year = element[i].split(":")[1]
             try:
                 if int(year) < 1900 or int(year)>2011:
-                    el = []
-  #              print "book_id  " + str(element[0])
-   #             print element[i] + "\n"
-             
                     sql = """INSERT INTO tag_errors(book_id, tag_name, error_type) VALUES(%d, '%s', %d)""" % (element[0], element[i], 1)
                 
                     c.execute(sql)
@@ -71,7 +67,6 @@ for element in data:
                 c.execute(sql)
            
         if match1 is not None:
-            #print match1
             date = element[i].split(":")[1]
             try:
                 pat = '(\d{2})'
@@ -80,23 +75,24 @@ for element in data:
 
                 mat = re.search(pat, day)
                 mat1 = re.search(pat, month)
+
+                sql = """INSERT INTO tag_errors(book_id, tag_name, error_type) VALUES (%d, '%s', %d)""" % (element[0], element[i], 2)
                 if mat is None or mat1 is None:
-                  #  print element[i]
-                    sql = """INSERT INTO tag_errors(book_id, tag_name, error_type) VALUES (%d, '%s', %d)""" % (element[0], element[i], 2)
                     c.execute(sql)
-                #day = date.split("/")[0]
-                #month = date.split("/")[1]
+                
                 if int(month)>12 or int(day)>31:
-                   # print "mon    " + month 
-                   # print "day  " + day 
-                    sql = """INSERT INTO tag_errors(book_id, tag_name, error_type) VALUES(%d, '%s', %d)""" % (element[0], element[i], 2)
                     c.execute(sql)
+
+                if int(month) in [ 4, 6, 9, 11] and int(day) == 31:
+                    c.execute(sql)
+
+                if int(month) == 2 and int(day) > 28:
+                    c.execute(sql)  
+
                 else:
                     pass
             except:
-                pass# print element[i]   #pass
-                 #sql = """INSERT INTO tag_errors(book_id, tag_name, error_type) VALUES(%d, '%s', '%d')""" % (element[0], element[i], 2)
-                 #c.execute(sql)
+                pass
         i = i + 1
                 
 db.commit()
