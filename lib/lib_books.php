@@ -143,7 +143,7 @@ function get_books_for_select($parent = -1) {
     return $out;
 }
 function books_add_tag($book_id, $tag_name) {
-    $tag_name = trim($tag_name);
+    $tag_name = preg_replace('/\:\s+/', ':', trim($tag_name), 1);
     if ($book_id && $tag_name) {
         sql_begin();
         if (!sql_query("DELETE FROM `book_tags` WHERE book_id=$book_id AND tag_name='$tag_name'") || !sql_query("INSERT INTO `book_tags` VALUES('$book_id', '$tag_name')")) {
