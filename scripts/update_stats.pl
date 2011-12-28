@@ -21,6 +21,12 @@ close $lock;
 
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
+$dbh->{'AutoCommit'} = 0;
+if ($dbh->{'AutoCommit'}) {
+    unlink($lock_path);
+    die "Setting AutoCommit failed";
+}
+
 my $scan = $dbh->prepare("SELECT * FROM `stats_param` WHERE is_active=1 ORDER BY param_id");
 my $insert = $dbh->prepare("INSERT INTO `stats_values` VALUES(?, ?, ?)");
 my $scan_author = $dbh->prepare("SELECT user_id, timestamp FROM sentence_authors WHERE sent_id=? LIMIT 1");
@@ -245,4 +251,5 @@ while (my $ref = $scan->fetchrow_hashref()) {
     }
 }
 
+$dbh->commit();
 unlink ($lock_path);

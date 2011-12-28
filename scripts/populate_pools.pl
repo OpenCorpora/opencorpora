@@ -18,6 +18,12 @@ close $lock;
 
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
+$dbh->{'AutoCommit'} = 0;
+if ($dbh->{'AutoCommit'}) {
+    unlink($lock_path);
+    die "Setting AutoCommit failed";
+}
+
 my $last_rev = $dbh->prepare("SELECT rev_id FROM tf_revisions WHERE tf_id=? AND rev_id>? LIMIT 1");
 my $add = $dbh->prepare("INSERT INTO morph_annot_candidate_samples VALUES(?, ?)");
 my $update_pool = $dbh->prepare("UPDATE morph_annot_pools SET `status`='1' WHERE pool_id=? LIMIT 1");
@@ -26,6 +32,7 @@ $find_pools->execute();
 while (my $ref = $find_pools->fetchrow_hashref()) {
     process_pool($ref->{'pool_id'}, $ref->{'grammemes'});
 }
+$dbh->commit();
 unlink $lock_path;
 
 

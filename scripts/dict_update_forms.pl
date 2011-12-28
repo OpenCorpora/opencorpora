@@ -20,12 +20,17 @@ close $lock;
 #main
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
+$dbh->{'AutoCommit'} = 0;
+if ($dbh->{'AutoCommit'}) {
+    unlink($lock_path);
+    die "Setting AutoCommit failed";
+}
 
 #if there are any words still not checked by form2tf, we should do nothing
 my $prescan = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE tf_id NOT IN (SELECT tf_id FROM form2tf) LIMIT 1");
 $prescan->execute();
 if($prescan->fetchrow_hashref()) {
-    unlink ($lock_path);
+    unlink($lock_path);
     die "form2tf isn't up to date";
 }
 
@@ -43,4 +48,5 @@ while(my $ref = $scan->fetchrow_hashref()) {
     $del->execute($ref->{'form_text'});
 }
 
+$dbh->commit();
 unlink ($lock_path);

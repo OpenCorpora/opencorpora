@@ -23,6 +23,11 @@ close $lock;
 #main
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
+$dbh->{'AutoCommit'} = 0;
+if ($dbh->{'AutoCommit'}) {
+    unlink($lock_path);
+    die "Setting AutoCommit failed";
+}
 
 my $scan = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE tf_id NOT IN (SELECT tf_id FROM form2tf) LIMIT ?");
 my $ins = $dbh->prepare("INSERT INTO form2tf VALUES(?, ?)");
@@ -38,4 +43,5 @@ while(my $ref = $scan->fetchrow_hashref()) {
     $ins->execute($txt, $ref->{'tf_id'});
 }
 
+$dbh->commit();
 unlink ($lock_path);

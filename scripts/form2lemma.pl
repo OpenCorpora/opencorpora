@@ -21,6 +21,11 @@ close $lock;
 #main
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
+$dbh->{'AutoCommit'} = 0;
+if ($dbh->{'AutoCommit'}) {
+    unlink($lock_path);
+    die "Setting AutoCommit failed";
+}
 
 my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE f2l_check=0 ORDER BY rev_id LIMIT 2000");
 my $del = $dbh->prepare("DELETE FROM form2lemma WHERE lemma_id=?");
@@ -42,4 +47,5 @@ while(my $ref = $scan->fetchrow_hashref()) {
     #print STDERR 'At revision '.$ref->{'rev_id'}."\n";
 }
 
+$dbh->commit();
 unlink ($lock_path);
