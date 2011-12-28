@@ -16,8 +16,11 @@ getopts('b:m:tu:', \%options);
 # t - use threshold (4th root for MI)
 # u - file with unigram frequencies
 
-if (!$options{'m'} || !$options{'b'} || !$options{'u'}) {
-    print STDERR "Usage: $0 -m MI -u unigram_freq_file -b bigram_freq_file\n";
+if (
+    !$options{'m'} || !$options{'b'} || !$options{'u'} ||
+    ($options{'m'} ne 'MI' && $options{'m'} ne 'TScore')
+) {
+    print STDERR "Usage: $0 -m MI|TScore -u unigram_freq_file -b bigram_freq_file [-t threshold]\n";
     exit;
 }
 if (!-f $options{'b'} || !-f $options{'u'}) {
@@ -49,7 +52,7 @@ while(<F>) {
             next;
         }
         $main_dict{$bigram} = [$abs, MI($unigram_freq{$n}[0], $unigram_freq{$c}[0], $abs, $sum_freq)];
-    } elsif ($options{'m'} eq 'T-score') {
+    } elsif ($options{'m'} eq 'TScore') {
       $main_dict{$bigram} = [$abs, TScore($unigram_freq{$n}[0], $unigram_freq{$c}[0], $abs, $sum_freq)];
     }
 }
