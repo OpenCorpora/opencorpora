@@ -13,6 +13,8 @@
         {elseif $err.error_type == 2}Ошибка в дате
         {elseif $err.error_type == 3}Не хватает тега "Автор:"
         {elseif $err.error_type == 4}Ссылка на википроект без версии
+        {elseif $err.error_type == 5}Приписаны дочерние тексты и параграфы
+        {elseif $err.error_type == 6}Не хватает URL
         {else}Неизвестная ошибка{/if}
     </td>
     {/strip}
