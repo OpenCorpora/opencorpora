@@ -222,6 +222,8 @@ function addtext_check($array) {
         if (
             //remove diacritic modifier
             uniord($char) != 769 &&
+            //remove soft hyphen
+            uniord($char) != 173 &&
             //remove different spaces
             (uniord($char) < 8192 || uniord($char) > 8203) &&
             !in_array(uniord($char), array(8237, 8239, 8288, 12288))
