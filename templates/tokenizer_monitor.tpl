@@ -107,6 +107,15 @@
             };
 
             $.plot($('#chart2'), datasets, options);
+
+            var max = [0, 0];
+            for(var ymd in intermideate) {
+                var curr = intermideate[ymd].data;
+                for(var i = 0; i < curr.length; i++) {
+                    if(curr[i][1] > max[1]) max = curr[i];
+                }
+            }
+            $('#F1-max').text('Максимальное значение F-score=' + max[1] + ' достигается при threshold=' + max[0]);
         }
 
         function plot_metrics(json) {
@@ -209,6 +218,8 @@
 
     <div id="tabs-2">
         <div id="chart2"></div>
+
+        <div id="F1-max" class="controls"></div>
     </div>
 </div>
 
