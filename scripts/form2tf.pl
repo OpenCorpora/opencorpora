@@ -32,7 +32,7 @@ if ($dbh->{'AutoCommit'}) {
 my $scan = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE tf_id NOT IN (SELECT tf_id FROM form2tf) LIMIT ?");
 my $ins = $dbh->prepare("INSERT INTO form2tf VALUES(?, ?)");
 
-$scan->execute(10);
+$scan->execute(50);
 while(my $ref = $scan->fetchrow_hashref()) {
     my $txt = $ref->{'tf_text'};
     $txt = decode('utf-8', $txt);
