@@ -37,7 +37,6 @@ my %border;
 my %total;
 my %good;
 my $vector;
-my $pos;
 my %strange;
 my %exceptions;
 my %prefixes;
@@ -67,22 +66,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
         push @tokens, [$r->{'tf_id'}, decode('utf8', $r->{'tf_text'})];
     }
 
-    $pos = 0;
-    %border = ();
-    for my $token(@tokens) {
-        while(substr($str, $pos, length($token->[1])) ne $token->[1]) {
-            $pos++;
-            if ($pos > length($str)) {
-                query_wrapper($dry_run, $broken_token, time(), $token->[0]);
-                printf STDERR "Too long, sentence %d, failed token is <%s>\n",
-                    $ref->{'sent_id'}, $token->[1];
-                exit;
-            }
-        }
-        my $t = $pos + length($token->[1]) - 1;
-        $border{$t} = 1;
-        $pos += length($token->[1]);
-    }
+    %border = %{get_borders_from_tokens($str, \@tokens, $ref->{'sent_id'})};
 
     for my $i(0..length($str)-1) {
         $vector = oct('0b'.join('', @{calc($str, $i)}));
@@ -134,20 +118,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
         push @tokens, [$r->{'tf_id'}, decode('utf8', $r->{'tf_text'})];
     }
 
-    $pos = 0;
-    %border = ();
-    for my $token(@tokens) {
-        while(substr($str, $pos, length($token->[1])) ne $token->[1]) {
-            $pos++;
-            if ($pos > length($str)) {
-                query_wrapper($dry_run, $broken_token, time(), $token->[0]);
-                die "Too long";
-            }
-        }
-        my $t = $pos + length($token->[1]) - 1;
-        $border{$t} = 1;
-        $pos += length($token->[1]);
-    }
+    %border = %{get_borders_from_tokens($str, \@tokens, $ref->{'sent_id'})};
     query_wrapper($dry_run, $drop_broken);
 
     for my $i(0..length($str)-1) {
@@ -454,4 +425,26 @@ sub query_wrapper {
     return if $dry_run;
 
     $sth->execute(@bindings);
+}
+sub get_borders_from_tokens {
+    my $str = shift;
+    my $aref = shift;
+    my $sent_id = shift;
+    my $pos = 0;
+    my %border = ();
+
+    for my $token(@$aref) {
+        while (substr($str, $pos, length($token->[1])) ne $token->[1]) {
+            $pos++;
+            if ($pos > length($str)) {
+                query_wrapper($dry_run, $broken_token, time(), $token->[0]);
+                printf STDERR "Too long, sentence %d, failed token is <%s>\n", $sent_id, $token->[1];
+                exit;
+            }
+        }
+        $border{$pos + length($token->[1]) - 1} = 1;
+        $pos += length($token->[1]);
+    }
+
+    return \%border;
 }
