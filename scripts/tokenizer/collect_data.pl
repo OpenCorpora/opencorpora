@@ -106,7 +106,7 @@ for my $k(sort {$a <=> $b} keys %{$total{'all'}}) {
     $stat_total += $total{'all'}{$k};
     query_wrapper($dry_run, $insert, $k, $coef);
 }
-printf "Total %d different vectors; predictor is sure in %.3f%% cases\n", scalar(keys %total), $stat_sure/$stat_total * 100;
+printf "Total %d different vectors; predictor is sure in %.3f%% cases\n", scalar(keys %{$total{0}}), $stat_sure/$stat_total * 100;
 query_wrapper($dry_run, $stat, time(), int($stat_sure/$stat_total * 100000));
 
 #second pass
