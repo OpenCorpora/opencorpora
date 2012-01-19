@@ -3,6 +3,7 @@ use strict;
 use utf8;
 use DBI;
 use Encode;
+use Unicode::Normalize;
 use Config::INI::Reader;
 
 use constant CROSSVAL_FOLDS => 10;
@@ -40,6 +41,8 @@ my $vector;
 my %strange;
 my %exceptions;
 my %prefixes;
+my %bad_sentences;
+
 my @thresholds = qw/0.0 0.01 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 0.99 1.0/;
 my %vector2coeff;
 my %stats_correct;
@@ -53,8 +56,10 @@ my $stat_sure, my $stat_total;
 #first pass
 read_instances("$root_path/scripts/lists/tokenizer_exceptions.txt", \%exceptions);
 read_instances("$root_path/scripts/lists/tokenizer_prefixes.txt", \%prefixes);
+read_instances("$root_path/scripts/tokenizer/bad_sentences.txt", \%bad_sentences);
 $sent->execute();
 while(my $ref = $sent->fetchrow_hashref()) {
+    next if exists $bad_sentences{$ref->{'sent_id'}};
     $str = decode('utf8', $ref->{'source'}).'  ';
     @tokens = ();
     $tok->execute($ref->{'sent_id'});
@@ -108,6 +113,7 @@ query_wrapper($dry_run, $stat, time(), int($stat_sure/$stat_total * 100000));
 query_wrapper($dry_run, $drop2);
 $sent->execute();
 while(my $ref = $sent->fetchrow_hashref()) {
+    next if exists $bad_sentences{$ref->{'sent_id'}};
     $str = decode('utf8', $ref->{'source'}).'  ';
     @tokens = ();
     $tok->execute($ref->{'sent_id'});
@@ -191,6 +197,8 @@ if ($dry_run) {
 sub calc {
     my $str = shift;
     my $i = shift;
+
+    $str = NFC($str);
 
     my $previous = ($i > 0 ? substr($str, $i-1, 1) : '');
     my $current = substr($str, $i, 1);
@@ -285,14 +293,14 @@ sub is_space {
 }
 sub is_latin {
     my $char = shift;
-    if ($char =~ /^[A-Za-z]$/) {
+    if ($char =~ /^\p{Latin}$/) {
         return 1;
     }
     return 0;
 }
 sub is_cyr {
     my $char = shift;
-    if ($char =~ /^[А-Яа-яЁё]$/) {
+    if ($char =~ /^\p{Cyrillic}$/) {
         return 1;
     }
     return 0;
@@ -367,7 +375,7 @@ sub looks_like_url {
     return 0 if $suffix eq '';
     return 0 if $s =~ /^\./;
     return 0 if length($s) < 5; 
-    if ($s =~ /^\W*https?\:\/\// || $s =~ /^\W*www\./ || $s =~/.\.(?:[a-z]{2,3}|ру|рф)\W*$/i) {
+    if ($s =~ /^\W*https?\:\/\/?/ || $s =~ /^\W*www\./ || $s =~/.\.(?:[a-z]{2,3}|ру|рф)\W*$/i) {
         return 1;
     }
     return 0;
@@ -376,10 +384,10 @@ sub looks_like_time {
     my $left = shift;
     my $right = shift;
 
-    $left =~ s/^\D+//;
-    $right =~ s/\D+$//;
+    $left =~ s/^[^0-9]+//;
+    $right =~ s/[^0-9]+$//;
 
-    unless ($left =~ /^\d\d?$/ && $right =~ /^\d\d$/) {
+    unless ($left =~ /^[0-9][0-9]?$/ && $right =~ /^[0-9][0-9]$/) {
         return 0;
     }
 
@@ -390,7 +398,7 @@ sub looks_like_time {
     return 0;
 }
 sub is_exception {
-    my $s = shift;
+    my $s = lc(shift());
     return 1 if exists $exceptions{$s};
     if ($s !~ /^\W|\W$/) {
         return 0;
@@ -413,7 +421,7 @@ sub read_instances {
         next unless /\S/;
         next if /^\s*#/;
         chomp;
-        $_[1]->{$_} = 1;
+        $_[1]->{lc($_)} = 1;
     }
     close F;
 }

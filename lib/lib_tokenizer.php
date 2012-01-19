@@ -12,6 +12,8 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
     $out = array();
     $token = '';
 
+    $txt = Normalizer::normalize($txt, Normalizer::FORM_C);
+
     $res = sql_query("SELECT * FROM tokenizer_coeff");
     while($r = sql_fetch_array($res)) {
         $coeff[$r[0]] = $r[1];
@@ -44,7 +46,7 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
                 } else {
                     break;
                 }
-                if (mb_substr($chain_left, -1) == $odd_symbol) {
+                if (mb_substr($chain_left, -1) === $odd_symbol) {
                     $chain_left = mb_substr($chain_left, 0, -1);
                 }
             }
@@ -56,7 +58,7 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
                 } else {
                     break;
                 }
-                if (mb_substr($chain_right, 0, 1) == $odd_symbol) {
+                if (mb_substr($chain_right, 0, 1) === $odd_symbol) {
                     $chain_right = mb_substr($chain_right, 1);
                 }
             }
@@ -136,11 +138,11 @@ function is_same_pm($char1, $char2) {
     return (int)($char1===$char2);
 }
 function is_cyr($char) {
-    $re_cyr = '/[А-Яа-яЁё]/u';
+    $re_cyr = '/\p{Cyrillic}/u';
     return preg_match($re_cyr, $char);
 }
 function is_latin($char) {
-    $re_lat = '/[A-Za-z]/u';
+    $re_lat = '/\p{Latin}/u';
     return preg_match($re_lat, $char);
 }
 function is_number($char) {
@@ -168,7 +170,7 @@ function is_suffix($s) {
 function looks_like_url($s, $suffix) {
     if (!$suffix || substr($s, 0, 1) === '.' || mb_strlen($s) < 5)
         return 0;
-    $re1 = '/^\W*https?\:\/\//u';
+    $re1 = '/^\W*https?\:\/\/?/u';
     $re2 = '/^\W*www\./u';
     $re3 = '/.\.(?:[a-z]{2,3}|ру|рф)\W*$/iu';
     if (preg_match($re1, $s) || preg_match($re2, $s) || preg_match($re3, $s)) {
@@ -177,10 +179,10 @@ function looks_like_url($s, $suffix) {
     return 0;
 }
 function looks_like_time($left, $right) {
-    $left = preg_replace('/^\D+/u', '', $left);
-    $right = preg_replace('/\D+$/u', '', $right);
+    $left = preg_replace('/^[^0-9]+/u', '', $left);
+    $right = preg_replace('/[^0-9]+$/u', '', $right);
 
-    if (!preg_match('/^\d\d?$/u', $left) || !preg_match('/^\d\d$/u', $right))
+    if (!preg_match('/^[0-9][0-9]?$/u', $left) || !preg_match('/^[0-9][0-9]$/u', $right))
         return 0;
 
     if ($left < 24 && $right < 60)
@@ -189,6 +191,7 @@ function looks_like_time($left, $right) {
     return 0;
 }
 function is_exception($s, $exc) {
+    $s = mb_strtolower($s);
     if (in_array($s, $exc))
         return 1;
     if (!preg_match('/^\W|\W$/u', $s))
@@ -212,7 +215,7 @@ function addtext_check($array) {
     global $config;
 
     //read file for tokenizer
-    $tok_exc = file($config['project']['root'] . '/scripts/lists/tokenizer_exceptions.txt', FILE_IGNORE_NEW_LINES);
+    $tok_exc = array_map('mb_strtolower', file($config['project']['root'] . '/scripts/lists/tokenizer_exceptions.txt', FILE_IGNORE_NEW_LINES));
     $tok_prefixes = file($config['project']['root'] . '/scripts/lists/tokenizer_prefixes.txt', FILE_IGNORE_NEW_LINES);
 
     //removing bad symbols
