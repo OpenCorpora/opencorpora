@@ -12,6 +12,8 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
     $out = array();
     $token = '';
 
+    $txt = Normalizer::normalize($txt, Normalizer::FORM_C);
+
     $res = sql_query("SELECT * FROM tokenizer_coeff");
     while($r = sql_fetch_array($res)) {
         $coeff[$r[0]] = $r[1];
@@ -177,10 +179,10 @@ function looks_like_url($s, $suffix) {
     return 0;
 }
 function looks_like_time($left, $right) {
-    $left = preg_replace('/^\D+/u', '', $left);
-    $right = preg_replace('/\D+$/u', '', $right);
+    $left = preg_replace('/^[^0-9]+/u', '', $left);
+    $right = preg_replace('/[^0-9]+$/u', '', $right);
 
-    if (!preg_match('/^\d\d?$/u', $left) || !preg_match('/^\d\d$/u', $right))
+    if (!preg_match('/^[0-9][0-9]?$/u', $left) || !preg_match('/^[0-9][0-9]$/u', $right))
         return 0;
 
     if ($left < 24 && $right < 60)
