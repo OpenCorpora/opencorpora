@@ -375,10 +375,10 @@ sub looks_like_time {
     my $left = shift;
     my $right = shift;
 
-    $left =~ s/^\D+//;
-    $right =~ s/\D+$//;
+    $left =~ s/^[^0-9]+//;
+    $right =~ s/[^0-9]+$//;
 
-    unless ($left =~ /^\d\d?$/ && $right =~ /^\d\d$/) {
+    unless ($left =~ /^[0-9][0-9]?$/ && $right =~ /^[0-9][0-9]$/) {
         return 0;
     }
 
