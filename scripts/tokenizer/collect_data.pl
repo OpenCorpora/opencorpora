@@ -46,9 +46,7 @@ my %stats_correct;
 my %stats_falsepos;
 my %stats_total;
 my $crossval_id;
-my %crossval_correct;
-my %crossval_falsepos;
-my %crossval_total;
+my %crossval;
 
 my $stat_sure, my $stat_total;
 
@@ -134,15 +132,15 @@ while(my $ref = $sent->fetchrow_hashref()) {
             for my $t(@thresholds) {
                 if (exists $border{$i}) {
                     if ($vector2coeff{$crossval_id}{$vector} >= $t) {
-                        $crossval_correct{$crossval_id}{$t}++;
+                        $crossval{'correct'}{$crossval_id}{$t}++;
                     }
                 }
                 elsif ($vector2coeff{$crossval_id}{$vector} >= $t) {
-                    $crossval_falsepos{$crossval_id}{$t}++;
+                    $crossval{'falsepos'}{$crossval_id}{$t}++;
                 }
             }
             if (exists $border{$i}) {
-                $crossval_total{$crossval_id}++;
+                $crossval{'total'}{$crossval_id}++;
             }
         }
 
@@ -163,11 +161,11 @@ if ($dry_run) {
     my %recall;
     for my $t(@thresholds) {
         for my $j(0.. CROSSVAL_FOLDS - 1) {
-            $stats_total{$t} += $crossval_total{$j};
-            $stats_correct{$t} += $crossval_correct{$j}{$t};
-            $stats_falsepos{$t} += $crossval_falsepos{$j}{$t};
-            $precision{$t} += ($crossval_correct{$j}{$t} / ($crossval_correct{$j}{$t} + $crossval_falsepos{$j}{$t}));
-            $recall{$t} += ($crossval_correct{$j}{$t} / $crossval_total{$j});
+            $stats_total{$t} += $crossval{'total'}{$j};
+            $stats_correct{$t} += $crossval{'correct'}{$j}{$t};
+            $stats_falsepos{$t} += $crossval{'falsepos'}{$j}{$t};
+            $precision{$t} += ($crossval{'correct'}{$j}{$t} / ($crossval{'correct'}{$j}{$t} + $crossval{'falsepos'}{$j}{$t}));
+            $recall{$t} += ($crossval{'correct'}{$j}{$t} / $crossval{'total'}{$j});
         }
         $precision{$t} /= CROSSVAL_FOLDS;
         $recall{$t} /= CROSSVAL_FOLDS;
