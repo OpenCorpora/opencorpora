@@ -3,6 +3,7 @@ use strict;
 use utf8;
 use DBI;
 use Encode;
+use Unicode::Normalize;
 use Config::INI::Reader;
 
 binmode(STDOUT, ':utf8');
@@ -187,6 +188,8 @@ for my $type(0..1) {
 sub calc {
     my $str = shift;
     my $i = shift;
+
+    $str = NFC($str);
 
     my $previous = ($i > 0 ? substr($str, $i-1, 1) : '');
     my $current = substr($str, $i, 1);
