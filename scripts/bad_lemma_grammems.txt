@@ -13,6 +13,7 @@ VERB	masc
 VERB	neut
 GRND	pres
 GRND	past
+GRND	V-sh
 ADJS	neut
 PRTS	femn
 COMP	V-ej
