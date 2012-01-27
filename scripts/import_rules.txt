@@ -174,10 +174,10 @@
 (* NOUN) & (1 nomn&sing&@anim1)
     CHANGE (ANim -> inan)
     CHANGE (accs,plur,~/ий$/ -> accs,plur,anim)
-(1 @arch) | (1 @arch0)
-    CHANGE (@arch,ablt,plur -> ablt,plur,Arch)
-    CHANGE (@arch,gent,plur -> ablt,gent,Arch)
-    CHANGE (@arch0,nomn,plur -> nomn,plur,Arch)
+(#1240) | (#1397) # (полу)зверь, кость
+    CHANGE (~/ьми$/ -> Arch)
+(#977) # *дерево, крыло
+    CHANGE (plur, !~/ь/ -> Arch)
 (1 NOUN&@infr0)
     CHANGE (NOUN,nomn,plur,@infr0 -> NOUN,nomn,plur,Infr)
     CHANGE (NOUN,accs,plur,@infr0 -> NOUN,accs,plur,Infr)
@@ -563,17 +563,21 @@
 (#2432) # изойти
    CHANGE(~/ыйди/, impr, excl-> Erro, impr, excl)
    CHANGE(~/сш/ -> Infr)
-(#1266) | (#461) | (#623)| (#443) | (#663) | (#305) | (#866) | (#735) | (#893) | (#1267) | (#867) | (#2421) | (#1624) | (#1819) | (#2131) # воздвигнуть-ся, ввергнуться, ввязнуть, вникнуть, гаснуть, тухнуть, воскреснуть, блекнуть, глохнуть, извергнуться, вянуть, низвергнуться, подвергнуться, стынуть
+(#1266) | (#461) | (#623)| (#443) | (#663) | (#305) | (#866) | (#735) | (#893) | (#1267) | (#867) | (#2421) | (#1624) | (#1819) | (#2131) # воздвигнуть-ся, ввергнуться, ввязнуть, вникнуть, гаснуть, тухнуть, воскреснуть, блекнуть, глохнуть, извергнуться, вянуть, низвергнуться, подвергнуться, стынуть, сипнуть, зябнуть, гибнуть, дрябнуть, крепнуть, липнуть, слабнуть, слепнуть, хрипнуть
+   CHANGE(~/бнул/-> Infr)
    CHANGE(~/гнул/-> Infr)
    CHANGE(~/знул/-> Infr)
    CHANGE(~/кнул/-> Infr)
+   CHANGE(~/пнул/-> Infr)
    CHANGE(~/снул/-> Infr)
    CHANGE(~/хнул/-> Infr)
    CHANGE(~/янул/-> Infr)
    CHANGE(~/ынул/-> Infr)
+   CHANGE(PRTF, ~/бш/-> PRTF,Infr)
    CHANGE(PRTF, ~/гш/-> PRTF,Infr)
    CHANGE(PRTF,~/зш/-> PRTF,Infr)
    CHANGE(PRTF,~/кш/-> PRTF,Infr)
+   CHANGE(PRTF,~/пш/-> PRTF,Infr)
    CHANGE(PRTF,~/сш/-> PRTF,Infr)
    CHANGE(PRTF,~/хш/-> PRTF,Infr)
    CHANGE(PRTF,~/ывш/-> PRTF,Infr)

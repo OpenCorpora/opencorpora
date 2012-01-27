@@ -27,8 +27,6 @@ $importer->preload_list('adjf_fixd_del', "$root_path/scripts/lists/list_adjf_fix
 $importer->preload_list('adjf_fixd_advb', "$root_path/scripts/lists/list_adjf_fixd_ADVB.txt");
 $importer->preload_list('adjf_fixd_noun', "$root_path/scripts/lists/list_adjf_fixd_NOUN.txt");
 $importer->preload_list('nouns_subst', "$root_path/scripts/lists/nouns_subst.txt");
-$importer->preload_list('arch', "$root_path/scripts/lists/add_Arch.txt");
-$importer->preload_list('arch0', "$root_path/scripts/lists/add_Arch_nomn_plur.txt");
 $importer->preload_list('arch_adjs', "$root_path/scripts/lists/add_Arch_ADJS.txt");
 $importer->preload_list('arch_adj', "$root_path/scripts/lists/add_Arch_ADJF.txt");
 $importer->preload_list('litr_comp', "$root_path/scripts/lists/add_Litr_COMP.txt");

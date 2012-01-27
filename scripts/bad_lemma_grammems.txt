@@ -7,6 +7,7 @@
 *	accs
 *	ablt
 *	loct
+VERB	impr
 VERB	pres
 VERB	past
 VERB	masc
