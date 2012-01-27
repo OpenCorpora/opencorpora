@@ -416,7 +416,7 @@ CREATE TABLE IF NOT EXISTS `tag_errors` (
     INDEX(`error_type`)
 ) ENGINE = INNODB;
 
-CREATE TABLE `tokenizer_qa` (
+CREATE TABLE IF NOT EXISTS `tokenizer_qa` (
   `run` date NOT NULL,
   `threshold` float unsigned NOT NULL DEFAULT '0',
   `precision` float unsigned NOT NULL DEFAULT '0',
