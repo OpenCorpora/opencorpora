@@ -286,6 +286,8 @@ sub get_all_grammems {
     my $self = shift;
     my %all = ();
     for my $form(@{$self->{FORMS}}) {
+        #discard forms to be deleted
+        next if $self->form_has_any_gram($form, ['_del']);
         for my $gram(@{$form->{GRAMMEMS}}) {
             ++$all{$gram};
         }
