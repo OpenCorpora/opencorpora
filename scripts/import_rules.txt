@@ -177,7 +177,7 @@
 (#1240) | (#1397) #полу-зверь, кость
     CHANGE (~/ьми$/ -> Arch)
 (#977) #дерево, крыло
-    CHANGE (plur, !~/ь/ -> Arch)
+    CHANGE (plur, !~/ь/ -> plur, Arch)
 (1 NOUN&@infr0)
     CHANGE (NOUN,nomn,plur,@infr0 -> NOUN,nomn,plur,Infr)
     CHANGE (NOUN,accs,plur,@infr0 -> NOUN,accs,plur,Infr)
