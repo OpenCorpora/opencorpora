@@ -15,5 +15,6 @@ GRND	pres
 GRND	past
 GRND	V-sh
 ADJS	neut
+PRTF	masc
 PRTS	femn
 COMP	V-ej
