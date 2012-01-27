@@ -174,9 +174,9 @@
 (* NOUN) & (1 nomn&sing&@anim1)
     CHANGE (ANim -> inan)
     CHANGE (accs,plur,~/ий$/ -> accs,plur,anim)
-(#1240) | (#1397) # (полу)зверь, кость
+(#1240) | (#1397) #полу-зверь, кость
     CHANGE (~/ьми$/ -> Arch)
-(#977) # *дерево, крыло
+(#977) #дерево, крыло
     CHANGE (plur, !~/ь/ -> Arch)
 (1 NOUN&@infr0)
     CHANGE (NOUN,nomn,plur,@infr0 -> NOUN,nomn,plur,Infr)
