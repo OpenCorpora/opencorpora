@@ -625,8 +625,6 @@
 (#417)
     CHANGE (VERB, ~/^суть$/, sing -> VERB, plur)
     CHANGE (VERB, ~/^есть$/, plur -> VERB, plur,Infr)
-(#417)
-    SPLIT(perf, impf)
 (* ~/^айда$/)
     CHANGE (VERB -> _del)
     CHANGE (INFN, perf, intr -> INTJ)
