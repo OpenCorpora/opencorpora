@@ -7,6 +7,7 @@ use Unicode::Normalize;
 use Config::INI::Reader;
 
 use constant CROSSVAL_FOLDS => 10;
+use constant THRESHOLDS => qw/0.0 0.01 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 0.99 1.0/;
 
 binmode(STDOUT, ':utf8');
 binmode(STDERR, ':utf8');
@@ -34,7 +35,7 @@ my $qa = $dbh->prepare("INSERT INTO tokenizer_qa VALUES(?, ?, ?, ?, ?)");
 
 my $str;
 my @tokens;
-my %border;
+my $border;
 my %total;
 my %good;
 my $vector;
@@ -43,7 +44,6 @@ my %exceptions;
 my %prefixes;
 my %bad_sentences;
 
-my @thresholds = qw/0.0 0.01 0.05 0.10 0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.95 0.99 1.0/;
 my %vector2coeff;
 my %stats_correct;
 my %stats_falsepos;
@@ -53,30 +53,24 @@ my %crossval;
 
 my $stat_sure, my $stat_total;
 
-#first pass
 read_instances("$root_path/scripts/lists/tokenizer_exceptions.txt", \%exceptions);
 read_instances("$root_path/scripts/lists/tokenizer_prefixes.txt", \%prefixes);
 read_instances("$root_path/scripts/tokenizer/bad_sentences.txt", \%bad_sentences);
+#first pass
 $sent->execute();
 while(my $ref = $sent->fetchrow_hashref()) {
     next if exists $bad_sentences{$ref->{'sent_id'}};
     $str = decode('utf8', $ref->{'source'}).'  ';
-    @tokens = ();
-    $tok->execute($ref->{'sent_id'});
     $crossval_id = $ref->{'sent_id'} % CROSSVAL_FOLDS;
-    #print STDERR $ref->{'sent_id'}."\n";
-    while(my $r = $tok->fetchrow_hashref()) {
-        push @tokens, [$r->{'tf_id'}, decode('utf8', $r->{'tf_text'})];
-    }
 
-    %border = %{get_borders_from_tokens($str, \@tokens, $ref->{'sent_id'})};
+    $border = get_borders_from_tokens($str, get_tokens_by_sent_id($ref->{'sent_id'}), $ref->{'sent_id'});
 
     for my $i(0..length($str)-1) {
         $vector = oct('0b'.join('', @{calc($str, $i)}));
         #print $i.' <'.substr($str, $i, 1).'> '.$vector."\n";
         $total{'all'}{$vector}++;
         $total{$crossval_id}{$vector}++;
-        if (exists $border{$i}) {
+        if (exists $$border{$i}) {
             $good{'all'}{$vector}++;
             $good{$crossval_id}{$vector}++;
         }
@@ -115,14 +109,9 @@ $sent->execute();
 while(my $ref = $sent->fetchrow_hashref()) {
     next if exists $bad_sentences{$ref->{'sent_id'}};
     $str = decode('utf8', $ref->{'source'}).'  ';
-    @tokens = ();
-    $tok->execute($ref->{'sent_id'});
     $crossval_id = $ref->{'sent_id'} % CROSSVAL_FOLDS;
-    while(my $r = $tok->fetchrow_hashref()) {
-        push @tokens, [$r->{'tf_id'}, decode('utf8', $r->{'tf_text'})];
-    }
 
-    %border = %{get_borders_from_tokens($str, \@tokens, $ref->{'sent_id'})};
+    $border = get_borders_from_tokens($str, get_tokens_by_sent_id($ref->{'sent_id'}), $ref->{'sent_id'});
     query_wrapper($dry_run, $drop_broken);
 
     for my $i(0..length($str)-1) {
@@ -135,24 +124,12 @@ while(my $ref = $sent->fetchrow_hashref()) {
 
         #to calculate Pre and Rec (for each crossvalidation fold); not counting iff flag_space
         if (!$flag_space && $dry_run) {
-            for my $t(@thresholds) {
-                if (exists $border{$i}) {
-                    if ($vector2coeff{$crossval_id}{$vector} >= $t) {
-                        $crossval{'correct'}{$crossval_id}{$t}++;
-                    }
-                }
-                elsif ($vector2coeff{$crossval_id}{$vector} >= $t) {
-                    $crossval{'falsepos'}{$crossval_id}{$t}++;
-                }
-            }
-            if (exists $border{$i}) {
-                $crossval{'total'}{$crossval_id}++;
-            }
+            assess_crossval(\%crossval, $crossval_id, $vector2coeff{$crossval_id}{$vector}, exists $$border{$i});
         }
 
-        my $q = $vector.'#'.(exists $border{$i} ? 1 : 0);
+        my $q = $vector.'#'.(exists $$border{$i} ? 1 : 0);
         if (exists $strange{$q}) {
-            query_wrapper($dry_run, $ins2, $ref->{'sent_id'}, $i, (exists $border{$i} ? 1 : 0), $strange{$q}->[0]);
+            query_wrapper($dry_run, $ins2, $ref->{'sent_id'}, $i, (exists $$border{$i} ? 1 : 0), $strange{$q}->[0]);
         }
     }
 }
@@ -162,10 +139,10 @@ for my $k(sort {$strange{$b}->[1] <=> $strange{$a}->[1]} keys %strange) {
 }
 
 if ($dry_run) {
-# average crossvalidation results
+    # average crossvalidation results
     my %precision;
     my %recall;
-    for my $t(@thresholds) {
+    for my $t(THRESHOLDS) {
         for my $j(0.. CROSSVAL_FOLDS - 1) {
             $stats_total{$t} += $crossval{'total'}{$j};
             $stats_correct{$t} += $crossval{'correct'}{$j}{$t};
@@ -181,7 +158,7 @@ if ($dry_run) {
     }
 
     my $date = sub { sprintf '%i-%02i-%02i', $_[5]+1900,$_[4]+1,$_[3] }->(localtime);
-    for my $t(@thresholds) {
+    for my $t(THRESHOLDS) {
         my $pr = $precision{$t};
         my $re = $recall{$t};
         printf "Threshold: %.2f, total borders: %8s, correct: %8s, false pos: %8s, precision: %.2f%%, recall: %.2f%%, F1: %.2f%%\n",
@@ -432,6 +409,17 @@ sub query_wrapper {
 
     $sth->execute(@bindings);
 }
+sub get_tokens_by_sent_id {
+    my $sent_id = shift;
+
+    my @tokens = ();
+    $tok->execute($sent_id);
+    while (my $r = $tok->fetchrow_hashref()) {
+        push @tokens, [$r->{'tf_id'}, decode('utf8', $r->{'tf_text'})];
+    }
+
+    return \@tokens;
+}
 sub get_borders_from_tokens {
     my $str = shift;
     my $aref = shift;
@@ -453,4 +441,21 @@ sub get_borders_from_tokens {
     }
 
     return \%border;
+}
+sub assess_crossval {
+    my ($crossval, $crossval_id, $coeff, $has_border) = @_;
+
+    for my $t(THRESHOLDS) {
+        if ($has_border) {
+            if ($coeff >= $t) {
+                $$crossval{'correct'}{$crossval_id}{$t}++;
+            }
+        }
+        elsif ($coeff >= $t) {
+            $$crossval{'falsepos'}{$crossval_id}{$t}++;
+        }
+    }
+    if ($has_border) {
+        $$crossval{'total'}{$crossval_id}++;
+    }
 }
