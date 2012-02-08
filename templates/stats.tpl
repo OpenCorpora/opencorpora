@@ -79,7 +79,7 @@ $(document).ready(function(){
     <td align='right'>
         <b>{$stats.chaskor_words.value|number_format}</b><br/><span class='small'>{$stats.chaskor_words.timestamp|date_format:"%d.%m.%y, %H:%M"}</span><br/>
         <table border='0'><tr>
-        <td><span class='hint' title='Цель до конца 2011 года &ndash; {$goals.chaskor_words}'>{$stats.percent_words.chaskor}%</span></td>
+        <td><span class='hint' title='Цель до июля 2012 года &ndash; {$goals.chaskor_words}'>{$stats.percent_words.chaskor}%</span></td>
         <td><div class="progress"><div class="progress_load" style="width: {$stats.percent_words.chaskor}px"></div></div></td>
         </tr></table>
     </td>
@@ -92,7 +92,7 @@ $(document).ready(function(){
     <td align='right'>
         <b>{$stats.chaskor_news_words.value|number_format}</b><br/><span class='small'>{$stats.chaskor_news_words.timestamp|date_format:"%d.%m.%y, %H:%M"}</span><br/>
         <table border='0'><tr>
-        <td><span class='hint' title='Цель до конца 2011 года &ndash; {$goals.chaskor_news_words}'>{$stats.percent_words.chaskor_news}%</span></td>
+        <td><span class='hint' title='Цель до июля 2012 года &ndash; {$goals.chaskor_news_words}'>{$stats.percent_words.chaskor_news}%</span></td>
         <td><div class="progress"><div class="progress_load" style="width: {$stats.percent_words.chaskor_news}px"></div></div></td>
         </tr></table>
     </td>
@@ -105,7 +105,7 @@ $(document).ready(function(){
     <td align='right'>
         <b>{$stats.wikipedia_words.value|number_format}</b><br/><span class='small'>{$stats.wikipedia_words.timestamp|date_format:"%d.%m.%y, %H:%M"}</span><br/>
         <table border='0'><tr>
-        <td><span class='hint' title='Цель до конца 2011 года &ndash; {$goals.wikipedia_words}'>{$stats.percent_words.wikipedia}%</span></td>
+        <td><span class='hint' title='Цель до июля 2012 года &ndash; {$goals.wikipedia_words}'>{$stats.percent_words.wikipedia}%</span></td>
         <td><div class="progress"><div class="progress_load" style="width: {$stats.percent_words.wikipedia}px"></div></div></td>
         </tr></table>
     </td>
@@ -118,7 +118,7 @@ $(document).ready(function(){
     <td align='right'>
         <b>{$stats.wikinews_words.value|number_format}</b><br/><span class='small'>{$stats.wikinews_words.timestamp|date_format:"%d.%m.%y, %H:%M"}</span><br/>
         <table border='0'><tr>
-        <td><span class='hint' title='Цель до конца 2011 года &ndash; {$goals.wikinews_words}'>{$stats.percent_words.wikinews}%</span></td>
+        <td><span class='hint' title='Цель до июля 2012 года &ndash; {$goals.wikinews_words}'>{$stats.percent_words.wikinews}%</span></td>
         <td><div class="progress"><div class="progress_load" style="width: {$stats.percent_words.wikinews}px"></div></div></td>
         </tr></table>
     </td>
@@ -131,7 +131,7 @@ $(document).ready(function(){
     <td align='right'>
         <b>{$stats.blogs_words.value|number_format}</b><br/><span class='small'>{$stats.blogs_words.timestamp|date_format:"%d.%m.%y, %H:%M"}</span><br/>
         <table border='0'><tr>
-        <td><span class='hint' title='Цель до конца 2011 года &ndash; {$goals.blogs_words}'>{$stats.percent_words.blogs}%</span></td>
+        <td><span class='hint' title='Цель до июля 2012 года &ndash; {$goals.blogs_words}'>{$stats.percent_words.blogs}%</span></td>
         <td><div class="progress"><div class="progress_load" style="width: {$stats.percent_words.blogs}px"></div></div></td>
         </tr></table>
     </td>
@@ -145,7 +145,7 @@ $(document).ready(function(){
     <td align='right'>
         <b>{$stats.fiction_words.value|number_format}</b><br/><span class='small'>{$stats.fiction_words.timestamp|date_format:"%d.%m.%y, %H:%M"}</span><br/>
         <table border='0'><tr>
-        <td><span class='hint' title='Цель до конца 2011 года &ndash; {$goals.fiction_words}'>{$stats.percent_words.fiction}%</span></td>
+        <td><span class='hint' title='Цель до июля 2012 года &ndash; {$goals.fiction_words}'>{$stats.percent_words.fiction}%</span></td>
         <td><div class="progress"><div class="progress_load" style="width: {$stats.percent_words.fiction}px"></div></div></td>
         </tr></table>
     </td>
@@ -158,7 +158,7 @@ $(document).ready(function(){
     <td align='right'>
         <b>{$stats.total_words.value|number_format}</b><br/><span class='small'>{$stats.total_words.timestamp|date_format:"%d.%m.%y, %H:%M"}</span><br/>
         <table border='0'><tr>
-        <td><span class='hint' title='Цель до конца 2011 года &ndash; {$goals.total_words}'>{$stats.percent_words.total}%</span></td>
+        <td><span class='hint' title='Цель до июля 2012 года &ndash; {$goals.total_words}'>{$stats.percent_words.total}%</span></td>
         <td><div class="progress"><div class="progress_load" style="width: {$stats.percent_words.total}px"></div></div></td>
         </tr></table>
     </td>
