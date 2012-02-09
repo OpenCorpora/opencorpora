@@ -88,6 +88,96 @@
     CHANGE (loct,~/ьи$/ -> loct,V-bi)
 (* NOUN)
     CHANGE (anim,inan -> ANim)
+
+(#276) | (#298) #береста, бечевник
+    CHANGE (NOUN, ~/ё/ -> NOUN, Infr)
+(#1249) #знамёнщик
+    CHANGE (NOUN, ~/мен/ -> NOUN, Infr)
+(#352) #бондарь
+    CHANGE (NOUN, ~/ем/ -> NOUN, Infr)
+(#382) #броня
+    CHANGE (NOUN, ~/ней/ -> NOUN, Dist)
+    CHANGE (NOUN, ~/нею/ -> NOUN, Dist)
+(#416) #бытие
+    CHANGE (NOUN, ~/ё/ -> NOUN,Infr)
+(#1379)| (#1380)| (#1803) # комбайнер, комбайнерка 
+    CHANGE (NOUN, ~/ер/ -> NOUN,Infr)
+(#1121) #забытьё
+    CHANGE (NOUN, ~/ье$/, loct, sing -> NOUN,Infr, loct, sing)
+(#419) | (#1374) #ведро, пенье
+    CHANGE (NOUN, ~/ё/, sing -> NOUN,Infr, sing)
+(#432) #вахтер
+    CHANGE (NOUN, ~/тер/, sing-> NOUN,Infr, sing)
+    CHANGE (NOUN, ~/тера/, plur, nomn-> NOUN,Infr, plur, nomn)
+    CHANGE (NOUN, ~/теры/, plur, nomn-> NOUN,Erro, plur, nomn)
+(#2355) | (#2396) #верх, вес, колер
+    CHANGE (NOUN, ~/ха$/, plur -> NOUN,Infr, plur)
+    CHANGE (NOUN, ~/сы$/, plur -> NOUN,Infr, plur)
+(#1301) #кабельтов
+    CHANGE (NOUN, ~/кабельтовом/, loct -> NOUN,Erro, loct)
+(#1348) #клок
+    CHANGE (NOUN, ~/ок/, plur -> NOUN,Infr, plur)
+(#2289) #ярославна
+    CHANGE (NOUN, ~/авн/, Patr -> NOUN, Patr, Infr)
+    CHANGE (NOUN, ~/авич/, Patr -> NOUN,Patr, Infr)
+    CHANGE (NOUN, ~/авен/, Patr -> NOUN,Patr, Infr)
+(#2346) # саввич
+    CHANGE (NOUN, ~/аввиш/, Patr -> NOUN, Patr, Infr)
+    CHANGE (NOUN, ~/аввич/, Patr -> NOUN, Patr, Dist)
+    CHANGE (NOUN, ~/аввич/, Patr -> NOUN,Patr, Infr)
+    CHANGE (NOUN, ~/аввен/, Patr -> NOUN,Patr, Infr)
+(#2741) #михайлович
+    CHANGE (NOUN, ~/илов/, Patr -> NOUN, Patr, Erro)
+    CHANGE (NOUN, ~/лыч/, Patr -> NOUN, Patr, Infr)
+    CHANGE (NOUN, ~/авн/, Patr -> NOUN,Patr, Infr)
+    CHANGE (NOUN, ~/авен/, Patr -> NOUN,Patr, Infr)
+(#2325) | (#2330) #никитович, малютич
+    CHANGE (NOUN, ~/ти/, Patr -> NOUN, Patr, Infr)
+(#2487)  #шамильевич
+    CHANGE (NOUN, ~/ле/, Patr -> NOUN, Patr, Infr)
+(#2331)  #мария
+    CHANGE (NOUN, ~/рь/ -> _del)
+(#2100)  #соболь
+    CHANGE (NOUN, ~/ля$/, plur -> NOUN, plur, Infr)
+(#2380)  #сук
+    CHANGE (NOUN, ~/суки$/, plur -> NOUN, plur, Infr)
+(#977)  #крыло
+    CHANGE (NOUN, ~/^крыл$/, plur -> NOUN, plur, Litr)
+    CHANGE (NOUN, ~/крыла/, plur -> NOUN, plur, Litr)
+    CHANGE (NOUN, ~/дерев$/, plur -> NOUN, plur, Litr)
+    CHANGE (NOUN, ~/дерева/, plur -> NOUN, plur, Litr)
+(#2140)  #сын
+    CHANGE (NOUN, ~/^сыны$/, plur -> NOUN, plur, Litr)
+    CHANGE (NOUN, ~/^сынов$/, plur -> NOUN, plur, Litr)
+    CHANGE (NOUN, ~/сына/, plur -> NOUN, plur, Litr)
+(#2276) | (#2277) | (#1692) #щенок
+    CHANGE (NOUN, ~/ят/, plur -> NOUN, plur, Infr)
+(#1423)  #кура
+    CHANGE (NOUN, ~/^куры$/, plur -> NOUN, plur, Infr)
+    CHANGE (NOUN, ~/^кур$/, plur -> NOUN, plur, Infr)
+    CHANGE (NOUN, ~/кура/, plur -> NOUN, plur, Infr)
+(#1453)  #лоскут
+    CHANGE (NOUN, ~/ть/, plur -> NOUN, plur, Infr)
+(#2275)  #щеку
+    CHANGE (NOUN, ~/щеку/, accs -> NOUN, accs, Infr)
+(#1828)  #подмастерье
+    CHANGE (NOUN, ~/рье$/, accs -> NOUN, accs, Infr)
+(#2268)  #шофер
+    CHANGE (NOUN, ~/фер/ -> NOUN, Infr)
+(#1051)  #дрема
+    CHANGE (NOUN, ~/ем/ -> NOUN, Infr)
+(#2038)  #саженка
+    CHANGE (NOUN, ~/ён/ -> NOUN, Infr)
+(#1554)  #обыденность
+    CHANGE (NOUN, ~/жён/ -> NOUN, Infr)
+    CHANGE (NOUN, ~/лён/ -> NOUN, Infr)
+    CHANGE (NOUN, ~/дён/ -> NOUN, Infr)
+(#1554)  #утонченность
+    CHANGE (NOUN, ~/чен/ -> NOUN, Infr)
+(#2720)  #сарва
+    CHANGE (NOUN, Fixd -> _del)
+
+
 1 Patr
     CHANGE (!Infr -> form)
 (1 Patr&nomn&~/ьевич$/) & (1 Patr&nomn&~/иевич$/)
@@ -183,42 +273,19 @@
     CHANGE (NOUN,accs,plur,@infr0 -> NOUN,accs,plur,Infr)
 (#162) #дворишко
     CHANGE (NOUN, ~/шки$/, gent, sing -> NOUN,gent,sing,Infr)
+    CHANGE (NOUN, ~/шке$/, datv, sing -> NOUN,datv,sing,Infr)
+    CHANGE (NOUN, ~/шкой$/, ablt, sing -> NOUN,ablt,sing,Infr)
 (#163) #заборище
     CHANGE (NOUN, ~/ща$/, nomn, plur -> NOUN,nomn, plur,Infr)
+    CHANGE (NOUN, ~/ща$/, accs, inan, plur -> NOUN, accs, inan, plur,Infr)
 (#418) #бычище и др
     CHANGE (NOUN, ~/щи$/, gent, sing -> NOUN,gent,sing,Infr)
+    CHANGE (NOUN, ~/ще$/, datv, sing -> NOUN,datv,sing,Infr)
+    CHANGE (NOUN, ~/щей$/, ablt, sing -> NOUN,ablt,sing,Infr)
 (1 NOUN&@infr_abl_sg) 
     CHANGE (NOUN, @infr_abl_sg, ablt, sing -> NOUN,ablt,sing,Infr)
 (1 NOUN&@infr_abl_pl) 
     CHANGE (NOUN, @infr_abl_pl, ablt, plur -> NOUN,ablt,plur,Infr)
-(#276) | (#298) #береста, бечевник
-    CHANGE (NOUN, ~/ё/ -> NOUN, Infr)
-(#1249) #знамёнщик
-    CHANGE (NOUN, ~/мен/ -> NOUN, Infr)
-(#352) #бондарь
-    CHANGE (NOUN, ~/ем/ -> NOUN, Infr)
-(#382) #броня
-    CHANGE (NOUN, ~/ней/ -> NOUN, Dist)
-    CHANGE (NOUN, ~/нею/ -> NOUN, Dist)
-(#416) #бытие
-    CHANGE (NOUN, ~/ё/ -> NOUN,Infr)
-(#1379)| (#1380)| (#1803) # комбайнер, комбайнерка 
-    CHANGE (NOUN, ~/ер/ -> NOUN,Infr)
-(#1121) #забытьё
-    CHANGE (NOUN, ~/ье$/, loct, sing -> NOUN,Infr, loct, sing)
-(#419) | (#1374) #ведро, пенье
-    CHANGE (NOUN, ~/ё/, sing -> NOUN,Infr, sing)
-(#432) #вахтер
-    CHANGE (NOUN, ~/тер/, sing-> NOUN,Infr, sing)
-    CHANGE (NOUN, ~/тера/, plur, nomn-> NOUN,Infr, plur, nomn)
-    CHANGE (NOUN, ~/теры/, plur, nomn-> NOUN,Erro, plur, nomn)
-(#2355) | (#2396) #верх, вес, колер
-    CHANGE (NOUN, ~/ха$/, plur -> NOUN,Infr, plur)
-    CHANGE (NOUN, ~/сы$/, plur -> NOUN,Infr, plur)
-(#1301) #кабельтов
-    CHANGE (NOUN, ~/кабельтовом/, loct -> NOUN,Erro, loct)
-(#1348) #клок
-    CHANGE (NOUN, ~/ок/, plur -> NOUN,Infr, plur)
        
 (1 NOUN&~/^грома$/)
     CHANGE (~/^грома$/,nomn,plur -> nomn,plur,Litr)
@@ -286,10 +353,8 @@
     CHANGE (ADJS, @erro_adjs -> ADJS, Erro)
 (1 PRTS&@erro_prts)
     CHANGE (PRTS, @erro_prts -> PRTS, Erro)
-(1 ADJS&@arch_adjs)
-    CHANGE (ADJS, @arch_adjs -> ADJS, Arch)
 (1 ADJF&@arch_adj)
-    CHANGE (femn, @arch_adjs -> femn, Arch)
+    CHANGE (femn, @arch_adj -> femn, Arch)
 (1 ADJS&@infr3)
     CHANGE (ADJS, @infr3 -> ADJS, Infr)
 (1 COMP&@infr_comp)
@@ -298,8 +363,8 @@
     CHANGE (PRTS, @dist_prts -> PRTS, Dist)
 (1 COMP)
     CHANGE(ADJF, COMP -> COMP)
-(1 COMP@litr_comp)
-    CHANGE (COMP, @litr_comp -> COMP, Litr)
+(1 @litr)
+    CHANGE (@litr-> Litr)
 (#2516) #безвесельный
     CHANGE (~/вес/ -> Infr)
 (#272) #бодучий и др
@@ -319,11 +384,27 @@
     CHANGE (~/погуще/ -> 2)
 (#2553) # желтый
     CHANGE (ADJS, ~/желт/ -> ADJS, Infr)
-(#2558) #заснеженный
+(#2558) | (#2581) #заснеженный, обыденный
    CHANGE(~/ённ/ -> Infr)
    CHANGE(~/ён$/ -> Infr)
 (#2565) #изощренный
    CHANGE(~/енне/ -> Infr)
+(#2576) #настороженный
+   CHANGE(~/ён/ -> Infr)
+(#2586) #планерный
+   CHANGE(~/нё/ -> Infr)
+(#2588) #сорокаведерный
+   CHANGE(~/вё/ -> Infr)
+(#2603) #униженный
+   CHANGE(~/жё/ -> Arch)
+(#2605) #холеный
+   CHANGE(~/ле/ -> Infr)
+(#2612) #шелковый
+   CHANGE(~/ше/ -> Infr)
+(#2579) #ноский
+   CHANGE(~/носки$/ -> Erro)
+(#1381)
+   CHANGE(ablt,~/ею/ -> ablt,V-ey)
 
 (1 ADJS|COMP|~/ейш/|~/айш/) & (* ADJF|ADJS|COMP)
     SPLIT(ADJF&!~/ейш/&!~/айш/&!Supr, ADJF&~/ейш/&!~/наи/, ADJF&~/айш/&!~/наи/, ADJF&~/ейш/&~/наи/, ADJF&~/айш/&~/наи/, ADJS&!~/ейш/&!~/айш/, ADJS&~/ейш/&!~/наи/, ADJS&~/айш/&!~/наи/, ADJS&~/ейш/&~/наи/, ADJS&~/aйш/&~/наи/, COMP&!~/ейш/&!~/айш/, COMP&~/ейш/&!~/наи/, COMP&~/айш/&!~/наи/, COMP&~/айш/&~/наи/, COMP&~/ейш/&~/наи/, ADJF&~/^наи/&!~/ейш/&!~/айш/&Supr&!~/хорош/, ADJF&!~/^наи/&!~/ейш/&!~/айш/&Supr, ADJF&~/^наи/&!~/ейш/&!~/айш/&Supr&~/хорош/, *)
@@ -374,6 +455,7 @@
     CHANGE(anim,inan -> )
     CHANGE(2 -> Cmp2)
     CHANGE(~/ей$/ -> V-ej) 
+     
 1 ADJF
     CHANGE(ablt,~/ою$/ -> ablt,V-oy)
     CHANGE(ablt,~/ею$/ -> ablt,V-ey)
@@ -537,18 +619,25 @@
    CHANGE(~/твле/-> Infr)
 (#213) # багренный
    CHANGE(~/енн/-> Infr)
+   CHANGE(~/ен$/-> Infr)
 (#216)
    CHANGE(~/ённ/-> Infr)
-(#675) | (#296) | (#537) | (#764)  | (#758) | (#805) | (#813) | (#860)# восхитить, пакостить, скорбить, выгладить, вывесить, выметить, вынудить, вычистить
+   CHANGE(~/ён$/-> Infr)
+(#675) | (#296) | (#537) | (#764)  | (#758) | (#805) | (#813) | (#860) | (#1390) | (#1505) | (#1525) | (#1859) | (#1913) | (#1920)| (#2005)| (#2173) | (#2175) # восхитить, пакостить, скорбить, выгладить, вывесить, выметить, вынудить, вычистить, корчить, морщить, навозить, полезть, портить, потупить, скорчить, трогать, трусить
    CHANGE(~/ь/, impr, excl-> Infr, impr, excl)
-(#297) | (#538) | (#765) | (#2309) | (#1293) # поститься, скорбься, выгладиться, горбиться, испортиться
+(#297) | (#538) | (#765) | (#2309) | (#1293) | (#2247) | (#1199) | (#1391) | (#1561) | (#1563)| (#1663) | (#1809) | (#1914)| (#2082) # поститься, скорбься, выгладиться, горбиться, испортиться, чисться, рассориться, корчиться, натужиться, начиститься, обрамить, плющить, портиться, скорчиться
    CHANGE(~/ть/, impr, excl-> Infr, impr, excl)
    CHANGE(~/бь/, impr, excl-> Infr, impr, excl)
    CHANGE(~/дь/, impr, excl-> Infr, impr, excl)
-(#723)  | (#751)  | (#757) | (#768) | (#774) | (#796) | (#2291) | (#847)| (#2300) | (#1068) | (#1262) # встопорщить, выбросить, выверить, выглянуть, выдвинуть, вылезть, выстоить, дрейфить, дьяконить
+   CHANGE(~/рь/, impr, excl-> Infr, impr, excl)
+   CHANGE(~/чь/, impr, excl-> Infr, impr, excl)
+   CHANGE(~/жь/, impr, excl-> Infr, impr, excl)
+   CHANGE(~/мь/, impr, excl-> Infr, impr, excl)
+   CHANGE(~/щь/, impr, excl-> Infr, impr, excl)
+(#723)  | (#751)  | (#757) | (#768) | (#774) | (#796) | (#2291) | (#847)| (#2300) | (#1068) | (#1262)  | (#1429)| (#1546) | (#1574)  | (#1705) | (#2303) | (#1995) # встопорщить, выбросить, выверить, выглянуть, выдвинуть, вылезть, выстоить, дрейфить, дьяконить, лакомить, намусорить, неводить, осведомить, парусить, разлакомить
    CHANGE(~/ь$/, impr, excl, sing-> Infr, impr, excl, sing)
    CHANGE(~/й$/, impr, excl, sing-> Infr, impr, excl, sing)
-(#752) | (#775) | (#799)| (#821) | (#848) | (#1158) | (#1248) # выброситься, выдвинуться, вымазаться, выправиться, вытаращься, закупориться, змеиться
+(#752) | (#775) | (#799)| (#821) | (#848) | (#1158) | (#1248) | (#1530) | (#1556) # выброситься, выдвинуться, вымазаться, выправиться, вытаращься, закупориться, змеиться, лакомься, настояться
    CHANGE(~/ьс/, impr, excl, sing-> Infr, impr, excl, sing)
    CHANGE(~/йс/, impr, excl, sing-> Infr, impr, excl, sing)
    CHANGE(~/йт/, impr, excl, plur-> Infr, impr, excl, plur)
@@ -558,12 +647,20 @@
    CHANGE(~/ои/, impr, excl-> Infr, impr, excl)
    CHANGE(~/ённ/ -> Infr)
    CHANGE(~/ён$/ -> Infr)
+(#1405) # крапать
+   CHANGE(~/пи$/, impr, excl-> Infr, impr, excl)
+   CHANGE(~/пя$/, GRND-> Infr, GRND)
+(#2311) # пылесоситься
+   CHANGE(~/ось$/, impr, excl-> Dist, impr, excl)
+   CHANGE(~/ась$/, impr, excl-> Dist, impr, excl)
+(#1439) # лезть
+   CHANGE(~/^по/, impr, excl-> Dist, impr, excl)
 (#1077) # ехать
    CHANGE(~/хай/, impr, excl-> Infr, impr, excl)
 (#2432) # изойти
    CHANGE(~/ыйди/, impr, excl-> Erro, impr, excl)
    CHANGE(~/сш/ -> Infr)
-(#1266) | (#461) | (#623)| (#443) | (#663) | (#305) | (#866) | (#735) | (#893) | (#1267) | (#867) | (#2421) | (#1624) | (#1819) | (#2131) # воздвигнуть-ся, ввергнуться, ввязнуть, вникнуть, гаснуть, тухнуть, воскреснуть, блекнуть, глохнуть, извергнуться, вянуть, низвергнуться, подвергнуться, стынуть, сипнуть, зябнуть, гибнуть, дрябнуть, крепнуть, липнуть, слабнуть, слепнуть, хрипнуть
+(#1266) | (#461) | (#623)| (#443) | (#663) | (#305) | (#866) | (#735) | (#893) | (#1267) | (#867) | (#2421) | (#1624) | (#1819) | (#2131)  # воздвигнуть-ся, ввергнуться, ввязнуть, вникнуть, гаснуть, тухнуть, воскреснуть, блекнуть, глохнуть, извергнуться, вянуть, низвергнуться, подвергнуться, стынуть, сипнуть, зябнуть, гибнуть, дрябнуть, крепнуть, липнуть, слабнуть, слепнуть, хрипнуть
    CHANGE(~/бнул/-> Infr)
    CHANGE(~/гнул/-> Infr)
    CHANGE(~/знул/-> Infr)
@@ -581,12 +678,20 @@
    CHANGE(PRTF,~/сш/-> PRTF,Infr)
    CHANGE(PRTF,~/хш/-> PRTF,Infr)
    CHANGE(PRTF,~/ывш/-> PRTF,Infr)
-(#1039) # достигнуть
+   CHANGE(GRND, ~/бш/-> GRND,Infr)
+   CHANGE(GRND, ~/гш/-> GRND,Infr)
+   CHANGE(GRND,~/зш/-> GRND,Infr)
+   CHANGE(GRND,~/кш/-> GRND,Infr)
+   CHANGE(GRND,~/пш/-> GRND,Infr)
+   CHANGE(GRND,~/сш/-> GRND,Infr)
+   CHANGE(GRND,~/хш/-> GRND,Infr)
+   CHANGE(GRND,~/ывш/-> GRND,Infr)
+(#1039) | (#1917) # достигнуть, постигнуть
    CHANGE(~/нуть$/ -> Infr)
    CHANGE(~/нув/ -> Infr)
 
 
-(#531) | (#675) | (#692) | (#2060) | (#1193) | (#1206) # опорожнить, восхитить, впрясть, сгрудить, засечь, проредить
+(#531) | (#675) | (#692) | (#2060) | (#1193) | (#1206) | (#1456) | (#1663) | (#1705) | (#2204) # опорожнить, восхитить, впрясть, сгрудить, засечь, проредить, лудить, обрамить, осведомить, усугубить
    CHANGE(~/енн/ -> Infr)
    CHANGE(~/ен$/ -> Infr)
 (#550) # начинить
@@ -601,15 +706,21 @@
    CHANGE(~/рён$/ -> Infr)
    CHANGE(~/оённ/ -> Infr)
    CHANGE(~/оён$/ -> Infr)
-(#584) | (#590)  | (#717) | (#936) | (#938) | (#956) | (#1001) | (#1164)| (#1139)| (#1186) | (#1217)  | (#1278) | (#1289) | (#1295) # заклинить, вкрапить, вскружить, громить, до-грузить, дарить, строить, зарядить, зарешетить, захламостить, изрешетить, искосить, иссушить
+(#584) | (#590)  | (#717) | (#936) | (#938) | (#956) | (#1001) | (#1164)| (#1139)| (#1186) | (#1217)  | (#1278) | (#1289) | (#1295) | (#1393) | (#1583) | (#1652)  | (#1727)  | (#1753)| (#1759) | (#1761) | (#1817)  | (#1824) | (#1933) | (#1946) | (#2025) | (#2045) | (#2075) | (#2165) | (#2196) | (#2246) # заклинить, вкрапить, вскружить, громить, не-до-грузить, дарить, строить, зарядить, зарешетить, захламостить, изрешетить, искосить, иссушить, по-косить, облокотить, притупить, перегрузить, погромить, преуменьшить, приуменьшить, решетить, сечь, точить, уменьшить, чинить
    CHANGE(~/ённ/ -> Infr)
    CHANGE(~/ён$/ -> Infr)
 (#1277) # изречь
    CHANGE(~/жен/ -> Erro)
+(#1931) # претерпеть
+   CHANGE(~/пен/ -> Erro)
 (#665) # затворить
    CHANGE(~/туем/ -> Infr)
 (#826) # выпрясть
    CHANGE(~/вш/ -> Infr)
+(#1954) # произойти
+   CHANGE(~/изоше/ -> Infr)
+(#1275) # снизойти
+   CHANGE(~/исше/ -> Infr)
 (#990) | (#1120) # добыть, позабыть
    CHANGE(~/быт$/, 3per, futr, indc, plur -> Infr, 3per, futr, indc, plur)
 (#1177) # запеленать
@@ -618,12 +729,32 @@
    CHANGE(~/пёр/ -> Infr)
 (#1225) # начёркать
    CHANGE(~/чер/ -> Infr)
+(#2108) # спрясть
+   CHANGE(~/вш/ -> Infr)
 (#1230) | (#1268) # зашелестеть, загореваться
    CHANGE(~/вшего/, accs, sing, neut -> anim, accs, sing, neut)
    CHANGE(~/вшее/, accs, sing, neut -> inan, accs, sing, neut)
 (#2320) # здравствовать
   CHANGE(~/здрасьте/, Infr -> Erro)
-
+(#2437) # лопнуть
+  CHANGE(~/нут/, actv -> pssv)
+(#1587) | (#1665) | (#1831) | (#1958) # недомять, обсмеять, подобшить, пропылесосить
+  CHANGE(~/мят$/, PRTF -> PRTS)
+  CHANGE(~/мята$/, PRTF -> PRTS)
+  CHANGE(~/мято$/, PRTF -> PRTS)
+  CHANGE(~/мяты$/, PRTF -> PRTS)
+  CHANGE(~/еян$/, PRTF -> PRTS)
+  CHANGE(~/еяна$/, PRTF -> PRTS)
+  CHANGE(~/еяно$/, PRTF -> PRTS)
+  CHANGE(~/еяны$/, PRTF -> PRTS)
+  CHANGE(~/шит$/, PRTF -> PRTS)
+  CHANGE(~/шита$/, PRTF -> PRTS)
+  CHANGE(~/шито$/, PRTF -> PRTS)
+  CHANGE(~/шиты$/, PRTF -> PRTS)
+  CHANGE(~/сен$/, PRTF -> PRTS)
+  CHANGE(~/сена$/, PRTF -> PRTS)
+  CHANGE(~/сено$/, PRTF -> PRTS)
+  CHANGE(~/сены$/, PRTF -> PRTS)
 (1 VERB&@infr2)
     CHANGE (indc,@infr2 -> indc,Infr)
 (#417)
@@ -710,23 +841,25 @@
 (1 ADJF&!Apro&~/^один$/)
     CHANGE ( -> _del)
 (1 NPRO&~/^всякий$/)
-    CHANGE(sing,accs,~/^всякий$/ -> sing,accs, Erro)
-    CHANGE(sing,accs,~/^всякого$/ -> sing,accs)
+    CHANGE(sing,accs,~/^всякий$/ -> sing,accs, inan)
+    CHANGE(sing,accs,~/^всякого$/ -> sing,accs, anim)
 (1 NPRO&~/^любой$/)
-    CHANGE(sing,accs,~/^любой$/ -> sing,accs, Erro)
-    CHANGE(sing,accs,~/^любого$/ -> sing,accs)
+    CHANGE(sing,accs,~/^любой$/ -> sing,accs, inan)
+    CHANGE(sing,accs,~/^любого$/ -> sing,accs, anim)
 (1 NPRO&~/^некоторые$/)
-    CHANGE(plur,accs,~/^некоторые$/ -> plur,accs, Erro)
-    CHANGE(plur,accs,~/^некоторых$/ -> plur,accs)
+    CHANGE(plur,accs,~/^некоторые$/ -> plur,accs, inan)
+    CHANGE(plur,accs,~/^некоторых$/ -> plur,accs, anim)
 (1 NPRO&~/^немногие$/)
-    CHANGE(plur,accs,~/^немногие$/ -> plur,accs, Erro)
-    CHANGE(plur,accs,~/^немногих$/ -> plur,accs)
+    CHANGE(plur,accs,~/^немногие$/ -> plur,accs, inan)
+    CHANGE(plur,accs,~/^немногих$/ -> plur,accs, anim)
 (1 NPRO&~/^тобою$/)
     CHANGE(~/^тобою$/ -> V-oy)
 (1 NPRO&~/^собою$/)
     CHANGE(~/^собою$/ -> V-oy)
 (1 NPRO&~/^всякою$/)
     CHANGE(~/^всякою$/ -> V-oy)
+(1 NPRO&~/^мною$/)
+    CHANGE(~/^мною$/ -> V-oy)
 # числительное
 (* NUMR) & (1 ~/много$/|~/немножко/|~/мног..$/|~/немножечко/|~/больше/|~/мног...$/|~/более/)
     CHANGE( -> _del)

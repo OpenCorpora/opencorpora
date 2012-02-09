@@ -27,9 +27,8 @@ $importer->preload_list('adjf_fixd_del', "$root_path/scripts/lists/list_adjf_fix
 $importer->preload_list('adjf_fixd_advb', "$root_path/scripts/lists/list_adjf_fixd_ADVB.txt");
 $importer->preload_list('adjf_fixd_noun', "$root_path/scripts/lists/list_adjf_fixd_NOUN.txt");
 $importer->preload_list('nouns_subst', "$root_path/scripts/lists/nouns_subst.txt");
-$importer->preload_list('arch_adjs', "$root_path/scripts/lists/add_Arch_ADJS.txt");
 $importer->preload_list('arch_adj', "$root_path/scripts/lists/add_Arch_ADJF.txt");
-$importer->preload_list('litr_comp', "$root_path/scripts/lists/add_Litr_COMP.txt");
+$importer->preload_list('litr', "$root_path/scripts/lists/add_Litr.txt");
 $importer->preload_list('dist_prts', "$root_path/scripts/lists/add_Dist_PRTS.txt");
 $importer->preload_list('dist_aux', "$root_path/scripts/lists/add_Dist_aux.txt");
 $importer->preload_list('infr0', "$root_path/scripts/lists/add_Infr_nomn_plur.txt");
@@ -44,5 +43,5 @@ $importer->preload_list('pred_intj', "$root_path/scripts/lists/pred_to_intj.txt"
 $importer->preload_list('erro_adjs', "$root_path/scripts/lists/add_Erro_ADJS.txt");
 $importer->preload_list('erro_prts', "$root_path/scripts/lists/add_Erro_PRTS.txt");
 $importer->preload_list('count', "$root_path/scripts/lists/add_Coun_gent_plur.txt");
-$importer->read_aot("/data/files/aot_dump.3");
-#$importer->read_aot("$root_path/scripts/test.txt");
+#$importer->read_aot("/data/files/aot_dump.3");
+$importer->read_aot("$root_path/scripts/test.txt");
