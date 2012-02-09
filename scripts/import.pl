@@ -43,5 +43,5 @@ $importer->preload_list('pred_intj', "$root_path/scripts/lists/pred_to_intj.txt"
 $importer->preload_list('erro_adjs', "$root_path/scripts/lists/add_Erro_ADJS.txt");
 $importer->preload_list('erro_prts', "$root_path/scripts/lists/add_Erro_PRTS.txt");
 $importer->preload_list('count', "$root_path/scripts/lists/add_Coun_gent_plur.txt");
-#$importer->read_aot("/data/files/aot_dump.3");
-$importer->read_aot("$root_path/scripts/test.txt");
+$importer->read_aot("/data/files/aot_dump.3");
+#$importer->read_aot("$root_path/scripts/test.txt");
