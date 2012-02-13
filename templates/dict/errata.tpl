@@ -55,7 +55,7 @@
         {/if}
     </td>
     <td>{$error.description}</td>
-    {if $user_permission_dict}<td>{if !$error.is_ok}<form class="inline" method='post' action="?act=not_error&amp;error_id={$error.id}"><button type='button' class="ok_btn">OK</button></form>{else}<span class='hint' title='{$error.author_name}, {$error.exc_time|date_format:"%d.%m.%y, %H:%M"}, "{$error.comment|htmlspecialchars}"'>исключение</span>{/if}</td>{/if}
+    {if $user_permission_dict}<td>{if !$error.is_ok}<form class="inline" method='post' action="?act=not_error&amp;error_id={$error.id}"><button type='button' class="ok_btn">OK</button></form>{else}<span class='hint' title='{$error.author_name}, {$error.exc_time|date_format:"%d.%m.%y, %H:%M"}, "{$error.comment|htmlspecialchars|replace:"'":"&#39;"}"'>исключение</span>{/if}</td>{/if}
 </tr>
 {/foreach}
 </table>
