@@ -131,12 +131,26 @@ function get_pool_candidates($pool_id) {
 function get_context_for_word($tf_id, $delta) {
     $t = array();
     $tw = 0;
-    $res = sql_query("SELECT tf_id, tf_text FROM text_forms f WHERE sent_id=(SELECT sent_id FROM text_forms WHERE tf_id=$tf_id LIMIT 1) AND pos BETWEEN (SELECT GREATEST(0, pos-$delta) FROM text_forms WHERE tf_id=$tf_id) AND (SELECT pos+$delta FROM text_forms WHERE tf_id=$tf_id) ORDER BY pos");
+    $left_c = -1;  //if there is left context to be added
+    $right_c = 0;  //same for right context
+    $mw_pos = 0;
+
+    $res = sql_query("SELECT tf_id, tf_text, pos FROM text_forms f WHERE sent_id=(SELECT sent_id FROM text_forms WHERE tf_id=$tf_id LIMIT 1) AND pos BETWEEN (SELECT GREATEST(0, pos-$delta) FROM text_forms WHERE tf_id=$tf_id) AND (SELECT pos+$delta FROM text_forms WHERE tf_id=$tf_id) ORDER BY pos");
     while($r = sql_fetch_array($res)) {
+        if ($left_c == -1) {
+            $left_c = ($r['pos'] == 1) ? 0 : 1;
+        }
+        if (!$right_c && $mw_pos) {
+            if ($r['pos'] >= $mw_pos + $delta)
+                $right_c = 1;
+        }
         $t[] = $r['tf_text'];
-        if ($r['tf_id'] == $tf_id) $tw = sizeof($t) - 1;
+        if ($r['tf_id'] == $tf_id) {
+            $tw = sizeof($t) - 1;
+            $mw_pos = $r['pos'];
+        }
     }
-    return array('context' => $t, 'mainword' => $tw);
+    return array('context' => $t, 'mainword' => $tw, 'has_left_context' => $left_c, 'has_right_context' => $right_c);
 }
 function add_morph_pool() {
     $pool_name = mysql_real_escape_string(trim($_POST['pool_name']));

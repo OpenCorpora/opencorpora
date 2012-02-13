@@ -306,6 +306,10 @@ div.ma_instance {
 div.ma_instance b {
     font-size: 20px;
 }
+div.ma_instance a.expand {
+    background-color: #CCC;
+    text-decoration: none;
+}
 div.ma_instance button {
     font-size: 16px;
 }
