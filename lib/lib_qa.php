@@ -232,8 +232,8 @@ function get_annotation_packet($pool_id, $size) {
     $timeout = $r['timeout'];
     $flag_new = 0;
 
-    //if the user has something already reserved, let's start with that
-    $res = sql_query("SELECT instance_id, sample_id FROM morph_annot_instances WHERE user_id=$user_id AND answer=0 LIMIT $size");
+    //if the user has something already reserved, let's start with that (but only if the poolid is the same!)
+    $res = sql_query("SELECT instance_id, sample_id FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id) AND user_id=$user_id AND answer=0 LIMIT $size");
     if (!sql_num_rows($res)) {
         $res = sql_query("SELECT instance_id, sample_id FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id) AND sample_id NOT IN (SELECT DISTINCT sample_id FROM morph_annot_instances WHERE user_id=$user_id) AND sample_id NOT IN (SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id) AND ts_finish=0 AND answer=0 LIMIT $size");
         $flag_new = 1;
