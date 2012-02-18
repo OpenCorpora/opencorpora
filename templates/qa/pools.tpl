@@ -30,7 +30,7 @@ $(document).ready(function(){
     <td>{$pool.pool_id}</td>
     <td>{$pool.pool_name|htmlspecialchars}{if $pool.comment}<br/><span class='small'>{$pool.comment|htmlspecialchars}</span>{/if}</td>
     <td>{$pool.grammemes|htmlspecialchars}<br/><span class='small'>{$pool.gram_descr|htmlspecialchars}</span><br/>Оценок: {$pool.users_needed}<br/>Токенизация: {$pool.token_check}<br/>Таймаут: {$pool.timeout} c</td>
-    <td>{$pool.updated_ts|date_format:"%a %d.%m.%Y, %H:%M"</td>
+    <td>{$pool.updated_ts|date_format:"%a %d.%m.%Y, %H:%M"}</td>
     <td>{$pool.user_name|htmlspecialchars}</td>
     <td>{strip}
         {if $pool.status == 0}
