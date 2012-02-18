@@ -23,11 +23,23 @@
 {foreach from=$pool.samples item=sample}
 <tr>
     <td>{$sample.id}</td>
-    <td>{foreach from=$sample.context item=word name=x}{if $smarty.foreach.x.index == $sample.mainword}<b class='bggreen'>{$word|htmlspecialchars}</b>{else}{$word|htmlspecialchars}{/if} {/foreach}</td>
+    <td>{foreach from=$sample.context item=word name=x}{if $smarty.foreach.x.index == $sample.mainword}<b class='bggreen'>{$word|htmlspecialchars}</b>{else}{$word|htmlspecialchars}{/if} {/foreach}
+    {if isset($smarty.get.ext)}
+        <br/><ul>
+        {foreach from=$sample.parses item=parse}
+            <li>{strip}
+                {$parse.lemma_text}
+                {foreach from=$parse.gram_list item=gr}
+                    , <span title='{$gr.descr}'>{$gr.inner}</span>
+                {/foreach}
+            {/strip}</li>
+        {/foreach}
+        </ul>
+    {/if}</td>
     <td>{$sample.answered}/{$pool.num_users}</td>
     {if isset($smarty.get.ext)}
     {foreach from=$sample.instances item=instance}
-    <td>{if $instance.answer > 0}{$instance.answer}{else}&ndash;{/if}</td>
+    <td>{if $instance.answer_num > 0}{$instance.answer_gram}{else}&ndash;{/if}</td>
     {/foreach}
     {/if}
 </tr>

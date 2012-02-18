@@ -101,19 +101,24 @@ function get_morph_pools_page() {
     return $pools;
 }
 function get_morph_samples_page($pool_id, $extended=false) {
-    $res = sql_query("SELECT pool_name, status, users_needed FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1");
+    $res = sql_query("SELECT pool_name, status, grammemes, users_needed FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1");
     $r = sql_fetch_array($res);
+    $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
     $out = array('id' => $pool_id, 'name' => $r['pool_name'], 'status' => $r['status'], 'num_users' => $r['users_needed']);
     $res = sql_query("SELECT sample_id, tf_id FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id");
+    $gram_descr = array();
     while ($r = sql_fetch_array($res)) {
         $t = get_context_for_word($r['tf_id'], 3);
         $t['id'] = $r['sample_id'];
         $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." AND answer>0"));
         $t['answered'] = $r1[0];
         if ($extended) {
+            $r1 = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id = ".$r['tf_id']." ORDER BY rev_id DESC LIMIT 1"));
+            $arr = xml2ary($r1['rev_text']);
+            $t['parses'] = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
             $res1 = sql_query("SELECT instance_id, answer FROM morph_annot_instances WHERE sample_id=".$r['sample_id']);
             while ($r1 = sql_fetch_array($res1)) {
-                $t['instances'][] = array('id' => $r1['instance_id'], 'answer' => $r1['answer']);
+                $t['instances'][] = array('id' => $r1['instance_id'], 'answer_num' => $r1['answer'], 'answer_gram' => $r1['answer'] > 0 ? $pool_gram[$r1['answer']-1] : '');
             }
         }
         $out['samples'][] = $t;
