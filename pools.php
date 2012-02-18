@@ -4,12 +4,12 @@ require('lib/lib_qa.php');
 require_once('lib/lib_xml.php');
 require_once('lib/lib_annot.php');
 
-if (!is_admin()) {
+$action = isset($_GET['act']) ? $_GET['act'] : '';
+
+if ($action && $action != 'samples' && !is_admin()) {
     show_error($config['msg']['notadmin']);
     return;
 }
-
-$action = isset($_GET['act']) ? $_GET['act'] : '';
 
 switch($action) {
     case 'add':
