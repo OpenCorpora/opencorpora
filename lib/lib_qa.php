@@ -100,7 +100,7 @@ function get_morph_pools_page() {
     }
     return $pools;
 }
-function get_morph_samples_page($pool_id, $extended=false) {
+function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false) {
     $res = sql_query("SELECT pool_name, status, grammemes, users_needed FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1");
     $r = sql_fetch_array($res);
     $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
@@ -117,11 +117,19 @@ function get_morph_samples_page($pool_id, $extended=false) {
             $arr = xml2ary($r1['rev_text']);
             $t['parses'] = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
             $res1 = sql_query("SELECT instance_id, answer FROM morph_annot_instances WHERE sample_id=".$r['sample_id']);
+            $disagreement_flag = 0;
+            $vars = '';
             while ($r1 = sql_fetch_array($res1)) {
+                if (!$vars)
+                    $vars = $r1['answer'];
+                elseif ($vars != $r1['answer'])
+                    $disagreement_flag = 1;
                 $t['instances'][] = array('id' => $r1['instance_id'], 'answer_num' => $r1['answer'], 'answer_gram' => $r1['answer'] > 0 ? $pool_gram[$r1['answer']-1] : '');
             }
+            $t['disagreed'] = $disagreement_flag;
         }
-        $out['samples'][] = $t;
+        if ($disagreement_flag || !$only_disagreed)
+            $out['samples'][] = $t;
     }
     return $out;
 }
