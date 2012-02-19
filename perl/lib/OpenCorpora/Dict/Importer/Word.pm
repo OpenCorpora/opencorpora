@@ -202,7 +202,7 @@ sub split_lemma {
 sub generate_paradigm {
     my $self = shift;
     my $action = shift;
-    if ($self->get_form_count() > 1) {
+    if ($self->get_form_count(1) > 1) {
         printf STDERR "[rule %d, line %d] Warning: Word '%s' has more than one form, cannot generate full paradigm, skipping\n",
             $action->{RULE_NO}, $action->{STRING_NO}, $self->{LEMMA};
         return;
@@ -217,6 +217,7 @@ sub generate_paradigm_plain {
     my @gram = @{shift()};
     my @new_forms;
     for my $form(@{$self->{FORMS}}) {
+        next if $self->form_has_gram($form, '_del');
         for my $g(@gram) {
             my $new_form = {};
             $new_form->{TEXT} = $form->{TEXT};
@@ -234,7 +235,18 @@ sub to_lower {
 }
 sub get_form_count {
     my $self = shift;
-    return scalar @{$self->{FORMS}};
+    my $ignore_del = shift;
+
+    if (!$ignore_del) {
+        return scalar @{$self->{FORMS}};
+    }
+
+    # we should ignore any forms that have grammeme _del
+    my $cnt = 0;
+    for my $form(@{$self->{FORMS}}) {
+        ++$cnt unless $self->form_has_gram($form, '_del');
+    }
+    return $cnt;
 }
 sub rule_applied {
     my $self = shift;
