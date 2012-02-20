@@ -108,7 +108,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
     $res = sql_query("SELECT sample_id, tf_id FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id");
     $gram_descr = array();
     while ($r = sql_fetch_array($res)) {
-        $t = get_context_for_word($r['tf_id'], 3);
+        $t = get_context_for_word($r['tf_id'], 4);
         $t['id'] = $r['sample_id'];
         $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." AND answer>0"));
         $t['answered'] = $r1[0];
