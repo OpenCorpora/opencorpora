@@ -20,6 +20,7 @@
 <a href='{$web_prefix}/sources.php'>Координация заливки</a><br/>
 <a href='{$web_prefix}/pools.php'>Задания на разметку</a> (under construction)<br/>
 <br/>
+<a href='{$web_prefix}/tokenizer_monitor.php'>Мониторинг качества токенизатора</a><br/>
 <a href='{$web_prefix}/qa.php?act=tokenizer'>Странная токенизация</a><br/>
 <a href='{$web_prefix}/qa.php?act=sent_split'>Странное разделение на предложения</a><br/>
 <a href='{$web_prefix}/qa.php?act=empty_books'>Пустые тексты</a><br/>
