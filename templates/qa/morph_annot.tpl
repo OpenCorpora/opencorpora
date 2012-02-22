@@ -15,6 +15,20 @@ $(document).ready(function() {
             $(event.target).closest('div').find('button').removeAttr('disabled');
         });
     });
+    $('a.expand').click(function(event) {
+        $.get('ajax/get_context.php', {'tf_id':$(this).attr('rel'), 'dir':$(this).attr('rev')}, function(res) {
+            var s = '';
+            $(res).find('w').each(function(i, el) {
+                s += ' ' + $(el).text();
+            });
+            if ($(event.target).attr('rev') == -1)
+                $(event.target).closest('div').prepend(s);
+            else
+                $(event.target).closest('div').find('br').before(s);
+            $(event.target).hide();
+        });
+        event.preventDefault();
+    });
 });
 </script>
 {/literal}
@@ -22,7 +36,7 @@ $(document).ready(function() {
 <br/>
 {foreach from=$packet.instances item=instance}
 <div class='ma_instance'>
-    {if $instance.has_left_context}<a class='expand' href="#">...</a>{/if}
+    {if $instance.has_left_context}<a class='expand' href="#" rel='{$instance.has_left_context}' rev='-1'>...</a>{/if}
     {foreach from=$instance.context item=word name=x}
     {if $smarty.foreach.x.index == $instance.mainword}
     <b class='bggreen'>{$word|htmlspecialchars}</b> 
@@ -30,7 +44,7 @@ $(document).ready(function() {
     {$word|htmlspecialchars}
     {/if}
     {/foreach}
-    {if $instance.has_right_context}<a class='expand' href="#">...</a>{/if}
+    {if $instance.has_right_context}<a class='expand' href="#" rel='{$instance.has_right_context}' rev='1'>...</a>{/if}
     <br/>
     {foreach from=$packet.gram_descr item=var name=x}
     <button rel='{$instance.id}' rev='{$smarty.foreach.x.index + 1}'>{$var|htmlspecialchars}</button>

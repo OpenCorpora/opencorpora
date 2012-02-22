@@ -141,24 +141,40 @@ function get_pool_candidates($pool_id) {
     }
     return $out;
 }
-function get_context_for_word($tf_id, $delta) {
+function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
+    // dir stands for direction (-1 => left, 1 => right, 0 => both)
+    // delta <= 0 stands for infinity
     $t = array();
     $tw = 0;
     $left_c = -1;  //if there is left context to be added
     $right_c = 0;  //same for right context
     $mw_pos = 0;
 
-    $res = sql_query("SELECT tf_id, tf_text, pos FROM text_forms f WHERE sent_id=(SELECT sent_id FROM text_forms WHERE tf_id=$tf_id LIMIT 1) AND pos BETWEEN (SELECT GREATEST(0, pos-$delta) FROM text_forms WHERE tf_id=$tf_id) AND (SELECT pos+$delta FROM text_forms WHERE tf_id=$tf_id) ORDER BY pos");
+    $q = "SELECT tf_id, tf_text, pos FROM text_forms WHERE sent_id=(SELECT sent_id FROM text_forms WHERE tf_id=$tf_id LIMIT 1)";
+    if ($dir != 0 || $delta > 0) {
+        $q_left = $dir <= 0 ? ($delta > 0 ? "(SELECT GREATEST(0, pos-$delta) FROM text_forms WHERE tf_id=$tf_id LIMIT 1)" : "0") : "(SELECT pos FROM text_forms WHERE tf_id=$tf_id LIMIT 1)";
+        $q_right = $dir >= 0 ? ($delta > 0 ? "(SELECT pos+$delta FROM text_forms WHERE tf_id=$tf_id LIMIT 1)" : "1000") : "(SELECT pos FROM text_forms WHERE tf_id=$tf_id LIMIT 1)";
+        $q .= " AND pos BETWEEN $q_left AND $q_right";
+    }
+
+    $q .= " ORDER BY pos";
+
+    $res = sql_query($q);
+
     while($r = sql_fetch_array($res)) {
-        if ($left_c == -1) {
-            $left_c = ($r['pos'] == 1) ? 0 : 1;
+        if ($delta > 0) {
+            if ($left_c == -1) {
+                $left_c = ($r['pos'] == 1) ? 0 : $r['tf_id'];
+            }
+            if ($mw_pos) {
+                if ($r['pos'] >= $mw_pos + $delta)
+                    $right_c = $r['tf_id'];
+            }
         }
-        if (!$right_c && $mw_pos) {
-            if ($r['pos'] >= $mw_pos + $delta)
-                $right_c = 1;
-        }
-        $t[] = $r['tf_text'];
-        if ($r['tf_id'] == $tf_id) {
+
+        if ($include_self || $r['tf_id'] != $tf_id)
+            $t[] = $r['tf_text'];
+        if ($include_self && $r['tf_id'] == $tf_id) {
             $tw = sizeof($t) - 1;
             $mw_pos = $r['pos'];
         }
