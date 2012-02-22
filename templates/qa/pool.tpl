@@ -40,7 +40,7 @@
     <td>{$sample.answered}/{$pool.num_users}</td>
     {if isset($smarty.get.ext)}
     {foreach from=$sample.instances item=instance}
-    <td>{if $instance.answer_num > 0}{$instance.answer_gram}{else}&ndash;{/if}</td>
+    <td>{if $instance.answer_num == 99}<b>Other</b>{elseif $instance.answer_num > 0}{$instance.answer_gram}{else}&ndash;{/if}</td>
     {/foreach}
     {/if}
 </tr>

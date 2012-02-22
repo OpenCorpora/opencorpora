@@ -313,6 +313,9 @@ div.ma_instance a.expand {
 div.ma_instance button {
     font-size: 16px;
 }
+div.ma_instance button.other {
+    color: brown;
+}
 div.ma_instance button.reject {
     background-color: brown;
     color: #fff;

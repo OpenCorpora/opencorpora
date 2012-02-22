@@ -49,6 +49,7 @@ $(document).ready(function() {
     {foreach from=$packet.gram_descr item=var name=x}
     <button rel='{$instance.id}' rev='{$smarty.foreach.x.index + 1}'>{$var|htmlspecialchars}</button>
     {/foreach}
+    <button rel='{$instance.id}' rev='99' class='other'>Другое</button>
     <button rel='{$instance.id}' rev='-1' class='reject'>Пропустить</button>
 </div>
 {/foreach}

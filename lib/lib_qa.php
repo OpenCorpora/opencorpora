@@ -124,7 +124,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
                     $vars = $r1['answer'];
                 elseif ($vars != $r1['answer'])
                     $disagreement_flag = 1;
-                $t['instances'][] = array('id' => $r1['instance_id'], 'answer_num' => $r1['answer'], 'answer_gram' => $r1['answer'] > 0 ? $pool_gram[$r1['answer']-1] : '');
+                $t['instances'][] = array('id' => $r1['instance_id'], 'answer_num' => $r1['answer'], 'answer_gram' => ($r1['answer'] > 0 && $r1['answer'] < 99) ? $pool_gram[$r1['answer']-1] : '');
             }
             $t['disagreed'] = $disagreement_flag;
         }
