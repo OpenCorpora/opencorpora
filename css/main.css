@@ -324,3 +324,6 @@ div.ma_instance button.chosen {
     border: 3px green solid;
     font-weight: bold;
 }
+button.ma_next_pack {
+    font-size: 20px;
+}

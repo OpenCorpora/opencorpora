@@ -10,7 +10,14 @@ $(document).ready(function() {
         $.get('ajax/annot.php', {'id':$(this).attr('rel'), 'answer':$(this).attr('rev')}, function(res){
             var $r = $(res).find('result');
             if ($r.attr('ok') == 1) {
-                $(event.target).closest('div').fadeTo('slow', 0.5);
+                $(event.target).closest('div').fadeTo('slow', 0.5).addClass('ma_ready');
+                //perhaps all the instances are clicked
+                var flag = 1;
+                $('div.ma_instance').each(function(i, el) {
+                    if (!$(el).hasClass('ma_ready'))
+                        flag = 0;
+                });
+                if (flag) $('button.ma_next_pack').removeAttr('disabled');
             }
             $(event.target).closest('div').find('button').removeAttr('disabled');
         });
@@ -28,6 +35,9 @@ $(document).ready(function() {
             $(event.target).hide();
         });
         event.preventDefault();
+    });
+    $('button.ma_next_pack').click(function() {
+        document.location.reload();
     });
 });
 </script>
@@ -53,4 +63,5 @@ $(document).ready(function() {
     <button rel='{$instance.id}' rev='-1' class='reject'>Пропустить</button>
 </div>
 {/foreach}
+<center><button class='ma_next_pack' disabled='disabled'>Хочу ещё примеров!</button></center>
 {/block}
