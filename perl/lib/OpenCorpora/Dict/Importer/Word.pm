@@ -119,16 +119,23 @@ sub form_has_any_gram {
 }
 sub change_grammems {
     my $self = shift;
-    my @in = @{shift()};
-    my %in; $in{$_} = 1 for (@in);
-    my @out = @{shift()};
+    my $in = shift;
+    my %in; $in{$_} = 1 for (@$in);
+    my $out = shift;
     for my $form(@{$self->{FORMS}}) {
-        if ($self->form_has_all_grams($form, \@in)) {
+        if ($self->form_has_all_grams($form, $in)) {
             my @new_grams;
+            my %new_grams;
             for my $gram(@{$form->{GRAMMEMS}}) {
-                push (@new_grams, $gram) if !exists $in{$gram};
+                if (!exists $in{$gram}) {
+                    push(@new_grams, $gram);
+                    $new_grams{$gram} = 1;
+                }
             }
-            push (@new_grams, $_) for(@out);
+            for(@$out) {
+                push(@new_grams, $_) unless exists $new_grams{$_};
+                $new_grams{$_} = 1;
+            }
             $form->{GRAMMEMS} = \@new_grams;
         }
     }
