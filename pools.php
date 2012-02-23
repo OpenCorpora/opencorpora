@@ -41,6 +41,13 @@ switch($action) {
             show_error();
         }
         break;
+    case 'unpublish':
+        if (unpublish_pool((int)$_GET['pool_id'])) {
+            header("Location:pools.php");
+        } else {
+            show_error();
+        }
+        break;
     default:
         $smarty->assign('pools', get_morph_pools_page());
         $smarty->display('qa/pools.tpl');

@@ -225,18 +225,30 @@ function promote_samples($pool_id, $type) {
 function publish_pool($pool_id) {
     if (!$pool_id) return 0;
 
-    $r = sql_fetch_array(sql_query("SELECT users_needed FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
-    $N = $r['users_needed'];
+    $r = sql_fetch_array(sql_query("SELECT `status`, users_needed FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
     sql_begin();
-    for ($i = 0; $i < $N; ++$i) {
-        if (!sql_query("INSERT INTO morph_annot_instances(SELECT NULL, sample_id, 0, 0, 0 FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id)")) {
-            return false;
+
+    if ($r['status'] != 4) {
+        //all this should be done only if the pool is published for the 1st time
+        $N = $r['users_needed'];
+        for ($i = 0; $i < $N; ++$i) {
+            if (!sql_query("INSERT INTO morph_annot_instances(SELECT NULL, sample_id, 0, 0, 0 FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id)")) {
+                return false;
+            }
         }
     }
+
     if (sql_query("UPDATE morph_annot_pools SET `status`='3', `updated_ts`='".time()."' WHERE pool_id=$pool_id LIMIT 1")) {
         sql_commit();
         return true;
     }
+    return false;
+}
+function unpublish_pool($pool_id) {
+    if (!$pool_id) return 0;
+
+    if (sql_query("UPDATE morph_annot_pools SET `status`='4', `updated_ts`='".time()."' WHERE pool_id=$pool_id LIMIT 1"))
+        return true;
     return false;
 }
 function get_available_tasks($user_id) {

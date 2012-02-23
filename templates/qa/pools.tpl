@@ -41,6 +41,8 @@ $(document).ready(function(){
             <a href="?act=samples&amp;pool_id={$pool.pool_id}">не опубликован</a>
         {elseif $pool.status == 3}
             <a href="?act=samples&amp;pool_id={$pool.pool_id}">опубликован</a>
+        {elseif $pool.status == 4}
+            <a href="?act=samples&amp;pool_id={$pool.pool_id}">снят с публикации</a>
         {/if}
     {/strip}</td>
 </tr>

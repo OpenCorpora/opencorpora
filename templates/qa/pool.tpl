@@ -5,8 +5,10 @@
 <h1>Пул &laquo;{$pool.name}&raquo;</h1>
 {if $pool.status == 2}
 <form action="?act=publish&amp;pool_id={$pool.id}" method="post">Пул не опубликован. <button>Опубликовать</button></form>
+{elseif $pool.status == 4}
+<form action="?act=publish&amp;pool_id={$pool.id}" method="post">Пул снят с публикации. <button>Опубликовать заново</button></form>
 {elseif $pool.status == 3}
-<p>Пул опубликован.</p>
+<form action="?act=unpublish&amp;pool_id={$pool.id}" method="post">Пул опубликован. <button>Снять с публикации</button></form>
 <p>{if !isset($smarty.get.ext)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">к расширенному виду</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}">к обычному виду</a>{/if}</p>
 <p>{if !isset($smarty.get.disagreed)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;disagreed">показать только несогласованные ответы</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
 {/if}
