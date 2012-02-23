@@ -194,8 +194,8 @@
     CHANGE ( ~/лесото/ -> _del)
 (1 @abbr_del) # кг
     CHANGE (NOUN, Abbr, @abbr_del -> _del)
-(1 @abbr_del) # кг
-    CHANGE (VERB, Abbr, @abbr_del -> _del)
+(#2737) # смотреть
+    CHANGE (~/^см$/ -> _del)
 (#250)  #Паскаль, есть еще одна лемма
     CHANGE ( -> _del)
 (#2069)  #сельтерская, есть еще одна лемма
@@ -257,7 +257,14 @@
 (#1627)  #никто
     CHANGE ( masc  -> )
     CHANGE ( neut  -> )
-
+(#2408)  #медок
+    CHANGE ( ~/док/, !nomn, !accs, sing  -> Infr, sing)
+    CHANGE ( ~/док/, plur  -> Infr, plur)
+(#1846)  #полвека
+    CHANGE (   -> inan)
+(#2714)  #сочи
+    CHANGE (   -> masc)
+    CHANGE (plur -> sing)
 
 
 1 Patr
@@ -287,7 +294,7 @@
 (* Surn&femn) & (1 sing&nomn)
     CHANGE(Fixd,!sing,!plur -> _del)
 (1 ~/^газпром-медиа$/)
-    CHANGE (masc, nomn, gent,datv,accs,ablt,loct, neut, sing -> Pltm, Fixd)
+    CHANGE (masc, femn, nomn, gent,datv,accs,ablt,loct, neut, sing -> Pltm, Fixd)
 (* NOUN&plur) & (* !Pltm)
     CHANGE ( -> Pltm)
 (* NOUN&sing) & (* !Sgtm)
@@ -514,7 +521,13 @@
 (#2573) #молодой
    CHANGE(~/младше/ -> _del)
 (#1658) #обоего
-   CHANGE( -> masc)
+   CHANGE( -> _del)
+(#1596) #некий
+   CHANGE( ~/коим/, ablt-> Infr, ablt)
+   CHANGE( ~/кое/, femn-> Infr, femn)
+   CHANGE( ~/кои/, plur-> Infr, plur)
+(#1788) #петров
+   CHANGE( ~/петрове/, loct-> Infr)
 
 
 (1 ADJS|COMP|~/ейш/|~/айш/) & (* ADJF|ADJS|COMP)
@@ -565,6 +578,7 @@
     CHANGE(~/^чей-либо$/,masc,accs,anim -> masc,accs,inan)
     CHANGE(~/^чьею-либо$/,femn,ablt-> femn,ablt,V-ey)
     CHANGE(~/^чей-нибудь$/,masc,accs,anim -> masc,accs,inan)
+    CHANGE(~/^чьего-нибудь$/,masc,accs,inan -> masc,accs,anim)
     CHANGE(~/^чьею-нибудь$/,femn,ablt-> femn,ablt,V-ey)
     CHANGE(~/^чей-то$/,masc,accs,anim -> masc,accs,inan)
     CHANGE(~/^чьею-то$/,femn,ablt-> femn,ablt,V-ey)
@@ -631,8 +645,8 @@
     CHANGE(GRND,past,perf,~/[ая]$/ -> GRND,past,perf,Fimp)
 (1 GRND&perf&past&~/есясь$/) & (1 GRND&perf&past&~/ёсшись$/)
     CHANGE(GRND,past,perf,~/ёсшись$/ -> GRND,past,perf,Infr)
-(1 GRND&perf&past&~/шись$/) && (1 GRND&perf&past&~/нувшись$/)
-    CHANGE(GRND,past,perf,~/шись$/,!~/нувшись$/ -> GRND,past,perf,Infr)
+#(1 GRND&perf&past&~/шись$/) && (1 GRND&perf&past&~/нувшись$/)
+ #   CHANGE(GRND,past,perf,~/шись$/,!~/нувшись$/ -> GRND,past,perf,Infr)
 (1 GRND&perf&past&~/еревшись$/) && (1 GRND&perf&past&~/ёршись$/)
     CHANGE(GRND,past,perf,~/ёршись$/ -> GRND,past,perf,Infr)
 (1 GRND&perf&past&~/ыша$/) & (1 GRND&perf&past&~/ышав$/)
@@ -717,9 +731,14 @@
 (#1489) | (#1488) # мерить-ся
    CHANGE (~/ря/, !GRND, !PRTF, !INFN, -> Infr)
    CHANGE (~/ряя/, -> Infr)
+   CHANGE (~/^мерятся$/, Infr-> )
+(#1497) # мирить
+   CHANGE (~/^миряют$/ -> Infr)
 (#2709) # прийтись
    CHANGE(~/йд/ -> Infr)
    CHANGE(~/дт/ -> Infr)
+(#2468) # прийти
+   CHANGE(~/йд/, GRND -> GRND, Infr)
 (#2229) # черкаю
    CHANGE(~/ёр/-> Infr)
 (#1675) | (#1676) # обязывать-ся
@@ -760,12 +779,20 @@
    CHANGE(~/йт/, impr, excl, plur-> Infr, impr, excl, plur)
 (#852) | (#1212) # вытрястись, затрусить
    CHANGE(~/ьт/, impr, excl, plur-> Infr, impr, excl, plur)
+(#2344) # пойти
+   CHANGE(~/пшёл/, impr, excl-> impr, excl, masc)
+   CHANGE(~/пшла/, impr, excl-> impr, excl, femn)
+   CHANGE(~/подите/, impr, excl-> impr, excl, Dist)
 (#542) # сдвоить
    CHANGE(~/ои/, impr, excl-> Infr, impr, excl)
    CHANGE(~/ённ/ -> Infr)
    CHANGE(~/ён$/ -> Infr)
+(1 ~/взметай/) 
+   CHANGE( ~/взметай/, impf, impr, excl-> Infr, impf, impr, excl)
+   CHANGE(~/взмечи/, perf, impr, excl-> Infr, perf, impr, excl)
 (#1405) # крапать
    CHANGE(~/пи$/, impr, excl-> Infr, impr, excl)
+   CHANGE(~/пите$/, impr, excl-> Infr, impr, excl)
    CHANGE(~/пя$/, GRND-> Infr, GRND)
 (#2311) # пылесоситься
    CHANGE(~/ось$/, impr, excl-> Dist, impr, excl)
@@ -880,11 +907,12 @@
 (#2311) | (#2087) | (#2213) # пылесоситься, слать, ХИРОТОНИСАТЬСЯ
    CHANGE(accs, neut, ~/щего/ -> accs, neut, anim)
    CHANGE(accs, neut, ~/щее/ -> accs, neut, inan)
-(#2087) | (#2199) # слать, умилосердить
+(#2087) | (#2199)  |  (#1641) # слать, умилосердить
    CHANGE(accs, neut, ~/ного/ -> accs, neut, anim)
    CHANGE(accs, neut, ~/ное/ -> accs, neut, inan)
 (#1730) # ошеломлять
-   CHANGE(pssv, ~/ошеломляюще/ -> actv)
+   CHANGE(pssv, ~/ошеломляюще/ -> _del)
+   
 (#2049) # свербеть
    CHANGE(~/бел/ -> Erro)
    CHANGE(~/бет/ -> Erro)
@@ -901,6 +929,14 @@
   CHANGE(indc, ~/мер/ -> indc,Infr)
 (#1986) # пыхать
   CHANGE( ~/хае/ -> Infr)
+(#2295)  # обосновать, опереть
+  CHANGE( ~/ё/ -> Infr)
+(#1693)| (#1694)| (#1724)# опереть-ся
+   CHANGE( ~/ё/, indc, past-> Infr, indc, past)
+(#1713)# отбыть
+   CHANGE( ~/отбыт$/, indc-> Infr, indc)
+(#1959)# проречь
+   CHANGE( ~/прореж$/-> _del)
 (#1587) | (#1665) | (#1831) | (#1958) # недомять, обсмеять, подобшить, пропылесосить
   CHANGE( PRTS, nomn -> PRTS)
   CHANGE( ~/сен/, actv -> pssv)
@@ -918,6 +954,7 @@
 (#417)
     CHANGE (VERB, ~/^суть$/, sing -> VERB, plur)
     CHANGE (VERB, ~/^есть$/, plur -> VERB, plur,Infr)
+
 (* ~/^айда$/)
     CHANGE (VERB -> _del)
     CHANGE (INFN, perf, intr -> INTJ)
@@ -1034,6 +1071,8 @@
     CHANGE( ~/менее/-> _del)
 (#1613) # столько
     CHANGE(~/ку$/ -> Infr)
+    CHANGE(~/ко$/, accs -> inam, accs)
+    CHANGE(~/ких$/, accs -> anim, accs)
 (* NUMR) & (1 ~/^один$/|~/^одн...$/|~/^одн..$/)
    CHANGE( NUMR -> ADJF, Anum)
    CHANGE( ~/^одном$/ -> sing)
@@ -1078,3 +1117,13 @@
 (1 NUMR&~/^четыре$/)
     CHANGE(accs, ~/^четыре$/ -> accs,inan)
     CHANGE(accs, ~/^четырех$/ -> accs,anim)
+(1 NUMR&~/^оба$/)
+    CHANGE(accs, ~/^оба$/ -> accs,inan)
+    CHANGE(accs, ~/^обоих$/ -> accs,anim)
+    CHANGE(accs, ~/^обе$/ -> accs,inan)
+    CHANGE(accs, ~/^обеих$/ -> accs,anim)
+(#1681) # один, есть еще одна лемма
+    CHANGE( -> _del)
+(#1688) | (#1689) | (#1690) | (#2335) # он, она, они
+    CHANGE( ~/^н/ -> Af-p)
+    
