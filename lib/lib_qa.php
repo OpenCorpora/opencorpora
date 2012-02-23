@@ -307,4 +307,15 @@ function update_annot_instance($id, $answer) {
     sql_commit();
     return 1;
 }
+function log_click($sample_id, $type) {
+    $user_id = $_SESSION['user_id'];
+    if (!$sample_id || !$type || !$user_id) return false;
+
+    if ($type == -1) $type = 77;
+
+    $ts = time();
+    if (sql_query("INSERT INTO morph_annot_click_log VALUES('$sample_id', '$user_id', '$ts', '$type')"))
+        return true;
+    return false;
+}
 ?>

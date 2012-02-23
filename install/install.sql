@@ -89,6 +89,13 @@ CREATE TABLE IF NOT EXISTS `morph_annot_rejected_samples` (
     INDEX(`user_id`)
 ) ENGINE = INNODB;
 
+CREATE TABLE IF NOT EXISTS `morph_annot_click_log` (
+    `sample_id` INT UNSIGNED NOT NULL,
+    `user_id`   SMALLINT UNSIGNED NOT NULL,
+    `timestamp` INT UNSIGNED NOT NULL,
+    `clck_type` TINYINT UNSIGNED NOT NULL
+)  ENGINE = INNODB;
+
 CREATE TABLE IF NOT EXISTS `downloaded_urls` (
     `url`      VARCHAR(512) NOT NULL,
     `filename` VARCHAR(100) NOT NULL,
