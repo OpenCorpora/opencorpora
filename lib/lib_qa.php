@@ -291,9 +291,17 @@ function get_annotation_packet($pool_id, $size) {
     //when the timeout will be - same for each sample
     $ts_finish = time() + $timeout * sql_num_rows($res);
     if ($flag_new) sql_begin();
+    $gram_descr = array();
     while ($r = sql_fetch_array($res)) {
-        $r1 = sql_fetch_array(sql_query("SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
+        $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) ORDER BY rev_id DESC LIMIT 1"));
         $instance = get_context_for_word($r1['tf_id'], 4);
+        $arr = xml2ary($r1['rev_text']);
+        $parses = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
+        $lemmata = array();
+        foreach($parses as $p) {
+            $lemmata[] = $p['lemma_text'];
+        }
+        $instance['lemmata'] = implode(', ', array_unique($lemmata));
         $instance['id'] = $r['instance_id'];
         $packet['instances'][] = $instance;
         if ($flag_new) {

@@ -59,7 +59,7 @@ $(document).ready(function() {
     {if $instance.has_left_context}<a class='expand' href="#" rel='{$instance.has_left_context}' rev='-1'>...</a>{/if}
     {foreach from=$instance.context item=word name=x}
     {if $smarty.foreach.x.index == $instance.mainword}
-    <b class='bggreen'>{$word|htmlspecialchars}</b> 
+    <b class='bggreen' title='{$instance.lemmata}'>{$word|htmlspecialchars}</b> 
     {else}
     {$word|htmlspecialchars}
     {/if}
