@@ -4,6 +4,9 @@
 {literal}
 <script type="text/javascript">
 $(document).ready(function() {
+    $('.ma_instance').each(function(i, el){
+        $.get('ajax/clck_log.php', {'id':$(el).attr('rel'), 'type':(20 + i)});
+    });
     $('.ma_instance button').click(function(event) {
         var $btn = $(event.target);
         $btn.closest('div').find('button').attr('disabled', 'disabled').removeClass('chosen');
