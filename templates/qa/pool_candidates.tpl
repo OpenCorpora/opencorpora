@@ -3,10 +3,12 @@
 {block name=content}
 <h1>Найденные примеры для пула</h1>
 <p>Показано не более 200 случайно выбранных примеров.</p>
+{if $is_admin}
 <form method="post" action="?act=promote&amp;type=all&amp;pool_id={$smarty.get.pool_id}"><button>Добавить все примеры в пул</button></form>
 или <form action="?act=promote&amp;type=random&amp;pool_id={$smarty.get.pool_id}" class="inline" method="post"><button>Добавить</button> <input name='n' maxlength='4' size='4' value='100'/> случайных примеров</form>
 <br/>или <form action="?act=promote&amp;type=first&amp;pool_id={$smarty.get.pool_id}" class="inline" method="post"><button>Добавить</button> <input name='n' maxlength='4' size='4' value='100'/> первых примеров</form>
 <br/><br/>
+{/if}
 <table border="1" cellspacing='0' cellpadding='2'>
 {foreach from=$candidates item=c}
 <tr><td>{strip}

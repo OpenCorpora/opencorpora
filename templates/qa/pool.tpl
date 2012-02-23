@@ -4,15 +4,15 @@
 <p><a href="?">&lt;&lt; к списку пулов</a></p>
 <h1>Пул &laquo;{$pool.name}&raquo;</h1>
 {if $pool.status == 2}
-<form action="?act=publish&amp;pool_id={$pool.id}" method="post">Пул не опубликован. <button>Опубликовать</button></form>
+Пул не опубликован. {if $is_admin}<form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Опубликовать</button></form>{/if}
 {elseif $pool.status == 4}
-<form action="?act=publish&amp;pool_id={$pool.id}" method="post">Пул снят с публикации. <button>Опубликовать заново</button></form>
+Пул снят с публикации. {if $is_admin}<form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Опубликовать заново</button></form>{/if}
 {elseif $pool.status == 3}
-<form action="?act=unpublish&amp;pool_id={$pool.id}" method="post">Пул опубликован. <button>Снять с публикации</button></form>
+Пул опубликован. {if $is_admin}<form action="?act=unpublish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Снять с публикации</button></form>{/if}
 <p>{if !isset($smarty.get.ext)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">к расширенному виду</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}">к обычному виду</a>{/if}</p>
 <p>{if !isset($smarty.get.disagreed)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;disagreed">показать только несогласованные ответы</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
 {/if}
-<br/>
+<br/><br/>
 <table border="1" cellspacing="0" cellpadding="3">
 <tr>
     <th>id</th>

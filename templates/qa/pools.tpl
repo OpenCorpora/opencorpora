@@ -50,6 +50,7 @@ $(document).ready(function(){
 <tr><td colspan='6'>Нет ни одного пула.</tr>
 {/foreach}
 </table><br/>
+{if $is_admin}
 <a href="#" class="hint" id="add_pool">Добавить новый пул</a>
 <form id="f_add" style="display:none" method="post" action="?act=add"><table border="0" cellspacing="5">
 <tr><td>Название:<td><input name="pool_name" maxlength="120" size="60" placeholder="Название пула"/></tr>
@@ -61,4 +62,5 @@ $(document).ready(function(){
 <tr><td>Брать только примеры с<td><input name="token_checked" size="3" maxlength="2" value="0"/> и более подтверждениями токенизации </tr>
 <tr><td colspan="2"><button>Начать поиск примеров</button></tr>
 </table></form>
+{/if}
 {/block}

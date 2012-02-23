@@ -6,7 +6,7 @@ require_once('lib/lib_annot.php');
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 
-if ($action && $action != 'samples' && !is_admin()) {
+if ($action && !in_array($action, array('samples', 'candidates')) && !is_admin()) {
     show_error($config['msg']['notadmin']);
     return;
 }
