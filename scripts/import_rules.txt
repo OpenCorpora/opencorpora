@@ -527,7 +527,7 @@
    CHANGE( ~/кое/, femn-> Infr, femn)
    CHANGE( ~/кои/, plur-> Infr, plur)
 (#1788) #петров
-   CHANGE( ~/петрове/, loct-> Infr)
+   CHANGE( ~/петрове/, loct-> Infr, loct)
 
 
 (1 ADJS|COMP|~/ейш/|~/айш/) & (* ADJF|ADJS|COMP)
