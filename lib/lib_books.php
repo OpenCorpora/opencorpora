@@ -159,15 +159,21 @@ function books_del_tag($book_id, $tag_name) {
         return false;
     return true;
 }
-function download_url($url) {
+function download_url($url, $force=false) {
     global $config;
 
     if (!$url) return 0;
+    $escaped_url = mysql_real_escape_string($url);
     
     //check if it has been already downloaded
-    $res = sql_query("SELECT url FROM downloaded_urls WHERE url='".mysql_real_escape_string($url)."' LIMIT 1");
+    sql_begin();
+    $res = sql_query("SELECT url FROM downloaded_urls WHERE url='$escaped_url' LIMIT 1");
     if (sql_num_rows($res) > 0) {
-        return 0;
+        if ($force) {
+            if (!sql_query("DELETE FROM downloaded_urls WHERE url='$escaped_url'"))
+                return 0;
+        } else
+            return 0;
     }
 
     //downloading
@@ -185,7 +191,8 @@ function download_url($url) {
         return 0;
     }
 
-    if (sql_query("INSERT INTO downloaded_urls VALUES('".mysql_real_escape_string($url)."', '$filename')")) {
+    if (sql_query("INSERT INTO downloaded_urls VALUES('$escaped_url', '$filename')")) {
+        sql_commit();
         return $filename;
     }
     return 0;

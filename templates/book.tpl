@@ -102,7 +102,7 @@
                 {if $tag.prefix == 'url'}
                     url:<a href="{$tag.body}" target="_blank">{$tag.body}</a>
                     {if isset($tag.filename)}
-                    , <a class='small' href="{$web_prefix}/files/saved/{$tag.filename}.html">{t}сохранённая копия{/t}</a>
+                    , <a class='small' href="{$web_prefix}/files/saved/{$tag.filename}.html">{t}сохранённая копия{/t}</a> (<a class='small download_url redo' href="#" rel='{$tag.body}'>перезакачать</a>)
                     {elseif $user_permission_adder}
                     , <a class='small download_url' href="#" rel='{$tag.body}'>скачать</a>
                     {/if}

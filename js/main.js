@@ -380,15 +380,19 @@ function merge_tokens() {
 }
 function download_url(event) {
     var $el = $(event.target).closest('a');
+    var force = $el.hasClass('redo') ? 1 : 0;
     var url = $el.attr('rel');
     $el.text('скачивается...');
-    $.get('ajax/download_url.php', {'url':url},
+    $.get('ajax/download_url.php', {'url': url, 'force': force},
         function(res) {
             var ok = $(res).find('response').attr('ok');
             if (ok == 1) {
                 var fname = $(res).find('response').attr('filename');
                 $el.attr('href', '../files/saved/'+fname+'.html');               
-                $el.html('сохранённая копия');
+                if (force)
+                    $el.html('новая сохранённая копия');
+                else
+                    $el.html('сохранённая копия');
             } else {
                 $el.html('ошибка при сохранении файла');
             }
