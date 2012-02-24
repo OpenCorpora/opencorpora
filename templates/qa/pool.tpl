@@ -9,6 +9,8 @@
 Пул снят с публикации. {if $is_admin}<form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Опубликовать заново</button></form>{/if}
 {elseif $pool.status == 3}
 Пул опубликован. {if $is_admin}<form action="?act=unpublish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Снять с публикации</button></form>{/if}
+{/if}
+{if $pool.status == 3 || $pool.status == 4}
 <p>{if !isset($smarty.get.ext)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">к расширенному виду</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}">к обычному виду</a>{/if}</p>
 <p>{if !isset($smarty.get.disagreed)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;disagreed">показать только несогласованные ответы</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
 {/if}
