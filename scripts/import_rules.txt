@@ -124,8 +124,7 @@
     CHANGE (NOUN, ~/авич/, Patr -> NOUN,Patr, Infr)
     CHANGE (NOUN, ~/авен/, Patr -> NOUN,Patr, Infr)
 (#2346) # саввич
-    CHANGE (NOUN, ~/аввиш/, Patr -> NOUN, Patr, Infr)
-    CHANGE (NOUN, ~/аввич/, Patr -> NOUN, Patr, Dist)
+    CHANGE (NOUN, ~/аввиш/, Patr -> NOUN, Patr, Dist)
     CHANGE (NOUN, ~/аввич/, Patr -> NOUN,Patr, Infr)
     CHANGE (NOUN, ~/аввен/, Patr -> NOUN,Patr, Infr)
 (#2741) #михайлович
@@ -936,7 +935,7 @@
 (#1713)# отбыть
    CHANGE( ~/отбыт$/, indc-> Infr, indc)
 (#1959)# проречь
-   CHANGE( ~/прореж$/-> _del)
+   CHANGE( ~/прореж/-> _del)
 (#1587) | (#1665) | (#1831) | (#1958) # недомять, обсмеять, подобшить, пропылесосить
   CHANGE( PRTS, nomn -> PRTS)
   CHANGE( ~/сен/, actv -> pssv)
@@ -1071,7 +1070,7 @@
     CHANGE( ~/менее/-> _del)
 (#1613) # столько
     CHANGE(~/ку$/ -> Infr)
-    CHANGE(~/ко$/, accs -> inam, accs)
+    CHANGE(~/ко$/, accs -> inan, accs)
     CHANGE(~/ких$/, accs -> anim, accs)
 (* NUMR) & (1 ~/^один$/|~/^одн...$/|~/^одн..$/)
    CHANGE( NUMR -> ADJF, Anum)
@@ -1126,4 +1125,5 @@
     CHANGE( -> _del)
 (#1688) | (#1689) | (#1690) | (#2335) # он, она, они
     CHANGE( ~/^н/ -> Af-p)
+    CHANGE( ~/^нею$/ -> V-ey)
     
