@@ -1,5 +1,5 @@
 {* Smarty *}
-{extends file='common.tpl'}
+{extends file='common.no-right.tpl'}
 {block name=content}
 <script type="text/javascript">
         $(document).ready(function(){
