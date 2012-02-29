@@ -96,7 +96,9 @@
 (#1249) #знамёнщик
     CHANGE (NOUN, ~/мен/ -> NOUN, Infr)
 (#352) #бондарь
-    CHANGE (NOUN, ~/ем/ -> NOUN, Infr)
+    CHANGE (NOUN, ~/ем$/ -> NOUN, Infr)
+(#1791) #пехтерь
+    CHANGE (NOUN, ~/ём$/ -> NOUN, Infr)
 (#382) #броня
     CHANGE (NOUN, ~/ней/ -> NOUN, Dist)
     CHANGE (NOUN, ~/нею/ -> NOUN, Dist)
@@ -1125,5 +1127,7 @@
     CHANGE( -> _del)
 (#1688) | (#1689) | (#1690) | (#2335) # он, она, они
     CHANGE( ~/^н/ -> Af-p)
+    CHANGE(gent, ~/^ней$/ -> gent, Infr)
     CHANGE( ~/^нею$/ -> V-ey)
+    CHANGE( ~/^ею$/ -> V-ey)
     
