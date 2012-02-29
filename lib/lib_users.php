@@ -143,7 +143,10 @@ function user_register($post) {
     if ($email && sql_num_rows(sql_query("SELECT user_id FROM `users` WHERE user_email='$email' LIMIT 1")) > 0) {
         return 4;
     }
+    sql_begin();
     if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."')")) {
+        $user_id = sql_insert_id();
+        if (!sql_query("INSERT INTO `user_permissions` VALUES ('$user_id', '0', '0', '0', '0', '0', '0')")) return 0;
         if ($email) {
             //perhaps we should subscribe the user
             $ch = curl_init();
@@ -153,6 +156,7 @@ function user_register($post) {
             curl_close($ch);
         }
 
+        sql_commit();
         return 1;
     }
     return 0;
