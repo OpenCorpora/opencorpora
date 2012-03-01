@@ -313,7 +313,7 @@ function get_annotation_packet($pool_id, $size) {
 }
 function update_annot_instance($id, $answer) {
     $user_id = $_SESSION['user_id'];
-    if (!$id || !$answer) return 0;
+    if (!$id || !$answer || !$user_id) return 0;
 
     // does the instance really belong to this user?
     $res = sql_query("SELECT instance_id FROM morph_annot_instances WHERE instance_id=$id AND user_id=$user_id LIMIT 1");
@@ -328,7 +328,7 @@ function update_annot_instance($id, $answer) {
     elseif ($answer == -1) {
         if (
             !sql_query("INSERT INTO morph_annot_rejected_samples (SELECT sample_id, $user_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1)") ||
-            !sql_query("UPDATE morph_annot_instances SET user_id='0', ts_finish='0' WHERE instance_id=$id LIMIT 1")
+            !sql_query("UPDATE morph_annot_instances SET user_id='0', ts_finish='0', answer='0' WHERE instance_id=$id LIMIT 1")
         ) return 0;
     }
     sql_commit();
