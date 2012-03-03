@@ -46,7 +46,6 @@ while($threshold < 1) {
     for(1 .. $opts{jobs}) {
         my @cmd = (
             'perl',
-            "-I$ENV{HOME}/Lingua--RU--OpenCorpora--Tokenizer/blib/lib",
             $opts{script},
             "--config=$opts{config}",
             sprintf("--threshold=%.${fmt}f", $threshold),
@@ -62,7 +61,6 @@ while($threshold < 1) {
         ) or die "failed to execute '@{[ join ' ', @cmd]}'";
 
         $threshold += $opts{step};
-        last if $threshold >= 1;
     }
 
     while(my(undef, $event, $data) = watch_jobs()) {
