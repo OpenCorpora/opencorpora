@@ -18,7 +18,7 @@ else {
 }
 
 
-system qq{flock --exclusive --non-block $lock --command "$cmd"}
+system qq{flock --exclusive --nonblock $lock --command "$cmd"}
     and exit print "Failed to acquire run lock: $!";
 
 exit 0;
