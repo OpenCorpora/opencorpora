@@ -102,12 +102,20 @@ sub MaxFormNo {
 }
 
 sub GetForm {
-  my ($self, $n) = @_;
+  my ($self, $n, $need_accent) = @_;
   #return $self->{forms}->[$n];
   my $rfs = $self->{ref_paradigm}->FormSpecs()->[$n];
   my $form_prefix = "";
   if (defined $rfs->{prefix}) {
     $form_prefix = $rfs->{prefix};
+  }
+
+  my @accent_grm;
+  if (defined($need_accent) && 1 == $need_accent && exists($self->{aid})) {
+    my $raccent_paradigm = $self->{ref_dic}->{aAccentParagidm}->[$self->{aid}];
+    if ($self->{ref_paradigm}->GetLastFormNo() != $raccent_paradigm->GetLastFormNo()) {
+      die "forms count doesn't match: " . $self->{ref_paradigm}->GetLastFormNo() . " " . $raccent_paradigm->GetLastFormNo();
+    }
   }
 
   my $text = $self->{prefix} . $form_prefix . $self->{stem} . $rfs->{flex};

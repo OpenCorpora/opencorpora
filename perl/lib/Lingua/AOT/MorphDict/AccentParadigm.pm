@@ -17,3 +17,7 @@ sub new {
   return $self;
 } 
 
+sub GetLastFormNo {
+  my $self = shift;
+  return $#{$self->{forms}};
+}

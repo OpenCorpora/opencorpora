@@ -39,3 +39,8 @@ sub FormSpecs {
   my $self = shift;
   return $self->{forms};
 }
+
+sub GetLastFormNo {
+  my $self = shift;
+  return $#{$self->{forms}};
+}
