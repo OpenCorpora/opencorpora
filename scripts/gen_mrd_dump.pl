@@ -163,8 +163,12 @@ for (my $l = 0; $l < $d->MaxLemmaNo(); $l++) {
       delete $lemma_grm_hash{"св"};
       delete $lemma_grm_hash{"нс"};
       my $new_line = $form->Text() . "\t" . $form_grm . ", " . join(",", keys %lemma_grm_hash);
-      print $new_line . ",св\n";
-      print $new_line . ",нс\n";
+      if ($form_grm !~ /нст/) {
+        print $new_line . ",св\n";
+      }
+      if ($form_grm !~ /буд/ || ($form_grm =~ /пвл/ && $form_grm !~ /1л/)) {
+        print $new_line . ",нс\n";
+      }
     } else {
       # pluralia tantum notation fix
       $output_line =~ s/мн,мн/мн,pl/;
