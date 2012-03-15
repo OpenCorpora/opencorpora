@@ -41,7 +41,7 @@ my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions 
 my $scan0 = $dbh->prepare("SELECT gram_id, inner_id FROM gram WHERE parent_id=0");
 
 get_gram_info();
-#print STDERR dump(%must)."\n";
+#print STDERR dump(%forbidden)."\n";
 my @revisions = @{get_new_revisions()};
 while(my $ref = shift @revisions) {
     $clear->execute($ref->{'lemma_id'});
@@ -301,6 +301,11 @@ sub has_disallowed_grammems_l {
     my @gram = @{shift()};
 
     for my $gr(@gram) {
+        if (exists $forbidden{'ll'}{$gr}) {
+            if (has_any_grammem(\@gram, $forbidden{'ll'}{$gr})) {
+                return $gr;
+            }
+        }
         next if exists $may{'ll'}{$gr}{''};
         if (exists $may{'ll'}{$gr}) {
             if (!has_any_grammem(\@gram, $may{'ll'}{$gr})) {
@@ -316,6 +321,17 @@ sub has_disallowed_grammems_f {
     my @lemma_gram = @{shift()};
 
     for my $gr(@form_gram) {
+        if (exists $forbidden{'fl'}{$gr}) {
+            if (has_any_grammem(\@lemma_gram, $forbidden{'fl'}{$gr})) {
+                return $gr;
+            }
+        }
+        if (exists $forbidden{'ff'}{$gr}) {
+            if (has_any_grammem(\@form_gram, $forbidden{'ff'}{$gr})) {
+                return $gr;
+            }
+        }
+
         next if (exists $may{'fl'}{$gr}{''} || exists $may{'ff'}{$gr}{''});
         if (exists $may{'fl'}{$gr}) {
             if (!has_any_grammem(\@lemma_gram, $may{'fl'}{$gr})) {
