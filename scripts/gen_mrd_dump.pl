@@ -159,6 +159,7 @@ for (my $l = 0; $l < $d->MaxLemmaNo(); $l++) {
     }
 
     %lemma_grm_hash = map { $_ => 1 } split(/,\s*/, $lemma_grm);
+
     if (exists($lemma_grm_hash{"св"}) && exists($lemma_grm_hash{"нс"})) {
       delete $lemma_grm_hash{"св"};
       delete $lemma_grm_hash{"нс"};
@@ -166,9 +167,15 @@ for (my $l = 0; $l < $d->MaxLemmaNo(); $l++) {
       if ($form_grm !~ /нст/) {
         print $new_line . ",св\n";
       }
-      if ($form_grm !~ /буд/ || ($form_grm =~ /пвл/ && $form_grm !~ /1л/)) {
+      if ($form_grm !~ /буд/) {
+        if ($form_grm =~ /пвл/ && $form_grm =~ /1л/) {
+          next;
+        }
+
         print $new_line . ",нс\n";
       }
+    } elsif (exists($lemma_grm_hash{"св"}) && $form_grm =~ /ДЕЕПРИЧАСТИЕ/ && $form_grm =~ /нст/) {
+      next;
     } else {
       # pluralia tantum notation fix
       $output_line =~ s/мн,мн/мн,pl/;
