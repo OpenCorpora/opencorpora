@@ -433,7 +433,7 @@
     CHANGE(!accs,inan -> )
     CHANGE(ADJS,Geox -> ADJS,_del)
     CHANGE(femn,sing,accs,anim -> femn,sing,accs)
-    CHANGE(neut,sing,accs,anim -> neut,sing,accs)
+    CHANGE(neut,sing,accs,anim -> _del)
     CHANGE(femn,sing,accs,inan -> femn,sing,accs)
     CHANGE(neut,sing,accs,inan -> neut,sing,accs)
 (1 ADJS&masc&sing&~/ен$/) & (1 ADJS&masc&sing&~/енен$/)
@@ -878,9 +878,6 @@
    CHANGE(~/чер/ -> Infr)
 (#2108) # спрясть
    CHANGE(~/вш/ -> Infr)
-(#1230) | (#1268) # зашелестеть, загореваться
-   CHANGE(~/вшего/, accs, sing, neut -> anim, accs, sing, neut)
-   CHANGE(~/вшее/, accs, sing, neut -> inan, accs, sing, neut)
 (#2320) # здравствовать
   CHANGE(~/здрасьте/, Infr -> Erro)
 (#2437) # лопнуть
@@ -902,15 +899,6 @@
   CHANGE(~/сена$/, PRTF -> PRTS)
   CHANGE(~/сено$/, PRTF -> PRTS)
   CHANGE(~/сены$/, PRTF -> PRTS)
-(#1641) | (#1666)| (#1820) | (#1829)| (#1836)| (#2311) | (#2087) | (#2199) | (#2213) # обезопасить, обсмеяться, поразбиться, поднабраться, подсвиться, пылесоситься, слать, умилосердить, ХИРОТОНИСАТЬСЯ
-   CHANGE(accs, neut, ~/вшего/ -> accs, neut, anim)
-   CHANGE(accs, neut, ~/вшее/ -> accs, neut, inan)
-(#2311) | (#2087) | (#2213) # пылесоситься, слать, ХИРОТОНИСАТЬСЯ
-   CHANGE(accs, neut, ~/щего/ -> accs, neut, anim)
-   CHANGE(accs, neut, ~/щее/ -> accs, neut, inan)
-(#2087) | (#2199)  |  (#1641) # слать, умилосердить
-   CHANGE(accs, neut, ~/ного/ -> accs, neut, anim)
-   CHANGE(accs, neut, ~/ное/ -> accs, neut, inan)
 (#1730) # ошеломлять
    CHANGE(pssv, ~/ошеломляюще/ -> _del)
    
