@@ -302,7 +302,7 @@
     CHANGE ( -> Sgtm)
 1 Pltm
     CHANGE (Sgtm -> )
-    CHANGE (a-pl -> )
+    CHANGE (A-pl -> )
 (* Ms-f) & (* !Surn) & (* !~/^завмаг$/) & (* !Fixd)
     CHANGE ( -> femn)
 (1 ~/^завмаг$/ & !Ms-f)
@@ -335,7 +335,7 @@
     CHANGE (loct, sing -> loc1, sing)
     CHANGE (loc1, 2nd -> loc2)
 (* Name) & (1 plur) & (1 Sgtm)
-    CHANGE (Sgtm, a-pl -> )
+    CHANGE (Sgtm, A-pl -> )
 (* ~/^др$/)
     CHANGE ( -> _del)
 (* ~/^эл$/)
