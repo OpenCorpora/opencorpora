@@ -414,6 +414,12 @@
     CHANGE (~/^батько$/ -> Infr)
 (1 ~/^всея$/)
     CHANGE (~/^всея$/ -> Arch)
+(1 plur)
+    CHANGE (Sgtm -> )
+    CHANGE (A-pl -> )
+(1 sing)
+    CHANGE (Pltm -> )
+    CHANGE (A-sg -> )
 
         
 # прилагательное
