@@ -564,6 +564,8 @@
         LINK(16, 15, ADJF-SUPR_nai)
         LINK(0, 17, ADJF-SUPR_slng)
         LINK(0, 16, ADJF-SUPR_suppl)
+(* ADJS&plur)
+    CHANGE(plur -> _del)
 
 * Apro
     CHANGE(~/^какой-либо$/,masc,accs,anim -> masc,accs,inan)
