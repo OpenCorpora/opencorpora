@@ -4,7 +4,7 @@ require_once('../lib/lib_qa.php');
 header('Content-type: text/xml; charset=utf-8');
 echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?>';
 
-if (!user_has_permission('perm_disamb')) {
+if (!is_logged()) {
     return;
 }
 

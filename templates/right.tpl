@@ -28,7 +28,7 @@
     <a href="{$web_prefix}/?page=stats">{t}Статистика{/t}</a><br/>
     <a href="{$web_prefix}/?rand">{t}Случайное предложение{/t}</a>
 </div>
-{if $is_admin}
+{if $is_logged}
 <div>
     <a href="{$web_prefix}/tasks.php">{t}Задания{/t}</a>
 </div>

@@ -4,7 +4,7 @@ require_once('lib/lib_qa.php');
 require_once('lib/lib_xml.php');
 require_once('lib/lib_annot.php');
 
-if (!user_has_permission('perm_disamb')) {
+if (!is_logged()) {
     show_error($config['msg']['notadmin']);
     return;
 }
