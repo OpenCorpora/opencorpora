@@ -42,7 +42,8 @@ my $fmt =()= (split /\./, $opts{step})[1] =~ /([0-9])/g;
 my(@precision, @recall, @F);
 
 my $threshold = 0;
-while($threshold < 1) {
+my $continue  = 1;
+while($continue) {
     for(1 .. $opts{jobs}) {
         my @cmd = (
             'perl',
@@ -61,6 +62,10 @@ while($threshold < 1) {
         ) or die "failed to execute '@{[ join ' ', @cmd]}'";
 
         $threshold += $opts{step};
+        if($threshold > 1) {
+            $continue = 0;
+            last;
+        }
     }
 
     while(my(undef, $event, $data) = watch_jobs()) {
@@ -78,7 +83,7 @@ my @datasets;
 for(
     [\@precision, 'precision'],
     [\@recall, 'recall'],
-    [\@F, 'F-score'],
+    [\@F, 'F-measure'],
 )
 {
     my($best_threshold, $best_value) = find_best(@$_);
@@ -155,7 +160,7 @@ Output files are:
 
 The graph itself.
 
-=item {precision, recall, F-score}.dat
+=item {precision, recall, F-measure}.dat
 
 For each metric the script spews out a .dat file with the source data used to build the graph.
 
