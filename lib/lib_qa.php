@@ -203,8 +203,9 @@ function add_morph_pool() {
     $timeout = (int)$_POST['timeout'];
     $token_check = (int)$_POST['token_checked'];
     $ts = time();
+    $rev = sql_fetch_array(sql_query("SELECT MAX(rev_id) FROM tf_revisions"));
     sql_begin();
-    if (sql_query("INSERT INTO morph_annot_pools VALUES(NULL, '$pool_name', '$gr1@$gr2', '$gram_descr1@$gram_descr2', '$token_check', '$users', '$timeout', '$ts', '$ts', '".$_SESSION['user_id']."', '0', '$comment')")) {
+    if (sql_query("INSERT INTO morph_annot_pools VALUES(NULL, '$pool_name', '$gr1@$gr2', '$gram_descr1@$gram_descr2', '$token_check', '$users', '$timeout', '$ts', '$ts', '".$_SESSION['user_id']."', '0', '$rev[0]', '$comment')")) {
         sql_commit();
         return true;
     }
