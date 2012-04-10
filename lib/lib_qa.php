@@ -134,7 +134,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
             $t['disagreed'] = $disagreement_flag;
             $t['comments'] = get_sample_comments($r['sample_id']);
             //for moderators
-            if (user_has_permission('perm_check_morph')) {
+            if (user_has_permission('perm_check_morph') && $out['status'] == 5) {
                 $r1 = sql_fetch_array(sql_query("SELECT user_id, answer FROM morph_annot_moderated_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
                 $t['moder_id'] = $r1['user_id'];
                 $t['moder_answer_num'] = $r1['answer'];
@@ -256,12 +256,12 @@ function promote_samples($pool_id, $type) {
     return false;
 }
 function publish_pool($pool_id) {
-    if (!$pool_id) return 0;
+    if (!$pool_id) return false;
 
     $r = sql_fetch_array(sql_query("SELECT `status`, users_needed FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
     sql_begin();
 
-    if ($r['status'] != 4) {
+    if ($r['status'] < 3) {
         //all this should be done only if the pool is published for the 1st time
         $N = $r['users_needed'];
         for ($i = 0; $i < $N; ++$i) {
@@ -281,9 +281,16 @@ function publish_pool($pool_id) {
     return false;
 }
 function unpublish_pool($pool_id) {
-    if (!$pool_id) return 0;
+    if (!$pool_id) return false;
 
     if (sql_query("UPDATE morph_annot_pools SET `status`='4', `updated_ts`='".time()."' WHERE pool_id=$pool_id LIMIT 1"))
+        return true;
+    return false;
+}
+function moderate_pool($pool_id) {
+    if (!$pool_id) return false;
+
+    if (sql_query("UPDATE morph_annot_pools SET `status`='5', `updated_ts`='".time()."' WHERE pool_id=$pool_id LIMIT 1"))
         return true;
     return false;
 }
@@ -374,6 +381,11 @@ function update_annot_instance($id, $answer) {
 function save_moderated_answer($id, $answer) {
     $user_id = $_SESSION['user_id'];
     if (!$id || !$user_id || $answer < 0) return 0;
+
+    //the pool must have status=5 (under moderation)
+    $r = sql_fetch_array(sql_query("SELECT `status` FROM morph_annot_pools WHERE pool_id = (SELECT pool_id FROM morph_annot_samples WHERE sample_id=$sample_id LIMIT 1)"));
+    if ($r['status'] != 5)
+        return 0;
 
     if (sql_query("UPDATE morph_annot_moderated_samples SET user_id=$user_id, answer=$answer WHERE sample_id=$id LIMIT 1"))
         return 1;

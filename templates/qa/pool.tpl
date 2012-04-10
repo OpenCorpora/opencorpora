@@ -33,12 +33,19 @@
 {/if}
 <p><a href="?">&lt;&lt; к списку пулов</a></p>
 <h1>Пул &laquo;{$pool.name}&raquo;</h1>
+{if $user_permission_check_morph}
 {if $pool.status == 2}
-Пул не опубликован. {if $is_admin}<form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Опубликовать</button></form>{/if}
-{elseif $pool.status == 4}
-Пул снят с публикации. {if $is_admin}<form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Опубликовать заново</button></form>{/if}
+Пул не опубликован. <form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Опубликовать</button></form>
 {elseif $pool.status == 3}
-Пул опубликован. {if $is_admin}<form action="?act=unpublish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Снять с публикации</button></form>{/if}
+Пул опубликован.
+<form action="?act=unpublish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Снять с публикации</button></form>
+{elseif $pool.status == 4}
+Пул снят с публикации.
+<form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Опубликовать заново</button></form>
+{elseif $pool.status == 5}
+Пул модерируется (новые ответы запрещены).
+{/if}
+<form action="?act=begin_moder&amp;pool_id={$pool.id}" method="post" class="inline"><button onclick="return confirm('Вы уверены? Это действие необратимо.')">Начать модерацию</button></form>
 {/if}
 {if $pool.status == 3 || $pool.status == 4}
 <p>{if !isset($smarty.get.ext)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">к расширенному виду</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}">к обычному виду</a>{/if}</p>
@@ -51,7 +58,7 @@
     <th>&nbsp;</th>
     {if isset($smarty.get.ext)}
     {for $i=1 to $pool.num_users}<th>{$i}</th>{/for}
-    {if $user_permission_check_morph}<th>&nbsp;</th></td>{/if}
+    {if $user_permission_check_morph && $pool.status == 5}<th>&nbsp;</th>{/if}
     {else}
     <th>Ответов</th>
     {/if}
@@ -81,7 +88,7 @@
     {foreach from=$sample.instances item=instance}
     <td>{if $instance.answer_num == 99}<b>Other</b>{elseif $instance.answer_num > 0}{$instance.answer_gram}{else}&ndash;{/if}</td>
     {/foreach}
-    {if $user_permission_check_morph}
+    {if $user_permission_check_morph && $pool.status == 5}
         <td>
             {if !$sample.disagreed && !$sample.moder_answer_num}
             <a href='#' class='hint agree'>согласен</a>

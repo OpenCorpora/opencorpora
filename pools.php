@@ -35,25 +35,31 @@ switch($action) {
         break;
     case 'promote':
         if (promote_samples((int)$_GET['pool_id'], $_GET['type'])) {
-            header("Location:pools.php");
+            header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
         } else {
             show_error();
         }
         break;
     case 'publish':
         if (publish_pool((int)$_GET['pool_id'])) {
-            header("Location:pools.php");
+            header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
         } else {
             show_error();
         }
         break;
     case 'unpublish':
         if (unpublish_pool((int)$_GET['pool_id'])) {
-            header("Location:pools.php");
+            header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
         } else {
             show_error();
         }
         break;
+    case 'begin_moder':
+        if (moderate_pool((int)$_GET['pool_id'])) {
+            header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
+        } else {
+            show_error();
+        }
     default:
         $smarty->assign('pools', get_morph_pools_page());
         $smarty->display('qa/pools.tpl');
