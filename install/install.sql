@@ -95,6 +95,15 @@ CREATE TABLE IF NOT EXISTS `morph_annot_rejected_samples` (
     INDEX(`user_id`)
 ) ENGINE = INNODB;
 
+CREATE TABLE IF NOT EXISTS `morph_annot_comments` (
+    `comment_id` SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `sample_id`  INT UNSIGNED NOT NULL,
+    `user_id`    SMALLINT UNSIGNED NOT NULL,
+    `text`       TEXT NOT NULL,
+    `timestamp`  INT UNSIGNED NOT NULL,
+    INDEX(`sample_id`)
+) ENGINE = INNODB;
+
 CREATE TABLE IF NOT EXISTS `morph_annot_click_log` (
     `sample_id` INT UNSIGNED NOT NULL,
     `user_id`   SMALLINT UNSIGNED NOT NULL,

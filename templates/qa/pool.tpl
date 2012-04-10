@@ -71,6 +71,11 @@
             {/strip}</li>
         {/foreach}
         </ul>
+        <ol>
+        {foreach from=$sample.comments item=comment}
+            <li>{$comment.text|htmlspecialchars} ({$comment.author}, {$comment.timestamp|date_format:"%d.%m.%Y, %H:%M"})</li>
+        {/foreach}
+        </ol>
     {/if}</td>
     {if isset($smarty.get.ext)}
     {foreach from=$sample.instances item=instance}

@@ -46,6 +46,20 @@ $(document).ready(function() {
         }, function(res){if ($(res).find('result').attr('ok') == 1) $btn.hide()});
         event.preventDefault();
     });
+    $('a.comment').click(function(event) {
+        $(event.target).closest('div').append('<div><textarea placeholder="Ваш комментарий"></textarea><br/><button class="send_comment">Отправить комментарий</button></div>').find('button').click(function() {
+            $.post('ajax/post_comment.php', {'type': 'morph_annot', 'id': $(event.target).attr('rel'), 'text': $(this).closest('div').find('textarea').val()}, function(res) {
+                var $r = $(res).find('response');
+                if ($r.attr('ok') == 1) {
+                    $(event.target).closest('div').find('div').replaceWith('<p>Спасибо, ваш комментарий добавлен!</p>');
+                    $(event.target).closest('div').find('p').fadeOut(3000);
+                } else {
+                    alert('Comment saving failed');
+                }
+            });
+        });
+        event.preventDefault();
+    });
     $('button.ma_next_pack').click(function() {
         document.location.reload();
     });
@@ -71,6 +85,7 @@ $(document).ready(function() {
     {/foreach}
     <button rev='99' class='other'>Другое</button>
     <button rev='-1' class='reject'>Пропустить</button>
+    <a rel='{$instance.sample_id}' class='hint comment' href='#'>Прокомментировать</a>
 </div>
 {/foreach}
 <center><button class='ma_next_pack' disabled='disabled'>Хочу ещё примеров!</button></center>

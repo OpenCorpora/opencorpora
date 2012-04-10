@@ -73,7 +73,7 @@
             var $b = $(document.createElement('button')).html('Добавить').attr('rel', $(event.target).attr('rel')).click(function(event){
                 var $t = $(event.target);
                 $t.attr('disabled', 'disabled');
-                $.post('ajax/post_comment.php', {'sid':$t.attr('rel'), 'text':$t.closest('td').find('textarea').val()}, function(res) {
+                $.post('ajax/post_comment.php', {'type':'source', 'id':$t.attr('rel'), 'text':$t.closest('td').find('textarea').val()}, function(res) {
                     if ($(res).find('response').attr('ok') == 1) {
                         $t.replaceWith('я: ' + $i.val());
                         $i.hide();

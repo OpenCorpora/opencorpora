@@ -132,6 +132,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
                 $t['instances'][] = array('id' => $r1['instance_id'], 'answer_num' => $r1['answer'], 'answer_gram' => ($r1['answer'] > 0 && $r1['answer'] < 99) ? $pool_gram[$r1['answer']-1] : '');
             }
             $t['disagreed'] = $disagreement_flag;
+            $t['comments'] = get_sample_comments($r['sample_id']);
             //for moderators
             if (user_has_permission('perm_check_morph')) {
                 $r1 = sql_fetch_array(sql_query("SELECT user_id, answer FROM morph_annot_moderated_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
@@ -338,6 +339,7 @@ function get_annotation_packet($pool_id, $size) {
         }
         $instance['lemmata'] = implode(', ', array_unique($lemmata));
         $instance['id'] = $r['instance_id'];
+        $instance['sample_id'] = $r['sample_id'];
         $packet['instances'][] = $instance;
         if ($flag_new) {
             if (!sql_query("UPDATE morph_annot_instances SET user_id='$user_id', ts_finish='$ts_finish' WHERE instance_id= ".$r['instance_id']." LIMIT 1")) return false;
@@ -376,6 +378,19 @@ function save_moderated_answer($id, $answer) {
     if (sql_query("UPDATE morph_annot_moderated_samples SET user_id=$user_id, answer=$answer WHERE sample_id=$id LIMIT 1"))
         return 1;
     return 0;
+}
+function get_sample_comments($sample_id) {
+    $res = sql_query("SELECT comment_id, user_name, timestamp, text FROM morph_annot_comments LEFT JOIN users USING(user_id) WHERE sample_id=$sample_id ORDER BY timestamp");
+    $out = array();
+    while ($r = sql_fetch_array($res)) {
+        $out[] = array(
+            'id' => $r['comment_id'],
+            'author' => $r['user_name'],
+            'timestamp' => $r['timestamp'],
+            'text' => $r['text']
+        );
+    }
+    return $out;
 }
 function log_click($sample_id, $type) {
     $user_id = $_SESSION['user_id'];

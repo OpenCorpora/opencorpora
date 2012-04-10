@@ -403,7 +403,7 @@ function download_url(event) {
 function post_sentence_comment($el, sent_id, username) {
     var txt = $el.closest('form').find('textarea').val();
     var reply_to = $el.closest('form').attr('rel');
-    $.post('ajax/post_comment.php', {'text':txt, 'sent_id':sent_id, 'reply_to':reply_to},
+    $.post('ajax/post_comment.php', {'type':'sentence', 'text':txt, 'id':sent_id, 'reply_to':reply_to},
         function(res) {
             var $res = $(res).find('response');
             if ($res.attr('ok') == 1) {
