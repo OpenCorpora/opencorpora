@@ -9,6 +9,9 @@ $(document).ready(function(){
         $('#f_add').show('slow');
         event.preventDefault();
     });
+    $('a.del').click(function(event){
+        return confirm('Удалить пул? Пул с ответами не будет удалён.');
+    });
 });
 </script>
 {/literal}
@@ -28,8 +31,11 @@ $(document).ready(function(){
 {foreach from=$pools item=pool}
 <tr>
     <td>{$pool.pool_id}</td>
-    <td>{$pool.pool_name|htmlspecialchars}{if $pool.comment}<br/><span class='small'>{$pool.comment|htmlspecialchars}</span>{/if}</td>
-    <td>{$pool.grammemes|htmlspecialchars}<br/><span class='small'>{$pool.gram_descr|htmlspecialchars}</span><br/>Оценок: {$pool.users_needed}<br/>Токенизация: {$pool.token_check}<br/>Таймаут: {$pool.timeout} c</td>
+    <td>
+        {$pool.pool_name|htmlspecialchars}{if $pool.comment}<br/><span class='small'>{$pool.comment|htmlspecialchars}</span>{/if}<br/>
+        <a href="?act=delete&amp;pool_id={$pool.pool_id}" class='del'>удалить</a>
+    </td>
+    <td>{$pool.grammemes|htmlspecialchars}<br/><span class='small'>{$pool.gram_descr|htmlspecialchars}</span><br/>Оценок: {$pool.users_needed}<br/>Токенизация: {$pool.token_check}</td>
     <td>{$pool.updated_ts|date_format:"%a %d.%m.%Y, %H:%M"}</td>
     <td>{$pool.user_name|htmlspecialchars}</td>
     <td>{strip}

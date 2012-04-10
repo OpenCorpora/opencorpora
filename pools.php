@@ -19,6 +19,12 @@ switch($action) {
             show_error();
         }
         break;
+    case 'delete':
+        if (delete_morph_pool((int)$_GET['pool_id'])) {
+            header("Location:pools.php");
+        } else {
+            show_error("Ошибка. Возможно, пул содержит пользовательские ответы.");
+        }
     case 'candidates':
         $smarty->assign('candidates', get_pool_candidates((int)$_GET['pool_id']));
         $smarty->display('qa/pool_candidates.tpl');
