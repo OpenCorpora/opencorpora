@@ -52,6 +52,9 @@ $(document).ready(function(){
         {elseif $pool.status == 5}
             <a href="?act=samples&amp;pool_id={$pool.pool_id}">на модерации</a>
         {/if}
+        {if $pool.status > 1}
+            <br/><span class='small{if $pool.instance_count > 0 && $pool.answer_count == $pool.instance_count} bggreen{/if}'>Ответов: {$pool.answer_count}/{$pool.instance_count}</span>
+        {/if}
     {/strip}</td>
 </tr>
 {foreachelse}

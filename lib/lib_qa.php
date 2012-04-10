@@ -96,6 +96,10 @@ function get_morph_pools_page() {
     while($r = sql_fetch_assoc($res)) {
         $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_candidate_samples WHERE pool_id=".$r['pool_id']));
         $r['candidate_count'] = $r1[0];
+        $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].")"));
+        $r['instance_count'] = $r1[0];
+        $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE answer > 0 AND sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].")"));
+        $r['answer_count'] = $r1[0];
         $pools[] = $r;
     }
     return $pools;
