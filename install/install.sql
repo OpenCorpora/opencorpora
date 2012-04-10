@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS `morph_annot_pools` (
     `updated_ts`   INT UNSIGNED NOT NULL,
     `author_id`    SMALLINT UNSIGNED NOT NULL,
     `status`       TINYINT UNSIGNED NOT NULL,
+    `revision`     INT UNSIGNED NOT NULL,
     `comment`      TEXT NOT NULL,
     INDEX(`status`)
 ) ENGINE = INNODB;
@@ -71,6 +72,12 @@ CREATE TABLE IF NOT EXISTS `morph_annot_samples` (
     `pool_id`   SMALLINT UNSIGNED NOT NULL,
     `tf_id`     INT UNSIGNED NOT NULL,
     INDEX(`pool_id`)
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `morph_annot_moderated_samples` (
+    `sample_id` INT UNSIGNED NOT NULL PRIMARY KEY,
+    `user_id`   SMALLINT UNSIGNED NOT NULL,
+    `answer`    TINYINT UNSIGNED NOT NULL
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `morph_annot_instances` (

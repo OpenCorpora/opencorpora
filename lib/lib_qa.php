@@ -104,7 +104,12 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
     $res = sql_query("SELECT pool_name, status, grammemes, users_needed FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1");
     $r = sql_fetch_array($res);
     $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
-    $out = array('id' => $pool_id, 'name' => $r['pool_name'], 'status' => $r['status'], 'num_users' => $r['users_needed']);
+    $select_options = array('---');
+    foreach($pool_gram as $v) {
+        $select_options[] = $v;
+    }
+    $select_options[99] = 'Other';
+    $out = array('id' => $pool_id, 'variants' => $select_options, 'name' => $r['pool_name'], 'status' => $r['status'], 'num_users' => $r['users_needed']);
     $res = sql_query("SELECT sample_id, tf_id FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id");
     $gram_descr = array();
     while ($r = sql_fetch_array($res)) {
@@ -127,6 +132,12 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
                 $t['instances'][] = array('id' => $r1['instance_id'], 'answer_num' => $r1['answer'], 'answer_gram' => ($r1['answer'] > 0 && $r1['answer'] < 99) ? $pool_gram[$r1['answer']-1] : '');
             }
             $t['disagreed'] = $disagreement_flag;
+            //for moderators
+            if (user_has_permission('perm_check_morph')) {
+                $r1 = sql_fetch_array(sql_query("SELECT user_id, answer FROM morph_annot_moderated_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
+                $t['moder_id'] = $r1['user_id'];
+                $t['moder_answer_num'] = $r1['answer'];
+            }
         }
         if ($disagreement_flag || !$only_disagreed)
             $out['samples'][] = $t;
@@ -236,6 +247,9 @@ function publish_pool($pool_id) {
                 return false;
             }
         }
+        if (!sql_query("INSERT INTO morph_annot_moderated_samples (SELECT sample_id, 0, 0 FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id)")) {
+            return false;
+        }
     }
 
     if (sql_query("UPDATE morph_annot_pools SET `status`='3', `updated_ts`='".time()."' WHERE pool_id=$pool_id LIMIT 1")) {
@@ -334,6 +348,14 @@ function update_annot_instance($id, $answer) {
     }
     sql_commit();
     return 1;
+}
+function save_moderated_answer($id, $answer) {
+    $user_id = $_SESSION['user_id'];
+    if (!$id || !$user_id || $answer < 0) return 0;
+
+    if (sql_query("UPDATE morph_annot_moderated_samples SET user_id=$user_id, answer=$answer WHERE sample_id=$id LIMIT 1"))
+        return 1;
+    return 0;
 }
 function log_click($sample_id, $type) {
     $user_id = $_SESSION['user_id'];

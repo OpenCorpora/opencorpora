@@ -7,6 +7,9 @@ echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?>';
 if (!is_logged()) {
     return;
 }
+if (isset($_GET['moder']) && !user_has_permission('perm_check_morph')) {
+    return;
+}
 
 if (!isset($_GET['id']) || !isset($_GET['answer'])) {
     echo '<result ok="0"/>';
@@ -16,5 +19,9 @@ if (!isset($_GET['id']) || !isset($_GET['answer'])) {
 $id = (int)$_GET['id'];
 $answer = (int)$_GET['answer'];
 
-echo '<result ok="'.(int)update_annot_instance($id, $answer).'"/>';
+if (isset($_GET['moder'])) {
+    echo '<result ok="'.(int)save_moderated_answer($id, $answer).'"/>';
+} else {
+    echo '<result ok="'.(int)update_annot_instance($id, $answer).'"/>';
+}
 ?>
