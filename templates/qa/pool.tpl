@@ -45,13 +45,15 @@
 {elseif $pool.status == 5}
 Пул модерируется (новые ответы запрещены).
 {/if}
+{if $pool.status != 5}
 <form action="?act=begin_moder&amp;pool_id={$pool.id}" method="post" class="inline"><button onclick="return confirm('Вы уверены? Это действие необратимо.')">Начать модерацию</button></form>
 {/if}
-{if $pool.status == 3 || $pool.status == 4}
+{/if}
+{if $pool.status > 2}
 <p>{if !isset($smarty.get.ext)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">к расширенному виду</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}">к обычному виду</a>{/if}</p>
 <p>{if !isset($smarty.get.disagreed)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;disagreed">показать только несогласованные ответы</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
 {/if}
-<br/><br/>
+<br/>
 <table border="1" cellspacing="0" cellpadding="3" class="small">
 <tr>
     <th>id</th>
