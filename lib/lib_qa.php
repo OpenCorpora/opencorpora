@@ -290,6 +290,11 @@ function unpublish_pool($pool_id) {
 function moderate_pool($pool_id) {
     if (!$pool_id) return false;
 
+    //we should only allow to moderate pools once we have all the answers
+    $res = sql_query("SELECT instance_id FROM morph_annot_instances WHERE answer=0 AND sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id)");
+    if (sql_num_rows($res) > 0)
+        return false;
+
     if (sql_query("UPDATE morph_annot_pools SET `status`='5', `updated_ts`='".time()."' WHERE pool_id=$pool_id LIMIT 1"))
         return true;
     return false;

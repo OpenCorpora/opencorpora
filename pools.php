@@ -58,7 +58,7 @@ switch($action) {
         if (moderate_pool((int)$_GET['pool_id'])) {
             header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
         } else {
-            show_error();
+            show_error("Ошибка. Возможно, пул не полностью заполнен.");
         }
     default:
         $smarty->assign('pools', get_morph_pools_page());
