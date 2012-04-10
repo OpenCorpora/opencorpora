@@ -58,7 +58,6 @@ $(document).ready(function(){
 <tr><td>Описания к ним:<br/><span class='small'>их увидят разметчики</span><td><input name="descr1" placeholder="глагол" maxlength='127'/> <input name="descr2" placeholder="не глагол" maxlength='127'/></tr>
 <tr><td valign="top">Комментарий:<td><textarea name="comment" cols="40" rows="4"></textarea></tr>
 <tr><td>Желаемое число оценок<td><input name="users_needed" maxlength="2" size="3" value="5"/>
-<tr><td>Таймаут по умолчанию<td><input name="timeout" maxlength="5" size="5" value="60"/> секунд на пример</tr>
 <tr><td>Брать только примеры с<td><input name="token_checked" size="3" maxlength="2" value="0"/> и более подтверждениями токенизации </tr>
 <tr><td colspan="2"><button>Начать поиск примеров</button></tr>
 </table></form>

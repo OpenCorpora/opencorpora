@@ -50,7 +50,6 @@ CREATE TABLE IF NOT EXISTS `morph_annot_pools` (
     `gram_descr`   VARCHAR(255) NOT NULL,
     `token_check`  TINYINT UNSIGNED NOT NULL,
     `users_needed` TINYINT UNSIGNED NOT NULL,
-    `timeout`      SMALLINT UNSIGNED NOT NULL,
     `created_ts`   INT UNSIGNED NOT NULL,
     `updated_ts`   INT UNSIGNED NOT NULL,
     `author_id`    SMALLINT UNSIGNED NOT NULL,

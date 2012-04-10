@@ -200,12 +200,11 @@ function add_morph_pool() {
     $gram_descr1 = mysql_real_escape_string(trim($_POST['descr1']));
     $gram_descr2 = mysql_real_escape_string(trim($_POST['descr2']));
     $users = (int)$_POST['users_needed'];
-    $timeout = (int)$_POST['timeout'];
     $token_check = (int)$_POST['token_checked'];
     $ts = time();
     $rev = sql_fetch_array(sql_query("SELECT MAX(rev_id) FROM tf_revisions"));
     sql_begin();
-    if (sql_query("INSERT INTO morph_annot_pools VALUES(NULL, '$pool_name', '$gr1@$gr2', '$gram_descr1@$gram_descr2', '$token_check', '$users', '$timeout', '$ts', '$ts', '".$_SESSION['user_id']."', '0', '$rev[0]', '$comment')")) {
+    if (sql_query("INSERT INTO morph_annot_pools VALUES(NULL, '$pool_name', '$gr1@$gr2', '$gram_descr1@$gram_descr2', '$token_check', '$users', '$ts', '$ts', '".$_SESSION['user_id']."', '0', '$rev[0]', '$comment')")) {
         sql_commit();
         return true;
     }
@@ -282,11 +281,10 @@ function get_available_tasks($user_id) {
 }
 function get_annotation_packet($pool_id, $size) {
     $packet = array();
-    $r = sql_fetch_array(sql_query("SELECT status, timeout, grammemes, gram_descr FROM morph_annot_pools WHERE pool_id=$pool_id"));
+    $r = sql_fetch_array(sql_query("SELECT status, grammemes, gram_descr FROM morph_annot_pools WHERE pool_id=$pool_id"));
     if ($r['status'] != 3) return false;
     $packet['gram_descr'] = explode('@', $r['gram_descr']);
     $user_id = $_SESSION['user_id'];
-    $timeout = $r['timeout'];
     $flag_new = 0;
 
     //if the user has something already reserved, let's start with that (but only if the poolid is the same!)
@@ -305,7 +303,7 @@ function get_annotation_packet($pool_id, $size) {
     if (!sql_num_rows($res)) return false;
 
     //when the timeout will be - same for each sample
-    $ts_finish = time() + $timeout * sql_num_rows($res);
+    $ts_finish = time() +  600;
     if ($flag_new) sql_begin();
     $gram_descr = array();
     while ($r = sql_fetch_array($res)) {
