@@ -199,16 +199,21 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
 }
 function add_morph_pool() {
     $pool_name = mysql_real_escape_string(trim($_POST['pool_name']));
-    $gr1 = mysql_real_escape_string(str_replace(' ', '', trim($_POST['gram1'])));
-    $gr2 = mysql_real_escape_string(str_replace(' ', '', trim($_POST['gram2'])));
+    $gram_sets = array();
+    $gram_descr = array();
+    foreach($_POST['gram'] as $i => $gr) {
+        if (!trim($gr)) break;
+        $gram_sets[] = str_replace(' ', '', trim($gr));
+        $gram_descr[] = trim($_POST['descr'][$i]);
+    }
+    $gram_sets_str = mysql_real_escape_string(join('@', $gram_sets));
+    $gram_descr_str = mysql_real_escape_string(join('@', $gram_descr));
     $comment = mysql_real_escape_string(trim($_POST['comment']));
-    $gram_descr1 = mysql_real_escape_string(trim($_POST['descr1']));
-    $gram_descr2 = mysql_real_escape_string(trim($_POST['descr2']));
     $users = (int)$_POST['users_needed'];
     $token_check = (int)$_POST['token_checked'];
     $ts = time();
     sql_begin();
-    if (sql_query("INSERT INTO morph_annot_pools VALUES(NULL, '$pool_name', '$gr1@$gr2', '$gram_descr1@$gram_descr2', '$token_check', '$users', '$ts', '$ts', '".$_SESSION['user_id']."', '0', '0', '$comment')")) {
+    if (sql_query("INSERT INTO morph_annot_pools VALUES(NULL, '$pool_name', '$gram_sets_str', '$gram_descr_str', '$token_check', '$users', '$ts', '$ts', '".$_SESSION['user_id']."', '0', '0', '$comment')")) {
         sql_commit();
         return true;
     }
@@ -319,7 +324,7 @@ function get_available_tasks($user_id) {
 }
 function get_annotation_packet($pool_id, $size) {
     $packet = array();
-    $r = sql_fetch_array(sql_query("SELECT status, grammemes, gram_descr FROM morph_annot_pools WHERE pool_id=$pool_id"));
+    $r = sql_fetch_array(sql_query("SELECT status, gram_descr FROM morph_annot_pools WHERE pool_id=$pool_id"));
     if ($r['status'] != 3) return false;
     $packet['gram_descr'] = explode('@', $r['gram_descr']);
     $user_id = $_SESSION['user_id'];

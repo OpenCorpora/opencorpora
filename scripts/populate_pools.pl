@@ -38,52 +38,34 @@ unlink $lock_path;
 
 sub process_pool {
     my $pool_id = shift;
-    my ($gr1, $gr2) = split /@/, shift;
-    print STDERR "processing pool #$pool_id: <$gr1>, <$gr2>\n";
+    my @gram_strings = split /@/, shift;
+    printf STDERR "processing pool #%d: <%s>\n", $pool_id, join('>, <', @gram_strings);
 
-    my @gr1, my @gr2;
-    my @var;
+    my @gram_sets;
+    my @gramset_types;
+    my $var = [];
 
-    if ($gr1 =~ /\|/) {
-        @gr1 = split /\|/, $gr1;
-    } else {
-        @gr1 = split /\&/, $gr1;
-    }
-
-    if ($gr2 =~ /\|/) {
-        @gr2 = split /\|/, $gr2;
-    } else {
-        @gr2= split /\&/, $gr2;
-    }
-
-    # OR + AND
-    if ($gr1 =~ /\|/ && $gr2 !~ /\|/) {
-        for my $g(@gr1) {
-            push @var, [$g, @gr2];
+    for my $i(0..$#gram_strings) {
+        if ($gram_strings[$i] =~ /\|/) {
+            push @gram_sets, [split /\|/, $gram_strings[$i]];
+            push @gramset_types, 'or';
+        } else {
+            push @gram_sets, [split /\&/, $gram_strings[$i]];
+            push @gramset_types, 'and';
         }
     }
-    # AND + OR
-    elsif ($gr2 =~ /\|/ && $gr1 !~ /\|/) {
-        for my $g(@gr2) {
-            push @var, [$g, @gr1];
+
+    for my $i(0..$#gram_sets) {
+        if ($gramset_types[$i] eq 'or') {
+            $var = combine_or($var, $gram_sets[$i]);
+        } else {
+            $var = combine_and($var, $gram_sets[$i]);
         }
-    }
-    # OR + OR
-    elsif ($gr1 =~ /\|/ && $gr2 =~ /\|/) {
-        for my $g1(@gr1) {
-            for my $g2(@gr2) {
-                push @var, [$g1, $g2];
-            }
-        }
-    }
-    # AND + AND
-    else {
-        push @var, [@gr1, @gr2];
     }
 
     my @q;
     my @qt;
-    for my $v(@var) {
+    for my $v(@$var) {
         @qt = ();
         for my $g(@$v) {
             push @qt, "rev_text LIKE '%v=\"$g\"%'";
@@ -97,12 +79,48 @@ sub process_pool {
     $s->execute();
     while (my $ref = $s->fetchrow_hashref()) {
         # finer check
-        check_revision($pool_id, $ref->{'tf_id'}, $ref->{'rev_id'}, $ref->{'rev_text'}, $gr1, $gr2);
+        check_revision($pool_id, $ref->{'tf_id'}, $ref->{'rev_id'}, $ref->{'rev_text'}, \@gram_sets, \@gramset_types);
     }
     $update_pool->execute($pool_id);
 }
+sub combine_or {
+    my $var= shift;
+    my @gramset = @{shift()};
+
+    my @new_var;
+
+    if (!@$var) {
+        for my $gr(@gramset) {
+            push @new_var, [$gr];
+        }
+        return \@new_var;
+    }
+
+    for my $v(@$var) {
+        for my $gr(@gramset) {
+            push @new_var, [@$v, $gr];
+        }
+    }
+    return \@new_var;
+}
+sub combine_and {
+    my $var = shift;
+    my @gramset = @{shift()};
+
+    my @new_var;
+
+    if (!@$var) {
+        push @new_var, [@gramset];
+        return \@new_var;
+    }
+
+    for my $v(@$var) {
+        push @new_var, [@$v, @gramset];
+    }
+    return \@new_var;
+}
 sub check_revision {
-    my ($pool_id, $tf_id, $rev_id, $rev_text, $gr1, $gr2) = @_;
+    my ($pool_id, $tf_id, $rev_id, $rev_text, $gram_sets, $gramset_types) = @_;
     print STDERR "will check revision $rev_id, ";
 
     # is the current revision this token's latest?
@@ -112,18 +130,10 @@ sub check_revision {
         return 0;
     }
 
-    # are the restrictions really satisfied?
-    if ($gr1 =~ /\&/) {
-        my @t = split /\&/, $gr1;
-        unless (var_has_all_gram($rev_text, \@t)) {
-            print STDERR "failed\n";
-            return 0;
-        }
-    }
-
-    if ($gr2 =~ /\&/) {
-        my @t = split /\&/, $gr2;
-        unless (var_has_all_gram($rev_text, \@t)) {
+    # are the "and"-restrictions really satisfied?
+    for my $i(0..scalar(@$gram_sets)-1) {
+        next unless $gramset_types->[$i] eq 'and';
+        unless (var_has_all_gram($rev_text, $gram_sets->[$i])) {
             print STDERR "failed\n";
             return 0;
         }
@@ -131,7 +141,7 @@ sub check_revision {
 
     # are there any variants that don't match any of the grammeme sets?
 
-    if (has_extra_variants($rev_text, $gr1, $gr2)) {
+    if (has_extra_variants($rev_text, $gram_sets, $gramset_types)) {
         print STDERR "failed: extra variants\n";
         return 0;
     }
@@ -161,27 +171,16 @@ sub var_has_all_gram {
     return 0;
 }
 sub has_extra_variants {
-    my ($rev_text, $gr1, $gr2) = @_;
+    my ($rev_text, $gram_sets, $gramset_types) = @_;
 
     # we shall check whether there are variants that do not satisfy any grammem sets
     MW:while ($rev_text =~ /<v(.+?)<\/v>/g) {
         my $v = $1;
-        for my $g($gr1, $gr2) {
-            my @gr = ();
-            my $flag_and = 0;
-
-            if ($g =~ /\|/) {
-                @gr = split /\|/, $g;
-            }
-            else {
-                @gr = split /\&/, $g;
-                $flag_and = 1;
-            }
-            
-            if ($flag_and) {
+        for my $i(0..scalar(@$gram_sets)-1) {
+            if ($gramset_types->[$i] eq 'and') {
                 #all grammemes must be there
                 my $flag_ok = 1;
-                for my $gg(@gr) {
+                for my $gg(@{$gram_sets->[$i]}) {
                     if ($v !~ /g v="$gg"/) {
                         $flag_ok = 0;
                         last;
@@ -194,7 +193,7 @@ sub has_extra_variants {
             }
             else {
                 #any grammeme will suffice
-                for my $gg(@gr) {
+                for my $gg(@{$gram_sets->[$i]}) {
                     if ($v =~ /g v="$gg"/) {
                         #found grammeme, check next variant
                         next MW;

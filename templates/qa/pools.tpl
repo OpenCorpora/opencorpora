@@ -65,8 +65,24 @@ $(document).ready(function(){
 <a href="#" class="hint" id="add_pool">Добавить новый пул</a>
 <form id="f_add" style="display:none" method="post" action="?act=add"><table border="0" cellspacing="5">
 <tr><td>Название:<td><input name="pool_name" maxlength="120" size="60" placeholder="Название пула"/></tr>
-<tr><td>Граммемы:<td><input name="gram1" placeholder="gram1&gram2"/> <input name="gram2" placeholder="gram3|gram4"/></tr>
-<tr><td>Описания к ним:<br/><span class='small'>их увидят разметчики</span><td><input name="descr1" placeholder="глагол" maxlength='127'/> <input name="descr2" placeholder="не глагол" maxlength='127'/></tr>
+<tr>
+    <td>Граммемы:<br/><span class='small'>лишние оставить пустыми</span>
+    <td>
+        <input name="gram[]" placeholder="gram1&gram2" size='16'/>
+        <input name="gram[]" placeholder="gram3|gram4" size='16'/>
+        <input name="gram[]" placeholder="gram5&gram6&gram7" size='16'/>
+        <input name="gram[]" placeholder="gram8&gram9&gram10" size='16'/>
+        <input name="gram[]" placeholder="gram8|gram9|gram10" size='16'/>
+</tr>
+<tr>
+    <td>Описания к ним:<br/><span class='small'>их увидят разметчики</span>
+    <td>
+        <input name="descr[]" placeholder="глагол" maxlength='127' size='16'/>
+        <input name="descr[]" placeholder="прилагательное" maxlength='127' size='16'/>
+        <input name="descr[]" placeholder="наречие" maxlength='127' size='16'/>
+        <input name="descr[]" placeholder="предлог" maxlength='127' size='16'/>
+        <input name="descr[]" placeholder="42" maxlength='127' size='16'/>
+</tr>
 <tr><td valign="top">Комментарий:<td><textarea name="comment" cols="40" rows="4"></textarea></tr>
 <tr><td>Желаемое число оценок<td><input name="users_needed" maxlength="2" size="3" value="5"/>
 <tr><td>Брать только примеры с<td><input name="token_checked" size="3" maxlength="2" value="0"/> и более подтверждениями токенизации </tr>
