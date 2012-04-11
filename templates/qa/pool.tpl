@@ -1,5 +1,5 @@
 {* Smarty *}
-{extends file='common.tpl'}
+{extends file='common.no-right.tpl'}
 {block name=content}
 {if $user_permission_check_morph}
 {literal}
@@ -88,7 +88,7 @@
     {/if}</td>
     {if isset($smarty.get.ext)}
     {foreach from=$sample.instances item=instance}
-    <td>{if $instance.answer_num == 99}<b>Other</b>{elseif $instance.answer_num > 0}{$instance.answer_gram}{else}&ndash;{/if}</td>
+    <td class="diff_colors_{$instance.user_color}">{if $instance.answer_num == 99}<b>Other</b>{elseif $instance.answer_num > 0}{$instance.answer_gram}{else}&ndash;{/if}</td>
     {/foreach}
     {if $user_permission_check_morph && $pool.status == 5}
         <td>
@@ -104,4 +104,12 @@
 </tr>
 {/foreach}
 </table>
+{if isset($smarty.get.ext)}
+<h2>Легенда</h2>
+<table>
+{foreach from=$pool.user_colors item=user}
+<tr class='diff_colors_{$user[0]}'><td>{$user[1]}</td></tr>
+{/foreach}
+</table>
+{/if}
 {/block}

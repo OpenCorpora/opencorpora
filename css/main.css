@@ -327,3 +327,52 @@ div.ma_instance button.chosen {
 button.ma_next_pack {
     font-size: 20px;
 }
+
+/* POOL REVIEW PAGE*/
+.diff_colors_0 {
+    background-color: #6c6;
+}
+.diff_colors_1 {
+    background-color: #cf9;
+}
+.diff_colors_2 {
+    background-color: #fcf;
+}
+.diff_colors_3 {
+    background-color: #0cf;
+}
+.diff_colors_4 {
+    background-color: #ff9;
+}
+.diff_colors_5 {
+    background-color: #ccc;
+}
+.diff_colors_6 {
+    background-color: #f93;
+}
+.diff_colors_7 {
+    background-color: #c06;
+}
+.diff_colors_8 {
+    background-color: #cff;
+}
+.diff_colors_9 {
+    background-color: #f33;
+}
+.diff_colors_10 {
+    background-color: #666;
+}
+.diff_colors_11 {
+    background-color: #99f;
+}
+.diff_colors_12 {
+    background-color: #099;
+}
+.diff_colors_13 {
+    background-color: #00f;
+    color: #fff;
+}
+.diff_colors_14 {
+    background-color: #600;
+    color: #fff;
+}

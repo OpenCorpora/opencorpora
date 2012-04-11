@@ -116,6 +116,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
     $out = array('id' => $pool_id, 'variants' => $select_options, 'name' => $r['pool_name'], 'status' => $r['status'], 'num_users' => $r['users_needed']);
     $res = sql_query("SELECT sample_id, tf_id FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id");
     $gram_descr = array();
+    $distinct_users = array();
     while ($r = sql_fetch_array($res)) {
         $t = get_context_for_word($r['tf_id'], 4);
         $t['id'] = $r['sample_id'];
@@ -125,7 +126,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
             $r1 = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id = ".$r['tf_id']." ORDER BY rev_id DESC LIMIT 1"));
             $arr = xml2ary($r1['rev_text']);
             $t['parses'] = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
-            $res1 = sql_query("SELECT instance_id, answer FROM morph_annot_instances WHERE sample_id=".$r['sample_id']);
+            $res1 = sql_query("SELECT instance_id, user_id, answer FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." ORDER BY instance_id");
             $disagreement_flag = 0;
             $vars = '';
             while ($r1 = sql_fetch_array($res1)) {
@@ -133,7 +134,18 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
                     $vars = $r1['answer'];
                 elseif ($vars != $r1['answer'])
                     $disagreement_flag = 1;
-                $t['instances'][] = array('id' => $r1['instance_id'], 'answer_num' => $r1['answer'], 'answer_gram' => ($r1['answer'] > 0 && $r1['answer'] < 99) ? $pool_gram[$r1['answer']-1] : '');
+                //about users
+                if (!isset($distinct_users[$r1['user_id']])) {
+                    $r2 = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id=".$r1['user_id']." LIMIT 1"));
+                    $distinct_users[$r1['user_id']] = array(sizeof($distinct_users), $r2['user_name']);
+                }
+                //push
+                $t['instances'][] = array(
+                    'id' => $r1['instance_id'],
+                    'answer_num' => $r1['answer'],
+                    'answer_gram' => ($r1['answer'] > 0 && $r1['answer'] < 99) ? $pool_gram[$r1['answer']-1] : '',
+                    'user_color' => $distinct_users[$r1['user_id']][0]
+                );
             }
             $t['disagreed'] = $disagreement_flag;
             $t['comments'] = get_sample_comments($r['sample_id']);
@@ -147,6 +159,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
         if ($disagreement_flag || !$only_disagreed)
             $out['samples'][] = $t;
     }
+    $out['user_colors'] = $distinct_users;
     return $out;
 }
 function get_pool_candidates($pool_id) {
