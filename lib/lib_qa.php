@@ -412,7 +412,7 @@ function save_moderated_answer($id, $answer) {
     if (!$id || !$user_id || $answer < 0) return 0;
 
     //the pool must have status=5 (under moderation)
-    $r = sql_fetch_array(sql_query("SELECT `status` FROM morph_annot_pools WHERE pool_id = (SELECT pool_id FROM morph_annot_samples WHERE sample_id=$sample_id LIMIT 1)"));
+    $r = sql_fetch_array(sql_query("SELECT `status` FROM morph_annot_pools WHERE pool_id = (SELECT pool_id FROM morph_annot_samples WHERE sample_id=$id LIMIT 1)"));
     if ($r['status'] != 5)
         return 0;
 
