@@ -331,6 +331,8 @@ function get_available_tasks($user_id) {
         $pool['num'] = $r1[0];
         $r1 = sql_fetch_array(sql_query("SELECT COUNT(instance_id) FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND user_id=$user_id AND answer=0"));
         $pool['num_started'] = $r1[0];
+        $r1 = sql_fetch_array(sql_query("SELECT COUNT(instance_id) FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND user_id=$user_id AND answer>0"));
+        $pool['num_done'] = $r1[0];
         $tasks[] = $pool;
     }
     return $tasks;
