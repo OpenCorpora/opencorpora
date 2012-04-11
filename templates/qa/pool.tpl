@@ -108,7 +108,7 @@
 <h2>Легенда</h2>
 <table>
 {foreach from=$pool.user_colors item=user}
-<tr class='diff_colors_{$user[0]}'><td>{$user[1]}</td></tr>
+<tr class='diff_colors_{$user[0]}'><td>{$user[1]|default:"Не заполнено"}</td></tr>
 {/foreach}
 </table>
 {/if}
