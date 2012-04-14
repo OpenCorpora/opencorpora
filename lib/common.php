@@ -86,7 +86,9 @@ function show_error($text = "Произошла ошибка.") {
     $smarty->display('error.tpl');
 }
 function create_revset($comment = '') {
-    if (sql_query("INSERT INTO `rev_sets` VALUES(NULL, '".time()."', '".$_SESSION['user_id']."', '".mysql_real_escape_string($comment)."')")) {
+    if (!isset($_SESSION['user_id']) || !$_SESSION['user_id'])
+        return 0;
+    if (sql_query("INSERT INTO `rev_sets` VALUES(NULL, '".time()."', '".(int)$_SESSION['user_id']."', '".mysql_real_escape_string($comment)."')")) {
         return sql_insert_id();
     }
     return 0;
