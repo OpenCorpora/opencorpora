@@ -5,18 +5,9 @@ use DBI;
 use Encode;
 use Config::INI::Reader;
 
-my $lock_path = "/var/lock/opcorpora_updtstats.lock";
-if (-f $lock_path) {
-    die ("lock exists, exiting");
-}
-
 #reading config
 my $conf = Config::INI::Reader->read_file($ARGV[0]);
 $conf = $conf->{mysql};
-
-open my $lock, ">$lock_path";
-print $lock 'lock';
-close $lock;
 
 my %bookid2wordnum;
 my %tags;
@@ -56,5 +47,3 @@ for my $pre(keys %tags) {
         $ins->execute($pre, $main, $tags{$pre}{$main}{'texts'}, $tags{$pre}{$main}{'words'});
     }
 }
-
-unlink ($lock_path);
