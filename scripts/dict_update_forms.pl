@@ -4,25 +4,15 @@ use utf8;
 use DBI;
 use Config::INI::Reader;
 
-my $lock_path = "/var/lock/opcorpora_dict_uf.lock";
-if (-f $lock_path) {
-    die ("lock exists, exiting");
-}
-
 #reading config
 my $conf = Config::INI::Reader->read_file($ARGV[0]);
 $conf = $conf->{mysql};
-
-open my $lock, ">$lock_path";
-print $lock 'lock';
-close $lock;
 
 #main
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 $dbh->{'AutoCommit'} = 0;
 if ($dbh->{'AutoCommit'}) {
-    unlink($lock_path);
     die "Setting AutoCommit failed";
 }
 
@@ -30,7 +20,6 @@ if ($dbh->{'AutoCommit'}) {
 my $prescan = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE tf_id NOT IN (SELECT tf_id FROM form2tf) LIMIT 1");
 $prescan->execute();
 if($prescan->fetchrow_hashref()) {
-    unlink($lock_path);
     die "form2tf isn't up to date";
 }
 
@@ -49,4 +38,3 @@ while(my $ref = $scan->fetchrow_hashref()) {
 }
 
 $dbh->commit();
-unlink ($lock_path);
