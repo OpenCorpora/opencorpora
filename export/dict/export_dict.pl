@@ -7,23 +7,13 @@ use Encode;
 use Config::INI::Reader;
 use Getopt::constant('FORCE' => 0, 'PLAINTEXT' => 0);
 
-my $lock_path = "/var/lock/opcorpora_export_dict.lock";
-if (-f $lock_path) {
-    die ("lock exists, exiting");
-}
-
 #reading config
 my $conf = Config::INI::Reader->read_handle(\*STDIN);
 $conf = $conf->{mysql};
 
-open my $lock, ">$lock_path";
-print $lock 'lock';
-close $lock;
-
 #main
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'});
 if (!$dbh) {
-    unlink $lock_path;
     die $DBI::errstr;
 }
 $dbh->do("SET NAMES utf8");
@@ -33,7 +23,6 @@ my $ts = $dbh->prepare("SELECT MAX(`timestamp`) `timestamp` FROM `rev_sets` WHER
 $ts->execute();
 my $r = $ts->fetchrow_hashref();
 if (time() - $r->{'timestamp'} > 60*60*25 && !FORCE) {
-    unlink $lock_path;
     die ("Dictionary not updated for 25 hours, exiting");
 }
 
@@ -120,8 +109,6 @@ unless (PLAINTEXT) {
 
     print $footer."\n";
 }
-
-unlink($lock_path);
 
 sub tidy_xml {
     my $arg = shift;

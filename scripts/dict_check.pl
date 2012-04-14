@@ -6,18 +6,9 @@ use Encode;
 use Config::INI::Reader;
 #use Data::Dump qw/dump/;
 
-my $lock_path = "/var/lock/opcorpora_dictcheck.lock";
-if (-f $lock_path) {
-    die ("lock exists, exiting");
-}
-
 #reading config
 my $conf = Config::INI::Reader->read_file($ARGV[0]);
 $conf = $conf->{mysql};
-
-open my $lock, ">$lock_path";
-print $lock 'lock';
-close $lock;
 
 #main
 my %bad_pairs;
@@ -48,8 +39,6 @@ while(my $ref = shift @revisions) {
     check($ref);
     $update->execute($ref->{'id'});
 }
-
-unlink ($lock_path);
 
 ##### SUBROUTINES #####
 sub get_new_revisions {

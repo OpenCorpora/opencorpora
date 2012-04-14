@@ -5,25 +5,15 @@ use DBI;
 use Encode;
 use Config::INI::Reader;
 
-my $lock_path = "/var/lock/opcorpora_f2l.lock";
-if (-f $lock_path) {
-    die ("lock exists, exiting");
-}
-
 #reading config
 my $conf = Config::INI::Reader->read_file($ARGV[0]);
 $conf = $conf->{mysql};
-
-open my $lock, ">$lock_path";
-print $lock 'lock';
-close $lock;
 
 #main
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 $dbh->{'AutoCommit'} = 0;
 if ($dbh->{'AutoCommit'}) {
-    unlink($lock_path);
     die "Setting AutoCommit failed";
 }
 
@@ -48,4 +38,3 @@ while(my $ref = $scan->fetchrow_hashref()) {
 }
 
 $dbh->commit();
-unlink ($lock_path);
