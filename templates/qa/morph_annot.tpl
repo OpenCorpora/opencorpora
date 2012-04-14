@@ -8,6 +8,7 @@ $(document).ready(function() {
         $.get('ajax/clck_log.php', {'id':$(el).attr('rel'), 'type':(20 + i)});
     });
     $('.ma_instance button').click(function(event) {
+        $('button.ma_next_pack').attr('disabled', 'disabled');
         var $btn = $(event.target);
         $btn.closest('div').find('button').attr('disabled', 'disabled').removeClass('chosen');
         $btn.addClass('chosen');
