@@ -298,7 +298,7 @@ function is_user_openid($user_id) {
 function user_has_permission($perm) {
     return (
         is_admin() ||
-        (isset($_SESSION['user_permissions'][$perm]) &&
+        (is_logged() && isset($_SESSION['user_permissions'][$perm]) &&
         $_SESSION['user_permissions'][$perm] == 1)
     );
 }
