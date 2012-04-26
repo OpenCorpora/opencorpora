@@ -135,15 +135,11 @@ sub check {
         push @lemma_gram, $1;
     }
 
-    my %lemma_flags = ();
-    
     if (my $err = is_incompatible(\@lemma_gram)) {
         $newerr->execute(time(), $ref->{'id'}, 1, "<$lt> ($err)");
-        $lemma_flags{1} = 1;
     }
     if (my $err = has_unknown_grammems(\@lemma_gram)) {
         $newerr->execute(time(), $ref->{'id'}, 2, "<$lt> ($err)");
-        $lemma_flags{2} = 1;
     }
     if (my $err = misses_oblig_grammems_l(\@lemma_gram)) {
         $newerr->execute(time(), $ref->{'id'}, 4, "<$lt> ($err)");
@@ -164,10 +160,10 @@ sub check {
             push @form_gram, $1;
         }
         @all_gram = (@lemma_gram, @form_gram);
-        if (!$lemma_flags{1} && (my $err = is_incompatible(\@all_gram))) {
+        if (my $err = is_incompatible(\@all_gram)) {
             $newerr->execute(time(), $ref->{'id'}, 1, "<$ft> ($err)");
         }
-        if (!$lemma_flags{2} && (my $err = has_unknown_grammems(\@all_gram))) {
+        if (my $err = has_unknown_grammems(\@all_gram)) {
             $newerr->execute(time(), $ref->{'id'}, 2, "<$ft> ($err)");
         }
         if (my $err = misses_oblig_grammems_f(\@form_gram, \@lemma_gram)) {
