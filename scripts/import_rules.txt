@@ -916,9 +916,6 @@
   CHANGE(~/ая$/ -> Infr)
 (#2311) # пылесоситься
   CHANGE(GRND, ~/ся$/ -> GRND, Dist)
-(* PRTS|PRTF) # руководствоваться
-  CHANGE(pssv, intr -> pssv)
-  CHANGE(pssv, tran -> pssv)
 (#1993) # раздать
   CHANGE(indc, ~/роз/ -> indc,Infr)
 (#1762) # перемереть
