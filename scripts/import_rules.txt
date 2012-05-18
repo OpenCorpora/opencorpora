@@ -295,7 +295,7 @@
         LINK (0, 1, SURN_MASC-SURN_FEMN)
         LINK (0, 2, SURN_MASC-SURN_PLUR)
 (* Surn&femn) & (#=1)
-    CHANGE( -> Sgtm)
+    CHANGE( -> sing, Sgtm)
 (* Surn&femn) & (1 sing&nomn)
     CHANGE(Fixd,!sing,!plur -> _del)
 (1 ~/^газпром-медиа$/)
