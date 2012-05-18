@@ -291,9 +291,11 @@
 (* Surn) & (1 masc) & (1 femn) & (1 plur)
     CHANGE(femn, sing -> femn, sing, Sgtm)
 1 Surn
-    SPLIT (masc, femn, Ms-f)
+    SPLIT (masc&sing, femn, plur)
         LINK (0, 1, SURN_MASC-SURN_FEMN)
         LINK (0, 2, SURN_MASC-SURN_PLUR)
+(* Surn&femn) & (#=1)
+    CHANGE( -> Sgtm)
 (* Surn&femn) & (1 sing&nomn)
     CHANGE(Fixd,!sing,!plur -> _del)
 (1 ~/^газпром-медиа$/)
