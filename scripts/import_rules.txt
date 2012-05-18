@@ -288,6 +288,8 @@
         LINK (3, 4, PATR_FEMN_FORM-PATR_FEMN_INFR)
 1 form
     CHANGE (form -> )
+(* Surn) & (1 masc) & (1 femn) & (1 plur)
+    CHANGE(femn, sing -> femn, sing, Sgtm)
 1 Surn
     SPLIT (masc, femn, Ms-f)
         LINK (0, 1, SURN_MASC-SURN_FEMN)
