@@ -291,7 +291,8 @@
 (* Surn) & (1 masc) & (1 femn) & (1 plur)
     CHANGE(femn, sing -> femn, sing, Sgtm)
 1 Surn
-    SPLIT (masc&sing, femn, plur)
+    CHANGE(masc, plur -> plur)
+    SPLIT (masc, femn, plur)
         LINK (0, 1, SURN_MASC-SURN_FEMN)
         LINK (0, 2, SURN_MASC-SURN_PLUR)
 (* Surn&femn) & (#=1)
