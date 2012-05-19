@@ -21,7 +21,7 @@ switch($action) {
             $smarty->assign('packet', $t);
             $smarty->display('qa/morph_annot.tpl');
         } else {
-            show_error("Ошибка. Возможно, кончились доступные задания.");
+            $smarty->display('qa/morph_annot_thanks.tpl');
         }
         break;
     default:
