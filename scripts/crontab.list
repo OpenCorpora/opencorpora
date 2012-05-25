@@ -3,6 +3,7 @@
 30 5 * * * nice /corpus/scripts/update_stats.sh 2>>/home/grand/error.log
 45 */2 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/train_tokenizer.sh" >/dev/null 2>/dev/null
 0 3 * * * nice /corpus/scripts/tokenizer/collect_data.pl /corpus/config.ini --dry-run >/dev/null
+* * * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/dict_check.pl /corpus/config.ini" 2>>/home/grand/error.log
 15 * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/tokenizer/check_sentence_split.pl /corpus/config.ini" 2>>/home/grand/error.log
 * * * * * /corpus/scripts/check_space.sh
 * * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/form2lemma.pl /corpus/config.ini" 2>>/home/grand/error.log
