@@ -9,6 +9,7 @@
 * * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/form2lemma.pl /corpus/config.ini" 2>>/home/grand/error.log
 * * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/form2tf.pl /corpus/config.ini" 2>>/home/grand/error.log
 * * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/dict_update_forms.pl /corpus/config.ini" 2>>/home/grand/error.log
+* * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/populate_pools.pl /corpus/config.ini" 2>/dev/null
 30 4 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/export_dict.sh" 2>>/home/grand/error.log
 50 4 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/export_annot.sh" 2>>/home/grand/error.log
 0 5 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/export_ngram.sh" 2>>/home/grand/error.log
