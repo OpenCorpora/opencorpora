@@ -7,9 +7,15 @@
 {foreach from=$available item=task}
 <tr>
     <td>{$task.name|htmlspecialchars}</td>
-    <td>{$task.num_done}</td>
+    <td><a href="?act=my&amp;pool_id={$task.id}">{$task.num_done}</a></td>
     <td>{$task.num}{if $task.num_started} +{$task.num_started} начатых{/if}</td>
-    <td>{if $task.num || $task.num_started}<a href="?act=annot&amp;pool_id={$task.id}">взять на разметку</a>{else}&nbsp;{/if}</td>
+    <td>
+        {if $task.status == 3}
+            {if $task.num || $task.num_started}<a href="?act=annot&amp;pool_id={$task.id}">взять на разметку</a>{else}&nbsp;{/if}
+        {else}
+            только чтение
+        {/if}
+    </td>
 </tr>
 {foreachelse}
 <tr><td colspan='3'>Нет доступных заданий.</td></tr>

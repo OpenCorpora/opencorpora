@@ -324,10 +324,10 @@ function moderate_pool($pool_id) {
 }
 function get_available_tasks($user_id) {
     $tasks = array();
-    $res = sql_query("SELECT pool_id, pool_name FROM morph_annot_pools WHERE status=3");
+    $res = sql_query("SELECT pool_id, pool_name, status FROM morph_annot_pools WHERE status > 2");
     $time = time();
     while ($r = sql_fetch_array($res)) {
-        $pool = array('id' => $r['pool_id'], 'name' => $r['pool_name']);
+        $pool = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status']);
         $r1 = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT sample_id) FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND sample_id NOT IN (SELECT DISTINCT sample_id FROM morph_annot_instances WHERE user_id=$user_id) AND sample_id NOT IN (SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id) AND answer=0 AND ts_finish < $time"));
         $pool['num'] = $r1[0];
         $r1 = sql_fetch_array(sql_query("SELECT COUNT(instance_id) FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND user_id=$user_id AND answer=0"));
@@ -338,10 +338,46 @@ function get_available_tasks($user_id) {
     }
     return $tasks;
 }
+function get_my_answers($pool_id, $limit=10, $skip=0) {
+    // TODO: we may certainly refactor here: this and get_annotation_packet() should share code
+    $packet = array('my' => 1);
+    $r = sql_fetch_array(sql_query("SELECT status, gram_descr FROM morph_annot_pools WHERE pool_id=$pool_id"));
+    if ($r['status'] != 3)
+        $packet['editable'] = 0;
+    else
+        $packet['editable'] = 1;
+    $packet['gram_descr'] = explode('@', $r['gram_descr']);
+    $user_id = $_SESSION['user_id'];
+
+    $limit_str = '';
+    if ($limit)
+        $limit_str = " LIMIT $skip, $limit";
+    $res = sql_query("SELECT instance_id, sample_id, answer FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id) AND user_id=$user_id AND answer>0 $limit_str");
+    if (!sql_num_rows($res)) return false;
+
+    $gram_descr = array();
+    while ($r = sql_fetch_array($res)) {
+        $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) ORDER BY rev_id DESC LIMIT 1"));
+        $instance = get_context_for_word($r1['tf_id'], 4);
+        $arr = xml2ary($r1['rev_text']);
+        $parses = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
+        $lemmata = array();
+        foreach($parses as $p) {
+            $lemmata[] = $p['lemma_text'];
+        }
+        $instance['lemmata'] = implode(', ', array_unique($lemmata));
+        $instance['id'] = $r['instance_id'];
+        $instance['sample_id'] = $r['sample_id'];
+        $instance['answer'] = $r['answer'];
+        $packet['instances'][] = $instance;
+    }
+    return $packet;
+}
 function get_annotation_packet($pool_id, $size) {
-    $packet = array();
+    $packet = array('my' => 0);
     $r = sql_fetch_array(sql_query("SELECT status, gram_descr FROM morph_annot_pools WHERE pool_id=$pool_id"));
     if ($r['status'] != 3) return false;
+    $packet['editable'] = 1;
     $packet['gram_descr'] = explode('@', $r['gram_descr']);
     $user_id = $_SESSION['user_id'];
     $flag_new = 0;

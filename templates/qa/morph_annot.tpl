@@ -4,31 +4,35 @@
 {literal}
 <script type="text/javascript">
 $(document).ready(function() {
-    $('.ma_instance').each(function(i, el){
-        $.get('ajax/clck_log.php', {'id':$(el).attr('rel'), 'type':(20 + i)});
-    });
-    $('.ma_instance button').click(function(event) {
-        $('button.ma_next_pack').attr('disabled', 'disabled');
-        var $btn = $(event.target);
-        $btn.closest('div').find('button').attr('disabled', 'disabled').removeClass('chosen');
-        $btn.addClass('chosen');
-        $.get('ajax/annot.php', {'id':$(this).closest('div').attr('rel'), 'answer':$(this).attr('rev')}, function(res){
-            var $r = $(res).find('result');
-            if ($r.attr('ok') == 1) {
-                $btn.closest('div').fadeTo('slow', 0.5).addClass('ma_ready');
-                //perhaps all the instances are clicked
-                var flag = 1;
-                $('div.ma_instance').each(function(i, el) {
-                    if (!$(el).hasClass('ma_ready'))
-                        flag = 0;
-                });
-                if (flag) $('button.ma_next_pack').removeAttr('disabled');
-            } else
-                $btn.closest('div').hide();
-            $btn.closest('div').find('button').removeAttr('disabled');
+    if ({/literal}{$packet.editable}{literal}) {
+        $('.ma_instance').each(function(i, el){
+            $.get('ajax/clck_log.php', {'id':$(el).attr('rel'), 'type':(20 + i)});
         });
-        $.get('ajax/clck_log.php', {'id': $btn.closest('div').attr('rel'), 'type': $btn.attr('rev')});
-    });
+        $('.ma_instance button').click(function(event) {
+            $('button.ma_next_pack').attr('disabled', 'disabled');
+            var $btn = $(event.target);
+            $btn.closest('div').find('button').attr('disabled', 'disabled').removeClass('chosen');
+            $btn.addClass('chosen');
+            $.get('ajax/annot.php', {'id':$(this).closest('div').attr('rel'), 'answer':$(this).attr('rev')}, function(res){
+                var $r = $(res).find('result');
+                if ($r.attr('ok') == 1) {
+                    $btn.closest('div').fadeTo('slow', 0.5).addClass('ma_ready');
+                    //perhaps all the instances are clicked
+                    var flag = 1;
+                    $('div.ma_instance').each(function(i, el) {
+                        if (!$(el).hasClass('ma_ready'))
+                            flag = 0;
+                    });
+                    if (flag) $('button.ma_next_pack').removeAttr('disabled');
+                } else
+                    $btn.closest('div').hide();
+                $btn.closest('div').find('button').removeAttr('disabled');
+            });
+            $.get('ajax/clck_log.php', {'id': $btn.closest('div').attr('rel'), 'type': $btn.attr('rev')});
+        });
+    } else {
+        $('.ma_instance button').attr('disabled', 'disabled');
+    }
     $('a.expand').click(function(event) {
         var $btn = $(event.target);
         $.get('ajax/get_context.php', {'tf_id':$(this).attr('rel'), 'dir':$(this).attr('rev')}, function(res) {
@@ -84,12 +88,12 @@ $(document).ready(function() {
     {if $instance.has_right_context}<a class='expand' href="#" rel='{$instance.has_right_context}' rev='1'>...</a>{/if}
     <br/>
     {foreach from=$packet.gram_descr item=var name=x}
-    <button rev='{$smarty.foreach.x.index + 1}'>{$var|htmlspecialchars}</button>
+    <button rev='{$smarty.foreach.x.index + 1}' {if $instance.answer == $smarty.foreach.x.index + 1}class='chosen'{/if}>{$var|htmlspecialchars}</button>
     {/foreach}
-    <button rev='99' class='other'>Другое</button>
+    <button rev='99' class='other{if $instance.answer == 99} chosen{/if}'>Другое</button>
     <button rev='-1' class='reject'>Пропустить</button>
     <a rel='{$instance.sample_id}' class='hint comment' href='#'>Прокомментировать</a>
 </div>
 {/foreach}
-<center><button class='ma_next_pack' disabled='disabled'>Хочу ещё примеров!</button></center>
+{if !$packet.my}<center><button class='ma_next_pack' disabled='disabled'>Хочу ещё примеров!</button></center>{/if}
 {/block}
