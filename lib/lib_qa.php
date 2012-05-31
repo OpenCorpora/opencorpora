@@ -268,9 +268,10 @@ function promote_samples($pool_id, $type) {
 
     $r = sql_fetch_array(sql_query("SELECT MAX(rev_id) FROM tf_revisions"));
 
+    $time = time();
     sql_begin();
     if (sql_query("INSERT INTO morph_annot_samples(SELECT NULL, pool_id, tf_id FROM morph_annot_candidate_samples $cond)") &&
-        sql_query("UPDATE morph_annot_pools SET `status`='2', `revision`='$r[0]', `updated_ts`='".time()."' WHERE pool_id=$pool_id LIMIT 1") &&
+        sql_query("UPDATE morph_annot_pools SET `status`='2', `revision`='$r[0]', `created_ts`='$time', `updated_ts`='$time' WHERE pool_id=$pool_id LIMIT 1") &&
         sql_query("DELETE FROM morph_annot_candidate_samples WHERE pool_id=$pool_id")) {
         sql_commit();
         return true;
