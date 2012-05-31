@@ -1,0 +1,231 @@
+/*17575 радиан - центральный угол&&,&& _&соответствующий&_ дуге, длина которой равна ее радиусу*/
+digraph t17575 {
+
+subgraph {
+  rank=same;
+  edge [style="invis"];
+  W1 [shape=none, label=<
+  <table border="0" cellborder="1" cellspacing="0">
+    <tr><td colspan="2" bgcolor="black"><font color="white">Этот</font></td></tr>
+    <tr><td colspan="2" align="left">этот, ADJF, Apro</td></tr>
+    <tr><td></td><td align="left">sing, masc, nomn</td></tr>
+    <tr><td></td><td align="left">sing, masc, accs, inan</td></tr>
+  </table>>];
+
+  W2 [shape=none, label=<
+  <table border="0" cellborder="1" cellspacing="0">
+    <tr><td colspan="2" bgcolor="black"><font color="white">настрой</font></td></tr>
+    <tr><td colspan="2" align="left">настрой, NOUN, inan, masc</td></tr>
+    <tr><td></td><td align="left">sing, nonm</td></tr>
+    <tr><td></td><td align="left">sing, accs</td></tr>
+    <tr><td colspan="2" align="left">настроить, VERB, perf, tran</td></tr>
+    <tr><td></td><td align="left">impr, excl, sing</td></tr>
+  </table>>];
+
+  W3 [shape=none, label=<
+  <table border="0" cellborder="1" cellspacing="0">
+    <tr><td colspan="2" bgcolor="black"><font color="white">распространился</font></td></tr>
+    <tr><td colspan="2" align="left">распространиться, VERB, perf, intr</td></tr>
+    <tr><td></td><td align="left">indc, past, sing, masc</td></tr>
+  </table>>];
+
+}
+
+subgraph {
+subgraph {
+  rank=same;
+  edge [style="invis"];
+
+  T1 [shape=none, label=<
+  <table border="0" cellborder="1" cellspacing="0">
+    <tr><td bgcolor="black"><font color="white">№</font></td>
+    <td></td>
+    <td>Variant A</td><td>Variant B</td></tr>
+    <tr><td bgcolor="black"><font color="white">1</font></td>
+    <td>ЭТОТ настрой распространился ...</td>
+    <td>nomn</td><td>accs</td></tr>
+    <tr><td bgcolor="black"><font color="white">2</font></td>
+    <td>... это уже не ПЕРВЫЙ «ребрендинг».</td>
+    <td>nomn</td><td>accs</td></tr>
+    <tr><td bgcolor="black"><font color="white">3</font></td>
+    <td>......</td>
+    <td>nomn</td><td>accs</td></tr>
+  </table>>];  
+ 
+  M1 [shape=none, label=<
+  <table border="0" cellborder="1" cellspacing="0">
+    <tr>
+    <td>№1</td><td>№2</td><td>№3</td></tr>
+    <tr><td>nomn</td><td>nomn</td><td>nomn</td></tr>
+    <tr><td bgcolor="pink">accs</td><td bgcolor="pink">nomn</td><td bgcolor="pink">accs</td></tr>
+    <tr><td>...</td><td>...</td><td>...</td></tr>
+  </table>>];  
+
+  D1 [shape=none, label=<
+  <table border="0" cellborder="1" cellspacing="0">
+    <tr><td>FINAL</td></tr>
+    <tr><td>nomn</td></tr>
+    <tr><td>accs</td></tr>
+    <tr><td>...</td></tr>
+  </table>>];  
+
+} 
+
+subgraph {
+  rank=same;
+  edge [style="invis"];
+
+  T2 [shape=none, label=<
+  <table border="0" cellborder="1" cellspacing="0">
+    <tr><td bgcolor="black"><font color="white">№</font></td>
+    <td></td>
+    <td>Variant A</td><td>Variant B</td></tr>
+    <tr><td bgcolor="black"><font color="white">1</font></td>
+    <td>Этот НАСТРОЙ распространился ...</td>
+    <td>VERB</td><td>NOUN</td></tr>
+    <tr><td bgcolor="black"><font color="white">2</font></td>
+    <td>... снова СТАЛИ появляться народные любимцы.</td>
+    <td>VERB</td><td>NOUN</td></tr>
+    <tr><td bgcolor="black"><font color="white">3</font></td>
+    <td>......</td>
+    <td>VERB</td><td>NOUN</td></tr>
+  </table>>];  
+
+  M2 [shape=none, label=<
+  <table border="0" cellborder="1" cellspacing="0">
+    <tr>
+    <td>№1</td><td>№2</td><td>№3</td></tr>
+    <tr><td>NOUN</td><td>NOUN</td><td>NOUN</td></tr>
+    <tr><td>VERB</td><td>VERB</td><td>VERB</td></tr>
+    <tr><td>...</td><td>...</td><td>...</td></tr>
+  </table>>];  
+
+  D2 [shape=none, label=<
+  <table border="0" cellborder="1" cellspacing="0">
+    <tr><td>FINAL</td></tr>
+    <tr><td>NOUN</td></tr>
+    <tr><td>VERB</td></tr>
+    <tr><td>...</td></tr>
+  </table>>];  
+
+}
+}
+
+subgraph {
+  edge [style="invis"];
+  T1 -> T2
+  T1 -> M1
+  T2 -> M2
+  M1 -> D1
+  M2 -> D2
+}
+
+subgraph {
+  W1 -> T1
+  W2 -> T2
+
+  D1 -> W1
+  D2 -> W2
+}
+
+/*
+subgraph {
+  rank=same; 
+  edge [style="invis"];
+  R1 [shape=box, label="Я"];
+  R2 [shape=box, label="занимаюсь"];
+  R3 [shape=box, label="чёрт"];
+  R4 [shape=box, label="знает"];
+  R5 [shape=box, label="чем"];
+  R6 [shape=box, label="."];
+  R1->R2->R3->R4->R5->R6;
+} */
+
+/*
+subgraph {
+  node [shape=box];
+  W1 [shape=none, label=<
+    <table border="0" cellborder="1" cellspacing="0">
+<!--    <tr><td colspan="2" bgcolor="black"><font color="white">W1</font></td></tr> -->
+    <tr><td colspan="2" bgcolor="lightgray">Я</td></tr>
+    <tr><td align="left">type</td><td align="left">Word</td></tr>
+    <tr><td align="left">POST</td><td align="left">NPRO</td></tr>
+    <tr><td align="left">PErs</td><td align="left">1per</td></tr>
+    <tr><td align="left">NMbr</td><td align="left">sing</td></tr>
+    <tr><td align="left">CAse</td><td align="left">nomn</td></tr>
+    </table>>];
+  W2 [shape=none, label=<
+    <table border="0" cellborder="1" cellspacing="0">
+<!--    <tr><td colspan="2" bgcolor="black"><font color="white">W2</font></td></tr> -->
+    <tr><td colspan="2" bgcolor="lightgray">занимаюсь</td></tr>
+    <tr><td align="left">type</td><td align="left">Word</td></tr>
+    <tr><td align="left">POST</td><td align="left">VERB</td></tr>
+    <tr><td align="left">ASpc</td><td align="left">impf</td></tr>
+    <tr><td align="left">TRns</td><td align="left">intr</td></tr>
+    <tr><td align="left">MOod</td><td align="left">indc</td></tr>
+    <tr><td align="left">TEns</td><td align="left">pres</td></tr>
+    <tr><td align="left">NMbr</td><td align="left">sing</td></tr>
+    <tr><td align="left">PErs</td><td align="left">1per</td></tr>
+    </table>>];
+  W3 [shape=none, label=<
+    <table border="0" cellborder="1" cellspacing="0">
+<!--    <tr><td colspan="2" bgcolor="black"><font color="white">W3</font></td></tr> -->
+    <tr><td colspan="2" bgcolor="lightgray">чёрт</td></tr>
+    <tr><td align="left">type</td><td align="left">Word</td></tr>
+    <tr><td align="left">POST</td><td align="left">NOUN</td></tr>
+    <tr><td align="left">ANim</td><td align="left">anim</td></tr>
+    <tr><td align="left">GNdr</td><td align="left">masc</td></tr>
+    <tr><td align="left">NMbr</td><td align="left">sing</td></tr>
+    <tr><td align="left">CAse</td><td align="left">nomn</td></tr>
+    </table>>];
+  W4 [shape=none, label=<
+    <table border="0" cellborder="1" cellspacing="0">
+<!--    <tr><td colspan="2" bgcolor="black"><font color="white">W4</font></td></tr> -->
+    <tr><td colspan="2" bgcolor="lightgray">знаю</td></tr>
+    <tr><td align="left">type</td><td align="left">Word</td></tr>
+    <tr><td align="left">POST</td><td align="left">VERB</td></tr>
+    <tr><td align="left">ASpc</td><td align="left">impf</td></tr>
+    <tr><td align="left">TRns</td><td align="left">tran</td></tr>
+    <tr><td align="left">MOod</td><td align="left">indc</td></tr>
+    <tr><td align="left">TEns</td><td align="left">pres</td></tr>
+    <tr><td align="left">NMbr</td><td align="left">sing</td></tr>
+    <tr><td align="left">PErs</td><td align="left">3per</td></tr>
+    </table>>];
+  W5 [shape=none, label=<
+    <table border="0" cellborder="1" cellspacing="0">
+<!--    <tr><td colspan="2" bgcolor="black"><font color="white">W5</font></td></tr> -->
+    <tr><td colspan="2" bgcolor="lightgray">что</td></tr>
+    <tr><td align="left">type</td><td align="left">Word</td></tr>
+    <tr><td align="left">POST</td><td align="left">NPRO</td></tr>
+    <tr><td align="left">GNdr</td><td align="left">neut</td></tr>
+    <tr><td align="left">NMbr</td><td align="left">sing</td></tr>
+    <tr><td align="left">CAse</td><td align="left">ablt</td></tr>
+    </table>>];
+  W6 [shape=none, label=<
+    <table border="0" cellborder="1" cellspacing="0">
+<!--    <tr><td colspan="2" bgcolor="black"><font color="white">W6</font></td></tr> -->
+    <tr><td colspan="2" bgcolor="lightgray">.</td></tr>
+    <tr><td align="left">type</td><td align="left">Pnct</td></tr>
+    </table>>];
+}
+
+subgraph {
+  edge [style="dotted"];
+  W1 -> R1;
+  W2 -> R2;
+  W3 -> R3;
+  W4 -> R4;
+  W5 -> R5;
+  W6 -> R6;
+}
+
+subgraph {
+  edge [weight="1"];
+  W2 -> W1;
+  W2 -> W4;
+
+  W4 -> W3;
+  W4 -> W5;
+} */
+
+} 
