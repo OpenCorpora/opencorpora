@@ -389,6 +389,10 @@ function update_annot_instance($id, $answer) {
     $user_id = $_SESSION['user_id'];
     if (!$id || !$answer || !$user_id) return 0;
 
+    // the pool should be editable
+    $r = sql_fetch_array(sql_query("SELECT `status` FROM morph_annot_pools WHERE pool_id = (SELECT pool_id FROM morph_annot_samples WHERE sample_id=$id LIMIT 1)"));
+    if ($r['status'] != 3) return 0;
+
     // does the instance really belong to this user?
     $res = sql_query("SELECT instance_id FROM morph_annot_instances WHERE instance_id=$id AND user_id=$user_id LIMIT 1");
     if (!sql_num_rows($res)) return 0;
