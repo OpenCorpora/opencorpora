@@ -35,10 +35,12 @@ subgraph cluster_1 {
 
   W1 -> W2 -> W3;
   }
+
+  color = gray;
 }
 
-subgraph cluster_4 {
-rankdir="TB";
+//subgraph cluster_4 {
+//rankdir="TB";
 
 subgraph cluster_2 {
  label = "nomn/accs pool";
@@ -82,6 +84,8 @@ subgraph cluster_2 {
 
   T1 -> M1 -> D1; 
   }
+ 
+  color = gray;
 } 
 
 
@@ -129,16 +133,20 @@ subgraph cluster_3 {
   T2 -> M2 -> D2;
   }
 
+  color = gray;
 }
-}
+//}
 
-W1 -> T1;
+W1 -> T1; // [weight=0.9];
 W2 -> T2;
 
-//D1 -> W1;
-//D2 -> W2;
+D1 -> W1 [weight=0];
+D2 -> W2 [weight=0];
 
-//T1 -> T2;
+subgraph {
+  edge [style="invis"];
+  M1 -> T2;
+}
 
 /*subgraph {
   edge [style="invis"];*/
