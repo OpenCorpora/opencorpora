@@ -135,8 +135,8 @@ subgraph cluster_3 {
 W1 -> T1;
 W2 -> T2;
 
-D1 -> W1;
-D2 -> W2;
+//D1 -> W1;
+//D2 -> W2;
 
 //T1 -> T2;
 
