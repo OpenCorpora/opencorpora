@@ -47,7 +47,7 @@ subgraph cluster_2 {
 
  subgraph C2 {
  rank=same;
- edge [style="invis"];
+ //edge [style="invis"];
 
  T1 [shape=none, label=<
   <table border="0" cellborder="1" cellspacing="0">
@@ -95,7 +95,7 @@ subgraph cluster_3 {
 
   subgraph C3 {
   rank=same;
-  edge [style="invis"];
+  //edge [style="invis"];
 
   T2 [shape=none, label=<
   <table border="0" cellborder="1" cellspacing="0">
