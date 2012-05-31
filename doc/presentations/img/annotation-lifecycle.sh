@@ -1,1 +1,1 @@
-dot annotation-lifecycle.dot -Tpng -o annotation-lifecycle.png
+dot img/annotation-lifecycle.dot -Tpng -o img/annotation-lifecycle.png
