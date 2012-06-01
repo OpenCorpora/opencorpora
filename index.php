@@ -1,5 +1,6 @@
 <?php
 require('lib/header.php');
+require_once('lib/lib_qa.php');
 if (isset($_GET['rand'])) {
     $r = sql_fetch_array(sql_query("SELECT sent_id FROM sentences ORDER BY RAND() LIMIT 1", 0));
     header("Location:sentence.php?id=".$r['sent_id']);
@@ -46,9 +47,16 @@ if (isset($_GET['page'])) {
             $smarty->display('static/doc/export.tpl');
             break;
         default:
+            if (is_logged()) {
+                $smarty->assign('available', get_available_tasks($_SESSION['user_id'], true));
+            }
             $smarty->display('index.tpl');
     }
 }
-else
+else {
+    if (is_logged()) {
+        $smarty->assign('available', get_available_tasks($_SESSION['user_id'], true));
+    }
     $smarty->display('index.tpl');
+}
 ?>

@@ -2,6 +2,32 @@
 {extends file="common.tpl"}
 {block name=content}
 <h1>{t}Открытый корпус{/t}</h1>
+{if $is_logged}
+<h2>Как я могу помочь прямо сейчас?</h2>
+<ul>
+<li>принять участие в снятии морфологической неоднозначности:
+    <div><table border="1" cellspacing="0" cellpadding="3" style="margin: 5px">
+    <tr><th>Название пула</th><th>Доступно</th>{if $available}<th>&nbsp;</th>{/if}</tr>
+    {foreach from=$available item=task}
+    <tr>
+        <td>{$task.name|htmlspecialchars}</td>
+        <td>{$task.num}{if $task.num_started} +{$task.num_started} начатых{/if}</td>
+        <td>
+            {if $task.num || $task.num_started}<a href="?act=annot&amp;pool_id={$task.id}">взять на разметку</a>{else}&nbsp;{/if}
+        </td>
+    </tr>
+    {foreachelse}
+    <tr><td colspan='2'>Нет доступных заданий.</td></tr>
+    {/foreach}
+    </table></div></li>
+<li><a href="http://goo.gl/jm3ol">предложить нам</a> источник свободно доступных (на условиях CC-BY-SA или совместимых) текстов</li>
+<li>добавить тексты в корпус (напишите нам письмо на {mailto address="opencorpora@opencorpora.org" encode="javascript"}, мы расскажем как)</li>
+<li>помочь в разработке ПО корпуса и связанных с ним библиотек (тоже напишите нам письмо на {mailto address="opencorpora@opencorpora.org" encode="javascript"})</li>
+<li>рассказать о нас всем вокруг</li>
+<li>сделать ещё что-нибудь полезное и интересное (разумеется, напишите нам письмо на {mailto address="opencorpora@opencorpora.org" encode="javascript"})</li>
+</ul>
+<h2>А ещё вот есть</h2>
+{/if}
 {* Admin options *}
 {if $is_admin}
 <a href='{$web_prefix}/users.php'>{t}Управление пользователями{/t}</a><br/><br/>
@@ -31,7 +57,7 @@
 <a href='{$web_prefix}/qa.php?act=book_tags'>Ошибки в тегах текстов</a><br/>
 <a href='{$web_prefix}/qa.php?act=dl_urls'>Сохранённые копии источников</a><br/>
 {/if}
-{if !$is_admin}
+{if !$is_logged}
 <p>{t}Здравствуйте!{/t}</p>
 <p>{t}Это сайт проекта &laquo;Открытый корпус&raquo; (OpenCorpora). Наша цель &ndash; создать морфологически, синтаксически и семантически размеченный корпус текстов на русском языке, в полном объёме доступный для исследователей и редактируемый пользователями.{/t}</p>
 <p>{t}Мы начали работу в 2009 году, сейчас идёт разработка. Следить за тем, как мы продвигаемся, можно{/t} <a href="http://opencorpora.googlecode.com">{t}здесь{/t}</a> ({t}да, код проекта открыт{/t}).</p>
