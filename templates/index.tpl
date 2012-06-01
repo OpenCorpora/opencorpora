@@ -46,7 +46,7 @@
 <a href='{$web_prefix}/sources.php'>Координация заливки</a><br/>
 {/if}
 {if $user_permission_check_morph}
-<a href='{$web_prefix}/pools.php'>Задания на разметку</a> (under construction)<br/>
+<a href='{$web_prefix}/pools.php'>Задания на разметку</a><br/>
 {/if}
 {if $user_permission_adder}
 <br/>
