@@ -3,24 +3,14 @@ use strict;
 use DBI;
 use Config::INI::Reader;
 
-my $lock_path = "/var/lock/opcorpora_pools.lock";
-if (-f $lock_path) {
-    die ("lock exists, exiting");
-}
-
 #reading config
 my $conf = Config::INI::Reader->read_file($ARGV[0]);
 $conf = $conf->{mysql};
-
-open my $lock, ">$lock_path";
-print $lock 'lock';
-close $lock;
 
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 $dbh->{'AutoCommit'} = 0;
 if ($dbh->{'AutoCommit'}) {
-    unlink($lock_path);
     die "Setting AutoCommit failed";
 }
 
@@ -33,8 +23,6 @@ while (my $ref = $find_pools->fetchrow_hashref()) {
     process_pool($ref->{'pool_id'}, $ref->{'grammemes'});
 }
 $dbh->commit();
-unlink $lock_path;
-
 
 sub process_pool {
     my $pool_id = shift;
@@ -73,7 +61,7 @@ sub process_pool {
         push @q, "(".join(' AND ', @qt).")";
     }
     # rough filter
-    my $q = "SELECT tf_id, rev_id, rev_text FROM tf_revisions WHERE ".join(' OR ', @q);
+    my $q = "SELECT tf_id, rev_id, rev_text FROM tf_revisions WHERE ".join(' OR ', @q)." AND tf_id NOT IN (SELECT tf_id FROM morph_annot_samples WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status BETWEEN 2 AND 6))";
     print STDERR $q."\n";
     my $s = $dbh->prepare($q);
     $s->execute();
