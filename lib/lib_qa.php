@@ -130,9 +130,11 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
             $disagreement_flag = 0;
             $vars = '';
             while ($r1 = sql_fetch_array($res1)) {
-                if (!$vars)
+                if ($r1['answer'] == 99)
+                    $disagreement_flag = 1;
+                elseif (!$vars)
                     $vars = $r1['answer'];
-                elseif ($vars != $r1['answer'])
+                elseif ($r1['answer'] && $vars != $r1['answer'])
                     $disagreement_flag = 1;
                 //about users
                 if (!isset($distinct_users[$r1['user_id']])) {
