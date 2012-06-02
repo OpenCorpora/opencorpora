@@ -2,7 +2,7 @@
 {extends file="common.tpl"}
 {block name=content}
 <h1>{t}Открытый корпус{/t}</h1>
-{if $is_logged}
+{if $is_logged && !$is_admin}
 <h2>Как я могу помочь прямо сейчас?</h2>
 <ul>
 <li>принять участие в снятии морфологической неоднозначности:
