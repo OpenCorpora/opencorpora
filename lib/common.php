@@ -15,9 +15,9 @@ function sql_query($q, $debug=1, $override_readonly=0) {
     if ($debug) {
         $time = microtime(true)-$time_start;
         $total_time += $time;
-        printf ("<span class='debug'>SQL: %s # %.4f сек. (current total time: %.4f сек.)</span><br/>\n", htmlspecialchars($q), $time, $total_time);
+        printf("<table class='debug' width='100%%'><tr><td>SQL: %s</td><td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", htmlspecialchars($q), $time, $total_time);
         if ($err = mysql_error()) {
-            print "<span class='debug_error'>$err</span><br/>\n";
+            print "<table class='debug_error' width='100%%'><tr><td colspan='3'>".htmlspecialchars($err)."</td></tr></table>\n";
         }
     }
     return $res;

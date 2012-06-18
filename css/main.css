@@ -120,11 +120,11 @@ a.toggle {
     border-bottom: 1px black dashed;
     text-decoration: none;
 }
-span.debug {
+.debug {
     font-size: small;
     background-color: yellow;
 }
-span.debug_error {
+.debug_error {
     font-size: small;
     background-color: #CC0000;
     color: yellow;
