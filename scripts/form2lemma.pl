@@ -17,7 +17,7 @@ if ($dbh->{'AutoCommit'}) {
     die "Setting AutoCommit failed";
 }
 
-my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE f2l_check=0 ORDER BY rev_id LIMIT 10000");
+my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE f2l_check=0 ORDER BY rev_id LIMIT 2000");
 my $del = $dbh->prepare("DELETE FROM form2lemma WHERE lemma_id=?");
 my $ins = $dbh->prepare("INSERT INTO form2lemma VALUES(?, ?, ?, ?)");
 my $upd = $dbh->prepare("UPDATE dict_revisions SET f2l_check=1 WHERE rev_id=? LIMIT 1");

@@ -10,7 +10,7 @@ dbname =  config.get ('mysql', 'dbname')
 username =  config.get ('mysql', 'user')
 password =  config.get ('mysql', 'passwd')
 
-db = MySQLdb.connect(hostname, username, password, dbname, use_unicode = True)
+db = MySQLdb.connect(hostname, username, password, dbname)
 
 cursor = db.cursor()
 cursor.execute('SET NAMES utf8')
