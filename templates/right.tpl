@@ -1,4 +1,10 @@
 {* Smarty *}
+{if $smarty.session.hidemenu}
+<a href="#" id="toggle-menu" onclick="toggle_rightmenu(this); return false;" class="show-menu" title="показать меню">←</a>
+{else}
+<a href="#" id="toggle-menu" onclick="toggle_rightmenu(this); return false;" class="hide-menu" title="скрыть меню">→</a>
+{/if}
+<div id="rightcol-inner" {if $smarty.session.hidemenu}style="display:none;"{/if}>
 <script>
     $(document).ready(function(){
         $("#form_search_input").autocomplete("ajax/dict_substring_search.php",{
@@ -80,3 +86,4 @@
 <script src="//mc.yandex.ru/metrika/watch.js" type="text/javascript" defer="defer"></script>
 <noscript><div><img src="//mc.yandex.ru/watch/9552538" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
+</div>

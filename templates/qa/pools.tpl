@@ -51,6 +51,10 @@ $(document).ready(function(){
             <a href="?act=samples&amp;pool_id={$pool.pool_id}">снят с публикации</a>
         {elseif $pool.status == 5}
             <a href="?act=samples&amp;pool_id={$pool.pool_id}">на модерации</a>
+        {elseif $pool.status == 6}
+            <a href="?act=samples&amp;pool_id={$pool.pool_id}">модерация окончена</a>
+        {elseif $pool.status == 7}
+            <a href="?act=samples&amp;pool_id={$pool.pool_id}">готов (в архиве)</a>
         {/if}
         {if $pool.status > 1}
             <br/><span class='small{if $pool.instance_count > 0 && $pool.answer_count == $pool.instance_count} bggreen{/if}'>Ответов: {$pool.answer_count}/{$pool.instance_count}</span>

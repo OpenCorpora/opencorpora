@@ -66,6 +66,9 @@ div#content {
     margin-right: 235px;
     padding: 10px;
 }
+div.content-wide {
+    margin-right: 15px !important;
+}
 div#rightcol {
     position: absolute;
     top: 60px;
@@ -73,6 +76,14 @@ div#rightcol {
     width: 200px;
     float: right;
     padding: 10px;
+}
+div.rightcol-narrow {
+    width: 15px !important;
+}
+div#rightcol a#toggle-menu {
+    text-decoration: none;
+    background-color: #ccc;
+    padding: 0 3px;
 }
 div#rightcol div {
     margin-bottom: 10px;
