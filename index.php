@@ -55,7 +55,7 @@ if (isset($_GET['page'])) {
 }
 else {
     if (is_logged() && !is_admin()) {
-        $smarty->assign('available', get_available_tasks($_SESSION['user_id'], true));
+        $smarty->assign('available', get_available_tasks($_SESSION['user_id'], true, 5));
     }
     $smarty->display('index.tpl');
 }

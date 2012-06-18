@@ -324,7 +324,7 @@ function moderate_pool($pool_id) {
         return true;
     return false;
 }
-function get_available_tasks($user_id, $only_editable=false) {
+function get_available_tasks($user_id, $only_editable=false, $limit=0) {
     $tasks = array();
 
     if ($only_editable)
@@ -332,8 +332,9 @@ function get_available_tasks($user_id, $only_editable=false) {
     else
         $status_string = "WHERE status > 2";
 
-    $res = sql_query("SELECT pool_id, pool_name, status FROM morph_annot_pools $status_string");
+    $res = sql_query("SELECT pool_id, pool_name, status FROM morph_annot_pools $status_string ORDER BY created_ts");
     $time = time();
+    $cnt = 0;
     while ($r = sql_fetch_array($res)) {
         $pool = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status']);
         $r1 = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT sample_id) FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND sample_id NOT IN (SELECT DISTINCT sample_id FROM morph_annot_instances WHERE user_id=$user_id) AND sample_id NOT IN (SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id) AND answer=0 AND ts_finish < $time"));
@@ -344,7 +345,12 @@ function get_available_tasks($user_id, $only_editable=false) {
             continue;
         $r1 = sql_fetch_array(sql_query("SELECT COUNT(instance_id) FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND user_id=$user_id AND answer>0"));
         $pool['num_done'] = $r1[0];
-        $tasks[] = $pool;
+        if ($pool['num'] > 0 || $pool['num_started'] > 0 || $pool['num_done'] > 0)
+            $tasks[] = $pool;
+
+        ++$cnt;
+        if ($limit > 0 && $cnt == $limit)
+            break;
     }
     return $tasks;
 }

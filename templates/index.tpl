@@ -5,7 +5,7 @@
 {if $is_logged && !$is_admin}
 <h2>Как я могу помочь прямо сейчас?</h2>
 <ul>
-<li>принять участие в снятии морфологической неоднозначности:
+<li>принять участие в снятии морфологической неоднозначности (см. <a href="tasks.php">задания</a>):
     <div><table border="1" cellspacing="0" cellpadding="3" style="margin: 5px">
     <tr><th>Название пула</th><th>Доступно</th>{if $available}<th>&nbsp;</th>{/if}</tr>
     {foreach from=$available item=task}
@@ -13,7 +13,7 @@
         <td>{$task.name|htmlspecialchars}</td>
         <td>{$task.num}{if $task.num_started} +{$task.num_started} начатых{/if}</td>
         <td>
-            {if $task.num || $task.num_started}<a href="?act=annot&amp;pool_id={$task.id}">взять на разметку</a>{else}&nbsp;{/if}
+            {if $task.num || $task.num_started}<a href="tasks.php?act=annot&amp;pool_id={$task.id}">взять на разметку</a>{else}&nbsp;{/if}
         </td>
     </tr>
     {foreachelse}
@@ -26,6 +26,8 @@
 <li>рассказать о нас всем вокруг</li>
 <li>сделать ещё что-нибудь полезное и интересное (разумеется, напишите нам письмо на {mailto address="opencorpora@opencorpora.org" encode="javascript"})</li>
 </ul>
+{/if}
+{if $is_logged && ($user_permission_adder || $user_permission_dict)}
 <h2>А ещё вот есть</h2>
 {/if}
 {* Admin options *}
