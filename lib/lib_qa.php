@@ -332,7 +332,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0) {
     else
         $status_string = "WHERE status > 2";
 
-    $res = sql_query("SELECT pool_id, pool_name, status FROM morph_annot_pools $status_string ORDER BY created_ts");
+    $res = sql_query("SELECT pool_id, pool_name, status FROM morph_annot_pools $status_string ORDER BY status, created_ts");
     $time = time();
     $cnt = 0;
     while ($r = sql_fetch_array($res)) {
@@ -366,12 +366,13 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0) {
         if (
             (!$only_editable || ($pool['num'] + $pool['num_started'] > 0)) &&
             ($pool['num'] > 0 || $pool['num_started'] > 0 || $pool['num_done'] > 0)
-        )
+        ) {
             $tasks[] = $pool;
 
-        ++$cnt;
-        if ($limit > 0 && $cnt == $limit)
-            break;
+            ++$cnt;
+            if ($limit > 0 && $cnt == $limit)
+                break;
+        }
     }
     return $tasks;
 }
