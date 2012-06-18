@@ -337,7 +337,24 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0) {
     $cnt = 0;
     while ($r = sql_fetch_array($res)) {
         $pool = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0);
-        $r1 = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT sample_id) FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND sample_id NOT IN (SELECT DISTINCT sample_id FROM morph_annot_instances WHERE user_id=$user_id) AND sample_id NOT IN (SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id) AND answer=0 AND ts_finish < $time"));
+        $r1 = sql_fetch_array(sql_query("
+            SELECT COUNT(DISTINCT sample_id)
+            FROM morph_annot_instances
+            WHERE sample_id IN
+                (SELECT sample_id
+                FROM morph_annot_samples
+                WHERE pool_id=".$r['pool_id'].")
+            AND answer=0
+            AND ts_finish < $time
+            AND sample_id NOT IN
+                (SELECT DISTINCT sample_id
+                FROM morph_annot_instances
+                WHERE user_id=$user_id)
+            AND sample_id NOT IN
+                (SELECT sample_id
+                FROM morph_annot_rejected_samples
+                WHERE user_id=$user_id)
+        "));
         $pool['num'] = $r1[0];
         $res1 = sql_query("SELECT answer, COUNT(instance_id) as cnt FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND user_id=$user_id GROUP BY (answer > 0)");
         while ($r1 = sql_fetch_array($res1)) {
