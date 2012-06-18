@@ -147,7 +147,7 @@ function user_register($post) {
     if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."')")) {
         $user_id = sql_insert_id();
         if (!sql_query("INSERT INTO `user_permissions` VALUES ('$user_id', '0', '0', '0', '0', '0', '0')")) return 0;
-        if ($email) {
+        if (isset($post['subscribe']) && $email) {
             //perhaps we should subscribe the user
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
