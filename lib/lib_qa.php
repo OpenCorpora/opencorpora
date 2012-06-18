@@ -336,16 +336,20 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0) {
     $time = time();
     $cnt = 0;
     while ($r = sql_fetch_array($res)) {
-        $pool = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status']);
+        $pool = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0);
         $r1 = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT sample_id) FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND sample_id NOT IN (SELECT DISTINCT sample_id FROM morph_annot_instances WHERE user_id=$user_id) AND sample_id NOT IN (SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id) AND answer=0 AND ts_finish < $time"));
         $pool['num'] = $r1[0];
-        $r1 = sql_fetch_array(sql_query("SELECT COUNT(instance_id) FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND user_id=$user_id AND answer=0"));
-        $pool['num_started'] = $r1[0];
-        if ($only_editable && ($pool['num'] + $pool['num_started']) == 0)
-            continue;
-        $r1 = sql_fetch_array(sql_query("SELECT COUNT(instance_id) FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND user_id=$user_id AND answer>0"));
-        $pool['num_done'] = $r1[0];
-        if ($pool['num'] > 0 || $pool['num_started'] > 0 || $pool['num_done'] > 0)
+        $res1 = sql_query("SELECT answer, COUNT(instance_id) as cnt FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND user_id=$user_id GROUP BY (answer > 0)");
+        while ($r1 = sql_fetch_array($res1)) {
+            if ($r1['answer'] == 0)
+                $pool['num_started'] = $r1['cnt'];
+            else
+                $pool['num_done'] = $r1['cnt'];
+        }
+        if (
+            (!$only_editable || ($pool['num'] + $pool['num_started'] > 0)) &&
+            ($pool['num'] > 0 || $pool['num_started'] > 0 || $pool['num_done'] > 0)
+        )
             $tasks[] = $pool;
 
         ++$cnt;
