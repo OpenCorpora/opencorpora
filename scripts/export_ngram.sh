@@ -78,5 +78,3 @@ process $export_path/colloc.MI
 
 rm -f $export_path/unigrams.cyr.lc
 rm -f $export_path/bigrams.cyrB.lc
-
-rm -f $dump_path
