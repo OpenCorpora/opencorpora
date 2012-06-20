@@ -19,6 +19,41 @@ $(document).ready(function(){
 {if isset($smarty.get.added)}
 <p>Пул добавлен. Обновите страницу через несколько минут, чтобы увидеть найденные примеры.</p>
 {/if}
+
+{* Type chooser *}
+<div>
+{if $smarty.get.type == 0}
+<b>идёт поиск примеров</b> |
+{else}
+<a href="?type=0">идёт поиск примеров</a> |
+{/if}
+{if $smarty.get.type == 1}
+<b>найдены примеры</b> |
+{else}
+<a href="?type=1">найдены примеры</a> |
+{/if}
+{if $smarty.get.type == 2}
+<b>не опубликованные</b> |
+{else}
+<a href="?type=2">не опубликованные</a> |
+{/if}
+{if $smarty.get.type == 3}
+<b>опубликованные</b> |
+{else}
+<a href="?type=3">опубликованные</a> |
+{/if}
+{if $smarty.get.type == 4}
+<b>снятые с публикации</b> |
+{else}
+<a href="?type=4">снятые с публикации</a> |
+{/if}
+{if $smarty.get.type == 5}
+<b>на модерации</b> |
+{else}
+<a href="?type=5">на модерации</a> |
+{/if}
+</div><br/>
+
 <table border="1" cellspacing="0" cellpadding="3">
 <tr>
     <th>ID</td>

@@ -90,9 +90,9 @@ function get_tag_errors() {
     return $out;
 }
 //annotation pools
-function get_morph_pools_page() {
+function get_morph_pools_page($type) {
     $pools = array();
-    $res = sql_query("SELECT p.*, u.user_name FROM morph_annot_pools p LEFT JOIN users u ON (p.author_id = u.user_id) ORDER BY p.updated_ts DESC");
+    $res = sql_query("SELECT p.*, u.user_name FROM morph_annot_pools p LEFT JOIN users u ON (p.author_id = u.user_id) WHERE status = $type ORDER BY p.updated_ts DESC");
     while($r = sql_fetch_assoc($res)) {
         $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_candidate_samples WHERE pool_id=".$r['pool_id']));
         $r['candidate_count'] = $r1[0];

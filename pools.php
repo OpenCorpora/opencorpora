@@ -61,6 +61,6 @@ switch($action) {
             show_error("Ошибка. Возможно, пул не полностью заполнен.");
         }
     default:
-        $smarty->assign('pools', get_morph_pools_page());
+        $smarty->assign('pools', get_morph_pools_page((int)$_GET['type']));
         $smarty->display('qa/pools.tpl');
 }
