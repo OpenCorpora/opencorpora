@@ -14,7 +14,7 @@ if ($action && !in_array($action, array('samples', 'candidates')) && !user_has_p
 switch($action) {
     case 'add':
         if (add_morph_pool()) {
-            header("Location:pools.php?added");
+            header("Location:pools.php?added&type=0");
         } else {
             show_error();
         }
