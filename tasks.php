@@ -37,7 +37,7 @@ switch($action) {
         }
         break;
     default:
-        $smarty->assign('available', get_available_tasks($_SESSION['user_id']));
+        $smarty->assign('available', get_available_tasks($_SESSION['user_id'], true));
         $smarty->display('qa/tasks.tpl');
 }
 ?>
