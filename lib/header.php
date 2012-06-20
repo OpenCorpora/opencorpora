@@ -59,6 +59,7 @@ sql_query("SET names utf8", 0, 1);
 $transaction_counter = 0;
 $nested_transaction_counter = 0;
 $total_time = 0;
+$total_queries = 0;
 
 //cookie check
 if (!is_logged() && isset($_COOKIE['auth'])) {

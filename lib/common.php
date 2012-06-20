@@ -4,6 +4,7 @@ require_once('lib_users.php');
 //sql wrappers
 function sql_query($q, $debug=1, $override_readonly=0) {
     global $total_time;
+    global $total_queries;
     if (file_exists('/var/lock/oc_readonly.lock') && stripos(trim($q), 'select') !== 0 && !$override_readonly)
         return false;
     $debug = isset($_SESSION['debug_mode']) && $debug;
@@ -15,9 +16,10 @@ function sql_query($q, $debug=1, $override_readonly=0) {
     if ($debug) {
         $time = microtime(true)-$time_start;
         $total_time += $time;
-        printf("<table class='debug' width='100%%'><tr><td>SQL: %s</td><td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", htmlspecialchars($q), $time, $total_time);
+        $total_queries++;
+        printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>%d<td>SQL: %s</td><td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", $total_queries, htmlspecialchars($q), $time, $total_time);
         if ($err = mysql_error()) {
-            print "<table class='debug_error' width='100%%'><tr><td colspan='3'>".htmlspecialchars($err)."</td></tr></table>\n";
+            print "<table class='debug_error' width='100%'><tr><td colspan='3'>".htmlspecialchars($err)."</td></tr></table>\n";
         }
     }
     return $res;
