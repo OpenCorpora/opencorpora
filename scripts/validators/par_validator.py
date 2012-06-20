@@ -21,6 +21,5 @@ data = cursor.fetchall()
 for i in data:
 	query = """INSERT INTO tag_errors VALUES (%d, '%s', %d)""" % (i[0], '', 5)
 	cursor.execute(query)
-	print i
 db.commit()
 db.close
