@@ -94,12 +94,20 @@ function get_morph_pools_page($type) {
     $pools = array();
     $res = sql_query("SELECT p.*, u.user_name FROM morph_annot_pools p LEFT JOIN users u ON (p.author_id = u.user_id) WHERE status = $type ORDER BY p.updated_ts DESC");
     while($r = sql_fetch_assoc($res)) {
-        $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_candidate_samples WHERE pool_id=".$r['pool_id']));
-        $r['candidate_count'] = $r1[0];
-        $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].")"));
-        $r['instance_count'] = $r1[0];
-        $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE answer > 0 AND sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].")"));
-        $r['answer_count'] = $r1[0];
+        if ($type == 1) {
+            $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_candidate_samples WHERE pool_id=".$r['pool_id']));
+            $r['candidate_count'] = $r1[0];
+        }
+
+        $r['answer_count'] = 0;
+
+        $res1 = sql_query("SELECT answer, COUNT(*) as cnt FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") GROUP BY (answer > 0)");
+        while ($r1 = sql_fetch_array($res1)) {
+            if ($r1['answer'] > 0)
+                $r['answer_count'] += $r1['cnt'];
+            $r['instance_count'] += $r1['cnt'];
+        }
+
         $pools[] = $r;
     }
     return $pools;
