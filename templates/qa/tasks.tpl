@@ -7,7 +7,7 @@
 {foreach from=$available item=task}
 <tr>
     <td>{$task.name|htmlspecialchars}</td>
-    <td><a href="?act=my&amp;pool_id={$task.id}">{$task.num_done}</a></td>
+    <td>{if $task.num_done > 0}<a href="?act=my&amp;pool_id={$task.id}">{$task.num_done}</a>{else}0{/if}</td>
     <td>{$task.num}{if $task.num_started} +{$task.num_started} начатых{/if}</td>
     <td>
         {if $task.status == 3}
