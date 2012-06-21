@@ -172,6 +172,13 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
     $out['user_colors'] = $distinct_users;
     return $out;
 }
+function get_pool_candidates_page($pool_id) {
+    $pool = array('id' => $pool_id);
+    $r = sql_fetch_array(sql_query("SELECT pool_name FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
+    $pool['name'] = $r['pool_name'];
+    $pool['samples'] = get_pool_candidates($pool_id);
+    return $pool;
+}
 function get_pool_candidates($pool_id) {
     $res = sql_query("SELECT tf_id FROM morph_annot_candidate_samples WHERE pool_id=$pool_id ORDER BY RAND() LIMIT 200");
     $out = array();
@@ -264,25 +271,39 @@ function delete_morph_pool($pool_id) {
 function promote_samples($pool_id, $type) {
     if (!$pool_id || !$type) return 0;
     
-    $n = isset($_POST['n']) ? (int)$_POST['n'] : 0;
-    if (!$n && $type != 'all') return 0;
-
     $cond = "WHERE pool_id=$pool_id";
     switch($type) {
         case 'first':
+            $n = (int)$_POST['first_n'];
             $cond .= " ORDER BY tf_id LIMIT $n";
             break;
         case 'random':
+            $n = (int)$_POST['random_n'];
             $cond .= " ORDER BY RAND() LIMIT $n";
     }
 
-    $r = sql_fetch_array(sql_query("SELECT MAX(rev_id) FROM tf_revisions"));
+    $r = sql_fetch_array(sql_query("SELECT revision FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
+    $lastrev = $r['revision'];
+    if (!$lastrev) {
+        $r = sql_fetch_array(sql_query("SELECT MAX(rev_id) FROM tf_revisions"));
+        $lastrev = $r[0];
+    }
 
     $time = time();
     sql_begin();
-    if (sql_query("INSERT INTO morph_annot_samples(SELECT NULL, pool_id, tf_id FROM morph_annot_candidate_samples $cond)") &&
-        sql_query("UPDATE morph_annot_pools SET `status`='2', `revision`='$r[0]', `created_ts`='$time', `updated_ts`='$time' WHERE pool_id=$pool_id LIMIT 1") &&
-        sql_query("DELETE FROM morph_annot_candidate_samples WHERE pool_id=$pool_id")) {
+    if (
+        sql_query("INSERT INTO morph_annot_samples(SELECT NULL, pool_id, tf_id FROM morph_annot_candidate_samples $cond)") &&
+        sql_query("UPDATE morph_annot_pools SET `status`='2', `revision`='$lastrev', `created_ts`='$time', `updated_ts`='$time' WHERE pool_id=$pool_id LIMIT 1") &&
+        sql_query("DELETE FROM morph_annot_candidate_samples WHERE tf_id IN (SELECT tf_id FROM morph_annot_samples WHERE pool_id=$pool_id)") &&
+        (
+            !isset($_POST['keep']) ||
+            (
+                sql_query("INSERT INTO morph_annot_pools (SELECT NULL, '".mysql_real_escape_string($_POST['next_pool_name'])."', grammemes, gram_descr, token_check, users_needed, $time, $time, author_id, 1, $lastrev, comment FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1)") &&
+                sql_query("UPDATE morph_annot_candidate_samples SET pool_id=".sql_insert_id()." WHERE pool_id=$pool_id")
+            )
+        ) &&
+        sql_query("DELETE FROM morph_annot_candidate_samples WHERE pool_id=$pool_id")
+    ) {
         sql_commit();
         return true;
     }

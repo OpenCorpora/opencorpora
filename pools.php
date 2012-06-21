@@ -25,8 +25,9 @@ switch($action) {
         } else {
             show_error("Ошибка. Возможно, пул содержит пользовательские ответы.");
         }
+        break;
     case 'candidates':
-        $smarty->assign('candidates', get_pool_candidates((int)$_GET['pool_id']));
+        $smarty->assign('pool', get_pool_candidates_page((int)$_GET['pool_id']));
         $smarty->display('qa/pool_candidates.tpl');
         break;
     case 'samples':
@@ -34,7 +35,7 @@ switch($action) {
         $smarty->display('qa/pool.tpl');
         break;
     case 'promote':
-        if (promote_samples((int)$_GET['pool_id'], $_GET['type'])) {
+        if (promote_samples((int)$_GET['pool_id'], $_POST['type'])) {
             header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
         } else {
             show_error();
@@ -60,6 +61,7 @@ switch($action) {
         } else {
             show_error("Ошибка. Возможно, пул не полностью заполнен.");
         }
+        break;
     default:
         $smarty->assign('pools', get_morph_pools_page((int)$_GET['type']));
         $smarty->display('qa/pools.tpl');
