@@ -56,45 +56,29 @@ $(document).ready(function(){
 
 <table border="1" cellspacing="0" cellpadding="3">
 <tr>
-    <th>ID</td>
-    <th>Имя</td>
-    <th>Условия</td>
-    <th>Обновлён</td>
-    <th>Автор</td>
-    <th>Состояние</td>
+    <th>ID</th>
+    <th>Имя</th>
+    <th>Условия</th>
+    <th>Обновлён</th>
+    <th>Автор</th>
+    {if $smarty.get.type > 1}<th>Состояние</th>{/if}
 </tr>
 {foreach from=$pools item=pool}
 <tr>
     <td>{$pool.pool_id}</td>
-    <td>
-        {$pool.pool_name|htmlspecialchars}{if $pool.comment}<br/><span class='small'>{$pool.comment|htmlspecialchars}</span>{/if}<br/>
-        <a href="?act=delete&amp;pool_id={$pool.pool_id}" class='del'>удалить</a>
-    </td>
+    <td>{strip}
+        {if $pool.status > 0}<a href="?act={if $pool.status == 1}candidates{else}samples{/if}&amp;pool_id={$pool.pool_id}">{/if}
+        {$pool.pool_name|htmlspecialchars}
+        {if $pool.status > 0}</a>{/if}
+        {if $pool.comment}<br/><span class='small'>{$pool.comment|htmlspecialchars}</span>{/if}
+        {if $user_permission_check_morph}<br/><a href="?act=delete&amp;pool_id={$pool.pool_id}" class='del'>удалить</a>{/if}
+    {/strip}</td>
     <td>{$pool.grammemes|htmlspecialchars}<br/><span class='small'>{$pool.gram_descr|htmlspecialchars}</span><br/>Оценок: {$pool.users_needed}<br/>Токенизация: {$pool.token_check}</td>
     <td>{$pool.updated_ts|date_format:"%a %d.%m.%Y, %H:%M"}</td>
     <td>{$pool.user_name|htmlspecialchars}</td>
-    <td>{strip}
-        {if $pool.status == 0}
-            идёт поиск примеров
-        {elseif $pool.status == 1}
-            <a href="?act=candidates&amp;pool_id={$pool.pool_id}">найдено примеров: {$pool.candidate_count}</a>
-        {elseif $pool.status == 2}
-            <a href="?act=samples&amp;pool_id={$pool.pool_id}">не опубликован</a>
-        {elseif $pool.status == 3}
-            <a href="?act=samples&amp;pool_id={$pool.pool_id}">опубликован</a>
-        {elseif $pool.status == 4}
-            <a href="?act=samples&amp;pool_id={$pool.pool_id}">снят с публикации</a>
-        {elseif $pool.status == 5}
-            <a href="?act=samples&amp;pool_id={$pool.pool_id}">на модерации</a>
-        {elseif $pool.status == 6}
-            <a href="?act=samples&amp;pool_id={$pool.pool_id}">модерация окончена</a>
-        {elseif $pool.status == 7}
-            <a href="?act=samples&amp;pool_id={$pool.pool_id}">готов (в архиве)</a>
-        {/if}
-        {if $pool.status > 1}
-            <br/><span class='small{if $pool.instance_count > 0 && $pool.answer_count == $pool.instance_count} bggreen{/if}'>Ответов: {$pool.answer_count}/{$pool.instance_count}</span>
-        {/if}
-    {/strip}</td>
+    {if $pool.status > 1}
+        <td><span class='{if $pool.instance_count > 0 && $pool.answer_count == $pool.instance_count}bggreen{/if}'>{$pool.answer_count}/{$pool.instance_count} ответов</span></td>
+    {/if}
 </tr>
 {foreachelse}
 <tr><td colspan='6'>Нет ни одного пула.</tr>
