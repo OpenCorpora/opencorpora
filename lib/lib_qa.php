@@ -280,6 +280,9 @@ function promote_samples($pool_id, $type) {
         case 'random':
             $n = (int)$_POST['random_n'];
             $cond .= " ORDER BY RAND() LIMIT $n";
+            break;
+        default:
+            return false;
     }
 
     $r = sql_fetch_array(sql_query("SELECT revision FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
