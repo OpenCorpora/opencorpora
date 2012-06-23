@@ -6,6 +6,7 @@
 <h2>Как я могу помочь прямо сейчас?</h2>
 <ul>
 <li>принять участие в снятии морфологической неоднозначности (см. <a href="tasks.php">задания</a>):
+    <div>(всего мы получили уже <b>больше {($answer_count / 1000)|string_format:"%d"} тыс.</b> ответов)</div>
     <div><table border="1" cellspacing="0" cellpadding="3" style="margin: 5px">
     <tr><th>Название пула</th><th>Доступно</th>{if $available}<th>&nbsp;</th>{/if}</tr>
     {foreach from=$available item=task}

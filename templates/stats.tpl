@@ -185,5 +185,6 @@ $(document).ready(function(){
     <li>{$s.user_name} ({$s.value}) <span class='small'>({$s.timestamp|date_format:"%d.%m.%y, %H:%M"})</li>
 {/foreach}
 </ol>
+<p class='small'>Учитываются только полностью завершённые пулы.</p>
 <!--div id="week_adder_chart" style="width:700px; height:400px"></div-->
 {/block}
