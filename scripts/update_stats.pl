@@ -22,6 +22,10 @@ my $insert = $dbh->prepare("INSERT INTO `stats_values` VALUES(?, ?, ?)");
 my $scan_author = $dbh->prepare("SELECT user_id, timestamp FROM sentence_authors WHERE sent_id=? LIMIT 1");
 my $insert_author = $dbh->prepare("INSERT INTO sentence_authors VALUES(?, ?, ?)");
 
+my $user_ins = $dbh->prepare("INSERT INTO user_stats VALUES(?, ?, ?, ?)");
+my $user_del = $dbh->prepare("DELETE FROM user_stats WHERE param_id=?");
+
+
 $scan->execute();
 
 # SUBROUTINES
@@ -202,9 +206,6 @@ $func->{'added_sentences'} = sub {
     }
     print STDERR "Done.\n";
 
-    my $ins = $dbh->prepare("INSERT INTO user_stats VALUES(?, ?, ?, ?)");
-    my $del = $dbh->prepare("DELETE FROM user_stats WHERE param_id=?");
-
     #LAST WEEK
     #we'll use param_id = 7, though it's used in different sense in stats_param
     print STDERR "Counting last week's sentences...";
@@ -214,20 +215,51 @@ $func->{'added_sentences'} = sub {
     print STDERR "    will count sentences not older than UNIX $basic_ts\n";
 
     $cnt->execute($basic_ts);
-    $del->execute(7);
+    $user_del->execute(7);
     while ($r = $cnt->fetchrow_hashref()) {
-        $ins->execute($r->{'user_id'}, time(), 7, $r->{'cnt'});
+        $user_ins->execute($r->{'user_id'}, time(), 7, $r->{'cnt'});
     }
     print STDERR "    done.\n";
 
     #GLOBAL
     print STDERR "Counting all sentences... ";
     $cnt->execute(0);
-    $del->execute(6);
+    $user_del->execute(6);
     while ($r = $cnt->fetchrow_hashref()) {
-        $ins->execute($r->{'user_id'}, time(), 6, $r->{'cnt'});
+        $user_ins->execute($r->{'user_id'}, time(), 6, $r->{'cnt'});
     }
     print STDERR "Done.\n";
+    return -1;
+};
+
+$func->{'annotators'} = sub {
+    $user_del->execute(33);
+    # find the pools with all the answers
+    my $inst_count = $dbh->prepare("
+        SELECT user_id, COUNT(instance_id) AS cnt
+        FROM morph_annot_instances
+        WHERE sample_id IN
+            (SELECT sample_id
+            FROM morph_annot_samples
+            WHERE pool_id IN
+                (SELECT pool_id
+                FROM morph_annot_pools
+                WHERE pool_id NOT IN
+                    (SELECT DISTINCT pool_id
+                    FROM morph_annot_samples
+                    WHERE sample_id IN
+                        (SELECT DISTINCT sample_id
+                        FROM morph_annot_instances
+                        WHERE answer = 0)
+                    )
+                )
+            )
+        GROUP BY user_id
+    ");
+    $inst_count->execute();
+    while (my $r = $inst_count->fetchrow_hashref()) {
+        $user_ins->execute($r->{'user_id'}, time(), 33, $r->{'cnt'});
+    }
     return -1;
 };
 

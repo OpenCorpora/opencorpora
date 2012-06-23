@@ -166,17 +166,22 @@ $(document).ready(function(){
 </table>
 <h2>{t}Словарь{/t}</h2>
 {t}Лемм{/t}: {$stats.total_lemmata.value|number_format} <span class='small'>({$stats.total_lemmata.timestamp|date_format:"%d.%m.%y, %H:%M"})</span><br/>
-<a name="users"></a><h2>{t}Пользователи{/t}</h2>
-<h3>{t}По количеству добавленных предложений{/t}</h3>
+<a name="users"></a><h2>{t}Пользователи по количеству добавленных предложений{/t}</h2>
 <ol>
 {foreach item=s from=$stats.added_sentences}
     <li>{$s.user_name} ({$s.value}) <span class='small'>({$s.timestamp|date_format:"%d.%m.%y, %H:%M"})</li>
 {/foreach}
 </ol>
 <!--div id="adder_chart" style="width:700px; height:400px"></div-->
-<h4>{t}За последнюю неделю{/t}</h4>
+<h3>{t}За последнюю неделю{/t}</h3>
 <ol>
 {foreach item=s from=$stats.added_sentences_last_week}
+    <li>{$s.user_name} ({$s.value}) <span class='small'>({$s.timestamp|date_format:"%d.%m.%y, %H:%M"})</li>
+{/foreach}
+</ol>
+<h2>{t}Пользователи по количеству размеченных примеров{/t}</h2>
+<ol>
+{foreach item=s from=$stats.annotators}
     <li>{$s.user_name} ({$s.value}) <span class='small'>({$s.timestamp|date_format:"%d.%m.%y, %H:%M"})</li>
 {/foreach}
 </ol>
