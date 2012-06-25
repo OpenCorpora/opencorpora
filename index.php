@@ -56,6 +56,7 @@ if (isset($_GET['page'])) {
 else {
     if (is_logged() && !is_admin()) {
         $smarty->assign('available', get_available_tasks($_SESSION['user_id'], true, 5));
+        $smarty->assign('answer_count', count_all_answers());
     }
     $smarty->display('index.tpl');
 }
