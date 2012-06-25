@@ -308,18 +308,41 @@ function merge_sentences($id1, $id2) {
 function delete_sentence($sid) {
     sql_begin();
     if (
-        sql_query("DELETE FROM form2tf WHERE tf_id IN (SELECT tf_id FROM text_forms WHERE sent_id=$sid)") &&
-        sql_query("DELETE FROM tf_revisions WHERE tf_id IN (SELECT tf_id FROM text_forms WHERE sent_id=$sid)") &&
-        sql_query("DELETE FROM text_forms WHERE sent_id=$sid") &&
-        sql_query("DELETE FROM sentence_authors WHERE sent_id=$sid LIMIT 1") &&
-        sql_query("DELETE FROM sentence_check WHERE sent_id=$sid") &&
-        sql_query("DELETE FROM sentence_comments WHERE sent_id=$sid") &&
-        sql_query("DELETE FROM sentences WHERE sent_id=$sid LIMIT 1")
+        !sql_query("DELETE FROM sentence_authors WHERE sent_id=$sid LIMIT 1") ||
+        !sql_query("DELETE FROM sentence_check WHERE sent_id=$sid") ||
+        !sql_query("DELETE FROM sentence_comments WHERE sent_id=$sid")
+    ) {
+        return false;
+    }
+    $res = sql_query("SELECT tf_id FROM text_forms WHERE sent_id=$sid");
+    while ($r = sql_fetch_array($res)) {
+        if (!delete_token($r['tf_id']))
+            return false;
+    }
+    if (sql_query("DELETE FROM sentences WHERE sent_id=$sid LIMIT 1")) {
+        sql_commit();
+        return true;
+    }
+    return false;
+}
+function delete_token($tf_id, $delete_history=true) {
+    sql_begin();
+    if (
+        sql_query("DELETE FROM form2tf WHERE tf_id = $tf_id") &&
+        (!$delete_history || sql_query("DELETE FROM tf_revisions WHERE tf_id = $tf_id")) &&
+        sql_query("DELETE FROM morph_annot_candidate_samples WHERE tf_id = $tf_id") &&
+        sql_query("DELETE FROM morph_annot_moderated_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id)") &&
+        sql_query("DELETE FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id)") &&
+        sql_query("DELETE FROM morph_annot_rejected_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id)") &&
+        sql_query("DELETE FROM morph_annot_comments WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id)") &&
+        sql_query("DELETE FROM morph_annot_click_log WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id)") &&
+        sql_query("DELETE FROM morph_annot_samples WHERE tf_id = $tf_id") &&
+        sql_query("DELETE FROM text_forms WHERE tf_id = $tf_id LIMIT 1")
     ) {
         sql_commit();
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 function merge_tokens_ii($id_array) {
     //ii stands for "id insensitive"
@@ -351,8 +374,7 @@ function merge_tokens_ii($id_array) {
     while ($r = sql_fetch_array($res)) {
         $new_text .= $r['tf_text'];
         if (!sql_query("UPDATE tf_revisions SET tf_id=$new_id WHERE tf_id=".$r['tf_id']) ||
-            !sql_query("DELETE FROM form2tf WHERE tf_id=".$r['tf_id']) ||
-            !sql_query("DELETE FROM text_forms WHERE tf_id=".$r['tf_id'])) {
+            !delete_token($r['tf_id'], false)) {
             return 0;
         }
     }
