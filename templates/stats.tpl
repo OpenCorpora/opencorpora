@@ -180,11 +180,12 @@ $(document).ready(function(){
 {/foreach}
 </ol>
 <h2>{t}Пользователи по количеству размеченных примеров{/t}</h2>
-<ol>
+<table border='1' cellspacing='0' cellpadding='3'>
+<tr><th>#<th>Пользователь<th>Размечено<th>% расхождений<th>Пересчитано</tr>
 {foreach item=s from=$stats.annotators}
-    <li>{$s.user_name} ({$s.value}) <span class='small'>({$s.timestamp|date_format:"%d.%m.%y, %H:%M"})</li>
+    <tr><td>{$s@iteration}<td>{$s.user_name}<td>{$s.value}<td>{$s.divergence|string_format:"%.1f%%"}<td class='small'>{$s.timestamp|date_format:"%d.%m.%y, %H:%M"}</tr>
 {/foreach}
-</ol>
+</table>
 <p class='small'>Учитываются только полностью завершённые пулы.</p>
 <!--div id="week_adder_chart" style="width:700px; height:400px"></div-->
 {/block}

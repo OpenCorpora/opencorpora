@@ -395,7 +395,8 @@ INSERT INTO `stats_param` VALUES
     ('30', 'fiction_sentences', '1'),
     ('31', 'fiction_tokens', '1'),
     ('32', 'fiction_words', '1'),
-    ('33', 'annotators', '1');
+    ('33', 'annotators', '1'),
+    ('34', 'annotators_divergence', '0');
 
 CREATE TABLE IF NOT EXISTS `stats_values` (
     `timestamp`   INT UNSIGNED NOT NULL,

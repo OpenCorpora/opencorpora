@@ -130,9 +130,10 @@ function get_common_stats() {
         $stats['added_sentences_last_week'][] = array('timestamp' => $r['timestamp'], 'user_name' => $r['user_name'], 'value' => $r['param_value']);
     }
 
-    $res = sql_query("SELECT timestamp, u.user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=33 ORDER BY param_value DESC");
+    $res = sql_query("SELECT timestamp, u.user_id, u.user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=33 ORDER BY param_value DESC");
     while ($r = sql_fetch_array($res)) {
-        $stats['annotators'][] = array('timestamp' => $r['timestamp'], 'user_name' => $r['user_name'], 'value' => $r['param_value']);
+        $r1 = sql_fetch_array(sql_query("SELECT param_value FROM user_stats WHERE param_id=34 AND user_id = ".$r['user_id']." LIMIT 1"));
+        $stats['annotators'][] = array('timestamp' => $r['timestamp'], 'user_name' => $r['user_name'], 'value' => $r['param_value'], 'divergence' => $r1['param_value'] / $r['param_value'] * 100);
     }
 
     //for the charts
