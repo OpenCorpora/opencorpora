@@ -395,10 +395,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0) {
             else
                 $pool['num_done'] = $r1['cnt'];
         }
-        if (
-            (!$only_editable || ($pool['num'] + $pool['num_started'] > 0)) &&
-            ($pool['num'] > 0 || $pool['num_started'] > 0 || $pool['num_done'] > 0)
-        ) {
+        if ($pool['num'] + $pool['num_started'] + $pool['num_done'] > 0) {
             $tasks[] = $pool;
 
             ++$cnt;
@@ -554,5 +551,10 @@ function log_click($sample_id, $type) {
     if (sql_query("INSERT INTO morph_annot_click_log VALUES('$sample_id', '$user_id', '$ts', '$type')"))
         return true;
     return false;
+}
+function count_all_answers() {
+    $res = sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE answer > 0");
+    $r = sql_fetch_array($res);
+    return $r[0];
 }
 ?>
