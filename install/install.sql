@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS `morph_annot_pools` (
     `created_ts`   INT UNSIGNED NOT NULL,
     `updated_ts`   INT UNSIGNED NOT NULL,
     `author_id`    SMALLINT UNSIGNED NOT NULL,
+    `moderator_id` SMALLINT UNSIGNED NOT NULL,
     `status`       TINYINT UNSIGNED NOT NULL,
     `revision`     INT UNSIGNED NOT NULL,
     `comment`      TEXT NOT NULL,
