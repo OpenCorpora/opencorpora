@@ -98,6 +98,10 @@ function get_morph_pools_page($type) {
             $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_candidate_samples WHERE pool_id=".$r['pool_id']));
             $r['candidate_count'] = $r1[0];
         }
+        elseif ($type == 5) {
+            $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_moderated_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND answer > 0"));
+            $r['moderated_count'] = $r1[0];
+        }
 
         $r['answer_count'] = 0;
 

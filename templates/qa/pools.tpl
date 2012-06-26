@@ -78,10 +78,12 @@ $(document).ready(function(){
     <td>{$pool.updated_ts|date_format:"%a %d.%m.%Y, %H:%M"}</td>
     <td>{$pool.author_name|htmlspecialchars}</td>
     {if $pool.status > 4}
-        <td>{$pool.moderator_name}</td>
+        <td>{$pool.moderator_name|default:"&ndash;"}</td>
     {/if}
     {if $pool.status == 1}
         <td>найдено примеров: {$pool.candidate_count}</td>
+    {elseif $pool.status == 5}
+        <td>проверено: {$pool.moderated_count}/{$pool.instance_count / $pool.users_needed}</td>
     {elseif $pool.status > 1}
         <td><span class='{if $pool.instance_count > 0 && $pool.answer_count == $pool.instance_count}bggreen{/if}'>{$pool.answer_count}/{$pool.instance_count} ответов</span></td>
     {/if}
