@@ -61,6 +61,7 @@ $(document).ready(function(){
     <th>Условия</th>
     <th>Обновлён</th>
     <th>Автор</th>
+    {if $smarty.get.type > 4}<th>Модератор</th>{/if}
     {if $smarty.get.type > 0}<th>Состояние</th>{/if}
 </tr>
 {foreach from=$pools item=pool}
@@ -75,7 +76,10 @@ $(document).ready(function(){
     {/strip}</td>
     <td>{$pool.grammemes|htmlspecialchars}<br/><span class='small'>{$pool.gram_descr|htmlspecialchars}</span><br/>Оценок: {$pool.users_needed}<br/>Токенизация: {$pool.token_check}</td>
     <td>{$pool.updated_ts|date_format:"%a %d.%m.%Y, %H:%M"}</td>
-    <td>{$pool.user_name|htmlspecialchars}</td>
+    <td>{$pool.author_name|htmlspecialchars}</td>
+    {if $pool.status > 4}
+        <td>{$pool.moderator_name}</td>
+    {/if}
     {if $pool.status == 1}
         <td>найдено примеров: {$pool.candidate_count}</td>
     {elseif $pool.status > 1}

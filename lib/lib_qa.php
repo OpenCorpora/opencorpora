@@ -92,7 +92,7 @@ function get_tag_errors() {
 //annotation pools
 function get_morph_pools_page($type) {
     $pools = array();
-    $res = sql_query("SELECT p.*, u.user_name FROM morph_annot_pools p LEFT JOIN users u ON (p.author_id = u.user_id) WHERE status = $type ORDER BY p.updated_ts DESC");
+    $res = sql_query("SELECT p.*, u1.user_name AS author_name, u2.user_name AS moderator_name FROM morph_annot_pools p LEFT JOIN users u1 ON (p.author_id = u1.user_id) LEFT JOIN users u2 ON (p.moderator_id = u2.user_id) WHERE status = $type ORDER BY p.updated_ts DESC");
     while($r = sql_fetch_assoc($res)) {
         if ($type == 1) {
             $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_candidate_samples WHERE pool_id=".$r['pool_id']));
