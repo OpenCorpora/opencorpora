@@ -236,7 +236,7 @@ function add_morph_pool() {
     $gram_sets = array();
     $gram_descr = array();
     foreach($_POST['gram'] as $i => $gr) {
-        if (!trim($gr)) break;
+        if (!trim($gr) || strpos($gr, '@') !== false) return false;
         $gram_sets[] = str_replace(' ', '', trim($gr));
         $gram_descr[] = trim($_POST['descr'][$i]);
     }
