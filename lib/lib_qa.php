@@ -116,7 +116,7 @@ function get_morph_pools_page($type) {
     }
     return $pools;
 }
-function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false) {
+function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false, $only_not_moderated=false) {
     $res = sql_query("SELECT pool_name, status, grammemes, users_needed FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1");
     $r = sql_fetch_array($res);
     $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
@@ -170,7 +170,10 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
                 $t['moder_answer_num'] = $r1['answer'];
             }
         }
-        if ($disagreement_flag || !$only_disagreed)
+        if (
+            ($disagreement_flag || !$only_disagreed) &&
+            ($t['moder_answer_num'] == 0 || !$only_not_moderated)
+        )
             $out['samples'][] = $t;
     }
     $out['user_colors'] = $distinct_users;

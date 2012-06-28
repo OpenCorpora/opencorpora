@@ -52,6 +52,7 @@
 {if $pool.status > 2}
 <p>{if !isset($smarty.get.ext)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">к расширенному виду</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}">к обычному виду</a>{/if}</p>
 <p>{if !isset($smarty.get.disagreed)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;disagreed">показать только несогласованные ответы</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
+<p>{if !isset($smarty.get.nomod)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;nomod">показать только непроверенные</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
 {/if}
 <br/>
 <table border="1" cellspacing="0" cellpadding="3" class="small">
