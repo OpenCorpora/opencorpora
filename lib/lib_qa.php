@@ -92,6 +92,19 @@ function get_tag_errors() {
 //annotation pools
 function get_morph_pools_page($type) {
     $pools = array();
+    $instance_count = array();
+    
+    //count instances in one query and preserve
+    $res = sql_query("SELECT answer, count(instance_id) cnt, pool_id FROM morph_annot_instances LEFT JOIN morph_annot_samples s USING(sample_id) WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status = $type) GROUP BY (answer > 0), pool_id ORDER BY pool_id");
+    while ($r = sql_fetch_array($res)) {
+        if (!isset($instance_count[$r['pool_id']]))
+            $instance_count[$r['pool_id']] = array(0, 0);
+
+        if ($r['answer'] > 0)
+            $instance_count[$r['pool_id']][0] += $r['cnt'];
+        $instance_count[$r['pool_id']][1] += $r['cnt'];
+    }
+
     $res = sql_query("SELECT p.*, u1.user_name AS author_name, u2.user_name AS moderator_name FROM morph_annot_pools p LEFT JOIN users u1 ON (p.author_id = u1.user_id) LEFT JOIN users u2 ON (p.moderator_id = u2.user_id) WHERE status = $type ORDER BY p.updated_ts DESC");
     while($r = sql_fetch_assoc($res)) {
         if ($type == 1) {
@@ -103,14 +116,8 @@ function get_morph_pools_page($type) {
             $r['moderated_count'] = $r1[0];
         }
 
-        $r['answer_count'] = 0;
-
-        $res1 = sql_query("SELECT answer, COUNT(*) as cnt FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") GROUP BY (answer > 0)");
-        while ($r1 = sql_fetch_array($res1)) {
-            if ($r1['answer'] > 0)
-                $r['answer_count'] += $r1['cnt'];
-            $r['instance_count'] += $r1['cnt'];
-        }
+        $r['answer_count'] = $instance_count[$r['pool_id']][0];
+        $r['instance_count'] = $instance_count[$r['pool_id']][1];
 
         $pools[] = $r;
     }
