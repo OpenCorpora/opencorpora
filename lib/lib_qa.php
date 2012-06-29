@@ -98,11 +98,18 @@ function get_morph_pools_page($type) {
     $res = sql_query("SELECT answer, count(instance_id) cnt, pool_id FROM morph_annot_instances LEFT JOIN morph_annot_samples s USING(sample_id) WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status = $type) GROUP BY (answer > 0), pool_id ORDER BY pool_id");
     while ($r = sql_fetch_array($res)) {
         if (!isset($instance_count[$r['pool_id']]))
-            $instance_count[$r['pool_id']] = array(0, 0);
+            $instance_count[$r['pool_id']] = array(0, 0, 0);
 
         if ($r['answer'] > 0)
             $instance_count[$r['pool_id']][0] += $r['cnt'];
         $instance_count[$r['pool_id']][1] += $r['cnt'];
+    }
+    //and moderated answers if needed
+    if ($type == 5) {
+        $res = sql_query("SELECT pool_id, COUNT(*) cnt FROM morph_annot_moderated_samples LEFT JOIN morph_annot_samples USING(sample_id) WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status=5)) AND answer > 0 GROUP BY pool_id");
+        while ($r = sql_fetch_array($res)) {
+            $instance_count[$r['pool_id']][2] = $r['cnt'];
+        }
     }
 
     $res = sql_query("SELECT p.*, u1.user_name AS author_name, u2.user_name AS moderator_name FROM morph_annot_pools p LEFT JOIN users u1 ON (p.author_id = u1.user_id) LEFT JOIN users u2 ON (p.moderator_id = u2.user_id) WHERE status = $type ORDER BY p.updated_ts DESC");
@@ -112,8 +119,7 @@ function get_morph_pools_page($type) {
             $r['candidate_count'] = $r1[0];
         }
         elseif ($type == 5) {
-            $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_moderated_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=".$r['pool_id'].") AND answer > 0"));
-            $r['moderated_count'] = $r1[0];
+            $r['moderated_count'] = $instance_count[$r['pool_id']][2];
         }
 
         $r['answer_count'] = $instance_count[$r['pool_id']][0];
