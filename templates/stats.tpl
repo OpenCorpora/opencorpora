@@ -179,7 +179,7 @@ $(document).ready(function(){
     <li>{$s.user_name} ({$s.value}) <span class='small'>({$s.timestamp|date_format:"%d.%m.%y, %H:%M"})</li>
 {/foreach}
 </ol>
-<h2>{t}Пользователи по количеству размеченных примеров{/t}</h2>
+<h2>{t}Пользователи по количеству размеченных примеров{/t} (всего {$ma_count})</h2>
 <table border='1' cellspacing='0' cellpadding='3'>
 <tr><th>#<th>Пользователь<th>Размечено<th>% расхождений<th>Пересчитано</tr>
 {foreach item=s from=$stats.annotators}

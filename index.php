@@ -36,6 +36,7 @@ if (isset($_GET['page'])) {
             $smarty->setCacheLifetime(300);
             if (!is_cached('stats.tpl')) {
                 $smarty->assign('stats', get_common_stats());
+                $smarty->assign('ma_count', count_all_answers());
             }
             $smarty->display('stats.tpl');
             break;
