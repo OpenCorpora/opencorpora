@@ -27,11 +27,26 @@
             submit($tgt.closest('tr').attr('rel'), answer, $tgt);
             event.preventDefault();
         });
+        $('a.expand').click(function(event) {
+            var $btn = $(event.target);
+            $.get('ajax/get_context.php', {'tf_id':$(this).attr('rel'), 'dir':$(this).attr('rev')}, function(res) {
+                var s = '';
+                $(res).find('w').each(function(i, el) {
+                    s += ' ' + $(el).text();
+                });
+                if ($btn.attr('rev') == -1)
+                    $btn.closest('p').prepend(s);
+                else
+                    $btn.closest('p').append(s);
+                $btn.hide();
+            });
+            event.preventDefault();
+        });
     });
 </script>
 {/literal}
 {/if}
-<p><a href="?">&lt;&lt; к списку пулов</a></p>
+<p><a href="?type={$pool.status}">&lt;&lt; к списку пулов</a></p>
 <h1>Пул &laquo;{$pool.name}&raquo;</h1>
 {if $user_permission_check_morph}
 {if $pool.status == 2}
@@ -69,24 +84,28 @@
 {foreach from=$pool.samples item=sample}
 <tr rel='{$sample.id}'{if $sample.disagreed} class='bgpink'{else} rev='{$sample.instances[0].answer_num}'{/if}>
     <td>{$sample.id}</td>
-    <td>{foreach from=$sample.context item=word name=x}{if $smarty.foreach.x.index == $sample.mainword}<b class='bggreen'>{$word|htmlspecialchars}</b>{else}{$word|htmlspecialchars}{/if} {/foreach}
-    {if isset($smarty.get.ext)}
-        <br/><ul>
-        {foreach from=$sample.parses item=parse}
-            <li>{strip}
-                {$parse.lemma_text}
-                {foreach from=$parse.gram_list item=gr}
-                    , <span title='{$gr.descr}'>{$gr.inner}</span>
-                {/foreach}
-            {/strip}</li>
-        {/foreach}
-        </ul>
-        <ol>
-        {foreach from=$sample.comments item=comment}
-            <li>{$comment.text|htmlspecialchars} ({$comment.author}, {$comment.timestamp|date_format:"%d.%m.%Y, %H:%M"})</li>
-        {/foreach}
-        </ol>
-    {/if}</td>
+    <td>
+        <p>{if $sample.has_left_context}<a class='expand' href="#" rel='{$sample.has_left_context}' rev='-1'>...</a>{/if}
+        {foreach from=$sample.context item=word name=x}{if $smarty.foreach.x.index == $sample.mainword}<b class='bggreen'>{$word|htmlspecialchars}</b>{else}{$word|htmlspecialchars}{/if} {/foreach}
+        {if $sample.has_right_context}<a class='expand' href="#" rel='{$sample.has_right_context}' rev='1'>...</a>{/if}</p>
+        {if isset($smarty.get.ext)}
+            <br/><ul>
+            {foreach from=$sample.parses item=parse}
+                <li>{strip}
+                    {$parse.lemma_text}
+                    {foreach from=$parse.gram_list item=gr}
+                        , <span title='{$gr.descr}'>{$gr.inner}</span>
+                    {/foreach}
+                {/strip}</li>
+            {/foreach}
+            </ul>
+            <ol>
+            {foreach from=$sample.comments item=comment}
+                <li>{$comment.text|htmlspecialchars} ({$comment.author}, {$comment.timestamp|date_format:"%d.%m.%Y, %H:%M"})</li>
+            {/foreach}
+            </ol>
+        {/if}
+    </td>
     {if isset($smarty.get.ext)}
     {foreach from=$sample.instances item=instance}
     <td class="diff_colors_{$instance.user_color}">{if $instance.answer_num == 99}<b>Other</b>{elseif $instance.answer_num > 0}{$instance.answer_gram}{else}&ndash;{/if}</td>

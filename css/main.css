@@ -317,7 +317,7 @@ div.ma_instance {
 div.ma_instance b {
     font-size: 20px;
 }
-div.ma_instance a.expand {
+a.expand {
     background-color: #CCC;
     text-decoration: none;
 }
