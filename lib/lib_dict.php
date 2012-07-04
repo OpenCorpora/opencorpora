@@ -202,8 +202,7 @@ function dict_add_lemma($array) {
         if ($text == '') {
             //the form is to be deleted, so we do nothing
         } elseif (strpos($text, ' ') !== false) {
-            show_error("Error: a form cannot contain whitespace ($text)");
-            return;
+            return false;
         } else {
             //TODO: perhaps some data validity check?
             array_push($new_paradigm, array($text, $lgram[$i]));
@@ -217,14 +216,12 @@ function dict_add_lemma($array) {
     sql_begin();
     foreach($upd_forms as $upd_form) {
         if (!sql_query("INSERT INTO `updated_forms` VALUES('".mysql_real_escape_string($upd_form)."')")) {
-            show_error("Error at updated_forms :(");
-            exit;
+            return false;
         }
     }
     //new lemma in dict_lemmata
     if (!sql_query("INSERT INTO dict_lemmata VALUES(NULL, '".mysql_real_escape_string($lemma_text)."')")) {
-        show_error();
-        exit;
+        return false;
     }
     $lemma_id = sql_insert_id();
     //array -> xml
@@ -232,15 +229,14 @@ function dict_add_lemma($array) {
     $res = new_dict_rev($lemma_id, $new_xml, $array['comment']);
     if ($res) {
         sql_commit();
-        header("Location:dict.php?act=edit&saved&id=$lemma_id");
-        return;
-    } else show_error("Error on saving");
+        return $lemma_id;
+    }
+    return false;
 }
 function dict_save($array) {
     //it may be a totally new lemma
     if ($array['lemma_id'] == -1) {
-        dict_add_lemma($array);
-        return;
+        return dict_add_lemma($array);
     }
     $ltext = $array['form_text'];
     $lgram = $array['form_gram'];
@@ -260,7 +256,7 @@ function dict_save($array) {
         if ($text == '') {
             //the form is to be deleted, so we do nothing
         } elseif (strpos($text, ' ') !== false) {
-            die ("Error: a form cannot contain whitespace ($text)");
+            return false;
         } else {
             //TODO: perhaps some data validity check?
             array_push($new_paradigm, array($text, $lgram[$i]));
@@ -287,8 +283,7 @@ function dict_save($array) {
     sql_begin();
     foreach($upd_forms as $upd_form) {
         if (!sql_query("INSERT INTO `updated_forms` VALUES('".mysql_real_escape_string($upd_form)."')")) {
-            show_error("Error at updated_forms :(");
-            exit;
+            return false;
         }
     }
     //array -> xml
@@ -298,12 +293,11 @@ function dict_save($array) {
         $res = new_dict_rev($array['lemma_id'], $new_xml, $array['comment']);
         if ($res) {
             sql_commit();
-            header("Location:dict.php?act=edit&saved&id=".$array['lemma_id']);
-            return;
-        } else show_error("Error on saving");
+            return $array['lemma_id'];
+        }
+        return false;
     } else {
-        header("Location:dict.php?act=edit&id=".$array['lemma_id']);
-        return;
+        return $array['lemma_id'];
     }
 }
 function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
@@ -357,8 +351,7 @@ function del_lemma($id) {
     $revset_id = create_revset();
     while($r = sql_fetch_array($res)) {
         if (!del_link($r['link_id'], $revset_id)) {
-            show_error();
-            return;
+            return false;
         }
     }
     //update `updated_forms`
@@ -366,19 +359,18 @@ function del_lemma($id) {
     $pdr = parse_dict_rev($r['rev_text']);
     foreach($pdr['forms'] as $form) {
         if (!sql_query("INSERT INTO `updated_forms` VALUES('".$form['text']."')")) {
-            show_error();
-            return;
+            return false;
         }
     }
     //delete forms from form2lemma
-    sql_query("DELETE FROM `form2lemma` WHERE lemma_id=$id");
+    if (!sql_query("DELETE FROM `form2lemma` WHERE lemma_id=$id"))
+        return false;
     //delete lemma
     if (sql_query("INSERT INTO dict_lemmata_deleted (SELECT * FROM dict_lemmata WHERE lemma_id=$id LIMIT 1)") && sql_query("DELETE FROM dict_lemmata WHERE lemma_id=$id LIMIT 1")) {
         sql_commit();
-        header("Location:dict.php");
-        return;
-    } else
-        show_error();
+        return true;
+    }
+    return false;
 }
 function del_link($link_id, $revset_id=0) {
     $r = sql_fetch_array(sql_query("SELECT * FROM dict_links WHERE link_id=$link_id LIMIT 1"));
@@ -387,9 +379,9 @@ function del_link($link_id, $revset_id=0) {
     if (sql_query("INSERT INTO dict_links_revisions VALUES(NULL, '$revset_id', '".$r['lemma1_id']."', '".$r['lemma2_id']."', '".$r['link_type']."', '0')") &&
         sql_query("DELETE FROM dict_links WHERE link_id=$link_id LIMIT 1")) {
         sql_commit();
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 function add_link($from_id, $to_id, $link_type, $revset_id=0) {
     sql_begin();
@@ -398,9 +390,9 @@ function add_link($from_id, $to_id, $link_type, $revset_id=0) {
     if (sql_query("INSERT INTO dict_links VALUES(NULL, '$from_id', '$to_id', '$link_type')") &&
         sql_query("INSERT INTO dict_links_revisions VALUES(NULL, '$revset_id', '$from_id', '$to_id', '$link_type', '1')")) {
         sql_commit();
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
 // GRAMMEM EDITOR
@@ -429,18 +421,15 @@ function get_grammem_editor($order) {
 function add_grammem($inner_id, $group, $outer_id, $descr) {
     $r = sql_fetch_array(sql_query("SELECT MAX(`orderby`) AS `m` FROM `gram`"));
     if (sql_query("INSERT INTO `gram` VALUES(NULL, '$group', '$inner_id', '$outer_id', '$descr', '".($r['m']+1)."')")) {
-        header("Location:dict.php?act=gram");
-        return;
-    } else {
-        show_error();
+        return true;
     }
+    return false;
 }
 function del_grammem($grm_id) {
     if (sql_query("DELETE FROM `gram` WHERE `gram_id`=$grm_id LIMIT 1")) {
-        header("Location:dict.php?act=gram");
-        return;
-    } else
-        show_error();
+        return true;
+    }
+    return false;
 }
 function move_grammem($grm_id, $dir) {
     $r = sql_fetch_array(sql_query("SELECT `orderby` as `ord` FROM `gram` WHERE gram_id=$grm_id"));
@@ -458,19 +447,16 @@ function move_grammem($grm_id, $dir) {
             $ord2 = $r['ord'];
         }
     }
-    if (!isset($ord2)) {
-        header('Location:dict.php?act=gram');
-        return;
-    }
+    if (!isset($ord2))
+        return true;
+
     sql_begin();
     if (sql_query("UPDATE `gram` SET `orderby`='$ord' WHERE `orderby`=$ord2 LIMIT 1") &&
         sql_query("UPDATE `gram` SET `orderby`='$ord2' WHERE `gram_id`=$grm_id LIMIT 1")) {
         sql_commit();
-        header('Location:dict.php?act=gram#g'.$grm_id);
-        return;
-    } else {
-        show_error();
+        return true;
     }
+    return false;
 }
 function edit_grammem($id, $inner_id, $outer_id, $descr) {
     if (sql_query("UPDATE `gram` SET `inner_id`='$inner_id', `outer_id`='$outer_id', `gram_descr`='$descr' WHERE `gram_id`=$id LIMIT 1")) {

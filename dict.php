@@ -18,16 +18,24 @@ switch($action) {
         $group = (int)$_POST['parent_gram'];
         $outer_id = mysql_real_escape_string($_POST['outer_id']);
         $descr = mysql_real_escape_string($_POST['descr']);
-        add_grammem($name, $group, $outer_id, $descr);
+        if (add_grammem($name, $group, $outer_id, $descr))
+            header("Location:dict.php?act=gram");
+        else
+            show_error();
         break;
     case 'move_gram':
         $grm = (int)$_GET['id'];
         $dir = $_GET['dir'];
-        move_grammem($grm, $dir);
+        if (move_grammem($grm, $dir))
+            header('Location:dict.php?act=gram#g'.$grm_id);
+        else
+            show_error();
         break;
     case 'del_gram':
-        $grm = (int)$_GET['id'];
-        del_grammem($grm);
+        if (del_grammem((int)$_GET['id']))
+            header("Location:dict.php?act=gram");
+        else
+            show_error();
         break;
     case 'edit_gram':
         $id = (int)$_POST['id'];
@@ -52,7 +60,10 @@ switch($action) {
         calculate_gram_restrictions();
         break;
     case 'save':
-        dict_save($_POST);
+        if ($lemma_id = dict_save($_POST))
+            header("Location:dict.php?act=edit&saved&id=$lemma_id");
+        else
+            show_error();
         break;
     case 'add_link':
         if (add_link((int)$_POST['from_id'], (int)$_POST['lemma_id'], (int)$_POST['link_type'])) {
@@ -67,7 +78,10 @@ switch($action) {
             show_error();
         break;
     case 'del_lemma':
-        del_lemma((int)$_GET['lemma_id']);
+        if (del_lemma((int)$_GET['lemma_id']))
+            header("Location:dict.php");
+        else
+            show_error();
         break;
     case 'lemmata':
         $smarty->assign('search', get_dict_search_results($_POST));
