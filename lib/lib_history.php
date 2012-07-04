@@ -26,7 +26,7 @@ function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0) {
         //$res = sql_query("SELECT set_id, COUNT(sent_id) cnt FROM (SELECT set_id, f.sent_id FROM tf_revisions r RIGHT JOIN text_forms f ON (r.tf_id=f.tf_id) RIGHT JOIN sentences s ON (f.sent_id=s.sent_id) GROUP BY set_id, f.sent_id ORDER BY set_id DESC) T ".($maa ? "WHERE set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %')" : '')." GROUP BY set_id ORDER BY set_id DESC LIMIT $skip,20");
     } else {
         $res = sql_query("SELECT tr.set_id, st.sent_id, s.timestamp, s.comment, u.user_name FROM tf_revisions tr LEFT JOIN rev_sets s ON (tr.set_id=s.set_id) LEFT JOIN users u ON (s.user_id=u.user_id) RIGHT JOIN text_forms tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id) ".($maa ? "WHERE tr.set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %') AND " : 'WHERE ').($set_id?"tr.set_id=$set_id GROUP BY st.sent_id":"st.sent_id=$sentence_id GROUP BY tr.set_id")." ORDER BY tr.rev_id DESC LIMIT $skip,20");
-        while($r = sql_fetch_array($res)) {
+        while ($r = sql_fetch_array($res)) {
             $out['sets'][] = array(
                 'set_id'    => $r['set_id'],
                 'user_name' => $r['user_name'],
@@ -68,7 +68,7 @@ function dict_history($lemma_id, $skip = 0) {
                         ) T
                         ORDER BY set_id DESC, lemma_id DESC LIMIT $skip,20
                     ");
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         $out['sets'][] = array (
             'set_id'     => $r['set_id'],
             'user_name'  => $r['user_name'],
@@ -96,7 +96,7 @@ function main_diff($sentence_id, $set_id) {
         'tokens'    => array()
     );
     $res = sql_query("SELECT tf_id, `pos` FROM text_forms WHERE sent_id=$sentence_id ORDER BY `pos`");
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         $token = array();
         $res1 = sql_query("SELECT tr.*, rs.*, `users`.user_name FROM tf_revisions tr LEFT JOIN rev_sets rs ON (tr.set_id = rs.set_id) LEFT JOIN `users` ON (rs.user_id = `users`.user_id) WHERE tr.tf_id=".$r['tf_id']." AND tr.set_id<=$set_id ORDER BY tr.rev_id DESC LIMIT 2");
         $r1 = sql_fetch_array($res1);

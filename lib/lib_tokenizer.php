@@ -15,13 +15,13 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
     $txt = Normalizer::normalize($txt, Normalizer::FORM_C);
 
     $res = sql_query("SELECT * FROM tokenizer_coeff");
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         $coeff[$r[0]] = $r[1];
     }
 
     $txt .= '  ';
 
-    for($i = 0; $i < mb_strlen($txt, 'UTF-8'); ++$i) {
+    for ($i = 0; $i < mb_strlen($txt, 'UTF-8'); ++$i) {
         $prevchar  = ($i > 0 ? mb_substr($txt, $i-1, 1, 'UTF-8') : '');
         $char      =           mb_substr($txt, $i+0, 1, 'UTF-8');
         $nextchar  =           mb_substr($txt, $i+1, 1, 'UTF-8');
@@ -220,7 +220,7 @@ function addtext_check($array) {
 
     //removing bad symbols
     $clear_text = '';
-    for($i = 0; $i < mb_strlen($array['txt'], 'UTF-8'); ++$i) {
+    for ($i = 0; $i < mb_strlen($array['txt'], 'UTF-8'); ++$i) {
         $char = mb_substr($array['txt'], $i, 1, 'UTF-8');
         if (
             //remove diacritic modifier
@@ -272,14 +272,14 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
     if (!$revset_id) return 0;
     $sent_count = 0;
     $pars = split2paragraphs($text);
-    foreach($pars as $par) {
+    foreach ($pars as $par) {
         if (!preg_match('/\S/', $par)) continue;
         //adding a paragraph
         if (!sql_query("INSERT INTO `paragraphs` VALUES(NULL, '$book_id', '".($par_num++)."')")) return 0;
         $par_id = sql_insert_id();
         $sent_num = 1;
         $sents = split2sentences($par);
-        foreach($sents as $sent) {
+        foreach ($sents as $sent) {
             if (!preg_match('/\S/', $sent)) continue;
             //adding a sentence
             if (!sql_query("INSERT INTO `sentences` VALUES(NULL, '$par_id', '".($sent_num++)."', '".mysql_real_escape_string(trim($sent))."', '0')")) return 0;
@@ -321,7 +321,7 @@ function get_monitor_data($from, $until) {
         'F1' => array()
     );
     $q = sql_query($query);
-    while($res = sql_fetch_assoc($q)) {
+    while ($res = sql_fetch_assoc($q)) {
         $run_date = strtotime($res['run']) * 1000;
         $thrshld  = $res['threshold'];
 

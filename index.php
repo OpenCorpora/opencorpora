@@ -9,7 +9,7 @@ if (isset($_GET['rand'])) {
 
 if (isset($_GET['page'])) {
     $page = $_GET['page'];
-    switch($page) {
+    switch ($page) {
         case 'about':
             $smarty->display('static/about.tpl');
             break;

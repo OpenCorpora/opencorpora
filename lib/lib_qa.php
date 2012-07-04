@@ -66,7 +66,7 @@ function get_downloaded_urls() {
         ORDER BY b.book_id DESC
     ");
     $out = array();
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         $out[] = array(
             'book_id' => $r['book_id'],
             'book_name' => $r['book_name'],
@@ -113,7 +113,7 @@ function get_morph_pools_page($type) {
     }
 
     $res = sql_query("SELECT p.*, u1.user_name AS author_name, u2.user_name AS moderator_name FROM morph_annot_pools p LEFT JOIN users u1 ON (p.author_id = u1.user_id) LEFT JOIN users u2 ON (p.moderator_id = u2.user_id) WHERE status = $type ORDER BY p.updated_ts DESC");
-    while($r = sql_fetch_assoc($res)) {
+    while ($r = sql_fetch_assoc($res)) {
         if ($type == 1) {
             $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_candidate_samples WHERE pool_id=".$r['pool_id']));
             $r['candidate_count'] = $r1[0];
@@ -134,7 +134,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
     $r = sql_fetch_array($res);
     $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
     $select_options = array('---');
-    foreach($pool_gram as $v) {
+    foreach ($pool_gram as $v) {
         $select_options[] = $v;
     }
     $select_options[99] = 'Other';
@@ -230,7 +230,7 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
 
     $res = sql_query($q);
 
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         if ($delta > 0) {
             if ($left_c == -1) {
                 $left_c = ($r['pos'] == 1) ? 0 : $r['tf_id'];
@@ -254,7 +254,7 @@ function add_morph_pool() {
     $pool_name = mysql_real_escape_string(trim($_POST['pool_name']));
     $gram_sets = array();
     $gram_descr = array();
-    foreach($_POST['gram'] as $i => $gr) {
+    foreach ($_POST['gram'] as $i => $gr) {
         if (!trim($gr) || strpos($gr, '@') !== false) return false;
         $gram_sets[] = str_replace(' ', '', trim($gr));
         $gram_descr[] = trim($_POST['descr'][$i]);
@@ -295,7 +295,7 @@ function promote_samples($pool_id, $type) {
     if (!$pool_id || !$type) return 0;
     
     $cond = "WHERE pool_id=$pool_id";
-    switch($type) {
+    switch ($type) {
         case 'first':
             $n = (int)$_POST['first_n'];
             $cond .= " ORDER BY tf_id LIMIT $n";
@@ -452,7 +452,7 @@ function get_my_answers($pool_id, $limit=10, $skip=0) {
         $arr = xml2ary($r1['rev_text']);
         $parses = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
         $lemmata = array();
-        foreach($parses as $p) {
+        foreach ($parses as $p) {
             $lemmata[] = $p['lemma_text'];
         }
         $instance['lemmata'] = implode(', ', array_unique($lemmata));
@@ -497,7 +497,7 @@ function get_annotation_packet($pool_id, $size) {
         $arr = xml2ary($r1['rev_text']);
         $parses = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
         $lemmata = array();
-        foreach($parses as $p) {
+        foreach ($parses as $p) {
             $lemmata[] = $p['lemma_text'];
         }
         $instance['lemmata'] = implode(', ', array_unique($lemmata));

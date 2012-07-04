@@ -3,7 +3,7 @@ require('lib/header.php');
 require_once('lib/lib_users.php');
 if (is_admin()) {
     $action = isset($_GET['act']) ? $_GET['act'] : '';
-    switch($action) {
+    switch ($action) {
         case 'save':
             save_users($_POST);
             break;

@@ -49,7 +49,7 @@ function generate_tf_rev($token) {
     if (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {
         $res = sql_query("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text='$token'");
         if (sql_num_rows($res) > 0) {
-            while($r = sql_fetch_array($res)) {
+            while ($r = sql_fetch_array($res)) {
                 $out .= '<v><l id="'.$r['lemma_id'].'" t="'.$r['lemma_text'].'">'.$r['grammems'].'</l></v>';
             }
         } else {
@@ -66,7 +66,7 @@ function generate_tf_rev($token) {
 function dict_get_select_gram() {
     $res = sql_query("SELECT `gram_id`, `inner_id` FROM `gram` ORDER by `inner_id`");
     $out = array();
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         $out[$r['gram_id']] = $r['inner_id'];
     }
     return $out;
@@ -118,7 +118,7 @@ function parse_dict_rev($text) {
         }
         $parsed['forms'][0]['grm'] = $t;
     } else {
-        foreach($arr['f'] as $k=>$farr) {
+        foreach ($arr['f'] as $k=>$farr) {
             $parsed['forms'][$k]['text'] = $farr['_a']['t'];
             $t = array();
             foreach ($farr['_c']['g'] as $garr) {
@@ -150,7 +150,7 @@ function get_lemma_editor($id) {
     $arr = parse_dict_rev($r['rev_text']);
     $out['lemma']['text'] = $arr['lemma']['text'];
     $out['lemma']['grms'] = implode(', ', $arr['lemma']['grm']);
-    foreach($arr['forms'] as $farr) {
+    foreach ($arr['forms'] as $farr) {
         $out['forms'][] = array('text' => $farr['text'], 'grms' => implode(', ', $farr['grm']));
     }
     //links
@@ -167,7 +167,7 @@ function get_lemma_editor($id) {
         LEFT JOIN dict_lemmata lm ON (l.lemma2_id=lm.lemma_id)
         WHERE lemma1_id=$id)
     ", 1, 1);
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         $out['links'][] = array('lemma_id' => $r['lemma_id'], 'lemma_text' => $r['lemma_text'], 'name' => $r['link_name'], 'id' => $r['link_id']);
     }
     //errata
@@ -178,7 +178,7 @@ function get_lemma_editor($id) {
         WHERE e.rev_id = 
         (SELECT rev_id FROM dict_revisions WHERE lemma_id=$id ORDER BY rev_id DESC LIMIT 1)
     ");
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         $out['errata'][] = array(
             'id' => $r['error_id'],
             'type' => $r['error_type'],
@@ -197,7 +197,7 @@ function dict_add_lemma($array) {
     $lemma_gram_new = $array['lemma_gram'];
     $lemma_text = $array['lemma_text'];
     $new_paradigm = array();
-    foreach($ltext as $i=>$text) {
+    foreach ($ltext as $i=>$text) {
         $text = trim($text);
         if ($text == '') {
             //the form is to be deleted, so we do nothing
@@ -209,12 +209,12 @@ function dict_add_lemma($array) {
         }
     }
     $upd_forms = array();
-    foreach($new_paradigm as $form) {
+    foreach ($new_paradigm as $form) {
         $upd_forms[] = $form[0];
     }
     $upd_forms = array_unique($upd_forms);
     sql_begin();
-    foreach($upd_forms as $upd_form) {
+    foreach ($upd_forms as $upd_form) {
         if (!sql_query("INSERT INTO `updated_forms` VALUES('".mysql_real_escape_string($upd_form)."')")) {
             return false;
         }
@@ -247,11 +247,11 @@ function dict_save($array) {
     $lemma_text = $pdr['lemma']['text'];
     $lemma_gram_old = implode(', ', $pdr['lemma']['grm']);
     $old_paradigm = array();
-    foreach($pdr['forms'] as $form_arr) {
+    foreach ($pdr['forms'] as $form_arr) {
         array_push($old_paradigm, array($form_arr['text'], implode(', ', $form_arr['grm'])));
     }
     $new_paradigm = array();
-    foreach($ltext as $i=>$text) {
+    foreach ($ltext as $i=>$text) {
         $text = trim($text);
         if ($text == '') {
             //the form is to be deleted, so we do nothing
@@ -266,22 +266,22 @@ function dict_save($array) {
     $upd_forms = array();
     //if lemma's grammems have changed then all forms have changed
     if ($lemma_gram_new != $lemma_gram_old) {
-        foreach($old_paradigm as $farr) {
+        foreach ($old_paradigm as $farr) {
             array_push($upd_forms, $farr[0]);
         }
-        foreach($new_paradigm as $farr) {
+        foreach ($new_paradigm as $farr) {
             array_push($upd_forms, $farr[0]);
         }
     } else {
         $int = paradigm_diff($old_paradigm, $new_paradigm);
         //..and insert them into `updated_forms`
-        foreach($int as $int_form) {
+        foreach ($int as $int_form) {
             array_push($upd_forms, $int_form[0]);
         }
     }
     $upd_forms = array_unique($upd_forms);
     sql_begin();
-    foreach($upd_forms as $upd_form) {
+    foreach ($upd_forms as $upd_form) {
         if (!sql_query("INSERT INTO `updated_forms` VALUES('".mysql_real_escape_string($upd_form)."')")) {
             return false;
         }
@@ -304,16 +304,16 @@ function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
     $new_xml = '<dr><l t="'.htmlspecialchars($lemma_text).'">';
     //lemma's grammems
     $lg = explode(',', $lemma_gram);
-    foreach($lg as $gr) {
+    foreach ($lg as $gr) {
         $new_xml .= '<g v="'.htmlspecialchars(trim($gr)).'"/>';
     }
     $new_xml .= '</l>';
     //paradigm
-    foreach($paradigm as $new_form) {
+    foreach ($paradigm as $new_form) {
         list($txt, $gram) = $new_form;
         $new_xml .= '<f t="'.htmlspecialchars($txt).'">';
         $gram = explode(',', $gram);
-        foreach($gram as $gr) {
+        foreach ($gram as $gr) {
             $new_xml .= '<g v="'.htmlspecialchars(trim($gr)).'"/>';
         }
         $new_xml .= '</f>';
@@ -334,12 +334,12 @@ function new_dict_rev($lemma_id, $new_xml, $comment = '') {
 }
 function paradigm_diff($array1, $array2) {
     $diff = array();
-    foreach($array1 as $form_array) {
-        if(!in_array($form_array, $array2))
+    foreach ($array1 as $form_array) {
+        if (!in_array($form_array, $array2))
             array_push($diff, $form_array);
     }
-    foreach($array2 as $form_array) {
-        if(!in_array($form_array, $array1))
+    foreach ($array2 as $form_array) {
+        if (!in_array($form_array, $array1))
             array_push($diff, $form_array);
     }
     return $diff;
@@ -349,7 +349,7 @@ function del_lemma($id) {
     $res = sql_query("SELECT link_id FROM dict_links WHERE lemma1_id=$id OR lemma2_id=$id");
     sql_begin();
     $revset_id = create_revset();
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         if (!del_link($r['link_id'], $revset_id)) {
             return false;
         }
@@ -357,7 +357,7 @@ function del_lemma($id) {
     //update `updated_forms`
     $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$id ORDER BY `rev_id` DESC LIMIT 1"));
     $pdr = parse_dict_rev($r['rev_text']);
-    foreach($pdr['forms'] as $form) {
+    foreach ($pdr['forms'] as $form) {
         if (!sql_query("INSERT INTO `updated_forms` VALUES('".$form['text']."')")) {
             return false;
         }
@@ -401,7 +401,7 @@ function get_grammem_editor($order) {
     $orderby = $order == 'id' ? 'inner_id' :
         ($order == 'outer' ? 'outer_id' : 'orderby');
     $res = sql_query("SELECT g1.`gram_id`, g1.`parent_id`, g1.`inner_id`, g1.`outer_id`, g1.`gram_descr`, g1.`orderby`, g2.`inner_id` AS `parent_name` FROM `gram` g1 LEFT JOIN `gram` g2 ON (g1.parent_id=g2.gram_id) ORDER BY g1.`$orderby`");
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         $class = strlen($r['inner_id']) != 4 ? 'gramed_bad' :
             (preg_match('/^[A-Z0-9-]+$/', $r['inner_id']) ? 'gramed_pos' :
             (preg_match('/[A-Z0-9][A-Z0-9][a-z0-9-][a-z0-9-]/', $r['inner_id']) ? 'gramed_group' :
@@ -479,7 +479,7 @@ function get_dict_errata($all, $rand) {
         LEFT JOIN users u ON (x.author_id = u.user_id)
         LEFT JOIN dict_revisions r ON (e.rev_id=r.rev_id)
         ORDER BY ".($rand?'RAND()':'error_id').($all?'':' LIMIT 200'));
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         $out['errors'][] = array(
             'id' => $r['error_id'],
             'timestamp' => $r['timestamp'],
@@ -508,7 +508,7 @@ function clear_dict_errata($old) {
     else {
         $res = sql_query("SELECT MAX(rev_id) AS m FROM dict_revisions GROUP BY lemma_id");
         sql_begin();
-        while($r = sql_fetch_array($res)) {
+        while ($r = sql_fetch_array($res)) {
             if (!sql_query("UPDATE dict_revisions SET dict_check='0' WHERE rev_id=".$r['m']." LIMIT 1")) {
                 show_error();
                 return;

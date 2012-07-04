@@ -5,7 +5,7 @@ if (isset($_GET['act']))
     $action = $_GET['act'];
 else $action = '';
 if (user_has_permission('perm_adder')) {
-    switch($action) {
+    switch ($action) {
         case 'add':
             $book_id = array_pop($_POST['book']);
             if (!addtext_add($_POST['source_text'], $_POST['sentence'], (int)$book_id, (int)$_POST['newpar'])) {

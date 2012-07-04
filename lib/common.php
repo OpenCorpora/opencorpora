@@ -63,10 +63,10 @@ function sql_commit() {
 function sql_get_schema() {
     $res = sql_query("SHOW TABLES");
     $out = array();
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         $out[$r[0]] = array();
         $res1 = sql_query("EXPLAIN `$r[0]`");
-        while($r1 = sql_fetch_array($res1)) {
+        while ($r1 = sql_fetch_array($res1)) {
             $out[$r[0]][] = strtolower($r1[0]);
         }
     }
@@ -110,12 +110,12 @@ function get_common_stats() {
     $stats = array();
 
     $res = sql_query("SELECT * FROM stats_param WHERE is_active=1 AND param_id NOT IN(SELECT DISTINCT param_id FROM user_stats)");
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         $arr = sql_fetch_array(sql_query("SELECT `timestamp`, param_value FROM stats_values WHERE param_id=".$r['param_id']." ORDER BY `timestamp` DESC LIMIT 1"));
         $stats[$r['param_name']] = array('timestamp' => $arr['timestamp'], 'value' => $arr['param_value']);
     }
 
-    foreach(array('total', 'chaskor', 'chaskor_news', 'wikipedia', 'wikinews', 'blogs', 'fiction') as $src) {
+    foreach (array('total', 'chaskor', 'chaskor_news', 'wikipedia', 'wikinews', 'blogs', 'fiction') as $src) {
         $stats['goals'][$src.'_words'] = $config['goals'][$src.'_words'];
         $stats['percent_words'][$src] = floor($stats[$src.'_words']['value'] / $config['goals'][$src.'_words'] * 100);
     }
@@ -144,7 +144,7 @@ function get_common_stats() {
 
     $param_set = array(32, 27, 23, 19, 15, 11);
 
-    foreach($param_set as $param_id) {
+    foreach ($param_set as $param_id) {
         $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE timestamp > ".(time() - 90*24*60*60)." AND param_id = $param_id ORDER BY timestamp");
         while ($r = sql_fetch_array($res)) {
             $day = intval($r['timestamp'] / 86400);
@@ -156,9 +156,9 @@ function get_common_stats() {
     // we need two cycles for cases when a parameter was measured more than once a day
     // we suppose that all parameters were measured simultaneously
 
-    foreach($t as $day => $ar) {
+    foreach ($t as $day => $ar) {
         $sum = 0;
-        foreach($param_set as $param_id) {
+        foreach ($param_set as $param_id) {
             $sum += $ar[$param_id];
             $tchart[$param_id][] = '['.($day * 86400000).','.$sum.']';
         }
@@ -242,7 +242,7 @@ function get_top100_info($what, $type) {
     $stats = array();
 
     $filename = '';
-    switch($type) {
+    switch ($type) {
         case '1_exact':
             $filename = 'unigrams';
             break;
@@ -301,12 +301,12 @@ function get_top100_info($what, $type) {
     $f = file($config['project']['root']."/files/export/ngrams/$filename.top100");
 
     if ($what == 'colloc') {
-        foreach($f as $s) {
+        foreach ($f as $s) {
             list($lterm, $rterm, $lfreq, $rfreq, $cfreq, $coeff) = explode("\t", $s);
             $stats[] = array('lterm' => $lterm, 'rterm' => $rterm, 'lfreq' => $lfreq, 'rfreq' => $rfreq, 'cfreq' => $cfreq, 'coeff' => $coeff);
         }
     } else {
-        foreach($f as $s) {
+        foreach ($f as $s) {
             list($token, $abs, $ipm) = explode("\t", $s);
             $stats[] = array('token' => $token, 'abs' => $abs, 'ipm' => $ipm);
         }
@@ -328,7 +328,7 @@ function touch_file($path) {
 
 function safe_read($file, $length) {
     $fp = fopen($file, 'r');
-    if(!is_resource($fp)) {
+    if (!is_resource($fp)) {
         return FALSE;
     }
     flock($fp, LOCK_SH);
@@ -341,7 +341,7 @@ function safe_read($file, $length) {
 
 function safe_write($file, $mode, $data) {
     $fp = fopen($file, $mode);
-    if(!is_resource($fp)) {
+    if (!is_resource($fp)) {
         return FALSE;
     }
     flock($fp, LOCK_EX);

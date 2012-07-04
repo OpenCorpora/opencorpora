@@ -52,7 +52,7 @@ function get_sentence($sent_id) {
     $res = sql_query("SELECT tf_id, tf_text, dict_updated FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
     $j = 0; //token position, for further highlighting
     $gram_descr = array();  //associative array to keep info about grammemes
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         array_push ($tf_text, '<span id="src_token_'.($j++).'">'.$r['tf_text'].'</span>');
         $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." ORDER BY rev_id DESC LIMIT 1"));
         $arr = xml2ary($rev['rev_text']);
@@ -72,7 +72,7 @@ function get_morph_vars($xml_arr, &$gram_descr) {
         //the only variant
         $var = get_morph_vars_inner($xml_arr, 1);
         $t = array();
-        foreach($var['gram_list'] as $gr) {
+        foreach ($var['gram_list'] as $gr) {
             if (!isset($gram_descr[$gr['inner']])) {
                 $r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='".$gr['inner']."' LIMIT 1"));
                 $gram_descr[$gr['inner']] = array($r[0], $r[1]);
@@ -86,10 +86,10 @@ function get_morph_vars($xml_arr, &$gram_descr) {
         $out = array();
         $i = 1;
         if (is_array($xml_arr)) {
-            foreach($xml_arr as $xml_var_arr) {
+            foreach ($xml_arr as $xml_var_arr) {
                 $var = get_morph_vars_inner($xml_var_arr, $i++);
                 $t = array();
-                foreach($var['gram_list'] as $gr) {
+                foreach ($var['gram_list'] as $gr) {
                     if (!isset($gram_descr[$gr['inner']])) {
                         $r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='".$gr['inner']."' LIMIT 1"));
                         $gram_descr[$gr['inner']] = array($r[0], $r[1]);
@@ -110,8 +110,8 @@ function get_morph_vars_inner($xml_arr, $num) {
         //$r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='$inner_id' LIMIT 1"));
         //array_push($grm_arr, array('inner' => $inner_id, 'outer' => $r[0], 'descr' => $r[1]));
         $grm_arr[] = array('inner' => $lemma_grm['_a']['v']);
-    } elseif(is_array($lemma_grm)) {
-        foreach($lemma_grm as $t) {
+    } elseif (is_array($lemma_grm)) {
+        foreach ($lemma_grm as $t) {
             //$r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='$inner_id' LIMIT 1"));
             //array_push($grm_arr, array('inner' => $inner_id, 'outer' => $r[0], 'descr' => $r[1]));
             $grm_arr[] = array('inner' => $t['_a']['v']);
@@ -129,13 +129,13 @@ function sentence_save($sent_id) {
     $flag = $_POST['var_flag'];  //what morphovariants are checked as possible (array of arrays)
     $dict = $_POST['dict_flag']; //whether this token has been reloaded from the dictionary (array)
     $res = sql_query("SELECT tf_id, tf_text, `pos` FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." ORDER BY rev_id DESC LIMIT 1"));
         $tokens[$r['tf_id']] = array($r['tf_text'], $rev['rev_text']);
     }
     $matches = array();
     $all_changes = array();
-    if(count($flag) != count($tokens)) {
+    if (count($flag) != count($tokens)) {
         print("Internal error 1: Cannot save");
         if (is_admin()) {
             print "\nflag:\n".print_r($flag, 1);
@@ -144,7 +144,7 @@ function sentence_save($sent_id) {
         exit(0);
     }
     sql_begin();
-    foreach($tokens as $tf_id=>$v) {
+    foreach ($tokens as $tf_id=>$v) {
         list($tf_text, $base_xml) = $v;
         //substitute the last revision's xml for one from dictionary if relevant
         if ($dict[$tf_id] == 1) {
@@ -169,7 +169,7 @@ function sentence_save($sent_id) {
                 exit(0);
             }
             $not_empty = 0;
-            foreach($flag[$tf_id] as $k=>$f) {
+            foreach ($flag[$tf_id] as $k=>$f) {
                 if ($f == 1) {
                     $not_empty = 1;
                     $new_xml .= '<v>'.$matches[1][$k-1].'</v>'; //attention to -1

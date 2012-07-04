@@ -12,7 +12,7 @@ if (!in_array($action, array('', 'gram', 'gram_restr', 'lemmata', 'errata', 'edi
         return;
 }
 
-switch($action) {
+switch ($action) {
     case 'add_gram':
         $name = mysql_real_escape_string($_POST['g_name']);
         $group = (int)$_POST['parent_gram'];

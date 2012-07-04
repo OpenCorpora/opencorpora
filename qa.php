@@ -6,7 +6,7 @@ $action = '';
 if (isset($_GET['act']))
     $action = $_GET['act'];
 
-switch($action) {
+switch ($action) {
     case 'sent_split':
         if (user_has_permission('perm_adder')) {
             $smarty->assign('sentences', get_page_sent_strange());

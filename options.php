@@ -5,7 +5,7 @@ if (is_logged()) {
         $action = $_GET['act'];
     } else
         $action = '';
-    switch($action) {
+    switch ($action) {
         case 'save':
             save_user_options($_POST);
             break;

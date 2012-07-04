@@ -3,7 +3,7 @@
 require_once('lib/header.php');
 require_once('lib/lib_generator.php');
 
-if(is_admin()) {
+if (is_admin()) {
     $action = isset($_GET['act']) ? $_GET['act'] : '';
 
     $current = get_generator_status();
@@ -12,7 +12,7 @@ if(is_admin()) {
     $smarty->assign('tag', $current['tag']);
     $smarty->assign('next', $current['next']);
 
-    switch($action) {
+    switch ($action) {
         case 'toggle':
             $new = toggle_generator_status();
             $smarty->assign('status', $new['status']);

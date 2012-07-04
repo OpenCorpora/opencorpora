@@ -11,7 +11,7 @@ if (isset($_GET['id'])) {
 }
 if (isset($_GET['act'])) {
     $action = $_GET['act'];
-    switch($action) {
+    switch ($action) {
         case 'save':
             if (user_has_permission('perm_disamb')) {
                 if (isset($_GET['id']) && sentence_save($sent_id = (int)$_GET['id'])) {

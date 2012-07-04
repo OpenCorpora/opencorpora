@@ -11,7 +11,7 @@ if (!is_logged()) {
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 
-switch($action) {
+switch ($action) {
     case 'annot':
         if (!isset($_GET['pool_id']) || !$_GET['pool_id']) {
             show_error('Wrong pool_id');

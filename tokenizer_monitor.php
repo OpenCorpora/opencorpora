@@ -2,7 +2,7 @@
 
 require_once('lib/header.php');
 
-if(is_admin()) {
+if (is_admin()) {
     $smarty->display('tokenizer_monitor.tpl');
 }
 else {

@@ -212,7 +212,7 @@ function get_user_options($user_id) {
     //autovivify
     $res = sql_query("SELECT option_id, default_value FROM user_options WHERE option_id NOT IN (SELECT option_id FROM user_options_values WHERE user_id=$user_id)");
     sql_begin();
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         if (!sql_query("INSERT INTO user_options_values VALUES('$user_id', '".$r['option_id']."', '".$r['default_value']."')")) {
             show_error("Error on autovivifying an option");
             return;
@@ -221,7 +221,7 @@ function get_user_options($user_id) {
     sql_commit();
 
     $res = sql_query("SELECT option_id id, option_value value FROM user_options_values WHERE user_id=$user_id");
-    while($r = sql_fetch_array($res))
+    while ($r = sql_fetch_array($res))
         $out[$r['id']] = $r['value'];
     return $out;
 }
@@ -268,9 +268,9 @@ function save_user_options($post) {
         return;
     }
     sql_begin();
-    foreach($post['options'] as $id=>$value) {
-        if($_SESSION['options'][$id]['value'] != $value) {
-            if(!sql_query("UPDATE user_options_values SET option_value='".mysql_real_escape_string($value)."' WHERE option_id=".mysql_real_escape_string($id)." AND user_id=".$_SESSION['user_id']." LIMIT 1")) {
+    foreach ($post['options'] as $id=>$value) {
+        if ($_SESSION['options'][$id]['value'] != $value) {
+            if (!sql_query("UPDATE user_options_values SET option_value='".mysql_real_escape_string($value)."' WHERE option_id=".mysql_real_escape_string($id)." AND user_id=".$_SESSION['user_id']." LIMIT 1")) {
                 show_error("Error on saving options");
                 return;
             }
@@ -312,7 +312,7 @@ function get_users_page() {
 }
 function save_users($post) {
     sql_begin();
-    foreach($post['changed'] as $id => $val) {
+    foreach ($post['changed'] as $id => $val) {
         if (!$val) continue;
         $perm = $post['perm'][$id];
         $qa = array();

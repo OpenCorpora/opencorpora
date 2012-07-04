@@ -25,7 +25,7 @@ if (isset($_SESSION['options'])) {
     $lang_id = 1;
 }
 
-switch($lang_id) {
+switch ($lang_id) {
     case 1:
         $lang = 'ru';
         $locale = 'ru_RU';

@@ -9,7 +9,7 @@ if (!user_has_permission('perm_adder')) {
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 
-switch($action) {
+switch ($action) {
     case 'add':
         if (source_add($_POST['url'], $_POST['title'], (int)$_POST['parent'])) {
             header("Location:sources.php");

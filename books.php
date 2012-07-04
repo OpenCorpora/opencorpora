@@ -20,7 +20,7 @@ elseif (is_admin() && $action == 'del_sentence') {
     }
 }
 elseif (user_has_permission('perm_adder')) {
-    switch($action) {
+    switch ($action) {
         case 'add':
             $book_name = mysql_real_escape_string($_POST['book_name']);
             $book_parent = (int)$_POST['book_parent'];
@@ -85,7 +85,7 @@ elseif (user_has_permission('perm_adder')) {
             }
             break;
         case 'split_sentence':
-            if($a = split_sentence((int)$_POST['tid']))
+            if ($a = split_sentence((int)$_POST['tid']))
                 header("Location:books.php?book_id=".$a[0]."&full#sen".$a[1]);
             else
                 show_error();

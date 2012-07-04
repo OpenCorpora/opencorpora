@@ -10,16 +10,16 @@ function get_generator_status() {
     $current_tag = safe_read($config['generator']['current_tag'], 32);
     $next_tag = safe_read($config['generator']['next_tag'], 32);
 
-    if($current_status === FALSE) {
+    if ($current_status === FALSE) {
         $current_status = 'error';
     }
 
-    if($current_tag === FALSE) {
+    if ($current_tag === FALSE) {
         $current_tag = 'n/a';
         $current_status = 'error';
     }
 
-    if(!$next_tag || $next_tag === $current_tag) {
+    if (!$next_tag || $next_tag === $current_tag) {
         $next_tag = 'n/a';
     }
 
@@ -40,7 +40,7 @@ function set_generator_status($new_status) {
 function toggle_generator_status() {
     $current = get_generator_status();
 
-    switch($current['status']) {
+    switch ($current['status']) {
         case 'enabled':
             set_generator_status('disabled');
             break;
@@ -102,7 +102,7 @@ function publish_update() {
     global $config;
 
     $next_tag = safe_read($config['generator']['next_tag'], 32);
-    if($next_tag === FALSE) {
+    if ($next_tag === FALSE) {
         return array(
             'success' => FALSE,
             'output'  => 'No tag to publish',
@@ -110,17 +110,17 @@ function publish_update() {
     }
 
     $tag_dir = $config['generator']['data_dir'] . '/' . $next_tag;
-    if(!file_exists($tag_dir)) {
+    if (!file_exists($tag_dir)) {
         mkdir($tag_dir, 0755, TRUE);
     }
 
     $dp = opendir($config['generator']['tmp_dir']);
-    while(($file = readdir($dp)) !== FALSE) {
-        if($file !== '.' && $file !== '..') {
+    while (($file = readdir($dp)) !== FALSE) {
+        if ($file !== '.' && $file !== '..') {
             $tmp = $config['generator']['tmp_dir'] . '/' . $file;
             $production = $tag_dir . '/' . $file;
 
-            if(rename($tmp, $production) == FALSE) {
+            if (rename($tmp, $production) == FALSE) {
                 return array(
                     'success' => FALSE,
                     'output'  => 'Failed moving ' . $tmp . ' to ' . $production,

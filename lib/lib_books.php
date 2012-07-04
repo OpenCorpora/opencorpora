@@ -40,13 +40,13 @@ function get_book_page($book_id, $full = false) {
     }
     //sub-books
     $res = sql_query("SELECT book_id, book_name FROM books WHERE parent_id=$book_id ORDER BY book_name");
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         $out['children'][] = array('id' => $r['book_id'], 'title' => $r['book_name']);
     }
     //parents
     $out['parents'] = array();
     $tid = $book_id;
-    while($tid) {
+    while ($tid) {
         $res = sql_query("SELECT book_id, book_name FROM books WHERE book_id=(SELECT parent_id FROM books WHERE book_id=$tid LIMIT 1) AND book_id>0 LIMIT 1");
         if (sql_num_rows($res) > 0) {
             $r = sql_fetch_array($res);
@@ -137,7 +137,7 @@ function get_books_for_select($parent = -1) {
     $out = array();
     $pg = $parent > -1 ? "WHERE `parent_id`=$parent " : '';
     $res = sql_query("SELECT `book_id`, `book_name` FROM `books` ".$pg."ORDER BY `book_name`", 0);
-    while($r = sql_fetch_array($res)) {
+    while ($r = sql_fetch_array($res)) {
         $out["$r[book_id]"] = $r['book_name'];
     }
     return $out;
