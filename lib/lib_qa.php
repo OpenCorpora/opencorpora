@@ -145,6 +145,8 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
     while ($r = sql_fetch_array($res)) {
         $t = get_context_for_word($r['tf_id'], 4);
         $t['id'] = $r['sample_id'];
+        $r1 = sql_fetch_array(sql_query("SELECT book_id FROM paragraphs WHERE par_id = (SELECT par_id FROM sentences WHERE sent_id = ".$t['sentence_id']." LIMIT 1) LIMIT 1"));
+        $t['book_id'] = $r1['book_id'];
         $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." AND answer>0"));
         $t['answered'] = $r1[0];
         if ($extended) {
@@ -248,7 +250,7 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
             $mw_pos = $r['pos'];
         }
     }
-    return array('context' => $t, 'mainword' => $tw, 'has_left_context' => $left_c, 'has_right_context' => $right_c);
+    return array('context' => $t, 'mainword' => $tw, 'has_left_context' => $left_c, 'has_right_context' => $right_c, 'sentence_id' => $sent_id);
 }
 function add_morph_pool() {
     $pool_name = mysql_real_escape_string(trim($_POST['pool_name']));
