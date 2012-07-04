@@ -211,7 +211,8 @@ CREATE TABLE `user_options` (
 ) ENGINE = INNODB;
 INSERT INTO `user_options` VALUES
     ('1', 'Показывать русские названия граммем', '1', '1', '1'),
-    ('2', 'Язык/Language', '1=Русский|2=English', '1', '2');
+    ('2', 'Язык/Language', '1=Русский|2=English', '1', '2'),
+    ('3', 'Количество примеров для разметки', '1=5|2=10|3=20|4=50', '1', '3');
 
 CREATE TABLE IF NOT EXISTS `user_stats` (
     `user_id`     SMALLINT UNSIGNED NOT NULL,
