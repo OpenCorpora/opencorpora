@@ -70,10 +70,59 @@ $(document).ready(function() {
     $('button.ma_next_pack').click(function() {
         document.location.reload();
     });
+    // class for progress-bar
+    function Progress(val) {
+        // init members
+        this.percent = 0;
+        this.splashStep = 10;
+        this.splashTimeout = 2000;
+        this.$bar = $('#progress-bar');
+        this.$splash = $('#progress-splash');
+        // set current value
+        this.set(val);
+    }
+    // updates current percent & shows
+    Progress.prototype.set = function(val) {
+        val = parseInt(val);
+        if(isNaN(val)) {
+            val = 0;
+        }
+        if(val != this.percent) {
+            this.percent = val;
+            this.updateBar();
+            if(this.percent%this.splashStep == 0) {
+                this.showSplash();
+            }
+        }
+    }
+    // shows percent in bar
+    Progress.prototype.updateBar = function() {
+        this.$bar.find("div").css({width:this.percent+'%'});
+        this.$bar.attr('title','Текущий процент выполнения: ' + this.percent + '%');
+    }
+    // shows percent in splash block
+    Progress.prototype.showSplash = function(){
+        this.$splash.find('.splash-content div').text('Вы разметили уже ' + this.percent + '% пула!');
+        this.$splash.show();
+        setTimeout('$("#' + this.$splash.attr('id') + '").fadeOut("slow")',this.splashTimeout);
+    }
+    // create instance on a bar with actual value
+    var progress = new Progress(55);
+
+    // test progress update
+    $("#test-progress").blur(function(){
+        progress.set($('#test-progress').val());
+    })
 });
 </script>
 {/literal}
 <p>Спасибо, что помогаете нам. Не торопитесь, будьте внимательны. Если вы не уверены, пропускайте пример.</p>
+<p><input type="text" id="test-progress"></p>
+<div id="progress-bar" class="progress-bar"><div></div></div>
+<div id="progress-splash" class="splash-block success" style="display:none;">
+    <div class="bgg"></div>
+    <div class="splash-content"><h3>Поздравляем!</h3><div></div></div>
+</div>
 <br/>
 {foreach from=$packet.instances item=instance}
 <div class='ma_instance' rel='{$instance.id}'>
