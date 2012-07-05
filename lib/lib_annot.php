@@ -135,14 +135,9 @@ function sentence_save($sent_id) {
     }
     $matches = array();
     $all_changes = array();
-    if (count($flag) != count($tokens)) {
-        print("Internal error 1: Cannot save");
-        if (is_admin()) {
-            print "\nflag:\n".print_r($flag, 1);
-            print "\ntokens:\n".print_r($tokens, 1);
-        }
-        exit(0);
-    }
+    if (count($flag) != count($tokens))
+        return false;
+
     sql_begin();
     foreach ($tokens as $tf_id=>$v) {
         list($tf_text, $base_xml) = $v;
@@ -151,7 +146,7 @@ function sentence_save($sent_id) {
             $xml = generate_tf_rev($tf_text);
             //and reset the flag! perhaps it would be better to reset all of them by one query, but seems the case is rather rare
             if (!sql_query("UPDATE text_forms SET dict_updated='0' WHERE tf_id=$tf_id LIMIT 1")) {
-                die("Internal error 5: cannot save");
+                return false;
             }
         } else {
             $xml = $base_xml;
@@ -160,14 +155,9 @@ function sentence_save($sent_id) {
         //let's find all vars inside tf_text
         if (preg_match_all("/<v>(.+?)<\/v>/", $xml, $matches) !== false) {
             //flags quantity check
-            if (count($matches[1]) != count($flag[$tf_id])) {
-                print "Internal error 3: Cannot save\n";
-                if (is_admin()) {
-                    print "matches:\n".print_r($matches[1], true);
-                    print "flag:\n".print_r($flag[$tf_id], true);
-                }
-                exit(0);
-            }
+            if (count($matches[1]) != count($flag[$tf_id]))
+                return false;
+
             $not_empty = 0;
             foreach ($flag[$tf_id] as $k=>$f) {
                 if ($f == 1) {
@@ -185,16 +175,16 @@ function sentence_save($sent_id) {
                 array_push($all_changes, array($tf_id, $new_xml));
             }
         } else {
-            die ("Internal error 2: Cannot save");
+            return false;
         }
     }
     if (count($all_changes)>0) {
         $revset_id = create_revset($_POST['comment']);
         if (!$revset_id)
-            die ("Cannot create revset");
+            return false;
         foreach ($all_changes as $v) {
             if (!sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$v[0]', '".mysql_real_escape_string($v[1])."')"))
-                die ("Internal error 4: Cannot save");
+                return false;
         }
     }
     if (sql_query("UPDATE sentences SET check_status='1' WHERE sent_id=$sent_id LIMIT 1")) {

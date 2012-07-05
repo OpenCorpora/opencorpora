@@ -101,12 +101,12 @@ function get_book_page($book_id, $full = false) {
 }
 function books_add($name, $parent_id=0) {
     if ($name === '') {
-        die ("Название не может быть пустым.");
+        return false;
     }
     if (sql_query("INSERT INTO `books` VALUES(NULL, '$name', '$parent_id')")) {
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 function books_move($book_id, $to_id) {
     if ($book_id == $to_id) {
@@ -126,7 +126,7 @@ function books_move($book_id, $to_id) {
 }
 function books_rename($book_id, $name) {
     if ($name === '') {
-        die ("Название не может быть пустым.");
+        return false;
     }
     if (sql_query("UPDATE `books` SET `book_name`='$name' WHERE `book_id`=$book_id LIMIT 1")) {
         return true;
