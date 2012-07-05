@@ -142,7 +142,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
     $res = sql_query("SELECT sample_id, tf_id FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id");
     $gram_descr = array();
     $distinct_users = array();
-    $out['all_moderated'] = $ext ? true : false;  // for now we never get active button with non-extended view, just for code simplicity
+    $out['all_moderated'] = $extended ? true : false;  // for now we never get active button with non-extended view, just for code simplicity
     while ($r = sql_fetch_array($res)) {
         $t = get_context_for_word($r['tf_id'], 4);
         $t['id'] = $r['sample_id'];
@@ -577,7 +577,7 @@ function save_moderated_answer($id, $answer) {
         sql_commit();
         //check whether it was the last sample to be moderated
         $res = sql_query("SELECT sample_id FROM morph_annot_moderated_samples WHERE pool_id=(SELECT pool_id FROM morph_annot_samples WHERE sample_id=$id LIMIT 1) AND answer = 0");
-        if (sql_num_rows($res) > 0)
+        if (sql_num_rows($res) == 0)
             return 2;
         return 1;
     }
