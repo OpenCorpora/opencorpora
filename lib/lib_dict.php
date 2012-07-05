@@ -460,11 +460,9 @@ function move_grammem($grm_id, $dir) {
 }
 function edit_grammem($id, $inner_id, $outer_id, $descr) {
     if (sql_query("UPDATE `gram` SET `inner_id`='$inner_id', `outer_id`='$outer_id', `gram_descr`='$descr' WHERE `gram_id`=$id LIMIT 1")) {
-        header('Location:dict.php?act=gram');
-        return;
-    } else {
-        show_error();
+        return true;
     }
+    return false;
 }
 
 //ERRATA
@@ -497,45 +495,31 @@ function get_dict_errata($all, $rand) {
     return $out;
 }
 function clear_dict_errata($old) {
-    if ($old) {
-        if (sql_query("UPDATE dict_revisions SET dict_check='0'")) {
-            header("Location:dict.php?act=errata");
-            return;
-        } else {
-            show_error();
+    if ($old)
+        return (bool)sql_query("UPDATE dict_revisions SET dict_check='0'");
+
+    $res = sql_query("SELECT MAX(rev_id) AS m FROM dict_revisions GROUP BY lemma_id");
+    sql_begin();
+    while ($r = sql_fetch_array($res)) {
+        if (!sql_query("UPDATE dict_revisions SET dict_check='0' WHERE rev_id=".$r['m']." LIMIT 1")) {
+            return false;
         }
     }
-    else {
-        $res = sql_query("SELECT MAX(rev_id) AS m FROM dict_revisions GROUP BY lemma_id");
-        sql_begin();
-        while ($r = sql_fetch_array($res)) {
-            if (!sql_query("UPDATE dict_revisions SET dict_check='0' WHERE rev_id=".$r['m']." LIMIT 1")) {
-                show_error();
-                return;
-            }
-        }
-        sql_commit();
-        header("Location:dict.php?act=errata");
-        return;
-    }
+    sql_commit();
+    return true;
 }
 function mark_dict_error_ok($id, $comment) {
-    if (!$id) {
-        header("Location:dict.php?act=errata");
-        return;
-    }
-    if (sql_query("INSERT INTO dict_errata_exceptions VALUES(
+    if (!$id)
+        return false;
+
+    return (bool)sql_query("INSERT INTO dict_errata_exceptions VALUES(
             NULL,
             (SELECT error_type FROM dict_errata WHERE error_id=$id LIMIT 1),
             (SELECT error_descr FROM dict_errata WHERE error_id=$id LIMIT 1),
             '".$_SESSION['user_id']."',
             '".time()."',
             '".mysql_real_escape_string($comment)."'
-        )")) {
-        header("Location:dict.php?act=errata");
-        return;
-    } else
-        show_error();
+        )");
 }
 function get_gram_restrictions($hide_auto) {
     $res = sql_query("SELECT r.restr_id, r.obj_type, r.restr_type, r.auto, g1.inner_id `if`, g2.inner_id `then`
@@ -562,22 +546,32 @@ function get_gram_restrictions($hide_auto) {
     return $out;
 }
 function add_dict_restriction($post) {
-    if (sql_query("INSERT INTO gram_restrictions VALUES(NULL, '".(int)$post['if']."', '".(int)$post['then']."', '".(int)$post['rtype']."', '".((int)$post['if_type'] + (int)$post['then_type'])."', '0')")) {
-        calculate_gram_restrictions();
-        return;
-    } else
-        show_error();
+    sql_begin();
+    if (
+        sql_query("INSERT INTO gram_restrictions VALUES(NULL, '".(int)$post['if']."', '".(int)$post['then']."', '".(int)$post['rtype']."', '".((int)$post['if_type'] + (int)$post['then_type'])."', '0')") &&
+        calculate_gram_restrictions()
+    ) {
+        sql_commit();
+        return true;
+    }
+    return false;
 }
 function del_dict_restriction($id) {
-    if (sql_query("DELETE FROM gram_restrictions WHERE restr_id=$id LIMIT 1")) {
-        calculate_gram_restrictions();
-        return;
-    } else
-        show_error();
+    sql_begin();
+    if (
+        sql_query("DELETE FROM gram_restrictions WHERE restr_id=$id LIMIT 1") &&
+        calculate_gram_restrictions()
+    ) {
+        sql_commit();
+        return true;
+    }
+    return false;
 }
 function calculate_gram_restrictions() {
     sql_begin();
-    sql_query("DELETE FROM gram_restrictions WHERE `auto`=1");
+    if (!sql_query("DELETE FROM gram_restrictions WHERE `auto`=1"))
+        return false;
+
     $restr = array();
     $res = sql_query("SELECT r.if_id, r.then_id, r.obj_type, r.restr_type, g1.gram_id gram1, g2.gram_id gram2
         FROM gram_restrictions r
@@ -597,11 +591,11 @@ function calculate_gram_restrictions() {
         $w = ($w0 == 1 ? 0 : 2);
         if (sql_num_rows(sql_query("SELECT restr_id FROM gram_restrictions WHERE if_id=$if AND then_id=$then AND obj_type=$type AND restr_type=$w")) == 0) {
             if (!sql_query("INSERT INTO gram_restrictions VALUES(NULL, '$if', '$then', '$w', '$type', '1')")) {
-                show_error();
+                return false;
             }
         }
     }
     sql_commit();
-    header("Location:dict.php?act=gram_restr");
+    return true;
 }
 ?>

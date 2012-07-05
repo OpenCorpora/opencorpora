@@ -42,22 +42,40 @@ switch ($action) {
         $inner_id = mysql_real_escape_string($_POST['inner_id']);
         $outer_id = mysql_real_escape_string($_POST['outer_id']);
         $descr = mysql_real_escape_string($_POST['descr']);
-        edit_grammem($id, $inner_id, $outer_id, $descr);
+        if (edit_grammem($id, $inner_id, $outer_id, $descr))
+            header('Location:dict.php?act=gram');
+        else
+            show_error();
         break;
     case 'clear_errata':
-        clear_dict_errata(isset($_GET['old']));
+        if (clear_dict_errata(isset($_GET['old'])))
+            header("Location:dict.php?act=errata");
+        else
+            show_error();
         break;
     case 'not_error':
-        mark_dict_error_ok((int)$_GET['error_id'], $_POST['comm']);
+        if (mark_dict_error_ok((int)$_GET['error_id'], $_POST['comm']))
+            header("Location:dict.php?act=errata");
+        else
+            show_error();
         break;
     case 'add_restr':
-        add_dict_restriction($_POST);
+        if (add_dict_restriction($_POST))
+            header("Location:dict.php?act=gram_restr");
+        else
+            show_error();
         break;
     case 'del_restr':
-        del_dict_restriction((int)$_GET['id']);
+        if (del_dict_restriction((int)$_GET['id']))
+            header("Location:dict.php?act=gram_restr");
+        else
+            show_error();
         break;
     case 'update_restr':
-        calculate_gram_restrictions();
+        if (calculate_gram_restrictions())
+            header("Location:dict.php?act=gram_restr");
+        else
+            show_error();
         break;
     case 'save':
         if ($lemma_id = dict_save($_POST))
