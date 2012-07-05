@@ -5,6 +5,14 @@
     {literal}
     <script type="text/javascript">
         $(document).ready(function(){
+            //highlight the sentence in the anchor
+            var h;
+            if (h = document.location.hash) {
+                if (h.indexOf('sen') == 1) {
+                    $('a[name='+h.substring(1)+']').closest('tr').addClass('bgyellow');
+                }
+            }
+
             $("input.tok").click(function(){
                 save_check_tokens($(this));
             });
