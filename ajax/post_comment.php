@@ -6,6 +6,7 @@ echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?>';
 if (
     !isset($_POST['type']) ||
     !isset($_POST['id']) ||
+    !$_POST['id'] ||
     !isset($_POST['text']) ||
     !isset($_SESSION['user_id'])
 ) {
