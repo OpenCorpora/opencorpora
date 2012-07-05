@@ -77,6 +77,8 @@
 <form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Опубликовать заново</button></form>
 {elseif $pool.status == 5}
 Пул модерируется (новые ответы запрещены). <form action="?act=finish_moder&amp;pool_id={$pool.id}" method="post" class="inline"><button{if !$pool.all_moderated} disabled="disabled" class="finish_mod"{/if}>Закончить модерацию</button></form>
+{elseif $pool.status == 6}
+Модерация пула закончена.
 {/if}
 {if $pool.status != 5}
 <form action="?act=begin_moder&amp;pool_id={$pool.id}" method="post" class="inline"><button onclick="return confirm('Вы уверены? Это действие необратимо.')">Начать модерацию</button></form>
