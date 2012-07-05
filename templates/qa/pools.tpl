@@ -52,6 +52,11 @@ $(document).ready(function(){
 {else}
 <a href="?type=5">на модерации</a> |
 {/if}
+{if $smarty.get.type == 6}
+<b>модерация окончена</b> |
+{else}
+<a href="?type=6">модерация окончена</a> |
+{/if}
 </div><br/>
 
 <table border="1" cellspacing="0" cellpadding="3">
@@ -89,7 +94,7 @@ $(document).ready(function(){
     {/if}
 </tr>
 {foreachelse}
-<tr><td colspan='6'>Нет ни одного пула.</tr>
+<tr><td colspan='7'>Нет ни одного пула.</tr>
 {/foreach}
 </table><br/>
 {if $user_permission_check_morph}
