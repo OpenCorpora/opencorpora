@@ -142,6 +142,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
     $res = sql_query("SELECT sample_id, tf_id FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id");
     $gram_descr = array();
     $distinct_users = array();
+    $out['all_moderated'] = $ext ? true : false;  // for now we never get active button with non-extended view, just for code simplicity
     while ($r = sql_fetch_array($res)) {
         $t = get_context_for_word($r['tf_id'], 4);
         $t['id'] = $r['sample_id'];
@@ -183,6 +184,8 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
                 $r1 = sql_fetch_array(sql_query("SELECT user_id, answer FROM morph_annot_moderated_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
                 $t['moder_id'] = $r1['user_id'];
                 $t['moder_answer_num'] = $r1['answer'];
+                if ($t['moder_answer_num'] == 0)
+                    $out['all_moderated'] = false;
             }
         }
         if (
@@ -381,6 +384,21 @@ function moderate_pool($pool_id) {
         return true;
     return false;
 }
+function finish_moderate_pool($pool_id) {
+    if (!$pool_id) return false;
+
+    //only the pool moderator can finish moderation
+    $r = sql_fetch_array(sql_query("SELECT moderator_id FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
+    if ($r['moderator_id'] != $_SESSION['user_id'])
+        return false;
+
+    //we cannot finish unless all the samples are moderated
+    $res = sql_query("SELECT sample_id FROM morph_annot_moderated_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id) AND answer = 0 LIMIT 1");
+    if (sql_num_rows($res) > 0)
+        return false;
+
+    return (bool)sql_query("UPDATE morph_annot_pools SET status=6, updated_ts=".time()." WHERE pool_id=$pool_id LIMIT 1");
+}
 function get_available_tasks($user_id, $only_editable=false, $limit=0) {
     $tasks = array();
 
@@ -557,6 +575,10 @@ function save_moderated_answer($id, $answer) {
 
     if (sql_query("UPDATE morph_annot_moderated_samples SET user_id=$user_id, answer=$answer WHERE sample_id=$id LIMIT 1")) {
         sql_commit();
+        //check whether it was the last sample to be moderated
+        $res = sql_query("SELECT sample_id FROM morph_annot_moderated_samples WHERE pool_id=(SELECT pool_id FROM morph_annot_samples WHERE sample_id=$id LIMIT 1) AND answer = 0");
+        if (sql_num_rows($res) > 0)
+            return 2;
         return 1;
     }
     return 0;

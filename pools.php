@@ -62,6 +62,12 @@ switch ($action) {
             show_error("Ошибка. Возможно, пул не полностью заполнен.");
         }
         break;
+    case 'finish_moder':
+        if (finish_moderate_pool((int)$_GET['pool_id']))
+            header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
+        else
+            show_error("Ошибка. Убедитесь, что все примеры отмодерированы и что вы являетесь модератором пула.");
+        break;
     default:
         $smarty->assign('pools', get_morph_pools_page((int)$_GET['type']));
         $smarty->display('qa/pools.tpl');
