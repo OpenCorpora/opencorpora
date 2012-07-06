@@ -7,7 +7,10 @@ if (is_logged()) {
         $action = '';
     switch ($action) {
         case 'save':
-            save_user_options($_POST);
+            if (save_user_options($_POST))
+                header('Location:options.php?saved=1');
+            else
+                show_error();
             break;
         case 'readonly_on':
             if (is_admin()) {

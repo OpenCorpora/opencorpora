@@ -26,10 +26,17 @@ switch($action) {
         }
         break;
     case 'login_openid2':
-        user_login_openid_agree(isset($_POST['agree']));
+        if (user_login_openid_agree(isset($_POST['agree'])))
+            header('Location:'.$_SESSION['return_to']);
+        else
+            show_error();
         break;
     case 'logout':
-        user_logout();
+        if (!user_logout()) {
+            show_error();
+            break;
+        }
+
         if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'login.php') === false) {
             header('Location:'.$_SERVER['HTTP_REFERER']);
         } else {

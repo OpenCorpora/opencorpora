@@ -41,6 +41,7 @@ function check_auth_cookie() {
         $r = sql_fetch_array($res);
         return $r['user_id'];
     }
+    return false;
 }
 function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
     $login = mysql_real_escape_string($login);
@@ -62,6 +63,8 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
         $_SESSION['user_name'] = $login;
         $_SESSION['options'] = get_user_options($user_id);
         $_SESSION['user_permissions'] = get_user_permissions($user_id);
+        if (!$_SESSION['options'] || !$_SESSION['user_permissions'])
+            return false;
         $_SESSION['token'] = $token; //we may need to delete it on logout
         sql_commit();
         return true;
@@ -74,7 +77,7 @@ function user_login_openid($token) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     $arr = json_decode(curl_exec($ch), true);
     if (isset($arr['error_type'])) {
-        print ($arr['error_message']);
+        print $arr['error_message'];
         return 0;
     }
     $id = '';
@@ -96,6 +99,8 @@ function user_login_openid($token) {
     $_SESSION['user_name'] = $row['user_name'];
     $_SESSION['options'] = get_user_options($row['user_id']);
     $_SESSION['user_permissions'] = get_user_permissions($row['user_id']);
+    if (!$_SESSION['options'] || !$_SESSION['user_permissions'])
+        return false;
     if ($row['user_passwd'] == 'notagreed') {
         $_SESSION['user_pending'] = 1;
         return 2;
@@ -103,21 +108,22 @@ function user_login_openid($token) {
     return 1;
 }
 function user_login_openid_agree($agree) {
-    if ($agree) {
-        unset($_SESSION['user_pending']);
-        sql_query("UPDATE users SET user_passwd='' WHERE user_id=".$_SESSION['user_id']." LIMIT 1");
-        header('Location:'.$_SESSION['return_to']);
-    }
+    if (!$agree)
+        return false;
+    unset($_SESSION['user_pending']);
+    return (bool)sql_query("UPDATE users SET user_passwd='' WHERE user_id=".$_SESSION['user_id']." LIMIT 1");
 }
 function user_logout() {
     setcookie('auth', '', time()-1);
-    sql_query("DELETE FROM user_tokens WHERE user_id=".$_SESSION['user_id']." AND token='".$_SESSION['token']."'");
+    if (!sql_query("DELETE FROM user_tokens WHERE user_id=".$_SESSION['user_id']." AND token='".$_SESSION['token']."'"))
+        return false;
     unset($_SESSION['user_id']);
     unset($_SESSION['user_name']);
     unset($_SESSION['debug_mode']);
     unset($_SESSION['options']);
     unset($_SESSION['user_permissions']);
     unset($_SESSION['token']);
+    return true;
 }
 function user_register($post) {
     $post['login'] = trim($post['login']);
@@ -233,8 +239,7 @@ function get_user_options($user_id) {
     sql_begin();
     while ($r = sql_fetch_array($res)) {
         if (!sql_query("INSERT INTO user_options_values VALUES('$user_id', '".$r['option_id']."', '".$r['default_value']."')")) {
-            show_error("Error on autovivifying an option");
-            return;
+            return false;
         }
     }
     sql_commit();
@@ -257,8 +262,7 @@ function get_user_permissions($user_id) {
     } else {
         //autovivify
         if (!sql_query("INSERT INTO user_permissions VALUES ('$user_id', '0', '0', '0', '0', '0', '0')")) {
-            show_error();
-            return;
+            return false;
         }
     }
 
@@ -283,22 +287,19 @@ function get_meta_options() {
 }
 function save_user_options($post) {
     if (!isset($post['options'])) {
-        header('Location:options.php');
-        return;
+        return false;
     }
     sql_begin();
     foreach ($post['options'] as $id=>$value) {
         if ($_SESSION['options'][$id]['value'] != $value) {
             if (!sql_query("UPDATE user_options_values SET option_value='".mysql_real_escape_string($value)."' WHERE option_id=".mysql_real_escape_string($id)." AND user_id=".$_SESSION['user_id']." LIMIT 1")) {
-                show_error("Error on saving options");
-                return;
+                return false;
             }
             $_SESSION['options'][$id] = mysql_real_escape_string($value);
         }
     }
     sql_commit();
-    header('Location:options.php?saved=1');
-    return;
+    return true;
 }
 function is_admin() {
     return (
@@ -349,11 +350,10 @@ function save_users($post) {
 
         $q = "UPDATE user_permissions SET ".implode(', ', $qa)." WHERE user_id=$id LIMIT 1";
         if (!sql_query($q)) {
-            show_error();
-            return;
+            return false;
         }
     }
     sql_commit();
-    header("Location:users.php");
+    return true;
 }
 ?>
