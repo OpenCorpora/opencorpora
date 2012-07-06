@@ -28,6 +28,7 @@ if (is_logged()) {
         default:
             $smarty->assign('meta', get_meta_options());
             $smarty->assign('current_email', get_user_email($_SESSION['user_id']));
+            $smarty->assign('current_name', get_user_shown_name($_SESSION['user_id']));
             $smarty->display('options.tpl');
     }
 } else

@@ -94,6 +94,14 @@
     {else}
         {t}Ошибка{/t} :(
     {/if}
+{elseif $action == 'change_name'}
+    {if $change_status == 1}
+        {t}Имя успешно изменено.{/t}
+    {elseif $change_status == 2}
+        {t}Недопустимые символы в имени или слишком короткое имя.{/t} {t}Попробуйте, пожалуйста,{/t} <a href='{$web_prefix}/options.php'>{t}ещё раз{/t}</a>.
+    {else}
+        {t}Ошибка{/t} :(
+    {/if}
 {else}
     <ol>
     <script src="http://s1.loginza.ru/js/widget.js" type="text/javascript"></script>

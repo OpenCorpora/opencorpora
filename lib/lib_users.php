@@ -198,12 +198,28 @@ function user_change_email($post) {
     else
         return 2;
 }
+function user_change_shown_name($new_name) {
+    if (!preg_match('/^[a-zа-я0-9_-]{2,}$/ui', $new_name))
+        return 2;
+    if (!sql_query("UPDATE users SET user_shown_name = '".mysql_real_escape_string($new_name)."' WHERE user_id = ".$_SESSION['user_id']." LIMIT 1"))
+        return 0;
+    return 1;
+}
 function get_user_email($user_id) {
     if (!$user_id) return;
     $res = sql_query("SELECT user_email FROM `users` WHERE user_id=$user_id LIMIT 1");
     if ($res) {
         $r = sql_fetch_array($res);
         return $r['user_email'];
+    }
+    return false;
+}
+function get_user_shown_name($user_id) {
+    if (!$user_id) return;
+    $res = sql_query("SELECT user_shown_name FROM `users` WHERE user_id=$user_id LIMIT 1");
+    if ($res) {
+        $r = sql_fetch_array($res);
+        return $r['user_shown_name'];
     }
     return false;
 }

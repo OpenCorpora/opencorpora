@@ -33,6 +33,11 @@
 <input type='button' onclick="submit_with_readonly_check(document.forms[1])" value="{t}Изменить пароль{/t}"/>
 </form>
 {/if}
+<form action='{$web_prefix}/login.php?act=change_name' method='post' id='change_name'>
+<h3>Изменить отображаемое имя</h3>
+<input name='shown_name' value='{$current_name|htmlspecialchars}' maxlength='120' size='20'/>
+<button onclick="submit_with_readonly_check($('#change_name'))">Изменить имя</button>
+</form>
 <form action='{$web_prefix}/login.php?act=change_email' method='post' id='change_email'>
 <h3>{t}Изменить адрес электронной почты{/t}</h3>
 {t}Текущий адрес{/t}: <b>{if $current_email}{$current_email}{else}({t}отсутствует{/t}){/if}</b><br/>
