@@ -12,15 +12,14 @@ body {
 div#main {
     min-height: 100%;
     height: auto !important;
-    height: 100%;
     position: relative;
-}
-div#fake {
-    height: 25px;
 }
 div#footer {
     height: 28px;
-    position: relative;
+    width:100%;
+    bottom:0;
+    clear:both;
+    position: absolute;
     margin-top: -28px;
     padding: 0px 5px;
     line-height: 25px;
@@ -62,7 +61,6 @@ div#header div#rblock {
     font-size: small;
 }
 div#content {
-    position: relative;
     margin-right: 235px;
     padding: 10px;
 }
@@ -70,12 +68,9 @@ div.content-wide {
     margin-right: 15px !important;
 }
 div#rightcol {
-    position: absolute;
-    top: 60px;
-    right: 0px;
+    padding: 60px 10px 30px;
     width: 200px;
     float: right;
-    padding: 10px;
 }
 div.rightcol-narrow {
     width: 15px !important;
