@@ -1,6 +1,6 @@
 <?php
 require_once('../lib/header.php');
-require_once('../lib/lib_qa.php');
+require_once('../lib/lib_annot.php');
 header('Content-type: text/xml; charset=utf-8');
 $tf_id = (int)$_GET['tf_id'];
 $dir = isset($_GET['dir']) ? (int)$_GET['dir'] : 0;
