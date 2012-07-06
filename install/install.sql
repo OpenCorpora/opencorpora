@@ -176,11 +176,12 @@ CREATE TABLE IF NOT EXISTS `text_forms` (
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `users` (
-    `user_id`     SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `user_name`   VARCHAR(120) NOT NULL,
-    `user_passwd` VARCHAR(32) NOT NULL,
-    `user_email`  VARCHAR(100) NOT NULL,
-    `user_reg`    INT UNSIGNED NOT NULL
+    `user_id`         SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `user_name`       VARCHAR(120) NOT NULL,
+    `user_passwd`     VARCHAR(32) NOT NULL,
+    `user_email`      VARCHAR(100) NOT NULL,
+    `user_reg`        INT UNSIGNED NOT NULL,
+    `user_shown_name` VARCHAR(120) NOT NULL
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `user_permissions` (
