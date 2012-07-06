@@ -102,7 +102,7 @@ $(document).ready(function() {
     }
     // shows percent in splash block
     Progress.prototype.showSplash = function(){
-        this.$splash.find('.splash-content div').text('Вы разметили уже ' + this.percent + '% пула!');
+        this.$splash.find('div').html('<strong>Поздравляем!</strong> Вы разметили уже ' + this.percent + '% пула!');
         this.$splash.show();
         setTimeout('$("#' + this.$splash.attr('id') + '").fadeOut("slow")',this.splashTimeout);
     }
@@ -120,8 +120,7 @@ $(document).ready(function() {
 <p><input type="text" id="test-progress"></p>
 <div id="progress-bar" class="progress-bar"><div></div></div>
 <div id="progress-splash" class="splash-block success" style="display:none;">
-    <div class="bgg"></div>
-    <div class="splash-content"><h3>Поздравляем!</h3><div></div></div>
+    <div><strong>Поздравляем!</strong> Вы разметили 50% пула.</div>
 </div>
 <br/>
 {foreach from=$packet.instances item=instance}

@@ -337,6 +337,7 @@ button.ma_next_pack {
     width:150px;
     height:5px;
     background-color:#99FF66;
+    margin: 10px 0;
 }
 .progress-bar div {
     background-color: #067E06;
@@ -344,39 +345,19 @@ button.ma_next_pack {
     height:5px;
 }
 .splash-block {
-    position:absolute;
-    width:400px;
-    height:200px;
-    top:50%;
-    margin-top:-100px;
-    left:50%;
-    margin-left:-200px;
-    text-align:center;
-}
-.splash-block .bgg {
-    opacity:0.9;
-    width:100%;
-    height:100%;
-    position:absolute;
-}
-.splash-block.success .bgg {
-    background-color:#99FF66;
-}
-.splash-block .splash-content {
-    width:100%;
-    height:100%;
-    position:absolute;
-}
-.splash-block.success .splash-content {
-    color:#B37700;
-    text-shadow:#BFE600 1px 1px;
-}
-.splash-block .splash-content h3 {
-    font-size:30px;
-    margin-top:50px;
-}
-.splash-block .splash-content div {
+    padding: 20px 30px;
     font-size:18px;
+    text-align:center;
+    border-radius:4px;
+    text-shadow:0 1px 0 rgba(255, 255, 255, 0.5)
+}
+.splash-block h3 {
+    font-size:24px;
+}
+.splash-block.success {
+    background-color:#DFF0D8;
+    border-color:#D6E9C6;
+    color:#468847;
 }
 /* POOL REVIEW PAGE*/
 .diff_colors_0 {
