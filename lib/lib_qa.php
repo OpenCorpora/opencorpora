@@ -130,7 +130,7 @@ function get_morph_pools_page($type) {
     return $pools;
 }
 function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false, $only_not_moderated=false) {
-    $res = sql_query("SELECT pool_name, status, grammemes, users_needed FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1");
+    $res = sql_query("SELECT pool_name, status, grammemes, users_needed, moderator_id, user_name FROM morph_annot_pools p LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
     $r = sql_fetch_array($res);
     $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
     $select_options = array('---');
@@ -138,7 +138,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
         $select_options[] = $v;
     }
     $select_options[99] = 'Other';
-    $out = array('id' => $pool_id, 'variants' => $select_options, 'name' => $r['pool_name'], 'status' => $r['status'], 'num_users' => $r['users_needed']);
+    $out = array('id' => $pool_id, 'variants' => $select_options, 'name' => $r['pool_name'], 'status' => $r['status'], 'num_users' => $r['users_needed'], 'moderator_name' => $r['user_name']);
     $res = sql_query("SELECT sample_id, tf_id FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id");
     $gram_descr = array();
     $distinct_users = array();
@@ -180,12 +180,17 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
             $t['disagreed'] = $disagreement_flag;
             $t['comments'] = get_sample_comments($r['sample_id']);
             //for moderators
-            if (user_has_permission('perm_check_morph') && $out['status'] == 5) {
-                $r1 = sql_fetch_array(sql_query("SELECT user_id, answer FROM morph_annot_moderated_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
-                $t['moder_id'] = $r1['user_id'];
+            if (user_has_permission('perm_check_morph') && $out['status'] > 4) {
+                $r1 = sql_fetch_array(sql_query("SELECT answer FROM morph_annot_moderated_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
                 $t['moder_answer_num'] = $r1['answer'];
                 if ($t['moder_answer_num'] == 0)
                     $out['all_moderated'] = false;
+                else {
+                    $t['moder_answer_gram'] = ($r1['answer'] == 99 ? 'Other' : $pool_gram[$r1['answer']-1]);
+                    // highlight samples where the moderator disagreed with all the annotators
+                    if (!$t['disagreed'] && $t['moder_answer_num'] != $t['instances'][0]['answer_num'])
+                        $t['disagreed'] = 1;
+                }
             }
         }
         if (

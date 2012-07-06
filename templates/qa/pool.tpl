@@ -95,10 +95,14 @@
     <th>id</th>
     <th>&nbsp;</th>
     {if isset($smarty.get.ext)}
-    {for $i=1 to $pool.num_users}<th>{$i}</th>{/for}
-    {if $user_permission_check_morph && $pool.status == 5}<th>&nbsp;</th>{/if}
+        {for $i=1 to $pool.num_users}<th>{$i}</th>{/for}
+        {if $user_permission_check_morph && $pool.status == 5}
+            <th>&nbsp;</th>
+        {elseif $pool.status == 6}
+            <th>Модератор<br/>({$pool.moderator_name})</th>
+        {/if}
     {else}
-    <th>Ответов</th>
+        <th>Ответов</th>
     {/if}
 </tr>
 {foreach from=$pool.samples item=sample}
@@ -129,19 +133,21 @@
         {/if}
     </td>
     {if isset($smarty.get.ext)}
-    {foreach from=$sample.instances item=instance}
-    <td class="diff_colors_{$instance.user_color}">{if $instance.answer_num == 99}<b>Other</b>{elseif $instance.answer_num > 0}{$instance.answer_gram}{else}&ndash;{/if}</td>
-    {/foreach}
-    {if $user_permission_check_morph && $pool.status == 5}
-        <td>
-            {if !$sample.disagreed && !$sample.moder_answer_num}
-            <a href='#' class='hint agree'>согласен</a>
-            {/if}
-            {html_options options=$pool.variants name='sel_var' selected={$sample.moder_answer_num}}
-        </td>
-    {/if}
+        {foreach from=$sample.instances item=instance}
+        <td class="diff_colors_{$instance.user_color}">{if $instance.answer_num == 99}<b>Other</b>{elseif $instance.answer_num > 0}{$instance.answer_gram}{else}&ndash;{/if}</td>
+        {/foreach}
+        {if $user_permission_check_morph && $pool.status == 5}
+            <td>
+                {if !$sample.disagreed && !$sample.moder_answer_num}
+                <a href='#' class='hint agree'>согласен</a>
+                {/if}
+                {html_options options=$pool.variants name='sel_var' selected={$sample.moder_answer_num}}
+            </td>
+        {elseif $pool.status == 6}
+            <td>{$sample.moder_answer_gram}</td>
+        {/if}
     {else}
-    <td>{$sample.answered}/{$pool.num_users}</td>
+        <td>{$sample.answered}/{$pool.num_users}</td>
     {/if}
 </tr>
 {/foreach}
