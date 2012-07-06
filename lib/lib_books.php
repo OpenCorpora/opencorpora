@@ -447,7 +447,7 @@ function split_token($token_id, $num) {
 
 function get_sources_page($skip = 0, $show_type = '', $src = 0) {
     $out = array();
-    $q_main = "SELECT s.source_id, s.url, s.title, s.user_id, s.book_id, u.user_name, b.book_name FROM sources s LEFT JOIN books b ON (s.book_id = b.book_id) LEFT JOIN users u ON (s.user_id = u.user_id) ";
+    $q_main = "SELECT s.source_id, s.url, s.title, s.user_id, s.book_id, u.user_shown_name AS user_name, b.book_name FROM sources s LEFT JOIN books b ON (s.book_id = b.book_id) LEFT JOIN users u ON (s.user_id = u.user_id) ";
     $q_tail = '';
     $q_cnt = "SELECT COUNT(*) AS cnt FROM sources s ";
     if ($show_type == 'my')
@@ -463,7 +463,7 @@ function get_sources_page($skip = 0, $show_type = '', $src = 0) {
     while ($r = sql_fetch_array($res)) {
         $r1 = sql_fetch_array(sql_query("SELECT `user_id`, `status`, `timestamp` FROM sources_status WHERE source_id=".$r['source_id']." ORDER BY `timestamp` DESC LIMIT 1"));
         $comments = array();
-        $res1 = sql_query("SELECT user_name, text, timestamp FROM sources_comments sc LEFT JOIN users u ON (sc.user_id=u.user_id) WHERE sc.source_id=".$r['source_id']." ORDER BY comment_id");
+        $res1 = sql_query("SELECT user_shown_name AS user_name, text, timestamp FROM sources_comments sc LEFT JOIN users u ON (sc.user_id=u.user_id) WHERE sc.source_id=".$r['source_id']." ORDER BY comment_id");
         while ($r2 = sql_fetch_array($res1)) {
             $comments[] = array('username' => $r2['user_name'], 'timestamp' => $r2['timestamp'], 'text' => $r2['text']);
         }

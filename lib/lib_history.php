@@ -13,7 +13,7 @@ function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0) {
     if (!$set_id && !$sentence_id) {
         $res = sql_query("SELECT DISTINCT tfr.set_id FROM tf_revisions tfr".($maa ? " LEFT JOIN rev_sets s ON (tfr.set_id=s.set_id) WHERE s.comment LIKE '% merged %' or s.comment LIKE '% split %'" : ''). " ORDER BY tfr.set_id DESC LIMIT $skip,20");
         while ($r = sql_fetch_array($res)) {
-            $r1 = sql_fetch_array(sql_query("SELECT s.comment, s.timestamp, u.user_name FROM rev_sets s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE s.set_id=".$r['set_id']." LIMIT 1"));
+            $r1 = sql_fetch_array(sql_query("SELECT s.comment, s.timestamp, u.user_shown_name AS user_name FROM rev_sets s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE s.set_id=".$r['set_id']." LIMIT 1"));
             $r2 = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT f.sent_id) FROM tf_revisions tfr LEFT JOIN text_forms f ON (tfr.tf_id=f.tf_id) WHERE tfr.set_id=".$r['set_id']));
             $out['sets'][] = array(
                 'set_id'    => $r['set_id'],
@@ -25,7 +25,7 @@ function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0) {
         }
         //$res = sql_query("SELECT set_id, COUNT(sent_id) cnt FROM (SELECT set_id, f.sent_id FROM tf_revisions r RIGHT JOIN text_forms f ON (r.tf_id=f.tf_id) RIGHT JOIN sentences s ON (f.sent_id=s.sent_id) GROUP BY set_id, f.sent_id ORDER BY set_id DESC) T ".($maa ? "WHERE set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %')" : '')." GROUP BY set_id ORDER BY set_id DESC LIMIT $skip,20");
     } else {
-        $res = sql_query("SELECT tr.set_id, st.sent_id, s.timestamp, s.comment, u.user_name FROM tf_revisions tr LEFT JOIN rev_sets s ON (tr.set_id=s.set_id) LEFT JOIN users u ON (s.user_id=u.user_id) RIGHT JOIN text_forms tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id) ".($maa ? "WHERE tr.set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %') AND " : 'WHERE ').($set_id?"tr.set_id=$set_id GROUP BY st.sent_id":"st.sent_id=$sentence_id GROUP BY tr.set_id")." ORDER BY tr.rev_id DESC LIMIT $skip,20");
+        $res = sql_query("SELECT tr.set_id, st.sent_id, s.timestamp, s.comment, u.user_shown_name AS user_name FROM tf_revisions tr LEFT JOIN rev_sets s ON (tr.set_id=s.set_id) LEFT JOIN users u ON (s.user_id=u.user_id) RIGHT JOIN text_forms tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id) ".($maa ? "WHERE tr.set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %') AND " : 'WHERE ').($set_id?"tr.set_id=$set_id GROUP BY st.sent_id":"st.sent_id=$sentence_id GROUP BY tr.set_id")." ORDER BY tr.rev_id DESC LIMIT $skip,20");
         while ($r = sql_fetch_array($res)) {
             $out['sets'][] = array(
                 'set_id'    => $r['set_id'],
@@ -49,7 +49,7 @@ function dict_history($lemma_id, $skip = 0) {
         $out['total'] += $res[0];
     }
     $res = sql_query("SELECT * FROM (
-                        (SELECT s.*, u.user_name, dl.*, '0' lemma2_id, '0' lemma2_text, '0' is_link
+                        (SELECT s.*, u.user_shown_name AS user_name, dl.*, '0' lemma2_id, '0' lemma2_text, '0' is_link
                             FROM dict_revisions dr
                             LEFT JOIN rev_sets s ON (dr.set_id=s.set_id)
                             LEFT JOIN users u ON (s.user_id=u.user_id)
@@ -57,7 +57,7 @@ function dict_history($lemma_id, $skip = 0) {
                             ".($lemma_id?" WHERE dr.lemma_id=$lemma_id":"")." 
                             ORDER BY dr.rev_id DESC LIMIT ".($skip+20).")
                         UNION
-                        (SELECT s.*, u.user_name, dl.*, dl2.lemma_id lemma2_id, dl2.lemma_text lemma2_text, '1' is_link
+                        (SELECT s.*, u.user_shown_name AS user_name, dl.*, dl2.lemma_id lemma2_id, dl2.lemma_text lemma2_text, '1' is_link
                             FROM dict_links_revisions dr
                             LEFT JOIN rev_sets s ON (dr.set_id=s.set_id)
                             LEFT JOIN users u ON (s.user_id=u.user_id)
@@ -84,7 +84,7 @@ function dict_history($lemma_id, $skip = 0) {
     return $out;
 }
 function main_diff($sentence_id, $set_id) {
-    $r = sql_fetch_array(sql_query("SELECT DISTINCT s.*, u.user_name FROM rev_sets s LEFT JOIN `users` u ON (s.user_id = u.user_id) WHERE s.set_id=$set_id"));
+    $r = sql_fetch_array(sql_query("SELECT DISTINCT s.*, u.user_shown_name AS user_name FROM rev_sets s LEFT JOIN `users` u ON (s.user_id = u.user_id) WHERE s.set_id=$set_id"));
     $out = array(
         'set_id'    => $set_id,
         'sent_id'   => $sentence_id,
@@ -98,7 +98,7 @@ function main_diff($sentence_id, $set_id) {
     $res = sql_query("SELECT tf_id, `pos` FROM text_forms WHERE sent_id=$sentence_id ORDER BY `pos`");
     while ($r = sql_fetch_array($res)) {
         $token = array();
-        $res1 = sql_query("SELECT tr.*, rs.*, `users`.user_name FROM tf_revisions tr LEFT JOIN rev_sets rs ON (tr.set_id = rs.set_id) LEFT JOIN `users` ON (rs.user_id = `users`.user_id) WHERE tr.tf_id=".$r['tf_id']." AND tr.set_id<=$set_id ORDER BY tr.rev_id DESC LIMIT 2");
+        $res1 = sql_query("SELECT tr.*, rs.*, `users`.user_shown_name AS user_name FROM tf_revisions tr LEFT JOIN rev_sets rs ON (tr.set_id = rs.set_id) LEFT JOIN `users` ON (rs.user_id = `users`.user_id) WHERE tr.tf_id=".$r['tf_id']." AND tr.set_id<=$set_id ORDER BY tr.rev_id DESC LIMIT 2");
         $r1 = sql_fetch_array($res1);
         $r2 = sql_fetch_array($res1);
         if ($r1['set_id'] != $set_id)
@@ -129,7 +129,7 @@ function main_diff($sentence_id, $set_id) {
     return $out;
 }
 function dict_diff($lemma_id, $set_id) {
-    $res = sql_query("SELECT dr.rev_id, dr.rev_text, s.timestamp, s.comment, u.user_name FROM dict_revisions dr LEFT JOIN rev_sets s ON (dr.set_id=s.set_id) LEFT JOIN `users` u ON (s.user_id=u.user_id) WHERE dr.set_id<=$set_id AND dr.lemma_id=$lemma_id ORDER BY dr.rev_id DESC LIMIT 2");
+    $res = sql_query("SELECT dr.rev_id, dr.rev_text, s.timestamp, s.comment, u.user_shown_name AS user_name FROM dict_revisions dr LEFT JOIN rev_sets s ON (dr.set_id=s.set_id) LEFT JOIN `users` u ON (s.user_id=u.user_id) WHERE dr.set_id<=$set_id AND dr.lemma_id=$lemma_id ORDER BY dr.rev_id DESC LIMIT 2");
     $r1 = sql_fetch_array($res);
     $r2 = sql_fetch_array($res);
     $out = array(
@@ -219,7 +219,7 @@ function get_latest_comments($skip = 0) {
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt FROM sentence_comments"));
     $out['total'] = $r['cnt'];
 
-    $res = sql_query("SELECT sc.comment_id, sc.sent_id, u.user_name, sc.timestamp, SUBSTRING_INDEX(sc.text, ' ', 8) txt FROM sentence_comments sc LEFT JOIN users u ON (sc.user_id=u.user_id) ORDER BY comment_id DESC LIMIT $skip,20");
+    $res = sql_query("SELECT sc.comment_id, sc.sent_id, u.user_shown_name AS user_name, sc.timestamp, SUBSTRING_INDEX(sc.text, ' ', 8) txt FROM sentence_comments sc LEFT JOIN users u ON (sc.user_id=u.user_id) ORDER BY comment_id DESC LIMIT $skip,20");
 
     while ($r = sql_fetch_array($res)) {
         $out['c'][] = array(

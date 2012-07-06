@@ -112,7 +112,7 @@ function get_morph_pools_page($type) {
         }
     }
 
-    $res = sql_query("SELECT p.*, u1.user_name AS author_name, u2.user_name AS moderator_name FROM morph_annot_pools p LEFT JOIN users u1 ON (p.author_id = u1.user_id) LEFT JOIN users u2 ON (p.moderator_id = u2.user_id) WHERE status = $type ORDER BY p.updated_ts DESC");
+    $res = sql_query("SELECT p.*, u1.user_shown_name AS author_name, u2.user_shown_name AS moderator_name FROM morph_annot_pools p LEFT JOIN users u1 ON (p.author_id = u1.user_id) LEFT JOIN users u2 ON (p.moderator_id = u2.user_id) WHERE status = $type ORDER BY p.updated_ts DESC");
     while ($r = sql_fetch_assoc($res)) {
         if ($type == 1) {
             $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_candidate_samples WHERE pool_id=".$r['pool_id']));
@@ -130,7 +130,7 @@ function get_morph_pools_page($type) {
     return $pools;
 }
 function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false, $only_not_moderated=false) {
-    $res = sql_query("SELECT pool_name, status, grammemes, users_needed, moderator_id, user_name FROM morph_annot_pools p LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
+    $res = sql_query("SELECT pool_name, status, grammemes, users_needed, moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
     $r = sql_fetch_array($res);
     $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
     $select_options = array('---');
@@ -166,7 +166,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
                     $disagreement_flag = 1;
                 //about users
                 if (!isset($distinct_users[$r1['user_id']])) {
-                    $r2 = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id=".$r1['user_id']." LIMIT 1"));
+                    $r2 = sql_fetch_array(sql_query("SELECT user_shown_name AS user_name FROM users WHERE user_id=".$r1['user_id']." LIMIT 1"));
                     $distinct_users[$r1['user_id']] = array(sizeof($distinct_users), $r2['user_name']);
                 }
                 //push
@@ -589,7 +589,7 @@ function save_moderated_answer($id, $answer) {
     return 0;
 }
 function get_sample_comments($sample_id) {
-    $res = sql_query("SELECT comment_id, user_name, timestamp, text FROM morph_annot_comments LEFT JOIN users USING(user_id) WHERE sample_id=$sample_id ORDER BY timestamp");
+    $res = sql_query("SELECT comment_id, user_shown_name AS user_name, timestamp, text FROM morph_annot_comments LEFT JOIN users USING(user_id) WHERE sample_id=$sample_id ORDER BY timestamp");
     $out = array();
     while ($r = sql_fetch_array($res)) {
         $out[] = array(

@@ -49,7 +49,7 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
         //deleting the old token
         if ($auth_token) {
             sql_query("DELETE from user_tokens WHERE user_id=$user_id AND token='".mysql_real_escape_string(substr(strstr($auth_token, '@'), 1))."'");
-            $r = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id=$user_id LIMIT 1"));
+            $r = sql_fetch_array(sql_query("SELECT user_shown_name AS user_name FROM users WHERE user_id=$user_id LIMIT 1"));
             $login=$r['user_name'];
         }
         //adding a new token
@@ -83,17 +83,17 @@ function user_login_openid($token) {
     else
         $id =  $arr['identity'];
     //check if the user exists
-    $res = sql_query("SELECT user_id, user_passwd FROM `users` WHERE user_name='$id' LIMIT 1");
+    $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name FROM `users` WHERE user_name='$id' LIMIT 1");
     //if he doesn't
     if (sql_num_rows($res) == 0) {
         if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id')")) {
             return 0;
         }
-        $res = sql_query("SELECT user_id, user_passwd FROM `users` WHERE user_name='$id' LIMIT 1");
+        $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name FROM `users` WHERE user_name='$id' LIMIT 1");
     }
     $row = sql_fetch_array($res);
     $_SESSION['user_id'] = $row['user_id'];
-    $_SESSION['user_name'] = $id;
+    $_SESSION['user_name'] = $row['user_name'];
     $_SESSION['options'] = get_user_options($row['user_id']);
     $_SESSION['user_permissions'] = get_user_permissions($row['user_id']);
     if ($row['user_passwd'] == 'notagreed') {
@@ -163,7 +163,8 @@ function user_register($post) {
 }
 function user_change_password($post) {
     //testing if the old password is correct
-    $login = $_SESSION['user_name'];
+    $r = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id = ".$_SESSION['user_id']." LIMIT 1"));
+    $login = $r['user_name'];
     if (user_check_password($login, $post['old_pw'])) {
         //testing if the two new passwords coincide
         if ($post['new_pw'] != $post['new_pw_re'])
@@ -179,7 +180,8 @@ function user_change_password($post) {
         return 2;
 }
 function user_change_email($post) {
-    $login = $_SESSION['user_name'];
+    $r = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id = ".$_SESSION['user_id']." LIMIT 1"));
+    $login = $r['user_name'];
     $email = strtolower(trim($post['email']));
     if (is_user_openid($_SESSION['user_id']) || user_check_password($login, $post['passwd'])) {
         if (is_valid_email($email)) {
@@ -303,7 +305,7 @@ function user_has_permission($perm) {
     );
 }
 function get_users_page() {
-    $res = sql_query("SELECT p.*, u.user_id, user_name, user_reg, user_email FROM users u LEFT JOIN user_permissions p ON (u.user_id = p.user_id)");
+    $res = sql_query("SELECT p.*, u.user_id, user_shown_name AS user_name, user_reg, user_email FROM users u LEFT JOIN user_permissions p ON (u.user_id = p.user_id)");
     $out = array();
     while ($r = sql_fetch_assoc($res)) {
         $out[] = $r;
