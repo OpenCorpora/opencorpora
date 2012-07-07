@@ -60,7 +60,7 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
         setcookie('auth', $user_id.'@'.$token, time()+60*60*24*7, '/');
         //setting the session
         $_SESSION['user_id'] = $user_id;
-        $_SESSION['user_name'] = $login;
+        $_SESSION['user_name'] = get_user_shown_name($user_id);
         $_SESSION['options'] = get_user_options($user_id);
         $_SESSION['user_permissions'] = get_user_permissions($user_id);
         if (!$_SESSION['options'] || !$_SESSION['user_permissions'])
@@ -96,7 +96,7 @@ function user_login_openid($token) {
     }
     $row = sql_fetch_array($res);
     $_SESSION['user_id'] = $row['user_id'];
-    $_SESSION['user_name'] = $row['user_name'];
+    $_SESSION['user_name'] = get_user_shown_name($row['user_id']);
     $_SESSION['options'] = get_user_options($row['user_id']);
     $_SESSION['user_permissions'] = get_user_permissions($row['user_id']);
     if (!$_SESSION['options'] || !$_SESSION['user_permissions'])
