@@ -1,5 +1,5 @@
 {* Smarty *}
-{extends file='common.no-right.tpl'}
+{extends file='common.tpl'}
 {block name=content}
 {if $user_permission_check_morph}
 {literal}

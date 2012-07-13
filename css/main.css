@@ -13,6 +13,7 @@ div#main {
     min-height: 100%;
     height: auto !important;
     position: relative;
+    padding-bottom: 20px;
 }
 div#footer {
     height: 28px;
@@ -21,17 +22,18 @@ div#footer {
     clear:both;
     position: absolute;
     margin-top: -28px;
-    padding: 0px 5px;
+    padding: 0px 0px;
     line-height: 25px;
     background-color: #CCC;
     font-size: small;
 }
 div#footer div#foot_left {
     float: left;
+    padding: 0px 5px;
 }
 div#footer div#foot_right {
     float: right;
-    padding-top: 3px;
+    padding: 3px 3px 0px;
 }
 h1 {
     font-size: 26px;
