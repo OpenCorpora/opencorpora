@@ -369,10 +369,17 @@ function add_morph_pool() {
     $gram_sets = array();
     $gram_descr = array();
     foreach ($_POST['gram'] as $i => $gr) {
-        if (!trim($gr) || strpos($gr, '@') !== false) return false;
+        if (!trim($gr))
+            break;
+        if (strpos($gr, '@') !== false)
+            return false;
         $gram_sets[] = str_replace(' ', '', trim($gr));
         $gram_descr[] = trim($_POST['descr'][$i]);
     }
+    
+    if (sizeof($gram_sets) < 2)
+        return false;
+
     $gram_sets_str = mysql_real_escape_string(join('@', $gram_sets));
     $gram_descr_str = mysql_real_escape_string(join('@', $gram_descr));
     $comment = mysql_real_escape_string(trim($_POST['comment']));
