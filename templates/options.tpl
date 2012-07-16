@@ -21,7 +21,7 @@
     </tr>
 {/foreach}
 </table>
-<input type='button' onclick="submit_with_readonly_check(document.forms[0])" value='{t}Сохранить{/t}'/>&nbsp;&nbsp;<input type='reset' value='{t}Отменить{/t}'/>
+<input type='button' onclick="submit_with_readonly_check($(this).closest('form'))" value='{t}Сохранить{/t}'/>&nbsp;&nbsp;<input type='reset' value='{t}Отменить{/t}'/>
 </form>
 <h2>{t}Регистрационные данные{/t}</h2>
 {if !$is_openid}
@@ -30,7 +30,7 @@
 {t}Старый пароль{/t} <input type='password' name='old_pw'/><br/>
 {t}Новый пароль{/t} <input type='password' name='new_pw'/><br/>
 {t}Новый пароль ещё раз{/t} <input type='password' name='new_pw_re'/><br/>
-<input type='button' onclick="submit_with_readonly_check(document.forms[1])" value="{t}Изменить пароль{/t}"/>
+<input type='button' onclick="submit_with_readonly_check($(this).closest('form'))" value="{t}Изменить пароль{/t}"/>
 </form>
 {/if}
 <form action='{$web_prefix}/login.php?act=change_name' method='post' id='change_name'>
