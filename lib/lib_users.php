@@ -208,9 +208,11 @@ function user_change_shown_name($new_name) {
     $new_name = trim($new_name);
     if (!preg_match('/^[a-zа-я0-9ё_\-\s\.]{2,}$/ui', $new_name))
         return 2;
-    if (!sql_query("UPDATE users SET user_shown_name = '".mysql_real_escape_string($new_name)."' WHERE user_id = ".$_SESSION['user_id']." LIMIT 1"))
-        return 0;
-    return 1;
+    if (sql_query("UPDATE users SET user_shown_name = '".mysql_real_escape_string($new_name)."' WHERE user_id = ".$_SESSION['user_id']." LIMIT 1")) {
+        $_SESSION['user_name'] = $new_name;
+        return 1;
+    }
+    return 0;
 }
 function get_user_email($user_id) {
     if (!$user_id) return;
