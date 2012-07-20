@@ -181,11 +181,11 @@ $(document).ready(function(){
 </ol>
 <h2>{t}Пользователи по количеству размеченных примеров{/t} (всего {$ma_count})</h2>
 <table border='1' cellspacing='0' cellpadding='3'>
-<tr><th>#<th>Пользователь<th>Размечено<th>% расхождений<th>Пересчитано</tr>
+<tr><th rowspan='2'>#</th><th rowspan='2'>Пользователь</th><th rowspan='2'>Всего</th><th colspan='3'>В завершённых пулах</th></tr>
+<tr><th>Размечено<th>% расхождений<th>Пересчитано</tr>
 {foreach item=s from=$stats.annotators}
-    <tr><td>{$s@iteration}<td>{$s.user_name}<td>{$s.value}<td>{$s.divergence|string_format:"%.1f%%"}<td class='small'>{$s.timestamp|date_format:"%d.%m.%y, %H:%M"}</tr>
+    <tr><td>{$s@iteration}<td>{$s.fin.user_name}<td>{$s.total}<td>{$s.fin.value|default:'0'}<td>{$s.fin.divergence|string_format:"%.1f%%"}<td class='small'>{$s.fin.timestamp|date_format:"%d.%m.%y, %H:%M"}</tr>
 {/foreach}
 </table>
-<p class='small'>Учитываются только полностью завершённые пулы.</p>
 <!--div id="week_adder_chart" style="width:700px; height:400px"></div-->
 {/block}
