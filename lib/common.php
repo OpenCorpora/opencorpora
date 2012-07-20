@@ -136,7 +136,6 @@ function get_common_stats() {
         $stats['annotators'][] = array('total' => $r['cnt'], 'user_id' => $r['user_id']);
         $uid2sid[$r['user_id']] = sizeof($stats['annotators']) - 1;
     }
-    print "<!--". print_r($uid2sid, true) . "-->";
 
     $res = sql_query("SELECT timestamp, u.user_id, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=33 ORDER BY param_value DESC");
     while ($r = sql_fetch_array($res)) {
@@ -150,7 +149,6 @@ function get_common_stats() {
             $stats['annotators'][$k]['fin']['user_name'] = get_user_shown_name($v['user_id']);
         }
     }
-    print "<!--". print_r($stats['annotators'], true) . "-->";
 
     //for the charts
     $chart = array();
