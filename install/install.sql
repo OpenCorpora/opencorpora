@@ -77,7 +77,8 @@ CREATE TABLE IF NOT EXISTS `morph_annot_samples` (
 CREATE TABLE IF NOT EXISTS `morph_annot_moderated_samples` (
     `sample_id` INT UNSIGNED NOT NULL PRIMARY KEY,
     `user_id`   SMALLINT UNSIGNED NOT NULL,
-    `answer`    TINYINT UNSIGNED NOT NULL
+    `answer`    TINYINT UNSIGNED NOT NULL,
+    `status`    TINYINT UNSIGNED NOT NULL
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `morph_annot_instances` (

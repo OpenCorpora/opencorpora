@@ -470,7 +470,7 @@ function publish_pool($pool_id) {
                 return false;
             }
         }
-        if (!sql_query("INSERT INTO morph_annot_moderated_samples (SELECT sample_id, 0, 0 FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id)")) {
+        if (!sql_query("INSERT INTO morph_annot_moderated_samples (SELECT sample_id, 0, 0, 0 FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id)")) {
             return false;
         }
     }
