@@ -28,19 +28,17 @@
     <a href="{$web_prefix}/?page=team">{t}Разработчики{/t}</a><br/>
 </div>
 <div>
-    {nocache}<a href="{$web_prefix}/dict.php">{t}Словарь{/t}</a>
-        {if $user_permission_dict && $dict_errors}(<a class="red" href="{$web_prefix}/dict.php?act=errata">{t}есть ошибки{/t}</a>){/if}<br/>{/nocache}
+    <a href="{$web_prefix}/dict.php">{t}Словарь{/t}</a>
+        {if $user_permission_dict && $dict_errors}(<a class="red" href="{$web_prefix}/dict.php?act=errata">{t}есть ошибки{/t}</a>){/if}<br/>
     <a href="{$web_prefix}/books.php">{t}Тексты{/t}</a><br/>
     <a href="{$web_prefix}/?page=stats">{t}Статистика{/t}</a><br/>
     <a href="{$web_prefix}/?rand">{t}Случайное предложение{/t}</a>
 </div>
-{nocache}
 {if $is_logged}
 <div>
     <a href="{$web_prefix}/tasks.php">{t}Задания{/t}</a>
 </div>
 {/if}
-{/nocache}
 <div>
 <b>{t}Поиск по словарю{/t}</b>
 <form action="{$web_prefix}/dict.php?act=lemmata" method="post">
