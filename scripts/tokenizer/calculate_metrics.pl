@@ -14,6 +14,7 @@ GetOptions(
     \my %opts,
     'help',
     'skip=s',
+    'limit=i',
     'config=s',
     'data_dir=s',
     'threshold=f',
@@ -55,7 +56,12 @@ my %stats = (
     fn => 0,
 );
 
-my $sth = $dbh->prepare('select sent_id, source from sentences');
+my($count) = @{ $dbh->selectrow_arrayref('select count(sent_id) from sentences') };
+my $limit  = $opts{limit} ? $opts{limit}             : $count;
+my $offset = $limit       ? int rand $count - $limit : 0;
+$offset = 0 if $offset < 0;
+
+my $sth = $dbh->prepare("select sent_id, source from sentences limit $offset, $limit");
 $sth->execute;
 while(my($id, $text) = $sth->fetchrow_array) {
     next if exists $skip{$id};
@@ -74,13 +80,14 @@ while(my($id, $text) = $sth->fetchrow_array) {
     }
 }
 
-my $precision = eval { $stats{tp} / ($stats{tp} + $stats{fp}) } || 0;
-my $recall    = eval { $stats{tp} / ($stats{tp} + $stats{fn}) } || 0;
-printf "Threshold: %s, Precision: %.4f, Recall: %.4f, F1: %.4f\n",
+my $precision = $stats{tp} / ($stats{tp} + $stats{fp});
+my $recall    = $stats{tp} / ($stats{tp} + $stats{fn});
+printf "Threshold: %s, Precision: %.4f, Recall: %.4f, F1: %.4f, Corpus size: %i\n",
     $opts{threshold},
     $precision,
     $recall,
-    F_measure(1, $precision, $recall);
+    F_measure(1, $precision, $recall),
+    $limit;
 
 sub F_measure {
     my($B, $P, $R) = @_;
@@ -165,6 +172,12 @@ Path to tokenizer's data directory. Defaults to distribution directory.
 Optional.
 
 Path to a list of sentences to skip.
+
+=item --limit
+
+Optional.
+
+Limit corpus to given number of randomly chosen sentences.
 
 =item --help
 
