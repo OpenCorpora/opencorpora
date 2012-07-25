@@ -523,11 +523,14 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0) {
     else
         $status_string = "WHERE status > 2";
 
-    $res = sql_query("SELECT pool_id, pool_name, status FROM morph_annot_pools $status_string ORDER BY status, created_ts");
     $time = time();
     $cnt = 0;
+    $pools = array();
+    // get all pools by status
+    $res = sql_query("SELECT pool_id, pool_name, status FROM morph_annot_pools $status_string ORDER BY status, created_ts");
     while ($r = sql_fetch_array($res)) {
-        $pool = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0);
+        $pools[$r['pool_id']] = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0, 'num' => 0);
+        /*$pool = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0);
         $r1 = sql_fetch_array(sql_query("
             SELECT COUNT(DISTINCT sample_id)
             FROM morph_annot_instances
@@ -560,8 +563,68 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0) {
             ++$cnt;
             if ($limit > 0 && $cnt == $limit)
                 break;
+        }*/
+    }
+    if ($pools) {
+        $pool_ids = array_keys($pools);
+        // get sample counts for selected pools
+        // gather count of all aveilable samples grouped by pool
+        $r_available_samples = sql_query('
+            SELECT pool_id,count(distinct sample_id) as cnt
+            FROM morph_annot_instances 
+            LEFT JOIN morph_annot_samples USING(sample_id) 
+            WHERE 
+                answer=0 
+                AND ts_finish < ' . $time . '
+                AND pool_id IN (' . implode(',',$pool_ids) . ')
+                AND sample_id NOT IN (
+                    SELECT sample_id 
+                    FROM morph_annot_instances 
+                    WHERE user_id=' . $user_id . ') 
+                AND sample_id NOT IN (
+                    SELECT sample_id 
+                    FROM morph_annot_rejected_samples 
+                    WHERE user_id=' . $user_id . ') 
+            GROUP BY pool_id');
+        while ($available_samples = sql_fetch_array($r_available_samples)) {
+            $pools[$available_samples['pool_id']]['num'] = $available_samples['cnt'];
+        }
+        // gather count of all samples with started instances with empty answer grouped by pool
+        $r_started_samples = sql_query('
+            SELECT pool_id, count(*) as cnt 
+            FROM morph_annot_instances 
+            LEFT JOIN morph_annot_samples USING(sample_id) 
+            WHERE user_id=' . $user_id . '
+                AND morph_annot_instances.answer=0 
+                AND pool_id IN (' . implode(',',$pool_ids) . ')
+            GROUP BY pool_id');
+        while ($started_samples = sql_fetch_array($r_started_samples)) {
+            $pools[$started_samples['pool_id']]['num_started'] = $started_samples['cnt'];
+        }
+        // gather count of all samples with instance & answer grouped by pool
+        $r_done_samples = sql_query('
+            SELECT pool_id, count(*) as cnt 
+            FROM morph_annot_instances 
+            LEFT JOIN morph_annot_samples USING(sample_id) 
+            WHERE user_id=' . $user_id . '
+                AND morph_annot_instances.answer>0 
+                AND pool_id IN (' . implode(',',$pool_ids) . ')
+            GROUP BY pool_id');
+        while ($done_samples = sql_fetch_array($r_done_samples)) {
+            $pools[$done_samples['pool_id']]['num_done'] = $done_samples['cnt'];
+        }
+        foreach ($pools as $pool) {
+            // we are not interested in not available & not started pools
+            if ($pool['num'] + $pool['num_started'] + $pool['num_done'] > 0) {
+                $tasks[] = $pool;
+
+                ++$cnt;
+                if ($limit > 0 && $cnt == $limit)
+                    break;
+            }
         }
     }
+
     return $tasks;
 }
 function get_my_answers($pool_id, $limit=10, $skip=0) {
