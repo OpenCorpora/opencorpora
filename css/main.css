@@ -13,7 +13,6 @@ div#main {
     min-height: 100%;
     height: auto !important;
     position: relative;
-    padding-bottom: 20px;
 }
 div#footer {
     height: 28px;
@@ -64,7 +63,7 @@ div#header div#rblock {
 }
 div#content {
     margin-right: 235px;
-    padding: 10px;
+    padding: 10px 10px 35px;
 }
 div.content-wide {
     margin-right: 15px !important;
@@ -234,7 +233,7 @@ div#scrollbar {
 	overflow: scroll;
 	overflow-y: hidden;
 	padding: 10px;
-	clear:both;
+	clear:left;
 }
 
 div#main_annot {
