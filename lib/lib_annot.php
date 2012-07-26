@@ -515,26 +515,26 @@ function finish_moderate_pool($pool_id) {
 
     return (bool)sql_query("UPDATE morph_annot_pools SET status=6, updated_ts=".time()." WHERE pool_id=$pool_id LIMIT 1");
 }
-function get_available_tasks($user_id, $only_editable=false, $limit=0) {
+function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=false) {
     $tasks = array();
 
-    if ($only_editable)
-        $status_string = "WHERE status = 3";
+    if ($random)
+        $order_string = "ORDER BY RAND()";
     else
-        $status_string = "WHERE status > 2";
+        $order_string = "ORDER BY status, created_ts";
 
     $time = time();
     $cnt = 0;
     $pools = array();
     // get all pools by status
-    $res = sql_query("SELECT pool_id, pool_name, status FROM morph_annot_pools $status_string ORDER BY status, created_ts");
+    $res = sql_query("SELECT pool_id, pool_name, status FROM morph_annot_pools WHERE status = 3 $order_string");
     while ($r = sql_fetch_array($res)) {
         $pools[$r['pool_id']] = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0, 'num' => 0);
     }
     if ($pools) {
         $pool_ids = array_keys($pools);
         // get sample counts for selected pools
-        // gather count of all aveilable samples grouped by pool
+        // gather count of all available samples grouped by pool
         $r_available_samples = sql_query('
             SELECT pool_id,count(distinct sample_id) as cnt
             FROM morph_annot_instances 
@@ -574,14 +574,18 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0) {
             LEFT JOIN morph_annot_samples USING(sample_id) 
             WHERE user_id=' . $user_id . '
                 AND morph_annot_instances.answer>0 
-                AND pool_id IN (' . implode(',',$pool_ids) . ')
+                AND pool_id IN (' . implode(',', $pool_ids) . ')
             GROUP BY pool_id');
         while ($done_samples = sql_fetch_array($r_done_samples)) {
             $pools[$done_samples['pool_id']]['num_done'] = $done_samples['cnt'];
         }
         foreach ($pools as $pool) {
-            // we are not interested in not available & not started pools
-            if ($pool['num'] + $pool['num_started'] + $pool['num_done'] > 0) {
+            if (
+                // we are not interested in not available & not started pools
+                $pool['num'] + $pool['num_started'] + $pool['num_done'] > 0 &&
+                // we may be as well not interested in pools where nothing remains to do
+                (!$only_editable || ($pool['num'] + $pool['num_started']) > 0)
+            ) {
                 $tasks[] = $pool;
 
                 ++$cnt;
