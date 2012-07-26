@@ -2,12 +2,18 @@
 {extends file="common.tpl"}
 {block name=content}
 <h1>{t}Открытый корпус{/t}</h1>
-{if $is_logged && !$is_admin}
+{if !$is_logged}
+<p>{t}Здравствуйте!{/t}</p>
+<p>{t}Это сайт проекта &laquo;Открытый корпус&raquo; (OpenCorpora). Наша цель &ndash; создать морфологически, синтаксически и семантически размеченный корпус текстов на русском языке, в полном объёме доступный для исследователей и редактируемый пользователями.{/t}</p>
+<p>{t}Мы начали работу в 2009 году, сейчас идёт разработка. Следить за тем, как мы продвигаемся, можно{/t} <a href="http://opencorpora.googlecode.com">{t}здесь{/t}</a> ({t}да, код проекта открыт{/t}).</p>
+{/if}
+{if !$is_admin}
 <h2>Как я могу помочь прямо сейчас?</h2>
 <ul>
-<li>принять участие в снятии морфологической неоднозначности (см. <a href="tasks.php">задания</a>):
+<li>
+    принять участие в снятии морфологической неоднозначности {if $is_logged}(см. <a href="tasks.php">задания</a>):{else}(<a href="{$web_prefix}/login.php">зарегистрируйтесь</a>, чтобы получить доступ к заданиям){/if}
     <div>(всего мы получили уже <b>больше {($answer_count / 1000)|string_format:"%d"} тыс.</b> ответов)</div>
-    <div><table border="1" cellspacing="0" cellpadding="3" style="margin: 5px">
+    {if $is_logged}<div><table border="1" cellspacing="0" cellpadding="3" style="margin: 5px">
     <tr><th>Название пула</th><th>Доступно</th>{if $available}<th>&nbsp;</th>{/if}</tr>
     {foreach from=$available item=task}
     <tr>
@@ -20,7 +26,7 @@
     {foreachelse}
     <tr><td colspan='2'>Нет доступных заданий.</td></tr>
     {/foreach}
-    </table></div></li>
+    </table></div>{/if}</li>
 <li><a href="http://goo.gl/jm3ol">предложить нам</a> источник свободно доступных (на условиях CC-BY-SA или совместимых) текстов</li>
 <li>добавить тексты в корпус (напишите нам письмо на {mailto address="opencorpora@opencorpora.org" encode="javascript"}, мы расскажем как)</li>
 <li>помочь в разработке ПО корпуса и связанных с ним библиотек (тоже напишите нам письмо на {mailto address="opencorpora@opencorpora.org" encode="javascript"})</li>
@@ -59,18 +65,5 @@
 <a href='{$web_prefix}/qa.php?act=empty_books'>Пустые тексты</a><br/>
 <a href='{$web_prefix}/qa.php?act=book_tags'>Ошибки в тегах текстов</a><br/>
 <a href='{$web_prefix}/qa.php?act=dl_urls'>Сохранённые копии источников</a><br/>
-{/if}
-{if !$is_logged}
-<p>{t}Здравствуйте!{/t}</p>
-<p>{t}Это сайт проекта &laquo;Открытый корпус&raquo; (OpenCorpora). Наша цель &ndash; создать морфологически, синтаксически и семантически размеченный корпус текстов на русском языке, в полном объёме доступный для исследователей и редактируемый пользователями.{/t}</p>
-<p>{t}Мы начали работу в 2009 году, сейчас идёт разработка. Следить за тем, как мы продвигаемся, можно{/t} <a href="http://opencorpora.googlecode.com">{t}здесь{/t}</a> ({t}да, код проекта открыт{/t}).</p>
-<h2>{t}Как я могу помочь?{/t}</h2>
-<p>{t}Если вы:{/t}</p>
-<ul>
-<li>{t}интересуетесь компьютерной лингвистикой и хотите поучаствовать в настоящем проекте;{/t}</li>
-<li>{t}хотя бы немного умеете программировать;{/t}</li>
-<li>{t}не знаете ничего о лингвистике и программировании, но вам просто интересно{/t}</li>
-</ul>
-<p>&ndash; {t}пишите нам на{/t} <b>{mailto address="opencorpora@opencorpora.org" encode="javascript"}</b></p>
 {/if}
 {/block}

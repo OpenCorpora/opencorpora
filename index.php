@@ -48,15 +48,14 @@ if (isset($_GET['page'])) {
             $smarty->display('static/doc/export.tpl');
             break;
         default:
-            if (is_logged()) {
-                $smarty->assign('available', get_available_tasks($_SESSION['user_id'], true));
-            }
-            $smarty->display('index.tpl');
+            header("Location:index.php");
+            break;
     }
 }
 else {
-    if (is_logged() && !is_admin()) {
-        $smarty->assign('available', get_available_tasks($_SESSION['user_id'], true, 5));
+    if (!is_admin()) {
+        if (is_logged())
+            $smarty->assign('available', get_available_tasks($_SESSION['user_id'], true, 5));
         $smarty->assign('answer_count', count_all_answers());
     }
     $smarty->display('index.tpl');
