@@ -9,7 +9,7 @@
         $.get('ajax/annot.php', {'id':id, 'answer':answer, 'moder':1}, function(res) {
             var $r = $(res).find('result');
             if ($r.attr('ok') > 0) {
-                $target.closest('td').addClass('bggreen').find('select [value=\''+answer+'\']').attr("selected", "selected");
+                $target.closest('td').addClass('bggreen').find('select.sel_var [value=\''+answer+'\']').attr("selected", "selected");
                 $('select').removeAttr('disabled');
                 if ($r.attr('ok') == 2)
                     $('button.finish_mod').removeAttr('disabled');
@@ -19,9 +19,23 @@
         });
     }
     $(document).ready(function(){
-        $('select').bind('change', function(event) {
+        $('select.sel_var').bind('change', function(event) {
             var $tgt = $(event.target);
             submit($tgt.closest('tr').attr('rel'), $tgt.val(), $tgt);
+        });
+        $('select.sel_status').bind('change', function(event) {
+            var $tgt = $(event.target);
+            $tgt.closest('td').removeClass('bggreen');
+            $('select').attr('disabled', 'disabled');
+            $.get('ajax/annot.php', {'id':$tgt.closest('tr').attr('rel'), 'status': $tgt.val(), 'moder':1}, function(res) {
+                var $r = $(res).find('result');
+                if ($r.attr('ok') > 0) {
+                    $tgt.closest('td').addClass('bggreen');
+                    $('select').removeAttr('disabled');
+                } else {
+                    alert('Save failed');
+                }
+            });
         });
         $('a.agree').click(function(event) {
             var $tgt = $(event.target);
@@ -141,7 +155,15 @@
                 {if !$sample.disagreed && !$sample.moder_answer_num}
                 <a href='#' class='hint agree'>согласен</a>
                 {/if}
-                {html_options options=$pool.variants name='sel_var' selected={$sample.moder_answer_num}}
+                {html_options options=$pool.variants name='sel_var' class='sel_var' selected={$sample.moder_answer_num}}
+                <br/>
+                <select class='sel_status'>
+                    <option value='0' {if $sample.moder_status_num == 0}selected="selected"{/if}>OK</option>
+                    <option value='1' {if $sample.moder_status_num == 1}selected="selected"{/if}>Частично правильно</option>
+                    <option value='2' {if $sample.moder_status_num == 2}selected="selected"{/if}>Нет правильного разбора</option>
+                    <option value='3' {if $sample.moder_status_num == 3}selected="selected"{/if}>Опечатка</option>
+                    <option value='4' {if $sample.moder_status_num == 4}selected="selected"{/if}>Неснимаемая омонимия</option>
+                </select>
             </td>
         {elseif $pool.status == 6}
             <td>{$sample.moder_answer_gram}</td>

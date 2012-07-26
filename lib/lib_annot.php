@@ -285,8 +285,9 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
             $t['comments'] = get_sample_comments($r['sample_id']);
             //for moderators
             if (user_has_permission('perm_check_morph') && $out['status'] > 4) {
-                $r1 = sql_fetch_array(sql_query("SELECT answer FROM morph_annot_moderated_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
+                $r1 = sql_fetch_array(sql_query("SELECT answer, status FROM morph_annot_moderated_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
                 $t['moder_answer_num'] = $r1['answer'];
+                $t['moder_status_num'] = $r1['status'];
                 if ($t['moder_answer_num'] == 0)
                     $out['all_moderated'] = false;
                 else {
@@ -707,23 +708,35 @@ function update_annot_instance($id, $answer) {
     sql_commit();
     return 1;
 }
-function save_moderated_answer($id, $answer) {
-    $user_id = $_SESSION['user_id'];
-    if (!$id || !$user_id || $answer < 0) return 0;
-
+function check_moderator_right($user_id, $pool_id, $make_owner=false) {
     //the pool must have status=5 (under moderation) AND either have no moderator or have this user as moderator
-    $r = sql_fetch_array(sql_query("SELECT `status`, moderator_id FROM morph_annot_pools WHERE pool_id = (SELECT pool_id FROM morph_annot_samples WHERE sample_id=$id LIMIT 1)"));
+    $r = sql_fetch_array(sql_query("SELECT `status`, moderator_id FROM morph_annot_pools WHERE pool_id = $pool_id LIMIT 1"));
     if ($r['status'] != 5)
-        return 0;
+        return false;
     sql_begin();
     if ($r['moderator_id'] == 0) {
-        if (!sql_query("UPDATE morph_annot_pools SET moderator_id=$user_id WHERE pool_id = (SELECT pool_id FROM morph_annot_samples WHERE sample_id=$id LIMIT 1) LIMIT 1"))
-            return 0;
+        if ($make_owner && !sql_query("UPDATE morph_annot_pools SET moderator_id=$user_id WHERE pool_id = $pool_id LIMIT 1"))
+            return false;
     } elseif ($r['moderator_id'] != $user_id)
+        return false;
+    sql_commit();
+    return true;
+}
+function save_moderated_answer($id, $answer, $field_name='answer') {
+    $user_id = $_SESSION['user_id'];
+    if (!$id || !$user_id || $answer < 0) return 0;
+    $r = sql_fetch_array(sql_query("SELECT pool_id FROM morph_annot_samples WHERE sample_id = $id LIMIT 1"));
+    $pool_id = $r['pool_id'];
+
+    if (!check_moderator_right($user_id, $pool_id, true))
         return 0;
 
-    if (sql_query("UPDATE morph_annot_moderated_samples SET user_id=$user_id, answer=$answer WHERE sample_id=$id LIMIT 1")) {
+    sql_begin();
+
+    if (sql_query("UPDATE morph_annot_moderated_samples SET user_id=$user_id, `$field_name`=$answer WHERE sample_id=$id LIMIT 1")) {
         sql_commit();
+        if ($field_name != 'answer')
+            return 1;
         //check whether it was the last sample to be moderated
         $res = sql_query("SELECT sample_id FROM morph_annot_moderated_samples WHERE pool_id=(SELECT pool_id FROM morph_annot_samples WHERE sample_id=$id LIMIT 1) AND answer = 0 LIMIT 1");
         if (sql_num_rows($res) == 0)
@@ -731,6 +744,9 @@ function save_moderated_answer($id, $answer) {
         return 1;
     }
     return 0;
+}
+function save_moderated_status($id, $status) {
+    return save_moderated_answer($id, $status, 'status');
 }
 function get_sample_comments($sample_id) {
     $res = sql_query("SELECT comment_id, user_shown_name AS user_name, timestamp, text FROM morph_annot_comments LEFT JOIN users USING(user_id) WHERE sample_id=$sample_id ORDER BY timestamp");
