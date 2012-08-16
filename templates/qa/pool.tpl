@@ -166,7 +166,18 @@
                 </select>
             </td>
         {elseif $pool.status == 6}
-            <td>{$sample.moder_answer_gram}</td>
+            <td>
+                {$sample.moder_answer_gram}<br/>
+                {if $sample.moder_status_num == 1}
+                    <b>Частично правильно</b>
+                {elseif $sample.moder_status_num == 2}
+                    <b>Нет правильного разбора</b>
+                {elseif $sample.moder_status_num == 3}
+                    <b>Опечатка</b>
+                {elseif $sample.moder_status_num == 4}
+                    <b>Неснимаемая омонимия</b>
+                {/if}
+            </td>
         {/if}
     {else}
         <td>{$sample.answered}/{$pool.num_users}</td>
