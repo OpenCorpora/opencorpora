@@ -8,7 +8,7 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $('#reg_button').click(function() {
-                submit_with_readonly_check(document.forms[0]);
+                submit_with_readonly_check($(this).closest('form'));
                 $(this).attr('disabled', 'disabled');
             });
         });
