@@ -75,7 +75,7 @@
     {t}ИЛИ{/t}
     <form action='?act=move' method='post' class='inline'>{t}Переместить в{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
-        <select name='book_to' onChange='document.forms[1].submit()'>
+        <select name='book_to' onChange="$(this).closest('form').submit();">
             <option value='-1'>-- {t}Не выбрано{/t} --</option>
             <option value='0'>&lt;root&gt;</option>
             {html_options options=$book.select}

@@ -15,7 +15,7 @@
     {elseif $smarty.get.found_form}
     <input type='hidden' name='search_form' value='{$smarty.get.found_form}'/>
     {/if}
-    <a href="#" onclick="document.forms[0].submit()">&lt;&lt;&nbsp;{t}к поиску{/t}</a>
+    <a href="#" onclick="$(this).closest('form').submit()">&lt;&lt;&nbsp;{t}к поиску{/t}</a>
     </form></p>
     <div id="errata">
     {foreach from=$editor.errata item=error}
@@ -73,7 +73,7 @@
         {if $user_permission_dict}
             {t}Комментарий к правке{/t}:<br/>
             <input name='comment' size='60'/><br/>
-            <input type="button" onclick="submit_with_readonly_check(document.forms[1])" value="{t}Сохранить{/t}"/>&nbsp;&nbsp;
+            <input type="button" onclick="submit_with_readonly_check($(this).closest('form'))" value="{t}Сохранить{/t}"/>&nbsp;&nbsp;
             <input type="reset" value="{t}Сбросить{/t}"/>
         {/if}
     </form>

@@ -16,7 +16,7 @@
         {t}внешн. ID{/t} <input name="outer_id" value="грм" size="10" maxlength="20"/>,
         {t}родительская граммема{/t} <select name='parent_gram'><option value='0'>--{t}Не выбрана{/t}--</option>{html_options options=$select}</select>,<br/>
         {t}описание{/t} <input name="descr" size="40"/>
-        <input type="button" value="{t}Добавить{/t}" onclick="submit_with_readonly_check(document.forms[0])"/>
+        <input type="button" value="{t}Добавить{/t}" onclick="submit_with_readonly_check($(this).closest('form'))"/>
     </form>
     <br/><br/>
     {/if}
