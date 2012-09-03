@@ -16,6 +16,10 @@
     <td colspan="3"><h2>2012</h2></td>
 </tr>
 <tr>
+    <td>Сегментация текста в проекте Открытый корпус<br/>(доклад на конференции &laquo;Диалог&raquo;)</td>
+    <td colspan='2'>скоро</td>
+</tr>
+<tr>
     <td>Вероятностная модель токенизации в проекте Открытый корпус<br/>(доклад на 15-м семинаре &laquo;Новые информационные технологии в автоматизированных системах&raquo;)<br/><a href='#' class='small hint tog'>выходные данные</a><div class='small hidden-block'><i>Бочаров В.В., Грановский Д.В., Суриков А.В.</i> Вероятностная модель токенизации в проекте Открытый корпус // Новые информационные технологии в автоматизированных системах: материалы пятнадцатого научно-практического семинара. Моск. гос. ин-т электроники и математики. — М., 2012.</div></td>
     <td><a href='{$web_prefix}/doc/articles/2012_MIEM.pdf'>pdf</a></td>
     <td><a href='{$web_prefix}/doc/articles/2012_MIEM.tex'>TeX</a></td>
@@ -34,7 +38,7 @@
     <td><a href='{$web_prefix}/doc/articles/2011_CorpusLing.tex'>TeX</a></td>
 </tr>
 <tr>
-    <td rowspan="2">Инструменты контроля качества данных в проекте Открытый Корпус<br/>(для конференции &laquo;Диалог&raquo;)<br/><a href='#' class='small hint tog'>выходные данные</a><div class='small hidden-block'><i>Bocharov V., Bichineva S., Granovsky D., Ostapuk N., Stepanova M.</i> Quality assurance tools in the OpenCorpora project // Компьютерная лингвистика и интеллектуальные технологии: По материалам ежегодной Международной конференции «Диалог» (Бекасово, 25–29 мая 2011 г.). Вып. 10 (17). — М.: РГГУ, 2011.</div></td>
+    <td rowspan="2">Инструменты контроля качества данных в проекте Открытый Корпус<br/>(доклад на конференции &laquo;Диалог&raquo;)<br/><a href='#' class='small hint tog'>выходные данные</a><div class='small hidden-block'><i>Bocharov V., Bichineva S., Granovsky D., Ostapuk N., Stepanova M.</i> Quality assurance tools in the OpenCorpora project // Компьютерная лингвистика и интеллектуальные технологии: По материалам ежегодной Международной конференции «Диалог» (Бекасово, 25–29 мая 2011 г.). Вып. 10 (17). — М.: РГГУ, 2011.</div></td>
     <td><a href='{$web_prefix}/doc/articles/2011_Dialog.pdf'>pdf</a></td>
     <td><a href='{$web_prefix}/doc/articles/2011_Dialog.tex'>TeX</a></td>
 </tr>
