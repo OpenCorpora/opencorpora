@@ -23,9 +23,11 @@ if (
     print STDERR "Usage: $0 -m MI|TScore -u unigram_freq_file -b bigram_freq_file [-t threshold]\n";
     exit;
 }
-if (!-f $options{'b'} || !-f $options{'u'}) {
-    printf STDERR "%s or %s is not a file!\n", $options{'b'}, $options{'u'};
-    exit;
+for($options{'b'}, $options{'u'}) {
+    if (!-f) {
+        printf STDERR qq{"%s" is not a file!\n}, $_;
+        exit;
+    }
 }
 
 open F, $options{'u'} or die "Error opening unigram file: $!";
