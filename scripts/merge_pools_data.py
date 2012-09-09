@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import re
+import time
 import ConfigParser, MySQLdb
 from MySQLdb.cursors import DictCursor 
 
@@ -11,35 +12,79 @@ POOL_STATUS_IN_PROGRESS = 7
 POOL_STATUS_READY       = 8
 CHANGESET_COMMENT       = "Merge data from annotation pool #{0}"
 
+GRAMMEMES_CONJUNCTION   = 1
+GRAMMEMES_DISJUNCTION   = 2
+
 def make_new_changeset(dbh, pool_id):
-    #TODO: time = ?
-    dbh.execute("INSERT INTO rev_sets VALUES(NULL, {0}, 0, {1})".format(time, CHANGESET_COMMENT.format(pool_id)))
-    #TODO: return mysql_insert_id somehow
+    timestamp = int(time.time())
+    dbh.execute("INSERT INTO rev_sets VALUES(NULL, {0}, 0, '{1}')".format(timestamp, CHANGESET_COMMENT.format(pool_id)))
+    return dbh.lastrowid
 def set_pool_status(dbh, pool_id, status):
     dbh.execute("UPDATE morph_annot_pools SET status={0} WHERE pool_id={1} LIMIT 1".format(status, pool_id))
 def get_moderated_pool(dbh):
     dbh.execute("SELECT pool_id FROM morph_annot_pools WHERE status=6 LIMIT 1")
     pool = dbh.fetchone()
-    return pool['pool_id']
+    if pool is not None:
+        return pool['pool_id']
 def get_samples_and_answers(dbh, pool_id):
     dbh.execute("""SELECT sample_id, answer, status FROM morph_annot_moderated_samples WHERE sample_id IN
                 (SELECT sample_id FROM morph_annot_samples WHERE pool_id={0})""".format(pool_id))
-    while True:
-        sample = dbh.fetchone()
-        if sample is None: break
-        yield sample
+    results = dbh.fetchall()
+    return results
 def xml2vars(xml):
     lemma = re.findall('<tfr t="([^"]+)">', xml)
     variants = re.split('(?:<\/?v>)+', xml)
-    return lemma, variants[1:-1]
-def vars2xml(variants):
-    pass
+    return lemma[0], variants[1:-1]
+def vars2xml(lemma, variants):
+    out = ['<tfr t="', lemma, '">']
+    for var in variants:
+        out.append('<v>')
+        out.append(var)
+        out.append('</v>')
+    out.append('</tfr>')
+    return ''.join(out)
 def update_vars(variants, gram_str):
-    pass
+    if '|' in gram_str and '&' in gram_str:
+        return
+
+    if '&' in gram_str:
+        bind_type = GRAMMEMES_CONJUNCTION
+        grammemes = gram_str.split('&')
+    else:
+        bind_type = GRAMMEMES_DISJUNCTION
+        grammemes = gram_str.split('|')
+    
+    return filter_variants(variants, grammemes, bind_type)
+def filter_variants(variants, grammemes, bind_type):
+    out_variants = []
+    for var in variants:
+        flag_conj = True
+        flag_disj = False
+        for gram in grammemes:
+            if var.find('<g v="' + gram + '"/>') > -1:
+                if bind_type == GRAMMEMES_DISJUNCTION:
+                    flag_disj = True
+                    break
+            else:
+                if bind_type == GRAMMEMES_CONJUNCTION:
+                    flag_conj = False
+                    break
+        if bind_type == GRAMMEMES_CONJUNCTION and flag_conj is True:
+            out_variants.append(var)
+        if bind_type == GRAMMEMES_DISJUNCTION and flag_disj is True:
+            out_variants.append(var)
+
+    return out_variants
 def get_xml_by_sample_id(dbh, sample_id):
-    pass
+    dbh.execute("SELECT rev_text FROM tf_revisions WHERE tf_id=(SELECT tf_id FROM morph_annot_samples WHERE sample_id={0} LIMIT 1) ORDER BY rev_id DESC LIMIT 1".format(sample_id))
+    xml = dbh.fetchone()
+    return xml['rev_text']
 def update_sample(dbh, sample_id, xml, changeset_id):
-    pass
+    dbh.execute("SELECT tf_id FROM morph_annot_samples WHERE sample_id={0} LIMIT 1".format(sample_id))
+    res = dbh.fetchone()
+    dbh.execute("INSERT INTO tf_revisions VALUES(NULL, {0}, {1}, '{2}')".format(changeset_id, res['tf_id'], xml))
+def generate_empty_parse(token):
+    return ''.join(('<tfr t="', token, '"><v><l id="0" t="', token, '"><g v="UNKN"/></l></v></tfr>'))
 def get_pool_grammemes(dbh, pool_id):
     dbh.execute("SELECT grammemes FROM morph_annot_pools WHERE pool_id={0} LIMIT 1".format(pool_id))
     row = dbh.fetchone()
@@ -62,9 +107,9 @@ def process_pool(dbh, pool_id):
         if sample['status'] == 2:
             new_xml = generate_empty_parse(token)
         else:
-            new_xml = vars2xml(update_vars(old_vars, grammemes_ok_str))
+            new_xml = vars2xml(token, update_vars(old_vars, grammemes_ok_str))
 
-        update_sample(dbh, sample['sample_id'], new_xml, changeset_id)
+        update_sample(dbh, sample['sample_id'], new_xml.encode('utf-8'), changeset_id)
     set_pool_status(dbh, pool_id, POOL_STATUS_READY)
 def main():
     config = ConfigParser.ConfigParser()
@@ -75,14 +120,12 @@ def main():
     username = config.get('mysql', 'user')
     password = config.get('mysql', 'passwd')
 
-    db = MySQLdb.connect(hostname, username, password, dbname, use_unicode=True)
+    db = MySQLdb.connect(hostname, username, password, dbname, use_unicode=True, charset="utf8")
     dbh = db.cursor(DictCursor)
-    dbh.execute('SET NAMES utf8')
     dbh.execute('START TRANSACTION')
 
     pool_id = get_moderated_pool(dbh)
     if pool_id is not None:
-        print pool_id
         process_pool(dbh, pool_id)
     #db.commit()
 
