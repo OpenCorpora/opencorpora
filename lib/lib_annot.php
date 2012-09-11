@@ -689,11 +689,25 @@ function update_annot_instance($id, $answer) {
     $r = sql_fetch_array(sql_query("SELECT `status` FROM morph_annot_pools WHERE pool_id = (SELECT pool_id FROM morph_annot_samples WHERE sample_id=(SELECT sample_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1) LIMIT 1)"));
     if ($r['status'] != 3) return 0;
 
-    // does the instance really belong to this user?
-    $res = sql_query("SELECT instance_id FROM morph_annot_instances WHERE instance_id=$id AND user_id=$user_id LIMIT 1");
-    if (!sql_num_rows($res)) return 0;
-
     sql_begin();
+
+    // does the instance really belong to this user?
+    $r = sql_fetch_array(sql_query("SELECT user_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1"));
+    if ($r['user_id'] != $user_id) {
+        // if another user has taken it, no chance
+        if ($r['user_id'] > 0)
+            return 0;
+        
+        // or, perhaps, this user has rejected it before but has changed his mind
+        $res = sql_query("SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id AND sample_id = (SELECT sample_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1) LIMIT 1");
+        if (sql_num_rows($res) > 0) {
+            $r = sql_fetch_array($res);
+            if (!sql_query("DELETE FROM morph_annot_rejected_samples WHERE user_id=$user_id AND sample_id = ".$r['sample_id']." LIMIT 1") ||
+                !sql_query("UPDATE morph_annot_instances SET user_id=$user_id, ts_finish=".(time() + 600)." WHERE instance_id=$id LIMIT 1"))
+                return 0;
+        }
+    }
+
     // a valid answer
     if ($answer > 0) {
         if (!sql_query("UPDATE morph_annot_instances SET answer='$answer' WHERE instance_id=$id LIMIT 1")) return 0;
