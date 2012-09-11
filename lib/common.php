@@ -140,15 +140,21 @@ function get_common_stats() {
     $res = sql_query("SELECT timestamp, u.user_id, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=33 ORDER BY param_value DESC");
     while ($r = sql_fetch_array($res)) {
         $r1 = sql_fetch_array(sql_query("SELECT param_value FROM user_stats WHERE param_id=34 AND user_id = ".$r['user_id']." LIMIT 1"));
-        $t = array('timestamp' => $r['timestamp'], 'user_name' => $r['user_name'], 'value' => $r['param_value'], 'divergence' => $r1['param_value'] / $r['param_value'] * 100);
+        $r2 = sql_fetch_array(sql_query("SELECT MAX(timestamp) FROM morph_annot_click_log WHERE user_id=".$r['user_id']));
+        $t = array('timestamp' => $r['timestamp'], 'user_name' => $r['user_name'], 'value' => $r['param_value'], 'divergence' => $r1['param_value'] / $r['param_value'] * 100, 'last_active' => $r2[0]);
         $stats['annotators'][$uid2sid[$r['user_id']]]['fin'] = $t;
     }
 
     foreach ($stats['annotators'] as $k => $v) {
         if (!isset($v['fin']['user_name'])) {
             $stats['annotators'][$k]['fin']['user_name'] = get_user_shown_name($v['user_id']);
+            $r = sql_fetch_array(sql_query("SELECT MAX(timestamp) FROM morph_annot_click_log WHERE user_id=".$v['user_id']));
+            $stats['annotators'][$k]['fin']['last_active'] = $r[0];
         }
     }
+
+    // we need 2 timestamps to show last activity
+    $stats['timestamp_yesterday'] = ($stats['timestamp_today'] = mktime(0, 0, 0)) - 3600 * 24;
 
     //for the charts
     $chart = array();
