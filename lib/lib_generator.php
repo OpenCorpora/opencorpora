@@ -60,7 +60,7 @@ function run_generator() {
         $config['generator']['gen_script'],
         '--config=' . dirname(__FILE__) . '/../config.ini',
         '--output_dir=' . $config['generator']['tmp_dir'],
-        '--data_dir=' . dirname(__FILE__) . '/../scripts/lists',
+        '--data_dir=' . dirname(__FILE__) . '/../scripts/tokenizer',
         '2>&1'
     );
     $cmd = implode(' ', $pieces);

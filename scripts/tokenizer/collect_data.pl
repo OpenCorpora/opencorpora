@@ -53,8 +53,8 @@ my %crossval;
 
 my $stat_sure, my $stat_total;
 
-read_instances("$root_path/scripts/lists/tokenizer_exceptions.txt", \%exceptions);
-read_instances("$root_path/scripts/lists/tokenizer_prefixes.txt", \%prefixes);
+read_instances("$root_path/scripts/tokenizer/tokenizer_exceptions.txt", \%exceptions);
+read_instances("$root_path/scripts/tokenizer/tokenizer_prefixes.txt", \%prefixes);
 read_instances("$root_path/scripts/tokenizer/bad_sentences.txt", \%bad_sentences);
 #first pass
 $sent->execute();
