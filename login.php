@@ -1,5 +1,6 @@
 <?php
 require('lib/header.php');
+
 if (isset($_GET['act']))
     $action = $_GET['act'];
 else $action = '';
@@ -65,7 +66,11 @@ switch($action) {
         break;
 }
 
-if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'login.php') === false)
+if (
+    isset($_SERVER['HTTP_REFERER']) &&
+    strpos($_SERVER['HTTP_REFERER'], 'login.php') === false &&
+    strpos($_SERVER['HTTP_REFERER'], $_SERVER['HTTP_HOST'] !== false)
+)
     $_SESSION['return_to'] = $_SERVER['HTTP_REFERER'];
 else
     $_SESSION['return_to'] = 'index.php';

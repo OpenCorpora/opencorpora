@@ -256,16 +256,19 @@ function get_user_permissions($user_id) {
     $out = array();
     
     $res = sql_query("SELECT * FROM user_permissions WHERE user_id = $user_id LIMIT 1");
-    if ($r = sql_fetch_assoc($res)) {
-        foreach ($r as $column_name => $val) {
-            if ($column_name == 'user_id') continue;
-            $out[$column_name] = $val;
-        }
-    } else {
+
+    if (sql_num_rows($res) == 0) {
         //autovivify
         if (!sql_query("INSERT INTO user_permissions VALUES ('$user_id', '0', '0', '0', '0', '0', '0')")) {
             return false;
         }
+        $res = sql_query("SELECT * FROM user_permissions WHERE user_id = $user_id LIMIT 1");
+    }
+
+    $r = sql_fetch_assoc($res);
+    foreach ($r as $column_name => $val) {
+        if ($column_name == 'user_id') continue;
+        $out[$column_name] = $val;
     }
 
     return $out;
