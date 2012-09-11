@@ -4,6 +4,11 @@ if (isset($_GET['act']))
     $action = $_GET['act'];
 else $action = '';
 
+if (isset($_SESSION['user_id']) && in_array($action, array('', 'login', 'login_openid', 'register'))) {
+    header("Location:index.php");
+    return;
+}
+
 switch($action) {
     case 'login':
         if (user_login(mysql_real_escape_string($_POST['login']), $_POST['passwd'])) {
@@ -58,11 +63,6 @@ switch($action) {
     case 'change_name':
         $smarty->assign('change_status', user_change_shown_name($_POST['shown_name']));
         break;
-}
-
-if (!$action && isset($_SESSION['user_id'])) {
-    header("Location:index.php");
-    return;
 }
 
 if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'login.php') === false)
