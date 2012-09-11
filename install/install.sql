@@ -110,7 +110,9 @@ CREATE TABLE IF NOT EXISTS `morph_annot_click_log` (
     `sample_id` INT UNSIGNED NOT NULL,
     `user_id`   SMALLINT UNSIGNED NOT NULL,
     `timestamp` INT UNSIGNED NOT NULL,
-    `clck_type` TINYINT UNSIGNED NOT NULL
+    `clck_type` TINYINT UNSIGNED NOT NULL,
+    INDEX(`user_id`),
+    INDEX(`timestamp`)
 )  ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `downloaded_urls` (
