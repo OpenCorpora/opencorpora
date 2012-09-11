@@ -117,12 +117,12 @@ $(document).ready(function() {
 </script>
 {/literal}
 <p>Спасибо, что помогаете нам. Не торопитесь, будьте внимательны. Если вы не уверены, пропускайте пример.</p>
-<p><input type="text" id="test-progress"></p>
+<!--<p><input type="text" id="test-progress"></p>
 <div id="progress-bar" class="progress-bar"><div></div></div>
 <div id="progress-splash" class="splash-block success" style="display:none;">
     <div><strong>Поздравляем!</strong> Вы разметили 50% пула.</div>
 </div>
-<br/>
+<br/>-->
 {foreach from=$packet.instances item=instance}
 <div class='ma_instance' rel='{$instance.id}'>
     {if $instance.has_left_context}<a class='expand' href="#" rel='{$instance.has_left_context}' rev='-1'>...</a>{/if}
