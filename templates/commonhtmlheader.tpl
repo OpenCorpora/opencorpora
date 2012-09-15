@@ -4,7 +4,6 @@
         <meta http-equiv='content' content='text/html;charset=utf-8'/>
         <!-- Bootstrap -->
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-        <link href="css/main.css" rel="stylesheet">
 
         <link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css?4'/>
         <!--link rel='stylesheet' type='text/css' href='http://yandex.st/jquery-ui/1.8.16/themes/smoothness/jquery.ui.all.min.css'/-->

@@ -61,7 +61,7 @@ body {
     font-family: test,"Helvetica Neue",Helvetica,Arial,sans-serif;
     color: #2653a6;
     font-size: 26px;
-    padding-top: 10px;
+    padding: 12px 20px 8px;
     text-decoration: none;
 }
 #header .nav a {
@@ -90,7 +90,10 @@ body {
 #header .login-corner-block .forgot-link {
     padding: 0;
 }
-#header .login-corner-block .reg-link {
+a.loginza {
+    text-decoration: none;
+}
+.reg-link, #header .login-corner-block .reg-link {
     display: inline;
     vertical-align: -5px;
     padding: 0 0 0 10px;

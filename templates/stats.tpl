@@ -108,6 +108,7 @@ $(document).ready(function(){
 {/if}
 <!--div id="week_adder_chart" style="width:700px; height:400px"></div-->
 <h3>Наполнение корпуса</h3>
+<p>Таблица показывает, какие тексты и в каком количестве сейчас есть в корпусе.</p>
 <table class="table">
 <tr>
     <th>{t}Источник{/t}</th>
@@ -118,9 +119,9 @@ $(document).ready(function(){
 </tr>
 <tr>
     <td><a href="books.php?book_id=1">{t}ЧасКор{/t} (статьи)</a></td>
-    <td><b>{$stats.chaskor_books.value|number_format}</b><br/><span class='small'>{$stats.chaskor_books.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
-    <td><b>{$stats.chaskor_sentences.value|number_format}</b><br/><span class='small'>{$stats.chaskor_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
-    <td><b>{$stats.chaskor_tokens.value|number_format}</b><br/><span class='small'>{$stats.chaskor_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td><b>{$stats.chaskor_books.value|number_format}</b></td>
+    <td><b>{$stats.chaskor_sentences.value|number_format}</b></td>
+    <td><b>{$stats.chaskor_tokens.value|number_format}</b></td>
     <td>
         <p><b>{$stats.chaskor_words.value|number_format}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.chaskor_words}'>{$stats.percent_words.chaskor}%</span></p>
         <div class="progress" style="width: 200px;"><div class="bar" style="width: {min($stats.percent_words.chaskor,100)}%"></div></div>
@@ -128,9 +129,9 @@ $(document).ready(function(){
 </tr>
 <tr>
     <td><a href="books.php?book_id=226">{t}ЧасКор{/t} (новости)</a></td>
-    <td><b>{$stats.chaskor_news_books.value|number_format}</b><br/><span class='small'>{$stats.chaskor_news_books.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
-    <td><b>{$stats.chaskor_news_sentences.value|number_format}</b><br/><span class='small'>{$stats.chaskor_news_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
-    <td><b>{$stats.chaskor_news_tokens.value|number_format}</b><br/><span class='small'>{$stats.chaskor_news_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td><b>{$stats.chaskor_news_books.value|number_format}</b></td>
+    <td><b>{$stats.chaskor_news_sentences.value|number_format}</b></td>
+    <td><b>{$stats.chaskor_news_tokens.value|number_format}</b></td>
     <td>
         <p><b>{$stats.chaskor_news_words.value|number_format}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.chaskor_news_words}'>{$stats.percent_words.chaskor_news}%</span></p>
         <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.chaskor_news}%"></div></div>
@@ -138,9 +139,9 @@ $(document).ready(function(){
 </tr>
 <tr>
     <td><a href="books.php?book_id=8">{t}Википедия{/t}</a></td>
-    <td><b>{$stats.wikipedia_books.value|number_format}</b><br/><span class='small'>{$stats.wikipedia_books.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
-    <td><b>{$stats.wikipedia_sentences.value|number_format}</b><br/><span class='small'>{$stats.wikipedia_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
-    <td><b>{$stats.wikipedia_tokens.value|number_format}</b><br/><span class='small'>{$stats.wikipedia_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td><b>{$stats.wikipedia_books.value|number_format}</b></td>
+    <td><b>{$stats.wikipedia_sentences.value|number_format}</b></td>
+    <td><b>{$stats.wikipedia_tokens.value|number_format}</b></td>
     <td>
         <p><b>{$stats.wikipedia_words.value|number_format}</b> =  <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.wikipedia_words}'>{$stats.percent_words.wikipedia}%</span></p>
         <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.wikipedia}%"></div></div>
@@ -148,9 +149,9 @@ $(document).ready(function(){
 </tr>
 <tr>
     <td><a href="books.php?book_id=56">{t}Викиновости{/t}</a></td>
-    <td><b>{$stats.wikinews_books.value|number_format}</b><br/><span class='small'>{$stats.wikinews_books.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
-    <td><b>{$stats.wikinews_sentences.value|number_format}</b><br/><span class='small'>{$stats.wikinews_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
-    <td><b>{$stats.wikinews_tokens.value|number_format}</b><br/><span class='small'>{$stats.wikinews_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td><b>{$stats.wikinews_books.value|number_format}</b></td>
+    <td><b>{$stats.wikinews_sentences.value|number_format}</b></td>
+    <td><b>{$stats.wikinews_tokens.value|number_format}</b></td>
     <td>
         <p><b>{$stats.wikinews_words.value|number_format}</b> =  <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.wikinews_words}'>{$stats.percent_words.wikinews}%</span></p>
         <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.wikinews}%"></div></div>
@@ -158,9 +159,9 @@ $(document).ready(function(){
 </tr>
 <tr>
     <td><a href="books.php?book_id=184">{t}Блоги{/t}</a></td>
-    <td><b>{$stats.blogs_books.value|number_format}</b><br/><span class='small'>{$stats.blogs_books.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
-    <td><b>{$stats.blogs_sentences.value|number_format}</b><br/><span class='small'>{$stats.blogs_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
-    <td><b>{$stats.blogs_tokens.value|number_format}</b><br/><span class='small'>{$stats.blogs_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td><b>{$stats.blogs_books.value|number_format}</b></td>
+    <td><b>{$stats.blogs_sentences.value|number_format}</b></td>
+    <td><b>{$stats.blogs_tokens.value|number_format}</b></td>
     <td>
         <p><b>{$stats.blogs_words.value|number_format}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.blogs_words}'>{$stats.percent_words.blogs}%</span></p>
         <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.blogs}%"></div></div>
@@ -169,9 +170,9 @@ $(document).ready(function(){
 <tr>
 
     <td><a href="books.php?book_id=806">{t}Худож. литература{/t}</a></td>
-    <td><b>{$stats.fiction_books.value|number_format}</b><br/><span class='small'>{$stats.fiction_books.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
-    <td><b>{$stats.fiction_sentences.value|number_format}</b><br/><span class='small'>{$stats.fiction_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
-    <td><b>{$stats.fiction_tokens.value|number_format}</b><br/><span class='small'>{$stats.fiction_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td><b>{$stats.fiction_books.value|number_format}</b></td>
+    <td><b>{$stats.fiction_sentences.value|number_format}</b></td>
+    <td><b>{$stats.fiction_tokens.value|number_format}</b></td>
     <td>
         <p><b>{$stats.fiction_words.value|number_format}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.fiction_words}'>{$stats.percent_words.fiction}%</span></p>
         <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.fiction}%"></div></div>
@@ -179,9 +180,9 @@ $(document).ready(function(){
 </tr>
 <tr>
     <th>{t}Всего{/t}</th>
-    <td><b>{$stats.total_books.value|number_format}</b><br/><span class='small'>{$stats.total_books.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
-    <td><b>{$stats.total_sentences.value|number_format}</b><br/><span class='small'>{$stats.total_sentences.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
-    <td><b>{$stats.total_tokens.value|number_format}</b><br/><span class='small'>{$stats.total_tokens.timestamp|date_format:"%d.%m.%y, %H:%M"}</span></td>
+    <td><b>{$stats.total_books.value|number_format}</b></td>
+    <td><b>{$stats.total_sentences.value|number_format}</b></td>
+    <td><b>{$stats.total_tokens.value|number_format}</b></td>
     <td>
         <p><b>{$stats.total_words.value|number_format}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.total_words}'>{$stats.percent_words.total}%</span></p>
         <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.total}px"></div></div>

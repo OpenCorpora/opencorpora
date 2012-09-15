@@ -51,19 +51,27 @@
                                     {/if}
                                 </li>
                                 <li class="dropdown">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Войти <b class="caret"></b></a>
+                                    {if isset($smarty.session.user_id)}
+                                    <a href="{$web_prefix}/options.php" class="dropdown-toggle" data-toggle="dropdown" data-target="#">{$smarty.session.user_name} <b class="caret"></b></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="{$web_prefix}/options.php">Настройки</a></li>
+                                        <li><a href="{$web_prefix}/login.php?act=logout">Выход</a></li>
+                                    </ul>
+                                    {else}
+                                    <a href="{$web_prefix}/login.php" class="dropdown-toggle" data-toggle="dropdown" data-target="#">Войти <b class="caret"></b></a>
                                     <div class="dropdown-menu">
-                                        <div class="login-corner-openid"><a href="#">Войти через OpenID</a></div>
+                                        <div class="login-corner-openid"><a href="https://loginza.ru/api/widget?token_url=http%3A%2F%2F{$smarty.server.HTTP_HOST}{$web_prefix|urlencode}%2Flogin.php?act=login_openid&amp;lang={$lang}" class="loginza">Войти через <img src="http://loginza.ru/img/providers/yandex.png" alt="Yandex" title="Yandex"> <img src="http://loginza.ru/img/providers/google.png" alt="Google" title="Google Accounts"> <img src="http://loginza.ru/img/providers/vkontakte.png" alt="Вконтакте" title="Вконтакте"> <img src="http://loginza.ru/img/providers/mailru.png" alt="Mail.ru" title="Mail.ru"> <img src="http://loginza.ru/img/providers/twitter.png" alt="Twitter" title="Twitter"> и др.</a></div>
                                         <div class="divider"></div>
                                         <div class="login-corner-block">
-                                            <form action="{$web_prefix}/login.php">
-                                                <input type="text" placeholder="Логин">
-                                                <input type="password" placeholder="Пароль">
-                                                <small><a href="#" class="forgot-link">Забыли пароль?</a></small>
-                                                <button type="submit" class="btn btn-primary">Войти</button> <a href="#" class="reg-link">Зарегистрироваться</a>
+                                            <form action="{$web_prefix}/login.php?act=login" method="POST">
+                                                <input type="text" name="login" placeholder="Логин">
+                                                <input type="password" name="passwd" placeholder="Пароль">
+                                                <small><a href="{$web_prefix}/login.php?act=lost_pwd" class="forgot-link">Забыли пароль?</a></small>
+                                                <button type="submit" class="btn btn-primary">Войти</button> <a href="{$web_prefix}/login.php?act=register" class="reg-link">Зарегистрироваться</a>
                                             </form>
                                         </div>
                                     </div>
+                                    {/if}
                                 </li>
                             </ul>
                         </div>
