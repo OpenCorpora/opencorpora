@@ -69,7 +69,7 @@
 <input type='submit' value='Подписаться'/>
 </form>
 </div>
-<!-- Yandex.Metrika counter -->
+<!-- Yandex.Metrika counter >
 {literal}
 <div style="display:none;"><script type="text/javascript">
 (function(w, c) {
@@ -85,5 +85,5 @@
 </script></div>
 <script src="//mc.yandex.ru/metrika/watch.js" type="text/javascript" defer="defer"></script>
 <noscript><div><img src="//mc.yandex.ru/watch/9552538" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
+< /Yandex.Metrika counter -->
 </div>

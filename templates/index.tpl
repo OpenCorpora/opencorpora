@@ -1,6 +1,7 @@
 {* Smarty *}
 {extends file="common.tpl"}
 {block name=content}
+{$activepage='index'}
 <h1>{t}Открытый корпус{/t}</h1>
 {if !$is_logged}
 <p>{t}Здравствуйте!{/t}</p>
