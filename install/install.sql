@@ -234,6 +234,21 @@ CREATE TABLE IF NOT EXISTS `user_tokens` (
     INDEX(`user_id`)
 ) ENGINE = INNODB;
 
+CREATE TABLE IF NOT EXISTS `user_badges_types` (
+    `badge_id`    TINYINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `badge_name`  VARCHAR(127) NOT NULL,
+    `badge_descr` TEXT NOT NULL,
+    `badge_image` VARCHAR(255) NOT NULL
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `user_badges` (
+    `user_id`   SMALLINT UNSIGNED NOT NULL,
+    `badge_id`  TINYINT UNSIGNED NOT NULL,
+    `shown` INT UNSIGNED NOT NULL,
+    INDEX(`user_id`),
+    INDEX(`shown`)
+) ENGINE = INNODB;
+
 CREATE TABLE IF NOT EXISTS `tf_revisions` (
     `rev_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `set_id`   INT UNSIGNED NOT NULL,
