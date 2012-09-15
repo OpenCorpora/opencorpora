@@ -27,17 +27,13 @@ sub update_annot_stats {
         WHERE sample_id IN
             (SELECT sample_id
             FROM morph_annot_samples
-            WHERE pool_id IN
-                (SELECT pool_id
-                FROM morph_annot_pools
-                WHERE pool_id NOT IN
-                    (SELECT DISTINCT pool_id
-                    FROM morph_annot_samples
-                    WHERE sample_id IN
-                        (SELECT DISTINCT sample_id
-                        FROM morph_annot_instances
-                        WHERE answer = 0)
-                    )
+            WHERE pool_id NOT IN
+                (SELECT DISTINCT pool_id
+                FROM morph_annot_samples
+                WHERE sample_id IN
+                    (SELECT DISTINCT sample_id
+                    FROM morph_annot_instances
+                    WHERE answer = 0)
                 )
             )
         ORDER BY sample_id
