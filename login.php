@@ -50,7 +50,11 @@ switch($action) {
         }
         break;
     case 'reg_done':
-        $smarty->assign('reg_status', user_register($_POST));
+        $reg_status = user_register($_POST);
+        if ($reg_status == 1)
+            header("Location:index.php");
+        else
+            $smarty->assign('reg_status', $reg_status);
         break;
     case 'change_pw':
         $smarty->assign('change_status', user_change_password($_POST));
