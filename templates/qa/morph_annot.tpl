@@ -6,7 +6,7 @@
 $(document).ready(function() {
     if ({/literal}{$packet.editable}{literal}) {
         $('.ma_instance').each(function(i, el){
-            $.get('ajax/clck_log.php', {'id':$(el).attr('rel'), 'type':(20 + i)});
+            $.get('ajax/clck_log.php', {'id':$(el).attr('rev'), 'type':(20 + i)});
         });
         $('.ma_instance button').click(function(event) {
             $('button.ma_next_pack').attr('disabled', 'disabled');
@@ -46,7 +46,7 @@ $(document).ready(function() {
                 $btn.closest('div').find('br').before(s);
         });
         $.get('ajax/clck_log.php', {
-            'id': $btn.closest('div').attr('rel'),
+            'id': $btn.closest('div').attr('rev'),
             'type': ($btn.attr('rev') == -1 ? 11 : 12)
         }, function(res){if ($(res).find('result').attr('ok') == 1) $btn.hide()});
         event.preventDefault();
