@@ -234,6 +234,29 @@ CREATE TABLE IF NOT EXISTS `user_tokens` (
     INDEX(`user_id`)
 ) ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `user_badges_types`;
+CREATE TABLE `user_badges_types` (
+    `badge_id`    TINYINT UNSIGNED NOT NULL PRIMARY KEY,
+    `badge_name`  VARCHAR(127) NOT NULL,
+    `badge_descr` TEXT NOT NULL,
+    `badge_image` VARCHAR(255) NOT NULL
+) ENGINE = INNODB;
+INSERT INTO `user_badges_types` VALUES
+    (1, 'First ten', 'За 10 ответов', ''),
+    (2, 'First fifty', 'За 50 ответов', ''),
+    (3, 'First hundred', 'За 100 ответов', ''),
+    (4, 'Two hundred', 'За 200 ответов', ''),
+    (5, 'Half thousand', 'За 500 ответов', ''),
+    (6, 'Thousand', 'За 1000 ответов', '');
+
+CREATE TABLE IF NOT EXISTS `user_badges` (
+    `user_id`   SMALLINT UNSIGNED NOT NULL,
+    `badge_id`  TINYINT UNSIGNED NOT NULL,
+    `shown` INT UNSIGNED NOT NULL,
+    INDEX(`user_id`),
+    INDEX(`shown`)
+) ENGINE = INNODB;
+
 CREATE TABLE IF NOT EXISTS `tf_revisions` (
     `rev_id`   INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `set_id`   INT UNSIGNED NOT NULL,

@@ -50,7 +50,7 @@
         <input name="lemma_text" readonly="readonly" value="{$editor.lemma.text|htmlspecialchars}"/>
         <input name="lemma_gram" {if !$user_permission_dict}readonly="readonly"{/if} value="{$editor.lemma.grms|htmlspecialchars}" size="40"/>
         <input type="button" onClick="location.href='dict_history.php?lemma_id={$editor.lemma.id}'" value="{t}История{/t}"/>
-        {if $user_permission_dict}<input type="button" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" value="{t}Удалить{/t}"/>{/if}
+        {if $user_permission_dict}<input type="button" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" value="{t}Удалить лемму{/t}"/>{/if}
         {else}
         <input name="lemma_text" value="{$smarty.get.text}"/>
         <input name="lemma_gram" value="{t}граммемы{/t}" onClick="this.value=''; this.onclick=''" size="40"/>
@@ -74,7 +74,7 @@
             {t}Комментарий к правке{/t}:<br/>
             <input name='comment' size='60'/><br/>
             <input type="button" onclick="submit_with_readonly_check($(this).closest('form'))" value="{t}Сохранить{/t}"/>&nbsp;&nbsp;
-            <input type="reset" value="{t}Сбросить{/t}"/>
+            <input type="reset" value="{t}Сделать как было{/t}"/>
         {/if}
     </form>
     {/strip}

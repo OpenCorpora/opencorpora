@@ -73,7 +73,7 @@
 {elseif $action == 'reg_done'}
     {if $reg_status == 1}
         {* registration ok *}
-        {t}Спасибо, регистрация успешно завершена.{/t} {t}Теперь вы можете{/t} <a href='?'>{t}войти{/t}</a> {t}под своим именем пользователя{/t}.
+        {t}Спасибо, регистрация успешно завершена.{/t} {t}Можно{/t} <a href='{$web_prefix}/tasks.php'>{t}начинать{/t}</a>!
     {elseif $reg_status == 2}
         {* passwords don't coincide *}
         <div class="alert alert-error"><h4>{t}Введённые пароли не совпадают.{/t}</h4>{t}Попробуйте, пожалуйста,{/t} <a href='?act=register'>{t}ещё раз{/t}</a>.</div>

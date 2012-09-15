@@ -40,10 +40,15 @@ $(document).ready(function() {
             $(res).find('w').each(function(i, el) {
                 s += ' ' + $(el).text();
             });
-            if ($btn.attr('rev') == -1)
+            if ($btn.attr('rev') == -1) {
                 $btn.closest('div').prepend(s);
-            else
-                $btn.closest('div').find('br').before(s);
+                $btn.remove();
+            }
+            else {
+                $btn.closest('div').append(s);
+                $btn.remove();
+            }
+
         });
         $.get('ajax/clck_log.php', {
             'id': $btn.closest('div').attr('rel'),
@@ -53,7 +58,7 @@ $(document).ready(function() {
     });
     $('a.comment').click(function(event) {
         if ($(event.target).closest('div').find('textarea').length == 0) {
-            $(event.target).closest('div').append('<div><textarea placeholder="Ваш комментарий"></textarea><br/><button class="send_comment">Отправить комментарий</button></div>').find('button.send_comment').click(function() {
+            $(event.target).closest('div').append('<div class="controls"><textarea placeholder="Ваш комментарий" class="span4"></textarea><button class="btn send_comment">Отправить комментарий</button></div>').find('button.send_comment').click(function() {
                 $.post('ajax/post_comment.php', {'type': 'morph_annot', 'id': $(event.target).attr('rel'), 'text': $(this).closest('div').find('textarea').val()}, function(res) {
                     var $r = $(res).find('response');
                     if ($r.attr('ok') == 1) {
@@ -64,6 +69,9 @@ $(document).ready(function() {
                     }
                 });
             });
+        }
+        else {
+            $(event.target).closest('div').find('.controls').remove();
         }
         event.preventDefault();
     });
@@ -116,6 +124,10 @@ $(document).ready(function() {
 });
 </script>
 {/literal}
+<ul class="breadcrumb">
+    <li><a href="{$web_prefix}/tasks.php">Разметка</a> <span class="divider">/</span></li>
+    <li class="active">{$packet.gram_descr|implode:" &mdash; "}</li>
+</ul>
 <p>Спасибо, что помогаете нам. Не торопитесь, будьте внимательны. Если вы не уверены, пропускайте пример.</p>
 <!--<p><input type="text" id="test-progress"></p>
 <div id="progress-bar" class="progress-bar"><div></div></div>
@@ -125,23 +137,24 @@ $(document).ready(function() {
 <br/>-->
 {foreach from=$packet.instances item=instance}
 <div class='ma_instance' rel='{$instance.id}'>
-    {if $instance.has_left_context}<a class='expand' href="#" rel='{$instance.has_left_context}' rev='-1'>...</a>{/if}
-    {foreach from=$instance.context item=word name=x}
-    {if $smarty.foreach.x.index == $instance.mainword}
-    <b class='bggreen' title='{$instance.lemmata}'>{$word|htmlspecialchars}</b> 
-    {else}
-    {$word|htmlspecialchars}
-    {/if}
-    {/foreach}
-    {if $instance.has_right_context}<a class='expand' href="#" rel='{$instance.has_right_context}' rev='1'>...</a>{/if}
-    <br/>
+    <div class="ma_instance_words">
+        {if $instance.has_left_context}<a class='expand' href="#" rel='{$instance.has_left_context}' rev='-1'>...</a>{/if}
+        {foreach from=$instance.context item=word name=x}
+        {if $smarty.foreach.x.index == $instance.mainword}
+        <b class='bggreen' title='{$instance.lemmata}'>{$word|htmlspecialchars}</b> 
+        {else}
+        {$word|htmlspecialchars}
+        {/if}
+        {/foreach}
+        {if $instance.has_right_context}<a class='expand' href="#" rel='{$instance.has_right_context}' rev='1'>...</a>{/if}
+    </div>
     {foreach from=$packet.gram_descr item=var name=x}
-    <button rev='{$smarty.foreach.x.index + 1}' {if $instance.answer == $smarty.foreach.x.index + 1}class='chosen'{/if}>{$var|htmlspecialchars}</button>
+    <button rev='{$smarty.foreach.x.index + 1}' class="btn {if $instance.answer == $smarty.foreach.x.index + 1} chosen{/if}">{$var|htmlspecialchars}</button>
     {/foreach}
-    <button rev='99' class='other{if $instance.answer == 99} chosen{/if}'>Другое</button>
-    <button rev='-1' class='reject'>Пропустить</button>
-    <a rel='{$instance.sample_id}' class='hint comment' href='#'>Прокомментировать</a>
+    <button rev='99' class='btn other{if $instance.answer == 99} chosen{/if}'>Другое</button>
+    <button rev='-1' class='btn reject btn-danger'>Пропустить</button>
+    <a rel='{$instance.sample_id}' class='pseudo comment' href='#'>Прокомментировать</a>
 </div>
 {/foreach}
-{if !$packet.my}<center><button class='ma_next_pack' disabled='disabled'>Хочу ещё примеров!</button></center>{/if}
+{if !$packet.my}<button class='btn btn-primary btn-large ma_next_pack' disabled='disabled'>Хочу ещё примеров!</button>{/if}
 {/block}

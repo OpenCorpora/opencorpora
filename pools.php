@@ -10,6 +10,12 @@ if ($action && !in_array($action, array('samples', 'candidates')) && !user_has_p
     return;
 }
 
+// temporarily hidden pools
+if (isset($_GET['pool_id']) && in_array((int)$_GET['pool_id'], array(19, 23, 29))) {
+    show_error("Этот пул временно скрыт.");
+    return;
+}
+
 switch ($action) {
     case 'add':
         if (add_morph_pool()) {
@@ -30,7 +36,14 @@ switch ($action) {
         $smarty->display('qa/pool_candidates.tpl');
         break;
     case 'samples':
-        $smarty->assign('pool', get_morph_samples_page((int)$_GET['pool_id'], isset($_GET['ext']), isset($_GET['disagreed']), isset($_GET['nomod'])));
+        $smarty->assign('pool', get_morph_samples_page(
+            (int)$_GET['pool_id'],
+            isset($_GET['ext']),
+            isset($_GET['disagreed']),
+            isset($_GET['nomod']),
+            isset($_GET['with_comments']),
+            isset($_GET['not_ok'])
+        ));
         $smarty->display('qa/pool.tpl');
         break;
     case 'promote':

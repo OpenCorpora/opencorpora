@@ -29,6 +29,10 @@
 </script>
 {/literal}
 <h1>{t}Материалы для скачивания{/t}</h1>
+<ul class="breadcrumb">
+    <li><a href="{$web_prefix}/?page=about">О проекте</a> <span class="divider">/</span></li>
+    <li>Downloads</li>
+</ul>
 <h2>{t}Размеченные тексты{/t}</h2>
 <p>XML, {t}обновлён{/t} {$dl.annot.xml.updated}
 <ul>
@@ -38,22 +42,22 @@
 <h2>Частотные списки</h2>
 <div class='small'>
 Тип n-граммы:
-<label><input type='radio' name='nval' value='0' checked='checked'/>все</label>
-<label><input type='radio' name='nval' value='1'/>униграммы (1 слово)</label>
-<label><input type='radio' name='nval' value='2'/>биграммы (2 слова)</label>
-<label><input type='radio' name='nval' value='3'/>триграммы (3 слова)</label>
+<label class="radio"><input type='radio' name='nval' value='0' checked='checked'/>все</label>
+<label class="radio"><input type='radio' name='nval' value='1'/>униграммы (1 слово)</label>
+<label class="radio"><input type='radio' name='nval' value='2'/>биграммы (2 слова)</label>
+<label class="radio"><input type='radio' name='nval' value='3'/>триграммы (3 слова)</label>
 <br/>
 Учёт регистра:
-<label><input type='radio' name='register' value='0' checked='checked'/>все</label>
-<label><input type='radio' name='register' value='1'/>с учётом</label>
-<label><input type='radio' name='register' value='2'/>без учёта</label>
+<label class="radio"><input type='radio' name='register' value='0' checked='checked'/>все</label>
+<label class="radio"><input type='radio' name='register' value='1'/>с учётом</label>
+<label class="radio"><input type='radio' name='register' value='2'/>без учёта</label>
 <br/>
 Тип токенов:
-<label><input type='radio' name='ttype' value='0' checked='checked'/>все</label>
-<label><input type='radio' name='ttype' value='1'/>только слова</label>
-<label><input type='radio' name='ttype' value='2'/>не только слова</label>
+<label class="radio"><input type='radio' name='ttype' value='0' checked='checked'/>все</label>
+<label class="radio"><input type='radio' name='ttype' value='1'/>только слова</label>
+<label class="radio"><input type='radio' name='ttype' value='2'/>не только слова</label>
 </div><br/>
-<table border='1' cellspacing='0' cellpadding='3' id="table_freq">
+<table class="table" id="table_freq">
 <tr class='small'>
     <th>&nbsp;</th>
     <th>Леммы</th>
