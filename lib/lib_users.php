@@ -163,6 +163,8 @@ function user_register($post) {
         }
 
         sql_commit();
+        if (!user_login($name, $post['passwd']))
+            return 0;
         return 1;
     }
     return 0;
