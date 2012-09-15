@@ -6,7 +6,7 @@
 $(document).ready(function() {
     if ({/literal}{$packet.editable}{literal}) {
         $('.ma_instance').each(function(i, el){
-            $.get('ajax/clck_log.php', {'id':$(el).attr('rel'), 'type':(20 + i)});
+            $.get('ajax/clck_log.php', {'id':$(el).attr('rev'), 'type':(20 + i)});
         });
         $('.ma_instance button').click(function(event) {
             $('button.ma_next_pack').attr('disabled', 'disabled');
@@ -28,7 +28,7 @@ $(document).ready(function() {
                     $btn.closest('div').hide();
                 $btn.closest('div').find('button').removeAttr('disabled');
             });
-            $.get('ajax/clck_log.php', {'id': $btn.closest('div').attr('rel'), 'type': $btn.attr('rev')});
+            $.get('ajax/clck_log.php', {'id': $btn.closest('div').attr('rev'), 'type': $btn.attr('rev')});
         });
     } else {
         $('.ma_instance button').attr('disabled', 'disabled');
@@ -51,7 +51,7 @@ $(document).ready(function() {
 
         });
         $.get('ajax/clck_log.php', {
-            'id': $btn.closest('div').attr('rel'),
+            'id': $btn.closest('div').attr('rev'),
             'type': ($btn.attr('rev') == -1 ? 11 : 12)
         }, function(res){if ($(res).find('result').attr('ok') == 1) $btn.hide()});
         event.preventDefault();
@@ -136,7 +136,7 @@ $(document).ready(function() {
 </div>
 <br/>-->
 {foreach from=$packet.instances item=instance}
-<div class='ma_instance' rel='{$instance.id}'>
+<div class='ma_instance' rel='{$instance.id}' rev='{$instance.sample_id}'>
     <div class="ma_instance_words">
         {if $instance.has_left_context}<a class='expand' href="#" rel='{$instance.has_left_context}' rev='-1'>...</a>{/if}
         {foreach from=$instance.context item=word name=x}
