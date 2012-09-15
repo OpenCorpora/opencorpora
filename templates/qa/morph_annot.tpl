@@ -28,7 +28,7 @@ $(document).ready(function() {
                     $btn.closest('div').hide();
                 $btn.closest('div').find('button').removeAttr('disabled');
             });
-            $.get('ajax/clck_log.php', {'id': $btn.closest('div').attr('rel'), 'type': $btn.attr('rev')});
+            $.get('ajax/clck_log.php', {'id': $btn.closest('div').attr('rev'), 'type': $btn.attr('rev')});
         });
     } else {
         $('.ma_instance button').attr('disabled', 'disabled');
@@ -124,7 +124,7 @@ $(document).ready(function() {
 </div>
 <br/>-->
 {foreach from=$packet.instances item=instance}
-<div class='ma_instance' rel='{$instance.id}'>
+<div class='ma_instance' rel='{$instance.id}' rev='{$instance.sample_id}'>
     {if $instance.has_left_context}<a class='expand' href="#" rel='{$instance.has_left_context}' rev='-1'>...</a>{/if}
     {foreach from=$instance.context item=word name=x}
     {if $smarty.foreach.x.index == $instance.mainword}
