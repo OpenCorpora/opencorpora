@@ -2,6 +2,11 @@
 {extends file='common.tpl'}
 {block name='content'}
 <h1>Форматы экспорта данных</h1>
+<ul class="breadcrumb">
+    <li><a href="{$web_prefix}/?page=about">О проекте</a> <span class="divider">/</span></li>
+    <li><a href="{$web_prefix}/?page=downloads">Downloads</a> <span class="divider">/</span></li>
+    <li>Форматы экспорта данных</li>
+</ul>
 <h2>Формат экспорта словаря (версия 0.81)</h2>
 <p>Словарь представляет собой файл XML в кодировке utf-8.</p>
 <p>Всё содержимое обёрнуто в корневой тег <code>&lt;dictionary&gt;</code>, атрибуты которого указывают на версию формата (сейчас 0.81) и номер ревизии словаря на момент экспорта. Внутри выделяются 4 секции, описывающие граммемы, собственно леммы, типы связей между ними и сами связи.</p>
@@ -18,7 +23,7 @@
 <h3>Описание связей</h3>
 В секции <code>&lt;links&gt;</code> перечислены все связи между леммами в виде <code>&lt;link id="lid" from="from_id" to="to_id" type="tid"/&gt;</code>, где lid &ndash; числовой идентификатор конкретной связи, from_id и to_id &ndash; идентификаторы лемм, между которыми существует эта связь, а tid &ndash; идентификатор типа связи.
 <h3>Пример</h3>
-<code><pre>
+<pre>
 &lt;?xml version="1.0" encoding="utf8" standalone="yes"?&gt;
 &lt;dictionary version="0.8" revision="403605"&gt;
     &lt;grammems&gt;
@@ -44,5 +49,5 @@
         ...
     &lt;/links&gt;
 &lt;/dictionary&gt;
-</pre></code>
+</pre>
 {/block}

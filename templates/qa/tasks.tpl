@@ -2,7 +2,7 @@
 {extends file='common.tpl'}
 {block name=content}
 <h1>Доступные задания</h1>
-<table border="1" cellspacing="0" cellpadding="3">
+<table class="table">
 <tr><th>Название пула</th><th>Сделано мной</th><th>Доступно</th>{if $available}<th>&nbsp;</th>{/if}</tr>
 {foreach from=$available item=task}
 <tr>

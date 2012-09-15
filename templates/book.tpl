@@ -59,21 +59,20 @@
     {/if}
     <h2>{$book.title} (id={$book.id})</h2>
     {if isset($book.parents.0)}
-    <p>
+    <ul class="breadcrumb">
     {foreach item=prn from=$book.parents}
-    <a href="?book_id={$prn.id}">{$prn.title}</a> ::
+        <li><a href="?book_id={$prn.id}">{$prn.title}</a> <span class="divider">/</span></li>
     {/foreach}
-    {$book.title}
-    </p>
+    <li>{$book.title}</li>
+    </ul>
     {/if}
     {if $user_permission_adder}
-    <form action='?act=rename' method='post' class='inline'>{t}Переименовать в{/t}:
+    <form action='?act=rename' method='post' class='form-inline'>{t}Переименовать в{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
-        <input name='new_name' value="{$book.title|htmlspecialchars}"/>&nbsp;&nbsp;
-        <input type='submit' value='{t}Переименовать{/t}'/>
+        <input type="text" name='new_name' value="{$book.title|htmlspecialchars}" class="span3">
+        <button type='submit' class="btn">{t}Переименовать{/t}</button>
     </form>
-    {t}ИЛИ{/t}
-    <form action='?act=move' method='post' class='inline'>{t}Переместить в{/t}:
+    <form action='?act=move' method='post' class='form-inline'>{t}Переместить в{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
         <select name='book_to' onChange="$(this).closest('form').submit();">
             <option value='-1'>-- {t}Не выбрано{/t} --</option>
@@ -96,7 +95,7 @@
     <h3>{t}Теги{/t}</h3>
     {if $user_permission_adder}
     {if $book.is_wikinews}
-    <div><span class="hidden-block">{$book.wikinews_title}</span><a href="#" class="hint" id="wikinews_addtag_link" rel="{$book.id}">попробовать заполнить автоматически</a></div>
+    <p><span class="hidden-block">{$book.wikinews_title}</span><a href="#" class="pseudo" id="wikinews_addtag_link" rel="{$book.id}">попробовать заполнить автоматически</a></p>
     {elseif $book.is_chaskor_news}
     <div><span class="hidden-block">{$book.chaskor_news_title}</span><a href="#" class="hint" id="chaskor_addtag_link" rel="{$book.id}">попробовать заполнить автоматически</a></div>
     {/if}
@@ -125,10 +124,9 @@
         <p>{t}Тегов нет.{/t}</p>
     {/if}
     {if $user_permission_adder}
-    <form action='?act=add_tag' method='post' class='inline'>{t}Добавить тег{/t}:
+    <form action='?act=add_tag' method='post' class='form-inline'>{t}Добавить тег{/t}:
         <input type='hidden' name='book_id' value='{$book.id}'/>
-        <input id='tag_name' name='tag_name' style="width: 70%"/>&nbsp;&nbsp;
-        <input type='submit' value='{t}Добавить{/t}'/>
+        <input id='tag_name' type="text" name='tag_name' class="span6">  <button type='submit' class="btn">{t}Добавить{/t}</button>
     </form>
     {/if}
     {if !isset($book.paragraphs)}

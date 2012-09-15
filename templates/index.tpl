@@ -1,6 +1,7 @@
 {* Smarty *}
 {extends file="common.tpl"}
 {block name=content}
+{$activepage='index'}
 <h1>{t}Открытый корпус{/t}</h1>
 {if !$is_logged}
 <p>{t}Здравствуйте!{/t}</p>
@@ -35,7 +36,8 @@
 </ul>
 {/if}
 {if $is_logged && ($user_permission_adder || $user_permission_dict)}
-<h2>А ещё вот есть</h2>
+<p>Свежие правки: <a href="{$web_prefix}/history.php">в разметке</a> / <a href="{$web_prefix}/dict_history.php">в словаре</a>. <a href="{$web_prefix}/comments.php">Последние комментарии</a>.</p>
+<h3>А ещё вот есть</h3>
 {/if}
 {* Admin options *}
 {if $is_admin}
@@ -47,10 +49,9 @@
 {if $user_permission_adder}<a href='{$web_prefix}/add.php'>{t}Добавить текст{/t}</a><br/>{/if}
 {if $user_permission_adder}
     <br/>
-    <form class='inline' method='post' action='{$web_prefix}/books.php?act=merge_sentences'>Склеить предложения <input name='id1' size='5'/> и&nbsp;<input name='id2' size='5'/> <input type='submit' value='Склеить' onclick="return confirm('Вы уверены?')"/></form><br/>
-    <br/>
+    <form class='form-inline' method='post' action='{$web_prefix}/books.php?act=merge_sentences'>Склеить предложения <input type="text" name='id1' class="input-small"> и&nbsp;<input type="text" name='id2' class="input-small"> <button type='submit' class="btn" onclick="return confirm('Вы уверены?')">Склеить</button></form>
 {/if}
-{if $user_permission_adder}<h2>Контроль качества</h2>{/if}
+{if $user_permission_adder}<h3>Контроль качества</h3>{/if}
 {if $user_permission_adder}
 <a href='{$web_prefix}/sources.php'>Координация заливки</a><br/>
 {/if}

@@ -1,14 +1,10 @@
 {include file='commonhtmlheader.tpl'}
 {block name=body}<body>{/block}
-<div id='main'>
-{nocache}{include file='header.tpl'}
-<div id='rightcol'{if $smarty.session.hidemenu} class="rightcol-narrow"{/if}>
-{include file='right.tpl'}
-</div>{/nocache}
-<div id='content'{if $smarty.session.hidemenu} class="content-wide"{/if}>
+<div id='wrap'>
+{nocache}{include file='header.tpl'}{/nocache}
+<div id="container" class="container">
 {block name=content}{/block}
 </div>
-<div style="clear:both;"></div>
 {include file='footer.tpl'}
 </div>
 </body>
