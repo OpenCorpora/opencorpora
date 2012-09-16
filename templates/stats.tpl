@@ -73,8 +73,8 @@ $(document).ready(function(){
 <a name="users"></a>
 <h3>{t}Пользователи по количеству размеченных примеров{/t} (всего {$ma_count})</h3>
 <table class="table table-condensed" id="users_table">
-<tr><th rowspan='2'>#</th><th rowspan='2'>Пользователь</th><th rowspan='2'>Всего</th><th colspan='3'>В завершённых пулах</th><th rowspan='2'>Последняя активность</th></tr>
-<tr><th>Размечено<th>% расхождений<th>Пересчитано</tr>
+<tr><th rowspan='2'>#</th><th rowspan='2'>Пользователь</th><th rowspan='2'>Всего</th><th colspan='2'>В завершённых пулах</th><th rowspan='2'>Последняя<br/>активность</th></tr>
+<tr><th>Размечено<th>% расхождений<!--th>Пересчитано--></tr>
 {foreach item=s from=$stats.annotators}
     <tr {if $s@iteration>20}style="display:none;"{/if}>
         <td>{$s@iteration}
@@ -82,7 +82,7 @@ $(document).ready(function(){
         <td>{$s.total}
         <td>{$s.fin.value|default:'0'}
         <td>{$s.fin.divergence|string_format:"%.1f%%"}
-        <td class='small'>{$s.fin.timestamp|date_format:"%d.%m.%y, %H:%M"|default:"&nbsp;"}
+        <!--td class='small'>{$s.fin.timestamp|date_format:"%d.%m.%y, %H:%M"|default:"&nbsp;"}-->
         <td>
             {if $s.fin.last_active > $stats.timestamp_today}сегодня в {$s.fin.last_active|date_format:"%H:%M"}
             {elseif $s.fin.last_active > $stats.timestamp_yesterday}вчера в {$s.fin.last_active|date_format:"%H:%M"}
@@ -94,7 +94,7 @@ $(document).ready(function(){
 <h3>{t}Пользователи по количеству добавленных предложений{/t}</h3>
 <ol>
 {foreach item=s from=$stats.added_sentences}
-    <li>{$s.user_name} ({$s.value}) <span class='small'>({$s.timestamp|date_format:"%d.%m.%y, %H:%M"})</li>
+    <li>{$s.user_name} ({$s.value})</li>
 {/foreach}
 </ol>
 <!--div id="adder_chart" style="width:700px; height:400px"></div-->
@@ -102,7 +102,7 @@ $(document).ready(function(){
 <h3>{t}За последнюю неделю{/t}</h3>
 <ol>
 {foreach item=s from=$stats.added_sentences_last_week}
-    <li>{$s.user_name} ({$s.value}) <span class='small'>({$s.timestamp|date_format:"%d.%m.%y, %H:%M"})</li>
+    <li>{$s.user_name} ({$s.value})</li>
 {/foreach}
 </ol>
 {/if}
@@ -119,76 +119,76 @@ $(document).ready(function(){
 </tr>
 <tr>
     <td><a href="books.php?book_id=1">{t}ЧасКор{/t} (статьи)</a></td>
-    <td><b>{$stats.chaskor_books.value|number_format}</b></td>
-    <td><b>{$stats.chaskor_sentences.value|number_format}</b></td>
-    <td><b>{$stats.chaskor_tokens.value|number_format}</b></td>
+    <td><b>{$stats.chaskor_books.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.chaskor_sentences.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.chaskor_tokens.value|number_format:0:'':' '}</b></td>
     <td>
-        <p><b>{$stats.chaskor_words.value|number_format}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.chaskor_words}'>{$stats.percent_words.chaskor}%</span></p>
+        <p><b>{$stats.chaskor_words.value|number_format:0:'':' '}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.chaskor_words}'>{$stats.percent_words.chaskor}%</span></p>
         <div class="progress" style="width: 200px;"><div class="bar" style="width: {min($stats.percent_words.chaskor,100)}%"></div></div>
     </td>
 </tr>
 <tr>
     <td><a href="books.php?book_id=226">{t}ЧасКор{/t} (новости)</a></td>
-    <td><b>{$stats.chaskor_news_books.value|number_format}</b></td>
-    <td><b>{$stats.chaskor_news_sentences.value|number_format}</b></td>
-    <td><b>{$stats.chaskor_news_tokens.value|number_format}</b></td>
+    <td><b>{$stats.chaskor_news_books.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.chaskor_news_sentences.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.chaskor_news_tokens.value|number_format:0:'':' '}</b></td>
     <td>
-        <p><b>{$stats.chaskor_news_words.value|number_format}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.chaskor_news_words}'>{$stats.percent_words.chaskor_news}%</span></p>
+        <p><b>{$stats.chaskor_news_words.value|number_format:0:'':' '}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.chaskor_news_words}'>{$stats.percent_words.chaskor_news}%</span></p>
         <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.chaskor_news}%"></div></div>
     </td>
 </tr>
 <tr>
     <td><a href="books.php?book_id=8">{t}Википедия{/t}</a></td>
-    <td><b>{$stats.wikipedia_books.value|number_format}</b></td>
-    <td><b>{$stats.wikipedia_sentences.value|number_format}</b></td>
-    <td><b>{$stats.wikipedia_tokens.value|number_format}</b></td>
+    <td><b>{$stats.wikipedia_books.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.wikipedia_sentences.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.wikipedia_tokens.value|number_format:0:'':' '}</b></td>
     <td>
-        <p><b>{$stats.wikipedia_words.value|number_format}</b> =  <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.wikipedia_words}'>{$stats.percent_words.wikipedia}%</span></p>
+        <p><b>{$stats.wikipedia_words.value|number_format:0:'':' '}</b> =  <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.wikipedia_words}'>{$stats.percent_words.wikipedia}%</span></p>
         <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.wikipedia}%"></div></div>
     </td>
 </tr>
 <tr>
     <td><a href="books.php?book_id=56">{t}Викиновости{/t}</a></td>
-    <td><b>{$stats.wikinews_books.value|number_format}</b></td>
-    <td><b>{$stats.wikinews_sentences.value|number_format}</b></td>
-    <td><b>{$stats.wikinews_tokens.value|number_format}</b></td>
+    <td><b>{$stats.wikinews_books.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.wikinews_sentences.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.wikinews_tokens.value|number_format:0:'':' '}</b></td>
     <td>
-        <p><b>{$stats.wikinews_words.value|number_format}</b> =  <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.wikinews_words}'>{$stats.percent_words.wikinews}%</span></p>
+        <p><b>{$stats.wikinews_words.value|number_format:0:'':' '}</b> =  <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.wikinews_words}'>{$stats.percent_words.wikinews}%</span></p>
         <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.wikinews}%"></div></div>
     </td>
 </tr>
 <tr>
     <td><a href="books.php?book_id=184">{t}Блоги{/t}</a></td>
-    <td><b>{$stats.blogs_books.value|number_format}</b></td>
-    <td><b>{$stats.blogs_sentences.value|number_format}</b></td>
-    <td><b>{$stats.blogs_tokens.value|number_format}</b></td>
+    <td><b>{$stats.blogs_books.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.blogs_sentences.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.blogs_tokens.value|number_format:0:'':' '}</b></td>
     <td>
-        <p><b>{$stats.blogs_words.value|number_format}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.blogs_words}'>{$stats.percent_words.blogs}%</span></p>
+        <p><b>{$stats.blogs_words.value|number_format:0:'':' '}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.blogs_words}'>{$stats.percent_words.blogs}%</span></p>
         <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.blogs}%"></div></div>
     </td>
 </tr>
 <tr>
 
     <td><a href="books.php?book_id=806">{t}Худож. литература{/t}</a></td>
-    <td><b>{$stats.fiction_books.value|number_format}</b></td>
-    <td><b>{$stats.fiction_sentences.value|number_format}</b></td>
-    <td><b>{$stats.fiction_tokens.value|number_format}</b></td>
+    <td><b>{$stats.fiction_books.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.fiction_sentences.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.fiction_tokens.value|number_format:0:'':' '}</b></td>
     <td>
-        <p><b>{$stats.fiction_words.value|number_format}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.fiction_words}'>{$stats.percent_words.fiction}%</span></p>
+        <p><b>{$stats.fiction_words.value|number_format:0:'':' '}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.fiction_words}'>{$stats.percent_words.fiction}%</span></p>
         <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.fiction}%"></div></div>
     </td>
 </tr>
 <tr>
     <th>{t}Всего{/t}</th>
-    <td><b>{$stats.total_books.value|number_format}</b></td>
-    <td><b>{$stats.total_sentences.value|number_format}</b></td>
-    <td><b>{$stats.total_tokens.value|number_format}</b></td>
+    <td><b>{$stats.total_books.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.total_sentences.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.total_tokens.value|number_format:0:'':' '}</b></td>
     <td>
-        <p><b>{$stats.total_words.value|number_format}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.total_words}'>{$stats.percent_words.total}%</span></p>
+        <p><b>{$stats.total_words.value|number_format:0:'':' '}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.total_words}'>{$stats.percent_words.total}%</span></p>
         <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.total}px"></div></div>
     </td>
 </tr>
 </table>
 <h2>{t}Словарь{/t}</h2>
-{t}Лемм{/t}: {$stats.total_lemmata.value|number_format} <span class='small'>({$stats.total_lemmata.timestamp|date_format:"%d.%m.%y, %H:%M"})</span><br/>
+{t}Лемм{/t}: {$stats.total_lemmata.value|number_format:0:'':' '}
 {/block}
