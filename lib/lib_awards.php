@@ -1,6 +1,7 @@
 <?php
 // rating and level
 function add_user_rating($user_id, $pool_id) {
+    global $config;
     $r = sql_fetch_array(sql_query("SELECT grammemes FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
     $signature = strtr($r['grammemes'], '&|', '__');
     if (isset($config['pools_complexity'][$signature]))
