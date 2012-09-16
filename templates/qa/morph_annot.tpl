@@ -128,7 +128,7 @@ $(document).ready(function() {
     <li><a href="{$web_prefix}/tasks.php">Разметка</a> <span class="divider">/</span></li>
     <li class="active">{$packet.gram_descr|implode:" &mdash; "}</li>
 </ul>
-<p class="color-light">Спасибо, что помогаете нам. Не торопитесь, будьте внимательны. Если вы не уверены, пропускайте пример.</p>
+<div class="ma_thanx_block">Спасибо, что помогаете нам. Не торопитесь, будьте внимательны. Если вы не уверены, пропускайте пример.</div>
 <!--<p><input type="text" id="test-progress"></p>
 <div id="progress-bar" class="progress-bar"><div></div></div>
 <div id="progress-splash" class="splash-block success" style="display:none;">

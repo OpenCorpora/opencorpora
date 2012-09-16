@@ -389,6 +389,9 @@ div.ma_instance_words {
     padding: 1px 3px;
     font-size: 20px;
 }
+.ma_thanx_block {
+    margin-bottom: 15px;
+}
 div.ma_instance .comment {
     margin-left: 5px;
 }
