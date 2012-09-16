@@ -27,7 +27,7 @@ function get_user_rating($user_id) {
     $next_level_points = get_rating4level($cur_level + 1);
     $got_level = update_user_level($user_id);
     return array(
-        'current' => $cur_points,
+        'current' => ($cur_points - $cur_level_points),
         'remaining_points' => ($next_level_points - $cur_points),
         'remaining_percent' => ceil(($next_level_points - $cur_points) / ($next_level_points - $cur_level_points) * 100),
         'got_level' => $got_level
