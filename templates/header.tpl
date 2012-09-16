@@ -52,7 +52,7 @@
                                 </li>
                                 <li class="dropdown">
                                     {if isset($smarty.session.user_id)}
-                                    <a href="{$web_prefix}/options.php" class="dropdown-toggle" data-toggle="dropdown" data-target="#">{$smarty.session.user_name} <b class="caret"></b></a>
+                                    <a href="{$web_prefix}/options.php" class="dropdown-toggle login-corner-user" data-toggle="dropdown" data-target="#"><span class="badge badge-star" title="Ваш текущий уровень">3</span>{$smarty.session.user_name} <b class="caret"></b></a>
                                     <ul class="dropdown-menu">
                                         <li><a href="{$web_prefix}/options.php">Настройки</a></li>
                                         <li><a href="{$web_prefix}/login.php?act=logout">Выход</a></li>

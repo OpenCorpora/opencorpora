@@ -10,6 +10,9 @@
     color:#5979b3;
     border-color:#bac9e3;
 }
+.badge {
+    padding: 2px 9px 2px;
+}
 a { 
     text-decoration: underline;
 }
@@ -78,6 +81,13 @@ body {
 }
 .login-corner-block {
     padding: 10px 20px 0;
+}
+.login-corder-user {}
+.login-corner-user span.badge-star {
+    margin-right: 7px;
+    background-color: none;
+    background: url("../img/star.png") no-repeat;
+    padding: 10px 12px;
 }
 #header .lang-switcher {
     background-repeat: no-repeat;
@@ -360,6 +370,25 @@ div.comment_main {
 .ac_results li em {color:#666666;}
 .ac_over {	background-color: Highlight;	color: HighlightText;}
 /* DISAMBIGUATION PAGE */
+div.ma_status_block {
+    background-color:#f8cb6a;
+    position: absolute;
+    right: 0;
+    padding: 5px 25px;
+    border-radius: 0 0 6px 6px;
+    box-shadow:0 3px 3px #ead8b0;
+    margin-bottom: 15px;
+}
+div.ma_status_block .progress {
+    width: 170px;
+    margin: 5px 0 0;
+}
+div.ma_status_block .badges-block {
+    padding: 0 0 0 20px;
+}
+div.ma_status_block .badges-block a {
+    margin-left: 10px;
+}
 div.ma_instance {
     margin-bottom: 30px;
 }
