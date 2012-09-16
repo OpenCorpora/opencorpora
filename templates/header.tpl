@@ -13,7 +13,7 @@
                     {$sname = $smarty.server.SCRIPT_NAME}{$ruri = $smarty.server.REQUEST_URI}
                     <li {if $sname=="$web_prefix/tasks.php"}class="active"{/if}><a href="{$web_prefix}/tasks.php">Разметка</a></li>
                     <li {if $sname=="$web_prefix/dict.php"}class="active"{/if}><a href="{$web_prefix}/dict.php">Словарь</a></li>
-                    <li {if $sname=="$web_prefix/books.php"}class="active"{/if}><a href="{$web_prefix}/books.php">Тексты</a></li>
+                    <!--li {if $sname=="$web_prefix/books.php"}class="active"{/if}><a href="{$web_prefix}/books.php">Тексты</a></li-->
                     <li {if $ruri=="$web_prefix/?page=stats" || $ruri=="$web_prefix/?page=tag_stats"}class="active"{/if}><a href="{$web_prefix}/?page=stats">Статистика</a></li>
                     <!--li><a href="#">Свежие правки</a></li>
                     <li><a href="#">Downloads</a></li-->
