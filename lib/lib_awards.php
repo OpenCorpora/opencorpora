@@ -1,6 +1,13 @@
 <?php
 // rating and level
-function add_user_rating($user_id, $pool_id) {
+function update_user_rating($user_id, $pool_id, $is_skip, $previous_answer) {
+    // increase or decrease rating depending on the answer
+    // (or do nothing)
+
+    if (($previous_answer && !$is_skip) ||
+        (!$previous_answer && $is_skip))
+        return true;
+
     global $config;
     $r = sql_fetch_array(sql_query("SELECT grammemes FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
     $signature = strtr($r['grammemes'], '&|', '__');
@@ -8,7 +15,12 @@ function add_user_rating($user_id, $pool_id) {
         $weight = $config['pools_complexity'][$signature];
     else
         $weight = $config['pools_complexity']['default'];
-
+    
+    if ($is_skip)
+        return add_user_rating($user_id, $pool_id, -$weight);
+    return add_user_rating($user_id, $pool_id, $weight);
+}
+function add_user_rating($user_id, $pool_id, $weight) {
     sql_begin();
 
     if (sql_query("UPDATE users SET user_rating10 = user_rating10 + $weight WHERE user_id=$user_id LIMIT 1") &&
