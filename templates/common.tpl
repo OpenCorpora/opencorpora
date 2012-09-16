@@ -2,6 +2,9 @@
 {block name=body}<body>{/block}
 <div id='wrap'>
 {nocache}{include file='header.tpl'}{/nocache}
+{if $readonly == 1}
+<div class='alert alert-error'><div class="container">{t}Система находится в режиме &laquo;только для чтения&raquo;{/t}.</div></div>
+{/if}
 <div id="container" class="container">
 {block name=content}{/block}
 </div>
