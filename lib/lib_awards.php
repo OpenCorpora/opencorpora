@@ -69,6 +69,8 @@ function get_user_level($user_id) {
     return $r['user_level'];
 }
 function check_user_level($user_id) {
+    if (!$user_id)
+        return 0;
     $r = sql_fetch_array(sql_query("SELECT user_rating10, user_level, user_shown_level FROM users WHERE user_id=$user_id LIMIT 1"));
     $next_level = $r['user_level'];
     $last_shown_level = $r['user_shown_level'];
