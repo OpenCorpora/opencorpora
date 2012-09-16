@@ -137,34 +137,42 @@ function mark_shown_badge($user_id, $badge_id) {
 }
 function check_user_simple_badges($user_id) {
     global $config;
-    $thresholds = explode(',', $config['badges']['simple']);
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt FROM morph_annot_instances WHERE user_id = $user_id AND answer > 0"));
-    $count = $r['cnt'];
-    $res = sql_query("SELECT MAX(badge_id) AS max_badge FROM user_badges WHERE user_id = $user_id AND badge_id <= 20");
-    if (sql_num_rows($res) == 0)
-        $max_badge = 0;
-    else {
+    $badge_id = false;
+
+    $res = sql_query("SELECT badge_id FROM user_badges WHERE user_id=$user_id AND shown=0 ORDER BY badge_id LIMIT 1");
+    if (sql_num_rows($res) > 0) {
         $r = sql_fetch_array($res);
-        $max_badge = $r['max_badge'];
+        $badge_id = $r['badge_id'];
+    }
+    else {
+        $thresholds = explode(',', $config['badges']['simple']);
+        $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt FROM morph_annot_instances WHERE user_id = $user_id AND answer > 0"));
+        $count = $r['cnt'];
+        $res = sql_query("SELECT MAX(badge_id) AS max_badge FROM user_badges WHERE user_id = $user_id AND badge_id <= 20");
+        $r = sql_fetch_array($res);
+        $max_badge = (int)$r['max_badge'];
+
+        foreach ($thresholds as $i => $thr) {
+            if ($max_badge > $i)
+                continue;
+            if ($count < $thr)
+                break;
+            // user should get a badge!
+            $badge_id = $i + 1;
+            if (!sql_query("INSERT INTO user_badges VALUES($user_id, $badge_id, 0)"))
+                return false;
+            break;
+        }
     }
 
-    foreach ($thresholds as $i => $thr) {
-        if ($max_badge > $i)
-            continue;
-        if ($count < $thr)
-            break;
-        // user should get a badge!
-        $badge_id = $i + 1;
-        if (sql_query("INSERT INTO user_badges VALUES($user_id, $badge_id, 0)")) {
-            $r = sql_fetch_array(sql_query("SELECT badge_name, badge_descr FROM user_badges_types WHERE badge_id=$badge_id LIMIT 1"));
-            return array (
-                'id' => $badge_id,
-                'name' => $r['badge_name'],
-                'description' => $r['badge_descr']
-            );
-        }
-        break;
-    }
-    return false;
+    if (!$badge_id)
+        return false;
+
+    $r = sql_fetch_array(sql_query("SELECT badge_name, badge_descr FROM user_badges_types WHERE badge_id=$badge_id LIMIT 1"));
+    return array (
+        'id' => $badge_id,
+        'name' => $r['badge_name'],
+        'description' => $r['badge_descr']
+    );
 }
 ?>
