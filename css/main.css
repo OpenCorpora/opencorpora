@@ -101,6 +101,18 @@ a.loginza {
     vertical-align: -5px;
     padding: 0 0 0 10px;
 }
+.nav-wrapper {
+    padding: 8px 0;
+}
+.nav-wrapper .nav a {
+    text-decoration: none;
+}
+.nav-wrapper .nav-well-form {
+    padding: 10px 15px 0;
+}
+.nav-wrapper .nav-well-form input {
+    margin-bottom: 0;
+}
 .promo-unit {
     background: url("../img/tiny_grid.png");
     padding: 0;
