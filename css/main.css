@@ -23,7 +23,7 @@ a.pseudo {
 a.pseudo:hover {
     border-bottom: 1px solid;
 }
-a.btn {
+a.btn, .nav-tabs a {
     text-decoration: none;
 }
 table.borderless, td.borderless, tr.borderless td, th.borderless, tr.borderless th {
