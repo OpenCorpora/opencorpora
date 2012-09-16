@@ -32,21 +32,14 @@ function get_user_rating($user_id) {
     );
 }
 function update_user_level($user_id) {
-    $r = sql_fetch_array(sql_query("SELECT user_rating10, user_level FROM users WHERE user_id=$user_id LIMIT 1"));
-    $next_level = $r['user_level'] + 1;
-    $points_for_next_level = get_rating4level($next_level);
-
-    if (floor($r['user_rating10'] / 10) < $points_for_next_level)
-        return 0;
-
-    // so rating points are sufficient
-    if (check_badges4level($next_level)) {
-        if (sql_query("UPDATE users SET user_level = $next_level WHERE user_id=$user_id LIMIT 1")) {
-            $_SESSION['user_level'] = $next_level;
-            return $next_level;
-        }
+    $next_level = check_user_level($user_id);
+    if (!$next_level)
+        return false;
+    if (sql_query("UPDATE users SET user_level = $next_level WHERE user_id=$user_id LIMIT 1")) {
+        $_SESSION['user_level'] = $next_level;
+        return true;
     }
-    return 0;
+    return false;
 }
 function get_rating4level($level) {
     if ($level < 2)
@@ -63,6 +56,19 @@ function get_rating4level_aux($level) {
 function get_user_level($user_id) {
     $r = sql_fetch_array(sql_query("SELECT user_level FROM users WHERE user_id=$user_id LIMIT 1"));
     return $r['user_level'];
+}
+function check_user_level($user_id) {
+    $r = sql_fetch_array(sql_query("SELECT user_rating10, user_level FROM users WHERE user_id=$user_id LIMIT 1"));
+    $next_level = $r['user_level'] + 1;
+    $points_for_next_level = get_rating4level($next_level);
+
+    if (
+        floor($r['user_rating10'] / 10) < $points_for_next_level ||
+        !check_badges4level($next_level)
+    )
+        return 0;
+
+    return $next_level;
 }
 // badges
 function get_user_badges($user_id, $only_shown=true) {
@@ -113,7 +119,6 @@ function check_user_simple_badges($user_id) {
         $badge_id = $i + 1;
         if (sql_query("INSERT INTO user_badges VALUES($user_id, $badge_id, 0)")) {
             $r = sql_fetch_array(sql_query("SELECT badge_name, badge_descr FROM user_badges_types WHERE badge_id=$badge_id LIMIT 1"));
-            mark_shown_badge($user_id, $badge_id);
             return array (
                 'id' => $badge_id,
                 'name' => $r['badge_name'],
