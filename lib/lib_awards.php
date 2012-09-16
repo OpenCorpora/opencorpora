@@ -34,8 +34,8 @@ function get_user_rating($user_id) {
 function update_user_level($user_id, $new_level) {
     if (!$next_level)
         return false;
-    if (sql_query("UPDATE users SET user_level = $next_level WHERE user_id=$user_id LIMIT 1")) {
-        $_SESSION['user_level'] = $next_level;
+    if (sql_query("UPDATE users SET user_level = $new_level WHERE user_id=$user_id LIMIT 1")) {
+        $_SESSION['user_level'] = $new_level;
         return true;
     }
     return false;
