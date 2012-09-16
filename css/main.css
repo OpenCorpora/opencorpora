@@ -389,6 +389,9 @@ div.ma_status_block .badges-block {
 div.ma_status_block .badges-block a {
     margin-left: 10px;
 }
+div.ma_status_block .badges-block a.badge-inactive {
+    opacity: 0.3;
+}
 div.ma_instance {
     margin-bottom: 30px;
 }

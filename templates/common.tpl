@@ -4,6 +4,7 @@
 {nocache}{include file='header.tpl'}
 {block name=before_content}{/block}{/nocache}
 <div id="container" class="container">
+{include file='qa/user_splash.tpl'}
 {block name=content}{/block}
 </div>
 {include file='footer.tpl'}

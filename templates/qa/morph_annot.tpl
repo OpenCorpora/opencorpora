@@ -125,6 +125,7 @@ $(document).ready(function() {
 });
 </script>
 {/literal}
+<br>
 <ul class="breadcrumb">
     <li><a href="{$web_prefix}/tasks.php">Разметка</a> <span class="divider">/</span></li>
     <li class="active">{$packet.gram_descr|implode:" &mdash; "}</li>
