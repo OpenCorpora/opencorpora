@@ -59,8 +59,10 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
             return false;
         setcookie('auth', $user_id.'@'.$token, time()+60*60*24*7, '/');
         //setting the session
+        include_once('lib_awards.php');
         $_SESSION['user_id'] = $user_id;
         $_SESSION['user_name'] = get_user_shown_name($user_id);
+        $_SESSION['user_level'] = get_user_level($user_id);
         $_SESSION['options'] = get_user_options($user_id);
         $_SESSION['user_permissions'] = get_user_permissions($user_id);
         if (!$_SESSION['options'] || !$_SESSION['user_permissions'])
@@ -86,16 +88,17 @@ function user_login_openid($token) {
     else
         $id =  $arr['identity'];
     //check if the user exists
-    $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name FROM `users` WHERE user_name='$id' LIMIT 1");
+    $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name, user_level FROM `users` WHERE user_name='$id' LIMIT 1");
     //if he doesn't
     if (sql_num_rows($res) == 0) {
         if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 1, 0)")) {
             return 0;
         }
-        $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name FROM `users` WHERE user_name='$id' LIMIT 1");
+        $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name, user_level FROM `users` WHERE user_name='$id' LIMIT 1");
     }
     $row = sql_fetch_array($res);
     $_SESSION['user_id'] = $row['user_id'];
+    $_SESSION['user_level'] = $row['user_level'];
     $_SESSION['user_name'] = get_user_shown_name($row['user_id']);
     $_SESSION['options'] = get_user_options($row['user_id']);
     $_SESSION['user_permissions'] = get_user_permissions($row['user_id']);
@@ -119,6 +122,7 @@ function user_logout() {
         return false;
     unset($_SESSION['user_id']);
     unset($_SESSION['user_name']);
+    unset($_SESSION['user_level']);
     unset($_SESSION['debug_mode']);
     unset($_SESSION['options']);
     unset($_SESSION['user_permissions']);

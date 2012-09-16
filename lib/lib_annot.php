@@ -692,8 +692,10 @@ function update_annot_instance($id, $answer) {
     if (!$id || !$answer || !$user_id) return 0;
 
     // the pool should be editable
-    $r = sql_fetch_array(sql_query("SELECT `status` FROM morph_annot_pools WHERE pool_id = (SELECT pool_id FROM morph_annot_samples WHERE sample_id=(SELECT sample_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1) LIMIT 1)"));
+    $r = sql_fetch_array(sql_query("SELECT pool_id, `status` FROM morph_annot_pools WHERE pool_id = (SELECT pool_id FROM morph_annot_samples WHERE sample_id=(SELECT sample_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1) LIMIT 1)"));
     if ($r['status'] != 3) return 0;
+
+    $pool_id = $r['pool_id'];
 
     sql_begin();
 
@@ -716,7 +718,9 @@ function update_annot_instance($id, $answer) {
 
     // a valid answer
     if ($answer > 0) {
-        if (!sql_query("UPDATE morph_annot_instances SET answer='$answer' WHERE instance_id=$id LIMIT 1")) return 0;
+        if (!sql_query("UPDATE morph_annot_instances SET answer='$answer' WHERE instance_id=$id LIMIT 1") ||
+            !add_user_rating($user_id, $pool_id))
+            return 0;
     }
     // or a rejected question
     elseif ($answer == -1) {
