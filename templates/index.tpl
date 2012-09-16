@@ -14,7 +14,7 @@
 <li>
     принять участие в снятии морфологической неоднозначности {if $is_logged}(см. <a href="tasks.php">задания</a>):{else}(<a href="{$web_prefix}/login.php">зарегистрируйтесь</a>, чтобы получить доступ к заданиям){/if}
     <div>(всего мы получили уже <b>больше {($answer_count / 1000)|string_format:"%d"} тыс.</b> ответов)</div>
-    {if $is_logged}<div><table border="1" cellspacing="0" cellpadding="3" style="margin: 5px">
+    {if $is_logged}<div><table class="table" style="width:800px; margin-top:7px;">
     <tr><th>Название пула</th><th>Доступно</th>{if $available}<th>&nbsp;</th>{/if}</tr>
     {foreach from=$available item=task}
     <tr>

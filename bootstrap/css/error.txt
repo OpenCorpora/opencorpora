@@ -1,4 +1,0 @@
-A less error occured trying to build your bundle. Please paste the error below in an issue for us at http://github.com/twitter/bootstrap! thanks!
-
-
-{"type":"Name","message":"variable @navbarBackgroundColor is undefined","filename":"bootstrap.css","index":8541,"line":281,"column":29,"extract":["@navbarLinkColorActive: darken(@navbarLinkColor,15%);","@navbarLinkBackgroundActive: @navbarBackgroundColor;",""]}
