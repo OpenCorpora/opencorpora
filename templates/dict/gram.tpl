@@ -21,7 +21,7 @@
     <br/><br/>
     {/if}
     <form action="?act=edit_gram" method="post">
-    <table border="1" cellspacing="0" cellpadding="2">
+    <table border="0" class="table table-collapsed" cellspacing="0" cellpadding="2">
         <tr>
             <th>{if $order == 'priority'}{t}Порядок{/t}{else}<a href="?act=gram&amp;order=priority">{t}Порядок{/t}</a>{/if}</th>
             <th>{if $order == 'id'}{t}Внутр. ID{/t}{else}<a href="?act=gram&amp;order=id">{t}Внутр. ID{/t}</a>{/if}</th>
