@@ -90,6 +90,7 @@ function check_user_level($user_id) {
         }
         break;
     }
+    $next_level--;
     
     if ($next_level == $r['user_level'])
         return 0;
