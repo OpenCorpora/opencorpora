@@ -128,20 +128,19 @@ $(document).ready(function() {
     <li><a href="{$web_prefix}/tasks.php">Разметка</a> <span class="divider">/</span></li>
     <li class="active">{$packet.gram_descr|implode:" &mdash; "}</li>
 </ul>
-<p>Спасибо, что помогаете нам. Не торопитесь, будьте внимательны. Если вы не уверены, пропускайте пример.</p>
+<p class="color-light">Спасибо, что помогаете нам. Не торопитесь, будьте внимательны. Если вы не уверены, пропускайте пример.</p>
 <!--<p><input type="text" id="test-progress"></p>
 <div id="progress-bar" class="progress-bar"><div></div></div>
 <div id="progress-splash" class="splash-block success" style="display:none;">
     <div><strong>Поздравляем!</strong> Вы разметили 50% пула.</div>
-</div>
-<br/>-->
+</div>-->
 {foreach from=$packet.instances item=instance}
 <div class='ma_instance' rel='{$instance.id}' rev='{$instance.sample_id}'>
     <div class="ma_instance_words">
         {if $instance.has_left_context}<a class='expand' href="#" rel='{$instance.has_left_context}' rev='-1'>...</a>{/if}
         {foreach from=$instance.context item=word name=x}
         {if $smarty.foreach.x.index == $instance.mainword}
-        <b class='bggreen' title='{$instance.lemmata}'>{$word|htmlspecialchars}</b> 
+        <b class='ma_instance_word' title='{$instance.lemmata}'>{$word|htmlspecialchars}</b> 
         {else}
         {$word|htmlspecialchars}
         {/if}

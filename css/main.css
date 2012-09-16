@@ -29,6 +29,9 @@ a.btn {
 table.borderless, td.borderless, tr.borderless td, th.borderless, tr.borderless th {
     border: none;
 }
+.color-light {
+    color: #909090;
+}
 html {
     height: 100%;
 }
@@ -177,6 +180,9 @@ a.loginza {
 }
 .bgyellow {
     background-color: yellow;
+}
+.bgorange {
+    background-color: #F8CB6A;
 }
 a.toggle {
     border-bottom: 1px black dashed;
@@ -378,7 +384,9 @@ div.ma_instance {
 div.ma_instance_words {
     margin-bottom: 4px;
 }
-div.ma_instance b {
+.ma_instance_word {
+    background-color: #F8CB6A;
+    padding: 1px 3px;
     font-size: 20px;
 }
 div.ma_instance .comment {
