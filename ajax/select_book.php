@@ -1,7 +1,5 @@
 <?php
-header('Content-type: text/xml; charset=utf-8');
-
-require_once('../lib/header.php');
+require_once('../lib/header_ajax.php');
 require_once('../lib/lib_books.php');
 $id = (int)$_GET['id'];
 $t = get_books_for_select($id);

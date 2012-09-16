@@ -1,6 +1,6 @@
 <?php
 
-require_once('../lib/header.php');
+require_once('../lib/header_ajax.php');
 require_once('../lib/lib_tokenizer.php');
 
 if(!is_admin()) {
