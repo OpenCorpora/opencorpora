@@ -50,20 +50,16 @@ function update_user_level($user_id) {
     return 0;
 }
 function get_rating4level($level) {
-    switch($level) {
-        case 1:
-            return 0;
-        case 2:
-            return 100;
-        case 3:
-            return 300;
-        case 4:
-            return 650;
-        case 5:
-            return 1200;
-        default:
-            return 10000;
-    }
+    if ($level < 2)
+        return 0;
+    if ($level == 2)
+        return 100;
+    return get_rating4level($level - 1) + get_rating4level_aux($level);
+}
+function get_rating4level_aux($level) {
+    if ($level == 2)
+        return 100;
+    return get_rating4level_aux($level - 1) + 50 * ($level - 1);
 }
 function get_user_level($user_id) {
     $r = sql_fetch_array(sql_query("SELECT user_level FROM users WHERE user_id=$user_id LIMIT 1"));
