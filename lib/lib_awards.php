@@ -31,14 +31,25 @@ function get_user_rating($user_id) {
         'remaining_percent' => ceil(($next_level_points - $cur_points) / ($next_level_points - $cur_level_points) * 100)
     );
 }
-function update_user_level($user_id) {
-    $next_level = check_user_level($user_id);
+function update_user_level($user_id, $new_level) {
     if (!$next_level)
         return false;
     if (sql_query("UPDATE users SET user_level = $next_level WHERE user_id=$user_id LIMIT 1")) {
         $_SESSION['user_level'] = $next_level;
         return true;
     }
+    return false;
+}
+function mark_shown_user_level($user_id, $level) {
+    $r = sql_fetch_array(sql_query("SELECT user_level, user_shown_level FROM users WHERE user_id=$user_id LIMIT 1"));
+    if (
+        $r['user_level'] == $r['user_shown_level'] ||
+        $level <= $r['user_shown_level'] ||
+        $level > $r['user_level']
+    )
+        return false;
+    if (sql_query("UPDATE users SET user_shown_level = $level WHERE user_id = $user_id LIMIT 1"))
+        return true;
     return false;
 }
 function get_rating4level($level) {
