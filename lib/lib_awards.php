@@ -82,11 +82,13 @@ function check_user_level($user_id) {
         $points_for_next_level = get_rating4level($next_level);
 
         if (
-            floor($r['user_rating10'] / 10) < $points_for_next_level ||
-            !check_badges4level($next_level)
-        )
-            break;
-        $next_level++;
+            floor($r['user_rating10'] / 10) >= $points_for_next_level &&
+            check_badges4level($next_level)
+        ) {
+            $next_level++;
+            continue;
+        }
+        break;
     }
     
     if ($next_level == $r['user_level'])
