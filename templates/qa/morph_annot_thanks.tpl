@@ -1,5 +1,6 @@
 {* Smarty *}
 {extends file='common.tpl'}
+{block name=before_content}{include file="qa/game_status.tpl"}{/block}
 {block name=content}
 <p><b>Спасибо!</b></p>
 <p>Задания этого типа закончились. Сейчас вы можете:

@@ -1,5 +1,6 @@
 {* Smarty *}
 {extends file='common.tpl'}
+{block name=before_content}{include file="qa/game_status.tpl"}{/block}
 {block name=content}
 {literal}
 <script type="text/javascript">

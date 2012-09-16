@@ -9,6 +9,7 @@ if (!is_logged()) {
 }
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
+$smarty->assign('user_rating', get_user_rating($_SESSION['user_id']));
 
 switch ($action) {
     case 'annot':
