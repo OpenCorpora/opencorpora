@@ -25,12 +25,10 @@ function get_user_rating($user_id) {
     $cur_level = $r['user_level'];
     $cur_level_points = get_rating4level($cur_level);
     $next_level_points = get_rating4level($cur_level + 1);
-    $got_level = update_user_level($user_id);
     return array(
         'current' => ($cur_points - $cur_level_points),
         'remaining_points' => ($next_level_points - $cur_points),
-        'remaining_percent' => ceil(($next_level_points - $cur_points) / ($next_level_points - $cur_level_points) * 100),
-        'got_level' => $got_level
+        'remaining_percent' => ceil(($next_level_points - $cur_points) / ($next_level_points - $cur_level_points) * 100)
     );
 }
 function update_user_level($user_id) {
@@ -113,8 +111,15 @@ function check_user_simple_badges($user_id) {
             break;
         // user should get a badge!
         $badge_id = $i + 1;
-        if (sql_query("INSERT INTO user_badges VALUES($user_id, $badge_id, 0)"))
-            return $badge_id;
+        if (sql_query("INSERT INTO user_badges VALUES($user_id, $badge_id, 0)")) {
+            $r = sql_fetch_array(sql_query("SELECT badge_name, badge_descr FROM user_badges_types WHERE badge_id=$badge_id LIMIT 1"));
+            mark_shown_badge($user_id, $badge_id);
+            return array (
+                'id' => $badge_id,
+                'name' => $r['badge_name'],
+                'description' => $r['badge_descr']
+            );
+        }
         break;
     }
     return false;

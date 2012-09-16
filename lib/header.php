@@ -122,6 +122,8 @@ $smarty->assign('readonly', file_exists('/var/lock/oc_readonly.lock') ? 1 : 0);
 $smarty->assign('dict_errors', sql_num_rows(sql_query("SELECT error_id FROM dict_errata LIMIT 1")));
 $smarty->assign('goals', $config['goals']);
 
+$smarty->assign('new_badge', check_user_simple_badges($_SESSION['user_id']));
+$smarty->assign('new_level', update_user_level($_SESSION['user_id']));
 //svn info
 $svnfile = file('.svn/entries');
 $smarty->assign('svn_revision', $svnfile[3]);
