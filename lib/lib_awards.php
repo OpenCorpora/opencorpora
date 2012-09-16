@@ -43,6 +43,7 @@ function update_user_level($user_id) {
     // so rating points are sufficient
     if (check_badges4level($next_level)) {
         if (sql_query("UPDATE users SET user_level = $next_level WHERE user_id=$user_id LIMIT 1")) {
+            $_SESSION['user_level'] = $next_level;
             return $next_level;
         }
     }
