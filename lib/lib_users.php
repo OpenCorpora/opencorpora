@@ -47,17 +47,9 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
     $login = mysql_real_escape_string($login);
     if (($user_id=$auth_user_id) || $user_id = user_check_password($login, $passwd)) {
         sql_begin();
-        //deleting the old token
-        if ($auth_token) {
-            sql_query("DELETE from user_tokens WHERE user_id=$user_id AND token='".mysql_real_escape_string(substr(strstr($auth_token, '@'), 1))."'");
-            $r = sql_fetch_array(sql_query("SELECT user_shown_name AS user_name FROM users WHERE user_id=$user_id LIMIT 1"));
-            $login=$r['user_name'];
-        }
-        //adding a new token
-        $token = mt_rand();
-        if (!sql_query("INSERT INTO user_tokens VALUES('$user_id','$token', '".time()."')", 1, 1))
+        $token = remember_user($user_id, $auth_token);
+        if (!$token)
             return false;
-        setcookie('auth', $user_id.'@'.$token, time()+60*60*24*7, '/');
         //setting the session
         include_once('lib_awards.php');
         $_SESSION['user_id'] = $user_id;
@@ -72,6 +64,19 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
         return true;
     }
     return false;
+}
+function remember_user($user_id, $auth_token=false) {
+    //deleting the old token
+    if ($auth_token) {
+        sql_query("DELETE from user_tokens WHERE user_id=$user_id AND token='".mysql_real_escape_string(substr(strstr($auth_token, '@'), 1))."'");
+    }
+    //adding a new token
+    $token = mt_rand();
+    if (!sql_query("INSERT INTO user_tokens VALUES('$user_id','$token', '".time()."')", 1, 1))
+        return false;
+
+    setcookie('auth', $user_id.'@'.$token, time()+60*60*24*7, '/');
+    return $token;
 }
 function user_login_openid($token) {
     $ch = curl_init();
@@ -97,9 +102,14 @@ function user_login_openid($token) {
         $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name, user_level FROM `users` WHERE user_name='$id' LIMIT 1");
     }
     $row = sql_fetch_array($res);
+    $token = remember_user($row['user_id'], false);
+    if (!$token) {
+        return false;
+    }
     $_SESSION['user_id'] = $row['user_id'];
     $_SESSION['user_level'] = $row['user_level'];
     $_SESSION['user_name'] = get_user_shown_name($row['user_id']);
+    $_SESSION['token'] = $token;
     $_SESSION['options'] = get_user_options($row['user_id']);
     $_SESSION['user_permissions'] = get_user_permissions($row['user_id']);
     if (!$_SESSION['options'] || !$_SESSION['user_permissions'])
