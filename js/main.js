@@ -591,3 +591,7 @@ function toggle_rightmenu(el) {
         }
     }
 }
+function show_bootalert(type,msg) {
+    $("#alert_wrap").html('<div class="alert alert-' + type + '">' + msg + '</div>');
+    setTimeout('$("#alert_wrap .alert").fadeOut()',3000);
+}

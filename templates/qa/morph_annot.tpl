@@ -58,12 +58,13 @@ $(document).ready(function() {
     });
     $('a.comment').click(function(event) {
         if ($(event.target).closest('div').find('textarea').length == 0) {
-            $(event.target).closest('div').append('<div class="controls"><textarea placeholder="Ваш комментарий" class="span4"></textarea><button class="btn send_comment">Отправить комментарий</button></div>').find('button.send_comment').click(function() {
+            $(event.target).closest('div').append('<div class="controls"><textarea placeholder="Ваш комментарий" class="span4"></textarea><button class="btn send_comment">Отправить комментарий</button></div>').find('button.send_comment').click(function(comment_event) {
                 $.post('ajax/post_comment.php', {'type': 'morph_annot', 'id': $(event.target).attr('rel'), 'text': $(this).closest('div').find('textarea').val()}, function(res) {
                     var $r = $(res).find('response');
                     if ($r.attr('ok') == 1) {
-                        $(event.target).closest('div').find('div').replaceWith('<p>Спасибо, ваш комментарий добавлен!</p>');
-                        $(event.target).closest('div').find('p').fadeOut(3000);
+                        /*$(event.target).closest('div').find('div').replaceWith('<p>Спасибо, ваш комментарий добавлен!</p>');*/
+                        $(comment_event.target).closest('.controls').hide();
+                        show_bootalert('success','Спасибо, ваш комментарий добавлен!');
                     } else {
                         alert('Comment saving failed');
                     }
