@@ -32,6 +32,9 @@ table.borderless, td.borderless, tr.borderless td, th.borderless, tr.borderless 
 .color-light {
     color: #909090;
 }
+.space-after {
+    margin-bottom: 20px;
+}
 html {
     height: 100%;
 }
