@@ -179,15 +179,15 @@
 
         <div class="controls">
             <input type="checkbox" id="precision" checked="checked"/>
-            <label for="precision">precision</label>
+            <label class="inline" for="precision">precision</label>
 
             <input type="checkbox" id="recall" checked="checked"/>
-            <label for="recall">recall</label>
+            <label class="inline" for="recall">recall</label>
 
             <input type="checkbox" id="F1" checked="checked"/>
-            <label for="F1">F1</label>
+            <label class="inline" for="F1">F1</label>
 
-            <label for="threshold" id="threshold-label">Threshold:</label>
+            <label class="inline" for="threshold" id="threshold-label">Threshold:</label>
             <select name="threshold" id="threshold">
                 <option>0</option>
                 <option>0.01</option>
@@ -224,10 +224,10 @@
 </div>
 
 <div class="controls">
-    <label for="from">{t}С{/t}</label>
+    <label class="inline" for="from">{t}С{/t}</label>
     <input type="text" id="from"/>
 
-    <label for="until">{t}По{/t}</label>
+    <label class="inline" for="until">{t}По{/t}</label>
     <input type="text" id="until"/>
 
     <input type="button" id="update" value="{t}Обновить{/t}"/>
