@@ -43,7 +43,7 @@
 <a href="?act=gram_restr&amp;hide_auto">{t}Скрыть выведенные{/t}</a>
 {/if}
 </p>
-<table border='1' cellspacing='0' cellpadding='2'>
+<table class="table">
 <tr>
     <th>{t}Если{/t}</th>
     <th>{t}То{/t}</th>
