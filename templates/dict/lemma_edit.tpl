@@ -52,7 +52,7 @@
         <b>{t}Лемма{/t}</b>:<br/>
         <p class="form-inline"><input type="hidden" name="lemma_id" value="{$editor.lemma.id}"/>
         {if $editor.lemma.id > 0}
-        <input type="text" name="lemma_text" readonly="readonly" value="{$editor.lemma.text|htmlspecialchars}"> 
+        <input type="text" name="lemma_text" value="{$editor.lemma.text|htmlspecialchars}"> 
         <input type="text" name="lemma_gram" {if !$user_permission_dict}readonly="readonly"{/if} value="{$editor.lemma.grms|htmlspecialchars}" size="40">  
         <button class="btn" type="button" onClick="location.href='dict_history.php?lemma_id={$editor.lemma.id}'" >{t}История{/t}</button> 
         {if $user_permission_dict}<button type="button" class="btn" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" >{t}Удалить лемму{/t}</button>{/if}
