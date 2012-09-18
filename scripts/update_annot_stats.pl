@@ -39,7 +39,6 @@ sub update_annot_stats {
         ORDER BY sample_id
     ");
     $inst_count->execute();
-    print STDERR "query ok\n";
     my $last_sample_id = 0;
     my $last_answer = 0;
     my $same_answer = 1;
