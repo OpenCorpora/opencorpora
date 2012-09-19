@@ -46,6 +46,9 @@ function check_auth_cookie() {
 function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
     $login = mysql_real_escape_string($login);
     if (($user_id=$auth_user_id) || $user_id = user_check_password($login, $passwd)) {
+        $alias_uid = check_for_user_alias($user_id);
+        if ($alias_uid)
+            $user_id = $alias_uid;
         sql_begin();
         $token = remember_user($user_id, $auth_token);
         if (!$token)
@@ -67,6 +70,15 @@ function init_session($user_id, $user_name, $options, $permissions, $token) {
     $_SESSION['user_permissions'] = $permissions;
     $_SESSION['token'] = $token;
     return true;
+}
+function check_for_user_alias($user_id) {
+    // if a user tries to log in as alias_uid, he'll actually log in as primary_uid
+    $res = sql_query("SELECT primary_uid FROM user_aliases WHERE alias_uid = $user_id LIMIT 1");
+    if (sql_num_rows($res) > 0) {
+        $r = sql_fetch_array($res);
+        return $r['primary_uid'];
+    }
+    return false;
 }
 function remember_user($user_id, $auth_token=false) {
     //deleting the old token
@@ -105,12 +117,15 @@ function user_login_openid($token) {
         $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name FROM `users` WHERE user_name='$id' LIMIT 1");
     }
     $row = sql_fetch_array($res);
-    $token = remember_user($row['user_id'], false);
-    if (!$token) {
+    $user_id = $row['user_id'];
+    $alias_uid = check_for_user_alias($user_id);
+    if ($alias_uid)
+        $user_id = $alias_uid;
+    $token = remember_user($user_id, false);
+    if (!$token)
         return false;
-    }
-    if (!init_session($row['user_id'], get_user_shown_name($row['user_id']), get_user_options($row['user_id']),
-                      get_user_permissions($row['user_id']), $token))
+    if (!init_session($user_id, get_user_shown_name($user_id), get_user_options($user_id),
+                      get_user_permissions($user_id), $token))
         return false;
     if ($row['user_passwd'] == 'notagreed') {
         $_SESSION['user_pending'] = 1;

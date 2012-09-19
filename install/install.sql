@@ -187,6 +187,11 @@ CREATE TABLE IF NOT EXISTS `users` (
     `user_shown_name` VARCHAR(120) NOT NULL
 ) ENGINE = INNODB;
 
+CREATE TABLE IF NOT EXISTS `user_aliases` (
+    `primary_uid` SMALLINT UNSIGNED NOT NULL,
+    `alias_uid`   SMALLINT UNSIGNED NOT NULL UNIQUE
+) ENGINE = INNODB;
+
 CREATE TABLE IF NOT EXISTS `user_permissions` (
     `user_id`           SMALLINT UNSIGNED NOT NULL,
     `perm_admin`        TINYINT UNSIGNED NOT NULL,
