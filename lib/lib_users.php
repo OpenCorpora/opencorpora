@@ -111,7 +111,7 @@ function user_login_openid($token) {
     $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name FROM `users` WHERE user_name='$id' LIMIT 1");
     //if he doesn't
     if (sql_num_rows($res) == 0) {
-        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id')")) {
+        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0)")) {
             return 0;
         }
         $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name FROM `users` WHERE user_name='$id' LIMIT 1");
@@ -176,7 +176,7 @@ function user_register($post) {
         return 4;
     }
     sql_begin();
-    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name')")) {
+    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name', 0)")) {
         $user_id = sql_insert_id();
         if (!sql_query("INSERT INTO `user_permissions` VALUES ('$user_id', '0', '0', '0', '0', '0', '0')")) return 0;
         if (isset($post['subscribe']) && $email) {
@@ -388,6 +388,34 @@ function save_users($post) {
     }
     sql_commit();
     return true;
+}
+function get_team_list() {
+    $out = array();
+    $res = sql_query("SELECT team_id, team_name, COUNT(user_id) AS num_users FROM user_teams t RIGHT JOIN users u ON (t.team_id = u.user_team) GROUP BY team_id");
+    while ($r = sql_fetch_array($res)) {
+        $out[$r['team_id']] = array(
+            'name' => $r['team_name'],
+            'num_users' => $r['num_users']
+        );
+    }
+    return $out;
+}
+function save_user_team($team_id, $new_team_name=false) {
+    if (!$_SESSION['user_id'])
+        return false;
+    // create new team if necessary
+    sql_begin();
+    if (!$team_id) {
+        if (!$new_team_name || !sql_query("INSERT INTO user_teams VALUES(NULL, '".mysql_real_escape_string($new_team_name)."')"))
+            return false;
+        $team_id = sql_insert_id();
+    }
+
+    if (sql_query("UPDATE users SET user_team=$team_id WHERE user_id=".$_SESSION['user_id']." LIMIT 1")) {
+        sql_commit();
+        return $team_id;
+    }
+    return false;
 }
 function get_user_badges($user_id, $only_shown=true) {
     $only_shown_str = $only_shown ? "AND shown > 0" : '';

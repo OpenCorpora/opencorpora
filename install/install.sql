@@ -184,7 +184,9 @@ CREATE TABLE IF NOT EXISTS `users` (
     `user_passwd`     VARCHAR(32) NOT NULL,
     `user_email`      VARCHAR(100) NOT NULL,
     `user_reg`        INT UNSIGNED NOT NULL,
-    `user_shown_name` VARCHAR(120) NOT NULL
+    `user_shown_name` VARCHAR(120) NOT NULL,
+    `user_team`       SMALLINT UNSIGNED NOT NULL,
+    INDEX(`user_team`)
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `user_aliases` (
@@ -230,6 +232,11 @@ CREATE TABLE IF NOT EXISTS `user_stats` (
     `param_value` INT UNSIGNED NOT NULL,
     INDEX(`user_id`),
     INDEX(`param_id`)
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `user_teams` (
+    `team_id`   SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `team_name` VARCHAR(128) NOT NULL
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `user_tokens` (
