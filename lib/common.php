@@ -191,20 +191,6 @@ function get_common_stats() {
     $chart['chaskor_news_words'] = join(',', $tchart[27]);
     $chart['fiction_words'] = join(',', $tchart[32]);
 
-    //user stats
-    $res = sql_query("SELECT timestamp, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=6 ORDER BY param_value DESC");
-    $t = array();
-    while ($r = sql_fetch_array($res)) {
-        $t[] = '{label: "'.$r['user_name'].'", data: '.$r['param_value'].'}';
-    }
-    $chart['user_stats_full'] = join(', ', $t);
-    $res = sql_query("SELECT timestamp, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=7 ORDER BY param_value DESC");
-    $t = array();
-    while ($r = sql_fetch_array($res)) {
-        $t[] = '{label: "'.$r['user_name'].'", data: '.$r['param_value'].'}';
-    }
-    $chart['user_stats_week'] = join(', ', $t);
-
     $stats['_chart'] = $chart;
 
     return $stats;
