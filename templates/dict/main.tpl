@@ -24,6 +24,7 @@
     <form action="{$web_prefix}/dict.php?act=lemmata" method="post">
     <input name="search_form" type="text" class="span3" id="form_search_input" placeholder="Введите слово...">
 </form>
+    <p><a href="{$web_prefix}/dict_history.php">Свежие правки</a></p>
     {if $user_permission_dict}
         <p><a href="?act=gram">{t}Редактор граммем{/t}</a><br/>
         <a href="?act=gram_restr">{t}Ограничения на граммемы{/t}</a></p>
@@ -36,4 +37,15 @@
         <p><a href="?act=lemmata">{t}Просмотр лемм{/t}</a><br/>
         <a href="?act=errata">{t}Ошибки в словаре{/t}</a> ({$stats.cnt_v} {t}ревизий не проверено{/t})</p>
     {/if}
+    <h2>Версия для скачивания</h2>
+    <p>XML, {t}обновлён{/t} {$dl.dict.xml.updated}, см. <a href="{$web_prefix}/?page=export">описание формата</a></p>
+    <ul>
+    <li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.xml.bz2">архив .bz2</a> ({$dl.dict.xml.bz2.size} {t}Мб{/t})</li>
+    <li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.xml.zip">архив .zip</a> ({$dl.dict.xml.zip.size} {t}Мб{/t})</li>
+    </ul>
+    <p>Plain text, {t}обновлён{/t} {$dl.dict.txt.updated}</p>
+    <ul>
+    <li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.txt.bz2">архив .bz2</a> ({$dl.dict.txt.bz2.size} {t}Мб{/t})</li>
+    <li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.txt.zip">архив .zip</a> ({$dl.dict.txt.zip.size} {t}Мб{/t})</li>
+    </ul>
 {/block}
