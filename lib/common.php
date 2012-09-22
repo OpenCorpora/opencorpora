@@ -245,11 +245,12 @@ function get_downloads_info() {
 
     $types1 = array('exact', 'exact_lc', 'exact_cyr', 'exact_cyr_lc');
     $types2 = array('exact', 'exact_lc', 'exact_cyrA', 'exact_cyrB', 'exact_cyrA_lc', 'exact_cyrB_lc');
+    $i2word = array(1 => 'unigrams', 2 => 'bigrams', 3 => 'trigrams');
 
     for ($i = 1; $i <= 3; ++$i) {
         $arr = ($i == 1) ? $types1 : $types2;
         foreach ($arr as $type) {
-            $ngram[$i][$type] = get_file_info($ngram_path.$config['ngram_suffixes'][$type]);
+            $ngram[$i][$type] = get_file_info($ngram_path.$i2word[$i].$config['ngram_suffixes'][$type]);
         }
     }
 
