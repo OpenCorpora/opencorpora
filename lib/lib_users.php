@@ -385,7 +385,7 @@ function save_users($post) {
             else $qa[] = "perm_check_morph='0'";
 
         $q = "UPDATE user_permissions SET ".implode(', ', $qa)." WHERE user_id=$id LIMIT 1";
-        if (!sql_query($q)) {
+        if (!sql_query($q) || !sql_query("DELETE FROM user_tokens WHERE user_id=$id")) {
             return false;
         }
     }
