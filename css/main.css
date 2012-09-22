@@ -210,6 +210,12 @@ a.toggle {
     background-color: #CC0000;
     color: yellow;
 }
+table.toc li {
+    list-style-type: none;
+}
+span.editsection {
+    display: none;
+}
 div#errata div.error {
     background-color: #F69;
 }

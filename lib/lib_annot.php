@@ -530,11 +530,16 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     else
         $order_string = "ORDER BY status, created_ts";
 
+    if ($limit)
+        $limit_string = "LIMIT " . (2 * $limit);
+    else
+        $limit_string = "";
+
     $time = time();
     $cnt = 0;
     $pools = array();
     // get all pools by status
-    $res = sql_query("SELECT pool_id, pool_name, status FROM morph_annot_pools WHERE status = 3 $order_string");
+    $res = sql_query("SELECT pool_id, pool_name, status FROM morph_annot_pools WHERE status = 3 $order_string $limit_string");
     while ($r = sql_fetch_array($res)) {
         $pools[$r['pool_id']] = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0, 'num' => 0);
     }

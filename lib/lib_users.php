@@ -46,6 +46,9 @@ function check_auth_cookie() {
 function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
     $login = mysql_real_escape_string($login);
     if (($user_id=$auth_user_id) || $user_id = user_check_password($login, $passwd)) {
+        $alias_uid = check_for_user_alias($user_id);
+        if ($alias_uid)
+            $user_id = $alias_uid;
         sql_begin();
         $token = remember_user($user_id, $auth_token);
         if (!$token)
@@ -69,6 +72,15 @@ function init_session($user_id, $user_name, $options, $permissions, $token, $lev
     $_SESSION['token'] = $token;
     $_SESSION['user_level'] = $level;
     return true;
+}
+function check_for_user_alias($user_id) {
+    // if a user tries to log in as alias_uid, he'll actually log in as primary_uid
+    $res = sql_query("SELECT primary_uid FROM user_aliases WHERE alias_uid = $user_id LIMIT 1");
+    if (sql_num_rows($res) > 0) {
+        $r = sql_fetch_array($res);
+        return $r['primary_uid'];
+    }
+    return false;
 }
 function remember_user($user_id, $auth_token=false) {
     //deleting the old token
@@ -101,18 +113,21 @@ function user_login_openid($token) {
     $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name, user_level FROM `users` WHERE user_name='$id' LIMIT 1");
     //if he doesn't
     if (sql_num_rows($res) == 0) {
-        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 1, 1, 0)")) {
+        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0, 1, 1, 0)")) {
             return 0;
         }
         $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name, user_level FROM `users` WHERE user_name='$id' LIMIT 1");
     }
     $row = sql_fetch_array($res);
-    $token = remember_user($row['user_id'], false);
-    if (!$token) {
+    $user_id = $row['user_id'];
+    $alias_uid = check_for_user_alias($user_id);
+    if ($alias_uid)
+        $user_id = $alias_uid;
+    $token = remember_user($user_id, false);
+    if (!$token)
         return false;
-    }
-    if (!init_session($row['user_id'], get_user_shown_name($row['user_id']), get_user_options($row['user_id']),
-                      get_user_permissions($row['user_id']), $token, $row['user_level']))
+    if (!init_session($user_id, get_user_shown_name($user_id), get_user_options($user_id),
+                      get_user_permissions($user_id), $token, $row['user_level']))
         return false;
     if ($row['user_passwd'] == 'notagreed') {
         $_SESSION['user_pending'] = 1;
@@ -164,7 +179,7 @@ function user_register($post) {
         return 4;
     }
     sql_begin();
-    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name', 1, 1, 0)")) {
+    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name', 0, 1, 1, 0)")) {
         $user_id = sql_insert_id();
         if (!sql_query("INSERT INTO `user_permissions` VALUES ('$user_id', '0', '0', '0', '0', '0', '0')")) return 0;
         if (isset($post['subscribe']) && $email) {
@@ -376,5 +391,33 @@ function save_users($post) {
     }
     sql_commit();
     return true;
+}
+function get_team_list() {
+    $out = array();
+    $res = sql_query("SELECT team_id, team_name, COUNT(user_id) AS num_users FROM user_teams t RIGHT JOIN users u ON (t.team_id = u.user_team) GROUP BY team_id");
+    while ($r = sql_fetch_array($res)) {
+        $out[$r['team_id']] = array(
+            'name' => $r['team_name'],
+            'num_users' => $r['num_users']
+        );
+    }
+    return $out;
+}
+function save_user_team($team_id, $new_team_name=false) {
+    if (!$_SESSION['user_id'])
+        return false;
+    // create new team if necessary
+    sql_begin();
+    if (!$team_id) {
+        if (!$new_team_name || !sql_query("INSERT INTO user_teams VALUES(NULL, '".mysql_real_escape_string($new_team_name)."')"))
+            return false;
+        $team_id = sql_insert_id();
+    }
+
+    if (sql_query("UPDATE users SET user_team=$team_id WHERE user_id=".$_SESSION['user_id']." LIMIT 1")) {
+        sql_commit();
+        return $team_id;
+    }
+    return false;
 }
 ?>

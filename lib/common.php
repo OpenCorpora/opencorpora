@@ -105,6 +105,18 @@ function typo_spaces($str, $with_tags = 0) {
     $replacements = array('\1', '\1');
     return preg_replace($patterns, $replacements, $str);
 }
+function get_wiki_page($title) {
+    return htmlspecialchars_decode(fetch_wiki_page($title));
+}
+function fetch_wiki_page($title) {
+    $url = "http://localhost/w/api.php?action=query&prop=revisions&titles=$title&rvprop=content&rvparse=1&format=xml";
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $contents = curl_exec($ch);
+    curl_close($ch);
+    return $contents;
+}
 function get_common_stats() {
     global $config;
     $stats = array();
@@ -120,14 +132,17 @@ function get_common_stats() {
         $stats['percent_words'][$src] = floor($stats[$src.'_words']['value'] / $config['goals'][$src.'_words'] * 100);
     }
 
-    //user stats
-    $res = sql_query("SELECT u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=6 ORDER BY param_value DESC");
-    while ($r = sql_fetch_array($res)) {
-        $stats['added_sentences'][] = array('user_name' => $r['user_name'], 'value' => $r['param_value']);
-    }
-    $res = sql_query("SELECT u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=7 ORDER BY param_value DESC");
-    while ($r = sql_fetch_array($res)) {
-        $stats['added_sentences_last_week'][] = array('user_name' => $r['user_name'], 'value' => $r['param_value']);
+    $stats['added_sentences'] = get_sentence_adders_stats();
+    $stats['added_sentences_last_week'] = get_sentence_adders_stats(true);
+
+    // team info
+    $uid2team = array();
+    $res = sql_query("SELECT user_id, user_team FROM users WHERE user_team > 0");
+    while ($r = sql_fetch_array($res))
+        $uid2team[$r['user_id']] = $r['user_team'];
+    $teams = get_team_list();
+    foreach ($teams as $i => $team) {
+        $teams[$i]['total'] = 0;
     }
 
     $uid2sid = array();
@@ -135,37 +150,82 @@ function get_common_stats() {
     while ($r = sql_fetch_array($res)) {
         $stats['annotators'][] = array('total' => number_format($r['cnt'], 0, '', ' '), 'user_id' => $r['user_id']);
         $uid2sid[$r['user_id']] = sizeof($stats['annotators']) - 1;
+        if (isset($uid2team[$r['user_id']]))
+            $teams[$uid2team[$r['user_id']]]['total'] += $r['cnt'];
+    }
+
+    usort($teams, function($a, $b) {
+        if ($a['total'] > $b['total'])
+            return -1;
+        if ($a['total'] < $b['total'])
+            return 1;
+        return 0;
+    });
+
+    $stats['teams'] = $teams;
+
+    // last activity info
+    $last_click = array();
+    $res = sql_query("SELECT user_id, MAX(timestamp) AS last_time FROM morph_annot_click_log GROUP BY user_id");
+    while ($r = sql_fetch_array($res)) {
+        $last_click[$r['user_id']] = $r['last_time'];
+    }
+
+    // divergence info
+    $divergence = array();
+    $res = sql_query("SELECT user_id, param_value FROM user_stats WHERE param_id = 34");
+    while ($r = sql_fetch_array($res)) {
+        $divergence[$r['user_id']] = $r['param_value'];
     }
 
     $res = sql_query("SELECT u.user_id, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=33 ORDER BY param_value DESC");
     while ($r = sql_fetch_array($res)) {
-        $r1 = sql_fetch_array(sql_query("SELECT param_value FROM user_stats WHERE param_id=34 AND user_id = ".$r['user_id']." LIMIT 1"));
-        $r2 = sql_fetch_array(sql_query("SELECT MAX(timestamp) FROM morph_annot_click_log WHERE user_id=".$r['user_id']));
-        $t = array('user_name' => $r['user_name'], 'value' => number_format($r['param_value'], 0, '', ' '), 'divergence' => $r1['param_value'] / $r['param_value'] * 100, 'last_active' => $r2[0]);
+        $t = array(
+            'user_name' => $r['user_name'],
+            'value' => number_format($r['param_value'], 0, '', ' '),
+            'divergence' => $divergence[$r['user_id']] / $r['param_value'] * 100,
+            'last_active' => $last_click[$r['user_id']]
+        );
         $stats['annotators'][$uid2sid[$r['user_id']]]['fin'] = $t;
     }
 
     foreach ($stats['annotators'] as $k => $v) {
         if (!isset($v['fin']['user_name'])) {
             $stats['annotators'][$k]['fin']['user_name'] = get_user_shown_name($v['user_id']);
-            $r = sql_fetch_array(sql_query("SELECT MAX(timestamp) FROM morph_annot_click_log WHERE user_id=".$v['user_id']));
-            $stats['annotators'][$k]['fin']['last_active'] = $r[0];
+            $stats['annotators'][$k]['fin']['last_active'] = $last_click[$v['user_id']];
         }
     }
 
     // we need 2 timestamps to show last activity
     $stats['timestamp_yesterday'] = ($stats['timestamp_today'] = mktime(0, 0, 0)) - 3600 * 24;
 
-    //for the charts
-    $chart = array();
+    $stats['_chart'] = get_word_stats_for_chart();
 
+    return $stats;
+}
+function get_sentence_adders_stats($last_week=false) {
+    if ($last_week)
+        $param = 7;
+    else
+        $param = 6;
+
+    $out = array();
+    $res = sql_query("SELECT user_shown_name AS user_name, param_value FROM user_stats LEFT JOIN users USING (user_id) WHERE param_id=$param ORDER BY param_value DESC");
+    while ($r = sql_fetch_array($res)) {
+        $out[] = array('user_name' => $r['user_name'], 'value' => $r['param_value']);
+    }
+    return $out;
+}
+function get_word_stats_for_chart() {
+    $chart = array();
     $t = array();
     $tchart = array();
+    $time = time();
 
     $param_set = array(32, 27, 23, 19, 15, 11);
 
     foreach ($param_set as $param_id) {
-        $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE timestamp > ".(time() - 90*24*60*60)." AND param_id = $param_id ORDER BY timestamp");
+        $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE timestamp > ".($time - 90*24*60*60)." AND param_id = $param_id ORDER BY timestamp");
         while ($r = sql_fetch_array($res)) {
             $day = intval($r['timestamp'] / 86400);
             $t[$day][$param_id] = $r['param_value'];
@@ -191,23 +251,7 @@ function get_common_stats() {
     $chart['chaskor_news_words'] = join(',', $tchart[27]);
     $chart['fiction_words'] = join(',', $tchart[32]);
 
-    //user stats
-    $res = sql_query("SELECT timestamp, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=6 ORDER BY param_value DESC");
-    $t = array();
-    while ($r = sql_fetch_array($res)) {
-        $t[] = '{label: "'.$r['user_name'].'", data: '.$r['param_value'].'}';
-    }
-    $chart['user_stats_full'] = join(', ', $t);
-    $res = sql_query("SELECT timestamp, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=7 ORDER BY param_value DESC");
-    $t = array();
-    while ($r = sql_fetch_array($res)) {
-        $t[] = '{label: "'.$r['user_name'].'", data: '.$r['param_value'].'}';
-    }
-    $chart['user_stats_week'] = join(', ', $t);
-
-    $stats['_chart'] = $chart;
-
-    return $stats;
+    return $chart;
 }
 function get_tag_stats() {
     $out = array();
@@ -219,30 +263,28 @@ function get_tag_stats() {
     return $out;
 }
 function get_downloads_info() {
+    global $config;
     $dict = array();
     $annot = array();
     $ngram = array();
+    $ngram_path = 'files/export/ngrams/';
 
     $dict['xml'] = get_file_info('files/export/dict/dict.opcorpora.xml');
     $dict['txt'] = get_file_info('files/export/dict/dict.opcorpora.txt');
     $annot['xml'] = get_file_info('files/export/annot/annot.opcorpora.xml');
-    $ngram[1]['exact'] = get_file_info('files/export/ngrams/unigrams');
-    $ngram[1]['exact_lc'] = get_file_info('files/export/ngrams/unigrams.lc');
-    $ngram[1]['exact_cyr'] = get_file_info('files/export/ngrams/unigrams.cyr');
-    $ngram[1]['exact_cyr_lc'] = get_file_info('files/export/ngrams/unigrams.cyr.lc');
-    $ngram[2]['exact'] = get_file_info('files/export/ngrams/bigrams');
-    $ngram[2]['exact_lc'] = get_file_info('files/export/ngrams/bigrams.lc');
-    $ngram[2]['exact_cyrA'] = get_file_info('files/export/ngrams/bigrams.cyrA');
-    $ngram[2]['exact_cyrB'] = get_file_info('files/export/ngrams/bigrams.cyrB');
-    $ngram[2]['exact_cyrA_lc'] = get_file_info('files/export/ngrams/bigrams.cyrA.lc');
-    $ngram[2]['exact_cyrB_lc'] = get_file_info('files/export/ngrams/bigrams.cyrB.lc');
-    $ngram[3]['exact'] = get_file_info('files/export/ngrams/trigrams');
-    $ngram[3]['exact_lc'] = get_file_info('files/export/ngrams/trigrams.lc');
-    $ngram[3]['exact_cyrA'] = get_file_info('files/export/ngrams/trigrams.cyrA');
-    $ngram[3]['exact_cyrB'] = get_file_info('files/export/ngrams/trigrams.cyrB');
-    $ngram[3]['exact_cyrA_lc'] = get_file_info('files/export/ngrams/trigrams.cyrA.lc');
-    $ngram[3]['exact_cyrB_lc'] = get_file_info('files/export/ngrams/trigrams.cyrB.lc');
-    $colloc['mi'] = get_file_info('files/export/ngrams/colloc.MI');
+
+    $types1 = array('exact', 'exact_lc', 'exact_cyr', 'exact_cyr_lc');
+    $types2 = array('exact', 'exact_lc', 'exact_cyrA', 'exact_cyrB', 'exact_cyrA_lc', 'exact_cyrB_lc');
+    $i2word = array(1 => 'unigrams', 2 => 'bigrams', 3 => 'trigrams');
+
+    for ($i = 1; $i <= 3; ++$i) {
+        $arr = ($i == 1) ? $types1 : $types2;
+        foreach ($arr as $type) {
+            $ngram[$i][$type] = get_file_info($ngram_path.$i2word[$i].$config['ngram_suffixes'][$type]);
+        }
+    }
+
+    $colloc['mi'] = get_file_info($ngram_path.'/colloc.MI');
 
     return array('dict'=>$dict, 'annot'=>$annot, 'ngram'=>$ngram, 'colloc'=>$colloc);
 }
@@ -262,61 +304,25 @@ function get_top100_info($what, $type) {
     $stats = array();
 
     $filename = '';
-    switch ($type) {
-        case '1_exact':
+    list($N, $ltype) = explode('_', $type, 2);
+    switch ($N) {
+        case 1:
             $filename = 'unigrams';
             break;
-        case '1_exact_lc':
-            $filename = 'unigrams.lc';
-            break;
-        case '1_exact_cyr':
-            $filename = 'unigrams.cyr';
-            break;
-        case '1_exact_cyr_lc':
-            $filename = 'unigrams.cyr.lc';
-            break;
-        case '2_exact':
+        case 2:
             $filename = 'bigrams';
             break;
-        case '2_exact_lc':
-            $filename = 'bigrams.lc';
-            break;
-        case '2_exact_cyrA':
-            $filename = 'bigrams.cyrA';
-            break;
-        case '2_exact_cyrB':
-            $filename = 'bigrams.cyrB';
-            break;
-        case '2_exact_cyrA_lc':
-            $filename = 'bigrams.cyrA.lc';
-            break;
-        case '2_exact_cyrB_lc':
-            $filename = 'bigrams.cyrB.lc';
-            break;
-        case '3_exact':
+        case 3:
             $filename = 'trigrams';
-            break;
-        case '3_exact_lc':
-            $filename = 'trigrams.lc';
-            break;
-        case '3_exact_cyrA':
-            $filename = 'trigrams.cyrA';
-            break;
-        case '3_exact_cyrB':
-            $filename = 'trigrams.cyrB';
-            break;
-        case '3_exact_cyrA_lc':
-            $filename = 'trigrams.cyrA.lc';
-            break;
-        case '3_exact_cyrB_lc':
-            $filename = 'trigrams.cyrB.lc';
-            break;
-        case 'MI':
-            $filename = 'colloc.MI';
             break;
         default:
             return $stats;
     }
+    
+    if (isset($config['ngram_suffixes'][$ltype]))
+        $filename .= $config['ngram_suffixes'][$ltype];
+    else
+        return $stats;
 
     $f = file($config['project']['root']."/files/export/ngrams/$filename.top100");
 

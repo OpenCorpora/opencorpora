@@ -11,13 +11,9 @@ if (isset($_GET['page'])) {
     $page = $_GET['page'];
     switch ($page) {
         case 'about':
-            $smarty->display('static/about.tpl');
-            break;
         case 'team':
-            $smarty->display('static/team.tpl');
-            break;
         case 'publications':
-            $smarty->display('static/publications.tpl');
+            $smarty->display('static/' . $page . '.tpl');
             break;
         case 'downloads':
             $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
@@ -46,6 +42,11 @@ if (isset($_GET['page'])) {
             break;
         case 'export':
             $smarty->display('static/doc/export.tpl');
+            break;
+        case 'faq':
+            $smarty->assign('content', get_wiki_page('FAQ'));
+            $smarty->assign('title', 'FAQ');
+            $smarty->display('static/faq.tpl');
             break;
         default:
             header("Location:index.php");

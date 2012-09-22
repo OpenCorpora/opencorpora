@@ -132,7 +132,7 @@ sub rev2text {
     while ($lstr =~ /<g v="([^"]+)"/g) {
         push @lgr, $1;
     }
-    while ($str =~ /<f t="([^"]+)">(.+?)?<\/f>/g) {
+    while ($str =~ /<f t="([^"]+)">(.*?)<\/f>/g) {
         $out .= uc(decode('utf8', $1))."\t";
         my $fstr = $2;
         @fgr = ();

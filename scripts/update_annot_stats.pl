@@ -16,6 +16,7 @@ if ($dbh->{'AutoCommit'}) {
 }
 
 update_annot_stats();
+$dbh->commit();
 
 sub update_annot_stats {
     my $user_ins = $dbh->prepare("INSERT INTO user_stats VALUES(?, ?, ?, ?)");
