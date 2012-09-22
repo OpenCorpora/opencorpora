@@ -1,4 +1,7 @@
 <?php
+function game_is_on() {
+    return $_SESSION['user_level'] > 0;
+}
 // rating and level
 function update_user_rating($user_id, $pool_id, $is_skip, $previous_answer) {
     // increase or decrease rating depending on the answer
@@ -6,6 +9,9 @@ function update_user_rating($user_id, $pool_id, $is_skip, $previous_answer) {
 
     if (($previous_answer && !$is_skip) ||
         (!$previous_answer && $is_skip))
+        return true;
+    
+    if (!game_is_on())
         return true;
 
     global $config;

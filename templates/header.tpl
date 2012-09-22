@@ -29,7 +29,9 @@
                     </li>
                     <li class="dropdown">
                         {if isset($smarty.session.user_id)}
-                        <a href="{$web_prefix}/options.php" class="dropdown-toggle login-corner-user" data-toggle="dropdown" data-target="#"><span class="badge badge-star" title="Ваш текущий уровень">{$smarty.session.user_level}</span>{$smarty.session.user_name} <b class="caret"></b></a>
+                        <a href="{$web_prefix}/options.php" class="dropdown-toggle login-corner-user" data-toggle="dropdown" data-target="#">
+                        {if $game_is_on == 1}<span class="badge badge-star" title="Ваш текущий уровень">{$smarty.session.user_level}</span>{/if}
+                        {$smarty.session.user_name} <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li><a href="{$web_prefix}/options.php">Настройки</a></li>
                             {if $smarty.session.user_permissions.perm_admin == 1}
