@@ -233,30 +233,27 @@ function get_tag_stats() {
     return $out;
 }
 function get_downloads_info() {
+    global $config;
     $dict = array();
     $annot = array();
     $ngram = array();
+    $ngram_path = 'files/export/ngrams/';
 
     $dict['xml'] = get_file_info('files/export/dict/dict.opcorpora.xml');
     $dict['txt'] = get_file_info('files/export/dict/dict.opcorpora.txt');
     $annot['xml'] = get_file_info('files/export/annot/annot.opcorpora.xml');
-    $ngram[1]['exact'] = get_file_info('files/export/ngrams/unigrams');
-    $ngram[1]['exact_lc'] = get_file_info('files/export/ngrams/unigrams.lc');
-    $ngram[1]['exact_cyr'] = get_file_info('files/export/ngrams/unigrams.cyr');
-    $ngram[1]['exact_cyr_lc'] = get_file_info('files/export/ngrams/unigrams.cyr.lc');
-    $ngram[2]['exact'] = get_file_info('files/export/ngrams/bigrams');
-    $ngram[2]['exact_lc'] = get_file_info('files/export/ngrams/bigrams.lc');
-    $ngram[2]['exact_cyrA'] = get_file_info('files/export/ngrams/bigrams.cyrA');
-    $ngram[2]['exact_cyrB'] = get_file_info('files/export/ngrams/bigrams.cyrB');
-    $ngram[2]['exact_cyrA_lc'] = get_file_info('files/export/ngrams/bigrams.cyrA.lc');
-    $ngram[2]['exact_cyrB_lc'] = get_file_info('files/export/ngrams/bigrams.cyrB.lc');
-    $ngram[3]['exact'] = get_file_info('files/export/ngrams/trigrams');
-    $ngram[3]['exact_lc'] = get_file_info('files/export/ngrams/trigrams.lc');
-    $ngram[3]['exact_cyrA'] = get_file_info('files/export/ngrams/trigrams.cyrA');
-    $ngram[3]['exact_cyrB'] = get_file_info('files/export/ngrams/trigrams.cyrB');
-    $ngram[3]['exact_cyrA_lc'] = get_file_info('files/export/ngrams/trigrams.cyrA.lc');
-    $ngram[3]['exact_cyrB_lc'] = get_file_info('files/export/ngrams/trigrams.cyrB.lc');
-    $colloc['mi'] = get_file_info('files/export/ngrams/colloc.MI');
+
+    $types1 = array('exact', 'exact_lc', 'exact_cyr', 'exact_cyr_lc');
+    $types2 = array('exact', 'exact_lc', 'exact_cyrA', 'exact_cyrB', 'exact_cyrA_lc', 'exact_cyrB_lc');
+
+    for ($i = 1; $i <= 3; ++$i) {
+        $arr = ($i == 1) ? $types1 : $types2;
+        foreach ($arr as $type) {
+            $ngram[$i][$type] = get_file_info($ngram_path.$config['ngram_suffixes'][$type]);
+        }
+    }
+
+    $colloc['mi'] = get_file_info($ngram_path.'/colloc.MI');
 
     return array('dict'=>$dict, 'annot'=>$annot, 'ngram'=>$ngram, 'colloc'=>$colloc);
 }
