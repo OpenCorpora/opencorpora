@@ -3,7 +3,6 @@
 {block name='content'}
 <h1>Форматы экспорта данных</h1>
 <ul class="breadcrumb">
-    <li><a href="{$web_prefix}/?page=about">О проекте</a> <span class="divider">/</span></li>
     <li><a href="{$web_prefix}/?page=downloads">Downloads</a> <span class="divider">/</span></li>
     <li>Форматы экспорта данных</li>
 </ul>

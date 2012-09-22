@@ -1,6 +1,14 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
+<h1>{t}О проекте{/t}</h1>
+<ul class="nav nav-tabs">
+    <li><a href="{$web_prefix}/?page=about">Описание проекта</a></li>
+    <li><a href="{$web_prefix}/?page=team">Участники</a></li>
+    <li><a href="{$web_prefix}/?page=publications">Публикации</a></li>
+    <li><a href="{$web_prefix}/?page=faq">FAQ</a></li>
+    <li class="active"><a href="{$web_prefix}/?page=downloads">Downloads</a></li>
+</ul>
 {literal}
 <script type="text/javascript">
     $(document).ready(function(){
@@ -28,18 +36,14 @@
     });
 </script>
 {/literal}
-<h1>{t}Материалы для скачивания{/t}</h1>
-<ul class="breadcrumb">
-    <li><a href="{$web_prefix}/?page=about">О проекте</a> <span class="divider">/</span></li>
-    <li>Downloads</li>
-</ul>
-<h2>{t}Размеченные тексты{/t}</h2>
+<h2>{t}Материалы для скачивания{/t}</h2>
+<h3>{t}Размеченные тексты{/t}</h3>
 <p>XML, {t}обновлён{/t} {$dl.annot.xml.updated}
 <ul>
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.bz2">архив .bz2</a> ({$dl.annot.xml.bz2.size} {t}Мб{/t})</li>
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.zip">архив .zip</a> ({$dl.annot.xml.zip.size} {t}Мб{/t})</li>
 </ul>
-<h2>Частотные списки</h2>
+<h3>Частотные списки</h3>
 <div class="row space-after">
     <div class="span3">
         <h4>Тип n-граммы:</h4>
