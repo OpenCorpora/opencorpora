@@ -135,12 +135,23 @@ function get_common_stats() {
     $stats['added_sentences'] = get_sentence_adders_stats();
     $stats['added_sentences_last_week'] = get_sentence_adders_stats(true);
 
+    // team info
+    $uid2team = array();
+    $res = sql_query("SELECT user_id, user_team FROM users WHERE user_team > 0");
+    while ($r = sql_fetch_array($res))
+        $uid2team[$r['user_id']] = $r['user_team'];
+    $teams = get_team_list();
+
     $uid2sid = array();
     $res = sql_query("SELECT user_id, COUNT(*) AS cnt FROM morph_annot_instances WHERE answer > 0 GROUP BY user_id ORDER BY cnt DESC");
     while ($r = sql_fetch_array($res)) {
         $stats['annotators'][] = array('total' => number_format($r['cnt'], 0, '', ' '), 'user_id' => $r['user_id']);
         $uid2sid[$r['user_id']] = sizeof($stats['annotators']) - 1;
+        if (isset($uid2team[$r['user_id']]))
+            $teams[$uid2team[$r['user_id']]]['total'] += $r['cnt'];
     }
+
+    $stats['teams'] = $teams;
 
     // last activity info
     $last_click = array();
