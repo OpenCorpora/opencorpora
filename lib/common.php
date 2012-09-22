@@ -141,6 +141,9 @@ function get_common_stats() {
     while ($r = sql_fetch_array($res))
         $uid2team[$r['user_id']] = $r['user_team'];
     $teams = get_team_list();
+    foreach ($teams as $i => $team) {
+        $teams[$i]['total'] = 0;
+    }
 
     $uid2sid = array();
     $res = sql_query("SELECT user_id, COUNT(*) AS cnt FROM morph_annot_instances WHERE answer > 0 GROUP BY user_id ORDER BY cnt DESC");
@@ -150,6 +153,14 @@ function get_common_stats() {
         if (isset($uid2team[$r['user_id']]))
             $teams[$uid2team[$r['user_id']]]['total'] += $r['cnt'];
     }
+
+    usort($teams, function($a, $b) {
+        if ($a['total'] > $b['total'])
+            return -1;
+        if ($a['total'] < $b['total'])
+            return 1;
+        return 0;
+    });
 
     $stats['teams'] = $teams;
 
