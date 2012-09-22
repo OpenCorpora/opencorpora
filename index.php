@@ -47,6 +47,11 @@ if (isset($_GET['page'])) {
         case 'export':
             $smarty->display('static/doc/export.tpl');
             break;
+        case 'faq':
+            $smarty->assign('content', get_wiki_page('FAQ'));
+            $smarty->assign('title', 'FAQ');
+            $smarty->display('static/basic.tpl');
+            break;
         default:
             header("Location:index.php");
             break;

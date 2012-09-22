@@ -105,6 +105,18 @@ function typo_spaces($str, $with_tags = 0) {
     $replacements = array('\1', '\1');
     return preg_replace($patterns, $replacements, $str);
 }
+function get_wiki_page($title) {
+    return htmlspecialchars_decode(fetch_wiki_page($title));
+}
+function fetch_wiki_page($title) {
+    $url = "http://localhost/w/api.php?action=query&prop=revisions&titles=$title&rvprop=content&rvparse=1&format=xml";
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $contents = curl_exec($ch);
+    curl_close($ch);
+    return $contents;
+}
 function get_common_stats() {
     global $config;
     $stats = array();
