@@ -132,15 +132,8 @@ function get_common_stats() {
         $stats['percent_words'][$src] = floor($stats[$src.'_words']['value'] / $config['goals'][$src.'_words'] * 100);
     }
 
-    //user stats
-    $res = sql_query("SELECT u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=6 ORDER BY param_value DESC");
-    while ($r = sql_fetch_array($res)) {
-        $stats['added_sentences'][] = array('user_name' => $r['user_name'], 'value' => $r['param_value']);
-    }
-    $res = sql_query("SELECT u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=7 ORDER BY param_value DESC");
-    while ($r = sql_fetch_array($res)) {
-        $stats['added_sentences_last_week'][] = array('user_name' => $r['user_name'], 'value' => $r['param_value']);
-    }
+    $stats['added_sentences'] = get_sentence_adders_stats();
+    $stats['added_sentences_last_week'] = get_sentence_adders_stats(true);
 
     $uid2sid = array();
     $res = sql_query("SELECT user_id, COUNT(*) AS cnt FROM morph_annot_instances WHERE answer > 0 GROUP BY user_id ORDER BY cnt DESC");
@@ -184,16 +177,33 @@ function get_common_stats() {
     // we need 2 timestamps to show last activity
     $stats['timestamp_yesterday'] = ($stats['timestamp_today'] = mktime(0, 0, 0)) - 3600 * 24;
 
-    //for the charts
-    $chart = array();
+    $stats['_chart'] = get_word_stats_for_chart();
 
+    return $stats;
+}
+function get_sentence_adders_stats($last_week=false) {
+    if ($last_week)
+        $param = 7;
+    else
+        $param = 6;
+
+    $out = array();
+    $res = sql_query("SELECT user_shown_name AS user_name, param_value FROM user_stats LEFT JOIN users USING (user_id) WHERE param_id=$param ORDER BY param_value DESC");
+    while ($r = sql_fetch_array($res)) {
+        $out[] = array('user_name' => $r['user_name'], 'value' => $r['param_value']);
+    }
+    return $out;
+}
+function get_word_stats_for_chart() {
+    $chart = array();
     $t = array();
     $tchart = array();
+    $time = time();
 
     $param_set = array(32, 27, 23, 19, 15, 11);
 
     foreach ($param_set as $param_id) {
-        $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE timestamp > ".(time() - 90*24*60*60)." AND param_id = $param_id ORDER BY timestamp");
+        $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE timestamp > ".($time - 90*24*60*60)." AND param_id = $param_id ORDER BY timestamp");
         while ($r = sql_fetch_array($res)) {
             $day = intval($r['timestamp'] / 86400);
             $t[$day][$param_id] = $r['param_value'];
@@ -219,9 +229,7 @@ function get_common_stats() {
     $chart['chaskor_news_words'] = join(',', $tchart[27]);
     $chart['fiction_words'] = join(',', $tchart[32]);
 
-    $stats['_chart'] = $chart;
-
-    return $stats;
+    return $chart;
 }
 function get_tag_stats() {
     $out = array();
