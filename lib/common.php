@@ -276,61 +276,25 @@ function get_top100_info($what, $type) {
     $stats = array();
 
     $filename = '';
-    switch ($type) {
-        case '1_exact':
+    list($N, $ltype) = explode('_', $type, 2);
+    switch ($N) {
+        case 1:
             $filename = 'unigrams';
             break;
-        case '1_exact_lc':
-            $filename = 'unigrams.lc';
-            break;
-        case '1_exact_cyr':
-            $filename = 'unigrams.cyr';
-            break;
-        case '1_exact_cyr_lc':
-            $filename = 'unigrams.cyr.lc';
-            break;
-        case '2_exact':
+        case 2:
             $filename = 'bigrams';
             break;
-        case '2_exact_lc':
-            $filename = 'bigrams.lc';
-            break;
-        case '2_exact_cyrA':
-            $filename = 'bigrams.cyrA';
-            break;
-        case '2_exact_cyrB':
-            $filename = 'bigrams.cyrB';
-            break;
-        case '2_exact_cyrA_lc':
-            $filename = 'bigrams.cyrA.lc';
-            break;
-        case '2_exact_cyrB_lc':
-            $filename = 'bigrams.cyrB.lc';
-            break;
-        case '3_exact':
+        case 3:
             $filename = 'trigrams';
-            break;
-        case '3_exact_lc':
-            $filename = 'trigrams.lc';
-            break;
-        case '3_exact_cyrA':
-            $filename = 'trigrams.cyrA';
-            break;
-        case '3_exact_cyrB':
-            $filename = 'trigrams.cyrB';
-            break;
-        case '3_exact_cyrA_lc':
-            $filename = 'trigrams.cyrA.lc';
-            break;
-        case '3_exact_cyrB_lc':
-            $filename = 'trigrams.cyrB.lc';
-            break;
-        case 'MI':
-            $filename = 'colloc.MI';
             break;
         default:
             return $stats;
     }
+    
+    if (isset($config['ngram_suffixes'][$ltype]))
+        $filename .= $config['ngram_suffixes'][$ltype];
+    else
+        return $stats;
 
     $f = file($config['project']['root']."/files/export/ngrams/$filename.top100");
 
