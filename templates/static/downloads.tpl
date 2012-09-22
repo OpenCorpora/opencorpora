@@ -40,23 +40,27 @@
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.zip">архив .zip</a> ({$dl.annot.xml.zip.size} {t}Мб{/t})</li>
 </ul>
 <h2>Частотные списки</h2>
-<div class='small'>
-Тип n-граммы:
-<label class="radio"><input type='radio' name='nval' value='0' checked='checked'/>все</label>
-<label class="radio"><input type='radio' name='nval' value='1'/>униграммы (1 слово)</label>
-<label class="radio"><input type='radio' name='nval' value='2'/>биграммы (2 слова)</label>
-<label class="radio"><input type='radio' name='nval' value='3'/>триграммы (3 слова)</label>
-<br/>
-Учёт регистра:
-<label class="radio"><input type='radio' name='register' value='0' checked='checked'/>все</label>
-<label class="radio"><input type='radio' name='register' value='1'/>с учётом</label>
-<label class="radio"><input type='radio' name='register' value='2'/>без учёта</label>
-<br/>
-Тип токенов:
-<label class="radio"><input type='radio' name='ttype' value='0' checked='checked'/>все</label>
-<label class="radio"><input type='radio' name='ttype' value='1'/>только слова</label>
-<label class="radio"><input type='radio' name='ttype' value='2'/>не только слова</label>
-</div><br/>
+<div class="row space-after">
+    <div class="span3">
+        <h4>Тип n-граммы:</h4>
+        <label class="radio"><input type='radio' name='nval' value='0' checked='checked'/>все</label>
+        <label class="radio"><input type='radio' name='nval' value='1'/>униграммы (1 слово)</label>
+        <label class="radio"><input type='radio' name='nval' value='2'/>биграммы (2 слова)</label>
+        <label class="radio"><input type='radio' name='nval' value='3'/>триграммы (3 слова)</label>
+    </div>
+    <div class="span3">
+        <h4>Учёт регистра:</h4>
+        <label class="radio"><input type='radio' name='register' value='0' checked='checked'/>все</label>
+        <label class="radio"><input type='radio' name='register' value='1'/>с учётом</label>
+        <label class="radio"><input type='radio' name='register' value='2'/>без учёта</label>
+    </div>
+    <div class="span3">
+        <h4>Тип токенов:</h4>
+        <label class="radio"><input type='radio' name='ttype' value='0' checked='checked'/>все</label>
+        <label class="radio"><input type='radio' name='ttype' value='1'/>только слова</label>
+        <label class="radio"><input type='radio' name='ttype' value='2'/>не только слова</label>
+    </div>
+</div>
 <table class="table" id="table_freq">
 <tr class='small'>
     <th>&nbsp;</th>

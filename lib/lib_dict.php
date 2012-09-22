@@ -238,13 +238,16 @@ function dict_save($array) {
     if ($array['lemma_id'] == -1) {
         return dict_add_lemma($array);
     }
+    $lemma_text = trim($array['lemma_text']);
+    if (!$lemma_text)
+        return false;
     $ltext = $array['form_text'];
     $lgram = $array['form_gram'];
     $lemma_gram_new = $array['lemma_gram'];
     //let's construct the old paradigm
     $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=".$array['lemma_id']." ORDER BY `rev_id` DESC LIMIT 1"));
     $pdr = parse_dict_rev($old_xml = $r['rev_text']);
-    $lemma_text = $pdr['lemma']['text'];
+    $old_lemma_text = $pdr['lemma']['text'];
     $lemma_gram_old = implode(', ', $pdr['lemma']['grm']);
     $old_paradigm = array();
     foreach ($pdr['forms'] as $form_arr) {
@@ -288,7 +291,7 @@ function dict_save($array) {
     }
     //array -> xml
     $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
-    if ($new_xml != $old_xml) {
+    if ($lemma_text != $old_lemma_text || $new_xml != $old_xml) {
         //something's really changed
         $res = new_dict_rev($array['lemma_id'], $new_xml, $array['comment']);
         if ($res) {

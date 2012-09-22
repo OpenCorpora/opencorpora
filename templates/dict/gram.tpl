@@ -6,22 +6,23 @@
             $(".edit_gram_link").one('click',edit_gram)
             })
     </script>
-
-    <p><a href="?">&lt;&lt;&nbsp;{t}назад{/t}</a></p>
     <h2>{t}Граммемы{/t}</h2>
+    <ul class="breadcrumb">
+        <li><a href="{$web_prefix}/dict.php">Словарь</a> <span class="divider">/</span></li>
+        <li>Редактор граммем</li>
+    </ul>
     {if $user_permission_dict}
     <b>{t}Добавить граммему{/t}</b>:<br/>
-    <form action="?act=add_gram" method="post" class="inline">
-        {t}Внутр. ID{/t} <input name="g_name" value="grm" size="10" maxlength="20"/>,
-        {t}внешн. ID{/t} <input name="outer_id" value="грм" size="10" maxlength="20"/>,
-        {t}родительская граммема{/t} <select name='parent_gram'><option value='0'>--{t}Не выбрана{/t}--</option>{html_options options=$select}</select>,<br/>
-        {t}описание{/t} <input name="descr" size="40"/>
-        <input type="button" value="{t}Добавить{/t}" onclick="submit_with_readonly_check($(this).closest('form'))"/>
+    <form action="?act=add_gram" method="post" class="form-inline">
+        <label for="g_name">{t}Внутр. ID{/t}</label> <input type="text" name="g_name" value="grm" class="input-mini" maxlength="20">,
+        <label for="outer_id">{t}внешн. ID{/t}</label> <input type="text" name="outer_id" value="грм" class="input-mini" maxlength="20">,
+        <label for="parent_gram">{t}родительская граммема{/t}</label> <select name='parent_gram'><option value='0'>--{t}Не выбрана{/t}--</option>{html_options options=$select}</select>,
+        <label for="descr">{t}описание{/t}</label> <input name="descr" type="text" class="input-medium">
+        <button type="button" class="btn" onclick="submit_with_readonly_check($(this).closest('form'))"/> {t}Добавить{/t}</button>
     </form>
-    <br/><br/>
     {/if}
     <form action="?act=edit_gram" method="post">
-    <table border="1" cellspacing="0" cellpadding="2">
+    <table border="0" class="table table-collapsed" cellspacing="0" cellpadding="2">
         <tr>
             <th>{if $order == 'priority'}{t}Порядок{/t}{else}<a href="?act=gram&amp;order=priority">{t}Порядок{/t}</a>{/if}</th>
             <th>{if $order == 'id'}{t}Внутр. ID{/t}{else}<a href="?act=gram&amp;order=id">{t}Внутр. ID{/t}</a>{/if}</th>

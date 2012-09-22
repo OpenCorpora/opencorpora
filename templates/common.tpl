@@ -8,6 +8,7 @@
 {/if}
 <div id="container" class="container">
 {include file='qa/user_splash.tpl'}
+<div id="alert_wrap"></div>
 {block name=content}{/block}
 </div>
 {include file='footer.tpl'}

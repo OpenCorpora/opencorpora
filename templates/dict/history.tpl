@@ -1,7 +1,7 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
-<table border='1' cellspacing='0' cellpadding='3'>
+<table class="table">
 {if !$smarty.get.lemma_id}
 <tr>
     <td colspan='3'>{if $smarty.get.skip > 0}<a href='?skip={$smarty.get.skip - 20}'>&lt; {t}позже{/t}</a>{else}&nbsp;{/if}</td>

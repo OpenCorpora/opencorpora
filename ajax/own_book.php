@@ -1,6 +1,5 @@
 <?php
-require_once('../lib/header.php');
-header('Content-type: text/xml; charset=utf-8');
+require_once('../lib/header_ajax.php');
 echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?>';
 
 if (!user_has_permission('perm_adder')) {

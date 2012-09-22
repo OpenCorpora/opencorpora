@@ -1,14 +1,13 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
-    <p><a href="?">&lt;&lt;&nbsp;{t}назад{/t}</a></p>
-    {if $user_permission_dict}
-    <h2>{t}Редактор морфологического словаря{/t}</h2>
-    {else}
-    <h2>{t}Просмотр морфологического словаря{/t}</h2>
-    {/if}
-    <form action='?act=lemmata' method='post'>{t}Поиск леммы{/t}: <input name='search_lemma' size='25' maxlength='40' value="{$smarty.post.search_lemma|htmlspecialchars}"/> <input type='submit' value='{t}Искать{/t}'/></form>
-    <form action='?act=lemmata' method='post'>{t}Поиск формы{/t}: <input name='search_form' size='25' maxlength='40' value="{$smarty.post.search_form|htmlspecialchars}"/> <input type='submit' value='{t}Искать{/t}'/></form>
+    <h1>{if $user_permission_dict} {t}Редактор морфологического словаря{/t} {else} {t}Просмотр морфологического словаря{/t} {/if}</h1>
+    <ul class="breadcrumb">
+        <li><a href="{$web_prefix}/dict.php">Словарь</a> <span class="divider">/</span></li>
+        <li>Поиск</li>
+    </ul>
+    <form action='?act=lemmata' method='post' class="form-inline"><label for="search_lemma">{t}Поиск леммы{/t}:</label> <input type="text" name='search_lemma' class="input-medium" maxlength='40' value="{$smarty.post.search_lemma|htmlspecialchars}"> <button type='submit' class="btn">{t}Искать{/t}</button></form>
+    <form action='?act=lemmata' method='post' class="form-inline"><label for="search_form">{t}Поиск формы{/t}:</label> <input type="text" name='search_form' maxlength='40' value="{$smarty.post.search_form|htmlspecialchars}" class="input-medium"> <button type='submit' class="btn">{t}Искать{/t}</button></form>
     {if $smarty.post.search_lemma}
         {if $search.lemma.count > 0}
         {foreach item=lemma from=$search.lemma.found}

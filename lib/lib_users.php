@@ -50,20 +50,25 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
         $token = remember_user($user_id, $auth_token);
         if (!$token)
             return false;
-        //setting the session
         include_once('lib_awards.php');
-        $_SESSION['user_id'] = $user_id;
-        $_SESSION['user_name'] = get_user_shown_name($user_id);
-        $_SESSION['user_level'] = get_user_level($user_id);
-        $_SESSION['options'] = get_user_options($user_id);
-        $_SESSION['user_permissions'] = get_user_permissions($user_id);
-        if (!$_SESSION['options'] || !$_SESSION['user_permissions'])
+        if (!init_session($user_id, get_user_shown_name($user_id), get_user_options($user_id), get_user_permissions($user_id),
+                          $token, get_user_level($user_id)))
             return false;
-        $_SESSION['token'] = $token; //we may need to delete it on logout
         sql_commit();
         return true;
     }
     return false;
+}
+function init_session($user_id, $user_name, $options, $permissions, $token, $level) {
+    if (!$options || !$permissions)
+        return false;
+    $_SESSION['user_id'] = $user_id;
+    $_SESSION['user_name'] = $user_name;
+    $_SESSION['options'] = $options;
+    $_SESSION['user_permissions'] = $permissions;
+    $_SESSION['token'] = $token;
+    $_SESSION['user_level'] = $level;
+    return true;
 }
 function remember_user($user_id, $auth_token=false) {
     //deleting the old token
@@ -106,13 +111,8 @@ function user_login_openid($token) {
     if (!$token) {
         return false;
     }
-    $_SESSION['user_id'] = $row['user_id'];
-    $_SESSION['user_level'] = $row['user_level'];
-    $_SESSION['user_name'] = get_user_shown_name($row['user_id']);
-    $_SESSION['token'] = $token;
-    $_SESSION['options'] = get_user_options($row['user_id']);
-    $_SESSION['user_permissions'] = get_user_permissions($row['user_id']);
-    if (!$_SESSION['options'] || !$_SESSION['user_permissions'])
+    if (!init_session($row['user_id'], get_user_shown_name($row['user_id']), get_user_options($row['user_id']),
+                      get_user_permissions($row['user_id']), $token, $row['user_level']))
         return false;
     if ($row['user_passwd'] == 'notagreed') {
         $_SESSION['user_pending'] = 1;

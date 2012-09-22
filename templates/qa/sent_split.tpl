@@ -3,7 +3,7 @@
 {block name=content}
 <h1>Странное деление предложений</h1>
 <p>Список обновляется раз в час.</p>
-<table border='1' cellspacing='0' cellpadding='3'>
+<table class="table">
 <tr><th>id</th><th>Текст</th><th>&nbsp;</th></tr>
 {foreach from=$sentences item=s}
 <tr>

@@ -59,12 +59,13 @@ $(document).ready(function() {
     });
     $('a.comment').click(function(event) {
         if ($(event.target).closest('div').find('textarea').length == 0) {
-            $(event.target).closest('div').append('<div class="controls"><textarea placeholder="Ваш комментарий" class="span4"></textarea><button class="btn send_comment">Отправить комментарий</button></div>').find('button.send_comment').click(function() {
+            $(event.target).closest('div').append('<div class="controls"><textarea placeholder="Ваш комментарий" class="span4"></textarea><button class="btn send_comment">Отправить комментарий</button></div>').find('button.send_comment').click(function(comment_event) {
                 $.post('ajax/post_comment.php', {'type': 'morph_annot', 'id': $(event.target).attr('rel'), 'text': $(this).closest('div').find('textarea').val()}, function(res) {
                     var $r = $(res).find('response');
                     if ($r.attr('ok') == 1) {
-                        $(event.target).closest('div').find('div').replaceWith('<p>Спасибо, ваш комментарий добавлен!</p>');
-                        $(event.target).closest('div').find('p').fadeOut(3000);
+                        /*$(event.target).closest('div').find('div').replaceWith('<p>Спасибо, ваш комментарий добавлен!</p>');*/
+                        $(comment_event.target).closest('.controls').hide();
+                        show_bootalert('success','Спасибо, ваш комментарий добавлен!');
                     } else {
                         alert('Comment saving failed');
                     }
@@ -130,20 +131,19 @@ $(document).ready(function() {
     <li><a href="{$web_prefix}/tasks.php">Разметка</a> <span class="divider">/</span></li>
     <li class="active">{$packet.gram_descr|implode:" &mdash; "}</li>
 </ul>
-<p>Спасибо, что помогаете нам. Не торопитесь, будьте внимательны. Если вы не уверены, пропускайте пример.</p>
+<div class="ma_thanx_block">Спасибо, что помогаете нам. Не торопитесь, будьте внимательны. Если вы не уверены, пропускайте пример.</div>
 <!--<p><input type="text" id="test-progress"></p>
 <div id="progress-bar" class="progress-bar"><div></div></div>
 <div id="progress-splash" class="splash-block success" style="display:none;">
     <div><strong>Поздравляем!</strong> Вы разметили 50% пула.</div>
-</div>
-<br/>-->
+</div>-->
 {foreach from=$packet.instances item=instance}
 <div class='ma_instance' rel='{$instance.id}' rev='{$instance.sample_id}'>
     <div class="ma_instance_words">
         {if $instance.has_left_context}<a class='expand' href="#" rel='{$instance.has_left_context}' rev='-1'>...</a>{/if}
         {foreach from=$instance.context item=word name=x}
         {if $smarty.foreach.x.index == $instance.mainword}
-        <b class='bggreen' title='{$instance.lemmata}'>{$word|htmlspecialchars}</b> 
+        <b class='ma_instance_word' title='{$instance.lemmata}'>{$word|htmlspecialchars}</b> 
         {else}
         {$word|htmlspecialchars}
         {/if}

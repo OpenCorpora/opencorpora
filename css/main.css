@@ -26,11 +26,17 @@ a.pseudo {
 a.pseudo:hover {
     border-bottom: 1px solid;
 }
-a.btn {
+a.btn, .nav-tabs a {
     text-decoration: none;
 }
 table.borderless, td.borderless, tr.borderless td, th.borderless, tr.borderless th {
     border: none;
+}
+.color-light {
+    color: #909090;
+}
+.space-after {
+    margin-bottom: 20px;
 }
 html {
     height: 100%;
@@ -55,7 +61,7 @@ body {
     clear:both;
     position: absolute;
     margin-top: -70px;
-    padding: 30px 0px 20px;
+    padding: 25px 0px 25px;
     line-height: 25px;
 }
 #header {
@@ -110,6 +116,18 @@ a.loginza {
     display: inline;
     vertical-align: -5px;
     padding: 0 0 0 10px;
+}
+.nav-wrapper {
+    padding: 8px 0;
+}
+.nav-wrapper .nav a {
+    text-decoration: none;
+}
+.nav-wrapper .nav-well-form {
+    padding: 10px 15px 0;
+}
+.nav-wrapper .nav-well-form input {
+    margin-bottom: 0;
 }
 .promo-unit {
     background: url("../img/tiny_grid.png");
@@ -175,6 +193,9 @@ a.loginza {
 }
 .bgyellow {
     background-color: yellow;
+}
+.bgorange {
+    background-color: #F8CB6A;
 }
 a.toggle {
     border-bottom: 1px black dashed;
@@ -398,8 +419,13 @@ div.ma_instance {
 div.ma_instance_words {
     margin-bottom: 4px;
 }
-div.ma_instance b {
+.ma_instance_word {
+    background-color: #F8CB6A;
+    padding: 1px 3px;
     font-size: 20px;
+}
+.ma_thanx_block {
+    margin-bottom: 15px;
 }
 div.ma_instance .comment {
     margin-left: 5px;

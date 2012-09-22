@@ -9,14 +9,19 @@
     {if isset($smarty.get.saved)}
         <div class='info'>{t}Изменения сохранены.{/t}</div>
     {/if}
-    <p><form class='inline' method="post" action="?act=lemmata">
+    <!--p><form class='inline' method="post" action="?act=lemmata">
     {if $smarty.get.found_lemma}
     <input type='hidden' name='search_lemma' value='{$smarty.get.found_lemma}'/>
     {elseif $smarty.get.found_form}
     <input type='hidden' name='search_form' value='{$smarty.get.found_form}'/>
     {/if}
     <a href="#" onclick="$(this).closest('form').submit()">&lt;&lt;&nbsp;{t}к поиску{/t}</a>
-    </form></p>
+    </form></p-->
+    <h1>Лемма &laquo;{$editor.lemma.text|htmlspecialchars}&raquo;</h1>
+    <ul class="breadcrumb">
+        <li><a href="{$web_prefix}/dict.php">Словарь</a> <span class="divider">/</span></li>
+        <li><a href="{$web_prefix}/dict.php">Поиск</a> <span class="divider">/</span></li>
+    </ul>
     <div id="errata">
     {foreach from=$editor.errata item=error}
         <div class="{if $error.is_ok}ok{else}error{/if}">{t}Ошибка{/t}.
@@ -45,17 +50,17 @@
     {strip}
     <form action="?act=save" method="post">
         <b>{t}Лемма{/t}</b>:<br/>
-        <input type="hidden" name="lemma_id" value="{$editor.lemma.id}"/>
+        <p class="form-inline"><input type="hidden" name="lemma_id" value="{$editor.lemma.id}"/>
         {if $editor.lemma.id > 0}
-        <input name="lemma_text" readonly="readonly" value="{$editor.lemma.text|htmlspecialchars}"/>
-        <input name="lemma_gram" {if !$user_permission_dict}readonly="readonly"{/if} value="{$editor.lemma.grms|htmlspecialchars}" size="40"/>
-        <input type="button" onClick="location.href='dict_history.php?lemma_id={$editor.lemma.id}'" value="{t}История{/t}"/>
-        {if $user_permission_dict}<input type="button" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" value="{t}Удалить лемму{/t}"/>{/if}
+        <input type="text" name="lemma_text" value="{$editor.lemma.text|htmlspecialchars}"> 
+        <input type="text" name="lemma_gram" {if !$user_permission_dict}readonly="readonly"{/if} value="{$editor.lemma.grms|htmlspecialchars}" size="40">  
+        <button class="btn" type="button" onClick="location.href='dict_history.php?lemma_id={$editor.lemma.id}'" >{t}История{/t}</button> 
+        {if $user_permission_dict}<button type="button" class="btn" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" >{t}Удалить лемму{/t}</button>{/if}
         {else}
-        <input name="lemma_text" value="{$smarty.get.text}"/>
-        <input name="lemma_gram" value="{t}граммемы{/t}" onClick="this.value=''; this.onclick=''" size="40"/>
+        <input type="text" name="lemma_text" value="{$smarty.get.text}"> 
+        <input type="text" name="lemma_gram" value="{t}граммемы{/t}" onClick="this.value=''; this.onclick=''" size="40">
         {/if}
-        <br/>
+        </p>
         <b>{t}Формы{/t}
         {if $user_permission_dict} ({t}оставление левого поля пустым удаляет форму{/t}){/if}
         :</b><br/>

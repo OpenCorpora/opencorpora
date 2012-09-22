@@ -111,8 +111,8 @@ function get_common_stats() {
 
     $res = sql_query("SELECT * FROM stats_param WHERE is_active=1 AND param_id NOT IN(SELECT DISTINCT param_id FROM user_stats)");
     while ($r = sql_fetch_array($res)) {
-        $arr = sql_fetch_array(sql_query("SELECT `timestamp`, param_value FROM stats_values WHERE param_id=".$r['param_id']." ORDER BY `timestamp` DESC LIMIT 1"));
-        $stats[$r['param_name']] = array('timestamp' => $arr['timestamp'], 'value' => $arr['param_value']);
+        $arr = sql_fetch_array(sql_query("SELECT param_value FROM stats_values WHERE param_id=".$r['param_id']." ORDER BY `timestamp` DESC LIMIT 1"));
+        $stats[$r['param_name']] = array('value' => $arr['param_value']);
     }
 
     foreach (array('total', 'chaskor', 'chaskor_news', 'wikipedia', 'wikinews', 'blogs', 'fiction') as $src) {
@@ -121,27 +121,27 @@ function get_common_stats() {
     }
 
     //user stats
-    $res = sql_query("SELECT timestamp, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=6 ORDER BY param_value DESC");
+    $res = sql_query("SELECT u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=6 ORDER BY param_value DESC");
     while ($r = sql_fetch_array($res)) {
-        $stats['added_sentences'][] = array('timestamp' => $r['timestamp'], 'user_name' => $r['user_name'], 'value' => $r['param_value']);
+        $stats['added_sentences'][] = array('user_name' => $r['user_name'], 'value' => $r['param_value']);
     }
-    $res = sql_query("SELECT timestamp, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=7 ORDER BY param_value DESC");
+    $res = sql_query("SELECT u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=7 ORDER BY param_value DESC");
     while ($r = sql_fetch_array($res)) {
-        $stats['added_sentences_last_week'][] = array('timestamp' => $r['timestamp'], 'user_name' => $r['user_name'], 'value' => $r['param_value']);
+        $stats['added_sentences_last_week'][] = array('user_name' => $r['user_name'], 'value' => $r['param_value']);
     }
 
     $uid2sid = array();
     $res = sql_query("SELECT user_id, COUNT(*) AS cnt FROM morph_annot_instances WHERE answer > 0 GROUP BY user_id ORDER BY cnt DESC");
     while ($r = sql_fetch_array($res)) {
-        $stats['annotators'][] = array('total' => $r['cnt'], 'user_id' => $r['user_id']);
+        $stats['annotators'][] = array('total' => number_format($r['cnt'], 0, '', ' '), 'user_id' => $r['user_id']);
         $uid2sid[$r['user_id']] = sizeof($stats['annotators']) - 1;
     }
 
-    $res = sql_query("SELECT timestamp, u.user_id, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=33 ORDER BY param_value DESC");
+    $res = sql_query("SELECT u.user_id, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=33 ORDER BY param_value DESC");
     while ($r = sql_fetch_array($res)) {
         $r1 = sql_fetch_array(sql_query("SELECT param_value FROM user_stats WHERE param_id=34 AND user_id = ".$r['user_id']." LIMIT 1"));
         $r2 = sql_fetch_array(sql_query("SELECT MAX(timestamp) FROM morph_annot_click_log WHERE user_id=".$r['user_id']));
-        $t = array('timestamp' => $r['timestamp'], 'user_name' => $r['user_name'], 'value' => $r['param_value'], 'divergence' => $r1['param_value'] / $r['param_value'] * 100, 'last_active' => $r2[0]);
+        $t = array('user_name' => $r['user_name'], 'value' => number_format($r['param_value'], 0, '', ' '), 'divergence' => $r1['param_value'] / $r['param_value'] * 100, 'last_active' => $r2[0]);
         $stats['annotators'][$uid2sid[$r['user_id']]]['fin'] = $t;
     }
 

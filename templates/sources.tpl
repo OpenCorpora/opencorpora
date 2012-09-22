@@ -7,10 +7,10 @@
         $("a.ab").click(function(event){
             var sid = $(this).attr('rel');
             $(this).hide();
-            var $a1 = $(document.createElement('a')).html('уже есть').addClass('hint').attr('href', '#').click(function(event){
+            var $a1 = $(document.createElement('a')).html('уже есть').addClass('pseudo').attr('href', '#').click(function(event){
                 $(this).next().hide();
                 var $i = $(document.createElement('input')).attr('size', 3).val('id');
-                var $b = $(document.createElement('button')).html('Ok').click(function(event){
+                var $b = $(document.createElement('button')).addClass('btn').html('Ok').click(function(event){
                     $.get('ajax/bind_book.php', {'sid':sid, 'book_id':$(this).closest('td').find('input').val()}, function(res) {
                         var $r = $(res).find('result');
                         if ($r.attr('ok') == 1) {
@@ -25,10 +25,10 @@
                 $(this).parent().empty().append($i, $b);
                 event.preventDefault();
             });
-            var $a2 = $(document.createElement('a')).html('создать').addClass('hint').attr('href', '#').click(function(event){
+            var $a2 = $(document.createElement('a')).html('создать').addClass('pseudo').attr('href', '#').click(function(event){
                 event.preventDefault();
                 var $i = $(document.createElement('input')).attr('size', '20').val('Название');
-                var $b = $(document.createElement('button')).html('Ok').click(function(event){
+                var $b = $(document.createElement('button')).addClass('btn').html('Ok').click(function(event){
                     $(this).attr('disabled', 'disabled');
                     $.get('ajax/bind_book.php', {'sid':sid, 'book_id':-1, 'book_name':$(this).closest('td').find('input').val()}, function(res) {
                         var $r = $(res).find('result');
@@ -41,7 +41,7 @@
                         }
                     });
                 });
-                var $cnc = $(document.createElement('a')).html('Отмена').addClass('hint').attr('href', '#').click(function(){
+                var $cnc = $(document.createElement('a')).html('Отмена').addClass('pseudo').attr('href', '#').click(function(){
                     event.preventDefault();
                     location.reload();
                 });
@@ -91,29 +91,25 @@
 {/literal}
 <h1>Заливаемые тексты</h1>
 {if $is_admin}
-<form action="?act=add" method="post"><button>Добавить</button> новый: <input name='url' value='http://' size='50' maxlength='255'/> название (опц.): <input name='title' value=''> <select name='parent'><option value='0'>N/A</option></select></form>
+<form action="?act=add" method="post" class="form-inline">Добавать новый: <input type="text" name='url' value='http://' size='50' maxlength='255'/> название (опц.): <input type="text" name='title' value=''> <select name='parent'><option value='0'>N/A</option></select> <button class="btn" type="submit">Добавить</button></form>
 <br/>
 {/if}
-{if $what != ''}
-<a href="?">обычный режим</a> |
-{/if}
-{if $what != 'my'}
-<a href="?what=my">показать мои</a> | 
-{/if}
-{if $what != 'active'}
-<a href="?what=active">показать начатые</a> |
-{/if}
-{if $what != 'free'}
-<a href="?what=free&amp;src=10881">показать свободные</a> |
-{else}
-<br/>Свободные:
-<a href="?what=free&amp;src=1">ЧасКор (статьи)</a> |
-<a href="?what=free&amp;src=8283">Викиновости</a> |
-<a href="?what=free&amp;src=10881">ЧасКор (новости)</a> |
-<a href="?what=free&amp;src=17674">Блоги</a> |
-{/if}
-<br/><br/><table border='1' cellspacing='0' cellpadding='2'>
-<tr>
+<ul class="nav nav-tabs">
+    <li{if $what == ''} class="active"{/if}><a href="?">Обычный режим</a></li>
+    <li{if $what == 'my'} class="active"{/if}><a href="?what=my">Мои</a></li>
+    <li{if $what == 'active'} class="active"{/if}><a href="?what=active">Начатые</a></li>
+    <li class="dropdown{if $what == 'free'} active{/if}">
+        <a href="?what=free&amp;src=10881" class="dropdown-toggle" data-toggle="dropdown" data-target="#">Свободные <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            <li><a href="?what=free&amp;src=1">ЧасКор (статьи)</a></li>
+            <li><a href="?what=free&amp;src=8283">Викиновости</a></li>
+            <li><a href="?what=free&amp;src=10881">ЧасКор (новости)</a></li>
+            <li><a href="?what=free&amp;src=17674">Блоги</a></li>
+        </ul>
+    </li>
+</ul>
+<table class="table">
+<tr class="borderless">
     <th>Источник</th>
     <th>Отв.</th>
     <th>Провязка</th>
@@ -121,24 +117,24 @@
     <th>&nbsp;</th>
 </tr>
 {foreach from=$sources.src item=s}
-<tr{if $s.user_id} {if $s.status}class='bggreen'{else}class='bgyellow'{/if}{/if}>
+<tr{if $s.user_id} {if $s.status}class='success'{else}class='bgyellow'{/if}{/if}>
     <td><a href="{$s.url|replace:'?':'%3F'}">{if $s.title}{$s.title}{else}{$s.url|truncate:50}{/if}</a></td>
     <td>
         {if $s.user_id}
             {if $s.user_id == $smarty.session.user_id}
-            я <a href="#" class="hint ya" rel="{$s.id}" rev="0">не хочу</a>
+            я <a href="#" class="pseudo ya" rel="{$s.id}" rev="0">не хочу</a>
             {else}
             {$s.user_name}
             {/if}
         {else}
-            <a href="#" class="hint ya" rel="{$s.id}" rev="1">я хочу</a>
+            <a href="#" class="pseudo ya" rel="{$s.id}" rev="1">я хочу</a>
         {/if}
     </td>
     <td>
         {if $s.book_id}
         <a href="{$web_prefix}/books.php?book_id={$s.book_id}" class="small">{$s.book_title|htmlspecialchars}</a>
         {elseif !$s.user_id || $s.user_id == $smarty.session.user_id}
-        <a href="#" class="hint ab" rel="{$s.id}">добавить</a>
+        <a href="#" class="pseudo ab" rel="{$s.id}">добавить</a>
         {else}
         &nbsp;
         {/if}
@@ -147,14 +143,14 @@
         {foreach item=comment from=$s.comments}
         {$comment.username}: {$comment.text|htmlspecialchars}<br/>
         {/foreach}
-        <a href="#" rel="{$s.id}" class="ac small hint">добавить</a>
+        <a href="#" rel="{$s.id}" class="ac small pseudo">добавить</a>
     </td>
     <td>
         {if $s.user_id && $s.user_id == $smarty.session.user_id}
         {if !$s.status}
-        <button class="bgo" rel="{$s.id}" rev="1">Готово</button>
+        <button class="bgo btn" rel="{$s.id}" rev="1">Готово</button>
         {else}
-        <button class="bgo" rel="{$s.id}" rev="0">Не готово</button>
+        <button class="bgo btn" rel="{$s.id}" rev="0">Не готово</button>
         {/if}
         {elseif $s.status}
         <span class='small'>{$s.status_ts|date_format:"%d.%m.%Y, %H:%M"}</span>

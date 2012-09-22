@@ -3,7 +3,7 @@
 {block name=content}
 <h1>Ошибки в тегах</h1>
 <p>Список обновляется раз в час.</p>
-<table border='1' cellspacing='0' cellpadding='3'>
+<table class="table">
 {foreach item=err from=$errata}
 <tr>
     <td><a href='{$web_prefix}/books.php?book_id={$err.book_id}'>{$err.book_id}</a></td>

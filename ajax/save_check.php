@@ -1,6 +1,5 @@
 <?php
-header('Content-type: text/xml; charset=utf-8');
-require_once('../lib/header.php');
+require_once('../lib/header_ajax.php');
 $type = $_GET['type'];
 $id = (int)$_GET['id'];
 $value = $_GET['value'];
