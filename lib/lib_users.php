@@ -113,7 +113,7 @@ function user_login_openid($token) {
     $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name, user_level FROM `users` WHERE user_name='$id' LIMIT 1");
     //if he doesn't
     if (sql_num_rows($res) == 0) {
-        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0, 1, 1, 0)")) {
+        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0, 0, 0, 0)")) {
             return 0;
         }
         $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name, user_level FROM `users` WHERE user_name='$id' LIMIT 1");
@@ -179,7 +179,7 @@ function user_register($post) {
         return 4;
     }
     sql_begin();
-    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name', 0, 1, 1, 0)")) {
+    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name', 0, 0, 0, 0)")) {
         $user_id = sql_insert_id();
         if (!sql_query("INSERT INTO `user_permissions` VALUES ('$user_id', '0', '0', '0', '0', '0', '0')")) return 0;
         if (isset($post['subscribe']) && $email) {
