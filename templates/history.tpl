@@ -1,15 +1,15 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-<table border='1' cellspacing='0' cellpadding='3'>
+<h1>Свежие правки в разметке</h1>
 {if !isset($smarty.get.sent_id)}
-<tr>
-    <td colspan='{if isset($smarty.get.set_id)}3{else}2{/if}'>{if $skip > 0}<a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip - 20}&amp;maa={$maa}'>&lt; {t}позже{/t}</a>{else}&nbsp;{/if}</td>
-    <td>{t}Всего{/t}: {$history.total}</td>
-    <td><a href='?skip={$skip}&amp;maa={1 - $maa}'>показать {if $maa}все{else}только слияния и разбиения{/if}</a></td>
-    <td align='right'>{if $history.total > ($skip + 20)}<a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip + 20}&amp;maa={$maa}'>{t}раньше{/t} &gt;</a>{else}&nbsp;{/if}</td>
-</tr>
+    <p>{t}Всего{/t}: {$history.total}. <a href='?skip={$skip}&amp;maa={1 - $maa}'>Показать {if $maa}все{else}только слияния и разбиения{/if}</a></p>
+    <ul class="pager">
+        {if $history.total > ($skip + 20)}<li class="next"><a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip + 20}&amp;maa={$maa}'>{t}раньше{/t} &rarr;</a></li>{else}<li class="next disabled"><a href="#">{t}раньше{/t} &rarr;</a></li>{/if}
+        {if $skip > 0}<li class="previous"><a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip - 20}&amp;maa={$maa}'>&larr; {t}позже{/t}</a></li>{else}<li class="previous disabled"><a href="#">&larr; {t}позже{/t}</a></li>{/if}
+    </ul>
 {/if}
+<table class="table">
 {foreach from=$history.sets item=h}
 <tr>
 	<td>{$h.set_id}</td>
@@ -25,13 +25,11 @@
     <td>{if $h.comment}{$h.comment|htmlspecialchars}{else}({t}без комментария{/t}){/if}</td>
 </tr>
 {/foreach}
-{if !isset($smarty.get.sent_id)}
-<tr>
-    <td colspan='{if isset($smarty.get.set_id)}3{else}2{/if}'>{if $skip > 0}<a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip - 20}&amp;maa={$maa}'>&lt; {t}позже{/t}</a>{else}&nbsp;{/if}</td>
-    <td>{t}Всего{/t}: {$history.total}</td>
-    <td><a href='?skip={$skip}&amp;maa={1 - $maa}'>показать {if $maa}все{else}только слияния и разбиения{/if}</a></td>
-    <td align='right'>{if $history.total > ($skip + 20)}<a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip + 20}&amp;maa={$maa}'>{t}раньше{/t} &gt;</a>{else}&nbsp;{/if}</td>
-</tr>
-{/if}
 </table>
+{if !isset($smarty.get.sent_id)}
+    <ul class="pager">
+        {if $history.total > ($skip + 20)}<li class="next"><a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip + 20}&amp;maa={$maa}'>{t}раньше{/t} &rarr;</a></li>{else}<li class="next disabled"><a href="#">{t}раньше{/t} &rarr;</a></li>{/if}
+        {if $skip > 0}<li class="previous"><a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip - 20}&amp;maa={$maa}'>&larr; {t}позже{/t}</a></li>{else}<li class="previous disabled"><a href="#">&larr; {t}позже{/t}</a></li>{/if}
+    </ul>
+{/if}
 {/block}
