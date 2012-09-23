@@ -1,7 +1,19 @@
 <?php
+// on/off
 function game_is_on() {
-    return $_SESSION['user_level'] > 0;
+    return $_SESSION['show_game'] > 0;
 }
+function turn_game_on($user_id) {
+    if (sql_query("UPDATE users SET show_game=1 WHERE user_id=$user_id LIMIT 1"))
+        return true;
+    return false;
+}
+function turn_game_off($user_id) {
+    if (sql_query("UPDATE users SET show_game=0 WHERE user_id=$user_id LIMIT 1"))
+        return true;
+    return false;
+}
+
 // rating and level
 function update_user_rating($user_id, $pool_id, $is_skip, $previous_answer) {
     // increase or decrease rating depending on the answer
@@ -11,9 +23,6 @@ function update_user_rating($user_id, $pool_id, $is_skip, $previous_answer) {
         (!$previous_answer && $is_skip))
         return true;
     
-    if (!game_is_on())
-        return true;
-
     global $config;
     $r = sql_fetch_array(sql_query("SELECT grammemes FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
     $signature = strtr($r['grammemes'], '&|', '__');
@@ -49,10 +58,10 @@ function get_user_rating($user_id) {
         'remaining_percent' => ceil(($next_level_points - $cur_points) / ($next_level_points - $cur_level_points) * 100)
     );
 }
-function update_user_level($user_id, $new_level) {
+function update_user_level($new_level) {
     if (!$new_level)
         return false;
-    if (sql_query("UPDATE users SET user_level = $new_level WHERE user_id=$user_id LIMIT 1")) {
+    if (sql_query("UPDATE users SET user_level = $new_level WHERE user_id=".$_SESSION['user_id']." LIMIT 1")) {
         $_SESSION['user_level'] = $new_level;
         return true;
     }

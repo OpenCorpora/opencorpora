@@ -189,6 +189,7 @@ CREATE TABLE IF NOT EXISTS `users` (
     `user_level`       TINYINT UNSIGNED NOT NULL,
     `user_shown_level` TINYINT UNSIGNED NOT NULL,
     `user_rating10`    INT UNSIGNED NOT NULL,
+    `show_game`        TINYINT UNSIGNED NOT NULL,
     INDEX(`user_team`),
     INDEX(`user_rating10`)
 ) ENGINE = INNODB;

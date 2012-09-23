@@ -53,16 +53,16 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
         $token = remember_user($user_id, $auth_token);
         if (!$token)
             return false;
-        include_once('lib_awards.php');
-        if (!init_session($user_id, get_user_shown_name($user_id), get_user_options($user_id), get_user_permissions($user_id),
-                          $token, get_user_level($user_id)))
+        $r = sql_fetch_array(sql_query("SELECT user_shown_name, user_level, show_game FROM users WHERE user_id = $user_id LIMIT 1"));
+        if (!init_session($user_id, $r['user_shown_name'], get_user_options($user_id), get_user_permissions($user_id),
+                          $token, $r['user_level'], $r['show_game']))
             return false;
         sql_commit();
         return true;
     }
     return false;
 }
-function init_session($user_id, $user_name, $options, $permissions, $token, $level) {
+function init_session($user_id, $user_name, $options, $permissions, $token, $level, $show_game) {
     if (!$options || !$permissions)
         return false;
     $_SESSION['user_id'] = $user_id;
@@ -71,6 +71,7 @@ function init_session($user_id, $user_name, $options, $permissions, $token, $lev
     $_SESSION['user_permissions'] = $permissions;
     $_SESSION['token'] = $token;
     $_SESSION['user_level'] = $level;
+    $_SESSION['show_game'] = $show_game;
     return true;
 }
 function check_for_user_alias($user_id) {
@@ -110,13 +111,13 @@ function user_login_openid($token) {
     else
         $id =  $arr['identity'];
     //check if the user exists
-    $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name, user_level FROM `users` WHERE user_name='$id' LIMIT 1");
+    $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
     //if he doesn't
     if (sql_num_rows($res) == 0) {
-        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0, 0, 0, 0)")) {
+        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0, 1, 1, 0, 0)")) {
             return 0;
         }
-        $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name, user_level FROM `users` WHERE user_name='$id' LIMIT 1");
+        $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
     }
     $row = sql_fetch_array($res);
     $user_id = $row['user_id'];
@@ -126,8 +127,9 @@ function user_login_openid($token) {
     $token = remember_user($user_id, false);
     if (!$token)
         return false;
-    if (!init_session($user_id, get_user_shown_name($user_id), get_user_options($user_id),
-                      get_user_permissions($user_id), $token, $row['user_level']))
+    $row = sql_fetch_array(sql_query("SELECT user_shown_name, user_passwd, user_level, show_game FROM users WHERE user_id = $user_id LIMIT 1"));
+    if (!init_session($user_id, $row['user_shown_name'], get_user_options($user_id),
+                      get_user_permissions($user_id), $token, $row['user_level'], $row['show_game']))
         return false;
     if ($row['user_passwd'] == 'notagreed') {
         $_SESSION['user_pending'] = 1;
@@ -152,6 +154,7 @@ function user_logout() {
     unset($_SESSION['options']);
     unset($_SESSION['user_permissions']);
     unset($_SESSION['token']);
+    unset($_SESSION['show_game']);
     return true;
 }
 function user_register($post) {
@@ -179,7 +182,7 @@ function user_register($post) {
         return 4;
     }
     sql_begin();
-    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name', 0, 0, 0, 0)")) {
+    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name', 0, 1, 1, 0, 0)")) {
         $user_id = sql_insert_id();
         if (!sql_query("INSERT INTO `user_permissions` VALUES ('$user_id', '0', '0', '0', '0', '0', '0')")) return 0;
         if (isset($post['subscribe']) && $email) {
@@ -359,7 +362,7 @@ function user_has_permission($perm) {
     );
 }
 function get_users_page() {
-    $res = sql_query("SELECT p.*, u.user_id, user_shown_name AS user_name, user_reg, user_email FROM users u LEFT JOIN user_permissions p ON (u.user_id = p.user_id)");
+    $res = sql_query("SELECT p.*, u.user_id, user_shown_name AS user_name, user_reg, user_email, show_game FROM users u LEFT JOIN user_permissions p ON (u.user_id = p.user_id)");
     $out = array();
     while ($r = sql_fetch_assoc($res)) {
         $out[] = $r;
@@ -367,7 +370,9 @@ function get_users_page() {
     return $out;
 }
 function save_users($post) {
+    include_once('lib_awards.php');
     sql_begin();
+    $game = $post['game'];
     foreach ($post['changed'] as $id => $val) {
         if (!$val) continue;
         $perm = $post['perm'][$id];
@@ -387,6 +392,14 @@ function save_users($post) {
         $q = "UPDATE user_permissions SET ".implode(', ', $qa)." WHERE user_id=$id LIMIT 1";
         if (!sql_query($q) || !sql_query("DELETE FROM user_tokens WHERE user_id=$id")) {
             return false;
+        }
+        // game part
+        if (isset($game[$id])) {
+            if (!turn_game_on($id))
+                return false;
+        } else {
+            if (!turn_game_off($id))
+                return false;
         }
     }
     sql_commit();

@@ -16,6 +16,7 @@
             <th rowspan='3'>Логин</th>
             <th rowspan='3'>Дата регистрации</th>
             <th rowspan='3'>Email</th>
+            <th rowspan='3'>Игровой режим</th>
             <th colspan='6'>Права</th>
         </tr>
         <tr>
@@ -34,6 +35,7 @@
             <td>{if mb_strlen($user.user_name)>20}<abbr title="{$user.user_name}">{$user.user_name|mb_substr:0:20}...</abbr>{else}{$user.user_name}{/if}<input type='hidden' name='changed[{$user.user_id}]' value='0'/></td>
             <td>{$user.user_reg|date_format:"%d.%m.%y %H:%M"}</td>
             <td>{$user.user_email}</td>
+            <td><input name='game[{$user.user_id}]' type='checkbox'{if $user.show_game > 0} checked="checked"{/if}/></td>
             <td><input name='perm[{$user.user_id}][admin]' type='checkbox'{if $user.perm_admin} checked="checked" disabled="disabled"{/if}/></td>
             <td><input name='perm[{$user.user_id}][adder]' type='checkbox'{if $user.perm_adder} checked="checked"{/if}/></td>
             <td><input name='perm[{$user.user_id}][dict]' type='checkbox'{if $user.perm_dict} checked="checked"{/if}/></td>
