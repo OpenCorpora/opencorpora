@@ -330,7 +330,7 @@ function delete_token($tf_id, $delete_history=true) {
     if (
         sql_query("DELETE FROM form2tf WHERE tf_id = $tf_id") &&
         (!$delete_history || sql_query("DELETE FROM tf_revisions WHERE tf_id = $tf_id")) &&
-        sql_query("UPDATE morph_annot_candidate_samples SET deleted = 1 WHERE tf_id = $tf_id") &&
+        sql_query("DELETE FROM morph_annot_candidate_samples WHERE tf_id = $tf_id") &&
         sql_query("DELETE FROM morph_annot_moderated_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id)") &&
         sql_query("DELETE FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id)") &&
         sql_query("DELETE FROM morph_annot_rejected_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id)") &&

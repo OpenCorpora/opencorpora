@@ -63,10 +63,8 @@ CREATE TABLE IF NOT EXISTS `morph_annot_pools` (
 CREATE TABLE IF NOT EXISTS `morph_annot_candidate_samples` (
     `pool_id` SMALLINT UNSIGNED NOT NULL,
     `tf_id`   INT UNSIGNED NOT NULL,
-    `deleted` TINYINT UNSIGNED NOT NULL,
     INDEX(`pool_id`),
-    INDEX(`tf_id`),
-    INDEX(`deleted`)
+    INDEX(`tf_id`)
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `morph_annot_samples` (

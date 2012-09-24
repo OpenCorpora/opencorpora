@@ -15,7 +15,7 @@ if ($dbh->{'AutoCommit'}) {
 }
 
 my $last_rev = $dbh->prepare("SELECT rev_id FROM tf_revisions WHERE tf_id=? AND rev_id>? LIMIT 1");
-my $add = $dbh->prepare("INSERT INTO morph_annot_candidate_samples VALUES(?, ?, 0)");
+my $add = $dbh->prepare("INSERT INTO morph_annot_candidate_samples VALUES(?, ?)");
 my $update_pool = $dbh->prepare("UPDATE morph_annot_pools SET `status`='1' WHERE pool_id=? LIMIT 1");
 my $find_pools = $dbh->prepare("SELECT pool_id, grammemes FROM morph_annot_pools WHERE status=0");
 $find_pools->execute();

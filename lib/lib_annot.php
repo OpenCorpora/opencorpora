@@ -219,7 +219,7 @@ function get_morph_pools_page($type) {
     $res = sql_query("SELECT p.*, u1.user_shown_name AS author_name, u2.user_shown_name AS moderator_name FROM morph_annot_pools p LEFT JOIN users u1 ON (p.author_id = u1.user_id) LEFT JOIN users u2 ON (p.moderator_id = u2.user_id) WHERE status = $type ORDER BY p.updated_ts DESC");
     while ($r = sql_fetch_assoc($res)) {
         if ($type == 1) {
-            $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_candidate_samples WHERE pool_id=".$r['pool_id']." AND deleted = 0"));
+            $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_candidate_samples WHERE pool_id=".$r['pool_id']));
             $r['candidate_count'] = $r1[0];
         }
         elseif ($type == 5) {
@@ -321,7 +321,7 @@ function get_pool_candidates_page($pool_id) {
     return $pool;
 }
 function get_pool_candidates($pool_id) {
-    $res = sql_query("SELECT tf_id FROM morph_annot_candidate_samples WHERE pool_id=$pool_id AND deleted = 0 ORDER BY RAND() LIMIT 200");
+    $res = sql_query("SELECT tf_id FROM morph_annot_candidate_samples WHERE pool_id=$pool_id ORDER BY RAND() LIMIT 200");
     $out = array();
     while ($r = sql_fetch_array($res)) {
         $out[] = get_context_for_word($r[0], 2);
@@ -409,7 +409,7 @@ function delete_morph_pool($pool_id) {
     sql_begin();
     if (
         sql_query("DELETE FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id)") &&
-        sql_query("UPDATE morph_annot_candidate_samples SET deleted = 1 WHERE pool_id=$pool_id") &&
+        sql_query("DELETE FROM morph_annot_candidate_samples WHERE pool_id=$pool_id") &&
         sql_query("DELETE FROM morph_annot_moderated_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id)") &&
         sql_query("DELETE FROM morph_annot_samples WHERE pool_id=$pool_id") &&
         sql_query("DELETE FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1")
@@ -422,7 +422,7 @@ function delete_morph_pool($pool_id) {
 function promote_samples($pool_id, $type) {
     if (!$pool_id || !$type) return 0;
     
-    $cond = "WHERE pool_id=$pool_id AND deleted = 0";
+    $cond = "WHERE pool_id=$pool_id";
     switch ($type) {
         case 'first':
             $n = (int)$_POST['first_n'];
@@ -448,7 +448,7 @@ function promote_samples($pool_id, $type) {
     if (
         sql_query("INSERT INTO morph_annot_samples(SELECT NULL, pool_id, tf_id FROM morph_annot_candidate_samples $cond)") &&
         sql_query("UPDATE morph_annot_pools SET `status`='2', `revision`='$lastrev', `created_ts`='$time', `updated_ts`='$time' WHERE pool_id=$pool_id LIMIT 1") &&
-        sql_query("UPDATE morph_annot_candidate_samples SET deleted = 1 WHERE tf_id IN (SELECT tf_id FROM morph_annot_samples WHERE pool_id=$pool_id)") &&
+        sql_query("DELETE FROM morph_annot_candidate_samples WHERE tf_id IN (SELECT tf_id FROM morph_annot_samples WHERE pool_id=$pool_id)") &&
         (
             !isset($_POST['keep']) ||
             (
@@ -456,7 +456,7 @@ function promote_samples($pool_id, $type) {
                 sql_query("UPDATE morph_annot_candidate_samples SET pool_id=".sql_insert_id()." WHERE pool_id=$pool_id")
             )
         ) &&
-        sql_query("UPDATE morph_annot_candidate_samples SET deleted = 1 WHERE pool_id=$pool_id")
+        sql_query("DELETE FROM morph_annot_candidate_samples WHERE pool_id=$pool_id")
     ) {
         sql_commit();
         return true;
