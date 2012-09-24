@@ -10,6 +10,8 @@ if (!is_logged()) {
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 
+$smarty->assign('active_page','tasks');
+
 switch ($action) {
     case 'annot':
         if (!isset($_GET['pool_id']) || !$_GET['pool_id']) {

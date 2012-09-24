@@ -10,15 +10,15 @@
             <a href="{$web_prefix}/" class="brand">OpenCorpora</a>
             <div class="nav-collapse">
                 <ul class="nav">
-                    {$sname = $smarty.server.SCRIPT_NAME}{$ruri = $smarty.server.REQUEST_URI}
-                    <li {if $sname=="$web_prefix/tasks.php"}class="active"{/if}><a href="{$web_prefix}/tasks.php">Разметка</a></li>
-                    <li {if $sname=="$web_prefix/dict.php"}class="active"{/if}><a href="{$web_prefix}/dict.php">Словарь</a></li>
+                    {if !isset($active_page)}{$active_page=''}{/if}
+                    <li {if $active_page=="tasks"}class="active"{/if}><a href="{$web_prefix}/tasks.php">Разметка</a></li>
+                    <li {if $active_page=="dict"}class="active"{/if}><a href="{$web_prefix}/dict.php">Словарь</a></li>
                     <!--li {if $sname=="$web_prefix/books.php"}class="active"{/if}><a href="{$web_prefix}/books.php">Тексты</a></li-->
-                    <li {if $ruri=="$web_prefix/?page=stats" || $ruri=="$web_prefix/?page=tag_stats"}class="active"{/if}><a href="{$web_prefix}/?page=stats">Статистика</a></li>
+                    <li {if $active_page=="stats"}class="active"{/if}><a href="{$web_prefix}/?page=stats">Статистика</a></li>
                     <!--li><a href="#">Свежие правки</a></li>
                     <li><a href="#">Downloads</a></li-->
-                    <li {if $ruri=="$web_prefix/?page=downloads"}class="active"{/if}><a href="{$web_prefix}/?page=downloads">Скачать</a></li>
-                    <li {if $ruri=="$web_prefix/?page=about"}class="active"{/if}><a href="{$web_prefix}/?page=about">О проекте</a></li>
+                    <li {if $active_page=="downloads"}class="active"{/if}><a href="{$web_prefix}/?page=downloads">Скачать</a></li>
+                    <li {if $active_page=="about"}class="active"{/if}><a href="{$web_prefix}/?page=about">О проекте</a></li>
                 </ul>
                 <ul class="nav pull-right">
                     <li>

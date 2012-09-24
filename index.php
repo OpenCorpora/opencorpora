@@ -13,9 +13,11 @@ if (isset($_GET['page'])) {
         case 'about':
         case 'team':
         case 'publications':
+            $smarty->assign('active_page','about');
             $smarty->display('static/' . $page . '.tpl');
             break;
         case 'downloads':
+            $smarty->assign('active_page','downloads');
             $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
             $smarty->setCacheLifetime(600);
             if (!is_cached('static/downloads.tpl')) {
@@ -28,6 +30,7 @@ if (isset($_GET['page'])) {
             $smarty->display('top100.tpl');
             break;
         case 'stats':
+            $smarty->assign('active_page','stats');
             $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
             $smarty->setCacheLifetime(300);
             if (!is_cached('stats.tpl')) {
@@ -37,13 +40,16 @@ if (isset($_GET['page'])) {
             $smarty->display('stats.tpl');
             break;
         case 'tag_stats':
+            $smarty->assign('active_page','stats');
             $smarty->assign('stats', get_tag_stats());
             $smarty->display('tag_stats.tpl');
             break;
         case 'export':
+            $smarty->assign('active_page','downloads');
             $smarty->display('static/doc/export.tpl');
             break;
         case 'faq':
+            $smarty->assign('active_page','about');
             $smarty->assign('content', get_wiki_page('FAQ'));
             $smarty->assign('title', 'FAQ');
             $smarty->display('static/faq.tpl');

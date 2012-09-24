@@ -5,6 +5,8 @@ if (isset($_GET['act']))
     $action = $_GET['act'];
 else $action = '';
 
+$smarty->assign('active_page','dict');
+
 //check permissions
 if (!in_array($action, array('', 'gram', 'gram_restr', 'lemmata', 'errata', 'edit')) &&
     !user_has_permission('perm_dict')) {
