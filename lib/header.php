@@ -124,4 +124,7 @@ $smarty->assign('goals', $config['goals']);
 //svn info
 $svnfile = file('.svn/entries');
 $smarty->assign('svn_revision', $svnfile[3]);
+
+// alert messages
+$smarty->assign('alerts',alert_getall());
 ?>

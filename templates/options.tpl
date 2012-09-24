@@ -2,9 +2,6 @@
 {extends file='common.tpl'}
 {block name=content}
 <h1>{t}Настройки{/t}</h1>
-{if isset($smarty.get.saved)}
-<p>{t}Настройки сохранены.{/t}</p>
-{/if}
 <form action="?act=save" method="post">
     {foreach key=id item=option from=$meta}
         <div class="control-group">

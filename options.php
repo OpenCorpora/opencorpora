@@ -8,14 +8,16 @@ if (is_logged()) {
     switch ($action) {
         case 'save':
             if (save_user_options($_POST)) {
-                header('Location:options.php?saved=1');
+                alert_set('success','Настройки сохранены');
+                header('Location:options.php');
                 return;
             } else
                 show_error();
             break;
         case 'save_team':
             if (save_user_team((int)$_POST['team_id'], $_POST['new_team_name'])) {
-                header('Location:options.php?saved=1');
+                alert_set('success','Настройки сохранены');
+                header('Location:options.php');
                 return;
             } else
                 show_error();
