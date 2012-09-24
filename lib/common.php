@@ -304,25 +304,29 @@ function get_top100_info($what, $type) {
     $stats = array();
 
     $filename = '';
-    list($N, $ltype) = explode('_', $type, 2);
-    switch ($N) {
-        case 1:
-            $filename = 'unigrams';
-            break;
-        case 2:
-            $filename = 'bigrams';
-            break;
-        case 3:
-            $filename = 'trigrams';
-            break;
-        default:
+    if ($what == 'colloc') {
+        $filename = 'colloc.MI';
+    } else {
+        list($N, $ltype) = explode('_', $type, 2);
+        switch ($N) {
+            case 1:
+                $filename = 'unigrams';
+                break;
+            case 2:
+                $filename = 'bigrams';
+                break;
+            case 3:
+                $filename = 'trigrams';
+                break;
+            default:
+                return $stats;
+        }
+        
+        if (isset($config['ngram_suffixes'][$ltype]))
+            $filename .= $config['ngram_suffixes'][$ltype];
+        else
             return $stats;
     }
-    
-    if (isset($config['ngram_suffixes'][$ltype]))
-        $filename .= $config['ngram_suffixes'][$ltype];
-    else
-        return $stats;
 
     $f = file($config['project']['root']."/files/export/ngrams/$filename.top100");
 
