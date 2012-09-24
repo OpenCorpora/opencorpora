@@ -1,13 +1,10 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
-<h1>{t}О проекте{/t}</h1>
+<h1>{t}Материалы для скачивания{/t}</h1>
 <ul class="nav nav-tabs">
-    <li><a href="{$web_prefix}/?page=about">Описание проекта</a></li>
-    <li><a href="{$web_prefix}/?page=team">Участники</a></li>
-    <li><a href="{$web_prefix}/?page=publications">Публикации</a></li>
-    <li><a href="{$web_prefix}/?page=faq">FAQ</a></li>
-    <li class="active"><a href="{$web_prefix}/?page=downloads">Downloads</a></li>
+    <li class="active"><a href="{$web_prefix}/?page=downloads">Скачать</a></li>
+    <li><a href="{$web_prefix}/?page=export">Форматы экспорта</a></li>
 </ul>
 {literal}
 <script type="text/javascript">
@@ -36,7 +33,6 @@
     });
 </script>
 {/literal}
-<h2>{t}Материалы для скачивания{/t}</h2>
 <h3>{t}Размеченные тексты{/t}</h3>
 <p>XML, {t}обновлён{/t} {$dl.annot.xml.updated}
 <ul>

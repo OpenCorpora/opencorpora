@@ -7,7 +7,6 @@
     <li class="active"><a href="{$web_prefix}/?page=team">Участники</a></li>
     <li><a href="{$web_prefix}/?page=publications">Публикации</a></li>
     <li><a href="{$web_prefix}/?page=faq">FAQ</a></li>
-    <li><a href="{$web_prefix}/?page=downloads">Downloads</a></li>
 </ul>
 <h2>{t}Участники проекта{/t}</h2>
 <table>

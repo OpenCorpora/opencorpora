@@ -1,10 +1,10 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
-<h1>Форматы экспорта данных</h1>
-<ul class="breadcrumb">
-    <li><a href="{$web_prefix}/?page=downloads">Downloads</a> <span class="divider">/</span></li>
-    <li>Форматы экспорта данных</li>
+<h1>{t}Материалы для скачивания{/t}</h1>
+<ul class="nav nav-tabs">
+    <li><a href="{$web_prefix}/?page=downloads">Скачать</a></li>
+    <li class="active"><a href="{$web_prefix}/?page=export">Форматы экспорта</a></li>
 </ul>
 <h2>Формат экспорта словаря (версия 0.81)</h2>
 <p>Словарь представляет собой файл XML в кодировке utf-8.</p>
