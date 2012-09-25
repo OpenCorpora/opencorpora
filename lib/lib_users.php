@@ -53,15 +53,16 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
         $token = remember_user($user_id, $auth_token);
         if (!$token)
             return false;
-
-        if (!init_session($user_id, get_user_shown_name($user_id), get_user_options($user_id), get_user_permissions($user_id), $token))
+        $r = sql_fetch_array(sql_query("SELECT user_shown_name, user_level, show_game FROM users WHERE user_id = $user_id LIMIT 1"));
+        if (!init_session($user_id, $r['user_shown_name'], get_user_options($user_id), get_user_permissions($user_id),
+                          $token, $r['user_level'], $r['show_game']))
             return false;
         sql_commit();
         return true;
     }
     return false;
 }
-function init_session($user_id, $user_name, $options, $permissions, $token) {
+function init_session($user_id, $user_name, $options, $permissions, $token, $level, $show_game) {
     if (!$options || !$permissions)
         return false;
     $_SESSION['user_id'] = $user_id;
@@ -69,6 +70,8 @@ function init_session($user_id, $user_name, $options, $permissions, $token) {
     $_SESSION['options'] = $options;
     $_SESSION['user_permissions'] = $permissions;
     $_SESSION['token'] = $token;
+    $_SESSION['user_level'] = $level;
+    $_SESSION['show_game'] = $show_game;
     return true;
 }
 function check_for_user_alias($user_id) {
@@ -108,13 +111,13 @@ function user_login_openid($token) {
     else
         $id =  $arr['identity'];
     //check if the user exists
-    $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name FROM `users` WHERE user_name='$id' LIMIT 1");
+    $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
     //if he doesn't
     if (sql_num_rows($res) == 0) {
-        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0)")) {
+        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0, 1, 1, 0, 0)")) {
             return 0;
         }
-        $res = sql_query("SELECT user_id, user_passwd, user_shown_name AS user_name FROM `users` WHERE user_name='$id' LIMIT 1");
+        $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
     }
     $row = sql_fetch_array($res);
     $user_id = $row['user_id'];
@@ -124,8 +127,9 @@ function user_login_openid($token) {
     $token = remember_user($user_id, false);
     if (!$token)
         return false;
-    if (!init_session($user_id, get_user_shown_name($user_id), get_user_options($user_id),
-                      get_user_permissions($user_id), $token))
+    $row = sql_fetch_array(sql_query("SELECT user_shown_name, user_passwd, user_level, show_game FROM users WHERE user_id = $user_id LIMIT 1"));
+    if (!init_session($user_id, $row['user_shown_name'], get_user_options($user_id),
+                      get_user_permissions($user_id), $token, $row['user_level'], $row['show_game']))
         return false;
     if ($row['user_passwd'] == 'notagreed') {
         $_SESSION['user_pending'] = 1;
@@ -145,10 +149,12 @@ function user_logout() {
         return false;
     unset($_SESSION['user_id']);
     unset($_SESSION['user_name']);
+    unset($_SESSION['user_level']);
     unset($_SESSION['debug_mode']);
     unset($_SESSION['options']);
     unset($_SESSION['user_permissions']);
     unset($_SESSION['token']);
+    unset($_SESSION['show_game']);
     return true;
 }
 function user_register($post) {
@@ -176,7 +182,7 @@ function user_register($post) {
         return 4;
     }
     sql_begin();
-    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name', 0)")) {
+    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name', 0, 1, 1, 0, 0)")) {
         $user_id = sql_insert_id();
         if (!sql_query("INSERT INTO `user_permissions` VALUES ('$user_id', '0', '0', '0', '0', '0', '0')")) return 0;
         if (isset($post['subscribe']) && $email) {
@@ -356,7 +362,7 @@ function user_has_permission($perm) {
     );
 }
 function get_users_page() {
-    $res = sql_query("SELECT p.*, u.user_id, user_shown_name AS user_name, user_reg, user_email FROM users u LEFT JOIN user_permissions p ON (u.user_id = p.user_id)");
+    $res = sql_query("SELECT p.*, u.user_id, user_shown_name AS user_name, user_reg, user_email, show_game FROM users u LEFT JOIN user_permissions p ON (u.user_id = p.user_id)");
     $out = array();
     while ($r = sql_fetch_assoc($res)) {
         $out[] = $r;
@@ -364,7 +370,9 @@ function get_users_page() {
     return $out;
 }
 function save_users($post) {
+    include_once('lib_awards.php');
     sql_begin();
+    $game = $post['game'];
     foreach ($post['changed'] as $id => $val) {
         if (!$val) continue;
         $perm = $post['perm'][$id];
@@ -382,8 +390,16 @@ function save_users($post) {
             else $qa[] = "perm_check_morph='0'";
 
         $q = "UPDATE user_permissions SET ".implode(', ', $qa)." WHERE user_id=$id LIMIT 1";
-        if (!sql_query($q)) {
+        if (!sql_query($q) || !sql_query("DELETE FROM user_tokens WHERE user_id=$id")) {
             return false;
+        }
+        // game part
+        if (isset($game[$id])) {
+            if (!turn_game_on($id))
+                return false;
+        } else {
+            if (!turn_game_off($id))
+                return false;
         }
     }
     sql_commit();
@@ -414,55 +430,6 @@ function save_user_team($team_id, $new_team_name=false) {
     if (sql_query("UPDATE users SET user_team=$team_id WHERE user_id=".$_SESSION['user_id']." LIMIT 1")) {
         sql_commit();
         return $team_id;
-    }
-    return false;
-}
-function get_user_badges($user_id, $only_shown=true) {
-    $only_shown_str = $only_shown ? "AND shown > 0" : '';
-    $out = array();
-    $res = sql_query("SELECT t.badge_id, t.badge_name, t.badge_descr, t.badge_image, b.shown
-                        FROM user_badges b
-                        LEFT JOIN user_badges_types t USING (badge_id)
-                        WHERE user_id=$user_id $only_shown_str");
-    while ($r = sql_fetch_array($res)) {
-        $out[] = array(
-            'id' => $r['badge_id'],
-            'name' => $r['badge_name'],
-            'description' => $r['badge_descr'],
-            'image_name' => $r['badge_image'],
-            'shown_time' => $r['shown']
-        );
-    }
-    return $out;
-}
-function mark_shown_badge($user_id, $badge_id) {
-    if (sql_query("UPDATE user_badges SET shown=".time()." WHERE user_id=$user_id AND badge_id=$badge_id LIMIT 1"))
-        return true;
-    return false;
-}
-function check_user_simple_badges($user_id) {
-    global $config;
-    $thresholds = explode(',', $config['badges']['simple']);
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt FROM morph_annot_instances WHERE user_id = $user_id AND answer > 0"));
-    $count = $r['cnt'];
-    $res = sql_query("SELECT MAX(badge_id) AS max_badge FROM user_badges WHERE user_id = $user_id AND badge_id <= 20");
-    if (sql_num_rows($res) == 0)
-        $max_badge = 0;
-    else {
-        $r = sql_fetch_array($res);
-        $max_badge = $r['max_badge'];
-    }
-
-    foreach ($thresholds as $i => $thr) {
-        if ($max_badge > $i)
-            continue;
-        if ($count < $thr)
-            break;
-        // user should get a badge!
-        $badge_id = $i + 1;
-        if (sql_query("INSERT INTO user_badges VALUES($user_id, $badge_id, 0)"))
-            return $badge_id;
-        break;
     }
     return false;
 }

@@ -1,5 +1,6 @@
 {* Smarty *}
 {extends file='common.tpl'}
+{block name=before_content}{if $game_is_on == 1}{include file="qa/game_status.tpl"}{/if}{/block}
 {block name=content}
 {literal}
 <script type="text/javascript">
@@ -131,6 +132,7 @@ $(document).ready(function() {
 });
 </script>
 {/literal}
+<br>
 <ul class="breadcrumb">
     <li><a href="{$web_prefix}/tasks.php">Разметка</a> <span class="divider">/</span></li>
     <li class="active">{$packet.gram_descr|implode:" &mdash; "}</li>

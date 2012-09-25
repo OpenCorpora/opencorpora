@@ -179,14 +179,19 @@ CREATE TABLE IF NOT EXISTS `text_forms` (
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `users` (
-    `user_id`         SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `user_name`       VARCHAR(120) NOT NULL,
-    `user_passwd`     VARCHAR(32) NOT NULL,
-    `user_email`      VARCHAR(100) NOT NULL,
-    `user_reg`        INT UNSIGNED NOT NULL,
-    `user_shown_name` VARCHAR(120) NOT NULL,
-    `user_team`       SMALLINT UNSIGNED NOT NULL,
-    INDEX(`user_team`)
+    `user_id`          SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `user_name`        VARCHAR(120) NOT NULL,
+    `user_passwd`      VARCHAR(32) NOT NULL,
+    `user_email`       VARCHAR(100) NOT NULL,
+    `user_reg`         INT UNSIGNED NOT NULL,
+    `user_shown_name`  VARCHAR(120) NOT NULL,
+    `user_team`        SMALLINT UNSIGNED NOT NULL,
+    `user_level`       TINYINT UNSIGNED NOT NULL,
+    `user_shown_level` TINYINT UNSIGNED NOT NULL,
+    `user_rating10`    INT UNSIGNED NOT NULL,
+    `show_game`        TINYINT UNSIGNED NOT NULL,
+    INDEX(`user_team`),
+    INDEX(`user_rating10`)
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `user_aliases` (
@@ -244,6 +249,15 @@ CREATE TABLE IF NOT EXISTS `user_tokens` (
     `token`     INT UNSIGNED NOT NULL,
     `timestamp` INT UNSIGNED NOT NULL,
     INDEX(`user_id`)
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `user_rating_log` (
+    `user_id`   SMALLINT UNSIGNED NOT NULL,
+    `delta`     SMALLINT NOT NULL,
+    `pool_id`   SMALLINT UNSIGNED NOT NULL,
+    `timestamp` INT UNSIGNED NOT NULL,
+    INDEX(`user_id`),
+    INDEX(`timestamp`)
 ) ENGINE = INNODB;
 
 DROP TABLE IF EXISTS `user_badges_types`;

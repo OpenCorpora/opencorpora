@@ -697,13 +697,16 @@ function update_annot_instance($id, $answer) {
     if (!$id || !$answer || !$user_id) return 0;
 
     // the pool should be editable
-    $r = sql_fetch_array(sql_query("SELECT `status` FROM morph_annot_pools WHERE pool_id = (SELECT pool_id FROM morph_annot_samples WHERE sample_id=(SELECT sample_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1) LIMIT 1)"));
+    $r = sql_fetch_array(sql_query("SELECT pool_id, `status` FROM morph_annot_pools WHERE pool_id = (SELECT pool_id FROM morph_annot_samples WHERE sample_id=(SELECT sample_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1) LIMIT 1)"));
     if ($r['status'] != 3) return 0;
+
+    $pool_id = $r['pool_id'];
 
     sql_begin();
 
     // does the instance really belong to this user?
-    $r = sql_fetch_array(sql_query("SELECT user_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1"));
+    $r = sql_fetch_array(sql_query("SELECT user_id, answer FROM morph_annot_instances WHERE instance_id=$id LIMIT 1"));
+    $previous_answer = $r['answer'] > 0;
     if ($r['user_id'] != $user_id) {
         // if another user has taken it, no chance
         if ($r['user_id'] > 0)
@@ -719,15 +722,20 @@ function update_annot_instance($id, $answer) {
         }
     }
 
+    include_once('lib_awards.php');
+
     // a valid answer
     if ($answer > 0) {
-        if (!sql_query("UPDATE morph_annot_instances SET answer='$answer' WHERE instance_id=$id LIMIT 1")) return 0;
+        if (!sql_query("UPDATE morph_annot_instances SET answer='$answer' WHERE instance_id=$id LIMIT 1") ||
+            !update_user_rating($user_id, $pool_id, false, $previous_answer))
+            return 0;
     }
     // or a rejected question
     elseif ($answer == -1) {
         if (
             !sql_query("INSERT INTO morph_annot_rejected_samples (SELECT sample_id, $user_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1)") ||
-            !sql_query("UPDATE morph_annot_instances SET user_id='0', ts_finish='0', answer='0' WHERE instance_id=$id LIMIT 1")
+            !sql_query("UPDATE morph_annot_instances SET user_id='0', ts_finish='0', answer='0' WHERE instance_id=$id LIMIT 1") ||
+            !update_user_rating($user_id, $pool_id, true, $previous_answer)
         ) return 0;
     }
     sql_commit();

@@ -9,6 +9,8 @@ if (!is_logged()) {
 }
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
+if (game_is_on())
+    $smarty->assign('user_rating', get_user_rating($_SESSION['user_id']));
 
 $smarty->assign('active_page','tasks');
 
