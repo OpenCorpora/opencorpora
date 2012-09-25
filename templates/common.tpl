@@ -8,7 +8,8 @@
 {/if}
 <div id="container" class="container">
 {if $game_is_on == 1}{include file='qa/user_splash.tpl'}{/if}
-<div id="alert_wrap"></div>
+<div id="alert_wrap">{if $alerts}{foreach $alerts as $type=>$message}<div class="alert alert-{$type}">{$message}</div>{/foreach}<script>setTimeout('$("#alert_wrap .alert").fadeOut()',3000);</script>{/if}
+</div>
 {block name=content}{/block}
 </div>
 {include file='footer.tpl'}

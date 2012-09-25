@@ -1,11 +1,12 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-<table border='1' cellspacing='0' cellpadding='3'>
-<tr>
-    <td colspan="3">{if $skip > 0}<a href='?skip={$skip - 20}'>&lt; {t}позже{/t}</a>{else}&nbsp;{/if}</td>
-    <td align="right">{if $comments.total > ($skip + 20)}<a href='?skip={$skip + 20}'>{t}раньше{/t} &gt;</a>{else}&nbsp;{/if}</td>
-</tr>
+<h1>Свежие комментарии</h1>
+<ul class="pager">
+    {if $comments.total > ($skip + 20)}<li class="next"><a href='?skip={$skip + 20}'>{t}раньше{/t} &rarr;</a></li>{else}<li class="next disabled"><a href="#">{t}раньше{/t} &rarr;</a></li>{/if}
+    {if $skip > 0}<li class="previous"><a href='?skip={$skip - 20}'>&larr; {t}позже{/t}</a></li>{else}<li class="previous disabled"><a href="#">&larr; {t}позже{/t}</a></li>{/if}
+</ul>
+<table class="table"> 
 {foreach item=comment from=$comments.c}
     <tr>
         <td><a href="{$web_prefix}/sentence.php?id={$comment.sent_id}">Предложение {$comment.sent_id}</a></td>
@@ -14,9 +15,9 @@
         <td><a href="{$web_prefix}/sentence.php?id={$comment.sent_id}#comm_{$comment.id}">{$comment.text|htmlspecialchars}</a></td>
     </tr>
 {/foreach}
-<tr>
-    <td colspan="3">{if $skip > 0}<a href='?skip={$skip - 20}'>&lt; {t}позже{/t}</a>{else}&nbsp;{/if}</td>
-    <td align="right">{if $comments.total > ($skip + 20)}<a href='?skip={$skip + 20}'>{t}раньше{/t} &gt;</a>{else}&nbsp;{/if}</td>
-</tr>
 </table>
+<ul class="pager">
+    {if $comments.total > ($skip + 20)}<li class="next"><a href='?skip={$skip + 20}'>{t}раньше{/t} &rarr;</a></li>{else}<li class="next disabled"><a href="#">{t}раньше{/t} &rarr;</a></li>{/if}
+    {if $skip > 0}<li class="previous"><a href='?skip={$skip - 20}'>&larr; {t}позже{/t}</a></li>{else}<li class="previous disabled"><a href="#">&larr; {t}позже{/t}</a></li>{/if}
+</ul>
 {/block}

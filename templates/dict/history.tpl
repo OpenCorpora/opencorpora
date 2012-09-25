@@ -1,14 +1,15 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
-<table class="table">
+<h1>Свежие правки в словаре</h1>
 {if !$smarty.get.lemma_id}
-<tr>
-    <td colspan='3'>{if $smarty.get.skip > 0}<a href='?skip={$smarty.get.skip - 20}'>&lt; {t}позже{/t}</a>{else}&nbsp;{/if}</td>
-    <td colspan='2'>{t}Всего{/t}: {$history.total}</td>
-    <td align='right'>{if $history.total > ($smarty.get.skip + 20)}<a href='?skip={$smarty.get.skip + 20}'>{t}раньше{/t} &gt;</a>{else}&nbsp;{/if}</td>
-</tr>
+    <p>{t}Всего{/t}: {$history.total}</p>
+    <ul class="pager">
+        {if $history.total <= ($smarty.get.skip + 20)}<li class="next disabled"><a href="#">{t}раньше{/t} &rarr;</a></li>{else}<li class="next"><a href='?skip={$smarty.get.skip + 20}'>{t}раньше{/t} &rarr;</a></li>{/if}
+        {if $smarty.get.skip == 0}<li class="previous disabled"><a href='#'>&larr; {t}позже{/t}</a></li>{else}<li class="previous"><a href='?skip={$smarty.get.skip - 20}'>&larr; {t}позже{/t}</a></li>{/if}
+    </ul>
 {/if}
+<table class="table">
 {foreach from=$history.sets item=h}
 <tr{if $h.is_link} style='background:yellow'{/if}>
 	<td>{$h.set_id}</td>
@@ -31,12 +32,11 @@
     <td>{if $h.comment}{$h.comment}{else}({t}без комментария{/t}){/if}</td>
 </tr>
 {/foreach}
-{if !$smarty.get.lemma_id}
-<tr>
-    <td colspan='3'>{if $smarty.get.skip > 0}<a href='?skip={$smarty.get.skip - 20}'>&lt; {t}позже{/t}</a>{else}&nbsp;{/if}</td>
-    <td colspan='2'>{t}Всего{/t}: {$history.total}</td>
-    <td align='right'>{if $history.total > ($smarty.get.skip + 20)}<a href='?skip={$smarty.get.skip + 20}'>{t}раньше{/t} &gt;</a>{else}&nbsp;{/if}</td>
-</tr>
-{/if}
 </table>
+{if !$smarty.get.lemma_id}
+    <ul class="pager">
+        {if $history.total <= ($smarty.get.skip + 20)}<li class="next disabled"><a href="#">{t}раньше{/t} &rarr;</a></li>{else}<li class="next"><a href='?skip={$smarty.get.skip + 20}'>{t}раньше{/t} &rarr;</a></li>{/if}
+        {if $smarty.get.skip == 0}<li class="previous disabled"><a href='#'>&larr; {t}позже{/t}</li>{else}<li class="previous"><a href='?skip={$smarty.get.skip - 20}'>&larr; {t}позже{/t}</a></li>{/if}
+    </ul>
+{/if}
 {/block}

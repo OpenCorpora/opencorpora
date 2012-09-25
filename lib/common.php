@@ -304,25 +304,29 @@ function get_top100_info($what, $type) {
     $stats = array();
 
     $filename = '';
-    list($N, $ltype) = explode('_', $type, 2);
-    switch ($N) {
-        case 1:
-            $filename = 'unigrams';
-            break;
-        case 2:
-            $filename = 'bigrams';
-            break;
-        case 3:
-            $filename = 'trigrams';
-            break;
-        default:
+    if ($what == 'colloc') {
+        $filename = 'colloc.MI';
+    } else {
+        list($N, $ltype) = explode('_', $type, 2);
+        switch ($N) {
+            case 1:
+                $filename = 'unigrams';
+                break;
+            case 2:
+                $filename = 'bigrams';
+                break;
+            case 3:
+                $filename = 'trigrams';
+                break;
+            default:
+                return $stats;
+        }
+        
+        if (isset($config['ngram_suffixes'][$ltype]))
+            $filename .= $config['ngram_suffixes'][$ltype];
+        else
             return $stats;
     }
-    
-    if (isset($config['ngram_suffixes'][$ltype]))
-        $filename .= $config['ngram_suffixes'][$ltype];
-    else
-        return $stats;
 
     $f = file($config['project']['root']."/files/export/ngrams/$filename.top100");
 
@@ -377,5 +381,52 @@ function safe_write($file, $mode, $data) {
 
     return TRUE;
 }
-
+/**
+* saves alert message to session
+* @param string $type alert type [success,error,info]
+* @param string $message alert text
+*/
+function alert_set($type,$message) {
+    switch ($type) {
+        case 'success':
+        case 'error':
+        case 'info':
+            if (!isset($_SESSION['alert'])) {
+                $_SESSION['alert'] = array();
+            }
+            $_SESSION['alert'][$type] = $message;
+            break;
+    }
+}
+/**
+* returns alert message & destroys it
+* @param string $type alert type [success,error,info]
+*/
+function alert_get($type = '') {
+    if (!isset($_SESSION['alert'])) {
+        return false;
+    }
+    switch ($type) {
+        case 'success':
+        case 'error':
+        case 'info':
+            if (isset($_SESSION['alert'][$type])) {
+                $message = $_SESSION['alert'][$type];
+                unset($_SESSION['alert'][$type]);
+                return $message;
+            }
+            break;
+    }
+}
+/**
+* returns all alert messages & destroys them
+*/
+function alert_getall() {
+    if (!isset($_SESSION['alert'])) {
+        return array();
+    }
+    $alert = $_SESSION['alert'];
+    unset($_SESSION['alert']);
+    return $alert;
+}
 ?>

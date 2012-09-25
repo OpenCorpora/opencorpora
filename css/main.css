@@ -26,7 +26,7 @@ a.pseudo {
 a.pseudo:hover {
     border-bottom: 1px solid;
 }
-a.btn, .nav-tabs a {
+a.btn, .nav-tabs a, .pager a {
     text-decoration: none;
 }
 table.borderless, td.borderless, tr.borderless td, th.borderless, tr.borderless th {

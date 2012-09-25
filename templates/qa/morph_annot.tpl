@@ -10,21 +10,21 @@ $(document).ready(function() {
             $.get('ajax/clck_log.php', {'id':$(el).attr('rev'), 'type':(20 + i)});
         });
         $('.ma_instance button').click(function(event) {
-            $('button.ma_next_pack').attr('disabled', 'disabled');
+            $('button.ma_next_pack').addClass('disabled');
             var $btn = $(event.target);
             $btn.closest('div').find('button').attr('disabled', 'disabled').removeClass('chosen');
             $btn.addClass('chosen');
             $.get('ajax/annot.php', {'id':$(this).closest('div').attr('rel'), 'answer':$(this).attr('rev')}, function(res){
                 var $r = $(res).find('result');
                 if ($r.attr('ok') == 1) {
-                    $btn.closest('div').fadeTo('slow', 0.5).addClass('ma_ready');
+                    $btn.closest('div').fadeTo('slow', 0.5).removeClass('ma_not_ready').addClass('ma_ready');
                     //perhaps all the instances are clicked
                     var flag = 1;
                     $('div.ma_instance').each(function(i, el) {
                         if (!$(el).hasClass('ma_ready'))
                             flag = 0;
                     });
-                    if (flag) $('button.ma_next_pack').removeAttr('disabled');
+                    if (flag) $('button.ma_next_pack').removeClass('disabled');
                 } else
                     $btn.closest('div').hide();
                 $btn.closest('div').find('button').removeAttr('disabled');
@@ -78,7 +78,13 @@ $(document).ready(function() {
         event.preventDefault();
     });
     $('button.ma_next_pack').click(function() {
-        document.location.reload();
+        if($(this).hasClass('disabled')) {
+            $first_notready = $('.ma_not_ready').eq(0);
+            $('html').scrollTop($first_notready.offset().top)
+        }
+        else {
+            document.location.reload();
+        }
     });
     // class for progress-bar
     function Progress(val) {
@@ -138,7 +144,7 @@ $(document).ready(function() {
     <div><strong>Поздравляем!</strong> Вы разметили 50% пула.</div>
 </div>-->
 {foreach from=$packet.instances item=instance}
-<div class='ma_instance' rel='{$instance.id}' rev='{$instance.sample_id}'>
+<div class='ma_instance ma_not_ready' rel='{$instance.id}' rev='{$instance.sample_id}'>
     <div class="ma_instance_words">
         {if $instance.has_left_context}<a class='expand' href="#" rel='{$instance.has_left_context}' rev='-1'>...</a>{/if}
         {foreach from=$instance.context item=word name=x}
@@ -158,5 +164,5 @@ $(document).ready(function() {
     <a rel='{$instance.sample_id}' class='pseudo comment' href='#'>Прокомментировать</a>
 </div>
 {/foreach}
-{if !$packet.my}<button class='btn btn-primary btn-large ma_next_pack' disabled='disabled'>Хочу ещё примеров!</button>{/if}
+{if !$packet.my}<button class='btn btn-primary btn-large ma_next_pack disabled'>Хочу ещё примеров!</button>{/if}
 {/block}

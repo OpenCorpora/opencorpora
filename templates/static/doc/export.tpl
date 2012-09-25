@@ -1,10 +1,10 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
-<h1>Форматы экспорта данных</h1>
-<ul class="breadcrumb">
-    <li><a href="{$web_prefix}/?page=downloads">Downloads</a> <span class="divider">/</span></li>
-    <li>Форматы экспорта данных</li>
+<h1>{t}Материалы для скачивания{/t}</h1>
+<ul class="nav nav-tabs">
+    <li><a href="{$web_prefix}/?page=downloads">Скачать</a></li>
+    <li class="active"><a href="{$web_prefix}/?page=export">Форматы экспорта</a></li>
 </ul>
 <h2>Формат экспорта словаря (версия 0.81)</h2>
 <p>Словарь представляет собой файл XML в кодировке utf-8.</p>
@@ -18,7 +18,7 @@
 <li>набор элементов <code>&lt;f&gt;</code>, описывающий все словоформы данной леммы: текст словоформы содержится в атрибуте <code>t</code>, а набор граммем &ndash; в наборе элементов <code>&lt;g&gt;</code>.</li>
 </ul>
 <h3>Описание типов связей</h3>
-<p>В секции <code>&lt;link_types&gt;</code> перечисляются все возможные типы связей между леммами в виде <code>&lt;type id="tid"&gt;type_name&lt;/type&gt;, где tid &ndash; числовой идентификатор типа (в дальнейшем мы будем на него ссылаться), а type_name &ndash; название типа (обычно из латинских букв).</code></p>
+<p>В секции <code>&lt;link_types&gt;</code> перечисляются все возможные типы связей между леммами в виде <code>&lt;type id="tid"&gt;type_name&lt;/type&gt;</code>, где tid &ndash; числовой идентификатор типа (в дальнейшем мы будем на него ссылаться), а type_name &ndash; название типа (обычно из латинских букв).</p>
 <h3>Описание связей</h3>
 В секции <code>&lt;links&gt;</code> перечислены все связи между леммами в виде <code>&lt;link id="lid" from="from_id" to="to_id" type="tid"/&gt;</code>, где lid &ndash; числовой идентификатор конкретной связи, from_id и to_id &ndash; идентификаторы лемм, между которыми существует эта связь, а tid &ndash; идентификатор типа связи.
 <h3>Пример</h3>
