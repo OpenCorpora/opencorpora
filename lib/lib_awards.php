@@ -112,7 +112,7 @@ function check_user_level($user_id) {
 
         if (
             floor($r['user_rating10'] / 10) >= $points_for_next_level &&
-            check_badges4level($next_level)
+            check_badges4level($user_id, $next_level)
         ) {
             $next_level++;
             continue;
