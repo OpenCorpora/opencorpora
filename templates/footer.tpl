@@ -10,20 +10,28 @@
         </div>
     </div>
 </div>
-<!-- Yandex.Metrika counter -->
 {literal}
-<div style="display:none;"><script type="text/javascript">
-(function(w, c) {
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+(function (d, w, c) {
     (w[c] = w[c] || []).push(function() {
         try {
-            w.yaCounter9552538 = new Ya.Metrika({id:9552538,
-                trackLinks:true});
-        }
-        catch(e) { }
+            w.yaCounter9552538 = new Ya.Metrika({id:9552538, enableAll: true, webvisor:true});
+        } catch(e) { }
     });
-})(window, "yandex_metrika_callbacks");
-{/literal}
-</script></div>
-<script src="//mc.yandex.ru/metrika/watch.js" type="text/javascript" defer="defer"></script>
+            
+    var n = d.getElementsByTagName("script")[0],
+    s = d.createElement("script"),
+    f = function () { n.parentNode.insertBefore(s, n); };
+    s.type = "text/javascript";
+    s.async = true;
+    s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+
+    if (w.opera == "[object Opera]") {
+        d.addEventListener("DOMContentLoaded", f);
+    } else { f(); }
+})(document, window, "yandex_metrika_callbacks");
+</script>
 <noscript><div><img src="//mc.yandex.ru/watch/9552538" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
+{/literal}
