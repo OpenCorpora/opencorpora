@@ -8,7 +8,7 @@
 <input type='radio' name='type' value='random' checked='checked'/><input name='random_n' maxlength='4' size='4' value='100'/> случайных<br/>
 <input type='radio' name='type' value='first'/><input name='first_n' maxlength='4' size='4' value='100'/> первых<br/>
 <input type='submit' value='Добавить их в пул'/><br/>
-<label><input type='checkbox' name='keep' checked='checked'/> и сохранить найденные примеры для следующего пула</label> по имени <input name='next_pool_name' value='Новый пул {$pool.id}'/>
+<label><input type='checkbox' name='keep' checked='checked'/> и сохранить найденные примеры для следующего пула</label> по имени <input name='next_pool_name' value='{$pool.next_name}'/>
 </form>
 <br/>
 {/if}

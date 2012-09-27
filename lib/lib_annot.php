@@ -317,6 +317,11 @@ function get_pool_candidates_page($pool_id) {
     $pool = array('id' => $pool_id);
     $r = sql_fetch_array(sql_query("SELECT pool_name FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
     $pool['name'] = $r['pool_name'];
+    $matches = array();
+    if (preg_match('/^(.+?)\s+#(\d+)/', $pool['name'], $matches))
+        $pool['next_name'] = $matches[1] . ' #'. ($matches[2] + 1);
+    else
+        $pool['next_name'] = $pool_name . ' #2';
     $pool['samples'] = get_pool_candidates($pool_id);
     return $pool;
 }
