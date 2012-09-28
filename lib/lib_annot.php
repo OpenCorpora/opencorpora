@@ -476,8 +476,8 @@ function promote_samples($pool_id, $type) {
     $r = sql_fetch_array(sql_query("SELECT pool_name, revision FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
     $lastrev = $r['revision'];
     if (!$lastrev) {
-        $r = sql_fetch_array(sql_query("SELECT MAX(rev_id) FROM tf_revisions"));
-        $lastrev = $r[0];
+        $r1 = sql_fetch_array(sql_query("SELECT MAX(rev_id) FROM tf_revisions"));
+        $lastrev = $r1[0];
     }
 
     $matches = array();
