@@ -90,6 +90,7 @@ $(document).ready(function(){
     </tr>
 {/foreach}
 </table>
+<a href="#" class="pseudo" id="show_all_users">Показать всех пользователей</a>
 <h3>Команды по количеству размеченных примеров</h3>
 <table class="table">
     <tr><th>#</th><th>Название</th><th>Количество участников</th><th>Размечено примеров</th></tr>
