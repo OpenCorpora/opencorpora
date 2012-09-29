@@ -20,7 +20,7 @@
         <input type='button' class="btn btn-primary" onclick="submit_with_readonly_check($(this).closest('form'))" value='{t}Сохранить{/t}'>&nbsp;&nbsp;<input type='reset' value='{t}Отменить{/t}' class="btn">
     </div>
 </form>
-<form action='?act=save_team' method="post">
+<form action='?act=save_team' method="post" id="save_team_form">
     <h2>Команда</h2>
     <p><select name="team_id" id="select_team_id">
         <option value="0">Без команды</option>
@@ -48,6 +48,12 @@
             else {
                 $("#new_team_block").hide();
                 $('#new_team_name').val('');
+            }
+        });
+        $("#save_team_form").submit(function(event){
+            if($("#select_team_id").val()==-1 && $('#new_team_name').val()=='') {
+                show_bootalert('error','Укажите команду.');
+                event.preventDefault();
             }
         })
     })
