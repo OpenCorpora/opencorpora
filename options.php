@@ -15,7 +15,7 @@ if (is_logged()) {
                 show_error();
             break;
         case 'save_team':
-            if (save_user_team((int)$_POST['team_id'], $_POST['new_team_name'])) {
+            if (save_user_team((int)$_POST['team_id'], $_POST['new_team_name'])!==false) {
                 alert_set('success','Настройки сохранены');
                 header('Location:options.php');
                 return;
@@ -42,6 +42,8 @@ if (is_logged()) {
             $smarty->assign('meta', get_meta_options());
             $smarty->assign('current_email', get_user_email($_SESSION['user_id']));
             $smarty->assign('current_name', get_user_shown_name($_SESSION['user_id']));
+            $smarty->assign('teams',get_team_list());
+            $smarty->assign('user_team',get_user_team($_SESSION['user_id']));
             $smarty->display('options.tpl');
     }
 } else

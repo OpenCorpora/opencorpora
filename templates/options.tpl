@@ -20,6 +20,38 @@
         <input type='button' class="btn btn-primary" onclick="submit_with_readonly_check($(this).closest('form'))" value='{t}Сохранить{/t}'>&nbsp;&nbsp;<input type='reset' value='{t}Отменить{/t}' class="btn">
     </div>
 </form>
+<form action='?act=save_team' method="post">
+    <h2>Команда</h2>
+    <p><select name="team_id" id="select_team_id">
+        <option value="0">Без команды</option>
+        {foreach $teams as $id=>$team}
+        <option value="{$id}" {if $user_team.user_team==$id}selected{/if}>{$team.name} ({$team.num_users})</option>
+        {/foreach}
+        <option value="-1">Добавить новую...</option>
+    </select>
+    </p>
+    <div id="new_team_block" style="display:none;">
+        <label for="new_team_name">Новая команда</label>
+        <input type="text" name="new_team_name" id="new_team_name" class="span3" placeholder="Название команды">
+    </div>
+    <div class="controls">
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+    </div>
+</form>
+<script>
+    $(document).ready(function(){
+        $('#select_team_id').change(function(){
+            team_id = $(this).val();
+            if(team_id == -1) {
+                $("#new_team_block").show();
+            }
+            else {
+                $("#new_team_block").hide();
+                $('#new_team_name').val('');
+            }
+        })
+    })
+</script>
 <h2>{t}Регистрационные данные{/t}</h2>
 {if !$is_openid}
     <form action='{$web_prefix}/login.php?act=change_pw' method='post'>

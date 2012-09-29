@@ -407,7 +407,7 @@ function save_users($post) {
 }
 function get_team_list() {
     $out = array();
-    $res = sql_query("SELECT team_id, team_name, COUNT(user_id) AS num_users FROM user_teams t RIGHT JOIN users u ON (t.team_id = u.user_team) GROUP BY team_id");
+    $res = sql_query("SELECT team_id, team_name, COUNT(user_id) AS num_users FROM user_teams t LEFT JOIN users u ON (t.team_id = u.user_team) GROUP BY team_id");
     while ($r = sql_fetch_array($res)) {
         $out[$r['team_id']] = array(
             'name' => $r['team_name'],
@@ -421,8 +421,8 @@ function save_user_team($team_id, $new_team_name=false) {
         return false;
     // create new team if necessary
     sql_begin();
-    if (!$team_id) {
-        if (!$new_team_name || !sql_query("INSERT INTO user_teams VALUES(NULL, '".mysql_real_escape_string($new_team_name)."')"))
+    if ($new_team_name) {
+        if (!sql_query("INSERT INTO user_teams VALUES(NULL, '".mysql_real_escape_string($new_team_name)."')"))
             return false;
         $team_id = sql_insert_id();
     }
@@ -432,5 +432,9 @@ function save_user_team($team_id, $new_team_name=false) {
         return $team_id;
     }
     return false;
+}
+function get_user_team($user_id) {
+    $res = sql_query("SELECT user_team, team_id, team_name FROM users LEFT JOIN user_teams ON (user_team=team_id) WHERE user_id=$user_id LIMIT 1");
+    return sql_fetch_array($res);
 }
 ?>
