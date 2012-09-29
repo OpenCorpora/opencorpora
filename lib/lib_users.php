@@ -422,7 +422,7 @@ function save_user_team($team_id, $new_team_name=false) {
     // create new team if necessary
     sql_begin();
     if ($new_team_name) {
-        if (!sql_query("INSERT INTO user_teams VALUES(NULL, '".mysql_real_escape_string($new_team_name)."')"))
+        if (!sql_query("INSERT INTO user_teams VALUES(NULL, '".mysql_real_escape_string($new_team_name)."', ".$_SESSION['user_id'].")"))
             return false;
         $team_id = sql_insert_id();
     }
