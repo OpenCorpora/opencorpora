@@ -19,17 +19,24 @@ if ($dbh->{'AutoCommit'}) {
     die "Setting AutoCommit failed";
 }
 
+my $max1 = $dbh->prepare("SELECT MAX(tf_id) AS max1 FROM text_forms");
+my $max2 = $dbh->prepare("SELECT MAX(tf_id) AS max2 FROM form2tf");
 my $scan = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE tf_id NOT IN (SELECT tf_id FROM form2tf) LIMIT ?");
 my $ins = $dbh->prepare("INSERT INTO form2tf VALUES(?, ?)");
 
+$max1->execute();
+$max2->execute();
+if ($max1->fetchrow_hashref()->{'max1'} == $max2->fetchrow_hashref()->{'max2'}) {
+    $dbh->commit();
+    exit 0;
+}
+
 $scan->execute(50);
-while(my $ref = $scan->fetchrow_hashref()) {
+while (my $ref = $scan->fetchrow_hashref()) {
     my $txt = $ref->{'tf_text'};
     $txt = decode('utf-8', $txt);
-    #print STDERR "got text <$txt>";
     $txt =~ tr/А-Я/а-я/;
     $txt =~ s/[Ёё]/е/g;
-    #print STDERR ", translated to <$txt>\n";
     $ins->execute($txt, $ref->{'tf_id'});
 }
 

@@ -380,8 +380,10 @@ function merge_tokens_ii($id_array) {
     }
     //update tf_text, add new revision
     $revset_id = create_revset("Tokens $joined merged to <$new_text>");
+    $token_for_form2tf = str_replace('ё', 'е', mb_strtolower($new_text));
     if (
         !sql_query("UPDATE text_forms SET tf_text = '".mysql_real_escape_string($new_text)."' WHERE tf_id=$new_id LIMIT 1") ||
+        !sql_query("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $new_id)") ||
         !sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$new_id', '".mysql_real_escape_string(generate_tf_rev($new_text))."')")
     ) {
         return 0;
@@ -413,6 +415,7 @@ function split_token($token_id, $num) {
     sql_begin();
     //create revset
     $revset_id = create_revset("Token $token_id (<".$r['tf_text'].">) split to <$text1> and <$text2>");
+    $token_for_form2tf = str_replace('ё', 'е', mb_strtolower($text1));
     if (
         //update other tokens in the sentence
         !sql_query("UPDATE text_forms SET pos=pos+1 WHERE sent_id = ".$r['sent_id']." AND pos > ".$r['pos']) ||
@@ -421,6 +424,7 @@ function split_token($token_id, $num) {
         !sql_query("INSERT INTO tf_revisions VALUES(NULL, '$revset_id', '".sql_insert_id()."', '".mysql_real_escape_string(generate_tf_rev($text2))."')") ||
         //update old token and parse
         !sql_query("UPDATE text_forms SET tf_text='".mysql_real_escape_string($text1)."', dict_updated='0' WHERE tf_id=$token_id LIMIT 1") ||
+        !sql_query("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $token_id)") ||
         !sql_query("INSERT INTO tf_revisions VALUES(NULL, '$revset_id', '$token_id', '".mysql_real_escape_string(generate_tf_rev($text1))."')")
     ) {
         return false;
