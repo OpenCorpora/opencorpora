@@ -17,10 +17,13 @@ if ($dbh->{'AutoCommit'}) {
 }
 
 #if there are any words still not checked by form2tf, we should do nothing
-my $prescan = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE tf_id NOT IN (SELECT tf_id FROM form2tf) LIMIT 1");
-$prescan->execute();
-if($prescan->fetchrow_hashref()) {
-    die "form2tf isn't up to date";
+my $max1 = $dbh->prepare("SELECT MAX(tf_id) AS max1 FROM text_forms");
+my $max2 = $dbh->prepare("SELECT MAX(tf_id) AS max2 FROM form2tf");
+$max1->execute();
+$max2->execute();
+if ($max1->fetchrow_hashref()->{'max1'} == $max2->fetchrow_hashref()->{'max2'}) {
+    $dbh->commit();
+    exit 0;
 }
 
 my $scan = $dbh->prepare("SELECT form_text FROM updated_forms LIMIT ?");
