@@ -259,7 +259,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
         $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." AND answer>0"));
         $t['answered'] = $r1[0];
         if ($extended) {
-            $r1 = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id = ".$r['tf_id']." WHERE is_last=1 LIMIT 1"));
+            $r1 = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id = ".$r['tf_id']." AND is_last=1 LIMIT 1"));
             $arr = xml2ary($r1['rev_text']);
             $t['parses'] = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
             $res1 = sql_query("SELECT instance_id, user_id, answer FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." ORDER BY instance_id");
@@ -705,7 +705,7 @@ function get_my_answers($pool_id, $limit=10, $skip=0) {
 
     $gram_descr = array();
     while ($r = sql_fetch_array($res)) {
-        $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) WHERE is_last=1 LIMIT 1"));
+        $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) AND is_last=1 LIMIT 1"));
         $instance = get_context_for_word($r1['tf_id'], 4);
         $arr = xml2ary($r1['rev_text']);
         $parses = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
@@ -777,7 +777,7 @@ function get_annotation_packet($pool_id, $size) {
     if ($flag_new) sql_begin();
     $gram_descr = array();
     while ($r = sql_fetch_array($res)) {
-        $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) WHERE is_last=1 LIMIT 1"));
+        $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) AND is_last=1 LIMIT 1"));
         $instance = get_context_for_word($r1['tf_id'], 4);
         $arr = xml2ary($r1['rev_text']);
         $parses = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
