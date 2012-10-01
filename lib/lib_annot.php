@@ -599,7 +599,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     if ($random)
         $order_string = "ORDER BY RAND()";
     else
-        $order_string = "ORDER BY status, created_ts";
+        $order_string = "ORDER BY grammemes, created_ts";
 
     if ($limit)
         $limit_string = "LIMIT " . (2 * $limit);
@@ -610,72 +610,78 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     $cnt = 0;
     $pools = array();
     // get all pools by status
-    $res = sql_query("SELECT pool_id, pool_name, status FROM morph_annot_pools WHERE status = 3 $order_string $limit_string");
+    $res = sql_query("SELECT pool_id, pool_name, status, grammemes FROM morph_annot_pools WHERE status = 3 $order_string $limit_string");
     while ($r = sql_fetch_array($res)) {
-        $pools[$r['pool_id']] = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0, 'num' => 0);
+        $pools[$r['pool_id']] = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0, 'num' => 0, 'group' => $r['grammemes']);
     }
-    if ($pools) {
-        $pool_ids = array_keys($pools);
-        // get sample counts for selected pools
-        // gather count of all available samples grouped by pool
-        $r_available_samples = sql_query('
-            SELECT pool_id,count(distinct sample_id) as cnt
-            FROM morph_annot_instances 
-            LEFT JOIN morph_annot_samples USING(sample_id) 
-            WHERE 
-                answer=0 
-                AND ts_finish < ' . $time . '
-                AND pool_id IN (' . implode(',',$pool_ids) . ')
-                AND sample_id NOT IN (
-                    SELECT sample_id 
-                    FROM morph_annot_instances 
-                    WHERE user_id=' . $user_id . ') 
-                AND sample_id NOT IN (
-                    SELECT sample_id 
-                    FROM morph_annot_rejected_samples 
-                    WHERE user_id=' . $user_id . ') 
-            GROUP BY pool_id');
-        while ($available_samples = sql_fetch_array($r_available_samples)) {
-            $pools[$available_samples['pool_id']]['num'] = $available_samples['cnt'];
-        }
-        // gather count of all samples with started instances with empty answer grouped by pool
-        $r_started_samples = sql_query('
-            SELECT pool_id, count(*) as cnt 
-            FROM morph_annot_instances 
-            LEFT JOIN morph_annot_samples USING(sample_id) 
-            WHERE user_id=' . $user_id . '
-                AND morph_annot_instances.answer=0 
-                AND pool_id IN (' . implode(',',$pool_ids) . ')
-            GROUP BY pool_id');
-        while ($started_samples = sql_fetch_array($r_started_samples)) {
-            $pools[$started_samples['pool_id']]['num_started'] = $started_samples['cnt'];
-        }
-        // gather count of all samples with instance & answer grouped by pool
-        $r_done_samples = sql_query('
-            SELECT pool_id, count(*) as cnt 
-            FROM morph_annot_instances 
-            LEFT JOIN morph_annot_samples USING(sample_id) 
-            WHERE user_id=' . $user_id . '
-                AND morph_annot_instances.answer>0 
-                AND pool_id IN (' . implode(',', $pool_ids) . ')
-            GROUP BY pool_id');
-        while ($done_samples = sql_fetch_array($r_done_samples)) {
-            $pools[$done_samples['pool_id']]['num_done'] = $done_samples['cnt'];
-        }
-        foreach ($pools as $pool) {
-            if (
-                // we are not interested in not available & not started pools
-                $pool['num'] + $pool['num_started'] + $pool['num_done'] > 0 &&
-                // we may be as well not interested in pools where nothing remains to do
-                (!$only_editable || ($pool['num'] + $pool['num_started']) > 0)
-            ) {
-                $tasks[] = $pool;
 
-                ++$cnt;
-                if ($limit > 0 && $cnt == $limit)
-                    break;
-            }
+    if (!$pools)
+        return $tasks;
+
+    $pool_ids = array_keys($pools);
+    // get sample counts for selected pools
+    // gather count of all available samples grouped by pool
+    $r_available_samples = sql_query('
+        SELECT pool_id,count(distinct sample_id) as cnt
+        FROM morph_annot_instances 
+        LEFT JOIN morph_annot_samples USING(sample_id) 
+        WHERE 
+            answer=0 
+            AND ts_finish < ' . $time . '
+            AND pool_id IN (' . implode(',',$pool_ids) . ')
+            AND sample_id NOT IN (
+                SELECT sample_id 
+                FROM morph_annot_instances 
+                WHERE user_id=' . $user_id . ') 
+            AND sample_id NOT IN (
+                SELECT sample_id 
+                FROM morph_annot_rejected_samples 
+                WHERE user_id=' . $user_id . ') 
+        GROUP BY pool_id');
+    while ($available_samples = sql_fetch_array($r_available_samples)) {
+        $pools[$available_samples['pool_id']]['num'] = $available_samples['cnt'];
+    }
+    // gather count of all samples with started instances with empty answer grouped by pool
+    $r_started_samples = sql_query('
+        SELECT pool_id, count(*) as cnt 
+        FROM morph_annot_instances 
+        LEFT JOIN morph_annot_samples USING(sample_id) 
+        WHERE user_id=' . $user_id . '
+            AND morph_annot_instances.answer=0 
+            AND pool_id IN (' . implode(',',$pool_ids) . ')
+        GROUP BY pool_id');
+    while ($started_samples = sql_fetch_array($r_started_samples)) {
+        $pools[$started_samples['pool_id']]['num_started'] = $started_samples['cnt'];
+    }
+    // gather count of all samples with instance & answer grouped by pool
+    $r_done_samples = sql_query('
+        SELECT pool_id, count(*) as cnt 
+        FROM morph_annot_instances 
+        LEFT JOIN morph_annot_samples USING(sample_id) 
+        WHERE user_id=' . $user_id . '
+            AND morph_annot_instances.answer>0 
+            AND pool_id IN (' . implode(',', $pool_ids) . ')
+        GROUP BY pool_id');
+    while ($done_samples = sql_fetch_array($r_done_samples)) {
+        $pools[$done_samples['pool_id']]['num_done'] = $done_samples['cnt'];
+    }
+    foreach ($pools as $pool) {
+        if (
+            // we are not interested in not available & not started pools
+            $pool['num'] + $pool['num_started'] + $pool['num_done'] > 0 &&
+            // we may be as well not interested in pools where nothing remains to do
+            (!$only_editable || ($pool['num'] + $pool['num_started']) > 0)
+        ) {
+            $tasks[$pool['group']]['pools'][] = $pool;
+
+            ++$cnt;
+            if ($limit > 0 && $cnt == $limit)
+                break;
         }
+    }
+    foreach ($tasks as $group_id => $v) {
+        $tasks[$group_id]['first_id'] = $v['pools'][0]['id'];
+        $tasks[$group_id]['name'] = preg_replace('/\s+#\d+\s*$/', '', $v['pools'][0]['name']);
     }
 
     return $tasks;
@@ -714,6 +720,33 @@ function get_my_answers($pool_id, $limit=10, $skip=0) {
         $packet['instances'][] = $instance;
     }
     return $packet;
+}
+function get_next_pool($user_id, $prev_pool_id) {
+    if (!$user_id || !$prev_pool_id)
+        return false;
+
+    $time = time();
+    $res = sql_query("SELECT pool_id FROM morph_annot_pools WHERE status = 3 AND grammemes = (SELECT grammemes FROM morph_annot_pools WHERE pool_id=$prev_pool_id LIMIT 1)");
+    while ($r = sql_fetch_array($res)) {
+        $res1 = sql_query("
+            SELECT instance_id FROM morph_annot_instances LEFT JOIN morph_annot_samples USING (sample_id)
+            WHERE answer = 0
+            AND pool_id = ".$r['pool_id']."
+            AND ts_finish < $time
+            AND sample_id NOT IN (
+                SELECT sample_id 
+                FROM morph_annot_instances 
+                WHERE user_id=' . $user_id . ')
+            AND sample_id NOT IN (
+                SELECT sample_id 
+                FROM morph_annot_rejected_samples 
+                WHERE user_id=' . $user_id . ')
+            LIMIT 1
+        ");
+        if (sql_num_rows($res1) > 0)
+            return $r['pool_id'];
+    }
+    return false;
 }
 function get_annotation_packet($pool_id, $size) {
     $packet = array('my' => 0);
