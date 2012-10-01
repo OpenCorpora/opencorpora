@@ -384,7 +384,8 @@ function merge_tokens_ii($id_array) {
     if (
         !sql_query("UPDATE text_forms SET tf_text = '".mysql_real_escape_string($new_text)."' WHERE tf_id=$new_id LIMIT 1") ||
         !sql_query("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $new_id)") ||
-        !sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$new_id', '".mysql_real_escape_string(generate_tf_rev($new_text))."')")
+        !sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$new_id") ||
+        !sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$new_id', '".mysql_real_escape_string(generate_tf_rev($new_text))."', 1)")
     ) {
         return 0;
     }
@@ -421,11 +422,12 @@ function split_token($token_id, $num) {
         !sql_query("UPDATE text_forms SET pos=pos+1 WHERE sent_id = ".$r['sent_id']." AND pos > ".$r['pos']) ||
         //create new token and parse
         !sql_query("INSERT INTO text_forms VALUES(NULL, '".$r['sent_id']."', '".($r['pos'] + 1)."', '".mysql_real_escape_string($text2)."', '0')") ||
-        !sql_query("INSERT INTO tf_revisions VALUES(NULL, '$revset_id', '".sql_insert_id()."', '".mysql_real_escape_string(generate_tf_rev($text2))."')") ||
+        !sql_query("INSERT INTO tf_revisions VALUES(NULL, '$revset_id', '".sql_insert_id()."', '".mysql_real_escape_string(generate_tf_rev($text2))."', 1)") ||
         //update old token and parse
         !sql_query("UPDATE text_forms SET tf_text='".mysql_real_escape_string($text1)."', dict_updated='0' WHERE tf_id=$token_id LIMIT 1") ||
         !sql_query("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $token_id)") ||
-        !sql_query("INSERT INTO tf_revisions VALUES(NULL, '$revset_id', '$token_id', '".mysql_real_escape_string(generate_tf_rev($text1))."')")
+        !sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$token_id") ||
+        !sql_query("INSERT INTO tf_revisions VALUES(NULL, '$revset_id', '$token_id', '".mysql_real_escape_string(generate_tf_rev($text1))."', 1)")
     ) {
         return false;
     }

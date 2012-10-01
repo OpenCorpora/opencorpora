@@ -54,7 +54,7 @@ function get_sentence($sent_id) {
     $gram_descr = array();  //associative array to keep info about grammemes
     while ($r = sql_fetch_array($res)) {
         array_push ($tf_text, '<span id="src_token_'.($j++).'">'.$r['tf_text'].'</span>');
-        $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." ORDER BY rev_id DESC LIMIT 1"));
+        $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." AND is_last=1 LIMIT 1"));
         $arr = xml2ary($rev['rev_text']);
 
         $out['tokens'][] = array(
@@ -130,7 +130,7 @@ function sentence_save($sent_id) {
     $dict = $_POST['dict_flag']; //whether this token has been reloaded from the dictionary (array)
     $res = sql_query("SELECT tf_id, tf_text, `pos` FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
     while ($r = sql_fetch_array($res)) {
-        $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." ORDER BY rev_id DESC LIMIT 1"));
+        $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." AND is_last=1 LIMIT 1"));
         $tokens[$r['tf_id']] = array($r['tf_text'], $rev['rev_text']);
     }
     $matches = array();
@@ -183,7 +183,10 @@ function sentence_save($sent_id) {
         if (!$revset_id)
             return false;
         foreach ($all_changes as $v) {
-            if (!sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$v[0]', '".mysql_real_escape_string($v[1])."')"))
+            if (
+                !sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$v[0]") ||
+                !sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$v[0]', '".mysql_real_escape_string($v[1])."', 1)")
+            )
                 return false;
         }
     }
@@ -256,7 +259,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
         $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." AND answer>0"));
         $t['answered'] = $r1[0];
         if ($extended) {
-            $r1 = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id = ".$r['tf_id']." ORDER BY rev_id DESC LIMIT 1"));
+            $r1 = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id = ".$r['tf_id']." WHERE is_last=1 LIMIT 1"));
             $arr = xml2ary($r1['rev_text']);
             $t['parses'] = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
             $res1 = sql_query("SELECT instance_id, user_id, answer FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." ORDER BY instance_id");
@@ -696,7 +699,7 @@ function get_my_answers($pool_id, $limit=10, $skip=0) {
 
     $gram_descr = array();
     while ($r = sql_fetch_array($res)) {
-        $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) ORDER BY rev_id DESC LIMIT 1"));
+        $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) WHERE is_last=1 LIMIT 1"));
         $instance = get_context_for_word($r1['tf_id'], 4);
         $arr = xml2ary($r1['rev_text']);
         $parses = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
@@ -741,7 +744,7 @@ function get_annotation_packet($pool_id, $size) {
     if ($flag_new) sql_begin();
     $gram_descr = array();
     while ($r = sql_fetch_array($res)) {
-        $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) ORDER BY rev_id DESC LIMIT 1"));
+        $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) WHERE is_last=1 LIMIT 1"));
         $instance = get_context_for_word($r1['tf_id'], 4);
         $arr = xml2ary($r1['rev_text']);
         $parses = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);

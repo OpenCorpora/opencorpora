@@ -289,8 +289,10 @@ CREATE TABLE IF NOT EXISTS `tf_revisions` (
     `set_id`   INT UNSIGNED NOT NULL,
     `tf_id`    INT UNSIGNED NOT NULL,
     `rev_text` TEXT NOT NULL,
+    `is_last`  TINYINT UNSIGNED NOT NULL,
     INDEX (`set_id`),
-    INDEX (`tf_id`)
+    INDEX (`tf_id`),
+    INDEX (`is_last`)
 ) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `rev_sets` (

@@ -76,13 +76,14 @@ def filter_variants(variants, grammemes, bind_type):
 
     return out_variants
 def get_xml_by_sample_id(dbh, sample_id):
-    dbh.execute("SELECT rev_text FROM tf_revisions WHERE tf_id=(SELECT tf_id FROM morph_annot_samples WHERE sample_id={0} LIMIT 1) ORDER BY rev_id DESC LIMIT 1".format(sample_id))
+    dbh.execute("SELECT rev_text FROM tf_revisions WHERE tf_id=(SELECT tf_id FROM morph_annot_samples WHERE sample_id={0} LIMIT 1) AND is_last = 1 LIMIT 1".format(sample_id))
     xml = dbh.fetchone()
     return xml['rev_text']
 def update_sample(dbh, sample_id, xml, changeset_id):
     dbh.execute("SELECT tf_id FROM morph_annot_samples WHERE sample_id={0} LIMIT 1".format(sample_id))
     res = dbh.fetchone()
-    dbh.execute("INSERT INTO tf_revisions VALUES(NULL, {0}, {1}, '{2}')".format(changeset_id, res['tf_id'], xml))
+    dbh.execute("UPDATE tf_revisions SET is_last=0 WHERE tf_id={0}".format(res['tf_id']))
+    dbh.execute("INSERT INTO tf_revisions VALUES(NULL, {0}, {1}, '{2}', 1)".format(changeset_id, res['tf_id'], xml))
 def generate_empty_parse(token):
     return ''.join(('<tfr t="', token, '"><v><l id="0" t="', token, '"><g v="UNKN"/></l></v></tfr>'))
 def get_pool_grammemes(dbh, pool_id):

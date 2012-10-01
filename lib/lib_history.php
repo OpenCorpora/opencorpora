@@ -168,7 +168,10 @@ function revert_changeset($set_id, $comment) {
     $res = sql_query("SELECT tf_id FROM tf_revisions WHERE set_id=$set_id");
     while ($r = sql_fetch_array($res)) {
         $arr = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=$r[0] AND set_id<$set_id ORDER BY rev_id DESC LIMIT 1"));
-        if (!sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$new_set_id', '$r[0]', '$arr[0]')")) {
+        if (
+            !sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$r[0]") ||
+            !sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$new_set_id', '$r[0]', '$arr[0]', 1)")
+        ) {
             return false;
         }
     }
@@ -194,7 +197,10 @@ function revert_token($rev_id) {
     sql_begin();
     $new_set_id = create_revset("Отмена правки, возврат к версии t$rev_id");
 
-    if (sql_query("INSERT INTO tf_revisions VALUES(NULL, '$new_set_id', '$r[0]', '$r[1]')")) {
+    if (
+        sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$r[0]") &&
+        sql_query("INSERT INTO tf_revisions VALUES(NULL, '$new_set_id', '$r[0]', '$r[1]', 1)")
+    ) {
         sql_commit();
         return true;
     }

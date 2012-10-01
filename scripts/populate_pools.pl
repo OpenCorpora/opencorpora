@@ -14,7 +14,6 @@ if ($dbh->{'AutoCommit'}) {
     die "Setting AutoCommit failed";
 }
 
-my $last_rev = $dbh->prepare("SELECT rev_id FROM tf_revisions WHERE tf_id=? AND rev_id>? LIMIT 1");
 my $add = $dbh->prepare("INSERT INTO morph_annot_candidate_samples VALUES(?, ?)");
 my $update_pool = $dbh->prepare("UPDATE morph_annot_pools SET `status`='1' WHERE pool_id=? LIMIT 1");
 my $find_pools = $dbh->prepare("SELECT pool_id, grammemes FROM morph_annot_pools WHERE status=0");
@@ -61,7 +60,7 @@ sub process_pool {
         push @q, "(".join(' AND ', @qt).")";
     }
     # rough filter
-    my $q = "SELECT tf_id, rev_id, rev_text FROM tf_revisions WHERE ".join(' OR ', @q)." AND tf_id NOT IN (SELECT tf_id FROM morph_annot_samples WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status BETWEEN 2 AND 6))";
+    my $q = "SELECT tf_id, rev_id, rev_text FROM tf_revisions WHERE is_last = 1 AND (".join(' OR ', @q).") AND tf_id NOT IN (SELECT tf_id FROM morph_annot_samples WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status BETWEEN 2 AND 6))";
     print STDERR $q."\n";
     my $s = $dbh->prepare($q);
     $s->execute();
@@ -110,13 +109,6 @@ sub combine_and {
 sub check_revision {
     my ($pool_id, $tf_id, $rev_id, $rev_text, $gram_sets, $gramset_types) = @_;
     print STDERR "will check revision $rev_id, ";
-
-    # is the current revision this token's latest?
-    $last_rev->execute($tf_id, $rev_id);
-    if ($last_rev->rows > 0) {
-        print STDERR "failed: old revision\n";
-        return 0;
-    }
 
     # are the "and"-restrictions really satisfied?
     for my $i(0..scalar(@$gram_sets)-1) {
