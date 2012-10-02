@@ -672,17 +672,22 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
             // we may be as well not interested in pools where nothing remains to do
             (!$only_editable || ($pool['num'] + $pool['num_started']) > 0)
         ) {
-            $tasks[$pool['group']]['pools'][] = $pool;
+            if ($random)
+                $tasks[] = $pool;
+            else
+                $tasks[$pool['group']]['pools'][] = $pool;
 
             ++$cnt;
             if ($limit > 0 && $cnt == $limit)
                 break;
         }
     }
-    foreach ($tasks as $group_id => $v) {
-        $tasks[$group_id]['first_id'] = $v['pools'][0]['id'];
-        $tasks[$group_id]['name'] = preg_replace('/\s+#\d+\s*$/', '', $v['pools'][0]['name']);
-    }
+
+    if (!$random)
+        foreach ($tasks as $group_id => $v) {
+            $tasks[$group_id]['first_id'] = $v['pools'][0]['id'];
+            $tasks[$group_id]['name'] = preg_replace('/\s+#\d+\s*$/', '', $v['pools'][0]['name']);
+        }
 
     return $tasks;
 }
