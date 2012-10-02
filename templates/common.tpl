@@ -13,7 +13,7 @@
         <script src='{$web_prefix}/js/jquery.mousewheel.js' type='text/javascript'></script>
         <script src='{$web_prefix}/js/jquery.autocomplete.js'></script>
         <script src="bootstrap/js/bootstrap.min.js"></script>
-        <title>{block name=title}OpenCorpora: открытый корпус русского языка{/block}</title>
+        <title>OpenCorpora: открытый корпус русского языка</title>
     </head>
 {block name=body}<body>{/block}
 <div id='wrap'>
