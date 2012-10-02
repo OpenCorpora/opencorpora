@@ -685,7 +685,13 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
 
     if (!$random)
         foreach ($tasks as $group_id => $v) {
-            $tasks[$group_id]['first_id'] = $v['pools'][0]['id'];
+            $i = 0;
+            while ($i++ < sizeof($v['pools'])) {
+                if ($v['pools'][$i]['num'] + $v['pools'][$i]['num_started'] > 0) {
+                    $tasks[$group_id]['first_id'] = $v['pools'][$i]['id'];
+                    break;
+                }
+            }
             $tasks[$group_id]['name'] = preg_replace('/\s+#\d+\s*$/', '', $v['pools'][0]['name']);
         }
 
@@ -731,7 +737,7 @@ function get_next_pool($user_id, $prev_pool_id) {
         return false;
 
     $time = time();
-    $res = sql_query("SELECT pool_id FROM morph_annot_pools WHERE status = 3 AND grammemes = (SELECT grammemes FROM morph_annot_pools WHERE pool_id=$prev_pool_id LIMIT 1)");
+    $res = sql_query("SELECT pool_id FROM morph_annot_pools WHERE status = 3 AND grammemes = (SELECT grammemes FROM morph_annot_pools WHERE pool_id=$prev_pool_id LIMIT 1) ORDER BY created_ts");
     while ($r = sql_fetch_array($res)) {
         $res1 = sql_query("
             SELECT instance_id FROM morph_annot_instances LEFT JOIN morph_annot_samples USING (sample_id)
