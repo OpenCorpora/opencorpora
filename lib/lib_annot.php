@@ -686,11 +686,12 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     if (!$random)
         foreach ($tasks as $group_id => $v) {
             $i = 0;
-            while ($i++ < sizeof($v['pools'])) {
+            while ($i < sizeof($v['pools'])) {
                 if ($v['pools'][$i]['num'] + $v['pools'][$i]['num_started'] > 0) {
                     $tasks[$group_id]['first_id'] = $v['pools'][$i]['id'];
                     break;
                 }
+                ++$i;
             }
             $tasks[$group_id]['name'] = preg_replace('/\s+#\d+\s*$/', '', $v['pools'][0]['name']);
         }
