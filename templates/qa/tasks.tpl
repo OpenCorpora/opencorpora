@@ -16,7 +16,7 @@
             {foreach $type.pools as $pool}
                 <tr>
                     <td>{$pool.name}</td>
-                    <td>{if $pool.num_done > 0}<a href="?act=my&amp;pool_id={$task.id}">{$pool.num_done}</a>{else}0{/if}</td>
+                    <td>{if $pool.num_done > 0}<a href="?act=my&amp;pool_id={$pool.id}">{$pool.num_done}</a>{else}0{/if}</td>
                     <td>{$pool.num}{if $pool.num_started} +{$pool.num_started} начатых{/if}</td>
                     <td>
                         {if $pool.status == 3}
