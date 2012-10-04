@@ -11,4 +11,12 @@ class SiteController extends CController
     public function actionIndex() {
         echo 'Hello Opencorpora world!';
     }
+    public function actionPage() {
+        $page = $_GET['page'];
+        if ($page) {
+            $this->render($page, array(
+                'active_page' => $page
+            ));
+        }
+    }
 }
