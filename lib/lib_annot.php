@@ -628,7 +628,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
         WHERE 
             answer=0 
             AND ts_finish < ' . $time . '
-            AND pool_id IN (' . implode(',',$pool_ids) . ')
+            AND pool_id IN (' . implode(', ',$pool_ids) . ')
             AND sample_id NOT IN (
                 SELECT sample_id 
                 FROM morph_annot_instances 
@@ -748,11 +748,11 @@ function get_next_pool($user_id, $prev_pool_id) {
             AND sample_id NOT IN (
                 SELECT sample_id 
                 FROM morph_annot_instances 
-                WHERE user_id=' . $user_id . ')
+                WHERE user_id=$user_id)
             AND sample_id NOT IN (
                 SELECT sample_id 
                 FROM morph_annot_rejected_samples 
-                WHERE user_id=' . $user_id . ')
+                WHERE user_id=$user_id)
             LIMIT 1
         ");
         if (sql_num_rows($res1) > 0)
