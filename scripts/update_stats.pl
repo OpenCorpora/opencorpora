@@ -193,6 +193,39 @@ $func->{'blogs_words'} = sub {
 $func->{'fiction_words'} = sub {
     return words_by_source(806);
 };
+$func->{'total_parses'} = sub {
+    my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions WHERE is_last = 1 AND tf_id IN (SELECT tf_id FROM text_forms WHERE tf_text REGEXP '[А-Яа-яЁё]')");
+    $scan->execute();
+    my $total = 0;
+    while (my $r = $scan->fetchrow_hashref()) {
+        while ($r->{'rev_text'} =~ /<v>/g) {
+            $total++;
+        }
+    }
+    return $total;
+};
+$func->{'unknown_words'} = sub {
+    my $scan = $dbh->prepare("SELECT COUNT(*) as cnt FROM tf_revisions WHERE is_last = 1 AND rev_text LIKE '%g v=\"UNKN\"%'");
+    $scan->execute();
+    return $scan->fetchrow_hashref()->{'cnt'};
+};
+$func->{'unambiguous_parses'} = sub {
+    my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions WHERE is_last = 1 AND rev_text NOT LIKE '%g v=\"UNKN\"%' AND tf_id IN (SELECT tf_id FROM text_forms WHERE tf_text REGEXP '[А-Яа-яЁё]')");
+    $scan->execute();
+    my $parses = 0;
+    my $total = 0;
+    W:while (my $r = $scan->fetchrow_hashref()) {
+        $parses = 0;
+        while ($r->{'rev_text'} =~ /<v>/g) {
+            $parses++;
+            if ($parses > 1) {
+                next W;
+            }
+        }
+        $total++;
+    }
+    return $total;
+};
 $func->{'added_sentences'} = sub {
 
     #find the authors of all sentences which haven't been found yet
@@ -200,7 +233,6 @@ $func->{'added_sentences'} = sub {
     $absent->execute();
     my $r;
 
-    print STDERR "Catching up with new sentences...\n";
     while ($r = $absent->fetchrow_hashref()) {
         get_sentence_adder($r->{'sent_id'});
     }
@@ -208,27 +240,22 @@ $func->{'added_sentences'} = sub {
 
     #LAST WEEK
     #we'll use param_id = 7, though it's used in different sense in stats_param
-    print STDERR "Counting last week's sentences...";
     my $cnt = $dbh->prepare("SELECT user_id, COUNT(sent_id) as cnt FROM sentence_authors WHERE timestamp>=? GROUP BY user_id");
 
     my $basic_ts = time()-60*60*24*7;
-    print STDERR "    will count sentences not older than UNIX $basic_ts\n";
 
     $cnt->execute($basic_ts);
     $user_del->execute(7);
     while ($r = $cnt->fetchrow_hashref()) {
         $user_ins->execute($r->{'user_id'}, time(), 7, $r->{'cnt'});
     }
-    print STDERR "    done.\n";
 
     #GLOBAL
-    print STDERR "Counting all sentences... ";
     $cnt->execute(0);
     $user_del->execute(6);
     while ($r = $cnt->fetchrow_hashref()) {
         $user_ins->execute($r->{'user_id'}, time(), 6, $r->{'cnt'});
     }
-    print STDERR "Done.\n";
     return -1;
 };
 
