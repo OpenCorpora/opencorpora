@@ -8,8 +8,8 @@ from MySQLdb.cursors import DictCursor
 
 # definitions
 
-POOL_STATUS_IN_PROGRESS = 7
-POOL_STATUS_READY       = 8
+POOL_STATUS_IN_PROGRESS = 8
+POOL_STATUS_READY       = 9
 CHANGESET_COMMENT       = "Merge data from annotation pool #{0}"
 
 GRAMMEMES_CONJUNCTION   = 1
@@ -22,7 +22,7 @@ def make_new_changeset(dbh, pool_id):
 def set_pool_status(dbh, pool_id, status):
     dbh.execute("UPDATE morph_annot_pools SET status={0} WHERE pool_id={1} LIMIT 1".format(status, pool_id))
 def get_moderated_pool(dbh):
-    dbh.execute("SELECT pool_id FROM morph_annot_pools WHERE status=6 LIMIT 1")
+    dbh.execute("SELECT pool_id FROM morph_annot_pools WHERE status=7 LIMIT 1")
     pool = dbh.fetchone()
     if pool is not None:
         return pool['pool_id']
