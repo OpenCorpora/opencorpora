@@ -11,7 +11,7 @@ if ($action && !in_array($action, array('samples', 'candidates')) && !user_has_p
 }
 
 // temporarily hidden pools
-if (isset($_GET['pool_id']) && in_array((int)$_GET['pool_id'], array(19, 23, 29))) {
+if (isset($_GET['pool_id']) && in_array((int)$_GET['pool_id'], array(19, 23, 29, 46))) {
     show_error("Этот пул временно скрыт.");
     return;
 }
@@ -79,6 +79,12 @@ switch ($action) {
             header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
         else
             show_error("Ошибка. Убедитесь, что все примеры отмодерированы и что вы являетесь модератором пула.");
+        break;
+    case 'begin_merge':
+        if (begin_pool_merge((int)$_GET['pool_id']))
+            header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
+        else
+            show_error();
         break;
     default:
         $smarty->assign('pools', get_morph_pools_page((int)$_GET['type']));

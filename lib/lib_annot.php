@@ -593,6 +593,17 @@ function finish_moderate_pool($pool_id) {
 
     return (bool)sql_query("UPDATE morph_annot_pools SET status=6, updated_ts=".time()." WHERE pool_id=$pool_id LIMIT 1");
 }
+function begin_pool_merge($pool_id) {
+    if (!$pool_id || !is_admin())
+        return false;
+
+    // we can perform this only if pool has been moderated
+    $r = sql_fetch_array(sql_query("SELECT status FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
+    if ($r['status'] != 6)
+        return false;
+
+    return (bool)sql_query("UPDATE morph_annot_pools SET status=7, updated_ts=".time()." WHERE pool_id=$pool_id LIMIT 1");
+}
 function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=false) {
     $tasks = array();
 

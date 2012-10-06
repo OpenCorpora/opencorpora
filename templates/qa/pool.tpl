@@ -82,20 +82,25 @@
 <h1>Пул &laquo;{$pool.name}&raquo;</h1>
 {if $user_permission_check_morph}
 {if $pool.status == 2}
-Пул не опубликован. <form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Опубликовать</button></form>
+Пул не опубликован. <form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn">Опубликовать</button></form>
 {elseif $pool.status == 3}
 Пул опубликован.
-<form action="?act=unpublish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Снять с публикации</button></form>
+<form action="?act=unpublish&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn">Снять с публикации</button></form>
 {elseif $pool.status == 4}
 Пул снят с публикации.
-<form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button>Опубликовать заново</button></form>
+<form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn">Опубликовать заново</button></form>
 {elseif $pool.status == 5}
-Пул модерируется (новые ответы запрещены). <form action="?act=finish_moder&amp;pool_id={$pool.id}" method="post" class="inline"><button{if !$pool.all_moderated} disabled="disabled" class="finish_mod"{/if}>Закончить модерацию</button></form>
+Пул модерируется (новые ответы запрещены). <form action="?act=finish_moder&amp;pool_id={$pool.id}" method="post" class="inline"><button{if !$pool.all_moderated} disabled="disabled" class="btn finish_mod"{/if}>Закончить модерацию</button></form>
 {elseif $pool.status == 6}
 Модерация пула закончена.
+{if $is_admin}<form action="?act=begin_merge&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn btn-primary" onclick="return confirm('Вы уверены? Это действие необратимо.')">Вернуть результаты в корпус</button></form>{/if}
+{elseif $pool.status == 7 || $pool.status == 8}
+Запущен процесс перемещения результатов в корпус. Обновите страницу через несколько минут.
+{elseif $pool.status == 9}
+Примеры из пула успешно возвращены в корпус.
 {/if}
-{if $pool.status != 5}
-<form action="?act=begin_moder&amp;pool_id={$pool.id}" method="post" class="inline"><button onclick="return confirm('Вы уверены? Это действие необратимо.')">Начать модерацию</button></form>
+{if $pool.status == 4 || $pool.status == 6}
+<form action="?act=begin_moder&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn" onclick="return confirm('Вы уверены? Это действие необратимо.')">Начать модерацию</button></form>
 {/if}
 {/if}
 {if $pool.status > 2}
