@@ -29,6 +29,8 @@ $(document).ready(function(){
 <li{if $smarty.get.type == 4} class="active"{/if}><a href="?type=4">снятые с публикации</a></li>
 <li{if $smarty.get.type == 5} class="active"{/if}><a href="?type=5">на модерации</a></li>
 <li{if $smarty.get.type == 6} class="active"{/if}><a href="?type=6">модерация окончена</a></li>
+<li{if $smarty.get.type == 7} class="active"{/if}><a href="?type=7">в очереди на переливку</a></li>
+<li{if $smarty.get.type == 9} class="active"{/if}><a href="?type=9">в архиве</a></li>
 </ul>
 <table class="table">
 <tr class="borderless">
