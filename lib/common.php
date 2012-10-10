@@ -181,6 +181,7 @@ function get_common_stats() {
     $res = sql_query("SELECT u.user_id, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=33 ORDER BY param_value DESC");
     while ($r = sql_fetch_array($res)) {
         $t = array(
+            'user_id' => $r['user_id'],
             'user_name' => $r['user_name'],
             'value' => number_format($r['param_value'], 0, '', ' '),
             'divergence' => $divergence[$r['user_id']] / $r['param_value'] * 100,
@@ -191,6 +192,7 @@ function get_common_stats() {
 
     foreach ($stats['annotators'] as $k => $v) {
         if (!isset($v['fin']['user_name'])) {
+            $stats['annotators'][$k]['fin']['user_id'] = $v['user_id'];
             $stats['annotators'][$k]['fin']['user_name'] = get_user_shown_name($v['user_id']);
             $stats['annotators'][$k]['fin']['last_active'] = $last_click[$v['user_id']];
         }

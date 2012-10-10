@@ -59,7 +59,8 @@ $(document).ready(function(){
         $("#users_table tr").show();
         $(this).hide();
         event.preventDefault();
-    })
+    });
+    $("a[name='" + location.hash.substring(1) +"']").closest('tr').addClass('bgyellow');
 {/literal}
 });
 </script>
@@ -74,15 +75,14 @@ $(document).ready(function(){
 <h3>{t}Пользователи по количеству размеченных примеров{/t} (всего {$ma_count})</h3>
 <table class="table table-condensed" id="users_table">
 <tr><th rowspan='2'>#</th><th rowspan='2'>Пользователь</th><th rowspan='2'>Всего</th><th colspan='2'>В завершённых пулах</th><th rowspan='2'>Последняя<br/>активность</th></tr>
-<tr><th>Размечено<th>% расхождений<!--th>Пересчитано--></tr>
+<tr><th>Размечено<th>% расхождений</tr>
 {foreach item=s from=$stats.annotators}
-    <tr {if $s@iteration>20}style="display:none;"{/if}>
-        <td>{$s@iteration}
+    <tr {if $s@iteration>20 && isset($smarty.session.user_id) && $smarty.session.user_id != $s.user_id}style="display:none;"{/if}>
+        <td><a name="user{$s.user_id}"></a>{$s@iteration}
         <td>{$s.fin.user_name}
         <td>{$s.total}
         <td>{$s.fin.value|default:'0'}
         <td>{$s.fin.divergence|string_format:"%.1f%%"}
-        <!--td class='small'>{$s.fin.timestamp|date_format:"%d.%m.%y, %H:%M"|default:"&nbsp;"}-->
         <td>
             {if $s.fin.last_active > $stats.timestamp_today}сегодня в {$s.fin.last_active|date_format:"%H:%M"}
             {elseif $s.fin.last_active > $stats.timestamp_yesterday}вчера в {$s.fin.last_active|date_format:"%H:%M"}

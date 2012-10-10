@@ -8,7 +8,7 @@
 <div class="ma_type_row">
     <div class="row">
         <div class="span6"><a href="#" class="ma_type_name pseudo" title="показать пулы">{$type.name|htmlspecialchars}</a></div>
-        <div class="span2">{if $type}<a href="?act=annot&amp;pool_id={$type.first_id}" class="btn">Взять на разметку</a>{/if}</div>
+        <div class="span2">{if $type.first_id}<a href="?act=annot&amp;pool_id={$type.first_id}" class="btn">Взять на разметку</a>{/if}</div>
     </div>
     <div class="ma_type_pools" style="display:none;">
         <table class="table table-condensed">
