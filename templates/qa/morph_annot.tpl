@@ -26,7 +26,7 @@ $(document).ready(function() {
                     });
                     if (flag) $('button.ma_next_pack').removeClass('disabled');
                 } else
-                    $btn.closest('div').hide();
+                    alert('Что-то пошло не так. Попробуйте перезагрузить страницу.')
                 $btn.closest('div').find('button').removeAttr('disabled');
             });
             $.get('ajax/clck_log.php', {'id': $btn.closest('div').attr('rev'), 'type': $btn.attr('rev')});
@@ -63,7 +63,6 @@ $(document).ready(function() {
                 $.post('ajax/post_comment.php', {'type': 'morph_annot', 'id': $(event.target).attr('rel'), 'text': $(this).closest('div').find('textarea').val()}, function(res) {
                     var $r = $(res).find('response');
                     if ($r.attr('ok') == 1) {
-                        /*$(event.target).closest('div').find('div').replaceWith('<p>Спасибо, ваш комментарий добавлен!</p>');*/
                         $(comment_event.target).closest('.controls').hide();
                         show_bootalert('success','Спасибо, ваш комментарий добавлен!');
                     } else {
