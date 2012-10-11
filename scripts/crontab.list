@@ -11,6 +11,7 @@
 * * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/form2tf.pl /corpus/config.ini" 2>>/home/grand/error.log
 * * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/dict_update_forms.pl /corpus/config.ini" 2>>/home/grand/error.log
 * * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/populate_pools.pl /corpus/config.ini" 2>/dev/null
+* * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/merge_pools_data.py /corpus/config.ini" 2>>/home/grand/error.log
 30 4 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/exports.sh" 2>>/home/grand/error.log
 0 7 * * * /corpus/scripts/invalidate_auth_tokens.pl /corpus/config.ini
 # validators

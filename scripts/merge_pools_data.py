@@ -128,7 +128,7 @@ def main():
     pool_id = get_moderated_pool(dbh)
     if pool_id is not None:
         process_pool(dbh, pool_id)
-    #db.commit()
+    db.commit()
 
 if __name__ == "__main__":
     main()
