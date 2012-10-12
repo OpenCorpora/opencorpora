@@ -30,14 +30,15 @@ if (isset($_GET['page'])) {
             $smarty->display('top100.tpl');
             break;
         case 'stats':
+            $uid = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
             $smarty->assign('active_page','stats');
             $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
             $smarty->setCacheLifetime(300);
-            if (!is_cached('stats.tpl')) {
+            if (!is_cached('stats.tpl', $uid)) {
                 $smarty->assign('stats', get_common_stats());
                 $smarty->assign('ma_count', count_all_answers());
             }
-            $smarty->display('stats.tpl');
+            $smarty->display('stats.tpl', $uid);
             break;
         case 'tag_stats':
             $smarty->assign('active_page','stats');
