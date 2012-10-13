@@ -142,7 +142,7 @@ function get_common_stats() {
         $uid2team[$r['user_id']] = $r['user_team'];
     $teams = get_team_list();
     foreach ($teams as $i => $team) {
-        $teams[$i]['total'] = 0;
+        $teams[$i]['total'] = $teams[$i]['moderated'] = $teams[$i]['correct'] = 0;
     }
 
     $uid2sid = array();
@@ -154,15 +154,13 @@ function get_common_stats() {
             $teams[$uid2team[$r['user_id']]]['total'] += $r['cnt'];
     }
 
-    usort($teams, function($a, $b) {
+    uasort($teams, function($a, $b) {
         if ($a['total'] > $b['total'])
             return -1;
         if ($a['total'] < $b['total'])
             return 1;
         return 0;
     });
-
-    $stats['teams'] = $teams;
 
     // last activity info
     $last_click = array();
@@ -178,17 +176,27 @@ function get_common_stats() {
 
     $res = sql_query("SELECT user_id, param_id, param_value FROM user_stats WHERE param_id IN (34, 38, 39)");
     while ($r = sql_fetch_array($res)) {
-        switch($r['param_id']) {
+        switch ($r['param_id']) {
             case 34:
                 $divergence[$r['user_id']] = $r['param_value'];
                 break;
             case 38:
                 $moderated[$r['user_id']] = $r['param_value'];
+                if (isset($uid2team[$r['user_id']]))
+                    $teams[$uid2team[$r['user_id']]]['moderated'] += $r['param_value'];
                 break;
             case 39:
                 $correct[$r['user_id']] = $r['param_value'];
+                if (isset($uid2team[$r['user_id']]))
+                    $teams[$uid2team[$r['user_id']]]['correct'] += $r['param_value'];
         }
     }
+
+    foreach ($teams as $i => $team) {
+        if ($team['moderated'])
+            $teams[$i]['error_rate'] = 100 * (1 - $team['correct'] / $team['moderated']);
+    }
+    $stats['teams'] = $teams;
 
     $res = sql_query("SELECT u.user_id, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=33 ORDER BY param_value DESC");
     while ($r = sql_fetch_array($res)) {

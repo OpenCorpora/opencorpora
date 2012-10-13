@@ -101,13 +101,15 @@ $(document).ready(function(){
 <a href="#" class="pseudo" id="show_all_users">Показать всех пользователей</a>
 <h3>Команды по количеству размеченных примеров</h3>
 <table class="table">
-    <tr><th>#</th><th>Название</th><th>Количество участников</th><th>Размечено примеров</th></tr>
-    {foreach $stats.teams as $i=>$team}
+    <tr><th>#</th><th>Название</th><th>Количество участников</th><th>Размечено примеров</th><th>Проверено</th><th>% ошибок</th></tr>
+    {foreach $stats.teams as $i=>$team name=x}
         <tr>
-            <td>{$i+1}</td>
+            <td>{$team@iteration}</td>
             <td>{$team.name}</td>
             <td>{$team.num_users}</td>
             <td>{$team.total}</td>
+            <td>{$team.moderated}</td>
+            <td>{$team.error_rate|string_format:"%.1f%%"}</td>
         </tr>
     {/foreach}
 </table>
