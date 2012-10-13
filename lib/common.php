@@ -171,11 +171,23 @@ function get_common_stats() {
         $last_click[$r['user_id']] = $r['last_time'];
     }
 
-    // divergence info
+    // divergence and moderation info
     $divergence = array();
-    $res = sql_query("SELECT user_id, param_value FROM user_stats WHERE param_id = 34");
+    $moderated = array();
+    $correct = array();
+
+    $res = sql_query("SELECT user_id, param_id, param_value FROM user_stats WHERE param_id IN (34, 38, 39)");
     while ($r = sql_fetch_array($res)) {
-        $divergence[$r['user_id']] = $r['param_value'];
+        switch($r['param_id']) {
+            case 34:
+                $divergence[$r['user_id']] = $r['param_value'];
+                break;
+            case 38:
+                $moderated[$r['user_id']] = $r['param_value'];
+                break;
+            case 39:
+                $correct[$r['user_id']] = $r['param_value'];
+        }
     }
 
     $res = sql_query("SELECT u.user_id, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=33 ORDER BY param_value DESC");
@@ -185,7 +197,9 @@ function get_common_stats() {
             'user_name' => $r['user_name'],
             'value' => number_format($r['param_value'], 0, '', ' '),
             'divergence' => $divergence[$r['user_id']] / $r['param_value'] * 100,
-            'last_active' => $last_click[$r['user_id']]
+            'last_active' => $last_click[$r['user_id']],
+            'moderated' => $moderated[$r['user_id']],
+            'error_rate' => !$moderated[$r['user_id']] ? 0 : (1 - $correct[$r['user_id']] / $moderated[$r['user_id']]) * 100
         );
         $stats['annotators'][$uid2sid[$r['user_id']]]['fin'] = $t;
     }
@@ -195,6 +209,8 @@ function get_common_stats() {
             $stats['annotators'][$k]['fin']['user_id'] = $v['user_id'];
             $stats['annotators'][$k]['fin']['user_name'] = get_user_shown_name($v['user_id']);
             $stats['annotators'][$k]['fin']['last_active'] = $last_click[$v['user_id']];
+            $stats['annotators'][$k]['fin']['moderated'] = $moderated[$v['user_id']];
+            $stats['annotators'][$k]['fin']['error_rate'] = !$moderated[$v['user_id']] ? 0 : (1 - $correct[$v['user_id']] / $moderated[$v['user_id']]) * 100;
         }
     }
 

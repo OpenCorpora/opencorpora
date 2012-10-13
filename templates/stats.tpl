@@ -74,8 +74,14 @@ $(document).ready(function(){
 <a name="users"></a>
 <h3>{t}Пользователи по количеству размеченных примеров{/t} (всего {$ma_count})</h3>
 <table class="table table-condensed" id="users_table">
-<tr><th rowspan='2'>#</th><th rowspan='2'>Пользователь</th><th rowspan='2'>Всего</th><th colspan='2'>В завершённых пулах</th><th rowspan='2'>Последняя<br/>активность</th></tr>
-<tr><th>Размечено<th>% расхождений</tr>
+<tr>
+    <th rowspan='2'>#</th>
+    <th rowspan='2'>Пользователь</th>
+    <th rowspan='2'>Всего</th>
+    <th colspan='2'>В завершённых пулах</th>
+    <th colspan='2'>В проверенных пулах</th>
+    <th rowspan='2'>Последняя<br/>активность</th></tr>
+<tr><th>Размечено<th>% расхождений<th>Размечено<th>% ошибок</tr>
 {foreach item=s from=$stats.annotators}
     <tr {if $s@iteration>20 && isset($smarty.session.user_id) && $smarty.session.user_id != $s.user_id}style="display:none;"{/if}>
         <td><a name="user{$s.user_id}"></a>{$s@iteration}
@@ -83,6 +89,8 @@ $(document).ready(function(){
         <td>{$s.total}
         <td>{$s.fin.value|default:'0'}
         <td>{$s.fin.divergence|string_format:"%.1f%%"}
+        <td>{$s.fin.moderated|default:'0'}
+        <td>{$s.fin.error_rate|string_format:"%.1f%%"}
         <td>
             {if $s.fin.last_active > $stats.timestamp_today}сегодня в {$s.fin.last_active|date_format:"%H:%M"}
             {elseif $s.fin.last_active > $stats.timestamp_yesterday}вчера в {$s.fin.last_active|date_format:"%H:%M"}
