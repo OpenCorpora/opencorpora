@@ -236,8 +236,8 @@ function get_morph_pools_page($type) {
     }
     return $pools;
 }
-function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false, $only_not_moderated=false,
-        $only_with_comments=false, $only_not_ok=false) {
+function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $only_disagreed=false,
+    $only_not_moderated=false, $only_with_comments=false, $only_not_ok=false) {
     $res = sql_query("SELECT pool_name, status, grammemes, users_needed, moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
     $r = sql_fetch_array($res);
     $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
@@ -252,7 +252,7 @@ function get_morph_samples_page($pool_id, $extended=false, $only_disagreed=false
     $distinct_users = array();
     $out['all_moderated'] = $extended ? true : false;  // for now we never get active button with non-extended view, just for code simplicity
     while ($r = sql_fetch_array($res)) {
-        $t = get_context_for_word($r['tf_id'], 4);
+        $t = get_context_for_word($r['tf_id'], $context_width);
         $t['id'] = $r['sample_id'];
         $r1 = sql_fetch_array(sql_query("SELECT book_id FROM paragraphs WHERE par_id = (SELECT par_id FROM sentences WHERE sent_id = ".$t['sentence_id']." LIMIT 1) LIMIT 1"));
         $t['book_id'] = $r1['book_id'];

@@ -44,7 +44,24 @@ switch ($action) {
             isset($_GET['with_comments']),
             isset($_GET['not_ok'])
         ));
-        $smarty->display('qa/pool.tpl');
+        if (isset($_GET['tabs'])) {
+            $smarty->assign('pool', get_morph_samples_page((int)$_GET['pool_id'], true, 100, false, false, false, false));
+            header("Content-type: application/csv; charset=utf-8");
+            header("Content-disposition: attachment; filename=pool_".(int)$_GET['pool_id'].".tab");
+            $smarty->display('qa/pool_tabs.tpl');
+        }
+        else {
+            $smarty->assign('pool', get_morph_samples_page(
+                (int)$_GET['pool_id'],
+                isset($_GET['ext']),
+                4,
+                isset($_GET['disagreed']),
+                isset($_GET['nomod']),
+                isset($_GET['with_comments']),
+                isset($_GET['not_ok'])
+            ));
+            $smarty->display('qa/pool.tpl');
+        }
         break;
     case 'promote':
         if (promote_samples((int)$_GET['pool_id'], $_POST['type'])) {

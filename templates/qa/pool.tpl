@@ -109,6 +109,7 @@
 <p>{if !isset($smarty.get.with_comments)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;with_comments">показать только примеры с комментариями</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
 <p>{if !isset($smarty.get.not_ok)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;not_ok">показать только примеры с опечатками и т.п.</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
 <p>{if !isset($smarty.get.nomod)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;nomod">показать только непроверенные</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
+{if $is_admin}<p><a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs">в виде tab-separated файла</a></p>{/if}
 {/if}
 <br/>
 <table border="1" cellspacing="0" cellpadding="3" class="small">
