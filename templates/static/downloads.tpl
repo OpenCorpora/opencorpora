@@ -39,6 +39,12 @@
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.bz2">архив .bz2</a> ({$dl.annot.xml.bz2.size} {t}Мб{/t})</li>
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.zip">архив .zip</a> ({$dl.annot.xml.zip.size} {t}Мб{/t})</li>
 </ul>
+<p>Подкорпус со снятой омонимией<sup>*</sup>, XML
+<ul>
+<li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.no_ambig.xml.bz2">архив .bz2</a></li>
+<li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.no_ambig.xml.zip">архив .zip</a></li>
+</ul>
+<p class='small'><sup>*</sup> В подкорпус включены целые предложения, не имеющие в своём составе ни одного неоднозначно разобранного слова &mdash; как изначально однозначные предложения, так и те, в которых неоднозначность была снята вручную.</p>
 <h3>Частотные списки</h3>
 <div class="row space-after">
     <div class="span3">
