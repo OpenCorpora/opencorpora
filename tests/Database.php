@@ -15,7 +15,7 @@ class Database extends PHPUnit_Framework_TestCase {
         parent::__construct();
     }
 
-    protected function parse_installer() {
+    protected function parseInstaller() {
         $arr = file('../install/install.sql');
         $cur_table = '';
         foreach ($arr as $s) {
@@ -29,7 +29,7 @@ class Database extends PHPUnit_Framework_TestCase {
         }
     }
 
-    protected function arrays_are_same($array1, $array2) {
+    protected function arraysAreSame($array1, $array2) {
         //returns false if arrays are different, true otherwise
         foreach($array1 as $k1 => $arr1) {
             if (!isset($array2[$k1])) {
@@ -39,7 +39,7 @@ class Database extends PHPUnit_Framework_TestCase {
             foreach($arr1 as $v1) {
                 $i = array_search($v1, $array2[$k1]);
                 if($i === false) {
-                    print "Error: field `$v1` doesn't exist\n";
+                    print "Error: field `$v1` doesn't exist in `$k1`\n";
                     return false;
                 }
                 unset($array2[$k1][$i]);
@@ -63,8 +63,8 @@ class Database extends PHPUnit_Framework_TestCase {
         $this->assertTrue(sql_query('USE '.$this->conf['mysql']['dbname']));
     }
     public function testTables() {
-        $this->parse_installer();
-        $this->assertTrue($this->arrays_are_same($this->db_schema, sql_get_schema()));
+        $this->parseInstaller();
+        $this->assertTrue($this->arraysAreSame($this->db_schema, sql_get_schema()));
     }
 }
 ?>
