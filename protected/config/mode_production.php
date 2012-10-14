@@ -8,13 +8,13 @@
  * - Standard production error pages (404, 500, etc.)
  */
 
+$ini_file = parse_ini_file(dirname(__FILE__) . '/../../config.ini', true);
 return array(
 	
     // Set yiiPath (relative to Environment.php)
-    //'yiiPath' => dirname(__FILE__) . '/../../../yii/framework/yii.php',
-    //'yiicPath' => dirname(__FILE__) . '/../../../yii/framework/yiic.php',
-    //'yiitPath' => dirname(__FILE__) . '/../../../yii/framework/yiit.php',
-
+    'yiiPath' => '/var/yii/yii.php',
+    'yiicPath' => '/var/yii/yiic.php',
+    'yiitPath' => '/var/yii/yiit.php',
     // Set YII_DEBUG and YII_TRACE_LEVEL flags
     'yiiDebug' => false,
     'yiiTraceLevel' => 0,
@@ -34,9 +34,9 @@ return array(
 
             // Database
             'db' => array(
-                'connectionString' => 'mysql:host=PRODUCTION_HOST;dbname=PRODUCTION_DBNAME',
-                'username' => 'USERNAME',
-                'password' => 'PASSWORD',
+                'connectionString' => 'mysql:host=localhost;dbname=opcorpora',
+                'username' => $ini_file['mysql']['user'],
+                'password' => $ini_file['mysql']['passwd'],
                 //'schemaCachingDuration' => 3600,
             ),
 
@@ -47,13 +47,13 @@ return array(
                     // Save log messages on file
                     array(
                         'class' => 'CFileLogRoute',
-                        'levels' => 'error, warning, trace, info',
+                        'levels' => 'error, warning',
                     ),
                     // Send errors via email to the system admin
                     array(
                         'class' => 'CEmailLogRoute',
                         'levels' => 'error, warning',
-                        'emails' => 'webadmin@example.com',
+                        'emails' => 'grand@opencorpora.org, mary.nikolaeva@gmail.com',
                     ),
                 ),
             ),
