@@ -402,7 +402,7 @@ function add_morph_pool() {
     $token_check = (int)$_POST['token_checked'];
     $ts = time();
     sql_begin();
-    if (sql_query("INSERT INTO morph_annot_pools VALUES(NULL, '$pool_name', '$gram_sets_str', '$gram_descr_str', '$token_check', '$users', '$ts', '$ts', '".$_SESSION['user_id']."', '0', '0', '0', '$comment')")) {
+    if (sql_query("INSERT INTO morph_annot_pools VALUES(NULL, '0', '$pool_name', '$gram_sets_str', '$gram_descr_str', '$token_check', '$users', '$ts', '$ts', '".$_SESSION['user_id']."', '0', '0', '0', '$comment')")) {
         sql_commit();
         return true;
     }
@@ -438,7 +438,7 @@ function promote_samples_aux($tf_ids, $orig_pool_id, $lastrev, $new_pool_name, &
     // all except the first
     else {
         $full_name = $new_pool_name . ' #' . ($new_pool_index++);
-        if (!sql_query("INSERT INTO morph_annot_pools (SELECT NULL, '".mysql_real_escape_string($full_name)."', grammemes, gram_descr, token_check, users_needed, $time, $time, author_id, 0, 2, $lastrev, comment FROM morph_annot_pools WHERE pool_id=$orig_pool_id LIMIT 1)"))
+        if (!sql_query("INSERT INTO morph_annot_pools (SELECT NULL, pool_type, '".mysql_real_escape_string($full_name)."', grammemes, gram_descr, token_check, users_needed, $time, $time, author_id, 0, 2, $lastrev, comment FROM morph_annot_pools WHERE pool_id=$orig_pool_id LIMIT 1)"))
             return false;
         $current_pool_id = sql_insert_id();
     }
@@ -522,7 +522,7 @@ function promote_samples($pool_id, $type) {
 
     if (isset($_POST['keep'])) {
         if (
-            !sql_query("INSERT INTO morph_annot_pools (SELECT NULL, '".mysql_real_escape_string($next_pool_name . ' #' . $next_pool_index)."', grammemes, gram_descr, token_check, users_needed, $time, $time, author_id, 0, 1, $lastrev, comment FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1)") ||
+            !sql_query("INSERT INTO morph_annot_pools (SELECT NULL, pool_type, '".mysql_real_escape_string($next_pool_name . ' #' . $next_pool_index)."', grammemes, gram_descr, token_check, users_needed, $time, $time, author_id, 0, 1, $lastrev, comment FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1)") ||
             !sql_query("UPDATE morph_annot_candidate_samples SET pool_id=".sql_insert_id()." WHERE pool_id=$pool_id")
         )
             return false;
