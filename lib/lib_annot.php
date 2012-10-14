@@ -623,6 +623,22 @@ function begin_pool_merge($pool_id) {
 
     return (bool)sql_query("UPDATE morph_annot_pools SET status=7, updated_ts=".time()." WHERE pool_id=$pool_id LIMIT 1");
 }
+function get_pool_complexity($type_id) {
+    switch ($type_id) {
+        case 12:
+            return 1;
+        case 11:
+            return 3;
+        case 7:
+            return 3;
+        case 9:
+            return 3;
+        case 6:
+            return 4;
+        default:
+            return 0;
+    }
+}
 function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=false) {
     $tasks = array();
 
@@ -642,7 +658,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     // get all pools by status
     $res = sql_query("SELECT pool_id, pool_name, status, pool_type FROM morph_annot_pools WHERE status = 3 $order_string $limit_string");
     while ($r = sql_fetch_array($res)) {
-        $pools[$r['pool_id']] = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0, 'num' => 0, 'group' => $r['pool_type']);
+        $pools[$r['pool_id']] = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0, 'num' => 0, 'group' => $r['pool_type'], 'complexity' => get_pool_complexity($r['pool_type']));
     }
 
     if (!$pools)
