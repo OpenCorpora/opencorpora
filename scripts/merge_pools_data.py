@@ -87,7 +87,7 @@ def update_sample(dbh, sample_id, xml, changeset_id):
 def generate_empty_parse(token):
     return ''.join(('<tfr t="', token, '"><v><l id="0" t="', token, '"><g v="UNKN"/></l></v></tfr>'))
 def get_pool_grammemes(dbh, pool_id):
-    dbh.execute("SELECT grammemes FROM morph_annot_pools WHERE pool_id={0} LIMIT 1".format(pool_id))
+    dbh.execute("SELECT grammemes FROM morph_annot_pool_types WHERE type_id = (SELECT pool_type FROM morph_annot_pools WHERE pool_id={0} LIMIT 1) LIMIT 1".format(pool_id))
     row = dbh.fetchone()
     return re.split('@', row['grammemes'])
 def process_pool(dbh, pool_id):

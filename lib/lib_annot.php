@@ -238,7 +238,7 @@ function get_morph_pools_page($type) {
 }
 function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $only_disagreed=false,
     $only_not_moderated=false, $only_with_comments=false, $only_not_ok=false) {
-    $res = sql_query("SELECT pool_name, status, grammemes, users_needed, moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
+    $res = sql_query("SELECT pool_name, status, t.grammemes, users_needed, moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
     $r = sql_fetch_array($res);
     $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
     $select_options = array('---');
@@ -610,7 +610,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     if ($random)
         $order_string = "ORDER BY RAND()";
     else
-        $order_string = "ORDER BY grammemes, created_ts";
+        $order_string = "ORDER BY pool_type, created_ts";
 
     if ($limit)
         $limit_string = "LIMIT " . (2 * $limit);
@@ -621,9 +621,9 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     $cnt = 0;
     $pools = array();
     // get all pools by status
-    $res = sql_query("SELECT pool_id, pool_name, status, grammemes FROM morph_annot_pools WHERE status = 3 $order_string $limit_string");
+    $res = sql_query("SELECT pool_id, pool_name, status, pool_type FROM morph_annot_pools WHERE status = 3 $order_string $limit_string");
     while ($r = sql_fetch_array($res)) {
-        $pools[$r['pool_id']] = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0, 'num' => 0, 'group' => $r['grammemes']);
+        $pools[$r['pool_id']] = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0, 'num' => 0, 'group' => $r['pool_type']);
     }
 
     if (!$pools)
@@ -712,7 +712,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
 function get_my_answers($pool_id, $limit=10, $skip=0) {
     // TODO: we may certainly refactor here: this and get_annotation_packet() should share code
     $packet = array('my' => 1);
-    $r = sql_fetch_array(sql_query("SELECT status, gram_descr FROM morph_annot_pools WHERE pool_id=$pool_id"));
+    $r = sql_fetch_array(sql_query("SELECT status, t.gram_descr FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE pool_id=$pool_id"));
     if ($r['status'] != 3)
         $packet['editable'] = 0;
     else
@@ -749,7 +749,7 @@ function get_next_pool($user_id, $prev_pool_id) {
         return false;
 
     $time = time();
-    $res = sql_query("SELECT pool_id FROM morph_annot_pools WHERE status = 3 AND grammemes = (SELECT grammemes FROM morph_annot_pools WHERE pool_id=$prev_pool_id LIMIT 1) ORDER BY created_ts");
+    $res = sql_query("SELECT pool_id FROM morph_annot_pools WHERE status = 3 AND pool_type = (SELECT pool_type FROM morph_annot_pools WHERE pool_id=$prev_pool_id LIMIT 1) ORDER BY created_ts");
     while ($r = sql_fetch_array($res)) {
         $res1 = sql_query("
             SELECT instance_id FROM morph_annot_instances LEFT JOIN morph_annot_samples USING (sample_id)
@@ -773,7 +773,7 @@ function get_next_pool($user_id, $prev_pool_id) {
 }
 function get_annotation_packet($pool_id, $size) {
     $packet = array('my' => 0);
-    $r = sql_fetch_array(sql_query("SELECT status, gram_descr FROM morph_annot_pools WHERE pool_id=$pool_id"));
+    $r = sql_fetch_array(sql_query("SELECT status, t.gram_descr FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE pool_id=$pool_id"));
     if ($r['status'] != 3) return false;
     $packet['editable'] = 1;
     $packet['gram_descr'] = explode('@', $r['gram_descr']);

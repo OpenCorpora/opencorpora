@@ -16,7 +16,7 @@ if ($dbh->{'AutoCommit'}) {
 
 my $add = $dbh->prepare("INSERT INTO morph_annot_candidate_samples VALUES(?, ?)");
 my $update_pool = $dbh->prepare("UPDATE morph_annot_pools SET `status`='1' WHERE pool_id=? LIMIT 1");
-my $find_pools = $dbh->prepare("SELECT pool_id, grammemes FROM morph_annot_pools WHERE status=0");
+my $find_pools = $dbh->prepare("SELECT pool_id, t.grammemes FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE status=0");
 $find_pools->execute();
 while (my $ref = $find_pools->fetchrow_hashref()) {
     process_pool($ref->{'pool_id'}, $ref->{'grammemes'});

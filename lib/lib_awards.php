@@ -24,7 +24,7 @@ function update_user_rating($user_id, $pool_id, $is_skip, $previous_answer) {
         return true;
     
     global $config;
-    $r = sql_fetch_array(sql_query("SELECT grammemes FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query("SELECT grammemes FROM morph_annot_pool_types WHERE type_id = (SELECT pool_type FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1) LIMIT 1"));
     $signature = strtr($r['grammemes'], '&|', '__');
     if (isset($config['pools_complexity'][$signature]))
         $weight = $config['pools_complexity'][$signature];
