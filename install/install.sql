@@ -43,8 +43,16 @@ CREATE TABLE IF NOT EXISTS `sources_status` (
     INDEX(`status`)
 ) ENGINE = INNODB;
 
+CREATE TABLE IF NOT EXISTS `morph_annot_pool_types` (
+    `type_id`    SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `grammemes`  VARCHAR(120) NOT NULL,
+    `gram_descr` VARCHAR(255) NOT NULL,
+    `doc_link`   TEXT NOT NULL
+) ENGINE = INNODB;
+
 CREATE TABLE IF NOT EXISTS `morph_annot_pools` (
     `pool_id`      SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `pool_type`    SMALLINT UNSIGNED NOT NULL,
     `pool_name`    VARCHAR(120) NOT NULL,
     `grammemes`    VARCHAR(120) NOT NULL,
     `gram_descr`   VARCHAR(255) NOT NULL,
@@ -57,6 +65,7 @@ CREATE TABLE IF NOT EXISTS `morph_annot_pools` (
     `status`       TINYINT UNSIGNED NOT NULL,
     `revision`     INT UNSIGNED NOT NULL,
     `comment`      TEXT NOT NULL,
+    INDEX(`pool_type`),
     INDEX(`status`)
 ) ENGINE = INNODB;
 
