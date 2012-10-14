@@ -54,8 +54,6 @@ CREATE TABLE IF NOT EXISTS `morph_annot_pools` (
     `pool_id`      SMALLINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `pool_type`    SMALLINT UNSIGNED NOT NULL,
     `pool_name`    VARCHAR(120) NOT NULL,
-    `grammemes`    VARCHAR(120) NOT NULL,
-    `gram_descr`   VARCHAR(255) NOT NULL,
     `token_check`  TINYINT UNSIGNED NOT NULL,
     `users_needed` TINYINT UNSIGNED NOT NULL,
     `created_ts`   INT UNSIGNED NOT NULL,

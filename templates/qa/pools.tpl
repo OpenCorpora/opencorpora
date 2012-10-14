@@ -12,6 +12,12 @@ $(document).ready(function(){
     $('a.del').click(function(event){
         return confirm('Удалить пул? Пул с ответами не будет удалён.');
     });
+    $('select.pool_select').change(function(event){
+        if ($(event.target).val() > 0)
+            $('tr.ex_pool').hide('slow');
+        else
+            $('tr.ex_pool').show('slow');
+    });
 });
 </script>
 {/literal}
@@ -42,7 +48,7 @@ $(document).ready(function(){
     {if $smarty.get.type > 4}<th>Модератор</th>{/if}
     {if $smarty.get.type > 0}<th>Состояние</th>{/if}
 </tr>
-{foreach from=$pools item=pool}
+{foreach from=$pools.pools item=pool}
 <tr>
     <td>{$pool.pool_id}</td>
     <td>{strip}
@@ -74,28 +80,29 @@ $(document).ready(function(){
 <a href="#" class="pseudo" id="add_pool">Добавить новый пул</a>
 <form id="f_add" style="display:none" method="post" action="?act=add"><table border="0" cellspacing="5">
 <tr><td>Название:<td><input name="pool_name" maxlength="120" size="60" type="text" placeholder="Название пула"/></tr>
-<tr>
+<tr><td>Тип:<td>{html_options name=pool_type options=$pools.types class=pool_select}</tr>
+<tr class="ex_pool">
     <td>Граммемы:<br/><span class='small'>лишние оставить пустыми</span>
     <td>
-        <input name="gram[]" placeholder="gram1&gram2" size='16' type="text">
-        <input name="gram[]" placeholder="gram3|gram4" size='16' type="text"/>
-        <input name="gram[]" placeholder="gram5&gram6&gram7" size='16' type="text"/>
-        <input name="gram[]" placeholder="gram8&gram9&gram10" size='16' type="text"/>
-        <input name="gram[]" placeholder="gram8|gram9|gram10" size='16' type="text"/>
+        <input name="gram[]" placeholder="gram1&gram2" type="text" class="span2">
+        <input name="gram[]" placeholder="gram3|gram4" type="text" class="span2"/>
+        <input name="gram[]" placeholder="gram5&gram6&gram7" type="text" class="span2"/>
+        <input name="gram[]" placeholder="gram8&gram9&gram10" type="text" class="span2"/>
+        <input name="gram[]" placeholder="gram8|gram9|gram10" type="text" class="span2"/>
 </tr>
-<tr>
+<tr class="ex_pool">
     <td>Описания к ним:<br/><span class='small'>их увидят разметчики</span>
     <td>
-        <input name="descr[]" placeholder="глагол" maxlength='127' size='16' type="text"/>
-        <input name="descr[]" placeholder="прилагательное" maxlength='127' type="text" size='16'/>
-        <input name="descr[]" placeholder="наречие" maxlength='127' size='16' type="text"/>
-        <input name="descr[]" placeholder="предлог" maxlength='127' size='16' type="text"/>
-        <input name="descr[]" placeholder="42" maxlength='127' size='16' type="text"/>
+        <input name="descr[]" placeholder="глагол" maxlength='127' type="text" class="span2"/>
+        <input name="descr[]" placeholder="прилагательное" maxlength='127' type="text" class="span2"/>
+        <input name="descr[]" placeholder="наречие" maxlength='127' type="text" class="span2"/>
+        <input name="descr[]" placeholder="предлог" maxlength='127' type="text" class="span2"/>
+        <input name="descr[]" placeholder="42" maxlength='127' type="text" class="span2"/>
 </tr>
 <tr><td valign="top">Комментарий:<td><textarea name="comment" cols="40" rows="4" type="text"></textarea></tr>
-<tr><td>Желаемое число оценок<td><input name="users_needed" maxlength="2" size="3" value="5" type="text"/>
-<tr><td>Брать только примеры с<td><input name="token_checked" size="3" maxlength="2" value="0" type="text"/> и более подтверждениями токенизации </tr>
-<tr><td colspan="2"><button class="btn btn-large">Начать поиск примеров</button></tr>
+<tr><td>Желаемое число оценок<td><input name="users_needed" maxlength="2" size="3" value="3" type="text" class="span1"/>
+<tr><td>Брать только примеры с<td><input name="token_checked" size="3" maxlength="2" value="0" type="text" class="span1"/> и более подтверждениями токенизации </tr>
+<tr><td colspan="2"><button class="btn btn-large btn-primary">Начать поиск примеров</button></tr>
 </table></form>
 {/if}
 {/block}

@@ -196,12 +196,18 @@ function sentence_save($sent_id) {
     }
     return false;
 }
-//annotation pools
+// annotation pools
 function get_morph_pools_page($type) {
     $pools = array();
     $instance_count = array();
+
+    // possible pool types for addition form
+    $types = array(0 => 'Новый');
+    $res = sql_query("SELECT type_id, grammemes FROM morph_annot_pool_types order by grammemes");
+    while ($r = sql_fetch_array($res))
+        $types[$r['type_id']] = $r['grammemes'];
     
-    //count instances in one query and preserve
+    // count instances in one query and preserve
     $res = sql_query("SELECT answer, count(instance_id) cnt, pool_id FROM morph_annot_instances LEFT JOIN morph_annot_samples s USING(sample_id) WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status = $type) GROUP BY (answer > 0), pool_id ORDER BY pool_id");
     while ($r = sql_fetch_array($res)) {
         if (!isset($instance_count[$r['pool_id']]))
@@ -211,7 +217,7 @@ function get_morph_pools_page($type) {
             $instance_count[$r['pool_id']][0] += $r['cnt'];
         $instance_count[$r['pool_id']][1] += $r['cnt'];
     }
-    //and moderated answers if needed
+    // and moderated answers if needed
     if ($type == 5) {
         $res = sql_query("SELECT pool_id, COUNT(*) cnt FROM morph_annot_moderated_samples LEFT JOIN morph_annot_samples USING(sample_id) WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status=5)) AND answer > 0 GROUP BY pool_id");
         while ($r = sql_fetch_array($res)) {
@@ -234,7 +240,7 @@ function get_morph_pools_page($type) {
 
         $pools[] = $r;
     }
-    return $pools;
+    return array('pools' => $pools, 'types' => $types);
 }
 function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $only_disagreed=false,
     $only_not_moderated=false, $only_with_comments=false, $only_not_ok=false) {
@@ -379,11 +385,10 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
     }
     return array('context' => $t, 'mainword' => $tw, 'has_left_context' => $left_c, 'has_right_context' => $right_c, 'sentence_id' => $sent_id);
 }
-function add_morph_pool() {
-    $pool_name = mysql_real_escape_string(trim($_POST['pool_name']));
+function add_morph_pool_type($post_gram, $post_descr) {
     $gram_sets = array();
     $gram_descr = array();
-    foreach ($_POST['gram'] as $i => $gr) {
+    foreach ($post_gram as $i => $gr) {
         if (!trim($gr))
             break;
         if (strpos($gr, '@') !== false)
@@ -397,12 +402,26 @@ function add_morph_pool() {
 
     $gram_sets_str = mysql_real_escape_string(join('@', $gram_sets));
     $gram_descr_str = mysql_real_escape_string(join('@', $gram_descr));
+
+    if (sql_query("INSERT INTO morph_annot_pool_types VALUES (NULL, '$gram_sets_str', '$gram_descr_str', '')"))
+        return sql_insert_id();
+    return false;
+}
+function add_morph_pool() {
+    $pool_name = mysql_real_escape_string(trim($_POST['pool_name']));
+    $pool_type = (int)$_POST['pool_type'];
+    if (!$pool_type) {
+        $pool_type = add_morph_pool_type($_POST['gram'], $_POST['descr']);
+        if (!$pool_type)
+            return false;
+    }
+
     $comment = mysql_real_escape_string(trim($_POST['comment']));
     $users = (int)$_POST['users_needed'];
     $token_check = (int)$_POST['token_checked'];
     $ts = time();
     sql_begin();
-    if (sql_query("INSERT INTO morph_annot_pools VALUES(NULL, '0', '$pool_name', '$gram_sets_str', '$gram_descr_str', '$token_check', '$users', '$ts', '$ts', '".$_SESSION['user_id']."', '0', '0', '0', '$comment')")) {
+    if (sql_query("INSERT INTO morph_annot_pools VALUES(NULL, '$pool_type', '$pool_name', '$token_check', '$users', '$ts', '$ts', '".$_SESSION['user_id']."', '0', '0', '0', '$comment')")) {
         sql_commit();
         return true;
     }
@@ -438,7 +457,7 @@ function promote_samples_aux($tf_ids, $orig_pool_id, $lastrev, $new_pool_name, &
     // all except the first
     else {
         $full_name = $new_pool_name . ' #' . ($new_pool_index++);
-        if (!sql_query("INSERT INTO morph_annot_pools (SELECT NULL, pool_type, '".mysql_real_escape_string($full_name)."', grammemes, gram_descr, token_check, users_needed, $time, $time, author_id, 0, 2, $lastrev, comment FROM morph_annot_pools WHERE pool_id=$orig_pool_id LIMIT 1)"))
+        if (!sql_query("INSERT INTO morph_annot_pools (SELECT NULL, pool_type, '".mysql_real_escape_string($full_name)."', token_check, users_needed, $time, $time, author_id, 0, 2, $lastrev, comment FROM morph_annot_pools WHERE pool_id=$orig_pool_id LIMIT 1)"))
             return false;
         $current_pool_id = sql_insert_id();
     }
@@ -522,7 +541,7 @@ function promote_samples($pool_id, $type) {
 
     if (isset($_POST['keep'])) {
         if (
-            !sql_query("INSERT INTO morph_annot_pools (SELECT NULL, pool_type, '".mysql_real_escape_string($next_pool_name . ' #' . $next_pool_index)."', grammemes, gram_descr, token_check, users_needed, $time, $time, author_id, 0, 1, $lastrev, comment FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1)") ||
+            !sql_query("INSERT INTO morph_annot_pools (SELECT NULL, pool_type, '".mysql_real_escape_string($next_pool_name . ' #' . $next_pool_index)."', token_check, users_needed, $time, $time, author_id, 0, 1, $lastrev, comment FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1)") ||
             !sql_query("UPDATE morph_annot_candidate_samples SET pool_id=".sql_insert_id()." WHERE pool_id=$pool_id")
         )
             return false;
