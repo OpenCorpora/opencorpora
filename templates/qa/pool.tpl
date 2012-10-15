@@ -18,6 +18,13 @@
             }
         });
     }
+    function agree_all() {
+        if (confirm('Согласиться со всеми однозначными ответами?')) {
+            $('tr:not(.notagreed)').each(function(i, el) {
+                submit($(el).attr('rel'), $(el).attr('rev'), $(el).find('a.agree'));
+            });
+        }
+    }
     $(document).ready(function(){
         $('select.sel_var').bind('change', function(event) {
             var $tgt = $(event.target);
@@ -36,6 +43,10 @@
                     alert('Save failed');
                 }
             });
+        });
+        $('a.agree_all').click(function(event) {
+            agree_all();
+            event.preventDefault();
         });
         $('a.agree').click(function(event) {
             var $tgt = $(event.target);
@@ -119,7 +130,7 @@
     {if isset($smarty.get.ext)}
         {for $i=1 to $pool.num_users}<th>{$i}</th>{/for}
         {if $user_permission_check_morph && $pool.status == 5}
-            <th>&nbsp;</th>
+            <th><a class='agree_all pseudo' href='#'>согласен со всеми однозначными</a></th>
         {elseif $pool.status == 6}
             <th>Модератор<br/>({$pool.moderator_name})</th>
         {/if}
@@ -128,7 +139,7 @@
     {/if}
 </tr>
 {foreach from=$pool.samples item=sample}
-<tr rel='{$sample.id}'{if $sample.disagreed} class='bgpink'{else} rev='{$sample.instances[0].answer_num}'{/if}>
+<tr rel='{$sample.id}'{if $sample.disagreed} class='notagreed bgpink'{else} rev='{$sample.instances[0].answer_num}'{/if}>
     <td>{$sample.id}</td>
     <td>
         <a href="{$web_prefix}/books.php?book_id={$sample.book_id}&amp;full#sen{$sample.sentence_id}" target="_blank">контекст</a>
