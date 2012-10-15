@@ -44,6 +44,11 @@ switch ($action) {
             $smarty->assign('errata', get_tag_errors());
             $smarty->display('qa/book_tags.tpl');
         }
+        break;
+    case 'good_sentences':
+        $smarty->assign('sentences', get_good_sentences(isset($_GET['no_zero'])));
+        $smarty->display('qa/good_sentences.tpl');
+        break;
     default:
         header("Location:index.php");
 }

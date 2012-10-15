@@ -89,4 +89,12 @@ function get_tag_errors() {
     }
     return $out;
 }
+function get_good_sentences($no_zero = false) {
+    $where = $no_zero ? "WHERE num_homonymous > 0" : "";
+    $out = array();
+    $res = sql_query("SELECT sent_id, num_words, num_homonymous FROM good_sentences $where ORDER BY (num_homonymous / num_words), num_words desc LIMIT 1000");
+    while ($r = sql_fetch_array($res))
+        $out[] = array('id' => $r['sent_id'], 'total' => $r['num_words'], 'homonymous' => $r['num_homonymous']);
+    return $out;
+}
 ?>
