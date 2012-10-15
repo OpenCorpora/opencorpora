@@ -32,6 +32,9 @@ a.btn, .nav-tabs a, .pager a {
 table.borderless, td.borderless, tr.borderless td, th.borderless, tr.borderless th {
     border: none;
 }
+table.borderless td {
+    border: none;
+}
 .color-light {
     color: #909090;
 }
@@ -397,11 +400,47 @@ div.comment_main {
 .ac_results li em {color:#666666;}
 .ac_over {	background-color: Highlight;	color: HighlightText;}
 /* DISAMBIGUATION PAGE */
-.ma_type_row {
-    margin-bottom: 7px;
+.ma_types {
+    width: 100%;
+}
+.ma_type_row td {
+    padding: 0 30px 7px 0;
+}
+.ma_type_row td.ma_type_name {
+    width: 500px;
+}
+.ma_type_show:hover:after {
+    content: " ↓";
+}
+.ma_type_show.active:after {
+    content: " ↑";
+}
+.ma_pools_complexity {
+    width: 24px;
+    height: 24px;
+    background-repeat: no-repeat;
+    background-image: url("../img/icon_star_gray.png");
+    float: left;
+    margin-right: 10px;
+    cursor: help;
+}
+.ma_pools_complexity_1 {
+    background-image: url("../img/icon_star_green.png");
+}
+.ma_pools_complexity_2 {
+    background-image: url("../img/icon_star_yellow.png");
+}
+.ma_pools_complexity_3 {
+    background-image: url("../img/icon_star_orange.png");
+}
+.ma_pools_complexity_4 {
+    background-image: url("../img/icon_star_red.png");
 }
 .ma_type_pools {
     padding: 5px 0;
+}
+.ma_type_pools table {
+    margin-left: 28px;
 }
 div.ma_status_block {
     background-color:#f8cb6a;
