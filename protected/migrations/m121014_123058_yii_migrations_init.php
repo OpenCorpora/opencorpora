@@ -596,5 +596,4 @@ SQL
         $this->dropTable("tag_errors");
         $this->dropTable("tokenizer_qa");
     }
-	
 }
