@@ -72,11 +72,11 @@ $(document).ready(function(){
 {*<div id="chart" style="width:700px; height: 400px"></div>
 <br/>*}
 <a name="users"></a>
-<h3>{t}Пользователи по количеству размеченных примеров{/t} (всего {$ma_count})</h3>
+<h3>{t}Участники по количеству размеченных примеров{/t} (всего {$ma_count})</h3>
 <table class="table table-condensed" id="users_table">
 <tr>
     <th rowspan='2'>#</th>
-    <th rowspan='2'>Пользователь</th>
+    <th rowspan='2'>Участник</th>
     <th rowspan='2'>Всего</th>
     <th colspan='2'>В завершённых пулах</th>
     <th colspan='2'>В проверенных пулах</th>
@@ -98,7 +98,7 @@ $(document).ready(function(){
     </tr>
 {/foreach}
 </table>
-<a href="#" class="pseudo" id="show_all_users">Показать всех пользователей</a>
+<a href="#" class="pseudo" id="show_all_users">Показать всех участников</a>
 <h3>Команды по количеству размеченных примеров</h3>
 <table class="table">
     <tr><th>#</th><th>Название</th><th>Количество участников</th><th>Размечено примеров</th><th>Проверено</th><th>% ошибок</th></tr>
@@ -113,7 +113,7 @@ $(document).ready(function(){
         </tr>
     {/foreach}
 </table>
-<h3>{t}Пользователи по количеству добавленных предложений{/t}</h3>
+<h3>{t}Участники по количеству добавленных предложений{/t}</h3>
 <ol>
 {foreach item=s from=$stats.added_sentences}
     <li>{$s.user_name} ({$s.value})</li>
