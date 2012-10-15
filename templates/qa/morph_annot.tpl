@@ -163,5 +163,5 @@ $(document).ready(function() {
     <a rel='{$instance.sample_id}' class='pseudo comment' href='#'>Прокомментировать</a>
 </div>
 {/foreach}
-{if !$packet.my}<button class='btn btn-primary btn-large ma_next_pack disabled'>Хочу ещё примеров!</button> <button onclick='location.href="{$web_prefix}/?page=stats"' class="btn btn-large">Спасибо, достаточно</button>{/if}
+{if !$packet.my}<button class='btn btn-primary btn-large ma_next_pack disabled'>Хочу ещё примеров!</button> <button onclick='location.href="{$web_prefix}/?page=stats#user{$smarty.session.user_id}"' class="btn btn-large">Спасибо, достаточно</button>{/if}
 {/block}
