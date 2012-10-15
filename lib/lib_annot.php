@@ -811,12 +811,13 @@ function get_next_pool($user_id, $prev_pool_id) {
 }
 function get_annotation_packet($pool_id, $size) {
     $packet = array('my' => 0);
-    $r = sql_fetch_array(sql_query("SELECT status, t.gram_descr FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE pool_id=$pool_id"));
+    $r = sql_fetch_array(sql_query("SELECT status, t.gram_descr, revision FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE pool_id=$pool_id"));
     if ($r['status'] != 3) return false;
     $packet['editable'] = 1;
     $packet['gram_descr'] = explode('@', $r['gram_descr']);
     $user_id = $_SESSION['user_id'];
     $flag_new = 0;
+    $pool_revision = $r['revision'];
 
     //if the user has something already reserved, let's start with that (but only if the poolid is the same!)
     $res = sql_query("SELECT instance_id, sample_id FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id) AND user_id=$user_id AND answer=0 LIMIT $size");
@@ -838,7 +839,7 @@ function get_annotation_packet($pool_id, $size) {
     if ($flag_new) sql_begin();
     $gram_descr = array();
     while ($r = sql_fetch_array($res)) {
-        $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) AND is_last=1 LIMIT 1"));
+        $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) AND rev_id <= $pool_revision ORDER BY rev_id DESC LIMIT 1"));
         $instance = get_context_for_word($r1['tf_id'], 4);
         $arr = xml2ary($r1['rev_text']);
         $parses = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
