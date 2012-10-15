@@ -730,6 +730,8 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
         }
     }
 
+    uasort($tasks, get_pool_complexity);
+
     if (!$random)
         foreach ($tasks as $group_id => $v) {
             $i = 0;
