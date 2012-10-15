@@ -658,7 +658,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     // get all pools by status
     $res = sql_query("SELECT pool_id, pool_name, status, pool_type FROM morph_annot_pools WHERE status = 3 $order_string $limit_string");
     while ($r = sql_fetch_array($res)) {
-        $pools[$r['pool_id']] = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0, 'num' => 0, 'group' => $r['pool_type'], 'complexity' => get_pool_complexity($r['pool_type']));
+        $pools[$r['pool_id']] = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0, 'num' => 0, 'group' => $r['pool_type']);
     }
 
     if (!$pools)
@@ -720,8 +720,10 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
         ) {
             if ($random)
                 $tasks[] = $pool;
-            else
+            else {
                 $tasks[$pool['group']]['pools'][] = $pool;
+                $tasks[$pool['group']]['complexity'] = get_pool_complexity($pool['group']);
+            }
 
             ++$cnt;
             if ($limit > 0 && $cnt == $limit)
