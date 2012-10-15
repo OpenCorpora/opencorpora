@@ -22,10 +22,11 @@ def make_new_changeset(dbh, pool_id):
 def set_pool_status(dbh, pool_id, status):
     dbh.execute("UPDATE morph_annot_pools SET status={0} WHERE pool_id={1} LIMIT 1".format(status, pool_id))
 def get_moderated_pool(dbh):
-    dbh.execute("SELECT pool_id FROM morph_annot_pools WHERE status=7 LIMIT 1")
+    dbh.execute("SELECT pool_id, revision FROM morph_annot_pools WHERE status=7 LIMIT 1")
     pool = dbh.fetchone()
     if pool is not None:
-        return pool['pool_id']
+        return pool['pool_id'], pool['revision']
+    return None, None
 def get_samples_and_answers(dbh, pool_id):
     dbh.execute("""SELECT sample_id, answer, status FROM morph_annot_moderated_samples WHERE sample_id IN
                 (SELECT sample_id FROM morph_annot_samples WHERE pool_id={0})""".format(pool_id))
@@ -76,9 +77,9 @@ def filter_variants(variants, grammemes, bind_type):
 
     return out_variants
 def get_xml_by_sample_id(dbh, sample_id):
-    dbh.execute("SELECT rev_text FROM tf_revisions WHERE tf_id=(SELECT tf_id FROM morph_annot_samples WHERE sample_id={0} LIMIT 1) AND is_last = 1 LIMIT 1".format(sample_id))
+    dbh.execute("SELECT rev_id, rev_text FROM tf_revisions WHERE tf_id=(SELECT tf_id FROM morph_annot_samples WHERE sample_id={0} LIMIT 1) AND is_last = 1 LIMIT 1".format(sample_id))
     xml = dbh.fetchone()
-    return xml['rev_text']
+    return xml['rev_text'], xml['rev_id']
 def update_sample(dbh, sample_id, xml, changeset_id):
     dbh.execute("SELECT tf_id FROM morph_annot_samples WHERE sample_id={0} LIMIT 1".format(sample_id))
     res = dbh.fetchone()
@@ -90,7 +91,7 @@ def get_pool_grammemes(dbh, pool_id):
     dbh.execute("SELECT grammemes FROM morph_annot_pool_types WHERE type_id = (SELECT pool_type FROM morph_annot_pools WHERE pool_id={0} LIMIT 1) LIMIT 1".format(pool_id))
     row = dbh.fetchone()
     return re.split('@', row['grammemes'])
-def process_pool(dbh, pool_id):
+def process_pool(dbh, pool_id, revision):
     changeset_id = make_new_changeset(dbh, pool_id)
     set_pool_status(dbh, pool_id, POOL_STATUS_IN_PROGRESS)
     pool_grammemes = get_pool_grammemes(dbh, pool_id)
@@ -101,7 +102,12 @@ def process_pool(dbh, pool_id):
             continue
         
         grammemes_ok_str = pool_grammemes[sample['answer']-1]
-        old_xml = get_xml_by_sample_id(dbh, sample['sample_id'])
+        
+        old_xml, rev_id = get_xml_by_sample_id(dbh, sample['sample_id'])
+        # do nothing if token has changed since pool creation
+        if rev_id > revision:
+            continue
+
         token, old_vars = xml2vars(old_xml)
         
         # generate empty parse if marked as 'no correct parses'
@@ -125,9 +131,9 @@ def main():
     dbh = db.cursor(DictCursor)
     dbh.execute('START TRANSACTION')
 
-    pool_id = get_moderated_pool(dbh)
+    pool_id, revision = get_moderated_pool(dbh)
     if pool_id is not None:
-        process_pool(dbh, pool_id)
+        process_pool(dbh, pool_id, revision)
     db.commit()
 
 if __name__ == "__main__":
