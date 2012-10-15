@@ -55,7 +55,6 @@ $(document).ready(function(){
         {if $pool.status > 0}<a href="?act={if $pool.status == 1}candidates{else}samples{/if}&amp;pool_id={$pool.pool_id}">{/if}
         {$pool.pool_name|htmlspecialchars}
         {if $pool.status > 0}</a>{/if}
-        {if $pool.comment}<br/><span class='small'>{$pool.comment|htmlspecialchars}</span>{/if}
         {if $user_permission_check_morph}<br/><a href="?act=delete&amp;pool_id={$pool.pool_id}" class='del'>удалить</a>{/if}
     {/strip}</td>
     <td>{$pool.grammemes|htmlspecialchars}<br/><span class='small'>{$pool.gram_descr|htmlspecialchars}</span><br/>Оценок: {$pool.users_needed}<br/>Токенизация: {$pool.token_check}</td>
@@ -99,7 +98,6 @@ $(document).ready(function(){
         <input name="descr[]" placeholder="предлог" maxlength='127' type="text" class="span2"/>
         <input name="descr[]" placeholder="42" maxlength='127' type="text" class="span2"/>
 </tr>
-<tr><td valign="top">Комментарий:<td><textarea name="comment" cols="40" rows="4" type="text"></textarea></tr>
 <tr><td>Желаемое число оценок<td><input name="users_needed" maxlength="2" size="3" value="3" type="text" class="span1"/>
 <tr><td>Брать только примеры с<td><input name="token_checked" size="3" maxlength="2" value="0" type="text" class="span1"/> и более подтверждениями токенизации </tr>
 <tr><td colspan="2"><button class="btn btn-large btn-primary">Начать поиск примеров</button></tr>
