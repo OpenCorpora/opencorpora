@@ -35,6 +35,9 @@ return array(
             'gii' => array(
                 'class' => 'system.gii.GiiModule',
                 'password' => false,
+                'generatorPaths' => array(
+                    'bootstrap.gii'
+                )
             ),
         ),
 

@@ -6,7 +6,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </a>
-            <a href="{$web_prefix}/" class="brand">OpenCorpora</a>
+            <a href="<?php echo Yii::app()->baseUrl;?>/" class="brand">OpenCorpora</a>
             <div class="nav-collapse">
                 <?php /*<ul class="nav">
                     {if !isset($active_page)}{$active_page=''}{/if}

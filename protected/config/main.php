@@ -30,7 +30,10 @@ return array(
         'name' => 'OpenCorpora',
 
         // Preloading 'log' component
-        'preload' => array('log'),
+        'preload' => array(
+            'log',
+            'bootstrap'
+        ),
 
         // Autoloading model and component classes
         'import' => array(
@@ -41,37 +44,44 @@ return array(
         // Application components
         'components' => array(
 
-        'user' => array(
-            // enable cookie-based authentication
-            'allowAutoLogin' => true,
-        ),
-
-        // uncomment the following to enable URLs in path-format
-        /*
-        'urlManager'=>array(
-            'urlFormat'=>'path',
-            'rules'=>array(
-                    '<controller:\w+>/<id:\d+>'=>'<controller>/view',
-                    '<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
-                    '<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
+            'user' => array(
+                'class'=>'WebUser',
+                // enable cookie-based authentication
+                //'allowAutoLogin' => true,
             ),
-        ),
-        */
 
-        // Database
-        'db' => array(
-            'connectionString' => '', //override in config/mode_<mode>.php
-            'emulatePrepare' => true,
-            'username' => '', //override in config/mode_<mode>.php
-            'password' => '', //override in config/mode_<mode>.php
-            'charset' => 'utf8',
-        ),
+            // uncomment the following to enable URLs in path-format
+            /*
+            'urlManager'=>array(
+                'urlFormat'=>'path',
+                'rules'=>array(
+                        '<controller:\w+>/<id:\d+>'=>'<controller>/view',
+                        '<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
+                        '<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
+                ),
+            ),
+            */
 
-        // Error handler
-        'errorHandler'=>array(
-            // use 'site/error' action to display errors
-            'errorAction'=>'site/error',
-        ),
+            // Database
+            'db' => array(
+                'connectionString' => '', //override in config/mode_<mode>.php
+                'emulatePrepare' => true,
+                'username' => '', //override in config/mode_<mode>.php
+                'password' => '', //override in config/mode_<mode>.php
+                'charset' => 'utf8',
+            ),
+
+            // Error handler
+            'errorHandler'=>array(
+                // use 'site/error' action to display errors
+                'errorAction'=>'site/error',
+            ),
+            
+            // yii-bootstrap extension
+            'bootstrap' => array(
+                'class' => 'ext.bootstrap.components.Bootstrap',
+                'coreCss' => FALSE
+            ),
 
         ),
 

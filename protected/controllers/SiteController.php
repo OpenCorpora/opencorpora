@@ -24,9 +24,16 @@ class SiteController extends Controller {
      * when an action is not explicitly requested by users.
      */
     public function actionIndex() {
-        // renders the view file 'protected/views/site/index.php'
-        // using the default layout 'protected/views/layouts/main.php'
-        $this->render('index');
+        if (!Yii::app()->user->isAdmin) {
+            if (!Yii::app()->user->isGuest){
+                //$smarty->assign('available', get_available_tasks($_SESSION['user_id'], true, 5, true));
+            }
+            //$smarty->assign('answer_count', count_all_answers());
+        }
+        $this->render('index',array(
+            'answer_count' => 100500,
+            'available' => array()
+        ));
     }
 
     /**

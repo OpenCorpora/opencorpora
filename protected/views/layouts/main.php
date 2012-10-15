@@ -7,12 +7,10 @@
 
         <link rel='stylesheet' type='text/css' href='<?php echo Yii::app()->baseurl;?>/css/main.css?4'/>
         <link rel='stylesheet' type='text/css' href='http://yandex.st/jquery-ui/1.8.16/themes/smoothness/jquery.ui.all.min.css'/>
-        <script src="<?php echo Yii::app()->baseurl;?>/js/jquery-1.8.1.min.js"></script>
         <script type="text/javascript" src="http://yandex.st/jquery-ui/1.8.16/jquery-ui.min.js"></script>
         <script src='<?php echo Yii::app()->baseurl;?>/js/main.js?3' type='text/javascript'></script>
         <script src='<?php echo Yii::app()->baseurl;?>/js/jquery.mousewheel.js' type='text/javascript'></script>
         <script src='<?php echo Yii::app()->baseurl;?>/js/jquery.autocomplete.js'></script>
-        <script src="bootstrap/js/bootstrap.min.js"></script>
         <title>OpenCorpora: открытый корпус русского языка</title>
     </head>
 <body>
