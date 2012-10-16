@@ -667,7 +667,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     // get sample counts for selected pools
     // gather count of all available samples grouped by pool
     $r_rejected_samples = sql_query("SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id");
-    $rejected = array();
+    $rejected = array(0);
     while ($r = sql_fetch_array($r_rejected_samples))
         $rejected[] = $r['sample_id'];
 
