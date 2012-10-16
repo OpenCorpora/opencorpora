@@ -535,7 +535,7 @@ function promote_samples($pool_id, $type) {
         return false;
 
     // delete tf_ids that were added
-    if (!sql_query("DELETE FROM morph_annot_candidate_samples WHERE tf_id IN (SELECT tf_id FROM morph_annot_samples WHERE pool_id IN (".join(',', $promoted_pool_ids)."))"))
+    if (!sql_query("DELETE cs.* FROM morph_annot_candidate_samples cs LEFT JOIN morph_annot_samples s USING(tf_id) WHERE s.pool_id IN (".join(',', $promoted_pool_ids).")"))
         return false;
 
     if (isset($_POST['keep'])) {
