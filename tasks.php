@@ -57,6 +57,12 @@ switch ($action) {
         break;
     default:
         $smarty->assign('available', get_available_tasks($_SESSION['user_id']));
+        $smarty->assign('complexity',array(
+            0 => 'Сложность неизвестна',
+            1 => 'Очень простые задания',
+            2 => 'Простые задания',
+            3 => 'Сложные задания',
+            4 => 'Очень сложные задания'));
         $smarty->display('qa/tasks.tpl');
 }
 ?>

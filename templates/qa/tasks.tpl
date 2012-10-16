@@ -7,7 +7,7 @@
     {foreach from=$available item=type key=key}
 <tr class="ma_type_row">
     <td class="ma_type_name">
-        <div class="ma_pools_complexity ma_pools_complexity_{$type.complexity}" title="сложность: {$type.complexity} из 4"></div><a href="#" class="ma_type_show pseudo" title="показать список" data-key="{$key}">{$type.name|htmlspecialchars}</a>
+        <div class="ma_pools_complexity ma_pools_complexity_{$type.complexity}" title="{$complexity[$type.complexity]}"></div><a href="#" class="ma_type_show pseudo" title="показать список" data-key="{$key}">{$type.name|htmlspecialchars}</a>
     </td>
     <td class="">{if $type.first_id}<a href="?act=annot&amp;pool_id={$type.first_id}" class="btn">Взять на разметку</a>{/if}</td>
 </tr>
