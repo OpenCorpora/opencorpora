@@ -15,5 +15,5 @@
 30 4 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/exports.sh" 2>>/home/grand/error.log
 0 7 * * * /corpus/scripts/invalidate_auth_tokens.pl /corpus/config.ini
 # validators
-12 * * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/run_validators.sh" 2>>/home/grand/error.log
+30 2 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/run_validators.sh" 2>>/home/grand/error.log
 # empty line must be here
