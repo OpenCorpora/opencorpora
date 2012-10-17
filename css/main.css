@@ -407,16 +407,19 @@ div.comment_main {
     width: 100%;
 }
 .ma_type_row td {
-    padding: 0 30px 7px 0;
+    padding: 0 20px 7px 0;
 }
 .ma_type_row td.ma_type_name {
-    width: 500px;
+    width: 450px;
 }
 .ma_type_show:hover:after {
     content: " ↓";
 }
 .ma_type_show.active:after {
     content: " ↑";
+}
+.ma_type_help {
+    width: 90px;
 }
 .ma_pools_complexity {
     width: 24px;
@@ -478,8 +481,8 @@ div.ma_instance_words {
     padding: 1px 3px;
     font-size: 20px;
 }
-.ma_thanx_block {
-    margin-bottom: 15px;
+.ma_annot_top_block {
+    margin-bottom: 20px;
 }
 div.ma_instance .comment {
     margin-left: 5px;

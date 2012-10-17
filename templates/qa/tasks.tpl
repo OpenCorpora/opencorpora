@@ -9,10 +9,11 @@
     <td class="ma_type_name">
         <div class="ma_pools_complexity ma_pools_complexity_{$type.complexity}" title="{$complexity[$type.complexity]}"></div><a href="#" class="ma_type_show pseudo" title="показать список" data-key="{$key}">{$type.name|htmlspecialchars}</a>
     </td>
+    <td class="ma_type_help">{if $type.has_manual}<a href="manual.php?pool_type={$key}" class="" title="инструкция по разметке">инструкция</a>{/if}</td>
     <td class="">{if $type.first_id}<a href="?act=annot&amp;pool_id={$type.first_id}" class="btn">Взять на разметку</a>{/if}</td>
 </tr>
 <tr class="ma_type_pools" style="display: none;" id="pools_{$key}">
-    <td colspan="2">
+    <td colspan="3">
         <table class="table table-condensed">
             <tr class="borderless"><th>Название задания</th><th>Сделано мной</th><th>Доступно</th>{if $available}<th>&nbsp;</th>{/if}</tr>
             {foreach $type.pools as $pool}
