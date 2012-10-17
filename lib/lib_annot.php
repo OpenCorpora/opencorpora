@@ -656,7 +656,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     $pools = array();
     // memorize pool types with manual
     $types_with_manual = array();
-    $res = sql_query("SELECT type_id FROM morph_annpt_pool_types WHERE doc_link != ''");
+    $res = sql_query("SELECT type_id FROM morph_annot_pool_types WHERE doc_link != ''");
     while ($r = sql_fetch_array($res))
         $types_with_manual[] = $r['type_id'];
     // get all pools by status
@@ -729,7 +729,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
             else {
                 $tasks[$pool['group']]['pools'][] = $pool;
                 $tasks[$pool['group']]['complexity'] = get_pool_complexity($pool['group']);
-                $tasks[$pool['group']]['has_manual'] = in_array($types_with_manual, $pool['group']);
+                $tasks[$pool['group']]['has_manual'] = in_array($pool['group'], $types_with_manual);
             }
 
             ++$cnt;
