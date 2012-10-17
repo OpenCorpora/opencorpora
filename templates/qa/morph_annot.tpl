@@ -138,8 +138,8 @@ $(document).ready(function() {
 </ul>
 <div class="ma_annot_top_block clearfix">
     {if $packet.has_manual}<div class="pull-right">
-        <a class="btn btn-primary" href="manual.php?pool_type={$packet.pool_type}" target="_blank"><i class="icon-info-sign icon-white"></i> Инструкция по разметке</a>{/if}
-    </div>
+        <a class="btn btn-primary" href="manual.php?pool_type={$packet.pool_type}" target="_blank"><i class="icon-info-sign icon-white"></i> Инструкция по разметке</a>
+    </div>{/if}
     <div class="ma_thanx_block">
         Спасибо, что помогаете нам. Не торопитесь, будьте внимательны. Если вы не уверены,  пропускайте пример.
     </div>
