@@ -326,16 +326,21 @@ function delete_sentence($sid) {
     return false;
 }
 function delete_token($tf_id, $delete_history=true) {
+    $sample_ids = array(0);
+    $res = sql_query("SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id");
+    while ($r = sql_fetch_array($res))
+        $sample_ids[] = $r['sample_id'];
+    $sids = join(',', $sample_ids);
     sql_begin();
     if (
         sql_query("DELETE FROM form2tf WHERE tf_id = $tf_id") &&
         (!$delete_history || sql_query("DELETE FROM tf_revisions WHERE tf_id = $tf_id")) &&
         sql_query("DELETE FROM morph_annot_candidate_samples WHERE tf_id = $tf_id") &&
-        sql_query("DELETE FROM morph_annot_moderated_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id)") &&
-        sql_query("DELETE FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id)") &&
-        sql_query("DELETE FROM morph_annot_rejected_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id)") &&
-        sql_query("DELETE FROM morph_annot_comments WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id)") &&
-        sql_query("DELETE FROM morph_annot_click_log WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id)") &&
+        sql_query("DELETE FROM morph_annot_moderated_samples WHERE sample_id IN ($sids)") &&
+        sql_query("DELETE FROM morph_annot_instances WHERE sample_id IN ($sids)") &&
+        sql_query("DELETE FROM morph_annot_rejected_samples WHERE sample_id IN ($sids)") &&
+        sql_query("DELETE FROM morph_annot_comments WHERE sample_id IN ($sids)") &&
+        sql_query("DELETE FROM morph_annot_click_log WHERE sample_id IN ($sids)") &&
         sql_query("DELETE FROM morph_annot_samples WHERE tf_id = $tf_id") &&
         sql_query("DELETE FROM text_forms WHERE tf_id = $tf_id LIMIT 1")
     ) {
