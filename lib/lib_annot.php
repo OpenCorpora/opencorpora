@@ -403,7 +403,7 @@ function add_morph_pool_type($post_gram, $post_descr) {
     $gram_sets_str = mysql_real_escape_string(join('@', $gram_sets));
     $gram_descr_str = mysql_real_escape_string(join('@', $gram_descr));
 
-    if (sql_query("INSERT INTO morph_annot_pool_types VALUES (NULL, '$gram_sets_str', '$gram_descr_str', '')"))
+    if (sql_query("INSERT INTO morph_annot_pool_types VALUES (NULL, '$gram_sets_str', '$gram_descr_str', '', 0)"))
         return sql_insert_id();
     return false;
 }
@@ -622,29 +622,13 @@ function begin_pool_merge($pool_id) {
 
     return (bool)sql_query("UPDATE morph_annot_pools SET status=7, updated_ts=".time()." WHERE pool_id=$pool_id LIMIT 1");
 }
-function get_pool_complexity($type_id) {
-    switch ($type_id) {
-        case 12:
-            return 1;
-        case 11:
-            return 3;
-        case 7:
-            return 3;
-        case 9:
-            return 3;
-        case 6:
-            return 4;
-        default:
-            return 0;
-    }
-}
 function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=false) {
     $tasks = array();
 
     if ($random)
         $order_string = "ORDER BY RAND()";
     else
-        $order_string = "ORDER BY pool_type, created_ts";
+        $order_string = "ORDER BY complexity, pool_type, created_ts";
 
     if ($limit)
         $limit_string = "LIMIT " . (2 * $limit);
@@ -654,13 +638,18 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     $time = time();
     $cnt = 0;
     $pools = array();
-    // memorize pool types with manual
+    // memorize pool types with manual and complexity
     $types_with_manual = array();
-    $res = sql_query("SELECT type_id FROM morph_annot_pool_types WHERE doc_link != ''");
-    while ($r = sql_fetch_array($res))
-        $types_with_manual[] = $r['type_id'];
+    $type2complexity = array();
+    $res = sql_query("SELECT type_id, doc_link, complexity FROM morph_annot_pool_types WHERE doc_link != '' OR complexity > 0");
+    while ($r = sql_fetch_array($res)) {
+        if ($r['doc_link'])
+            $types_with_manual[] = $r['type_id'];
+        if ($r['complexity'] > 0)
+            $type2complexity[$r['type_id']] = $r['complexity'];
+    }
     // get all pools by status
-    $res = sql_query("SELECT pool_id, pool_name, status, pool_type FROM morph_annot_pools WHERE status = 3 $order_string $limit_string");
+    $res = sql_query("SELECT pool_id, pool_name, status, pool_type FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE status = 3 $order_string $limit_string");
     while ($r = sql_fetch_array($res)) {
         $pools[$r['pool_id']] = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0, 'num' => 0, 'group' => $r['pool_type']);
     }
@@ -726,11 +715,8 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
         ) {
             if ($random)
                 $tasks[] = $pool;
-            else {
+            else
                 $tasks[$pool['group']]['pools'][] = $pool;
-                $tasks[$pool['group']]['complexity'] = get_pool_complexity($pool['group']);
-                $tasks[$pool['group']]['has_manual'] = in_array($pool['group'], $types_with_manual);
-            }
 
             ++$cnt;
             if ($limit > 0 && $cnt == $limit)
@@ -738,11 +724,6 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
         }
     }
 
-    uasort($tasks, function($a, $b) {
-        if ($a['complexity'] < $b['complexity']) return -1;
-        if ($a['complexity'] > $b['complexity']) return 1;
-        return 0;
-    });
     if (!$random)
         foreach ($tasks as $group_id => $v) {
             $i = 0;
@@ -753,6 +734,8 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
                 }
                 ++$i;
             }
+            $tasks[$group_id]['has_manual'] = in_array($group_id, $types_with_manual);
+            $tasks[$group_id]['complexity'] = isset($type2complexity[$group_id]) ? $type2complexity[$group_id] : 0;
             $tasks[$group_id]['name'] = preg_replace('/\s+#\d+\s*$/', '', $v['pools'][0]['name']);
         }
 
