@@ -1,10 +1,10 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-<h1>{t}Статистика{/t}</h1>
+<h1>Статистика</h1>
 <ul class="nav nav-tabs">
-    <li><a href="?page=stats">{t}Общая{/t}</a></li>
-    <li class="active"><a href="?page=tag_stats">{t}По тегам{/t}</a></li>
+    <li><a href="?page=stats">Общая</a></li>
+    <li class="active"><a href="?page=tag_stats">По тегам</a></li>
 </ul>
 <ul class="nav clearfix">
     {foreach from=$stats item=i key=gname}

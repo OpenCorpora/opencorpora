@@ -1,7 +1,7 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
-<h1>{t}Материалы для скачивания{/t}</h1>
+<h1>Материалы для скачивания</h1>
 <ul class="nav nav-tabs">
     <li><a href="{$web_prefix}/?page=downloads">Скачать</a></li>
     <li class="active"><a href="{$web_prefix}/?page=export">Форматы экспорта</a></li>

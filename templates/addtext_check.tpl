@@ -47,21 +47,21 @@
         </ol></li>
     {/foreach}
     </ol>
-        {t}Добавляем в{/t}
+        Добавляем в
         <select id="book0" name="book[]" rel="0">
-            <option value="0">-- {t}Не выбрано{/t} --</option>
+            <option value="0">-- Не выбрано --</option>
             {html_options options=$check.select0 selected=$check.selected0}
         </select>
         <select id="book1" name="book[]"{if !isset($check.select1)} disabled="disabled"{/if} rel="1">
-            <option value="0">-- {t}Не выбрано{/t} --</option>
+            <option value="0">-- Не выбрано --</option>
             {if isset($check.select1)}
             {html_options options=$check.select1 selected=$check.selected1}
             {/if}
         </select>
         <br/>
-        <p id="lastpar_info">{t}Надо выбрать книгу.{/t}</p>
-        {t}Счёт абзацев &ndash; с{/t}
+        <p id="lastpar_info">Надо выбрать книгу.</p>
+        Счёт абзацев &ndash; с
         <input id="newpar" name="newpar" size="3" maxlength="3" value="1"/>
-        <input id="submitter" type="button" value="{t}Добавить{/t}" disabled="disabled" onclick="if (check_for_whitespace()) submit_with_readonly_check($(this).closest('form'))"/>
+        <input id="submitter" type="button" value="Добавить" disabled="disabled" onclick="if (check_for_whitespace()) submit_with_readonly_check($(this).closest('form'))"/>
     </form>
 {/block}

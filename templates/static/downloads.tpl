@@ -1,7 +1,7 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
-<h1>{t}Материалы для скачивания{/t}</h1>
+<h1>Материалы для скачивания</h1>
 <ul class="nav nav-tabs">
     <li class="active"><a href="{$web_prefix}/?page=downloads">Скачать</a></li>
     <li><a href="{$web_prefix}/?page=export">Форматы экспорта</a></li>
@@ -33,11 +33,11 @@
     });
 </script>
 {/literal}
-<h3>{t}Размеченные тексты{/t}</h3>
-<p>XML, {t}обновлён{/t} {$dl.annot.xml.updated}
+<h3>Размеченные тексты</h3>
+<p>XML, обновлён {$dl.annot.xml.updated}
 <ul>
-<li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.bz2">архив .bz2</a> ({$dl.annot.xml.bz2.size} {t}Мб{/t})</li>
-<li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.zip">архив .zip</a> ({$dl.annot.xml.zip.size} {t}Мб{/t})</li>
+<li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.bz2">архив .bz2</a> ({$dl.annot.xml.bz2.size} Мб)</li>
+<li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.zip">архив .zip</a> ({$dl.annot.xml.zip.size} Мб)</li>
 </ul>
 <p>Подкорпус со снятой омонимией<sup>*</sup>, XML
 <ul>
@@ -95,23 +95,23 @@
 </table>
 <p class='small'>* Словами мы считаем токены, имеющие в своём составе хотя бы одну кириллическую букву.</p>
 <p class='small'>** Тип A: токены, не являющиеся словами, игнорируются, т.е. в биграмму могут входить, например, слова, разделённые запятой. Тип B: никакие токены не игнорируются, но из списка исключаются цепочки, где хотя бы один токен не является словом.</p>
-<h2>{t}Коллокации{/t}</h2>
+<h2>Коллокации</h2>
 <p class='small'>(На данный момент только двусловные и рассчитываются только по метрике MI. На термы наложено ограничение по частоте снизу: не менее корня 4-й степени от объёма корпуса.)</p>
-<p>{t}Обновлено{/t} {$dl.colloc.mi.updated}</p>
+<p>Обновлено {$dl.colloc.mi.updated}</p>
 <ul>
-<li><a href="{$web_prefix}/files/export/ngrams/colloc.MI.bz2">архив .bz2</a> ({$dl.colloc.mi.bz2.size} {t}Мб{/t})</li>
-<li><a href="{$web_prefix}/files/export/ngrams/colloc.MI.zip">архив .zip</a> ({$dl.colloc.mi.zip.size} {t}Мб{/t})</li>
+<li><a href="{$web_prefix}/files/export/ngrams/colloc.MI.bz2">архив .bz2</a> ({$dl.colloc.mi.bz2.size} Мб)</li>
+<li><a href="{$web_prefix}/files/export/ngrams/colloc.MI.zip">архив .zip</a> ({$dl.colloc.mi.zip.size} Мб)</li>
 <li><a href="{$web_prefix}/?page=top100&amp;what=colloc&amp;type=MI">top100</a></li>
 </ul>
-<h2>{t}Морфологический словарь{/t}</h2>
-<p>XML, {t}обновлён{/t} {$dl.dict.xml.updated}, см. <a href="{$web_prefix}/?page=export">описание формата</a></p>
+<h2>Морфологический словарь</h2>
+<p>XML, обновлён {$dl.dict.xml.updated}, см. <a href="{$web_prefix}/?page=export">описание формата</a></p>
 <ul>
-<li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.xml.bz2">архив .bz2</a> ({$dl.dict.xml.bz2.size} {t}Мб{/t})</li>
-<li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.xml.zip">архив .zip</a> ({$dl.dict.xml.zip.size} {t}Мб{/t})</li>
+<li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.xml.bz2">архив .bz2</a> ({$dl.dict.xml.bz2.size} Мб)</li>
+<li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.xml.zip">архив .zip</a> ({$dl.dict.xml.zip.size} Мб)</li>
 </ul>
-<p>Plain text, {t}обновлён{/t} {$dl.dict.txt.updated}</p>
+<p>Plain text, обновлён {$dl.dict.txt.updated}</p>
 <ul>
-<li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.txt.bz2">архив .bz2</a> ({$dl.dict.txt.bz2.size} {t}Мб{/t})</li>
-<li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.txt.zip">архив .zip</a> ({$dl.dict.txt.zip.size} {t}Мб{/t})</li>
+<li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.txt.bz2">архив .bz2</a> ({$dl.dict.txt.bz2.size} Мб)</li>
+<li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.txt.zip">архив .zip</a> ({$dl.dict.txt.zip.size} Мб)</li>
 </ul>
 {/block}

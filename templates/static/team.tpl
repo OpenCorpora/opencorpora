@@ -1,47 +1,47 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
-<h1>{t}О проекте{/t}</h1>
+<h1>О проекте</h1>
 <ul class="nav nav-tabs">
     <li><a href="{$web_prefix}/?page=about">Описание проекта</a></li>
     <li class="active"><a href="{$web_prefix}/?page=team">Участники</a></li>
     <li><a href="{$web_prefix}/?page=publications">Публикации</a></li>
     <li><a href="{$web_prefix}/?page=faq">FAQ</a></li>
 </ul>
-<h2>{t}Участники проекта{/t}</h2>
+<h2>Участники проекта</h2>
 <table>
-    <tr><td width='200px'>{t}Василий Алексеев{/t}</td></tr>
-    <tr><td>{t}Светлана Бичинёва{/t}</td><td>{mailto address="bichineva@opencorpora.org" encode="javascript"}</td></tr>
-    <tr><td>{t}Виктор Бочаров{/t}</td><td>{mailto address="bocharov@opencorpora.org" encode="javascript"}</td></tr>
-    <tr><td>{t}Дмитрий Грановский{/t}</td><td>{mailto address="granovsky@opencorpora.org" encode="javascript"}</td></tr>
-    <tr><td>{t}Мария Николаева{/t}</td></tr>
-    <tr><td>{t}Наталья Остапук{/t}</td></tr>
-    <tr><td>{t}Екатерина Протопопова{/t}</td></tr>
-    <tr><td>{t}Мария Степанова{/t}</td><td>{mailto address="stepanova@opencorpora.org" encode="javascript"}</td></tr>
-    <tr><td>{t}Алексей Суриков{/t}</td></tr>
+    <tr><td width='200px'>Василий Алексеев</td></tr>
+    <tr><td>Светлана Бичинёва</td><td>{mailto address="bichineva@opencorpora.org" encode="javascript"}</td></tr>
+    <tr><td>Виктор Бочаров</td><td>{mailto address="bocharov@opencorpora.org" encode="javascript"}</td></tr>
+    <tr><td>Дмитрий Грановский</td><td>{mailto address="granovsky@opencorpora.org" encode="javascript"}</td></tr>
+    <tr><td>Мария Николаева</td></tr>
+    <tr><td>Наталья Остапук</td></tr>
+    <tr><td>Екатерина Протопопова</td></tr>
+    <tr><td>Мария Степанова</td><td>{mailto address="stepanova@opencorpora.org" encode="javascript"}</td></tr>
+    <tr><td>Алексей Суриков</td></tr>
 </table>
-<h2>{t}Мы благодарны:{/t}</h2>
-    <p>{t}И.В. Азаровой{/t},
-    {t}К.М. Аксарину{/t},
-    {t}Анастасии Бодровой{/t},
-    {t}Н.В. Борисову{/t},
-    {t}Дмитрию Гайворонскому{/t},
-    {t}Алёне Гилевской{/t},
-    {t}Анне Дёгтевой{/t},
-    {t}Сергею Дмитриеву{/t},
-    {t}Эдуарду Клышинскому{/t},
-    {t}Михаилу Коробову{/t},
-    {t}Татьяне Ландо{/t},
-    {t}О.В. Митрениной{/t},
-    {t}О.А. Митрофановой{/t},
-    {t}Лидии Пивоваровой{/t},
-    {t}Лине Романовой{/t},
-    {t}Марии Яворской{/t},
-    {t}Ростиславу Яворскому{/t},
-    {t}Е.В. Ягуновой{/t},
-    {t}а также кафедре математической лингвистики СПбГУ{/t},
-    {t}кафедре информационных систем в гуманитарных науках и искусстве СПбГУ{/t},
-    {t}коллективу АОТ (<a href="http://www.aot.ru">aot.ru</a>){/t}<br>
-    <b>{t}и <a href="{$web_prefix}/?page=stats#users">всем</a>, кто помогал и помогает добавлять и размечать тексты{/t}</b>.
+<h2>Мы благодарны:</h2>
+    <p>И.В. Азаровой,
+    К.М. Аксарину,
+    Анастасии Бодровой,
+    Н.В. Борисову,
+    Дмитрию Гайворонскому,
+    Алёне Гилевской,
+    Анне Дёгтевой,
+    Сергею Дмитриеву,
+    Эдуарду Клышинскому,
+    Михаилу Коробову,
+    Татьяне Ландо,
+    О.В. Митрениной,
+    О.А. Митрофановой,
+    Лидии Пивоваровой,
+    Лине Романовой,
+    Марии Яворской,
+    Ростиславу Яворскому,
+    Е.В. Ягуновой,
+    а также кафедре математической лингвистики СПбГУ,
+    кафедре информационных систем в гуманитарных науках и искусстве СПбГУ,
+    коллективу АОТ (<a href="http://www.aot.ru">aot.ru</a>)<br>
+    <b>и <a href="{$web_prefix}/?page=stats#users">всем</a>, кто помогал и помогает добавлять и размечать тексты</b>.
 </p>
 {/block}

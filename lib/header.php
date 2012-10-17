@@ -17,39 +17,6 @@ $smarty->template_dir = $config['smarty']['template_dir'];
 $smarty->compile_dir  = $config['smarty']['compile_dir'];
 $smarty->config_dir   = $config['smarty']['config_dir'];
 $smarty->cache_dir    = $config['smarty']['cache_dir'];
-$smarty->registerPlugin("block", "t", "translate");
-
-//language issues
-if (isset($_SESSION['options'])) {
-    $lang_id = $_SESSION['options'][2];
-} else {
-    $lang_id = 1;
-}
-
-switch ($lang_id) {
-    case 1:
-        $lang = 'ru';
-        $locale = 'ru_RU';
-        break;
-    case 2:
-        $lang = 'en';
-        $locale = 'en_US';
-        break;
-}
-
-$smarty->compile_id = $lang_id;
-$smarty->assign('lang', $lang);
-
-putenv('LC_ALL='.$locale);
-putenv('LANG='.$locale);
-putenv('LANGUAGE='.$locale);
-if (!setlocale(LC_ALL, $locale.'.utf8', $locale.'.utf-8', $locale.'UTF8', $locale.'UTF-8', $lang.'utf-8', $lang.'UTF-8', $lang)) {
-    setlocale(LC_ALL, '');
-}
-
-bindtextdomain('messages', 'locale');
-bind_textdomain_codeset('messages', 'UTF-8');
-textdomain('messages');
 
 //database connect
 $db = mysql_connect($config['mysql']['host'], $config['mysql']['user'], $config['mysql']['passwd']) or die ("Unable to connect to mysql server");
@@ -79,19 +46,6 @@ if (is_admin() && isset($_GET['debug']) && $debug = $_GET['debug']) {
     } elseif ($debug == 'off' && $_SESSION['debug_mode']) {
         unset ($_SESSION['debug_mode']);
     }
-    header("Location:".$_SERVER['HTTP_REFERER']);
-    return;
-}
-
-//language change
-if (isset($_GET['lang']) && $lang = $_GET['lang']) {
-    if ($lang == 'ru') {
-        $_SESSION['options'][2] = 1;
-    }
-    elseif ($lang == 'en') {
-        $_SESSION['options'][2] = 2;
-    }
-
     header("Location:".$_SERVER['HTTP_REFERER']);
     return;
 }

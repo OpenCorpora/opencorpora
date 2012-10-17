@@ -1,7 +1,7 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-    <h3>{t}Добавляем текст{/t}</h3>
+    <h3>Добавляем текст</h3>
     <form action="?act=check" method="post">
     {if isset($txt)}
             <textarea class="span6" rows="20" name="txt">{$txt}</textarea>
@@ -12,6 +12,6 @@
         <input type='hidden' name='book_id' value='{$smarty.get.to}'/>
     {/if}
     <br/><br/>
-    <button type="button" class="btn" onclick="submit_with_readonly_check($(this).closest('form'))">{t}Проверить{/t}</button>
+    <button type="button" class="btn" onclick="submit_with_readonly_check($(this).closest('form'))">Проверить</button>
     </form>
 {/block}

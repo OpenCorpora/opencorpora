@@ -20,7 +20,7 @@
 {nocache}{include file='header.tpl'}
 {block name=before_content}{/block}{/nocache}
 {if $readonly == 1}
-<div class='alert alert-error'><div class="container">{t}Система находится в режиме &laquo;только для чтения&raquo;{/t}. Функции разметки и редактирования временно не работают.</div></div>
+<div class='alert alert-error'><div class="container">Система находится в режиме &laquo;только для чтения&raquo;. Функции разметки и редактирования временно не работают.</div></div>
 {/if}
 <div id="container" class="container">
 {if $game_is_on == 1}{include file='qa/user_splash.tpl'}{/if}

@@ -166,12 +166,12 @@
 {/literal}
 </script>
 
-<h1>{t}Контроль качества токенизатора{/t}</h1>
+<h1>Контроль качества токенизатора</h1>
 
 <div id="tabs">
     <ul>
-        <li><a href="#tabs-1">{t}Все метрики{/t}</a></li>
-        <li><a href="#tabs-2">{t}F-score и threshold{/t}</a></li>
+        <li><a href="#tabs-1">Все метрики</a></li>
+        <li><a href="#tabs-2">F-score и threshold</a></li>
     </ul>
 
     <div id="tabs-1">
@@ -224,13 +224,13 @@
 </div>
 
 <div class="controls">
-    <label class="inline" for="from">{t}С{/t}</label>
+    <label class="inline" for="from">С</label>
     <input type="text" id="from"/>
 
-    <label class="inline" for="until">{t}По{/t}</label>
+    <label class="inline" for="until">По</label>
     <input type="text" id="until"/>
 
-    <input type="button" id="update" value="{t}Обновить{/t}"/>
+    <input type="button" id="update" value="Обновить"/>
 </div>
 
 {/block}

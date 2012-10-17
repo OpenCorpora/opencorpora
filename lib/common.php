@@ -73,9 +73,6 @@ function sql_get_schema() {
     return $out;
 }
 //other
-function translate($params, $content, $smarty, &$repeat) {
-    return _($content);
-}
 function is_cached($template_name, $cache_id = false) {
     if (isset($_SESSION['debug_mode'])) return false;
     global $smarty;

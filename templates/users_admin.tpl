@@ -9,7 +9,7 @@
             })
         })
 </script>
-<h1>{t}Управление пользователями{/t}</h1>
+<h1>Управление пользователями</h1>
 <form action="?act=save" method="post">
     <table class="table">
         <tr>

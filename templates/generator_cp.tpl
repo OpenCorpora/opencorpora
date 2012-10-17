@@ -111,19 +111,19 @@
 <div>
     <div style="margin-bottom: 2em;">
         <form action="?act=toggle" method="post">
-            {t}Статус{/t}:
-            <span class="{$status}" id="status" title="{t}Установлен{/t} {$since}">
-                {if $status == "enabled"}{t}Включен{/t}
-                {elseif $status == "disabled"}{t}Выключен{/t}
-                {else}{t}Ошибка{/t}
+            Статус:
+            <span class="{$status}" id="status" title="Установлен {$since}">
+                {if $status == "enabled"}Включен
+                {elseif $status == "disabled"}Выключен
+                {else}Ошибка
                 {/if}
             </span>
             <br/>
-            {t}Текущий тэг{/t}: <span id="current-tag">{$tag}</span>
+            Текущий тэг: <span id="current-tag">{$tag}</span>
             <br/>
-            {t}Следующий тэг:{/t} <span id="next-tag">{$next}<span>
+            Следующий тэг: <span id="next-tag">{$next}<span>
             <br/>
-            <input type="submit" value="{t}Переключить статус{/t}"/>
+            <input type="submit" value="Переключить статус"/>
         </form>
     </div>
     {if $status == "enabled" && $next !== "n/a"}
@@ -131,18 +131,18 @@
             <table id="controls">
                 <tr id="controls-run">
                     <td id="result-run" class="grey result">&nbsp;</td>
-                    <td><input type="button" id="button-run" value="{t}Запустить{/t}"/></td>
+                    <td><input type="button" id="button-run" value="Запустить"/></td>
                 </tr>
                 <tr id="controls-test" class="hidden">
                     <td id="result-test" class="grey result">&nbsp;</td>
-                    <td><input type="button" id="button-test" value="{t}Протестировать{/t}"/></td>
+                    <td><input type="button" id="button-test" value="Протестировать"/></td>
                 </tr>
                 <tr id="controls-publish" class="hidden">
                     <td id="result-publish" class="grey result">&nbsp;</td>
-                    <td><input type="button" id="button-publish" value="{t}Опубликовать{/t}"/></td>
+                    <td><input type="button" id="button-publish" value="Опубликовать"/></td>
                 </tr>
             </table>
-            <span class="pseudo-link hidden" id="details">{t}Подробности{/t}</span>
+            <span class="pseudo-link hidden" id="details">Подробности</span>
             <div id="output" class="hidden"></div>
         </div>
     {/if}

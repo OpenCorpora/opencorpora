@@ -59,7 +59,7 @@
             }
             
         });
-        var unload_msg = {t}"Вы уверены, что хотите уйти, не сохранив предложение?"{/t};
+        var unload_msg = "Вы уверены, что хотите уйти, не сохранив предложение?";
         var root = window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
         if(root) {
             root.onbeforeunload=function () {
@@ -72,35 +72,35 @@
     </script>
     <p align='right'>
     {if $sentence.status == 0}
-    <span class='sent_status0'>{t}Предложение разобрано автоматически.{/t}</span>
+    <span class='sent_status0'>Предложение разобрано автоматически.</span>
     {elseif $sentence.status == 1}
-    <span class='sent_status1'>{t}Частично снята омонимия.{/t}</span>
+    <span class='sent_status1'>Частично снята омонимия.</span>
     {/if}
     </p>
     {strip}
-    <div id="source_text"><b>{t}Весь текст{/t}:</b> {$sentence.fulltext}</div>
+    <div id="source_text"><b>Весь текст:</b> {$sentence.fulltext}</div>
     <p class='small'><a href='#' class='hint' id="show_src">Показать исходный текст</a></p>
     <div class='small' style='display:none' id='source_orig'>{$sentence.source|htmlspecialchars}</div>
     <p class='small' align='right'>Источник: <a href="{$sentence.url}">{$sentence.book_name}</a> (<a href="{$web_prefix}/books.php?book_id={$sentence.book_id}&amp;full">весь текст</a>)</p>
-    <button id="a_parse" class="hidden-block">{t}Вернуться к разбору{/t}</button>
+    <button id="a_parse" class="hidden-block">Вернуться к разбору</button>
     <form method="post" action="?id={$sentence.id}&amp;act=save" class='oc_tabs' id="form_annot">
         <div id="main_scroller">
             <div>
                 {if $user_permission_disamb == 1}
-                    <button type="button" disabled="disabled" id="submit_button">{t}Сохранить{/t}</button>&nbsp;
+                    <button type="button" disabled="disabled" id="submit_button">Сохранить</button>&nbsp;
                 {/if}
-                <button type="reset" onclick="window.location.reload()">{t}Отменить правки{/t}</button>&nbsp;
-                <button type="button" onclick="window.location.href='history.php?sent_id={$sentence.id}'">{t}История{/t}</button>&nbsp;
-                <button type="button" onclick="dict_reload_all()">{t}Разобрать заново{/t}</button>&nbsp;
+                <button type="reset" onclick="window.location.reload()">Отменить правки</button>&nbsp;
+                <button type="button" onclick="window.location.href='history.php?sent_id={$sentence.id}'">История</button>&nbsp;
+                <button type="button" onclick="dict_reload_all()">Разобрать заново</button>&nbsp;
                 <button type="button" id="a_comments">
                     {if $sentence.comment_count > 0}
-                    {t}Комментарии ({$sentence.comment_count}){/t}
+                    Комментарии ({$sentence.comment_count})
                     {else}
-                    {t}Комментировать{/t}
+                    Комментировать
                     {/if}
                 </button>
                 <br/>
-                <span id='comment_fld'>{t}Комментарий{/t}: <input name='comment' size='60'/></span>
+                <span id='comment_fld'>Комментарий: <input name='comment' size='60'/></span>
             </div>
         </div>
         <div id="scrollbar"><div style="height:10px;"></div></div>
@@ -110,7 +110,7 @@
                 <div class="tf">
                     {$token.tf_text|htmlspecialchars}
                     {if $token.dict_updated == 1}
-                        <a href="#" class="reload" title="{t}Разобрать заново из словаря{/t}" onClick="dict_reload(this.parentNode.parentNode)">D</a>
+                        <a href="#" class="reload" title="Разобрать заново из словаря" onClick="dict_reload(this.parentNode.parentNode)">D</a>
                     {/if}
                 </div>
                 {foreach item=variant from=$token.variants}

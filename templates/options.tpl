@@ -1,15 +1,15 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-<h1>{t}Настройки{/t}</h1>
+<h1>Настройки</h1>
 <form action="?act=save" method="post">
     {foreach key=id item=option from=$meta}
         <div class="control-group">
             {$option.name}
             <div class="controls">
             {if $option.value_type == 1}
-                <label class="radio inline"><input type='radio' name='options[{$id}]' value='1' {if $smarty.session.options.$id == 1}checked='checked'{/if}/> {t}да{/t}</label>
-                <label class="radio inline"><input type='radio' name='options[{$id}]' value='0' {if $smarty.session.options.$id == 0}checked='checked'{/if}/> {t}нет{/t}</label>
+                <label class="radio inline"><input type='radio' name='options[{$id}]' value='1' {if $smarty.session.options.$id == 1}checked='checked'{/if}/> да</label>
+                <label class="radio inline"><input type='radio' name='options[{$id}]' value='0' {if $smarty.session.options.$id == 0}checked='checked'{/if}/> нет</label>
             {else}
                 <select name='options[{$id}]'>{html_options options=$option.values selected=$smarty.session.options.$id}</select>
             {/if}
@@ -17,7 +17,7 @@
         </div>
     {/foreach}
     <div class="controls">
-        <input type='button' class="btn btn-primary" onclick="submit_with_readonly_check($(this).closest('form'))" value='{t}Сохранить{/t}'>&nbsp;&nbsp;<input type='reset' value='{t}Отменить{/t}' class="btn">
+        <input type='button' class="btn btn-primary" onclick="submit_with_readonly_check($(this).closest('form'))" value='Сохранить'>&nbsp;&nbsp;<input type='reset' value='Отменить' class="btn">
     </div>
 </form>
 <form action='?act=save_team' method="post" id="save_team_form">
@@ -58,18 +58,18 @@
         })
     })
 </script>
-<h2>{t}Регистрационные данные{/t}</h2>
+<h2>Регистрационные данные</h2>
 {if !$is_openid}
     <form action='{$web_prefix}/login.php?act=change_pw' method='post'>
-        <h3>{t}Изменить пароль{/t}</h3>
-        <label for="old_pwd">{t}Старый пароль{/t}</label>
+        <h3>Изменить пароль</h3>
+        <label for="old_pwd">Старый пароль</label>
         <input type='password' name='old_pw'/>
-        <label for="new_pw">{t}Новый пароль{/t}</label>
+        <label for="new_pw">Новый пароль</label>
         <input type='password' name='new_pw'/>
-        <label for="new_pw_re">{t}Новый пароль ещё раз{/t}</label>
+        <label for="new_pw_re">Новый пароль ещё раз</label>
         <input type='password' name='new_pw_re'/>
         <div class="controls">
-            <input type='button' class="btn" onclick="submit_with_readonly_check($(this).closest('form'))" value="{t}Изменить пароль{/t}">
+            <input type='button' class="btn" onclick="submit_with_readonly_check($(this).closest('form'))" value="Изменить пароль">
         </div>
     </form>
 {/if}
@@ -81,21 +81,21 @@
     </div>
 </form>
 <form action='{$web_prefix}/login.php?act=change_email' method='post' id='change_email'>
-    <h3>{t}Изменить адрес электронной почты{/t}</h3>
-    <label>{t}Текущий адрес{/t}: <b>{if $current_email}{$current_email}{else}({t}отсутствует{/t}){/if}</b></label>
-    <label for="email">{t}Новый адрес{/t}</label>
+    <h3>Изменить адрес электронной почты</h3>
+    <label>Текущий адрес: <b>{if $current_email}{$current_email}{else}(отсутствует){/if}</b></label>
+    <label for="email">Новый адрес</label>
     <input name='email' type="text">
     {if !$is_openid}
-        <label for="passwd">{t}Пароль{/t}</label>
+        <label for="passwd">Пароль</label>
         <input type='password' name='passwd'>
     {/if}
     <div class=controls"">
-        <input type='button' onclick="submit_with_readonly_check($('#change_email'))" value="{t}Изменить адрес{/t}" class="btn">
+        <input type='button' onclick="submit_with_readonly_check($('#change_email'))" value="Изменить адрес" class="btn">
     </div>
 </form>
 {if $is_admin}
 <h2>Readonly</h2>
-    <input type='button' class='btn' value='{t}Включить{/t}' onClick="if (confirm('{t}Вы уверены?{/t}')) location.href='?act=readonly_on'" {if $readonly}disabled='disabled'{/if}/>
-    <input type='button' class='btn' value='{t}Выключить{/t}' onClick="if (confirm('{t}Вы уверены?{/t}')) location.href='?act=readonly_off'" {if $readonly == 0}disabled='disabled'{/if}/>
+    <input type='button' class='btn' value='Включить' onClick="if (confirm('Вы уверены?')) location.href='?act=readonly_on'" {if $readonly}disabled='disabled'{/if}/>
+    <input type='button' class='btn' value='Выключить' onClick="if (confirm('Вы уверены?')) location.href='?act=readonly_off'" {if $readonly == 0}disabled='disabled'{/if}/>
 {/if}
 {/block}

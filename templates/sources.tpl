@@ -161,9 +161,9 @@
 </tr>
 {/foreach}
 <tr>
-    <td colspan="2">{if $skip > 0}<a href='?what={$what}&amp;skip={$skip - 200}'>&lt; {t}сюда{/t}</a>{else}&nbsp;{/if}</td>
+    <td colspan="2">{if $skip > 0}<a href='?what={$what}&amp;skip={$skip - 200}'>&lt; сюда</a>{else}&nbsp;{/if}</td>
     <td>Всего: {$sources.total}</td>
-    <td colspan="2" align="right">{if $sources.total > ($skip + 200)}<a href='?what={$what}&amp;skip={$skip + 200}{if isset($smarty.get.src)}&amp;src={$smarty.get.src}{/if}'>{t}туда{/t} &gt;</a>{else}&nbsp;{/if}</td>
+    <td colspan="2" align="right">{if $sources.total > ($skip + 200)}<a href='?what={$what}&amp;skip={$skip + 200}{if isset($smarty.get.src)}&amp;src={$smarty.get.src}{/if}'>туда &gt;</a>{else}&nbsp;{/if}</td>
 </tr>
 </table>
 {/block}

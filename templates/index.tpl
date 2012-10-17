@@ -2,11 +2,11 @@
 {extends file="common.tpl"}
 {block name=content}
 {$activepage='index'}
-<h1>{t}Открытый корпус{/t}</h1>
+<h1>Открытый корпус</h1>
 {if !$is_logged}
-    <p>{t}Здравствуйте!{/t}</p>
-    <p>{t}Это сайт проекта &laquo;Открытый корпус&raquo; (OpenCorpora). Наша цель &ndash; создать морфологически, синтаксически и семантически размеченный корпус текстов на русском языке, в полном объёме доступный для исследователей и редактируемый пользователями.{/t}</p>
-    <p>{t}Мы начали работу в 2009 году, сейчас идёт разработка. Следить за тем, как мы продвигаемся, можно{/t} <a href="http://opencorpora.googlecode.com">{t}здесь{/t}</a> ({t}да, код проекта открыт{/t}).</p>
+    <p>Здравствуйте!</p>
+    <p>Это сайт проекта &laquo;Открытый корпус&raquo; (OpenCorpora). Наша цель &ndash; создать морфологически, синтаксически и семантически размеченный корпус текстов на русском языке, в полном объёме доступный для исследователей и редактируемый пользователями.</p>
+    <p>Мы начали работу в 2009 году, сейчас идёт разработка. Следить за тем, как мы продвигаемся, можно <a href="http://opencorpora.googlecode.com">здесь</a> (да, код проекта открыт).</p>
 {/if}
 {if !$is_admin}
     <h2>Как я могу помочь прямо сейчас?</h2>
@@ -49,8 +49,8 @@
                 <li><a href="{$web_prefix}/dict_history.php">В словаре</a></li>
                 <li><a href="{$web_prefix}/comments.php">Последние комментарии</a></li>
                 {if $user_permission_adder}<li class="nav-header">Тексты</li>
-                    <li><a href='{$web_prefix}/books.php'>{t}Редактор источников{/t}</a></li>
-                    <li><a href='{$web_prefix}/add.php'>{t}Добавить текст{/t}</a></li>
+                    <li><a href='{$web_prefix}/books.php'>Редактор источников</a></li>
+                    <li><a href='{$web_prefix}/add.php'>Добавить текст</a></li>
                 {/if}
             </ul>
             {if $user_permission_adder}
@@ -78,8 +78,8 @@
                     {* Admin options *}
                     {if $is_admin}
                         <li class="nav-header">Функции администратора</li>
-                        <li><a href='{$web_prefix}/users.php'>{t}Управление пользователями{/t}</a></li>
-                        <li><a href='{$web_prefix}/generator_cp.php'>{t}Генерация данных для CPAN-токенизатора{/t}</a></li>
+                        <li><a href='{$web_prefix}/users.php'>Управление пользователями</a></li>
+                        <li><a href='{$web_prefix}/generator_cp.php'>Генерация данных для CPAN-токенизатора</a></li>
                     {/if}
                 </ul>
             </div>

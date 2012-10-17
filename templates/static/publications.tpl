@@ -10,14 +10,14 @@
         });
     });
 </script>
-<h1>{t}О проекте{/t}</h1>
+<h1>О проекте</h1>
 <ul class="nav nav-tabs">
     <li><a href="{$web_prefix}/?page=about">Описание проекта</a></li>
     <li><a href="{$web_prefix}/?page=team">Участники</a></li>
     <li class="active"><a href="{$web_prefix}/?page=publications">Публикации</a></li>
     <li><a href="{$web_prefix}/?page=faq">FAQ</a></li>
 </ul>
-<h2>{t}Публикации{/t}</h2>
+<h2>Публикации</h2>
 <table class="table">
 <tr>
     <td colspan="3"><h4>2012</h4></td>

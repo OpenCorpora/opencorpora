@@ -64,15 +64,15 @@ $(document).ready(function(){
 {/literal}
 });
 </script>
-<h1>{t}Статистика{/t}</h1>
+<h1>Статистика</h1>
 <ul class="nav nav-tabs">
-    <li class="active"><a href="?page=stats">{t}Общая{/t}</a></li>
-    <li><a href="?page=tag_stats">{t}По тегам{/t}</a></li>
+    <li class="active"><a href="?page=stats">Общая</a></li>
+    <li><a href="?page=tag_stats">По тегам</a></li>
 </ul>
 {*<div id="chart" style="width:700px; height: 400px"></div>
 <br/>*}
 <a name="users"></a>
-<h3>{t}Участники по количеству размеченных примеров{/t} (всего {$ma_count})</h3>
+<h3>Участники по количеству размеченных примеров (всего {$ma_count})</h3>
 <table class="table table-condensed" id="users_table">
 <tr>
     <th rowspan='2'>#</th>
@@ -113,7 +113,7 @@ $(document).ready(function(){
         </tr>
     {/foreach}
 </table>
-<h3>{t}Участники по количеству добавленных предложений{/t}</h3>
+<h3>Участники по количеству добавленных предложений</h3>
 <ol>
 {foreach item=s from=$stats.added_sentences}
     <li>{$s.user_name} ({$s.value})</li>
@@ -121,7 +121,7 @@ $(document).ready(function(){
 </ol>
 <!--div id="adder_chart" style="width:700px; height:400px"></div-->
 {if $stats.added_sentences_last_week}
-<h3>{t}За последнюю неделю{/t}</h3>
+<h3>За последнюю неделю</h3>
 <ol>
 {foreach item=s from=$stats.added_sentences_last_week}
     <li>{$s.user_name} ({$s.value})</li>
@@ -133,14 +133,14 @@ $(document).ready(function(){
 <p>Таблица показывает, какие тексты и в каком количестве сейчас есть в корпусе.</p>
 <table class="table">
 <tr>
-    <th>{t}Источник{/t}</th>
-    <th><a href="{$web_prefix}/books.php">{t}Текстов{/t}</a></th>
-    <th>{t}Предложений{/t}</th>
-    <th>{t}Токенов{/t}</th>
-    <th>{t}Словоупотреблений{/t}</th>
+    <th>Источник</th>
+    <th><a href="{$web_prefix}/books.php">Текстов</a></th>
+    <th>Предложений</th>
+    <th>Токенов</th>
+    <th>Словоупотреблений</th>
 </tr>
 <tr>
-    <td><a href="books.php?book_id=1">{t}ЧасКор{/t} (статьи)</a></td>
+    <td><a href="books.php?book_id=1">ЧасКор (статьи)</a></td>
     <td><b>{$stats.chaskor_books.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.chaskor_sentences.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.chaskor_tokens.value|number_format:0:'':' '}</b></td>
@@ -150,7 +150,7 @@ $(document).ready(function(){
     </td>
 </tr>
 <tr>
-    <td><a href="books.php?book_id=226">{t}ЧасКор{/t} (новости)</a></td>
+    <td><a href="books.php?book_id=226">ЧасКор (новости)</a></td>
     <td><b>{$stats.chaskor_news_books.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.chaskor_news_sentences.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.chaskor_news_tokens.value|number_format:0:'':' '}</b></td>
@@ -160,7 +160,7 @@ $(document).ready(function(){
     </td>
 </tr>
 <tr>
-    <td><a href="books.php?book_id=8">{t}Википедия{/t}</a></td>
+    <td><a href="books.php?book_id=8">Википедия</a></td>
     <td><b>{$stats.wikipedia_books.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.wikipedia_sentences.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.wikipedia_tokens.value|number_format:0:'':' '}</b></td>
@@ -170,7 +170,7 @@ $(document).ready(function(){
     </td>
 </tr>
 <tr>
-    <td><a href="books.php?book_id=56">{t}Викиновости{/t}</a></td>
+    <td><a href="books.php?book_id=56">Викиновости</a></td>
     <td><b>{$stats.wikinews_books.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.wikinews_sentences.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.wikinews_tokens.value|number_format:0:'':' '}</b></td>
@@ -180,7 +180,7 @@ $(document).ready(function(){
     </td>
 </tr>
 <tr>
-    <td><a href="books.php?book_id=184">{t}Блоги{/t}</a></td>
+    <td><a href="books.php?book_id=184">Блоги</a></td>
     <td><b>{$stats.blogs_books.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.blogs_sentences.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.blogs_tokens.value|number_format:0:'':' '}</b></td>
@@ -191,7 +191,7 @@ $(document).ready(function(){
 </tr>
 <tr>
 
-    <td><a href="books.php?book_id=806">{t}Худож. литература{/t}</a></td>
+    <td><a href="books.php?book_id=806">Худож. литература</a></td>
     <td><b>{$stats.fiction_books.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.fiction_sentences.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.fiction_tokens.value|number_format:0:'':' '}</b></td>
@@ -201,7 +201,7 @@ $(document).ready(function(){
     </td>
 </tr>
 <tr>
-    <th>{t}Всего{/t}</th>
+    <th>Всего</th>
     <td><b>{$stats.total_books.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.total_sentences.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.total_tokens.value|number_format:0:'':' '}</b></td>
@@ -211,6 +211,6 @@ $(document).ready(function(){
     </td>
 </tr>
 </table>
-<h2>{t}Словарь{/t}</h2>
-{t}Лемм{/t}: {$stats.total_lemmata.value|number_format:0:'':' '}
+<h2>Словарь</h2>
+Лемм: {$stats.total_lemmata.value|number_format:0:'':' '}
 {/block}

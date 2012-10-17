@@ -21,13 +21,6 @@
                     <li {if $active_page=="about"}class="active"{/if}><a href="{$web_prefix}/?page=about">О проекте</a></li>
                 </ul>
                 <ul class="nav pull-right">
-                    <li>
-                        {if $lang == 'ru'}
-                            <a href="?lang=en" class="lang-switcher lang-switcher-en" title="English version">En</a>
-                        {else}
-                            <a href="?lang=ru" class="lang-switcher lang-switcher-ru" title="Русская версия">Ру</a>
-                        {/if}
-                    </li>
                     <li class="dropdown">
                         {if isset($smarty.session.user_id)}
                         <a href="{$web_prefix}/options.php" class="dropdown-toggle login-corner-user" data-toggle="dropdown" data-target="#">
@@ -43,9 +36,9 @@
                                     <li><a href='?debug=on'>Debug on</a></li>
                                 {/if}
                                 {if isset($smarty.session.user_permissions.pretend)}
-                                    <li><a href='?pretend=off'>{t}Перестать притворяться{/t}</a></li>
+                                    <li><a href='?pretend=off'>Перестать притворяться</a></li>
                                 {else}
-                                    <li><a href='?pretend=on'>{t}Притвориться юзером{/t}</a></li>
+                                    <li><a href='?pretend=on'>Притвориться юзером</a></li>
                                 {/if}
                             {/if}
                             <li><a href="{$web_prefix}/login.php?act=logout">Выход</a></li>

@@ -67,15 +67,15 @@
     </ul>
     {/if}
     {if $user_permission_adder}
-    <form action='?act=rename' method='post' class='form-inline'>{t}Переименовать в{/t}:
+    <form action='?act=rename' method='post' class='form-inline'>Переименовать в:
         <input type='hidden' name='book_id' value='{$book.id}'/>
         <input type="text" name='new_name' value="{$book.title|htmlspecialchars}" class="span3">
-        <button type='submit' class="btn">{t}Переименовать{/t}</button>
+        <button type='submit' class="btn">Переименовать</button>
     </form>
-    <form action='?act=move' method='post' class='form-inline'>{t}Переместить в{/t}:
+    <form action='?act=move' method='post' class='form-inline'>Переместить в:
         <input type='hidden' name='book_id' value='{$book.id}'/>
         <select name='book_to' onChange="$(this).closest('form').submit();">
-            <option value='-1'>-- {t}Не выбрано{/t} --</option>
+            <option value='-1'>-- Не выбрано --</option>
             <option value='0'>&lt;root&gt;</option>
             {html_options options=$book.select}
         </select>
@@ -92,7 +92,7 @@
     <form><label><input type="checkbox" onclick="check_merge($(this))"/>склеить</label> <button disabled="disabled" type="button">Ok</button></form>
     </div>
     {* Tag list *}
-    <h3>{t}Теги{/t}</h3>
+    <h3>Теги</h3>
     {if $user_permission_adder}
     {if $book.is_wikinews}
     <p><span class="hidden-block">{$book.wikinews_title}</span><a href="#" class="pseudo" id="wikinews_addtag_link" rel="{$book.id}">попробовать заполнить автоматически</a></p>
@@ -105,11 +105,11 @@
         {foreach item=tag from=$book.tags}
             {strip}
             <li>
-                {if $user_permission_adder}[<a href="?act=del_tag&amp;book_id={$book.id}&amp;tag_name={$tag.full|urlencode}" onClick="return confirm('{t}Точно удалить этот тег?{/t}')">x</a>]&nbsp;{/if}
+                {if $user_permission_adder}[<a href="?act=del_tag&amp;book_id={$book.id}&amp;tag_name={$tag.full|urlencode}" onClick="return confirm('Точно удалить этот тег?')">x</a>]&nbsp;{/if}
                 {if $tag.prefix == 'url'}
                     url:<a href="{$tag.body}" target="_blank">{$tag.body}</a>
                     {if isset($tag.filename)}
-                    , <a class='small' href="{$web_prefix}/files/saved/{$tag.filename}.html">{t}сохранённая копия{/t}</a> (<a class='small download_url redo' href="#" rel='{$tag.body}'>перезакачать</a>)
+                    , <a class='small' href="{$web_prefix}/files/saved/{$tag.filename}.html">сохранённая копия</a> (<a class='small download_url redo' href="#" rel='{$tag.body}'>перезакачать</a>)
                     {elseif $user_permission_adder}
                     , <a class='small download_url' href="#" rel='{$tag.body}'>скачать</a>
                     {/if}
@@ -121,23 +121,23 @@
         {/foreach}          
         </ul>
     {else}
-        <p>{t}Тегов нет.{/t}</p>
+        <p>Тегов нет.</p>
     {/if}
     {if $user_permission_adder}
-    <form action='?act=add_tag' method='post' class='form-inline'>{t}Добавить тег{/t}:
+    <form action='?act=add_tag' method='post' class='form-inline'>Добавить тег:
         <input type='hidden' name='book_id' value='{$book.id}'/>
-        <input id='tag_name' type="text" name='tag_name' class="span6">  <button type='submit' class="btn">{t}Добавить{/t}</button>
+        <input id='tag_name' type="text" name='tag_name' class="span6">  <button type='submit' class="btn">Добавить</button>
     </form>
     {/if}
     {if !isset($book.paragraphs)}
     {* Sub-books list *}
-    <h3>{t}Разделы{/t}</h3>
+    <h3>Разделы</h3>
     {if $user_permission_adder}
     Добавить раздел
     <form class='inline' action='{$web_prefix}/books.php?act=add' method='post'>
-        <input name='book_name' size='30' maxlength='100' value='&lt;{t}Название{/t}&gt;'/>
+        <input name='book_name' size='30' maxlength='100' value='&lt;Название&gt;'/>
         <input type='hidden' name='book_parent' value='{$book.id}'/>
-        <input type='submit' value='{t}Добавить{/t}'/>
+        <input type='submit' value='Добавить'/>
         <label><input type='checkbox' name='goto' checked='checked'/> и перейти в этот раздел</label>
     </form>
     {/if}
@@ -148,17 +148,17 @@
         {/foreach}
         </ul>
     {else}
-        <p>{t}Разделов нет.{/t}</p>
+        <p>Разделов нет.</p>
     {/if}
     {/if}
     {* Sentence list *}
     {if isset($book.paragraphs)}
-        <h3>{t}Предложения по абзацам{/t}</h3>
+        <h3>Предложения по абзацам</h3>
         <p>
         {if isset($smarty.get.full)}
-            <a href="?book_id={$book.id}">{t}к сокращённому виду{/t}</a>
+            <a href="?book_id={$book.id}">к сокращённому виду</a>
         {else}
-            <a href="?book_id={$book.id}&amp;full">{t}к расширенному виду{/t}</a>
+            <a href="?book_id={$book.id}&amp;full">к расширенному виду</a>
         {/if}
         </p>
         {if isset($smarty.get.full)}
@@ -216,7 +216,7 @@
         </ol>
         {/if}
     {else}
-        <p>{t}В тексте нет ни одного предложения.{/t}</p>
+        <p>В тексте нет ни одного предложения.</p>
     {/if}
     {if !isset($book.children[0]) && $user_permission_adder}<p><a href="{$web_prefix}/add.php?to={$book.id}">Добавить текст в эту книгу</a></p>{/if}
 {/block}

@@ -1,7 +1,7 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
-<h1>{t}О проекте{/t}</h1>
+<h1>О проекте</h1>
 <ul class="nav nav-tabs">
     <li><a href="{$web_prefix}/?page=about">Описание проекта</a></li>
     <li><a href="{$web_prefix}/?page=team">Участники</a></li>

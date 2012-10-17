@@ -309,7 +309,7 @@ function get_user_permissions($user_id) {
 }
 function get_meta_options() {
     $out = array();
-    $res = sql_query("SELECT * FROM user_options ORDER BY `order_by`");
+    $res = sql_query("SELECT * FROM user_options WHERE option_id != 2 ORDER BY `order_by`");
     while ($r = sql_fetch_array($res)) {
         if ($r['option_values'] == '1') {
             $out[$r['option_id']] = array('name'=>$r['option_name'], 'value_type'=>$r['option_values']);
