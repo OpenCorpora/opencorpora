@@ -83,7 +83,7 @@ $(document).ready(function(){
     <th rowspan='2'>Последняя<br/>активность</th></tr>
 <tr><th>Размечено<th>% расхождений<th>Размечено<th>% ошибок</tr>
 {foreach item=s from=$stats.annotators}
-    <tr {if $s@iteration>20 && isset($smarty.session.user_id) && $smarty.session.user_id != $s.user_id}style="display:none;"{/if}>
+    <tr {if $s@iteration>20 && (!isset($smarty.session.user_id) || $smarty.session.user_id != $s.user_id)}style="display:none;"{/if}>
         <td><a name="user{$s.user_id}"></a>{$s@iteration}
         <td>{$s.fin.user_name}
         <td>{$s.total}
