@@ -654,6 +654,11 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     $time = time();
     $cnt = 0;
     $pools = array();
+    // memorize pool types with manual
+    $types_with_manual = array();
+    $res = sql_query("SELECT type_id FROM morph_annpt_pool_types WHERE doc_link != ''");
+    while ($r = sql_fetch_array($res))
+        $types_with_manual[] = $r['type_id'];
     // get all pools by status
     $res = sql_query("SELECT pool_id, pool_name, status, pool_type FROM morph_annot_pools WHERE status = 3 $order_string $limit_string");
     while ($r = sql_fetch_array($res)) {
@@ -724,6 +729,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
             else {
                 $tasks[$pool['group']]['pools'][] = $pool;
                 $tasks[$pool['group']]['complexity'] = get_pool_complexity($pool['group']);
+                $tasks[$pool['group']]['has_manual'] = in_array($types_with_manual, $pool['group']);
             }
 
             ++$cnt;
@@ -815,11 +821,15 @@ function get_next_pool($user_id, $prev_pool_id) {
     return false;
 }
 function get_annotation_packet($pool_id, $size) {
-    $packet = array('my' => 0);
-    $r = sql_fetch_array(sql_query("SELECT status, t.gram_descr, revision FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE pool_id=$pool_id"));
+    $r = sql_fetch_array(sql_query("SELECT status, t.gram_descr, revision, pool_type, doc_link FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE pool_id=$pool_id"));
     if ($r['status'] != 3) return false;
-    $packet['editable'] = 1;
-    $packet['gram_descr'] = explode('@', $r['gram_descr']);
+    $packet = array(
+        'my' => 0,
+        'editable' => 1,
+        'pool_type' => $r['pool_type'],
+        'has_manual' => (bool)$r['doc_link'],
+        'gram_descr' => explode('@', $r['gram_descr'])
+    );
     $user_id = $_SESSION['user_id'];
     $flag_new = 0;
     $pool_revision = $r['revision'];
@@ -980,5 +990,9 @@ function count_all_answers() {
     $res = sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE answer > 0");
     $r = sql_fetch_array($res);
     return $r[0];
+}
+function get_pool_manual_page($type_id) {
+    $r = sql_fetch_array(sql_query("SELECT doc_link FROM morph_annot_pool_types WHERE type_id=$type_id LIMIT 1"));
+    return $r['doc_link'];
 }
 ?>

@@ -106,6 +106,7 @@ function get_wiki_page($title) {
     return htmlspecialchars_decode(fetch_wiki_page($title));
 }
 function fetch_wiki_page($title) {
+    $title = urlencode($title);
     $url = "http://localhost/w/api.php?action=query&prop=revisions&titles=$title&rvprop=content&rvparse=1&format=xml";
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
