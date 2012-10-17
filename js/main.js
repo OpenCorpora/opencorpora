@@ -484,7 +484,7 @@ function change_source_status(event) {
     });
 }
 function get_wikinews_info($link) {
-    var ttl = $link.closest('div').find('span').html();
+    var ttl = $link.closest('p').find('span').html();
     $.getJSON(
         'http://ru.wikinews.org/w/api.php?callback=?',
         {'format':'json', 'action':'query', 'titles':ttl, 'prop':'revisions|categories', 'rvdir':'newer'},
@@ -544,7 +544,7 @@ function add_field_for_tag(book_id, s) {
                 $i.replaceWith($i.val());
         });
     });
-    $(document.createElement('li')).append($i, '&nbsp;', $b).appendTo('body ul:first');
+    $(document.createElement('li')).append($i, '&nbsp;', $b).appendTo('#book_tags');
 }
 function check_for_whitespace() {
     var flag = 1;

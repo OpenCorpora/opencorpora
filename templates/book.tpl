@@ -101,7 +101,7 @@
     {/if}
     {/if}
     {if isset($book.tags[0])}
-        <ul>
+        <ul id="book_tags">
         {foreach item=tag from=$book.tags}
             {strip}
             <li>
