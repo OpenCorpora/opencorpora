@@ -100,7 +100,7 @@
                     {/if}
                 </button>
                 <br/>
-                <span id='comment_fld'>Комментарий: <input name='comment' size='60'/></span>
+                <span id='comment_fld'>Комментарий: <input name='comment' size='60' placeholder='необязательно'/></span>
             </div>
         </div>
         <div id="scrollbar"><div style="height:10px;"></div></div>
