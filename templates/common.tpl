@@ -6,6 +6,7 @@
         
         <meta property="og:image" content="http://opencorpora.org/img/fb-pic.png"/>
         <meta property="og:type" content="website" />
+        <meta property="og:гкд" content="http://opencorpora.org" />
         <meta property="og:title" content="OpenCorpora: открытый корпус русского языка" />
 
         
