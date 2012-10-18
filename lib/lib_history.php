@@ -4,8 +4,13 @@ function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0) {
     if (!$sentence_id) {
         if (!$set_id)
             $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT tfr.set_id) FROM tf_revisions tfr".($maa ? " LEFT JOIN rev_sets s ON (tfr.set_id=s.set_id) WHERE s.comment LIKE '% merged %' or s.comment LIKE '% split %'" : '')));
-        else
-            $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT sent_id) FROM text_forms WHERE tf_id IN (SELECT tf_id FROM tf_revisions WHERE set_id = $set_id ".($maa ? " AND set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %')" : '').")"));
+        else {
+            $tf_ids = array(0);
+            $res = sql_query("SELECT tf_id FROM tf_revisions WHERE set_id = $set_id".($maa ? " AND set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %')" : ''));
+            while ($r = sql_fetch_array($res))
+                $tf_ids[] = $r['tf_id'];
+            $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT sent_id) FROM text_forms WHERE tf_id IN (".join(',', $tf_ids).")"));
+        }
 
         $out['total'] = $res[0];
     }
