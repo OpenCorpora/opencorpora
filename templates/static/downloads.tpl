@@ -34,7 +34,7 @@
 </script>
 {/literal}
 <h3>Размеченные тексты</h3>
-<p>XML, обновлён {$dl.annot.xml.updated}
+<p>Весь корпус, XML, обновлён {$dl.annot.xml.updated}
 <ul>
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.bz2">архив .bz2</a> ({$dl.annot.xml.bz2.size} Мб)</li>
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.zip">архив .zip</a> ({$dl.annot.xml.zip.size} Мб)</li>
