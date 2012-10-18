@@ -9,9 +9,9 @@ if (isset($_GET['tf_id'])) {
     $arr = xml2ary(generate_tf_rev($r['tf_text']));
     $vars = get_morph_vars($arr['tfr']['_c']['v']);
 
-    echo "<tfr t=\"".$arr['tfr']['_a']['t']."\">";
+    echo "<tfr t=\"".htmlspecialchars($arr['tfr']['_a']['t'])."\">";
     foreach($vars as $var) {
-        echo '<v><l id="'.$var['lemma_id'].'" t="'.$var['lemma_text'].'">';
+        echo '<v><l id="'.$var['lemma_id'].'" t="'.htmlspecialchars($var['lemma_text']).'">';
         foreach($var['gram_list'] as $gram) {
             if (isset($_SESSION['options']) && $_SESSION['options'][1] == 1) {
                 echo '<g v="'.$gram['outer'].'" d="'.$gram['descr'].'"/>';

@@ -151,7 +151,7 @@ function sentence_save($sent_id) {
         } else {
             $xml = $base_xml;
         }
-        $new_xml = "<tfr t=\"$tf_text\">";
+        $new_xml = "<tfr t=\"".htmlspecialchars($tf_text)."\">";
         //let's find all vars inside tf_text
         if (preg_match_all("/<v>(.+?)<\/v>/", $xml, $matches) !== false) {
             //flags quantity check
