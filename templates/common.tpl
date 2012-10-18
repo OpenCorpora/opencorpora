@@ -4,6 +4,8 @@
         <meta http-equiv='content' content='text/html;charset=utf-8'/>
         <title>OpenCorpora: открытый корпус русского языка</title>
         
+        <meta property="og:image" content="http://opencorpora.org/img/fb-pic.png"/> 
+        
         <!-- Bootstrap -->
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
@@ -15,25 +17,9 @@
         <script src='{$web_prefix}/js/jquery.mousewheel.js' type='text/javascript'></script>
         <script src='{$web_prefix}/js/jquery.autocomplete.js'></script>
         <script src="bootstrap/js/bootstrap.min.js"></script>
-        
-        <!-- VK api -->
-        <script type="text/javascript" src="//vk.com/js/api/openapi.js?59"></script>
+
     </head>
 {block name=body}<body>{/block}
-<div id="fb-root"></div>
-<script>
-// FB init
-(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/ru_RU/all.js#xfbml=1&appId=459706510739356";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));
-
-// VK init
-VK.init({ apiId: 3183828, onlyWidgets: true });
-</script>
 <div id='wrap'>
 {nocache}{include file='header.tpl'}
 {block name=before_content}{/block}{/nocache}
