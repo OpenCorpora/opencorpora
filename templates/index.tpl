@@ -86,4 +86,15 @@
         {/if}
     </div>
 {/if}
+<div class="social-index-block row">
+    <div class="span5">
+        <div class="fb-like" data-send="false" data-width="450" data-show-faces="false"></div>
+    </div>
+    <div class="span5">
+        <div id="vk_like"></div>
+        <script type="text/javascript">
+        VK.Widgets.Like("vk_like", { type: "full" });
+        </script>
+    </div>
+</div>
 {/block}
