@@ -145,6 +145,9 @@ a.loginza {
 .nav-wrapper .nav-well-form input {
     margin-bottom: 0;
 }
+.social-index-block {
+    margin-top: 20px;
+}
 .promo-unit {
     background: url("../img/tiny_grid.png");
     padding: 0;
