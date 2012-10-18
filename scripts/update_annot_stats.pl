@@ -31,19 +31,12 @@ sub count_total {
     my $inst_count = $dbh->prepare("
         SELECT user_id, answer, sample_id
         FROM morph_annot_instances
-        WHERE sample_id IN
-            (SELECT sample_id
-            FROM morph_annot_samples
-            WHERE pool_id NOT IN
-                (SELECT DISTINCT pool_id
-                FROM morph_annot_samples
-                WHERE sample_id IN
-                    (SELECT DISTINCT sample_id
-                    FROM morph_annot_instances
-                    WHERE answer = 0)
-                )
-            )
-        ORDER BY sample_id
+        LEFT JOIN morph_annot_samples s USING (sample_id)
+        LEFT JOIN morph_annot_pools USING(pool_id)
+        WHERE status > 3
+        AND answer > 0
+        AND user_id > 0
+        ORDER BY s.sample_id
     ");
     $inst_count->execute();
 
