@@ -9,6 +9,7 @@
         <meta property="og:url" content="http://opencorpora.org" />
         <meta property="og:title" content="OpenCorpora: открытый корпус русского языка" />
 
+        <link rel="shortcut icon" href="{$web_prefix}/favicon.ico" />
         
         <!-- Bootstrap -->
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
