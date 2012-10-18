@@ -4,7 +4,10 @@
         <meta http-equiv='content' content='text/html;charset=utf-8'/>
         <title>OpenCorpora: открытый корпус русского языка</title>
         
-        <meta property="og:image" content="http://opencorpora.org/img/fb-pic.png"/> 
+        <meta property="og:image" content="http://opencorpora.org/img/fb-pic.png"/>
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="OpenCorpora: открытый корпус русского языка" />
+
         
         <!-- Bootstrap -->
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">

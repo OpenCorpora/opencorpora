@@ -104,7 +104,7 @@ VK.init({ apiId: 3183828, onlyWidgets: true });
 </script>
 <div class="social-index-block row">
     <div class="span5">
-        <div class="fb-like" data-send="false" data-width="450" data-show-faces="false"></div>
+        <div class="fb-like" data-send="false" data-width="" data-show-faces="false"></div>
     </div>
     <div class="span5">
         <div id="vk_like"></div>
