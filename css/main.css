@@ -94,7 +94,17 @@ body {
 .login-corner-block {
     padding: 10px 20px 0;
 }
-.login-corder-user {}
+.login-corner-user {
+    background-image: url("../img/icon_user_blue.png");
+    background-repeat: no-repeat;
+    background-position: 15px center;
+}
+.login-corner-admin {
+    background-image: url("../img/icon_user_orange.png");
+}
+.navbar .nav > li > a.login-corner-user {
+    padding-left: 37px;
+}
 .login-corner-user span.badge-star {
     margin-right: 7px;
     background-color: none;

@@ -23,26 +23,26 @@
                 <ul class="nav pull-right">
                     <li class="dropdown">
                         {if isset($smarty.session.user_id)}
-                        <a href="{$web_prefix}/options.php" class="dropdown-toggle login-corner-user" data-toggle="dropdown" data-target="#">
-                        {if $game_is_on == 1}<span class="badge badge-star" title="Ваш текущий уровень">{$smarty.session.user_level}</span>{/if}
-                        {if mb_strlen($smarty.session.user_name) > 20}{$smarty.session.user_name|mb_substr:0:20}…{else}{$smarty.session.user_name}{/if}
-                        <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{$web_prefix}/options.php">Настройки</a></li>
-                            {if $smarty.session.user_permissions.perm_admin == 1}
-                                {if isset($smarty.session.debug_mode)}
-                                    <li><a href='?debug=off'>Debug off</a></li>
-                                {else}
-                                    <li><a href='?debug=on'>Debug on</a></li>
+                            <a href="{$web_prefix}/options.php" class="dropdown-toggle login-corner-user{if $smarty.session.user_permissions.perm_admin == 1} login-corner-admin{/if}" data-toggle="dropdown" data-target="#">
+                            {if $game_is_on == 1}<span class="badge badge-star" title="Ваш текущий уровень">{$smarty.session.user_level}</span>{/if}
+                            {if mb_strlen($smarty.session.user_name) > 20}{$smarty.session.user_name|mb_substr:0:20}…{else}{$smarty.session.user_name}{/if}
+                            <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{$web_prefix}/options.php">Настройки</a></li>
+                                {if $smarty.session.user_permissions.perm_admin == 1}
+                                    {if isset($smarty.session.debug_mode)}
+                                        <li><a href='?debug=off'>Debug off</a></li>
+                                    {else}
+                                        <li><a href='?debug=on'>Debug on</a></li>
+                                    {/if}
+                                    {if isset($smarty.session.user_permissions.pretend)}
+                                        <li><a href='?pretend=off'>Перестать притворяться</a></li>
+                                    {else}
+                                        <li><a href='?pretend=on'>Притвориться юзером</a></li>
+                                    {/if}
                                 {/if}
-                                {if isset($smarty.session.user_permissions.pretend)}
-                                    <li><a href='?pretend=off'>Перестать притворяться</a></li>
-                                {else}
-                                    <li><a href='?pretend=on'>Притвориться юзером</a></li>
-                                {/if}
-                            {/if}
-                            <li><a href="{$web_prefix}/login.php?act=logout">Выход</a></li>
-                        </ul>
+                                <li><a href="{$web_prefix}/login.php?act=logout">Выход</a></li>
+                            </ul>
                         {else}
                             <a href="{$web_prefix}/login.php" class="dropdown-toggle" data-toggle="dropdown" data-target="#">Войти <b class="caret"></b></a>
                             <div class="dropdown-menu">
