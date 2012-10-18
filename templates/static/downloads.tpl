@@ -39,10 +39,10 @@
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.bz2">архив .bz2</a> ({$dl.annot.xml.bz2.size} Мб)</li>
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.zip">архив .zip</a> ({$dl.annot.xml.zip.size} Мб)</li>
 </ul>
-<p>Подкорпус со снятой омонимией<sup>*</sup>, XML
+<p>Подкорпус со снятой омонимией<sup>*</sup>, XML, обновлён {$dl.annot.disamb_xml.updated}
 <ul>
-<li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.no_ambig.xml.bz2">архив .bz2</a></li>
-<li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.no_ambig.xml.zip">архив .zip</a></li>
+<li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.no_ambig.xml.bz2">архив .bz2</a> ({$dl.annot.disamb_xml.bz2.size} Мб)</li>
+<li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.no_ambig.xml.zip">архив .zip</a> ({$dl.annot.disamb_xml.zip.size} Мб)</li>
 </ul>
 <p class='small'><sup>*</sup> В подкорпус включены целые предложения, не имеющие в своём составе ни одного неоднозначно разобранного слова &mdash; как изначально однозначные предложения, так и те, в которых неоднозначность была снята вручную.</p>
 <h3>Частотные списки</h3>

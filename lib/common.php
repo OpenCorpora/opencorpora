@@ -296,6 +296,7 @@ function get_downloads_info() {
     $dict['xml'] = get_file_info('files/export/dict/dict.opcorpora.xml');
     $dict['txt'] = get_file_info('files/export/dict/dict.opcorpora.txt');
     $annot['xml'] = get_file_info('files/export/annot/annot.opcorpora.xml');
+    $annot['disamb_xml'] = get_file_info('files/export/annot/annot.opcorpora.no_ambig.xml');
 
     $types1 = array('exact', 'exact_lc', 'exact_cyr', 'exact_cyr_lc');
     $types2 = array('exact', 'exact_lc', 'exact_cyrA', 'exact_cyrB', 'exact_cyrA_lc', 'exact_cyrB_lc');
