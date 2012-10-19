@@ -10,9 +10,11 @@ function is_valid_password($string) {
     return preg_match('/^[a-z0-9_-]+$/i', $string);
 }
 function user_generate_password($email) {
-    $res = sql_query("SELECT user_id, user_name FROM `users` WHERE user_email='".mysql_real_escape_string($email)."' LIMIT 1");
+    $res = sql_query("SELECT user_id, user_name, user_passwd FROM `users` WHERE user_email='".mysql_real_escape_string($email)."' LIMIT 1");
     if (sql_num_rows($res) == 0) return 2;
     $r = sql_fetch_array($res);
+    if ($r['user_passwd'] == '' || $r['user_passwd'] == 'notagreed')
+        return 4;
     $pwd = gen_password();
     //send email
     if (send_email($email, 'Восстановление пароля на opencorpora.org', "Добрый день,\n\nВаш новый пароль для входа на opencorpora.org:\n\n$pwd\n\nРекомендуем как можно быстрее изменить его через интерфейс сайта.\n\nOpenCorpora")) {
@@ -20,7 +22,7 @@ function user_generate_password($email) {
         if (sql_query("UPDATE `users` SET `user_passwd`='$md5' WHERE user_id=".$r['user_id']." LIMIT 1")) {
             return 1;
         } else {
-            return 4;
+            return 0;
         }
     } else {
         return 3;
