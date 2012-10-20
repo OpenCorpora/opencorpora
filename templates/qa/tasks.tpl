@@ -3,6 +3,11 @@
 {block name=before_content}{if $game_is_on == 1}{include file="qa/game_status.tpl"}{/if}{/block}
 {block name=content}
 <h1>Доступные задания</h1>
+<div class="clearfix">
+    <div class="pull-right">
+        <a class="btn btn-primary" href="manual.php" target="_blank"><i class="icon-info-sign icon-white"></i> Общая инструкция</a>
+    </div>
+</div>
 <table class="ma_types">
     {foreach from=$available item=type key=key}
 <tr class="ma_type_row">
