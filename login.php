@@ -13,7 +13,10 @@ if (isset($_SESSION['user_id']) && in_array($action, array('', 'login', 'login_o
 switch($action) {
     case 'login':
         if (user_login(mysql_real_escape_string($_POST['login']), $_POST['passwd'])) {
-            header('Location:'.$_SESSION['return_to']);
+            if (isset($_SESSION['return_to']))
+                header('Location:'.$_SESSION['return_to']);
+            else
+                header('Location:index.php');
         } else {
             header('Location:login.php?act=error');
         }
