@@ -40,6 +40,7 @@ switch ($action) {
             $smarty->display('qa/morph_annot.tpl');
         } else {
             $smarty->assign('next_pool_id', (int)get_next_pool($_SESSION['user_id'], (int)$_GET['pool_id']));
+            $smarty->assign('final', true);
             $smarty->display('qa/morph_annot_thanks.tpl');
         }
         break;
@@ -54,6 +55,10 @@ switch ($action) {
         } else {
             show_error("Не нашлось примеров.");
         }
+        break;
+    case 'pause':
+        $smarty->assign('next_pool_id', (int)get_next_pool($_SESSION['user_id'], (int)$_GET['pool_id']));
+        $smarty->display('qa/morph_annot_thanks.tpl');
         break;
     default:
         $smarty->assign('available', get_available_tasks($_SESSION['user_id']));
