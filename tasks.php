@@ -3,16 +3,17 @@ require('lib/header.php');
 require_once('lib/lib_xml.php');
 require_once('lib/lib_annot.php');
 
+$smarty->assign('active_page','tasks');
+
 if (!is_logged()) {
-    show_error($config['msg']['notadmin']);
+    $smarty->assign('content', get_wiki_page("Инструкция по интерфейсу для снятия омонимии"));
+    $smarty->display('qa/tasks_guest.tpl');
     return;
 }
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 if (game_is_on())
     $smarty->assign('user_rating', get_user_rating($_SESSION['user_id']));
-
-$smarty->assign('active_page','tasks');
 
 switch ($action) {
     case 'annot':
