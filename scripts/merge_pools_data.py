@@ -97,11 +97,9 @@ def process_pool(dbh, pool_id, revision):
     pool_grammemes = get_pool_grammemes(dbh, pool_id)
     for sample in get_samples_and_answers(dbh, pool_id):
         # do different things depending on status
-        # do nothing if marked as 'all bad', as misprint or as undisambiguatable :) homonymy
-        if sample['status'] in (2, 3, 4):
+        # do nothing if marked as misprint or as undisambiguatable :) homonymy
+        if sample['status'] in (3, 4):
             continue
-        
-        grammemes_ok_str = pool_grammemes[sample['answer']-1]
         
         old_xml, rev_id = get_xml_by_sample_id(dbh, sample['sample_id'])
         # do nothing if token has changed since pool creation
@@ -114,6 +112,7 @@ def process_pool(dbh, pool_id, revision):
         if sample['status'] == 2:
             new_xml = generate_empty_parse(token)
         else:
+            grammemes_ok_str = pool_grammemes[sample['answer']-1]
             new_xml = vars2xml(token, update_vars(old_vars, grammemes_ok_str))
 
         update_sample(dbh, sample['sample_id'], new_xml.encode('utf-8'), changeset_id)
