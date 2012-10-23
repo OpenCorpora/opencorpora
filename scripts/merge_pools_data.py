@@ -97,8 +97,8 @@ def process_pool(dbh, pool_id, revision):
     pool_grammemes = get_pool_grammemes(dbh, pool_id)
     for sample in get_samples_and_answers(dbh, pool_id):
         # do different things depending on status
-        # do nothing if marked as misprint or as undisambiguatable :) homonymy
-        if sample['status'] in (3, 4):
+        # do nothing if marked as 'all bad', as misprint or as undisambiguatable :) homonymy
+        if sample['status'] in (2, 3, 4):
             continue
         
         grammemes_ok_str = pool_grammemes[sample['answer']-1]
