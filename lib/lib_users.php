@@ -113,8 +113,11 @@ function user_login_openid($token) {
             return false;
         $id = 'google:'.$arr['uid'];
     }
-    else
+    else {
         $id =  $arr['identity'];
+        if (!trim($id))
+            return false;
+    }
     //check if the user exists
     $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
     //if he doesn't
