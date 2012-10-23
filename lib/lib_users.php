@@ -108,8 +108,11 @@ function user_login_openid($token) {
         return 0;
     }
     $id = '';
-    if (strpos($arr['provider'], 'google') !== false)
+    if (strpos($arr['provider'], 'google') !== false) {
+        if (!trim($arr['uid']))
+            return false;
         $id = 'google:'.$arr['uid'];
+    }
     else
         $id =  $arr['identity'];
     //check if the user exists
