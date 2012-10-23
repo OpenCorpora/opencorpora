@@ -34,12 +34,14 @@
 </script>
 {/literal}
 <h3>Размеченные тексты</h3>
-<p>Весь корпус, XML, обновлён {$dl.annot.xml.updated}
+<p>Весь корпус, XML, обновлён {$dl.annot.xml.updated}<br/>
+<span class='small'>предложений: {$stats.dump_full_sentences.value}, токенов: {$stats.dump_full_tokens.value}, слов: {$stats.dump_full_words.value}</span></p>
 <ul>
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.bz2">архив .bz2</a> ({$dl.annot.xml.bz2.size} Мб)</li>
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.zip">архив .zip</a> ({$dl.annot.xml.zip.size} Мб)</li>
 </ul>
-<p>Подкорпус со снятой омонимией<sup>*</sup>, XML, обновлён {$dl.annot.disamb_xml.updated}
+<p>Подкорпус со снятой омонимией<sup>*</sup>, XML, обновлён {$dl.annot.disamb_xml.updated}<br/>
+<span class='small'>предложений: {$stats.dump_disamb_sentences.value}, токенов: {$stats.dump_disamb_tokens.value}, слов: {$stats.dump_disamb_words.value}</span></p>
 <ul>
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.no_ambig.xml.bz2">архив .bz2</a> ({$dl.annot.disamb_xml.bz2.size} Мб)</li>
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.no_ambig.xml.zip">архив .zip</a> ({$dl.annot.disamb_xml.zip.size} Мб)</li>

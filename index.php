@@ -22,6 +22,7 @@ if (isset($_GET['page'])) {
             $smarty->setCacheLifetime(600);
             if (!is_cached('static/downloads.tpl')) {
                 $smarty->assign('dl', get_downloads_info());
+                $smarty->assign('stats', get_common_stats());
             }
             $smarty->display('static/downloads.tpl');
             break;

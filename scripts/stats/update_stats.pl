@@ -8,9 +8,9 @@ use Config::INI::Reader;
 
 #reading config
 my $conf = Config::INI::Reader->read_file($ARGV[0]);
-$conf = $conf->{mysql};
+my $mysql = $conf->{mysql};
 
-my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
+my $dbh = DBI->connect('DBI:mysql:'.$mysql->{'dbname'}.':'.$mysql->{'host'}, $mysql->{'user'}, $mysql->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 $dbh->{'AutoCommit'} = 0;
 if ($dbh->{'AutoCommit'}) {
@@ -94,6 +94,16 @@ sub get_sentence_adder {
     $r = $sc->fetchrow_hashref();
     $insert_author->execute($sid, $r->{'user_id'}, $r->{'timestamp'});
     return $r;
+}
+
+sub sentences_in_file {
+    return `bzcat $_[0] | grep -c '<sentence '`
+}
+sub tokens_in_file {
+    return `bzcat $_[0] | grep -c '<token '`
+}
+sub words_in_file {
+    return `bzcat $_[0] | grep '<token ' | grep -Eo 'text="[^\"]+"' | cut -d\\" -f2 | grep -v '[[:punct:]]' | grep -civ '[a-z]'`
 }
 
 $func->{'total_books'} = sub {
@@ -257,6 +267,24 @@ $func->{'added_sentences'} = sub {
         $user_ins->execute($r->{'user_id'}, time(), 6, $r->{'cnt'});
     }
     return -1;
+};
+$func->{'dump_full_sentences'} = sub {
+    return sentences_in_file($conf->{'project'}->{'root'}.'/files/export/annot/annot.opcorpora.xml.bz2');
+};
+$func->{'dump_disamb_sentences'} = sub {
+    return sentences_in_file($conf->{'project'}->{'root'}.'/files/export/annot/annot.opcorpora.no_ambig.xml.bz2');
+};
+$func->{'dump_full_tokens'} = sub {
+    return tokens_in_file($conf->{'project'}->{'root'}.'/files/export/annot/annot.opcorpora.xml.bz2');
+};
+$func->{'dump_disamb_tokens'} = sub {
+    return tokens_in_file($conf->{'project'}->{'root'}.'/files/export/annot/annot.opcorpora.no_ambig.xml.bz2');
+};
+$func->{'dump_full_words'} = sub {
+    return words_in_file($conf->{'project'}->{'root'}.'/files/export/annot/annot.opcorpora.xml.bz2');
+};
+$func->{'dump_disamb_words'} = sub {
+    return words_in_file($conf->{'project'}->{'root'}.'/files/export/annot/annot.opcorpora.no_ambig.xml.bz2');
 };
 
 # /SUBROUTINES
