@@ -119,7 +119,6 @@ function main_diff($sentence_id, $set_id) {
             'new_user_name' => $r1['user_name'],
             'old_timestamp' => $r2['timestamp'],
             'new_timestamp' => $r1['timestamp'],
-            'old_rev_xml'   => $old_rev,
             'new_rev_xml'   => $new_rev,
             'diff'          => php_diff($old_rev, $new_rev)
         );
@@ -138,9 +137,12 @@ function main_diff($sentence_id, $set_id) {
     return $out;
 }
 function dict_diff($lemma_id, $set_id) {
+    include_once('lib_diff.php');
     $res = sql_query("SELECT dr.rev_id, dr.rev_text, s.timestamp, s.comment, u.user_shown_name AS user_name FROM dict_revisions dr LEFT JOIN rev_sets s ON (dr.set_id=s.set_id) LEFT JOIN `users` u ON (s.user_id=u.user_id) WHERE dr.set_id<=$set_id AND dr.lemma_id=$lemma_id ORDER BY dr.rev_id DESC LIMIT 2");
     $r1 = sql_fetch_array($res);
     $r2 = sql_fetch_array($res);
+    $old_rev = format_xml($r2['rev_text']);
+    $new_rev = format_xml($r1['rev_text']);
     $out = array(
         'lemma_id'      => $lemma_id,
         'old_ver'       => $r2['rev_id'],
@@ -150,8 +152,8 @@ function dict_diff($lemma_id, $set_id) {
         'old_timestamp' => $r2['timestamp'],
         'new_timestamp' => $r1['timestamp'],
         'comment'       => $r1['comment'],
-        'old_rev_xml'   => $r2['rev_text'],
-        'new_rev_xml'   => $r1['rev_text'],
+        'new_rev_xml'   => $new_rev,
+        'diff'          => php_diff($old_rev, $new_rev),
         'prev_set'      => 0,
         'next_set'      => 0
     );
