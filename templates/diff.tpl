@@ -16,7 +16,7 @@
     <input type='button' onclick="submit_with_readonly_check($(this).closest('form'))" value="Вернуть"/>
 </form>
 {/if}
-<table border='1' cellspacing='0' cellpadding='3'>
+<table class='table borderless'>
     <tr>
         <td>{if $diff.prev_set}<a href='?sent_id={$diff.sent_id}&amp;set_id={$diff.prev_set}'>&lt; предыдущая версия</a>{else}&nbsp;{/if}</td>
         <td align='right'>{if $diff.next_set}<a href='?sent_id={$diff.sent_id}&amp;set_id={$diff.next_set}'>следующая версия &gt;</a>{else}&nbsp;{/if}</td>
@@ -29,12 +29,20 @@
         {if $is_logged}
         <form class='inline' id='form_revert_t{$token.old_ver}' method='post' action='{$web_prefix}/revert.php?tf_rev={$token.old_ver}'><button type="button" onclick="submit_with_readonly_check($('#form_revert_t{$token.old_ver}'))">Вернуть эту версию</button></form>
         {/if}
-        <br/><b>Версия {$token.old_ver} ({$token.old_user_name|default:'Робот'}, {$token.old_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b><pre>{$token.old_rev_xml|format_xml|htmlspecialchars}</pre></td>
-        <td valign='top'><b>(Стало)<br/>Версия {$token.new_ver} ({$token.new_user_name|default:'Робот'}, {$token.new_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b><pre>{$token.new_rev_xml|format_xml|htmlspecialchars}</pre></td>
+        <br/><b>Версия {$token.old_ver} ({$token.old_user_name|default:'Робот'}, {$token.old_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b></td>
+        <td valign='top'><b>(Стало)<br/>Версия {$token.new_ver} ({$token.new_user_name|default:'Робот'}, {$token.new_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b></td>
 {else}
         <td valign='top'><b>Новое предложение</b></td>
-        <td valign='top'><b>Версия {$token.new_ver} ({$token.new_user_name|default:'Робот'}, {$token.new_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b><pre>{$token.new_rev_xml|format_xml|htmlspecialchars}</pre></td>
+        <td valign='top'><b>Версия {$token.new_ver} ({$token.new_user_name|default:'Робот'}, {$token.new_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b><pre>{$token.new_rev_xml|htmlspecialchars}</pre></td>
 {/if}
+    </tr>
+    <tr><td><pre>
+{foreach from=$token.diff[0] item=str}
+<span class="{if $str[1] == 1}bgpink{elseif $str[1] == 2}bggreen{elseif $str[1] == 3}bgyellow{/if}">{$str[2]|htmlspecialchars}</span>
+{/foreach}</pre></td><td><pre>
+{foreach from=$token.diff[1] item=str}
+<span class="{if $str[1] == 1}bgpink{elseif $str[1] == 2}bggreen{elseif $str[1] == 3}bgyellow{/if}">{$str[2]|htmlspecialchars}</span>
+{/foreach}</pre></td>
     </tr>
 {/foreach}
 </table>

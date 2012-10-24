@@ -89,6 +89,7 @@ function dict_history($lemma_id, $skip = 0) {
     return $out;
 }
 function main_diff($sentence_id, $set_id) {
+    include_once('lib_diff.php');
     $r = sql_fetch_array(sql_query("SELECT DISTINCT s.*, u.user_shown_name AS user_name FROM rev_sets s LEFT JOIN `users` u ON (s.user_id = u.user_id) WHERE s.set_id=$set_id"));
     $out = array(
         'set_id'    => $set_id,
@@ -108,6 +109,8 @@ function main_diff($sentence_id, $set_id) {
         $r2 = sql_fetch_array($res1);
         if ($r1['set_id'] != $set_id)
             continue;
+        $old_rev = format_xml($r2['rev_text']);
+        $new_rev = format_xml($r1['rev_text']);
         $token = array(
             'pos'           => $r['pos'],
             'old_ver'       => $r2['rev_id'],
@@ -116,8 +119,9 @@ function main_diff($sentence_id, $set_id) {
             'new_user_name' => $r1['user_name'],
             'old_timestamp' => $r2['timestamp'],
             'new_timestamp' => $r1['timestamp'],
-            'old_rev_xml'   => $r2['rev_text'],
-            'new_rev_xml'   => $r1['rev_text']
+            'old_rev_xml'   => $old_rev,
+            'new_rev_xml'   => $new_rev,
+            'diff'          => php_diff($old_rev, $new_rev)
         );
         $out['tokens'][] = $token;
     }
