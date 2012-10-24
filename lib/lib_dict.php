@@ -144,7 +144,7 @@ function form_exists($f) {
 
 // DICTIONARY EDITOR
 function get_lemma_editor($id) {
-    $out = array('lemma' => array('id' => $id));
+    $out = array('lemma' => array('id' => $id), 'errata' => array());
     if ($id == -1) return $out;
     $r = sql_fetch_array(sql_query("SELECT l.`lemma_text`, d.`rev_id`, d.`rev_text` FROM `dict_lemmata` l LEFT JOIN `dict_revisions` d ON (l.lemma_id = d.lemma_id) WHERE l.`lemma_id`=$id ORDER BY d.rev_id DESC LIMIT 1"));
     $arr = parse_dict_rev($r['rev_text']);

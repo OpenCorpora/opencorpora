@@ -206,8 +206,8 @@ function get_common_stats() {
             'value' => number_format($r['param_value'], 0, '', ' '),
             'divergence' => $divergence[$r['user_id']] / $r['param_value'] * 100,
             'last_active' => $last_click[$r['user_id']],
-            'moderated' => $moderated[$r['user_id']],
-            'error_rate' => !$moderated[$r['user_id']] ? 0 : (1 - $correct[$r['user_id']] / $moderated[$r['user_id']]) * 100
+            'moderated' => isset($moderated[$r['user_id']]) ? $moderated[$r['user_id']] : 0,
+            'error_rate' => (!isset($moderated[$r['user_id']]) || !$moderated[$r['user_id']]) ? 0 : (1 - $correct[$r['user_id']] / $moderated[$r['user_id']]) * 100
         );
         $stats['annotators'][$uid2sid[$r['user_id']]]['fin'] = $t;
     }
