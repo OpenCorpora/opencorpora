@@ -73,7 +73,6 @@ $smarty->assign('user_permission_adder', user_has_permission('perm_adder') ? 1 :
 $smarty->assign('user_permission_check_tokens', user_has_permission('perm_check_tokens') ? 1 : 0);
 $smarty->assign('user_permission_check_morph', user_has_permission('perm_check_morph') ? 1 : 0);
 $smarty->assign('readonly', file_exists('/var/lock/oc_readonly.lock') ? 1 : 0);
-$smarty->assign('dict_errors', sql_num_rows(sql_query("SELECT error_id FROM dict_errata LIMIT 1")));
 $smarty->assign('goals', $config['goals']);
 $smarty->assign('game_is_on', 0);
 
@@ -91,10 +90,6 @@ if (is_logged()) {
             $smarty->assign('new_level', $new_level);
     }
 }
-
-//svn info
-$svnfile = file('.svn/entries');
-$smarty->assign('svn_revision', $svnfile[3]);
 
 // alert messages
 $smarty->assign('alerts',alert_getall());
