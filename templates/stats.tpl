@@ -35,7 +35,7 @@ $(document).ready(function(){
     <th colspan='2'>В проверенных пулах</th>
     <th rowspan='2'>Последняя<br/>активность</th></tr>
 <tr><th>Размечено<th>% расхождений<th>Размечено<th>% ошибок</tr>
-{foreach item=s from=$stats.annotators}
+{foreach item=s from=$user_stats.annotators}
     <tr {if $s@iteration>20 && (!isset($smarty.session.user_id) || $smarty.session.user_id != $s.user_id)}style="display:none;"{/if}>
         <td><a name="user{$s.user_id}"></a>{$s@iteration}
         <td>{$s.fin.user_name}
@@ -55,7 +55,7 @@ $(document).ready(function(){
 <h3>Команды по количеству размеченных примеров</h3>
 <table class="table">
     <tr><th>#</th><th>Название</th><th>Количество участников</th><th>Размечено примеров</th><th>Проверено</th><th>% ошибок</th></tr>
-    {foreach $stats.teams as $i=>$team name=x}
+    {foreach $user_stats.teams as $i=>$team name=x}
         <tr>
             <td>{$team@iteration}</td>
             <td>{$team.name}</td>
