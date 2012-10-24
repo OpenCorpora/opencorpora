@@ -734,6 +734,14 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
                 }
                 ++$i;
             }
+            if (isset($tasks[$group_id]['first_id']))
+                while (true) {
+                    $rand = mt_rand(0, sizeof($v['pools']) - 1);
+                    if ($v['pools'][$rand]['num'] + $v['pools'][$rand]['num_started'] > 0) {
+                        $tasks[$group_id]['random_id'] = $v['pools'][$rand]['id'];
+                        break;
+                    }
+                }
             $tasks[$group_id]['has_manual'] = in_array($group_id, $types_with_manual);
             $tasks[$group_id]['complexity'] = isset($type2complexity[$group_id]) ? $type2complexity[$group_id] : 0;
             $tasks[$group_id]['name'] = preg_replace('/\s+#\d+\s*$/', '', $v['pools'][0]['name']);
