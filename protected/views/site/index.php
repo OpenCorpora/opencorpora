@@ -11,14 +11,14 @@
     <h2>Как я могу помочь прямо сейчас?</h2>
     <ul>
     <li>
-        принять участие в снятии морфологической неоднозначности <?php if(Yii::app()->user->isGuest):?>(см. <a href="tasks.php">задания</a>):<?php else:?>(<a href="login.php">зарегистрируйтесь</a>, чтобы получить доступ к заданиям)<?php endif;?>
+        принять участие в снятии морфологической неоднозначности <?php if(Yii::app()->user->isGuest):?>(см. <b><a href="manual.php">руководство</a></b>, <a href="tasks.php">задания</a>):<?php else:?>(<a href="login.php">зарегистрируйтесь</a>, чтобы получить доступ к заданиям, а также прочтите <a href="manual.php">руководство</a>)<?php endif;?>
         <div>(всего мы получили уже <b>больше <?php echo round($answer_count / 1000);?> тыс.</b> ответов)</div>
         <?php if(!Yii::app()->user->isGuest):?>
             <div>
                 <?php if($available):?>
                     <table class="table" style="width:800px; margin-top:7px;">
                         <tr><th>Название пула</th><th>Доступно</th><th>&nbsp;</th></tr>
-                        <?php foreach($available as $ask): ?>
+                        <?php foreach($available as $task): ?>
                         <tr>
                             <td><?php echo htmlspecialchars($task.name);?></td>
                             <td><?php echo $task['num']; if($task['num_started']): echo $task['num_started'] . "начатых"; endif;?></td>
@@ -71,6 +71,7 @@
                     <?php endif;?>
                     <li><a href='{$web_prefix}/tokenizer_monitor.php'>Мониторинг качества токенизатора</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=tokenizer'>Странная токенизация</a></li>
+                    <li><a href='{$web_prefix}/qa.php?act=good_sentences'>Наименее омонимичные предложения</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=sent_split'>Странное разделение на предложения</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=empty_books'>Пустые тексты</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=book_tags'>Ошибки в тегах текстов</a></li>
@@ -85,4 +86,30 @@
         <?php endif;?>
     </div>
 <?php endif;?>
+<!-- VK api -->
+<script type="text/javascript" src="//vk.com/js/api/openapi.js?59"></script>
+<div id="fb-root"></div>
+<script>
+// FB init
+(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ru_RU/all.js#xfbml=1&appId=459706510739356";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
 
+// VK init
+VK.init({ apiId: 3183828, onlyWidgets: true });
+</script>
+<div class="social-index-block row">
+    <div class="span5">
+        <div id="vk_like"></div>
+        <script type="text/javascript">
+        VK.Widgets.Like("vk_like", { type: "full" });
+        </script>
+    </div>
+    <div class="span5">
+        <div class="fb-like" data-send="false" data-width="" data-show-faces="false"></div>
+    </div>
+</div>

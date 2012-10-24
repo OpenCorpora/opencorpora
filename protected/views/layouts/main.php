@@ -8,7 +8,7 @@
         <meta property="og:url" content="http://opencorpora.org" />
         <meta property="og:title" content="OpenCorpora: открытый корпус русского языка" />
 
-        <link rel="shortcut icon" href="{$web_prefix}/favicon.ico" />
+        <link rel="shortcut icon" href="<?php echo Yii:app()->baseurl; ?>/favicon.ico" />
         <!-- Custom Bootstrap css -->
         <?php Yii::app()->clientScript->registerCssFile(Yii::app()->baseurl . '/bootstrap/css/bootstrap.min.css');?>
         
@@ -24,7 +24,7 @@
         <?php $this->renderPartial('//layouts/_header');?>
         <?php // before_content goes here?>
         <?php /*{if $readonly == 1}
-        <div class='alert alert-error'><div class="container">Система находится в режиме &laquo;только для чтения&raquo;.</div></div>
+        <div class='alert alert-error'><div class="container">Система находится в режиме &laquo;только для чтения&raquo;. Функции разметки и редактирования временно не работают.</div></div>
         {/if}*/?>
         <div id="container" class="container">
             <?php // game status & alerts go here?>
