@@ -163,9 +163,9 @@ $(document).ready(function() {
         {if $instance.has_right_context}<a class='expand' href="#" rel='{$instance.has_right_context}' rev='1'>...</a>{/if}
     </div>
     {foreach from=$packet.gram_descr item=var name=x}
-    <button rev='{$smarty.foreach.x.index + 1}' class="btn {if $instance.answer == $smarty.foreach.x.index + 1} chosen{/if}">{$var|htmlspecialchars}</button>
+    <button rev='{$smarty.foreach.x.index + 1}' class="btn {if isset($instance.answer) && $instance.answer == $smarty.foreach.x.index + 1} chosen{/if}">{$var|htmlspecialchars}</button>
     {/foreach}
-    <button rev='99' class='btn other{if $instance.answer == 99} chosen{/if}'>Другое</button>
+    <button rev='99' class='btn other{if isset($instance.answer) && $instance.answer == 99} chosen{/if}'>Другое</button>
     <button rev='-1' class='btn reject btn-danger'>Пропустить</button>
     <a rel='{$instance.sample_id}' class='pseudo comment' href='#'>Прокомментировать</a>
 </div>

@@ -134,7 +134,7 @@
     <h1>Авторизация</h1>
     <div class="help-block">Войдите через один из этих сайтов:</div>
     <script src="http://s1.loginza.ru/js/widget.js" type="text/javascript"></script>
-    <iframe src="http://loginza.ru/api/widget?overlay=loginza&token_url=http%3A%2F%2F{$smarty.server.HTTP_HOST}{$web_prefix|urlencode}%2Flogin.php?act=login_openid&amp;lang={$lang}" style="width:350px; height:170px; margin-left:-15px;" scrolling="no" frameborder="no"></iframe>
+    <iframe src="http://loginza.ru/api/widget?overlay=loginza&token_url=http%3A%2F%2F{$smarty.server.HTTP_HOST}{$web_prefix|urlencode}%2Flogin.php?act=login_openid&amp;lang=ru" style="width:350px; height:170px; margin-left:-15px;" scrolling="no" frameborder="no"></iframe>
     <div class="help-block">Или через учётную запись OpenCorpora:</div>
     <form action="{$web_prefix}/login.php?act=login" method="POST">
         <label for="login">Логин</label>

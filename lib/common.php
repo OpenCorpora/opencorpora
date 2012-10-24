@@ -193,6 +193,8 @@ function get_common_stats() {
     foreach ($teams as $i => $team) {
         if ($team['moderated'])
             $teams[$i]['error_rate'] = 100 * (1 - $team['correct'] / $team['moderated']);
+        else
+            $teams[$i]['error_rate'] = 0;
     }
     $stats['teams'] = $teams;
 
@@ -214,9 +216,9 @@ function get_common_stats() {
         if (!isset($v['fin']['user_name'])) {
             $stats['annotators'][$k]['fin']['user_id'] = $v['user_id'];
             $stats['annotators'][$k]['fin']['user_name'] = get_user_shown_name($v['user_id']);
-            $stats['annotators'][$k]['fin']['last_active'] = $last_click[$v['user_id']];
-            $stats['annotators'][$k]['fin']['moderated'] = $moderated[$v['user_id']];
-            $stats['annotators'][$k]['fin']['error_rate'] = !$moderated[$v['user_id']] ? 0 : (1 - $correct[$v['user_id']] / $moderated[$v['user_id']]) * 100;
+            $stats['annotators'][$k]['fin']['last_active'] = isset($last_click[$v['user_id']]) ? $last_click[$v['user_id']] : 0;
+            $stats['annotators'][$k]['fin']['moderated'] = isset($moderated[$v['user_id']]) ? $moderated[$v['user_id']] : 0;
+            $stats['annotators'][$k]['fin']['error_rate'] = (!isset($moderated[$v['user_id']]) || !$moderated[$v['user_id']]) ? 0 : (1 - $correct[$v['user_id']] / $moderated[$v['user_id']]) * 100;
         }
     }
 
