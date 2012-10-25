@@ -8,10 +8,18 @@
 <script type="text/javascript">
 $(document).ready(function(){
 {literal}
-    $("#show_all_users").click(function(event){
-        $("#users_table tr").show();
-        $(this).hide();
+    $("#show_more_users").click(function(event){
+        $("#users_table tr:hidden").each(function(i, el) {
+            $(el).show();
+            if (i == 19)
+                return false;
+        });
+        if ($("#users_table tr:hidden").length == 0)
+            $(this).hide();
         event.preventDefault();
+    });
+    $("#show_user").click(function(event) {
+        $("a[name='user{/literal}{if $is_logged}{$smarty.session.user_id}{/if}{literal}']").closest('tr').show().addClass('bgyellow');
     });
     $("a[name='" + location.hash.substring(1) +"']").closest('tr').addClass('bgyellow');
 {/literal}
@@ -51,7 +59,8 @@ $(document).ready(function(){
     </tr>
 {/foreach}
 </table>
-<a href="#" class="pseudo" id="show_all_users">Показать всех участников</a>
+<a href="#" class="pseudo" id="show_more_users">Показать ещё 20 участников</a>
+{if $is_logged}или <a href="#user{$smarty.session.user_id}" class="pseudo" id="show_user">найти меня</a>{/if}
 <h3>Команды по количеству размеченных примеров</h3>
 <table class="table">
     <tr><th>#</th><th>Название</th><th>Количество участников</th><th>Размечено примеров</th><th>Проверено</th><th>% ошибок</th></tr>
