@@ -22,7 +22,7 @@ switch($action) {
         }
         break;
     case 'login_openid':
-        $r = user_login_openid($_POST['token'], isset($_POST['agree']));
+        $r = user_login_openid($_POST['token']);
         switch ($r) {
             case 1:
                 header('Location:'.$_SESSION['return_to']);

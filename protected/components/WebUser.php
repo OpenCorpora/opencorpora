@@ -29,10 +29,6 @@ class WebUser extends CWebUser {
 		if($this->_model===null) {
 			if($id!==null) {
 				$this->_model=User::model()->findByPk($id);
-                                if($this->_model->is_deleted) {
-                                        Yii::app()->user->logout();
-                                        Yii::app()->request->redirect(Yii::app()->homeUrl);
-                                }
 			}
 		}
 		return $this->_model;

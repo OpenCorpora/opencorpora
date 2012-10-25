@@ -27,7 +27,9 @@ return array(
     'configWeb' => array(
 
         'basePath' => dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
-        'name' => 'OpenCorpora',
+        
+        'name'=>'Открытый корпус',
+        'language'=>'ru',
 
         // Preloading 'log' component
         'preload' => array(
@@ -43,11 +45,11 @@ return array(
 
         // Application components
         'components' => array(
-
+            
             'user' => array(
                 'class'=>'WebUser',
                 // enable cookie-based authentication
-                //'allowAutoLogin' => true,
+                'allowAutoLogin' => true,
             ),
 
             // uncomment the following to enable URLs in path-format
