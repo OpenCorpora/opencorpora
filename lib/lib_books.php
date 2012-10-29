@@ -74,7 +74,7 @@ function get_book_page($book_id, $full = false) {
                 $tokens[] = array('text' => $r1['tf_text'], 'id' => $r1['tf_id']);
             }
             $new_a = array('id' => $r['sent_id'], 'pos' => $r['spos'], 'tokens' => $tokens);
-            if (user_has_permission('perm-adder'))
+            if (user_has_permission('perm_adder'))
                 $new_a['checked'] = $r['status'];
             $out['paragraphs'][$r['ppos']][] = $new_a;
         }
