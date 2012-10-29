@@ -73,7 +73,10 @@ function get_book_page($book_id, $full = false) {
             while ($r1 = sql_fetch_array($res1)) {
                 $tokens[] = array('text' => $r1['tf_text'], 'id' => $r1['tf_id']);
             }
-            $out['paragraphs'][$r['ppos']][] = array('id' => $r['sent_id'], 'pos' => $r['spos'], 'tokens' => $tokens, 'checked' => $r['status']);
+            $new_a = array('id' => $r['sent_id'], 'pos' => $r['spos'], 'tokens' => $tokens);
+            if (user_has_permission('perm-adder'))
+                $new_a['checked'] = $r['status'];
+            $out['paragraphs'][$r['ppos']][] = $new_a;
         }
     } else {
         $res = sql_query("SELECT p.`pos` ppos, s.sent_id, s.`pos` spos FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = $book_id ORDER BY p.`pos`, s.`pos`");
