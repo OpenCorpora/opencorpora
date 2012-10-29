@@ -71,7 +71,7 @@
                     <?php endif;?>
                     <li><a href='{$web_prefix}/tokenizer_monitor.php'>Мониторинг качества токенизатора</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=tokenizer'>Странная токенизация</a></li>
-                    <li><a href='{$web_prefix}/qa.php?act=good_sentences'>Наименее омонимичные предложения</a></li>
+                    <li><a href='{$web_prefix}/qa.php?act=good_sentences&no_zero'>Наименее омонимичные предложения</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=sent_split'>Странное разделение на предложения</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=empty_books'>Пустые тексты</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=book_tags'>Ошибки в тегах текстов</a></li>
