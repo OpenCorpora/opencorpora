@@ -116,10 +116,12 @@
 {/if}
 {if $pool.status > 2}
 <p>{if !isset($smarty.get.ext)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">к расширенному виду</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}">к обычному виду</a>{/if}</p>
-<p>{if $pool.filter != 'disagreed'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=disagreed">показать только несогласованные ответы</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
-<p>{if $pool.filter != 'comments'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=comments">показать только примеры с комментариями</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
-<p>{if $pool.filter != 'not_ok'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=not_ok">показать только примеры с опечатками и т.п.</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
-<p>{if $pool.filter != 'not_moderated'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=not_moderated">показать только непроверенные</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
+<p>
+{if $pool.filter != 'focus'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=focus">список для модерации</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if} |
+{if $pool.filter != 'disagreed'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=disagreed">несогласованные ответы</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if} |
+{if $pool.filter != 'comments'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=comments">примеры с комментариями</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if} |
+{if $pool.filter != 'not_ok'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=not_ok">примеры с опечатками и т.п.</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if} |
+{if $pool.filter != 'not_moderated'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=not_moderated">непроверенные</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
 {if $is_admin}<p><a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs">в виде tab-separated файла</a> (<a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs&amp;mod_ans">с ответами модератора</a>)</p>{/if}
 {/if}
 <br/>

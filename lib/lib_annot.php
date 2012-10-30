@@ -243,7 +243,7 @@ function get_morph_pools_page($type) {
     return array('pools' => $pools, 'types' => $types);
 }
 function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $filter=false) {
-    $res = sql_query("SELECT pool_name, status, t.grammemes, users_needed, moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
+    $res = sql_query("SELECT pool_name, pool_type, status, t.grammemes, users_needed, moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
     $r = sql_fetch_array($res);
     $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
     $select_options = array('---');
@@ -251,7 +251,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $fi
         $select_options[] = $v;
     }
     $select_options[99] = 'Other';
-    $out = array('id' => $pool_id, 'variants' => $select_options, 'name' => $r['pool_name'], 'status' => $r['status'], 'num_users' => $r['users_needed'], 'moderator_name' => $r['user_name']);
+    $out = array('id' => $pool_id, 'type' => $r['pool_type'], 'variants' => $select_options, 'name' => $r['pool_name'], 'status' => $r['status'], 'num_users' => $r['users_needed'], 'moderator_name' => $r['user_name']);
     $res = sql_query("SELECT sample_id, tf_id FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id");
     $gram_descr = array();
     $distinct_users = array();
@@ -311,16 +311,47 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $fi
             }
         }
         if (
+            // special list for moderation
+            ($filter == 'focus' && (
+                $disagreement_flag ||
+                sizeof($t['comments']) > 0 ||
+                filter_sample_for_moderation($out['type'], $t)
+            ))
+            ||
+            // anything except it
+            ($filter != 'focus' &&
             ($disagreement_flag || $filter != 'disagreed') &&
             ($t['moder_answer_num'] == 0 || $filter != 'not_moderated') &&
             (sizeof($t['comments']) > 0 || $filter != 'comments') &&
-            ($not_ok_flag || $filter != 'not_ok')
+            ($not_ok_flag || $filter != 'not_ok'))
         )
             $out['samples'][] = $t;
     }
     $out['user_colors'] = $distinct_users;
     $out['filter'] = $filter;
     return $out;
+}
+function filter_sample_for_moderation($pool_type, $sample) {
+    // check all one-symbol focus words
+    if (mb_strlen($sample['context'][$sample['mainword']]) == 1)
+        return true;
+    // disregard context in any pools except NOUN sing-plur
+    if ($pool_type != 12)
+        return false;
+    // focus word with Fixd or Pltm 
+    foreach ($sample['parses'] as $parse) {
+        foreach ($parse['gram_list'] as $gram) {
+            if (in_array($gram['inner'], array('Fixd', 'Pltm')))
+                return true;
+        }
+    }
+    // left context with numbers
+    for ($i = max(0, $sample['mainword'] - 3); $i < $sample['mainword']; ++$i) {
+        if (preg_match('/^(?:\d+|полтор[аы]|дв[ае]|об[ае]|три|четыре)$/u', $sample['context'][$i]))
+            return true;
+    }
+    // nothing suspicious, ok
+    return false;
 }
 function get_pool_candidates_page($pool_id) {
     $pool = array('id' => $pool_id);
