@@ -308,6 +308,8 @@ function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
     //lemma's grammems
     $lg = explode(',', $lemma_gram);
     foreach ($lg as $gr) {
+        if (!trim($gr))
+            continue;
         $new_xml .= '<g v="'.htmlspecialchars(trim($gr)).'"/>';
     }
     $new_xml .= '</l>';
