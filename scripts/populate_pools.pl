@@ -60,7 +60,17 @@ sub process_pool {
         push @q, "(".join(' AND ', @qt).")";
     }
     # rough filter
-    my $q = "SELECT tf_id, rev_id, rev_text FROM tf_revisions WHERE is_last = 1 AND (".join(' OR ', @q).") AND tf_id NOT IN (SELECT tf_id FROM morph_annot_samples WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status BETWEEN 2 AND 6))";
+    my $q = "
+        SELECT tfr.tf_id, tfr.rev_id, tfr.rev_text
+        FROM tf_revisions tfr
+        LEFT JOIN morph_annot_samples s USING (tf_id)
+        LEFT JOIN morph_annot_moderated_samples ms USING (sample_id)
+        LEFT JOIN morph_annot_pools p USING (pool_id)
+        WHERE is_last = 1
+        AND (p.status IS NULL OR p.status < 2 OR p.status > 6)
+        AND (ms.status IS NULL OR p.status < 7 OR ms.status NOT IN (3, 4))
+        AND (".join(' OR ', @q).")
+    ";
     print STDERR $q."\n";
     my $s = $dbh->prepare($q);
     $s->execute();
