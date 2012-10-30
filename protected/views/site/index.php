@@ -68,7 +68,12 @@
                     <li><a href='{$web_prefix}/sources.php'>Координация заливки</a></li>
                     <?php if(Yii::app()->user->isCheckMorph):?>
                         <li><a href='{$web_prefix}/pools.php?type=3'>Задания на разметку</a></li>
+                        <li class="nav-header">Пулы, где я модератор</li>
+                        <li><a href='{$web_prefix}/pools.php?type=5&amp;my=1'>В работе</a></li>
+                        <li><a href='{$web_prefix}/pools.php?type=6&amp;my=1'>Готовые</a></li>
+                        <li><a href='{$web_prefix}/pools.php?type=8&amp;my=1'>В архиве</a></li>
                     <?php endif;?>
+                    <li class="nav-header">Остальное</li>
                     <li><a href='{$web_prefix}/tokenizer_monitor.php'>Мониторинг качества токенизатора</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=tokenizer'>Странная токенизация</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=good_sentences&no_zero'>Наименее омонимичные предложения</a></li>
