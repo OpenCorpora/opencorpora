@@ -242,8 +242,7 @@ function get_morph_pools_page($type) {
     }
     return array('pools' => $pools, 'types' => $types);
 }
-function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $only_disagreed=false,
-    $only_not_moderated=false, $only_with_comments=false, $only_not_ok=false) {
+function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $filter=false) {
     $res = sql_query("SELECT pool_name, status, t.grammemes, users_needed, moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
     $r = sql_fetch_array($res);
     $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
@@ -312,14 +311,15 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $on
             }
         }
         if (
-            ($disagreement_flag || !$only_disagreed) &&
-            ($t['moder_answer_num'] == 0 || !$only_not_moderated) &&
-            (sizeof($t['comments']) > 0 || !$only_with_comments) &&
-            ($not_ok_flag || !$only_not_ok)
+            ($disagreement_flag || $filter != 'disagreed') &&
+            ($t['moder_answer_num'] == 0 || $filter != 'not_moderated') &&
+            (sizeof($t['comments']) > 0 || $filter != 'comments') &&
+            ($not_ok_flag || $filter != 'not_ok')
         )
             $out['samples'][] = $t;
     }
     $out['user_colors'] = $distinct_users;
+    $out['filter'] = $filter;
     return $out;
 }
 function get_pool_candidates_page($pool_id) {

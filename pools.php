@@ -36,16 +36,8 @@ switch ($action) {
         $smarty->display('qa/pool_candidates.tpl');
         break;
     case 'samples':
-        $smarty->assign('pool', get_morph_samples_page(
-            (int)$_GET['pool_id'],
-            isset($_GET['ext']),
-            isset($_GET['disagreed']),
-            isset($_GET['nomod']),
-            isset($_GET['with_comments']),
-            isset($_GET['not_ok'])
-        ));
         if (isset($_GET['tabs'])) {
-            $smarty->assign('pool', get_morph_samples_page((int)$_GET['pool_id'], true, 100, false, false, false, false));
+            $smarty->assign('pool', get_morph_samples_page((int)$_GET['pool_id'], true, 100, false));
             header("Content-type: application/csv; charset=utf-8");
             header("Content-disposition: attachment; filename=pool_".(int)$_GET['pool_id'].".tab");
             $smarty->display('qa/pool_tabs.tpl');
@@ -55,10 +47,7 @@ switch ($action) {
                 (int)$_GET['pool_id'],
                 isset($_GET['ext']),
                 4,
-                isset($_GET['disagreed']),
-                isset($_GET['nomod']),
-                isset($_GET['with_comments']),
-                isset($_GET['not_ok'])
+                isset($_GET['filter']) ? $_GET['filter'] : false
             ));
             $smarty->display('qa/pool.tpl');
         }
