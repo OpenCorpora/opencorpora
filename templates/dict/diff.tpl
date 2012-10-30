@@ -24,7 +24,7 @@
         <td valign='top'><b>(Стало)<br/>Версия {$diff.new_ver} ({$diff.new_user_name|default:'Робот'}, {$diff.new_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b></td>
 {else}
         <td valign='top'><b>Новая лемма</b></td>
-        <td valign='top'><b>Версия {$diff.new_ver} ({$diff.new_user_name|default:'Робот'}, {$diff.new_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b><pre>{$diff.new_rev_xml|htmlspecialchars}</pre></td>
+        <td valign='top'><b>Версия {$diff.new_ver} ({$diff.new_user_name|default:'Робот'}, {$diff.new_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b></td>
 {/if}
     </tr>
     <tr><td><pre>
