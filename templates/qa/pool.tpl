@@ -176,7 +176,7 @@
         {if $user_permission_check_morph && $pool.status == 5}
             <td>
                 {if !$sample.disagreed && !$sample.moder_answer_num}
-                <a href='#' class='hint agree'>согласен</a>
+                <a href='#' class='hint agree'>согласен</a><br/>
                 {/if}
                 {html_options options=$pool.variants name='sel_var' class='sel_var' selected={$sample.moder_answer_num}}
                 <br/>
