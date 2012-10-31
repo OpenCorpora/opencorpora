@@ -39,6 +39,7 @@ if (isset($_GET['page'])) {
                 $smarty->assign('stats', get_common_stats());
                 $smarty->assign('user_stats', get_user_stats());
                 $smarty->assign('ma_count', count_all_answers());
+                $smarty->assign('ma_count2', count_merged_answers());
             }
             $smarty->display('stats.tpl', $uid);
             break;
