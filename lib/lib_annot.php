@@ -600,7 +600,7 @@ function publish_pool($pool_id) {
                 return false;
             }
         }
-        if (!sql_query("INSERT INTO morph_annot_moderated_samples (SELECT sample_id, 0, 0, 0 FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id)")) {
+        if (!sql_query("INSERT INTO morph_annot_moderated_samples (SELECT sample_id, 0, 0, 0, 0 FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id)")) {
             return false;
         }
     }
@@ -961,7 +961,7 @@ function check_moderator_right($user_id, $pool_id, $make_owner=false) {
     sql_commit();
     return true;
 }
-function save_moderated_answer($id, $answer, $field_name='answer') {
+function save_moderated_answer($id, $answer, $manual, $field_name='answer') {
     $user_id = $_SESSION['user_id'];
     if (!$id || !$user_id || $answer < 0) return 0;
     $r = sql_fetch_array(sql_query("SELECT pool_id FROM morph_annot_samples WHERE sample_id = $id LIMIT 1"));
@@ -972,7 +972,7 @@ function save_moderated_answer($id, $answer, $field_name='answer') {
 
     sql_begin();
 
-    if (sql_query("UPDATE morph_annot_moderated_samples SET user_id=$user_id, `$field_name`=$answer WHERE sample_id=$id LIMIT 1")) {
+    if (sql_query("UPDATE morph_annot_moderated_samples SET user_id=$user_id, `$field_name`=$answer, `manual`=$manual WHERE sample_id=$id LIMIT 1")) {
         sql_commit();
         if ($field_name != 'answer')
             return 1;
@@ -985,7 +985,7 @@ function save_moderated_answer($id, $answer, $field_name='answer') {
     return 0;
 }
 function save_moderated_status($id, $status) {
-    return save_moderated_answer($id, $status, 'status');
+    return save_moderated_answer($id, $status, 1, 'status');
 }
 function get_sample_comments($sample_id) {
     $res = sql_query("SELECT comment_id, user_shown_name AS user_name, timestamp, text FROM morph_annot_comments LEFT JOIN users USING(user_id) WHERE sample_id=$sample_id ORDER BY timestamp");

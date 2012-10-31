@@ -4,9 +4,9 @@
 {if $user_permission_check_morph}
 {literal}
 <script type="text/javascript">
-    function submit(id, answer, $target) {
+    function submit(id, answer, $target, manual) {
         $('select').attr('disabled', 'disabled');
-        $.get('ajax/annot.php', {'id':id, 'answer':answer, 'moder':1}, function(res) {
+        $.get('ajax/annot.php', {'id':id, 'answer':answer, 'moder':1, 'manual':manual}, function(res) {
             var $r = $(res).find('result');
             if ($r.attr('ok') > 0) {
                 $target.closest('td').addClass('bggreen').find('select.sel_var [value=\''+answer+'\']').attr("selected", "selected");
@@ -21,20 +21,22 @@
     function agree_all() {
         if (confirm('Согласиться со всеми однозначными ответами?')) {
             $('tr:not(.notagreed)').each(function(i, el) {
-                submit($(el).attr('rel'), $(el).attr('rev'), $(el).find('a.agree'));
+                $el = $(el);
+                if ($el.find('select.sel_var').val() == 0)
+                    submit($el.attr('rel'), $el.attr('rev'), $el.find('a.agree'), 0);
             });
         }
     }
     $(document).ready(function(){
         $('select.sel_var').bind('change', function(event) {
             var $tgt = $(event.target);
-            submit($tgt.closest('tr').attr('rel'), $tgt.val(), $tgt);
+            submit($tgt.closest('tr').attr('rel'), $tgt.val(), $tgt, 1);
         });
         $('select.sel_status').bind('change', function(event) {
             var $tgt = $(event.target);
             $tgt.closest('td').removeClass('bggreen');
             $('select').attr('disabled', 'disabled');
-            $.get('ajax/annot.php', {'id':$tgt.closest('tr').attr('rel'), 'status': $tgt.val(), 'moder':1}, function(res) {
+            $.get('ajax/annot.php', {'id':$tgt.closest('tr').attr('rel'), 'status': $tgt.val(), 'moder':1, 'manual':1}, function(res) {
                 var $r = $(res).find('result');
                 if ($r.attr('ok') > 0) {
                     $tgt.closest('td').addClass('bggreen');
@@ -51,7 +53,7 @@
         $('a.agree').click(function(event) {
             var $tgt = $(event.target);
             var answer = $tgt.closest('tr').attr('rev');
-            submit($tgt.closest('tr').attr('rel'), answer, $tgt);
+            submit($tgt.closest('tr').attr('rel'), answer, $tgt, 1);
             event.preventDefault();
         });
         $('a.expand').click(function(event) {
