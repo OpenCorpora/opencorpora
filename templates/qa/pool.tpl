@@ -135,7 +135,7 @@
         {for $i=1 to $pool.num_users}<th>{$i}</th>{/for}
         {if $user_permission_check_morph && $pool.status == 5}
             <th><a class='agree_all pseudo' href='#'>согласен со всеми однозначными</a></th>
-        {elseif $pool.status == 6}
+        {elseif $pool.status > 5}
             <th>Модератор<br/>({$pool.moderator_name})</th>
         {/if}
     {else}
@@ -188,7 +188,7 @@
                     <option value='4' {if $sample.moder_status_num == 4}selected="selected"{/if}>Неснимаемая омонимия</option>
                 </select>
             </td>
-        {elseif $pool.status == 6}
+        {elseif $pool.status > 5}
             <td>
                 {$sample.moder_answer_gram}<br/>
                 {if $sample.moder_status_num == 1}
