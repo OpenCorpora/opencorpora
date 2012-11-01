@@ -25,6 +25,7 @@ $(document).ready(function() {
 });
 {/literal}
 </script>
+<h1>Статистика</h1>
 <ul class="nav nav-tabs">
     <li><a href="?page=stats">Общая</a></li>
     <li><a href="?page=tag_stats">По тегам</a></li>
