@@ -1016,17 +1016,6 @@ function count_all_answers() {
     $r = sql_fetch_array($res);
     return $r[0];
 }
-function count_merged_answers() {
-    $res = sql_query("
-        SELECT COUNT(*)
-        FROM morph_annot_instances
-        LEFT JOIN morph_annot_samples USING (sample_id)
-        LEFT JOIN morph_annot_pools p USING (pool_id)
-        WHERE p.status = 9
-    ");
-    $r = sql_fetch_array($res);
-    return $r[0];
-}
 function get_pool_manual_page($type_id) {
     $r = sql_fetch_array(sql_query("SELECT doc_link FROM morph_annot_pool_types WHERE type_id=$type_id LIMIT 1"));
     return $r['doc_link'];

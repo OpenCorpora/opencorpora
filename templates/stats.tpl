@@ -30,7 +30,7 @@ $(document).ready(function(){
 {*<div id="chart" style="width:700px; height: 400px"></div>
 <br/>*}
 <a name="users"></a>
-<h3>Участники по количеству размеченных примеров (всего {$ma_count}, {$ma_count2} уже в корпусе)</h3>
+<h3>Участники по количеству размеченных примеров (всего {$ma_count})</h3>
 <table class="table table-condensed" id="users_table">
 <tr>
     <th rowspan='2'>#</th>
