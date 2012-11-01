@@ -59,7 +59,7 @@ function get_word_stats_for_chart() {
         $sum = 0;
         foreach ($param_set as $param_id) {
             $sum += $ar[$param_id];
-            $tchart[$param_id][] = '['.($day * 86400000).','.$sum.']';
+            $tchart[$param_id][] = '['.($day * 24*60*60*1000).','.$sum.']';
         }
     }
 
@@ -69,6 +69,38 @@ function get_word_stats_for_chart() {
     $chart['blogs_words'] = join(',', $tchart[23]);
     $chart['chaskor_news_words'] = join(',', $tchart[27]);
     $chart['fiction_words'] = join(',', $tchart[32]);
+
+    return $chart;
+}
+function get_ambiguity_stats_for_chart() {
+    $chart = array();
+    $t = array();
+    $tchart=  array();
+    $time = time();
+    
+    $param_set = array(5, 35, 36, 37);
+
+    foreach ($param_set as $param_id) {
+        $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE timestamp > ".($time - 30*24*60*60)." AND param_id = $param_id ORDER BY timestamp");
+        while ($r = sql_fetch_array($res)) {
+            $day = intval($r['timestamp'] / 86400);
+            $t[$day][$param_id] = $r['param_value'];
+        }
+    }
+    ksort($t);
+
+    foreach ($t as $day => $ar) {
+        if ($ar[35] == 0)
+            continue;
+        $tchart['avg_parses'][] = '['.($day * 24*60*60*1000).','.sprintf("%.3f", $ar[35] / $ar[5]).']';
+        $tchart['non_ambig'][] = '['.($day * 24*60*60*1000).','.sprintf("%.3f", $ar[37] / $ar[5] * 100).']';
+        $tchart['unknown'][] = '['.($day * 24*60*60*1000).','.sprintf("%.3f", $ar[36] / $ar[5] * 100).']';
+        $tchart['total_words'][] = '['.($day * 24*60*60*1000).','.$ar[5].']';
+    }
+
+    foreach ($tchart as $name => $ar) {
+        $chart[$name] = join(',', $ar);
+    }
 
     return $chart;
 }

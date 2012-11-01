@@ -49,7 +49,8 @@ if (isset($_GET['page'])) {
             $smarty->display('tag_stats.tpl');
             break;
         case 'charts':
-            $smarty->assign('chart', get_word_stats_for_chart());
+            $smarty->assign('words_chart', get_word_stats_for_chart());
+            $smarty->assign('ambig_chart', get_ambiguity_stats_for_chart());
             $smarty->display('charts.tpl');
             break;
         case 'export':
