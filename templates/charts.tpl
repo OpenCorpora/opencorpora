@@ -2,6 +2,7 @@
 {extends file='common.tpl'}
 {block name=content}
 <script type="text/javascript" src="{$web_prefix}/js/jquery.flot.min.js"></script>
+<script type="text/javascript" src="{$web_prefix}/js/jquery.flot.pie.js"></script>
 <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{$web_prefix}/js/excanvas.min.js"></script><![endif]-->
 <script type="text/javascript">
 {literal}
@@ -32,10 +33,39 @@ $(document).ready(function() {
     var non_ambig = {label: "% однозначных", data: [{/literal}{$ambig_chart.non_ambig}{literal}], yaxis: 2, lines: {show: true}, color: 'green'};
     var unknown = {label: "% неизвестных", data: [{/literal}{$ambig_chart.unknown}{literal}], yaxis: 2, lines: {show: true}, color: 'red'};
     var total_words = {label: "всего слов", data: [{/literal}{$ambig_chart.total_words}{literal}], lines: {show:true, fill: true}};
+    var pools = [
+        {label: 'готовится', data: {/literal}{$pools_stats[2]}{literal}},
+        {label: 'размечается', data: {/literal}{$pools_stats[3]}{literal}},
+        {label: 'размечено', data: {/literal}{$pools_stats[4]}{literal}},
+        {label: 'на модерации', data: {/literal}{$pools_stats[5]}{literal}},
+        {label: 'ушло в корпус', data: {/literal}{$pools_stats[9]}{literal}},
+    ];
+
+    var pie_options = {
+        series: {
+            pie: {
+                show: true,
+                radius: 1,
+                label: {
+                    show: true,
+                    radius: 5/6,
+                    formatter: function(label, series) {
+                        return '<div style="text-align: center; padding: 2px; color: white">' + Math.round(series.percent) + '%</div>'
+                    },
+                    threshold: 0.02,
+                    background: {
+                        opacity: 0.5,
+                        color: '#000'
+                    }
+                }
+            }
+        }
+    };
 
     $.plot($("#ambig_chart1"), [total_words, avg_parses], options2);
     $.plot($("#ambig_chart2"), [total_words, non_ambig], options2);
     $.plot($("#ambig_chart3"), [total_words, unknown], options2);
+    $.plot($("#pools_chart"), pools, pie_options);
 });
 {/literal}
 </script>
@@ -54,4 +84,6 @@ $(document).ready(function() {
 <div id="ambig_chart2" style="width:700px; height: 400px"></div>
 <h3>% неизвестных слов</h3>
 <div id="ambig_chart3" style="width:700px; height: 400px"></div>
+<h2>Задания на разметку</h2>
+<div id="pools_chart" style="width:700px; height: 400px"></div>
 {/block}

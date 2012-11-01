@@ -104,6 +104,28 @@ function get_ambiguity_stats_for_chart() {
 
     return $chart;
 }
+function get_pools_stats() {
+    $stats = array();
+    $total = 0;
+    $plan = 1333000;
+
+    $res = sql_query("
+        SELECT COUNT(sample_id) cnt, status
+        FROM morph_annot_samples
+        LEFT JOIN morph_annot_pools p
+        USING (pool_id)
+        GROUP BY status
+    ");
+    
+    while ($r = sql_fetch_array($res)) {
+        $stats[$r['status']] = $r['cnt'];
+        $total += $r['cnt'];
+    }
+
+    $stats[2] += ($plan - $total);
+    
+    return $stats;
+}
 function get_tag_stats() {
     $out = array();
     $res = sql_query("SELECT prefix, value, texts, words FROM tag_stats ORDER BY prefix, texts DESC, words DESC");
