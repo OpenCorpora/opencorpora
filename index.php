@@ -48,6 +48,10 @@ if (isset($_GET['page'])) {
             $smarty->assign('stats', get_tag_stats());
             $smarty->display('tag_stats.tpl');
             break;
+        case 'charts':
+            $smarty->assign('chart', get_word_stats_for_chart());
+            $smarty->display('charts.tpl');
+            break;
         case 'export':
             $smarty->assign('active_page','downloads');
             $smarty->display('static/doc/export.tpl');

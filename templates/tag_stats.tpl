@@ -5,6 +5,7 @@
 <ul class="nav nav-tabs">
     <li><a href="?page=stats">Общая</a></li>
     <li class="active"><a href="?page=tag_stats">По тегам</a></li>
+    <li><a href="?page=charts">Графики</a></li>
 </ul>
 <ul class="nav clearfix">
     {foreach from=$stats item=i key=gname}

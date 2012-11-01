@@ -1,10 +1,6 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-<script type="text/javascript" src="{$web_prefix}/js/jquery.flot.min.js"></script>
-<!--script type="text/javascript" src="{$web_prefix}/js/jquery.flot.selection.min.js"></script>
-<script type="text/javascript" src="{$web_prefix}/js/jquery.flot.pie.js"></script-->
-<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{$web_prefix}/js/excanvas.min.js"></script><![endif]-->
 <script type="text/javascript">
 $(document).ready(function(){
 {literal}
@@ -29,6 +25,7 @@ $(document).ready(function(){
 <ul class="nav nav-tabs">
     <li class="active"><a href="?page=stats">Общая</a></li>
     <li><a href="?page=tag_stats">По тегам</a></li>
+    <li><a href="?page=charts">Графики</a></li>
 </ul>
 {*<div id="chart" style="width:700px; height: 400px"></div>
 <br/>*}
@@ -81,7 +78,6 @@ $(document).ready(function(){
     <li>{$s.user_name} ({$s.value})</li>
 {/foreach}
 </ol>
-<!--div id="adder_chart" style="width:700px; height:400px"></div-->
 {if $stats.added_sentences_last_week}
 <h3>За последнюю неделю</h3>
 <ol>
@@ -90,7 +86,6 @@ $(document).ready(function(){
 {/foreach}
 </ol>
 {/if}
-<!--div id="week_adder_chart" style="width:700px; height:400px"></div-->
 <h3>Наполнение корпуса</h3>
 <p>Таблица показывает, какие тексты и в каком количестве сейчас есть в корпусе.</p>
 <table class="table">
