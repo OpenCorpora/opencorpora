@@ -662,7 +662,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     if ($random)
         $order_string = "ORDER BY RAND()";
     else
-        $order_string = "ORDER BY complexity, pool_type, created_ts";
+        $order_string = "ORDER BY (complexity > 0) DESC, complexity, pool_type, created_ts";
 
     if ($limit)
         $limit_string = "LIMIT " . (2 * $limit);
