@@ -45,33 +45,37 @@ my $func;
 
 sub books_by_source {
     my $pid = shift;
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM books WHERE parent_id IN (SELECT book_id FROM books WHERE parent_id=$pid)");
-    $sc->execute();
-    my $cnt = $sc->fetchrow_hashref()->{'cnt'};
-    return $cnt if $cnt;
 
-    $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM books WHERE parent_id=$pid");
+    my @out = ();
+
+    my $sc = $dbh->prepare("SELECT book_id FROM books WHERE parent_id = $pid");
     $sc->execute();
-    return $sc->fetchrow_hashref()->{'cnt'};
+
+    while (my $r = $sc->fetchrow_hashref()) {
+        push @out, $r->{'book_id'};
+        push @out, books_by_source($r->{'book_id'});
+    }
+    
+    return @out;
 }
 
 sub sentences_by_source {
     my $pid = shift;
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = $pid OR parent_id IN (SELECT book_id FROM books WHERE parent_id=$pid) OR parent_id IN (SELECT book_id FROM books WHERE parent_id IN(SELECT book_id FROM books WHERE parent_id = $pid))))");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (".join(',', books_by_source($pid))."))");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 }
 
 sub tokens_by_source {
     my $pid = shift;
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = $pid OR parent_id IN (SELECT book_id FROM books WHERE parent_id = $pid) OR parent_id IN (SELECT book_id FROM books WHERE parent_id IN(SELECT book_id FROM books WHERE parent_id = $pid)))))");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (".join(',', books_by_source($pid)).")))");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 }
 
 sub words_by_source {
     my $pid = shift;
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (SELECT book_id FROM books WHERE parent_id = $pid OR parent_id IN (SELECT book_id FROM books WHERE parent_id = $pid) OR parent_id IN (SELECT book_id FROM books WHERE parent_id IN(SELECT book_id FROM books WHERE parent_id = $pid))))) AND tf_text REGEXP '[А-Яа-яЁё]'");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (".join(',', books_by_source($pid))."))) AND tf_text REGEXP '[А-Яа-яЁё]'");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 }
@@ -118,9 +122,7 @@ sub words_in_file {
 }
 
 $func->{'total_books'} = sub {
-    my $sc = $dbh->prepare("SELECT COUNT(DISTINCT book_id) AS cnt FROM paragraphs");
-    $sc->execute();
-    return $sc->fetchrow_hashref()->{'cnt'};
+    return scalar(books_by_source(0));
 };
 $func->{'total_sentences'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM sentences");
