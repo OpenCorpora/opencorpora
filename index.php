@@ -49,9 +49,14 @@ if (isset($_GET['page'])) {
             $smarty->display('tag_stats.tpl');
             break;
         case 'charts':
-            $smarty->assign('words_chart', get_word_stats_for_chart());
-            $smarty->assign('ambig_chart', get_ambiguity_stats_for_chart());
-            $smarty->assign('pools_stats', get_pools_stats());
+            $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
+            $smarty->setCacheLifetime(300);
+            if (!is_cached('charts.tpl')) {
+                $smarty->assign('words_chart', get_word_stats_for_chart());
+                $smarty->assign('ambig_chart', get_ambiguity_stats_for_chart());
+                $smarty->assign('pools_stats', get_pools_stats());
+                $smarty->assign('annot_chart', get_annot_stats_for_chart());
+            }
             $smarty->display('charts.tpl');
             break;
         case 'export':

@@ -33,6 +33,8 @@ $(document).ready(function() {
     var non_ambig = {label: "% однозначных", data: [{/literal}{$ambig_chart.non_ambig}{literal}], yaxis: 2, lines: {show: true}, color: 'green'};
     var unknown = {label: "% неизвестных", data: [{/literal}{$ambig_chart.unknown}{literal}], yaxis: 2, lines: {show: true}, color: 'red'};
     var total_words = {label: "всего слов", data: [{/literal}{$ambig_chart.total_words}{literal}], lines: {show:true, fill: true}};
+    var users_by_day = {label: "размечавших", data: [{/literal}{$annot_chart.users}{literal}], yaxis:2}
+    var samples_by_day = {label: "ответов", data: [{/literal}{$annot_chart.samples}{literal}], lines: {show:true, fill:true}}
     var pools = [
         {label: 'готовится', data: {/literal}{$pools_stats[2]}{literal}},
         {label: 'размечается', data: {/literal}{$pools_stats[3]}{literal}},
@@ -66,6 +68,8 @@ $(document).ready(function() {
     $.plot($("#ambig_chart2"), [total_words, non_ambig], options2);
     $.plot($("#ambig_chart3"), [total_words, unknown], options2);
     $.plot($("#pools_chart"), pools, pie_options);
+    options2['legend']['position'] = 'nw';
+    $.plot($("#users_chart"), [samples_by_day, users_by_day], options2);
 });
 {/literal}
 </script>
@@ -86,4 +90,6 @@ $(document).ready(function() {
 <div id="ambig_chart3" style="width:700px; height: 400px"></div>
 <h2>Задания на разметку</h2>
 <div id="pools_chart" style="width:700px; height: 400px"></div>
+<h3>Ответов и участников в день</h3>
+<div id="users_chart" style="width:700px; height: 400px"></div>
 {/block}

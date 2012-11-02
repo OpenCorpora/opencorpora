@@ -126,6 +126,31 @@ function get_pools_stats() {
     
     return $stats;
 }
+function get_annot_stats_for_chart() {
+    $stats = array();
+    $day = 60 * 60 * 24;
+
+    $res = sql_query("
+        SELECT
+            ROUND(timestamp / $day) * $day AS day,
+            COUNT(DISTINCT user_id) AS users,
+            COUNT(sample_id) AS samples
+        FROM morph_annot_click_log
+        WHERE clck_type < 10
+        AND ROUND(timestamp / $day) > ROUND(UNIX_TIMESTAMP() / $day) - 30
+        GROUP BY ROUND(timestamp / $day)
+    ");
+    
+    while ($r = sql_fetch_array($res)) {
+        $stats['users'][] = '['.($r['day'] * 1000).','.$r['users'].']';
+        $stats['samples'][] = '['.($r['day'] * 1000).','.$r['samples'].']';
+    }
+
+    return array(
+        'users' => join(',', $stats['users']),
+        'samples' => join(',', $stats['samples'])
+    );
+}
 function get_tag_stats() {
     $out = array();
     $res = sql_query("SELECT prefix, value, texts, words FROM tag_stats ORDER BY prefix, texts DESC, words DESC");
