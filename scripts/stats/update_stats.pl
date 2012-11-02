@@ -17,6 +17,17 @@ if ($dbh->{'AutoCommit'}) {
     die "Setting AutoCommit failed";
 }
 
+my %source2id = (
+    'chaskor' => 1,
+    'wikipedia' => 8,
+    'wikinews' => 56,
+    'blogs' => 184,
+    'chaskor_news' => 226,
+    'fiction' => 806,
+    'misc' => 1651,
+    'law' => 1675
+);
+
 my $scan = $dbh->prepare("SELECT * FROM `stats_param` WHERE is_active=1 ORDER BY param_id");
 my $insert = $dbh->prepare("INSERT INTO `stats_values` VALUES(?, ?, ?)");
 my $scan_author = $dbh->prepare("SELECT user_id, timestamp FROM sentence_authors WHERE sent_id=? LIMIT 1");
@@ -111,69 +122,15 @@ $func->{'total_books'} = sub {
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };
-$func->{'chaskor_books'} = sub {
-    return books_by_source(1);
-};
-$func->{'chaskor_news_books'} = sub {
-    return books_by_source(226);
-};
-$func->{'wikipedia_books'} = sub {
-    return books_by_source(8);
-};
-$func->{'wikinews_books'} = sub {
-    return books_by_source(56);
-};
-$func->{'blogs_books'} = sub {
-    return books_by_source(184);
-};
-$func->{'fiction_books'} = sub {
-    return books_by_source(806);
-};
 $func->{'total_sentences'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM sentences");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };
-$func->{'chaskor_sentences'} = sub {
-    return sentences_by_source(1);
-};
-$func->{'chaskor_news_sentences'} = sub {
-    return sentences_by_source(226);
-};
-$func->{'wikipedia_sentences'} = sub {
-    return sentences_by_source(8);
-};
-$func->{'wikinews_sentences'} = sub {
-    return sentences_by_source(56);
-};
-$func->{'blogs_sentences'} = sub {
-    return sentences_by_source(184);
-};
-$func->{'fiction_sentences'} = sub {
-    return sentences_by_source(806);
-};
 $func->{'total_tokens'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
-};
-$func->{'chaskor_tokens'} = sub {
-    return tokens_by_source(1);
-};
-$func->{'chaskor_news_tokens'} = sub {
-    return tokens_by_source(226);
-};
-$func->{'wikipedia_tokens'} = sub {
-    return tokens_by_source(8);
-};
-$func->{'wikinews_tokens'} = sub {
-    return tokens_by_source(56);
-};
-$func->{'blogs_tokens'} = sub {
-    return tokens_by_source(184);
-};
-$func->{'fiction_tokens'} = sub {
-    return tokens_by_source(806);
 };
 $func->{'total_lemmata'} = sub {
     my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM dict_lemmata");
@@ -185,24 +142,14 @@ $func->{'total_words'} = sub {
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };
-$func->{'chaskor_words'} = sub {
-    return words_by_source(1);
-};
-$func->{'chaskor_news_words'} = sub {
-    return words_by_source(226);
-};
-$func->{'wikipedia_words'} = sub {
-    return words_by_source(8);
-};
-$func->{'wikinews_words'} = sub {
-    return words_by_source(56);
-};
-$func->{'blogs_words'} = sub {
-    return words_by_source(184);
-};
-$func->{'fiction_words'} = sub {
-    return words_by_source(806);
-};
+
+for my $source(keys %source2id) {
+    $func->{$source.'_books'} = sub { return books_by_source($source2id{$source}) };
+    $func->{$source.'_sentences'} = sub { return sentences_by_source($source2id{$source}) };
+    $func->{$source.'_tokens'} = sub { return tokens_by_source($source2id{$source}) };
+    $func->{$source.'_words'} = sub { return words_by_source($source2id{$source}) };
+}
+
 $func->{'total_parses'} = sub {
     my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions WHERE is_last = 1 AND tf_id IN (SELECT tf_id FROM text_forms WHERE tf_text REGEXP '[А-Яа-яЁё]')");
     $scan->execute();
@@ -246,7 +193,6 @@ $func->{'added_sentences'} = sub {
     while ($r = $absent->fetchrow_hashref()) {
         get_sentence_adder($r->{'sent_id'});
     }
-    print STDERR "Done.\n";
 
     #LAST WEEK
     #we'll use param_id = 7, though it's used in different sense in stats_param

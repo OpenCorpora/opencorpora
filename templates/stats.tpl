@@ -147,7 +147,6 @@ $(document).ready(function(){
     </td>
 </tr>
 <tr>
-
     <td><a href="books.php?book_id=806">Худож. литература</a></td>
     <td><b>{$stats.fiction_books.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.fiction_sentences.value|number_format:0:'':' '}</b></td>
@@ -158,13 +157,33 @@ $(document).ready(function(){
     </td>
 </tr>
 <tr>
+    <td><a href="books.php?book_id=1675">Юридические тексты</a></td>
+    <td><b>{$stats.law_books.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.law_sentences.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.law_tokens.value|number_format:0:'':' '}</b></td>
+    <td>
+        <p><b>{$stats.law_words.value|number_format:0:'':' '}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.law_words}'>{$stats.percent_words.law}%</span></p>
+        <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.law}%"></div></div>
+    </td>
+</tr>
+<tr>
+    <td><a href="books.php?book_id=1651">Другое</a></td>
+    <td><b>{$stats.misc_books.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.misc_sentences.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.misc_tokens.value|number_format:0:'':' '}</b></td>
+    <td>
+        <p><b>{$stats.misc_words.value|number_format:0:'':' '}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.misc_words}'>{$stats.percent_words.misc}%</span></p>
+        <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.misc}%"></div></div>
+    </td>
+</tr>
+<tr>
     <th>Всего</th>
     <td><b>{$stats.total_books.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.total_sentences.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.total_tokens.value|number_format:0:'':' '}</b></td>
     <td>
         <p><b>{$stats.total_words.value|number_format:0:'':' '}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.total_words}'>{$stats.percent_words.total}%</span></p>
-        <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.total}px"></div></div>
+        <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.total}%"></div></div>
     </td>
 </tr>
 </table>

@@ -20,7 +20,9 @@ $(document).ready(function() {
     var blogs_words = {label: "Блоги", data: [{/literal}{$words_chart.blogs_words}{literal}]};
     var chaskor_news_words = {label: "ЧасКор (новости)", data: [{/literal}{$words_chart.chaskor_news_words}{literal}]};
     var fiction_words = {label: "Худож. литература", data: [{/literal}{$words_chart.fiction_words}{literal}]};
-    var data = [chaskor_words, wikinews_words, wikipedia_words, blogs_words, chaskor_news_words, fiction_words];
+    var law_words = {label: "Юридические тексты", data: [{/literal}{$words_chart.law_words}{literal}]};
+    var misc_words = {label: "Другое", data: [{/literal}{$words_chart.misc_words}{literal}]};
+    var data = [chaskor_words, wikinews_words, wikipedia_words, blogs_words, chaskor_news_words, fiction_words, law_words, misc_words];
 
     $.plot($("#words_chart"), data, options1);
 
@@ -33,7 +35,7 @@ $(document).ready(function() {
     var non_ambig = {label: "% однозначных", data: [{/literal}{$ambig_chart.non_ambig}{literal}], yaxis: 2, lines: {show: true}, color: 'green'};
     var unknown = {label: "% неизвестных", data: [{/literal}{$ambig_chart.unknown}{literal}], yaxis: 2, lines: {show: true}, color: 'red'};
     var total_words = {label: "всего слов", data: [{/literal}{$ambig_chart.total_words}{literal}], lines: {show:true, fill: true}};
-    var users_by_day = {label: "размечавших", data: [{/literal}{$annot_chart.users}{literal}], yaxis:2}
+    var users_by_day = {label: "размечавших", data: [{/literal}{$annot_chart.users}{literal}], yaxis:2, lines: {show: true}, color: 'navy'}
     var samples_by_day = {label: "ответов", data: [{/literal}{$annot_chart.samples}{literal}], lines: {show:true, fill:true}}
     var pools = [
         {label: 'готовится', data: {/literal}{$pools_stats[2]}{literal}},
