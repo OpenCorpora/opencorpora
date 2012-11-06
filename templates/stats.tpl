@@ -157,6 +157,16 @@ $(document).ready(function(){
     </td>
 </tr>
 <tr>
+    <td><a href="books.php?book_id=2037">Нон-фикшн</a></td>
+    <td><b>{$stats.nonfiction_books.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.nonfiction_sentences.value|number_format:0:'':' '}</b></td>
+    <td><b>{$stats.nonfiction_tokens.value|number_format:0:'':' '}</b></td>
+    <td>
+        <p><b>{$stats.nonfiction_words.value|number_format:0:'':' '}</b> = <span class='hint' title='Цель до июля 2012 года &ndash; {$goals.nonfiction_words}'>{$stats.percent_words.nonfiction}%</span></p>
+        <div class="progress" style="width: 200px;"><div class="bar" style="width: {$stats.percent_words.nonfiction}%"></div></div>
+    </td>
+</tr>
+<tr>
     <td><a href="books.php?book_id=1675">Юридические тексты</a></td>
     <td><b>{$stats.law_books.value|number_format:0:'':' '}</b></td>
     <td><b>{$stats.law_sentences.value|number_format:0:'':' '}</b></td>

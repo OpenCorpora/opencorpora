@@ -9,7 +9,7 @@ function get_common_stats() {
         $stats[$r['param_name']] = array('value' => $arr['param_value']);
     }
 
-    foreach (array('total', 'chaskor', 'chaskor_news', 'wikipedia', 'wikinews', 'blogs', 'fiction', 'law', 'misc') as $src) {
+    foreach (array('total', 'chaskor', 'chaskor_news', 'wikipedia', 'wikinews', 'blogs', 'fiction', 'nonfiction', 'law', 'misc') as $src) {
         $stats['goals'][$src.'_words'] = $config['goals'][$src.'_words'];
         $stats['percent_words'][$src] = floor($stats[$src.'_words']['value'] / $config['goals'][$src.'_words'] * 100);
     }
@@ -41,7 +41,7 @@ function get_word_stats_for_chart() {
     $tchart = array();
     $time = time();
 
-    $param_set = array(53, 49, 32, 27, 23, 19, 15, 11);
+    $param_set = array(53, 49, 57, 32, 27, 23, 19, 15, 11);
 
     foreach ($param_set as $param_id) {
         $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE timestamp > ".($time - 90*24*60*60)." AND param_id = $param_id ORDER BY timestamp");
@@ -69,6 +69,7 @@ function get_word_stats_for_chart() {
     $chart['blogs_words'] = join(',', $tchart[23]);
     $chart['chaskor_news_words'] = join(',', $tchart[27]);
     $chart['fiction_words'] = join(',', $tchart[32]);
+    $chart['nonfiction_words'] = join(',', $tchart[57]);
     $chart['law_words'] = join(',', $tchart[49]);
     $chart['misc_words'] = join(',', $tchart[53]);
 

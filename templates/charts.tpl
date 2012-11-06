@@ -20,9 +20,10 @@ $(document).ready(function() {
     var blogs_words = {label: "Блоги", data: [{/literal}{$words_chart.blogs_words}{literal}]};
     var chaskor_news_words = {label: "ЧасКор (новости)", data: [{/literal}{$words_chart.chaskor_news_words}{literal}]};
     var fiction_words = {label: "Худож. литература", data: [{/literal}{$words_chart.fiction_words}{literal}]};
+    var nonfiction_words = {label: "Нон-фикшн", data: [{/literal}{$words_chart.nonfiction_words}{literal}]};
     var law_words = {label: "Юридические тексты", data: [{/literal}{$words_chart.law_words}{literal}]};
     var misc_words = {label: "Другое", data: [{/literal}{$words_chart.misc_words}{literal}]};
-    var data = [chaskor_words, wikinews_words, wikipedia_words, blogs_words, chaskor_news_words, fiction_words, law_words, misc_words];
+    var data = [chaskor_words, wikinews_words, wikipedia_words, blogs_words, chaskor_news_words, fiction_words, nonfiction_words, law_words, misc_words];
 
     $.plot($("#words_chart"), data, options1);
 

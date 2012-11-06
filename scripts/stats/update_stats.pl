@@ -24,8 +24,9 @@ my %source2id = (
     'blogs' => 184,
     'chaskor_news' => 226,
     'fiction' => 806,
+    'nonfiction' => 2037,
     'misc' => 1651,
-    'law' => 1675
+    'law' => 1675,
 );
 
 my $scan = $dbh->prepare("SELECT * FROM `stats_param` WHERE is_active=1 ORDER BY param_id");
