@@ -67,7 +67,7 @@ sub process_pool {
         LEFT JOIN morph_annot_moderated_samples ms USING (sample_id)
         LEFT JOIN morph_annot_pools p USING (pool_id)
         WHERE is_last = 1
-        AND (p.status IS NULL OR p.status < 2 OR p.status > 6)
+        AND (p.status IS NULL OR p.status < 2 OR p.status = 9)
         AND (ms.status IS NULL OR p.status < 7 OR ms.status NOT IN (3, 4))
         AND (".join(' OR ', @q).")
     ";
