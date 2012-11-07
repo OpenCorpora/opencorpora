@@ -60,24 +60,66 @@ sub process_pool {
         push @q, "(".join(' AND ', @qt).")";
     }
     # rough filter
+    # part 1, tokens not in pools
     my $q = "
         SELECT tfr.tf_id, tfr.rev_id, tfr.rev_text
         FROM tf_revisions tfr
         LEFT JOIN morph_annot_samples s USING (tf_id)
-        LEFT JOIN morph_annot_moderated_samples ms USING (sample_id)
-        LEFT JOIN morph_annot_pools p USING (pool_id)
         WHERE is_last = 1
-        AND (p.status IS NULL OR p.status < 2 OR p.status = 9)
-        AND (ms.status IS NULL OR p.status < 7 OR ms.status NOT IN (3, 4))
+        AND s.sample_id IS NULL
         AND (".join(' OR ', @q).")
     ";
     print STDERR $q."\n";
     my $s = $dbh->prepare($q);
     $s->execute();
     while (my $ref = $s->fetchrow_hashref()) {
-        # finer check
         check_revision($pool_id, $ref->{'tf_id'}, $ref->{'rev_id'}, $ref->{'rev_text'}, \@gram_sets, \@gramset_types);
     }
+
+    # part 2, tokens in pools not under annotation
+    $q = "
+        SELECT tfr.tf_id, tfr.rev_id, tfr.rev_text, ms.status mod_status, p.status pool_status
+        FROM tf_revisions tfr
+        RIGHT JOIN morph_annot_samples s USING (tf_id)
+        LEFT JOIN morph_annot_moderated_samples ms USING (sample_id)
+        LEFT JOIN morph_annot_pools p USING (pool_id)
+        WHERE is_last = 1
+        AND (".join(' OR ', @q).")
+        ORDER BY tfr.tf_id
+    ";
+    print STDERR $q."\n";
+    my $s = $dbh->prepare($q);
+    $s->execute();
+    my $last_ref = undef;
+    my $skip = 0;
+    while (my $ref = $s->fetchrow_hashref()) {
+        if ($last_ref && $last_ref->{'tf_id'} != $ref->{'tf_id'}) {
+            # check previous
+            if (!$skip) {
+                check_revision($pool_id, $last_ref->{'tf_id'}, $last_ref->{'rev_id'}, $last_ref->{'rev_text'}, \@gram_sets, \@gramset_types);
+            }
+            $skip = 0;
+        }
+        
+        # check whether we should skip this token
+        if (
+            !$skip &&
+            ($ref->{'pool_status'} > 1 && $ref->{'pool_status'} != 9) ||
+            (
+                $ref->{'pool_status'} == 9 &&
+                ($ref->{'mod_status'} == 3 || $ref->{'mod_status'} == 4)
+            )
+        ) {
+            $skip = 1;
+        }
+
+        $last_ref = $ref;
+    }
+    # check last
+    if (!$skip) {
+        check_revision($pool_id, $last_ref->{'tf_id'}, $last_ref->{'rev_id'}, $last_ref->{'rev_text'}, \@gram_sets, \@gramset_types);
+    }
+
     $update_pool->execute($pool_id);
 }
 sub combine_or {
