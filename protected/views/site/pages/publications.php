@@ -23,6 +23,10 @@
     <td colspan="3"><h4>2012</h4></td>
 </tr>
 <tr>
+    <td>&laquo;Он видел их семью своими глазами&raquo;<br/>(пост на Хабрахабре)</td>
+    <td colspan='2'><a href="http://habrahabr.ru/post/152799">HTML</a></td>
+</tr>
+<tr>
     <td>Сегментация текста в проекте Открытый корпус<br/>(доклад на конференции &laquo;Диалог&raquo;)</td>
     <td colspan='2'>скоро</td>
 </tr>
