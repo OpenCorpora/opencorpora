@@ -156,7 +156,7 @@ for my $source(keys %source2id) {
 }
 
 $func->{'total_parses'} = sub {
-    my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions WHERE is_last = 1 AND tf_id IN (SELECT tf_id FROM text_forms WHERE $cyr_match)");
+    my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions LEFT JOIN text_forms USING(tf_id) WHERE is_last = 1 AND $cyr_match");
     $scan->execute();
     my $total = 0;
     while (my $r = $scan->fetchrow_hashref()) {
@@ -172,7 +172,7 @@ $func->{'unknown_words'} = sub {
     return $scan->fetchrow_hashref()->{'cnt'};
 };
 $func->{'unambiguous_parses'} = sub {
-    my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions WHERE is_last = 1 AND rev_text NOT LIKE '%g v=\"UNKN\"%' AND tf_id IN (SELECT tf_id FROM text_forms WHERE $cyr_match)");
+    my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions LEFT JOIN text_forms USING(tf_id) WHERE is_last = 1 AND rev_text NOT LIKE '%g v=\"UNKN\"%' AND $cyr_match");
     $scan->execute();
     my $parses = 0;
     my $total = 0;
