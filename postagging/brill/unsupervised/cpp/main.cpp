@@ -67,6 +67,8 @@ public:
     s.insert(t);
   }
 
+  size_t size() const { return s.size(); }
+
   Tag getPOST() const {
     Tag POSTag("ERRR");
     set<Tag>::const_iterator cit = s.begin();
@@ -180,9 +182,13 @@ public:
 typedef std::list<Sentence> SentenceCollection;
 
 void readCorpus(const string &fn, SentenceCollection &sc);
+void UpdateCorpusStatistics(SentenceCollection &sc, map<TagSet, size_t> &tStat);
+void DoOneStep(SentenceCollection &sc, map<TagSet, size_t> &tStat); 
 
 SentenceCollection originalCorpus;
 SentenceCollection currentCorpus;
+
+map<TagSet, size_t> tagStat;
 
 int main(int argc, char **argv) {
   if (argc > 1)
@@ -194,17 +200,35 @@ int main(int argc, char **argv) {
 
   currentCorpus = originalCorpus;
 
+  DoOneStep(currentCorpus, tagStat);
+
+  return 0;
+
   cout << currentCorpus.begin()->str() << endl;
 
   SentenceCollection::const_iterator cit = currentCorpus.begin();
-  for (size_t i = 0; i < cit->size(); i++) {
-    const Token &t = cit->getToken(i);
-    cout << i << '\t' << t.str() << endl;
-    cout << i << '\t' << t.getText() << '\t' << t.getPOST().str() << endl; 
+  while (currentCorpus.end() != cit) {
+    for (size_t i = 0; i < cit->size(); i++) {
+      const Token &t = cit->getToken(i);
+      cout << "//" << i << '\t' << t.str() << endl;
+      cout << i << '\t' << t.getText() << '\t' << t.getPOST().str() << endl; 
+    }
+    cit++;
   }
 
   return 0;
 }
+
+void DoOneStep(SentenceCollection &sc, map<TagSet, size_t> &tStat) {
+  
+  UpdateCorpusStatistics(sc, tStat);
+ 
+}
+
+void UpdateCorpusStatistics(SentenceCollection &sc, map<TagSet, size_t> &tStat) {
+
+}
+
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
     std::stringstream ss(s);
@@ -232,7 +256,7 @@ void readCorpus(const string &fn, SentenceCollection &sc) {
   string s;
   Sentence sent;
   while (getline(f, s)) {
-    cerr << "reading line \"" << s << "\"" << endl;
+    //cerr << "reading line \"" << s << "\"" << endl;
     if ("<sent>" == s) {
       Token t("SentBegin", makeVariants("SBEG"));
       sent.push_back(t);
@@ -251,7 +275,13 @@ void readCorpus(const string &fn, SentenceCollection &sc) {
 
       set<TagSet> variants;
       for (int i = 2; i < fields.size(); i++) {
+        if (0 == fields[i].size())
+          continue;
         TagSet ts(fields[i]); 
+        if (0 == ts.size()) {
+          cerr << "\"" << s << "\" - \"" << fields[i] << "\"" << fields[i].size() << endl;
+          throw;
+        }
         variants.insert(ts);
       }
 
