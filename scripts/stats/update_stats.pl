@@ -11,7 +11,7 @@ my $conf = Config::INI::Reader->read_file($ARGV[0]);
 my $mysql = $conf->{mysql};
 
 my $dbh = DBI->connect('DBI:mysql:'.$mysql->{'dbname'}.':'.$mysql->{'host'}, $mysql->{'user'}, $mysql->{'passwd'}) or die $DBI::errstr;
-$dbh->do("SET NAMES utf8");
+$dbh->do("SET NAMES cp1251");
 $dbh->{'AutoCommit'} = 0;
 if ($dbh->{'AutoCommit'}) {
     die "Setting AutoCommit failed";
@@ -28,6 +28,8 @@ my %source2id = (
     'misc' => 1651,
     'law' => 1675,
 );
+my $cyr_cp1251 = encode('cp1251', '[а-яё]');
+my $cyr_match = "CONVERT(tf_text USING cp1251) COLLATE 'cp1251_general_ci' REGEXP '$cyr_cp1251' COLLATE 'cp1251_general_ci'";
 
 my $scan = $dbh->prepare("SELECT * FROM `stats_param` WHERE is_active=1 ORDER BY param_id");
 my $insert = $dbh->prepare("INSERT INTO `stats_values` VALUES(?, ?, ?)");
@@ -76,7 +78,7 @@ sub tokens_by_source {
 
 sub words_by_source {
     my $pid = shift;
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (".join(',', books_by_source($pid))."))) AND tf_text REGEXP '[А-Яа-яЁё]'");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (".join(',', books_by_source($pid))."))) AND $cyr_match");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 }
@@ -119,7 +121,7 @@ sub tokens_in_file {
     return `bzcat $_[0] | grep -c '<token '`
 }
 sub words_in_file {
-    return `bzcat $_[0] | grep '<token ' | grep -Eo 'text="[^\"]+"' | cut -d\\" -f2 | grep -v '[[:punct:]]' | grep -civ '[a-z]'`
+    return `bzcat $_[0] | grep '<token ' | grep -Eo 'text="[^\"]+"' | cut -d\\" -f2 | grep -v '[[:punct:]]' | grep -civ '[a-z0-9]'`
 }
 
 $func->{'total_books'} = sub {
@@ -141,7 +143,7 @@ $func->{'total_lemmata'} = sub {
     return $sc->fetchrow_hashref()->{'cnt'};
 };
 $func->{'total_words'} = sub {
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE tf_text REGEXP '[А-Яа-яЁё]'");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE $cyr_match");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };
@@ -154,7 +156,7 @@ for my $source(keys %source2id) {
 }
 
 $func->{'total_parses'} = sub {
-    my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions WHERE is_last = 1 AND tf_id IN (SELECT tf_id FROM text_forms WHERE tf_text REGEXP '[А-Яа-яЁё]')");
+    my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions WHERE is_last = 1 AND tf_id IN (SELECT tf_id FROM text_forms WHERE $cyr_match)");
     $scan->execute();
     my $total = 0;
     while (my $r = $scan->fetchrow_hashref()) {
@@ -170,7 +172,7 @@ $func->{'unknown_words'} = sub {
     return $scan->fetchrow_hashref()->{'cnt'};
 };
 $func->{'unambiguous_parses'} = sub {
-    my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions WHERE is_last = 1 AND rev_text NOT LIKE '%g v=\"UNKN\"%' AND tf_id IN (SELECT tf_id FROM text_forms WHERE tf_text REGEXP '[А-Яа-яЁё]')");
+    my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions WHERE is_last = 1 AND rev_text NOT LIKE '%g v=\"UNKN\"%' AND tf_id IN (SELECT tf_id FROM text_forms WHERE $cyr_match)");
     $scan->execute();
     my $parses = 0;
     my $total = 0;
@@ -242,6 +244,7 @@ my $value;
 while (my $ref = $scan->fetchrow_hashref()) {
     if (exists $func->{$ref->{'param_name'}}) {
         $value = $func->{$ref->{'param_name'}}->();
+        #printf STDERR "%s = %d\n", $ref->{'param_name'}, $value;
         $insert->execute(time(), $ref->{'param_id'}, $value) unless $value == -1;
     }
 }
