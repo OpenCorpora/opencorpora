@@ -55,7 +55,7 @@ function generate_tf_rev($token) {
         } else {
             $out .= '<v><l id="0" t="'.htmlspecialchars(mb_strtolower($token, 'UTF-8')).'"><g v="UNKN"/></l></v>';
         }
-    } elseif (preg_match('/^\p{Punctuation}+$/u', $token)) {
+    } elseif (preg_match('/^\p{P}+$/u', $token)) {
         $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="PNCT"/></l></v>';
     } else {
         $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="UNKN"/></l></v>';
