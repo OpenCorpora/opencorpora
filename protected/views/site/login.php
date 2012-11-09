@@ -23,7 +23,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     <?php echo $form->passwordFieldRow($model, 'password', array('class'=>'span3')); ?>
     <label><small><?php echo CHtml::link('Забыли пароль?',array('site/forgotpassword'),array('class'=>'forgot-link'));?></small></label>
     <div class="controls">
-        <button type="submit" class="btn btn-primary">Войти</button> <?php echo CHtml::link('Зарегистрироваться',array('site/register'),array('class'=>'reg-link'));?>
+        <button type="submit" class="btn btn-primary">Войти</button> <?php echo CHtml::link('Зарегистрироваться',array('user/register'),array('class'=>'reg-link'));?>
     </div>
 
 <?php $this->endWidget();?>

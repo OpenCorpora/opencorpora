@@ -15,8 +15,20 @@
  * @property integer $user_shown_level
  * @property string $user_rating10
  * @property integer $show_game
+ * 
+ * @property integer $id user_id alias
+ * @property string $name user_shown_name or user_name
+ * 
  */
 class User extends CActiveRecord {
+
+    public $id;
+    public $name;
+
+
+    public $is_license_accepted;
+    public $is_subscribe_checked;
+
     /**
      * Returns the static model of the specified AR class.
      * @param string $className active record class name.
@@ -40,15 +52,17 @@ class User extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('user_name, user_passwd, user_email, user_reg, user_shown_name, user_team, user_level, user_shown_level, user_rating10, show_game', 'required'),
-            array('user_team, user_level, user_shown_level, show_game', 'numerical', 'integerOnly'=>true),
+            array('user_name', 'required', 'on' => 'register,register_openid'),
+            array('user_passwd', 'required', 'on' => 'register'),
+            array('user_name, user_email', 'unique', 'on' => 'register,register_openid'),
+            array('is_license_accepted','required','requiredValue'=>1, 'on' => 'register,register_openid','message'=>'Необходимо согласиться с лицензией.'),
+            array('user_email','filter','filter'=>'strtolower'),
+            array('user_email', 'email'),
             array('user_name, user_shown_name', 'length', 'max'=>120),
+            array('user_name,user_passwd', 'match', 'pattern'=>'/^[a-zA-Z0-9_-]+$/', 'message' => 'Допустимые символы: латинские буквы, цифры, дефис и подчеркивание.','on'=>'register'),
             array('user_passwd', 'length', 'max'=>32),
             array('user_email', 'length', 'max'=>100),
-            array('user_reg, user_rating10', 'length', 'max'=>10),
-            // The following rule is used by search().
-            // Please remove those attributes that should not be searched.
-            array('user_id, user_name, user_passwd, user_email, user_reg, user_shown_name, user_team, user_level, user_shown_level, user_rating10, show_game', 'safe', 'on'=>'search'),
+            
     );
     }
 
@@ -59,7 +73,9 @@ class User extends CActiveRecord {
         // NOTE: you may need to adjust the relation name and the related
         // class name for the relations automatically generated below.
         return array(
-            );
+            'options' => array(self::HAS_MANY, 'UserOptionValue', 'user_id'),
+            'permissions' => array(self::HAS_ONE, 'UserPermissions', 'user_id')
+        );
     }
 
     /**
@@ -78,8 +94,21 @@ class User extends CActiveRecord {
             'user_shown_level' => 'User Shown Level',
             'user_rating10' => 'User Rating10',
             'show_game' => 'Show Game',
+            
+            'is_license_accepted' => ' Я согласен на неотзывную публикацию всех вносимых мной изменений в соответствии с лицензией ' . CHtml::link('Creative Commons Attribution/Share-Alike 3.0','http://creativecommons.org/licenses/by-sa/3.0/deed.ru'),
+            'is_subscribe_checked' => 'Подписаться на рассылку новостей проекта',
         );
     }
+    
+    /**
+     * treat model after it's found in DB
+     */
+    public function afterFind() {
+        $this->id = $this->user_id;
+        $this->name = $this->user_shown_name ? $this->user_shown_name : $this->user_name;
+        parent::afterFind();
+    }
+
     /**
      * checks password hash
      * @param string $password
@@ -94,6 +123,32 @@ class User extends CActiveRecord {
      */
     public function hashPassword($password) {
         return md5(md5($password).substr($this->user_name, 0, 2));
+    }
+    
+    /**
+     * get user's options as an array indexed by option_id
+     * @return array
+     */
+    public function getOptionsArray() {
+        
+        $res = array();
+        foreach ($this->options as $ar) {
+            $res[$ar->option_id] = $ar->option_value;
+        }
+        return $res;
+    }
+    
+    /**
+     * get user's permissions as an array indexed by permission type
+     * @return array
+     */
+    public function getPermissionsArray() {
+        
+        $res = array();
+        foreach ($this->permissions as $k => $v) {
+            $res[$k] = $v;
+        }
+        return $res;
     }
 
     /**
@@ -121,5 +176,41 @@ class User extends CActiveRecord {
         return new CActiveDataProvider($this, array(
             'criteria'=>$criteria,
         ));
+    }
+    
+    /**
+     * creates a user: saves AR without validation & sets default permissions&options
+     * @return type
+     */
+    public function create() {
+        $r = TRUE;
+        $trans = Yii::app()->db->beginTransaction();
+        $this->user_reg = time();
+        $this->user_shown_name = $this->user_name;
+        $r = $r && $this->save(FALSE);
+        $r = $r && UserPermissions::model()->setDefaults($this->user_id);
+        $r = $r && UserOptionValue::model()->setDefaults($this->user_id);
+        if($r) {
+            $trans->commit();
+        }
+        else {
+            $trans->rollback();
+        }
+        return $r;
+    }
+    
+    public function getAlias($user_id) {
+        $cmd = Yii::app()->db->createCommand();
+        $cmd
+            ->select('primary_uid')
+            ->from('user_aliases')
+            ->where('alias_uid=:id', array(':id'=>$user_id));
+        $id = $cmd->queryScalar();
+        if($id) {
+            return User::model()->findByPk($id);
+        }
+        else {
+            return NULL;
+        }
     }
 }
