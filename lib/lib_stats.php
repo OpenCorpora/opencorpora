@@ -250,8 +250,10 @@ function get_user_stats($weekly=false) {
             $annotators[$k]['fin']['moderated'] = isset($moderated[$v['user_id']]) ? $moderated[$v['user_id']] : 0;
             $annotators[$k]['fin']['error_rate'] = (!isset($moderated[$v['user_id']]) || !$moderated[$v['user_id']]) ? 0 : (1 - $correct[$v['user_id']] / $moderated[$v['user_id']]) * 100;
         }
-
     }
+
+    $timestamp_yesterday = ($timestamp_today = mktime(0, 0, 0)) - 3600 * 24;
+
     return array(
         'annotators' => $annotators,
         'teams' => $teams,
