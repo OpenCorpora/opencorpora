@@ -48,6 +48,11 @@ if (isset($_GET['page'])) {
             $smarty->assign('stats', get_tag_stats());
             $smarty->display('tag_stats.tpl');
             break;
+        case 'genre_stats':
+            $smarty->assign('active_page', 'stats');
+            $smarty->assign('stats', get_common_stats());
+            $smarty->display('genre_stats.tpl');
+            break;
         case 'charts':
             $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
             $smarty->setCacheLifetime(300);
