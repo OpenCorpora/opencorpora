@@ -179,16 +179,57 @@ public:
   }
 };
 
+inline string toString(const map<TagSet, size_t> &m) {
+  map<TagSet, size_t>::const_iterator cit = m.begin();
+  stringstream ss;
+  while (m.end() != cit) {
+    ss << '\t' << cit->first.str() << '\t' << cit->second << endl;
+    cit++;
+  }
+
+  return ss.str();
+}
+
+inline string toString(const map<string, size_t> &m) {
+  map<string, size_t>::const_iterator cit = m.begin();
+  stringstream ss;
+  while (m.end() != cit) {
+    ss << '\t' << cit->first << '\t' << cit->second << endl;
+    cit++;
+  }
+
+  return ss.str();
+}
+
+struct TagStat {
+  size_t freq;
+  map<TagSet, size_t> leftTag;
+  map<TagSet, size_t> rightTag;
+  map<string, size_t> leftWord;
+  map<string, size_t> rightWord;
+
+  string str() const {
+    stringstream ss;
+    ss << "freq = " << freq << endl;
+    ss << "leftTag:" << endl << toString(leftTag) << endl;
+    ss << "rightTag:" << endl << toString(rightTag) << endl; 
+    ss << "leftWord:" << endl << toString(leftWord) << endl; 
+    ss << "rightWord:" << endl << toString(rightWord) << endl;
+    ss << "-----------------" << endl; 
+    return ss.str();
+  }
+};
+
 typedef std::list<Sentence> SentenceCollection;
 
 void readCorpus(const string &fn, SentenceCollection &sc);
-void UpdateCorpusStatistics(SentenceCollection &sc, map<TagSet, size_t> &tStat);
-void DoOneStep(SentenceCollection &sc, map<TagSet, size_t> &tStat); 
+void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &tStat);
+void DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat); 
 
 SentenceCollection originalCorpus;
 SentenceCollection currentCorpus;
 
-map<TagSet, size_t> tagStat;
+map<TagSet, TagStat> tagStat;
 
 int main(int argc, char **argv) {
   if (argc > 1)
@@ -200,6 +241,7 @@ int main(int argc, char **argv) {
 
   currentCorpus = originalCorpus;
 
+  // TODO: делать это в цикле до тех пор, пока годных правил не останется
   DoOneStep(currentCorpus, tagStat);
 
   return 0;
@@ -219,13 +261,23 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-void DoOneStep(SentenceCollection &sc, map<TagSet, size_t> &tStat) {
-  
+void DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat) {
+  tStat.clear();
   UpdateCorpusStatistics(sc, tStat);
+ 
+  // TODO: сделать тип struct Rule
+  // TODO: сгенерировать список правил и выбрать лучшее
+  // Rule bestRule; 
+  // FindBestRule(tStat, bestRule); // прототип функции void FindBestRule(const map<TagSet, TagStat> &tStat, Rule &rule);
+ 
+  // TODO: применить это лучшее правило к корпусу
+  // ApplyRule(sc, bestRule); // void ApplyRule(SentenceCollection &sc, const Rule &rule);
+  
+  // TODO: сложить правило в какой-нибудь list<Rule>
  
 }
 
-void UpdateCorpusStatistics(SentenceCollection &sc, map<TagSet, size_t> &tStat) {
+void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &tStat) {
 
 }
 
