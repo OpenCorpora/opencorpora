@@ -14,12 +14,6 @@ function get_common_stats() {
         $stats['percent_words'][$src] = floor($stats[$src.'_words']['value'] / $config['goals'][$src.'_words'] * 100);
     }
 
-    $stats['added_sentences'] = get_sentence_adders_stats();
-    $stats['added_sentences_last_week'] = get_sentence_adders_stats(true);
-
-    // we need 2 timestamps to show last activity
-    $stats['timestamp_yesterday'] = ($stats['timestamp_today'] = mktime(0, 0, 0)) - 3600 * 24;
-
     return $stats;
 }
 function get_sentence_adders_stats($last_week=false) {
@@ -163,7 +157,12 @@ function get_tag_stats() {
     }
     return $out;
 }
-function get_user_stats() {
+function get_user_stats($weekly=false) {
+    if ($weekly)
+        $start_time = time() - 7 * 24 * 60 * 60;
+    else
+        $start_time = 0;
+    
     $annotators = array();
     // team info
     $uid2team = array();
@@ -176,7 +175,7 @@ function get_user_stats() {
     }
 
     $uid2sid = array();
-    $res = sql_query("SELECT user_id, COUNT(*) AS cnt FROM morph_annot_instances WHERE answer > 0 GROUP BY user_id ORDER BY cnt DESC");
+    $res = sql_query("SELECT user_id, COUNT(*) AS cnt FROM morph_annot_instances WHERE answer > 0 AND ts_finish > $start_time GROUP BY user_id ORDER BY cnt DESC");
     while ($r = sql_fetch_array($res)) {
         $annotators[] = array('total' => number_format($r['cnt'], 0, '', ' '), 'user_id' => $r['user_id']);
         $uid2sid[$r['user_id']] = sizeof($annotators) - 1;
@@ -251,7 +250,14 @@ function get_user_stats() {
             $annotators[$k]['fin']['moderated'] = isset($moderated[$v['user_id']]) ? $moderated[$v['user_id']] : 0;
             $annotators[$k]['fin']['error_rate'] = (!isset($moderated[$v['user_id']]) || !$moderated[$v['user_id']]) ? 0 : (1 - $correct[$v['user_id']] / $moderated[$v['user_id']]) * 100;
         }
+
     }
-    return array('annotators' => $annotators, 'teams' => $teams);
+    return array(
+        'annotators' => $annotators,
+        'teams' => $teams,
+        'timestamp_today' => $timestamp_today,
+        'timestamp_yesterday' => $timestamp_yesterday,
+        'added_sentences' => get_sentence_adders_stats($weekly)
+    );
 }
 ?>

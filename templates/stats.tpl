@@ -51,8 +51,8 @@ $(document).ready(function(){
         <td>{$s.fin.moderated|default:'0'}
         <td>{$s.fin.error_rate|string_format:"%.1f%%"}
         <td>
-            {if $s.fin.last_active > $stats.timestamp_today}сегодня в {$s.fin.last_active|date_format:"%H:%M"}
-            {elseif $s.fin.last_active > $stats.timestamp_yesterday}вчера в {$s.fin.last_active|date_format:"%H:%M"}
+            {if $s.fin.last_active > $user_stats.timestamp_today}сегодня в {$s.fin.last_active|date_format:"%H:%M"}
+            {elseif $s.fin.last_active > $user_stats.timestamp_yesterday}вчера в {$s.fin.last_active|date_format:"%H:%M"}
             {else}{$s.fin.last_active|date_format:"%d.%m.%y"}{/if}
     </tr>
 {/foreach}
@@ -75,16 +75,8 @@ $(document).ready(function(){
 </table>
 <h3>Участники по количеству добавленных предложений</h3>
 <ol>
-{foreach item=s from=$stats.added_sentences}
+{foreach item=s from=$user_stats.added_sentences}
     <li>{$s.user_name} ({$s.value})</li>
 {/foreach}
 </ol>
-{if $stats.added_sentences_last_week}
-<h3>За последнюю неделю</h3>
-<ol>
-{foreach item=s from=$stats.added_sentences_last_week}
-    <li>{$s.user_name} ({$s.value})</li>
-{/foreach}
-</ol>
-{/if}
 {/block}
