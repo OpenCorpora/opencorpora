@@ -12,10 +12,11 @@ my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf
 $dbh->do("SET NAMES utf8");
 
 update_annot_stats();
-$dbh->commit();
+$dbh->do("COMMIT");
 
-sub count_total {
+sub count_finished {
     my $dbh = shift;
+    my $start_time = shift;
     my $total_count = shift;
     my $diverg_count = shift;
 
@@ -31,6 +32,7 @@ sub count_total {
         LEFT JOIN morph_annot_pools USING(pool_id)
         WHERE status > 3
         AND answer > 0
+        AND ts_finish > $start_time
         AND user_id > 0
         ORDER BY s.sample_id
     ");
@@ -64,6 +66,7 @@ sub count_total {
 }
 sub count_correct {
     my $dbh = shift;
+    my $start_time = shift;
     my $total = shift;
     my $correct = shift;
 
@@ -72,7 +75,9 @@ sub count_correct {
         FROM morph_annot_instances
         LEFT JOIN morph_annot_samples USING (sample_id)
         LEFT JOIN morph_annot_pools USING (pool_id)
-        WHERE answer > 0 AND status > 5
+        WHERE answer > 0
+        AND status > 5
+        AND ts_finish > $start_time
     ");
     $user_answers->execute();
 
@@ -107,14 +112,26 @@ sub update_annot_stats {
     my %diverg_count;
     my %total_moderated_count;
     my %correct_moderated_count;
-    count_total($dbh, \%total_count, \%diverg_count);
-    count_correct($dbh, \%total_moderated_count, \%correct_moderated_count);
+    count_finished($dbh, 0, \%total_count, \%diverg_count);
+    count_correct($dbh, 0, \%total_moderated_count, \%correct_moderated_count);
+
+    my %total_count_week;
+    my %diverg_count_week;
+    my %total_moderated_count_week;
+    my %correct_moderated_count_week;
+    my $week_ago = time() - 7 * 24 * 60 * 60;
+    count_finished($dbh, $week_ago, \%total_count_week, \%diverg_count_week);
+    count_correct($dbh, $week_ago, \%total_moderated_count_week, \%correct_moderated_count_week);
 
     $dbh->do("START TRANSACTION");
     $user_del->execute(33);
     $user_del->execute(34);
     $user_del->execute(38);
     $user_del->execute(39);
+    $user_del->execute(58);
+    $user_del->execute(59);
+    $user_del->execute(60);
+    $user_del->execute(61);
 
     for my $uid(keys %total_count) {
         $user_ins->execute($uid, time(), 33, $total_count{$uid});
@@ -123,5 +140,13 @@ sub update_annot_stats {
     for my $uid(keys %total_moderated_count) {
         $user_ins->execute($uid, time(), 38, $total_moderated_count{$uid});
         $user_ins->execute($uid, time(), 39, int($correct_moderated_count{$uid}));
+    }
+    for my $uid(keys %total_count_week) {
+        $user_ins->execute($uid, time(), 58, $total_count_week{$uid});
+        $user_ins->execute($uid, time(), 59, int($diverg_count_week{$uid}));
+    }
+    for my $uid(keys %total_moderated_count_week) {
+        $user_ins->execute($uid, time(), 60, $total_moderated_count_week{$uid});
+        $user_ins->execute($uid, time(), 61, int($correct_moderated_count_week{$uid}));
     }
 }

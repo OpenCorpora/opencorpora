@@ -158,10 +158,15 @@ function get_tag_stats() {
     return $out;
 }
 function get_user_stats($weekly=false) {
-    if ($weekly)
+    if ($weekly) {
         $start_time = time() - 7 * 24 * 60 * 60;
-    else
+        $counter_param = 58;
+        $params = array(59, 60, 61);
+    } else {
         $start_time = 0;
+        $counter_param = 33;
+        $params = array(34, 38, 39);
+    }
     
     $annotators = array();
     // team info
@@ -203,18 +208,21 @@ function get_user_stats($weekly=false) {
     $moderated = array();
     $correct = array();
 
-    $res = sql_query("SELECT user_id, param_id, param_value FROM user_stats WHERE param_id IN (34, 38, 39)");
+    $res = sql_query("SELECT user_id, param_id, param_value FROM user_stats WHERE param_id IN (".join(', ', $params).")");
     while ($r = sql_fetch_array($res)) {
         switch ($r['param_id']) {
             case 34:
+            case 59:
                 $divergence[$r['user_id']] = $r['param_value'];
                 break;
             case 38:
+            case 60:
                 $moderated[$r['user_id']] = $r['param_value'];
                 if (isset($uid2team[$r['user_id']]))
                     $teams[$uid2team[$r['user_id']]]['moderated'] += $r['param_value'];
                 break;
             case 39:
+            case 61:
                 $correct[$r['user_id']] = $r['param_value'];
                 if (isset($uid2team[$r['user_id']]))
                     $teams[$uid2team[$r['user_id']]]['correct'] += $r['param_value'];
@@ -228,7 +236,7 @@ function get_user_stats($weekly=false) {
             $teams[$i]['error_rate'] = 0;
     }
 
-    $res = sql_query("SELECT u.user_id, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=33 ORDER BY param_value DESC");
+    $res = sql_query("SELECT u.user_id, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=$counter_param ORDER BY param_value DESC");
     while ($r = sql_fetch_array($res)) {
         $t = array(
             'user_id' => $r['user_id'],

@@ -24,7 +24,7 @@
                         ),
                         array(
                             'label' => 'Статистика',
-                            'url' => Yii::app()->baseUrl . '/?page=stats',
+                            'url' => Yii::app()->baseUrl . '/?page=stats&weekly',
                         ),
                         array(
                             'label' => 'Скачать',

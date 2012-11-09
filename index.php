@@ -33,14 +33,15 @@ if (isset($_GET['page'])) {
             break;
         case 'stats':
             $uid = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
+            $weekly = isset($_GET['weekly']);
             $smarty->assign('active_page','stats');
             $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
             $smarty->setCacheLifetime(300);
-            if (!is_cached('stats.tpl', $uid)) {
-                $smarty->assign('user_stats', get_user_stats());
+            if (!is_cached('stats.tpl', $uid.'@'.(int)$weekly)) {
+                $smarty->assign('user_stats', get_user_stats($weekly));
                 $smarty->assign('ma_count', count_all_answers());
             }
-            $smarty->display('stats.tpl', $uid);
+            $smarty->display('stats.tpl', $uid.'@'.(int)$weekly);
             break;
         case 'tag_stats':
             $smarty->assign('active_page','stats');

@@ -23,13 +23,12 @@ $(document).ready(function(){
 </script>
 <h1>Статистика</h1>
 <ul class="nav nav-tabs">
-    <li class="active"><a href="?page=stats">Активность</a></li>
+    <li class="active"><a href="?page=stats&weekly">Активность за неделю</a></li>
     <li><a href="?page=genre_stats">Состав корпуса</a></li>
     <li><a href="?page=tag_stats">По тегам</a></li>
     <li><a href="?page=charts">Графики</a></li>
 </ul>
-{*<div id="chart" style="width:700px; height: 400px"></div>
-<br/>*}
+{if isset($smarty.get.weekly)}<p>См. также <a href="?page=stats">активность за всё время</a>.</p>{/if}
 <a name="users"></a>
 <h3>Участники по количеству размеченных примеров (всего размечено {$ma_count})</h3>
 <table class="table table-condensed" id="users_table">
