@@ -10,10 +10,6 @@ $conf = $conf->{mysql};
 
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
-$dbh->{'AutoCommit'} = 0;
-if ($dbh->{'AutoCommit'}) {
-    die "Setting AutoCommit failed";
-}
 
 update_annot_stats();
 $dbh->commit();
@@ -114,6 +110,7 @@ sub update_annot_stats {
     count_total($dbh, \%total_count, \%diverg_count);
     count_correct($dbh, \%total_moderated_count, \%correct_moderated_count);
 
+    $dbh->do("START TRANSACTION");
     $user_del->execute(33);
     $user_del->execute(34);
     $user_del->execute(38);
