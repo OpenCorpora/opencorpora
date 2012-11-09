@@ -13,7 +13,7 @@ my %dict;
 my $unit_counter = 0;
 my @context = ();
 
-getopts('Ccf:iln:ops', \%options);
+getopts('Ccf:iln:opsL', \%options);
 # C - count only n-grams having at least one cyrillic letter in each token
 # c - skip tokens without cyrillic symbols
 # f - path to xml with annotation
@@ -23,6 +23,7 @@ getopts('Ccf:iln:ops', \%options);
 # o - ignore order of terms
 # p - show kind of a progress bar
 # s - whether we should include sentence borders as tokens
+# L - take first lemma instead of form
 
 if (!$options{'n'}) {
     $options{'n'} = 1;
@@ -58,12 +59,30 @@ for my $k(sort {$dict{$b} <=> $dict{$a}} keys %dict) {
 sub tag_start {
     my ($expat, $tag_name, %attr) = @_;
     
-    if ($tag_name eq 'token') {
+    if ($tag_name eq 'token' && !exists($options{'L'})) {
         if ($options{'c'} && $attr{'text'} !~ /[А-ЯЁа-яё0-9]/) {
             return;
         }
 
         my $tt = $options{'l'} ? to_lower($attr{'text'}) : $attr{'text'};
+        $tt =~ tr/[Ёё]/[Ее]/;
+        if ($options{'n'} == 1) {
+            $dict{$tt}++;
+            $unit_counter++;
+            if ($options{'p'} && $unit_counter % 10000 == 0) {
+                print STDERR '.';
+            }
+            return;
+        }
+
+        push @context, $tt;
+        flush_buffer(\@context);
+    } elsif ($tag_name eq 'l' && exists($options{'L'})) {
+        if ($options{'c'} && $attr{'t'} !~ /[А-ЯЁа-яё0-9]/) {
+            return;
+        }
+
+        my $tt = $options{'l'} ? to_lower($attr{'t'}) : $attr{'t'};
         $tt =~ tr/[Ёё]/[Ее]/;
         if ($options{'n'} == 1) {
             $dict{$tt}++;
