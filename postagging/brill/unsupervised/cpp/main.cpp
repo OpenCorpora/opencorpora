@@ -53,7 +53,7 @@ public:
   TagSet(const string &str) {
     vector<string> v;
     split(str, ' ', v);
-    for (int i = 0; i < v.size(); i++) {
+    for (size_t i = 0; i < v.size(); i++) {
       Tag t(v[i]);
       s.insert(t);
     }    
@@ -85,7 +85,7 @@ public:
 
   string str() const {
     set<Tag>::const_iterator cit = s.begin();
-    string r; int i = 0;
+    string r; size_t i = 0;
     while (s.end() != cit) {
       r += cit->str(); i++;
       if (i < s.size()) r += ' ';
@@ -124,7 +124,7 @@ public:
     stringstream ss;
     ss << text << '\t';
     set<TagSet>::const_iterator cit = var.begin();
-    int i = 0;
+    size_t i = 0;
     while (var.end() != cit) {
       ss << cit->str();
       if (i < var.size()) ss << '\t';
@@ -172,7 +172,7 @@ public:
 
   string str() const {
     stringstream ss;
-    for (int i = 0; i < v.size(); i++) 
+    for (size_t i = 0; i < v.size(); i++) 
       ss << vId[i] << '\t' << v[i].str() << endl;
 
     return ss.str();
@@ -326,7 +326,7 @@ void readCorpus(const string &fn, SentenceCollection &sc) {
       ss >> id >> word;
 
       set<TagSet> variants;
-      for (int i = 2; i < fields.size(); i++) {
+      for (size_t i = 2; i < fields.size(); i++) {
         if (0 == fields[i].size())
           continue;
         TagSet ts(fields[i]); 
