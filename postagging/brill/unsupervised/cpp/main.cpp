@@ -278,7 +278,6 @@ void DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat) {
 }
 
 void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &tStat) {
-
 }
 
 
