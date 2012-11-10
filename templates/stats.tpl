@@ -37,9 +37,9 @@ $(document).ready(function(){
     <th rowspan='2'>Участник</th>
     <th rowspan='2'>Всего</th>
     <th colspan='2'>В завершённых пулах</th>
-    <th colspan='2'>В проверенных пулах</th>
+    {if !isset($smarty.get.weekly)}<th colspan='2'>В проверенных пулах</th>{/if}
     <th rowspan='2'>Последняя<br/>активность</th></tr>
-<tr><th>Размечено<th>% расхождений<th>Размечено<th>% ошибок</tr>
+<tr><th>Размечено<th>% расхождений{if !isset($smarty.get.weekly)}<th>Размечено<th>% ошибок{/if}</tr>
 {foreach item=s from=$user_stats.annotators}
     <tr {if $s@iteration>20 && (!isset($smarty.session.user_id) || $smarty.session.user_id != $s.user_id)}style="display:none;"{/if}>
         <td><a name="user{$s.user_id}"></a>{$s@iteration}
@@ -47,8 +47,8 @@ $(document).ready(function(){
         <td>{$s.total}
         <td>{$s.fin.value|default:'0'}
         <td>{if isset($s.fin.divergence)}{$s.fin.divergence|string_format:"%.1f%%"}{else}&mdash;{/if}
-        <td>{$s.fin.moderated|default:'0'}
-        <td>{$s.fin.error_rate|string_format:"%.1f%%"}
+        {if !isset($smarty.get.weekly)}<td>{$s.fin.moderated|default:'0'}
+        <td>{$s.fin.error_rate|string_format:"%.1f%%"}{/if}
         <td>
             {if $s.fin.last_active > $user_stats.timestamp_today}сегодня в {$s.fin.last_active|date_format:"%H:%M"}
             {elseif $s.fin.last_active > $user_stats.timestamp_yesterday}вчера в {$s.fin.last_active|date_format:"%H:%M"}
@@ -60,15 +60,15 @@ $(document).ready(function(){
 {if $is_logged}или <a href="#user{$smarty.session.user_id}" class="pseudo" id="show_user">найти меня</a>{/if}
 <h3>Команды по количеству размеченных примеров</h3>
 <table class="table">
-    <tr><th>#</th><th>Название</th><th>Количество участников</th><th>Размечено примеров</th><th>Проверено</th><th>% ошибок</th></tr>
+    <tr><th>#</th><th>Название</th><th>Количество участников</th><th>Размечено примеров</th>{if !isset($smarty.get.weekly)}<th>Проверено</th><th>% ошибок</th>{/if}</tr>
     {foreach $user_stats.teams as $i=>$team name=x}
         <tr>
             <td>{$team@iteration}</td>
             <td>{$team.name}</td>
             <td>{$team.num_users}</td>
             <td>{$team.total}</td>
-            <td>{$team.moderated}</td>
-            <td>{$team.error_rate|string_format:"%.1f%%"}</td>
+            {if !isset($smarty.get.weekly)}<td>{$team.moderated}</td>
+            <td>{$team.error_rate|string_format:"%.1f%%"}</td>{/if}
         </tr>
     {/foreach}
 </table>
