@@ -176,6 +176,10 @@ function get_user_stats($weekly=false) {
         $uid2team[$r['user_id']] = $r['user_team'];
     $teams = get_team_list();
     foreach ($teams as $i => $team) {
+        if ($team['num_users'] == 0) {
+            unset($teams[$i]);
+            continue;
+        }
         $teams[$i]['total'] = $teams[$i]['moderated'] = $teams[$i]['correct'] = 0;
     }
 
@@ -230,6 +234,10 @@ function get_user_stats($weekly=false) {
     }
 
     foreach ($teams as $i => $team) {
+        if ($team['total'] == 0) {
+            unset($teams[$i]);
+            continue;
+        }
         if ($team['moderated'])
             $teams[$i]['error_rate'] = 100 * (1 - $team['correct'] / $team['moderated']);
         else
