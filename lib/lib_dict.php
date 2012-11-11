@@ -59,6 +59,8 @@ function generate_tf_rev($token) {
         $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="PNCT"/></l></v>';
     } elseif (preg_match('/^\p{Nd}+[\.,]?\p{Nd}*$/u', $token)) {
         $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="NUMB"/></l></v>';
+    } elseif (preg_match('/^[\p{Latin}\.-]+$/u', $token) && !preg_match('/^[IVXLCM]+$/u', $token)) {
+        $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="LATN"/></l></v>';
     } else {
         $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="UNKN"/></l></v>';
     }
