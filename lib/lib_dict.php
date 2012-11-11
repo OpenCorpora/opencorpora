@@ -363,6 +363,11 @@ function del_lemma($id) {
             return false;
         }
     }
+
+    // create empty revision
+    if (!sql_query("INSERT INTO dict_revisions VALUES (NULL, $revset_id, $id, '', 1, 1)"))
+        return false;
+
     //update `updated_forms`
     $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$id ORDER BY `rev_id` DESC LIMIT 1"));
     $pdr = parse_dict_rev($r['rev_text']);
