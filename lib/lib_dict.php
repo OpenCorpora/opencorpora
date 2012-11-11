@@ -272,8 +272,8 @@ function dict_save($array) {
     }
     //calculate which forms are actually updated
     $upd_forms = array();
-    //if lemma's grammems have changed then all forms have changed
-    if ($lemma_gram_new != $lemma_gram_old) {
+    //if lemma's grammems or lemma text have changed then all forms have changed
+    if ($lemma_gram_new != $lemma_gram_old || $lemma_text != $old_lemma_text) {
         foreach ($old_paradigm as $farr) {
             array_push($upd_forms, $farr[0]);
         }
