@@ -218,11 +218,6 @@ function dict_add_lemma($array) {
     }
     $upd_forms = array_unique($upd_forms);
     sql_begin();
-    foreach ($upd_forms as $upd_form) {
-        if (!sql_query("INSERT INTO `updated_forms` VALUES('".mysql_real_escape_string($upd_form)."')")) {
-            return false;
-        }
-    }
     //new lemma in dict_lemmata
     if (!sql_query("INSERT INTO dict_lemmata VALUES(NULL, '".mysql_real_escape_string($lemma_text)."')")) {
         return false;
@@ -230,12 +225,18 @@ function dict_add_lemma($array) {
     $lemma_id = sql_insert_id();
     //array -> xml
     $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
-    $res = new_dict_rev($lemma_id, $new_xml, $array['comment']);
-    if ($res) {
-        sql_commit();
-        return $lemma_id;
+    $rev_id = new_dict_rev($lemma_id, $new_xml, $array['comment']);
+    if (!$rev_id)
+        return false;
+
+    foreach ($upd_forms as $upd_form) {
+        if (!sql_query("INSERT INTO `updated_forms` VALUES('".mysql_real_escape_string($upd_form)."', $rev_id)")) {
+            return false;
+        }
     }
-    return false;
+
+    sql_commit();
+    return $lemma_id;
 }
 function dict_save($array) {
     //it may be a totally new lemma
@@ -288,17 +289,17 @@ function dict_save($array) {
     }
     $upd_forms = array_unique($upd_forms);
     sql_begin();
-    foreach ($upd_forms as $upd_form) {
-        if (!sql_query("INSERT INTO `updated_forms` VALUES('".mysql_real_escape_string($upd_form)."')")) {
-            return false;
-        }
-    }
     //array -> xml
     $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
     if ($lemma_text != $old_lemma_text || $new_xml != $old_xml) {
         //something's really changed
-        $res = new_dict_rev($array['lemma_id'], $new_xml, $array['comment']);
-        if ($res) {
+        $rev_id = new_dict_rev($array['lemma_id'], $new_xml, $array['comment']);
+        if ($rev_id) {
+            foreach ($upd_forms as $upd_form) {
+                if (!sql_query("INSERT INTO `updated_forms` VALUES('".mysql_real_escape_string($upd_form)."', $rev_id)")) {
+                    return false;
+                }
+            }
             sql_commit();
             return $array['lemma_id'];
         }
@@ -337,9 +338,9 @@ function new_dict_rev($lemma_id, $new_xml, $comment = '') {
     if (!$revset_id) return 0;
     if (sql_query("INSERT INTO `dict_revisions` VALUES(NULL, '$revset_id', '$lemma_id', '".mysql_real_escape_string($new_xml)."', '0', '0')")) {
         sql_commit();
-        return 1;
+        return sql_insert_id();
     }
-    return 0;
+    return false;
 }
 function paradigm_diff($array1, $array2) {
     $diff = array();
@@ -367,12 +368,13 @@ function del_lemma($id) {
     // create empty revision
     if (!sql_query("INSERT INTO dict_revisions VALUES (NULL, $revset_id, $id, '', 1, 1)"))
         return false;
+    $rev_id = sql_insert_id();
 
     //update `updated_forms`
     $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$id ORDER BY `rev_id` DESC LIMIT 1"));
     $pdr = parse_dict_rev($r['rev_text']);
     foreach ($pdr['forms'] as $form) {
-        if (!sql_query("INSERT INTO `updated_forms` VALUES('".$form['text']."')")) {
+        if (!sql_query("INSERT INTO `updated_forms` VALUES('".$form['text']."', $rev_id)")) {
             return false;
         }
     }
