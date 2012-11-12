@@ -10,8 +10,14 @@ function get_common_stats() {
     }
 
     foreach (array('total', 'chaskor', 'chaskor_news', 'wikipedia', 'wikinews', 'blogs', 'fiction', 'nonfiction', 'law', 'misc') as $src) {
-        $stats['goals'][$src.'_words'] = $config['goals'][$src.'_words'];
-        $stats['percent_words'][$src] = floor($stats[$src.'_words']['value'] / $config['goals'][$src.'_words'] * 100);
+        if (isset($config['goals'][$src.'_words'])) {
+            $stats['goals'][$src.'_words'] = $config['goals'][$src.'_words'];
+            $stats['percent_words'][$src] = floor($stats[$src.'_words']['value'] / $config['goals'][$src.'_words'] * 100);
+        }
+        else {
+            $stats['goals'][$src.'_words'] = 0;
+            $stats['percent_words'][$src] = 0;
+        }
     }
 
     return $stats;
@@ -52,7 +58,8 @@ function get_word_stats_for_chart() {
     foreach ($t as $day => $ar) {
         $sum = 0;
         foreach ($param_set as $param_id) {
-            $sum += $ar[$param_id];
+            if (isset($ar[$param_id]))
+                $sum += $ar[$param_id];
             $tchart[$param_id][] = '['.($day * 24*60*60*1000).','.$sum.']';
         }
     }

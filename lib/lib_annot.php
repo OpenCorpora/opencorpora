@@ -309,6 +309,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $fi
             }
         }
         if (
+            !$extended ||
             // special list for moderation
             ($filter == 'focus' && (
                 $disagreement_flag ||
