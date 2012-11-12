@@ -21,23 +21,24 @@ my $max1 = $dbh->prepare("SELECT MAX(tf_id) AS max1 FROM text_forms");
 my $max2 = $dbh->prepare("SELECT MAX(tf_id) AS max2 FROM form2tf");
 $max1->execute();
 $max2->execute();
-if ($max1->fetchrow_hashref()->{'max1'} == $max2->fetchrow_hashref()->{'max2'}) {
+if ($max1->fetchrow_hashref()->{'max1'} != $max2->fetchrow_hashref()->{'max2'}) {
     $dbh->commit();
     exit 0;
 }
 
-my $scan = $dbh->prepare("SELECT form_text FROM updated_forms LIMIT ?");
+my $scan = $dbh->prepare("SELECT form_text, rev_id FROM updated_forms LIMIT ?");
 my $scan_f2tf = $dbh->prepare("SELECT tf_id FROM form2tf WHERE form_text=?");
-my $del = $dbh->prepare("DELETE FROM updated_forms WHERE form_text=?");
-my $upd = $dbh->prepare("UPDATE text_forms SET dict_updated='1' WHERE tf_id=?");
+my $del = $dbh->prepare("DELETE FROM updated_forms WHERE form_text=? AND rev_id=?");
+my $ins = $dbh->prepare("INSERT INTO updated_tokens VALUES (?, ?)");
 
-$scan->execute(2);
+$scan->execute(10);
 while(my $ref = $scan->fetchrow_hashref()) {
     $scan_f2tf->execute($ref->{'form_text'});
     while(my $ref1 = $scan_f2tf->fetchrow_hashref()) {
-        $upd->execute($ref1->{'tf_id'});
+        $ins->execute($ref1->{'tf_id'}, $ref->{'rev_id'});
     }
-    $del->execute($ref->{'form_text'});
+    print STDERR "delete $ref->{form_text}\n";
+    $del->execute($ref->{'form_text'}, $ref->{'rev_id'});
 }
 
 $dbh->commit();
