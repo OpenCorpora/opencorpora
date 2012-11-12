@@ -116,7 +116,7 @@ def process_pool(dbh, pool_id, revision):
                 grammemes_ok_str = pool_grammemes[sample['answer']-1]
                 new_xml = vars2xml(token, update_vars(old_vars, grammemes_ok_str))
             except IndexError:
-                sys.stderr.write('Something went bad with pool #{0}, sample #{1}, exiting'.format(pool_id, sample['sample_id']))
+                sys.stderr.write("Something went bad with pool #{0}, sample #{1}, exiting\n".format(pool_id, sample['sample_id']))
                 sys.exit()
 
         update_sample(dbh, sample['sample_id'], new_xml.encode('utf-8'), changeset_id)
