@@ -12,4 +12,4 @@ mysqldump \
     opcorpora | xz -ze8 >/backup/`date +%Y%m`/oc$NOW.sql.xz
 rm /var/lock/oc_readonly.lock
 mysqldump \
-    wikidb | xz -ze8 > /backup/`date +%Y%m`/wiki$NOW.sql.bz2
+    wikidb | xz -ze8 > /backup/`date +%Y%m`/wiki$NOW.sql.xz
