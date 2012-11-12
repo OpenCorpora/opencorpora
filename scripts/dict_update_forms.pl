@@ -37,7 +37,6 @@ while(my $ref = $scan->fetchrow_hashref()) {
     while(my $ref1 = $scan_f2tf->fetchrow_hashref()) {
         $ins->execute($ref1->{'tf_id'}, $ref->{'rev_id'});
     }
-    print STDERR "delete $ref->{form_text}\n";
     $del->execute($ref->{'form_text'}, $ref->{'rev_id'});
 }
 
