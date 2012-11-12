@@ -109,9 +109,9 @@
             <td id="var_{$token.tf_id}">
                 <div class="tf">
                     {$token.tf_text|htmlspecialchars}
-                    {if $token.dict_updated == 1}
+                    {*if $token.dict_updated == 1}
                         <a href="#" class="reload" title="Разобрать заново из словаря" onClick="dict_reload(this.parentNode.parentNode)">D</a>
-                    {/if}
+                    {/if*}
                 </div>
                 {foreach item=variant from=$token.variants}
                     <div class="var" id="var_{$token.tf_id}_{$variant.num}">

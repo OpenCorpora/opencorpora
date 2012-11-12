@@ -49,7 +49,7 @@ function get_sentence($sent_id) {
         }
     }
     $tf_text = array();
-    $res = sql_query("SELECT tf_id, tf_text, dict_updated FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
+    $res = sql_query("SELECT tf_id, tf_text FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
     $j = 0; //token position, for further highlighting
     $gram_descr = array();  //associative array to keep info about grammemes
     while ($r = sql_fetch_array($res)) {
@@ -60,7 +60,6 @@ function get_sentence($sent_id) {
         $out['tokens'][] = array(
             'tf_id'        => $r['tf_id'],
             'tf_text'      => $r['tf_text'],
-            'dict_updated' => $r['dict_updated'],
             'variants'     => get_morph_vars($arr['tfr']['_c']['v'], $gram_descr)
         );
     }
@@ -144,10 +143,6 @@ function sentence_save($sent_id) {
         //substitute the last revision's xml for one from dictionary if relevant
         if ($dict[$tf_id] == 1) {
             $xml = generate_tf_rev($tf_text);
-            //and reset the flag! perhaps it would be better to reset all of them by one query, but seems the case is rather rare
-            if (!sql_query("UPDATE text_forms SET dict_updated='0' WHERE tf_id=$tf_id LIMIT 1")) {
-                return false;
-            }
         } else {
             $xml = $base_xml;
         }
