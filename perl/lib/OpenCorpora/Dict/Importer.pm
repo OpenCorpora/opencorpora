@@ -43,6 +43,7 @@ sub new {
     $self->{CONNECTION} = undef;
     $self->{CONNECTION_LEMMA} = undef;
     $self->{CONNECTION_REVISION} = undef;
+    $self->{CONNECTION_FORM} = undef;
     $self->{CONNECTION_LINKTYPE} = undef;
     $self->{CONNECTION_LINK} = undef;
     $self->{CONNECTION_LINKREV} = undef;
@@ -63,6 +64,7 @@ sub sql_connect {
     $conf = $conf->{mysql};
 
     my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
+    $dbh->{'AutoCommit'} = 0;
     $dbh->do("SET NAMES utf8");
     $self->{CONNECTION} = $dbh;
 }
@@ -79,11 +81,13 @@ sub prepare_insert {
     $self->{BASE_WORD_ID} = $r->{'m'} ? $r->{'m'} : 0;
     my $newlemma = $dbh->prepare("INSERT INTO `dict_lemmata` VALUES(NULL, ?)");
     my $newrev = $dbh->prepare("INSERT INTO `dict_revisions` VALUES(NULL, '$set_id', ?, ?, '0', '0')"); #null, set, lemma, text, null
+    my $newform = $dbh->prepare("INSERT INTO `updated_forms` VALUES(?, ?)");
     my $newlinktype = $dbh->prepare("INSERT INTO `dict_links_types` VALUES(NULL, ?)");
     my $newlink = $dbh->prepare("INSERT INTO `dict_links` VALUES(NULL,?, ?, ?)");
     my $newlinkrev = $dbh->prepare("INSERT INTO `dict_links_revisions` VALUES(NULL, '$set_id', ?, ?, ?, '1')");
     $self->{CONNECTION_LEMMA} = $newlemma;
     $self->{CONNECTION_REVISION} = $newrev;
+    $self->{CONNECTION_FORM} = $newform;
     $self->{CONNECTION_LINKTYPE} = $newlinktype;
     $self->{CONNECTION_LINK} = $newlink;
     $self->{CONNECTION_LINKREV} = $newlinkrev;
@@ -193,6 +197,7 @@ sub read_aot {
         }
     }
     close F;
+    $self->{CONNECTION}->do("COMMIT");
     if (PRINT_STATS) {
         $self->print_stats();
     } else {
@@ -618,7 +623,11 @@ sub print_or_insert {
     if (INSERT) {
         $self->{CONNECTION_LEMMA}->execute($self->{WORD}->{LEMMA}) or die $DBI::errstr;
         $self->{CONNECTION_REVISION}->execute($self->{CONNECTION}->{'mysql_insertid'}, $self->{WORD}->to_xml()) or die $DBI::errstr;
-        print STDERR "Committed revision ".$self->{CONNECTION}->{'mysql_insertid'}."\r" unless QUIET;
+        my $rev_id = $self->{CONNECTION}->{'mysql_insertid'};
+        print STDERR "Committed revision $rev_id\r" unless QUIET;
+        for my $form(@{$self->{WORD}->{FORMS}}) {
+            $self->{CONNECTION_FORM}->execute($form->{TEXT}, $rev_id) or die $DBI::errstr;
+        }
         # links
         my $link_typeid;
         for my $lnk(@{$self->{WORD}->{LINKS}}) {
