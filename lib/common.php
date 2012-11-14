@@ -87,7 +87,27 @@ function show_error($text = "Произошла ошибка.") {
 function create_revset($comment = '') {
     if (!isset($_SESSION['user_id']) || !$_SESSION['user_id'])
         return 0;
-    if (sql_query("INSERT INTO `rev_sets` VALUES(NULL, '".time()."', '".(int)$_SESSION['user_id']."', '".mysql_real_escape_string($comment)."')")) {
+    
+    $now = time();
+    // check if there is a recent set by the same user with the same comment
+    $timeout = $now - 600;
+    $res = sql_query("
+        SELECT set_id
+        FROM rev_sets
+        WHERE user_id = ".$_SESSION['user_id']."
+        AND timestamp > $timeout
+        AND comment = '".mysql_real_escape_string($comment)."'
+        ORDER BY set_id DESC
+        LIMIT 1
+    ");
+    if (sql_num_rows($res)) {
+        $r = sql_fetch_array($res);
+        if (!sql_query("UPDATE rev_sets SET timestamp=$now WHERE set_id=".$r['set_id']." LIMIT 1"))
+            return 0;
+        return $r['set_id'];
+    }
+
+    if (sql_query("INSERT INTO `rev_sets` VALUES(NULL, $now, '".(int)$_SESSION['user_id']."', '".mysql_real_escape_string($comment)."')")) {
         return sql_insert_id();
     }
     return 0;

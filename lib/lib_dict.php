@@ -240,7 +240,7 @@ function update_pending_token($token_id, $rev_id) {
     $r = sql_fetch_array(sql_query("SELECT tf_text FROM text_forms WHERE tf_id=$token_id LIMIT 1"));
 
     sql_begin();
-    $revset_id = create_revset("Update token $token_id from dictionary");
+    $revset_id = create_revset("Update tokens from dictionary");
     if (
         !sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$token_id") ||
         !sql_query("INSERT INTO tf_revisions VALUES (NULL, $revset_id, $token_id, '".mysql_real_escape_string(generate_tf_rev($r['tf_text']))."', 1)") ||
