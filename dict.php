@@ -128,6 +128,14 @@ switch ($action) {
         $smarty->assign('errata', get_dict_errata(isset($_GET['all']), isset($_GET['rand'])));
         $smarty->display('dict/errata.tpl');
         break;
+    case 'pending':
+        if (isset($_POST['count']))
+            $count = (int)$_POST['count'];
+        else
+            $count = 200;
+        $smarty->assign('data', get_pending_updates($count));
+        $smarty->display('dict/pending.tpl');
+        break;
     default:
         $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
         $smarty->setCacheLifetime(600);

@@ -145,6 +145,111 @@ function form_exists($f) {
     }
     return sql_num_rows(sql_query("SELECT lemma_id FROM form2lemma WHERE form_text='".mysql_real_escape_string($f)."' LIMIT 1"));
 }
+function get_pending_updates($limit=200) {
+    include_once('lib_annot.php');
+    include_once('lib_history.php');
+
+    $out = array('revisions' => array());
+
+    $r = sql_fetch_array(sql_query("SELECT COUNT(*) cnt FROM updated_tokens"));
+    $out['cnt_tokens'] = $r['cnt'];
+    $r = sql_fetch_array(sql_query("SELECT COUNT(*) cnt FROM updated_forms"));
+    $out['cnt_forms'] = $r['cnt'];
+    $res = sql_query("SELECT rev_id FROM dict_revisions WHERE f2l_check=0 LIMIT 1");
+    $out['outdated_f2l'] = sql_num_rows($res);
+
+    $res = sql_query("
+        SELECT DISTINCT token_id, tf_text, sent_id, dict_revision, lemma_id, dr.set_id,
+            tfr.rev_text AS token_rev_text
+        FROM updated_tokens ut
+        LEFT JOIN dict_revisions dr ON (ut.dict_revision = dr.rev_id)
+        LEFT JOIN text_forms tf ON (ut.token_id = tf.tf_id)
+        LEFT JOIN tf_revisions tfr USING (tf_id)
+        WHERE is_last = 1
+        ORDER BY dict_revision, tf_id
+        LIMIT $limit
+    ");
+
+    $t = array();
+    $last = NULL;
+    while ($r = sql_fetch_array($res)) {
+        if ($last && $last['dict_revision'] != $r['dict_revision']) {
+            $out['revisions'][] = array(
+                'tokens' => $t,
+                'id' => $last['dict_revision'],
+                'diff' => dict_diff($last['lemma_id'], $last['set_id'])
+            );
+            $t = array();
+        }
+
+        $context = get_context_for_word($r['token_id'], 4);
+        $context['context'][$context['mainword']] = '<b>'.htmlspecialchars($context['context'][$context['mainword']]).'</b>';
+        $t[] = array(
+            'id' => $r['token_id'],
+            'text' => $r['tf_text'],
+            'sentence_id' => $r['sent_id'],
+            'context' => join(' ', $context['context']),
+            'is_unkn' => preg_match('/v="UNKN"/', $r['token_rev_text']),
+            'human_edits' => check_for_human_edits($r['token_id'])
+        );
+        $last = $r;
+    }
+
+    if (sizeof($t))
+        $out['revisions'][] = array(
+            'tokens' => $t,
+            'id' => $last['dict_revision'],
+            'diff' => dict_diff($last['lemma_id'], $last['set_id'])
+        );
+
+    return $out;
+}
+function check_for_human_edits($token_id) {
+    $res = sql_query("
+        SELECT rev_id
+        FROM tf_revisions
+        LEFT JOIN rev_sets USING (set_id)
+        WHERE tf_id = $token_id
+        AND (user_id > 0
+        OR (user_id = 0 AND comment LIKE '%annotation pool #%'))
+        LIMIT 2
+    ");
+    return sql_num_rows($res) > 1;
+}
+function forget_pending_token($token_id, $rev_id) {
+    return sql_query("DELETE FROM updated_tokens WHERE token_id=$token_id AND dict_revision=$rev_id");
+}
+function update_pending_token($token_id, $rev_id) {
+    // forbid updating if form2lemma is outdated
+    $res = sql_query("SELECT rev_id FROM dict_revisions WHERE f2l_check=0 LIMIT 1");
+    if (sql_num_rows($res) > 0)
+        return false;
+
+    // forbid updating if revision is not latest
+    $res = sql_query("
+        SELECT rev_id
+        FROM dict_revisions
+        WHERE lemma_id = (SELECT lemma_id FROM dict_revisions WHERE rev_id=$rev_id LIMIT 1)
+        AND rev_id > $rev_id
+        LIMIT 1
+    ");
+    if (sql_num_rows($res) > 0)
+        return false;
+    
+    // ok, now we can safely update
+    $r = sql_fetch_array(sql_query("SELECT tf_text FROM text_forms WHERE tf_id=$token_id LIMIT 1"));
+
+    sql_begin();
+    $revset_id = create_revset("Update token $token_id from dictionary");
+    if (
+        !sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$token_id") ||
+        !sql_query("INSERT INTO tf_revisions VALUES (NULL, $revset_id, $token_id, '".mysql_real_escape_string(generate_tf_rev($r['tf_text']))."', 1)") ||
+        !forget_pending_token($token_id, $rev_id)
+    )
+        return false;
+    sql_commit();
+    return true;
+}
 
 // DICTIONARY EDITOR
 function get_lemma_editor($id) {
