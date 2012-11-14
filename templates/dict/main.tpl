@@ -29,7 +29,8 @@
         <p><a href="?act=gram">Редактор граммем</a><br/>
         <a href="?act=gram_restr">Ограничения на граммемы</a></p>
         <p><a href="?act=lemmata">Редактор лемм</a><br/>
-        <a href="?act=errata">Ошибки в словаре</a> ({$stats.cnt_v} ревизий не проверено)</p>
+        <a href="?act=errata">Ошибки в словаре</a> ({$stats.cnt_v} ревизий не проверено)<br/>
+        <a href="?act=pending">Токены, которые надо переразобрать</a></p>
         <p><button class="btn" onClick="location.href='?act=edit&amp;id=-1'">Добавить лемму</button></p>
     {else}
         <p><a href="?act=gram">Просмотр граммем</a><br/>
