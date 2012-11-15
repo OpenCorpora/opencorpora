@@ -7,6 +7,7 @@ $(document).ready(function(){
     $("button.btn-small").click(function(event){
         if (!confirm('Точно?'))
             return;
+
         var action;
         if ($(this).hasClass('upd_token'))
             action = 'update';
@@ -21,6 +22,11 @@ $(document).ready(function(){
             }
         });
     });
+    $("input.btn-small").click(function() {
+        if (!confirm('Точно?'))
+            return;
+        $(this).closest('form').submit();
+    });
 });
 {/literal}
 </script>
@@ -32,7 +38,7 @@ $(document).ready(function(){
 <table class='table'>
 {foreach from=$data.revisions item=revision}
 <tr>
-    <td>{$revision.id}</td>
+    <td>{$revision.id}<br/><form class='form-inline' action="?act=reannot" method="post"><input type='hidden' name='rev_id' value='{$revision.id}'><input type='button' class='btn btn-primary btn-small' value='Обновить все'/></form></td>
     <td><pre>
 {foreach from=$revision.diff.diff[0] item=str}
 <span class="{if $str[1] == 1}bgpink{elseif $str[1] == 2}bggreen{elseif $str[1] == 3}bgyellow{/if}">{$str[2]|htmlspecialchars}</span>

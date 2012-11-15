@@ -219,7 +219,17 @@ function check_for_human_edits($token_id) {
 function forget_pending_token($token_id, $rev_id) {
     return sql_query("DELETE FROM updated_tokens WHERE token_id=$token_id AND dict_revision=$rev_id");
 }
-function update_pending_token($token_id, $rev_id) {
+function update_pending_tokens($rev_id) {
+    $res = sql_query("SELECT token_id FROM updated_tokens WHERE dict_revision=$rev_id");
+    sql_begin();
+    $revset_id = create_revset("Update tokens from dictionary");
+    while ($r = sql_fetch_array($res))
+        if (!update_pending_token($r['token_id'], $rev_id, $revset_id))
+            return false;
+    sql_commit();
+    return true;
+}
+function update_pending_token($token_id, $rev_id, $revset_id=0) {
     // forbid updating if form2lemma is outdated
     $res = sql_query("SELECT rev_id FROM dict_revisions WHERE f2l_check=0 LIMIT 1");
     if (sql_num_rows($res) > 0)
@@ -240,7 +250,8 @@ function update_pending_token($token_id, $rev_id) {
     $r = sql_fetch_array(sql_query("SELECT tf_text FROM text_forms WHERE tf_id=$token_id LIMIT 1"));
 
     sql_begin();
-    $revset_id = create_revset("Update tokens from dictionary");
+    if (!$revset_id)
+        $revset_id = create_revset("Update tokens from dictionary");
     if (
         !sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$token_id") ||
         !sql_query("INSERT INTO tf_revisions VALUES (NULL, $revset_id, $token_id, '".mysql_real_escape_string(generate_tf_rev($r['tf_text']))."', 1)") ||

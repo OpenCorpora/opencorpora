@@ -136,6 +136,12 @@ switch ($action) {
         $smarty->assign('data', get_pending_updates($count));
         $smarty->display('dict/pending.tpl');
         break;
+    case 'reannot':
+        if (update_pending_tokens((int)$_POST['rev_id']))
+            header("Location:dict.php?act=pending");
+        else
+            show_error();
+        break;
     default:
         $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
         $smarty->setCacheLifetime(600);
