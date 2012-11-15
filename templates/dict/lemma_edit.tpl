@@ -72,7 +72,7 @@
         </tr>
         {/foreach}
         {if $user_permission_dict}
-            <tr><td>&nbsp;<td><a id="add_form_link" href="#">Добавить ешё одну форму</a></tr>
+            <tr><td>&nbsp;<td><a id="add_form_link" href="#">Добавить ещё одну форму</a></tr>
         {/if}
         </table><br/>
         {if $user_permission_dict}
