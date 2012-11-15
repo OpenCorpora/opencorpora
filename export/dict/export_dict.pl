@@ -28,7 +28,7 @@ if (time() - $r->{'timestamp'} > 60*60*25 && !FORCE) {
 
 my $rev = $dbh->prepare("SELECT MAX(rev_id) AS m FROM dict_revisions");
 my $read_g = $dbh->prepare("SELECT g1.inner_id AS id, g2.inner_id AS pid FROM gram g1 LEFT JOIN gram g2 ON (g1.parent_id=g2.gram_id) ORDER BY g1.`orderby`");
-my $read_l = $dbh->prepare("SELECT * FROM (SELECT lemma_id, rev_id, rev_text FROM dict_revisions WHERE lemma_id BETWEEN ? AND ? ORDER BY lemma_id, rev_id DESC) T GROUP BY T.lemma_id");
+my $read_l = $dbh->prepare("SELECT * FROM (SELECT lemma_id, rev_id, rev_text FROM dict_revisions LEFT JOIN dict_lemmata dl USING (lemma_id) WHERE dl.lemma_text IS NOT NULL AND lemma_id BETWEEN ? AND ? ORDER BY lemma_id, rev_id DESC) T GROUP BY T.lemma_id");
 my $read_lt = $dbh->prepare("SELECT * FROM dict_links_types ORDER BY link_id");
 my $read_links = $dbh->prepare("SELECT * FROM dict_links ORDER BY link_id LIMIT ?, 10000");
 
