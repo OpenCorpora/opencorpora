@@ -248,13 +248,20 @@ function update_pending_token($token_id, $rev_id, $revset_id=0) {
     
     // ok, now we can safely update
     $r = sql_fetch_array(sql_query("SELECT tf_text FROM text_forms WHERE tf_id=$token_id LIMIT 1"));
+    $token_text = $r['tf_text'];
+    $r = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=$token_id AND is_last=1 LIMIT 1"));
+    $previous_rev = $r['rev_text'];
+    $new_rev = generate_tf_rev($token_text);
+    // do nothing if nothing changed
+    if ($previous_rev == $new_rev)
+        return true;
 
     sql_begin();
     if (!$revset_id)
         $revset_id = create_revset("Update tokens from dictionary");
     if (
         !sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$token_id") ||
-        !sql_query("INSERT INTO tf_revisions VALUES (NULL, $revset_id, $token_id, '".mysql_real_escape_string(generate_tf_rev($r['tf_text']))."', 1)") ||
+        !sql_query("INSERT INTO tf_revisions VALUES (NULL, $revset_id, $token_id, '".mysql_real_escape_string($new_rev)."', 1)") ||
         !forget_pending_token($token_id, $rev_id)
     )
         return false;
