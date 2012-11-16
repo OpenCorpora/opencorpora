@@ -9,8 +9,8 @@ do
 done
 
 cd tmp
-zip -9 ../pools.zip pool*.tab
-tar -cvjf ../pools.tar.bz2 pool*.tab --remove-files
+zip -9 ../pools.zip pool*.t*
+tar -cvjf ../pools.tar.bz2 pool*.tab pools.txt --remove-files
 cd ..
 
 rmdir tmp
