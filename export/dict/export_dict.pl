@@ -62,7 +62,7 @@ my $min_lid = 0;
 
 while ($flag) {
     $flag = 0;
-    $read_l->execute($min_lid + 1, $min_lid + 50000);
+    $read_l->execute($min_lid + 1, $min_lid + 10000);
     while($r = $read_l->fetchrow_hashref()) {
         $flag = 1;
         $r->{'rev_text'} =~ s/<\/?dr>//g;
@@ -73,7 +73,7 @@ while ($flag) {
             print '    <lemma id="'.$r->{'lemma_id'}.'" rev="'.$r->{'rev_id'}.'">'.decode('utf8', $r->{'rev_text'})."</lemma>\n";
         }
     }
-    $min_lid += 50000;
+    $min_lid += 10000;
 }
 
 print "</lemmata>\n" unless PLAINTEXT;
