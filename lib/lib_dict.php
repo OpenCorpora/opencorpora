@@ -235,12 +235,12 @@ function update_pending_token($token_id, $rev_id, $revset_id=0) {
     if (sql_num_rows($res) > 0)
         return false;
 
-    // forbid updating if revision is not latest
+    // forbid updating if revision of the CURRENT TOKEN'S FORM is not latest
     $res = sql_query("
-        SELECT rev_id
-        FROM dict_revisions
-        WHERE lemma_id = (SELECT lemma_id FROM dict_revisions WHERE rev_id=$rev_id LIMIT 1)
-        AND rev_id > $rev_id
+        SELECT *
+        FROM updated_tokens
+        WHERE token_id = $token_id
+        AND dict_revision > $rev_id
         LIMIT 1
     ");
     if (sql_num_rows($res) > 0)
@@ -253,8 +253,9 @@ function update_pending_token($token_id, $rev_id, $revset_id=0) {
     $previous_rev = $r['rev_text'];
     $new_rev = generate_tf_rev($token_text);
     // do nothing if nothing changed
-    if ($previous_rev == $new_rev)
-        return true;
+    if ($previous_rev == $new_rev) {
+        return forget_pending_token($token_id, $rev_id);
+    }
 
     sql_begin();
     if (!$revset_id)
