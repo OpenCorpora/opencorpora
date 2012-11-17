@@ -210,7 +210,7 @@ function check_for_human_edits($token_id) {
         FROM tf_revisions
         LEFT JOIN rev_sets USING (set_id)
         WHERE tf_id = $token_id
-        AND (user_id > 0
+        AND ((user_id > 0 AND comment != 'Update tokens from dictionary')
         OR (user_id = 0 AND comment LIKE '%annotation pool #%'))
         LIMIT 2
     ");
