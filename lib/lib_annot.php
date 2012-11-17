@@ -292,7 +292,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $fi
             $t['disagreed'] = $disagreement_flag;
             $t['comments'] = get_sample_comments($r['sample_id']);
             //for moderators
-            if (user_has_permission('perm_check_morph') && $out['status'] > 4) {
+            if ($out['status'] > 4) {
                 $r1 = sql_fetch_array(sql_query("SELECT answer, status FROM morph_annot_moderated_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
                 $t['moder_answer_num'] = $r1['answer'];
                 $t['moder_status_num'] = $r1['status'];

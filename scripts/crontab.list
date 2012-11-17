@@ -6,6 +6,7 @@
 0 4 * * * /corpus/scripts/backup.sh 2>>/home/grand/error.log
 30 4 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/exports.sh" 2>>/home/grand/error.log
 30 5 * * * nice /corpus/scripts/stats/update_stats.sh 2>>/home/grand/error.log
+30 6 * * * nice /corpus/scripts/cronrunner.pl "corpus/export/pools/export_pools.sh" 2>>/home/grand/error.log
 0 7 * * * /corpus/scripts/invalidate_auth_tokens.pl /corpus/config.ini
 # several times a day
 15 * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/tokenizer/check_sentence_split.pl /corpus/config.ini" 2>>/home/grand/error.log
