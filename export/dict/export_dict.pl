@@ -39,17 +39,17 @@ my $maxrev = $r->{'m'};
 my $header;
 my $footer;
 unless (PLAINTEXT) {
-    $header = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<dictionary version=\"0.81\" revision=\"$maxrev\">\n";
+    $header = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<dictionary version=\"0.82\" revision=\"$maxrev\">\n";
     $footer = "</dictionary>";
 
-    # grammems
-    my $grams = "<grammems>\n";
+    # grammemes
+    my $grams = "<grammemes>\n";
 
     $read_g->execute();
     while($r = $read_g->fetchrow_hashref()) {
-        $grams .= "    <grammem parent=\"$r->{'pid'}\">".tidy_xml($r->{'id'})."</grammem>\n";
+        $grams .= "    <grammeme parent=\"$r->{'pid'}\">".tidy_xml($r->{'id'})."</grammeme>\n";
     }
-    $grams .= "</grammems>\n";
+    $grams .= "</grammemes>\n";
 
     print $header.$grams;
 }

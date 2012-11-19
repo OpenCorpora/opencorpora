@@ -6,11 +6,11 @@
     <li><a href="{$web_prefix}/?page=downloads">Скачать</a></li>
     <li class="active"><a href="{$web_prefix}/?page=export">Форматы экспорта</a></li>
 </ul>
-<h2>Формат экспорта словаря (версия 0.81)</h2>
+<h2>Формат экспорта словаря (версия 0.82)</h2>
 <p>Словарь представляет собой файл XML в кодировке utf-8.</p>
 <p>Всё содержимое обёрнуто в корневой тег <code>&lt;dictionary&gt;</code>, атрибуты которого указывают на версию формата (сейчас 0.81) и номер ревизии словаря на момент экспорта. Внутри выделяются 4 секции, описывающие граммемы, собственно леммы, типы связей между ними и сами связи.</p>
 <h3>Описание граммем</h3>
-<p>В секции <code>&lt;grammems&gt;</code> перечислен весь инвентарь граммем в виде: <code>&lt;grammem parent="pid"&gt;gid&lt;/grammem&gt;</code>, где gid &ndash; идентификатор граммемы (например, NOUN), а pid &ndash; идентификатор граммемы, являющейся родительской по отношению к данной (например, POST); pid может быть пустым.</p>
+<p>В секции <code>&lt;grammemes&gt;</code> перечислен весь инвентарь граммем в виде: <code>&lt;grammeme parent="pid"&gt;gid&lt;/grammeme&gt;</code>, где gid &ndash; идентификатор граммемы (например, NOUN), а pid &ndash; идентификатор граммемы, являющейся родительской по отношению к данной (например, POST); pid может быть пустым.</p>
 <h3>Описание лемм</h3>
 <p>Леммы перечисляются в секции <code>&lt;lemmata&gt;</code>. Каждая лемма описывается элементом <code>&lt;lemma&gt;</code> с атрибутами <code>id</code> (числовой идентификатор леммы, не меняется никогда) и <code>rev</code> (номер последней ревизии этой леммы). Внутри этого элемента находится содержимое последней ревизии:</p>
 <ul>
@@ -25,11 +25,11 @@
 <pre>
 &lt;?xml version="1.0" encoding="utf8" standalone="yes"?&gt;
 &lt;dictionary version="0.8" revision="403605"&gt;
-    &lt;grammems&gt;
-        &lt;grammem parent=""&gt;POST&lt;/grammem&gt;
-        &lt;grammem parent="POST"&gt;NOUN&lt;/grammem&gt;
+    &lt;grammemes&gt;
+        &lt;grammeme parent=""&gt;POST&lt;/grammeme&gt;
+        &lt;grammeme parent="POST"&gt;NOUN&lt;/grammeme&gt;
         ...
-    &lt;/grammems&gt;
+    &lt;/grammemes&gt;
     &lt;lemmata&gt;
         &lt;lemma id="1" rev="402007"&gt;
             &lt;l t="абажур"&gt;&lt;g v="NOUN"/&gt;&lt;g v="inan"/&gt;&lt;g v="masc"/&gt;&lt;/l&gt;
