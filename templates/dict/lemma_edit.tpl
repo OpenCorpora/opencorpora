@@ -6,6 +6,7 @@
         $(document).ready(function(){
             $("#add_form_link").bind('click', dict_add_form)
             $("#copy_para").click(function(event) {
+                $(event.target).attr('disabled', 'disabled');
                 $.get('ajax/paradigm_info.php', {'word': $("#source").val()}, function(res) {
                     var $res = $(res);
                     var $lemma = $("#lemma_txt");
@@ -18,6 +19,7 @@
                         $tr.find('td').first().find('input').val(form_text);
                         $tr.find('td').last().find('input').val($(this).attr('gram'));
                     });
+                    $(event.target).removeAttr('disabled');
                 });
             });
         })
