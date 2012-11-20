@@ -140,6 +140,50 @@ function parse_dict_rev($text) {
     }
     return $parsed;
 }
+function get_word_paradigm($lemma) {
+    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions LEFT JOIN dict_lemmata USING (lemma_id) WHERE lemma_text='".mysql_real_escape_string($lemma)."' ORDER BY rev_id DESC LIMIT 1"));
+    if (!$r)
+        return false;
+    $arr = parse_dict_rev($r['rev_text']);
+    $out = array(
+        'lemma_gram' => $arr['lemma']['grm'],
+        'forms' => array()
+    );
+
+    $pseudo_stem = $arr['lemma']['text'];
+    foreach ($arr['forms'] as $form) {
+        $pseudo_stem = get_common_prefix($form['text'], $pseudo_stem);
+    }
+
+    $out['lemma_suffix_len'] = mb_strlen($arr['lemma']['text'], 'UTF-8') - mb_strlen($pseudo_stem, 'UTF-8');
+
+    foreach ($arr['forms'] as $form) {
+        $suffix_len = mb_strlen($form['text'], 'UTF-8') - mb_strlen($pseudo_stem, 'UTF-8');
+        $out['forms'][] = array(
+            'suffix' => $suffix_len ? mb_substr($form['text'], -$suffix_len, $suffix_len, 'UTF-8') : '',
+            'grm' => $form['grm']
+        );
+    }
+
+    return $out;
+}
+function get_common_prefix($word1, $word2) {
+    if ($word1 == $word2)
+        return $word1;
+    $len1 = mb_strlen($word1, 'UTF-8');
+    $len2 = mb_strlen($word2, 'UTF-8');
+    $prefix = '';
+
+    for ($i = 0; $i < min($len1, $len2); ++$i) {
+        $char1 = mb_substr($word1, $i, 1, 'UTF-8');
+        $char2 = mb_substr($word2, $i, 1, 'UTF-8');
+        if ($char1 == $char2)
+            $prefix .= $char1;
+        else
+            break;
+    }
+    return $prefix;
+}
 function form_exists($f) {
     $f = mb_strtolower($f, 'UTF-8');
     if (!preg_match('/^[А-Яа-яЁё]/u', $f)) {

@@ -235,8 +235,9 @@ function dict_reload(td) {
     req.send(null);
 }
 function dict_add_form(event) {
-    $(event.target).closest('tbody').append("<tr><td><input name='form_text[]'></td><td><input size='40' name='form_gram[]'></td></tr>")
-    event.preventDefault()
+    $('#paradigm tbody').append("<tr><td><input type='text' name='form_text[]'></td><td><input type='text' size='40' name='form_gram[]'></td></tr>")
+    if (event)
+        event.preventDefault()
 }
 function edit_gram(event) {
     var $a = $(event.target).closest('a')
