@@ -28,9 +28,26 @@ if (time() - $r->{'timestamp'} > 60*60*25 && !FORCE) {
 
 my $rev = $dbh->prepare("SELECT MAX(rev_id) AS m FROM dict_revisions");
 my $read_g = $dbh->prepare("SELECT g1.inner_id AS id, g2.inner_id AS pid FROM gram g1 LEFT JOIN gram g2 ON (g1.parent_id=g2.gram_id) ORDER BY g1.`orderby`");
+my $read_r = $dbh->prepare("
+    SELECT g1.inner_id AS left_gram, g2.inner_id AS right_gram, restr_type, obj_type, auto
+    FROM gram_restrictions r
+    LEFT JOIN gram g1 ON (r.if_id = g1.gram_id)
+    LEFT JOIN gram g2 ON (r.then_id = g2.gram_id)
+");
 my $read_l = $dbh->prepare("SELECT * FROM (SELECT lemma_id, rev_id, rev_text FROM dict_revisions LEFT JOIN dict_lemmata dl USING (lemma_id) WHERE dl.lemma_text IS NOT NULL AND lemma_id BETWEEN ? AND ? ORDER BY lemma_id, rev_id DESC) T GROUP BY T.lemma_id");
 my $read_lt = $dbh->prepare("SELECT * FROM dict_links_types ORDER BY link_id");
 my $read_links = $dbh->prepare("SELECT * FROM dict_links ORDER BY link_id LIMIT ?, 10000");
+my %restr_types = (
+    0 => 'maybe',
+    1 => 'obligatory',
+    2 => 'forbidden'
+);
+my %obj_types = (
+    0 => ['lemma', 'lemma'],
+    1 => ['lemma', 'form'],
+    2 => ['form', 'lemma'],
+    3 => ['form', 'form']
+);
 
 $rev->execute();
 $r = $rev->fetchrow_hashref();
@@ -39,7 +56,7 @@ my $maxrev = $r->{'m'};
 my $header;
 my $footer;
 unless (PLAINTEXT) {
-    $header = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<dictionary version=\"0.82\" revision=\"$maxrev\">\n";
+    $header = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<dictionary version=\"0.9\" revision=\"$maxrev\">\n";
     $footer = "</dictionary>";
 
     # grammemes
@@ -52,6 +69,18 @@ unless (PLAINTEXT) {
     $grams .= "</grammemes>\n";
 
     print $header.$grams;
+
+    # restrictions
+    print "<restrictions>\n";
+    $read_r->execute();
+    while ($r = $read_r->fetchrow_hashref()) {
+        my ($left_type, $right_type) = @{$obj_types{$r->{'obj_type'}}};
+        print "    <restr type=\"".$restr_types{$r->{'restr_type'}}."\" auto=\"".$r->{'auto'}."\">";
+        print "<left type=\"$left_type\">".$r->{'left_gram'}."</left>";
+        print "<right type=\"$right_type\">".$r->{'right_gram'}."</right>";
+        print "</restr>\n";
+    }
+    print "</restrictions>\n";
 }
 
 # lemmata
