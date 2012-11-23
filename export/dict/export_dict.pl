@@ -27,7 +27,7 @@ if (time() - $r->{'timestamp'} > 60*60*25 && !FORCE) {
 }
 
 my $rev = $dbh->prepare("SELECT MAX(rev_id) AS m FROM dict_revisions");
-my $read_g = $dbh->prepare("SELECT g1.inner_id AS id, g2.inner_id AS pid FROM gram g1 LEFT JOIN gram g2 ON (g1.parent_id=g2.gram_id) ORDER BY g1.`orderby`");
+my $read_g = $dbh->prepare("SELECT g1.inner_id AS id, g1.outer_id AS rus_name, g2.inner_id AS pid FROM gram g1 LEFT JOIN gram g2 ON (g1.parent_id=g2.gram_id) ORDER BY g1.`orderby`");
 my $read_r = $dbh->prepare("
     SELECT g1.inner_id AS left_gram, g2.inner_id AS right_gram, restr_type, obj_type, auto
     FROM gram_restrictions r
@@ -56,7 +56,7 @@ my $maxrev = $r->{'m'};
 my $header;
 my $footer;
 unless (PLAINTEXT) {
-    $header = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<dictionary version=\"0.9\" revision=\"$maxrev\">\n";
+    $header = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<dictionary version=\"0.91\" revision=\"$maxrev\">\n";
     $footer = "</dictionary>";
 
     # grammemes
@@ -64,7 +64,7 @@ unless (PLAINTEXT) {
 
     $read_g->execute();
     while($r = $read_g->fetchrow_hashref()) {
-        $grams .= "    <grammeme parent=\"$r->{'pid'}\">".tidy_xml($r->{'id'})."</grammeme>\n";
+        $grams .= "    <grammeme parent=\"$r->{'pid'}\" alias=\"".tidy_xml($r->{'rus_name'})."\">".tidy_xml($r->{'id'})."</grammeme>\n";
     }
     $grams .= "</grammemes>\n";
 
