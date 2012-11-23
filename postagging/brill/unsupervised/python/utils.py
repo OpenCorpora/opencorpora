@@ -5,8 +5,6 @@ from StringIO import StringIO
 import re
 from sets import Set
 
-from brill_rules import apply_rule
-
 
 CONTEXT = ('w-1', 't-1', 'w+1', 't+1')
 
@@ -62,7 +60,7 @@ class Rule(object):
 
 class Corpus(Set):
 
-    def __init__(self):
+    def __init__(self, sentences):
         pass
 
 
@@ -111,11 +109,5 @@ class TagStat(dict):
 
 
 if __name__ == '__main__':
-    rule = Rule(u'NOUN_PREP', u'NOUN', 't+1', u'PNCT')
-    print rule.display()
-    with open('iter2_unamb.txt', 'w') as output:
-        for sent in apply_rule(rule, sys.stdin.read()):
-            output.write('<sent>\n')
-            for item in sent:
-                output.write(item + '\n')
-            output.write('</sent>\n')
+    pass
+

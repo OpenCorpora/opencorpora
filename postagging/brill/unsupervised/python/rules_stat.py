@@ -7,9 +7,10 @@ from utils import split_into_sent, get_pos_tags, process_table
 
 
 def apply_rule(rule, table):
-    for sent in split_into_sent(table):
-        sent = sent.lstrip('<sent>\n').rstrip('\n')
-        tokens = sent.split('\n')
+    for sent in table:
+        #sent = sent.lstrip('<sent>\n').rstrip('\n')
+        #tokens = sent.split('\n')
+        tokens = sent
         if len(tokens) == 0:
             continue
         tokens.insert(0, 'sent')
@@ -31,7 +32,7 @@ def apply_rule(rule, table):
                 break
             if tag_1 == rule.tagset:
                 gr_list = tokens[i].split('\t')[2:]
-                if rule.context_type == 't-1':
+                if rule.context_type == 'previous tag':
                     if tag_2 == rule.context:
                         tokens[i] = id + '\t' + word
                         for grammeme in gr_list:
@@ -40,9 +41,19 @@ def apply_rule(rule, table):
                         for grammeme in gr_list:
                             tokens[i] += ('\t' + grammeme + '\t')
                         tokens[i] += '\n'
-                if rule.context_type == 'w-1':
+                if rule.context_type == 'previous word':
                     if word_2 == rule.context:
-                        tokens[i][1] = rule.tag
+                        tokens[i] = id_1 + '\t' + word_1
+                        for grammeme in gr_list[:]:
+                            try:
+                                if rule.tag not in grammeme:
+                                    gr_list.remove(grammeme)
+                            except:
+                                #print grammeme.decode('utf-8')
+                                break
+                        for grammeme in gr_list:
+                            tokens[i] += ('\t' + grammeme + '\t')
+                        tokens[i] += '\n'
                 if rule.context_type == 'next tag':
                     if tag == rule.context:
                         tokens[i] = id_1 + '\t' + word_1
@@ -56,9 +67,19 @@ def apply_rule(rule, table):
                         for grammeme in gr_list:
                             tokens[i] += ('\t' + grammeme + '\t')
                         tokens[i] += '\n'
-                if rule.context_type == 'w+1':
+                if rule.context_type == 'next word':
                     if word == rule.context:
-                        tokens[i][1] = rule.tag
+                        tokens[i] = id_1 + '\t' + word_1
+                        for grammeme in gr_list[:]:
+                            try:
+                                if rule.tag not in grammeme:
+                                    gr_list.remove(grammeme)
+                            except:
+                                #print grammeme.decode('utf-8')
+                                break
+                        for grammeme in gr_list:
+                            tokens[i] += ('\t' + grammeme + '\t')
+                        tokens[i] += '\n'
             tag_2, tag_1, word_2, word_1, id_1 = tag_1, tag, word_1, word, id
             i += 1
         yield tokens[1:-1]
@@ -89,7 +110,7 @@ def get_unamb_tags(entries):
 
 def get_list_words_pos(corpus):
     result_dict = {}
-    for sent in split_into_sent(corpus):
+    for sent in corpus:
         tokens = process_table(sent)
         tokens.insert(0, 'sent')
         tokens.append('/sent')
