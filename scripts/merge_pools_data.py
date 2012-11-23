@@ -8,6 +8,8 @@ from MySQLdb.cursors import DictCursor
 
 # definitions
 
+POOL_STATUS_MODERATION  = 5
+POOL_STATUS_PENDING     = 7
 POOL_STATUS_IN_PROGRESS = 8
 POOL_STATUS_READY       = 9
 CHANGESET_COMMENT       = "Merge data from annotation pool #{0}"
@@ -21,8 +23,10 @@ def make_new_changeset(dbh, pool_id):
     return dbh.lastrowid
 def set_pool_status(dbh, pool_id, status):
     dbh.execute("UPDATE morph_annot_pools SET status={0} WHERE pool_id={1} LIMIT 1".format(status, pool_id))
+def return_pool(dbh, pool_id):
+    set_pool_status(dbh, pool_id, POOL_STATUS_MODERATION)
 def get_moderated_pool(dbh):
-    dbh.execute("SELECT pool_id, revision FROM morph_annot_pools WHERE status=7 LIMIT 1")
+    dbh.execute("SELECT pool_id, revision FROM morph_annot_pools WHERE status={0} LIMIT 1".format(POOL_STATUS_PENDING))
     pool = dbh.fetchone()
     if pool is not None:
         return pool['pool_id'], pool['revision']
@@ -116,8 +120,9 @@ def process_pool(dbh, pool_id, revision):
                 grammemes_ok_str = pool_grammemes[sample['answer']-1]
                 new_xml = vars2xml(token, update_vars(old_vars, grammemes_ok_str))
             except IndexError:
-                sys.stderr.write("Something went bad with pool #{0}, sample #{1}, exiting\n".format(pool_id, sample['sample_id']))
-                sys.exit()
+                sys.stderr.write("Something went bad with pool #{0}, sample #{1}, returning to moderation\n".format(pool_id, sample['sample_id']))
+                return_pool(dbh, pool_id)
+                return
 
         update_sample(dbh, sample['sample_id'], new_xml.encode('utf-8'), changeset_id)
     set_pool_status(dbh, pool_id, POOL_STATUS_READY)
