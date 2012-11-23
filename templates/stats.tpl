@@ -60,12 +60,12 @@ $(document).ready(function(){
 {if $is_logged}или <a href="#user{$smarty.session.user_id}" class="pseudo" id="show_user">найти меня</a>{/if}
 <h3>Команды по количеству размеченных примеров</h3>
 <table class="table">
-    <tr><th>#</th><th>Название</th><th>Количество участников</th><th>Размечено примеров</th>{if !isset($smarty.get.weekly)}<th>Проверено</th><th>% ошибок</th>{/if}</tr>
+    <tr><th>#</th><th>Название</th><th>Количество участников<br/>активных/всего</th><th>Размечено примеров</th>{if !isset($smarty.get.weekly)}<th>Проверено</th><th>% ошибок</th>{/if}</tr>
     {foreach $user_stats.teams as $i=>$team name=x}
         <tr>
             <td>{$team@iteration}</td>
             <td>{$team.name}</td>
-            <td>{$team.num_users}</td>
+            <td>{$team.active_users}/{$team.num_users}</td>
             <td>{$team.total}</td>
             {if !isset($smarty.get.weekly)}<td>{$team.moderated}</td>
             <td>{$team.error_rate|string_format:"%.1f%%"}</td>{/if}

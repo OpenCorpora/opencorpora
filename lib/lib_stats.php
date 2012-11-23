@@ -187,7 +187,7 @@ function get_user_stats($weekly=false) {
             unset($teams[$i]);
             continue;
         }
-        $teams[$i]['total'] = $teams[$i]['moderated'] = $teams[$i]['correct'] = 0;
+        $teams[$i]['total'] = $teams[$i]['moderated'] = $teams[$i]['correct'] = $teams[$i]['active_users'] = 0;
     }
 
     $uid2sid = array();
@@ -195,8 +195,10 @@ function get_user_stats($weekly=false) {
     while ($r = sql_fetch_array($res)) {
         $annotators[] = array('total' => number_format($r['cnt'], 0, '', ' '), 'user_id' => $r['user_id']);
         $uid2sid[$r['user_id']] = sizeof($annotators) - 1;
-        if (isset($uid2team[$r['user_id']]))
+        if (isset($uid2team[$r['user_id']])) {
             $teams[$uid2team[$r['user_id']]]['total'] += $r['cnt'];
+            $teams[$uid2team[$r['user_id']]]['active_users'] += 1;
+        }
     }
 
     uasort($teams, function($a, $b) {
