@@ -4,7 +4,7 @@ import sys
 from time import clock
 
 from utils import split_into_sent, get_pos_tags, process_table
-
+#TODO: проверить, как применяются правила
 
 def apply_rule(rule, table):
     for sent in split_into_sent(table):
@@ -27,7 +27,6 @@ def apply_rule(rule, table):
             try:
                 word = token.split('\t')[1]
             except:
-                #print id
                 break
             if tag_1 == rule.tagset:
                 gr_list = tokens[i].split('\t')[2:]
@@ -48,7 +47,6 @@ def apply_rule(rule, table):
                                 if rule.tag not in grammeme:
                                     gr_list.remove(grammeme)
                             except:
-                                #print grammeme.decode('utf-8')
                                 break
                         for grammeme in gr_list:
                             tokens[i] += ('\t' + grammeme + '\t')
@@ -61,7 +59,6 @@ def apply_rule(rule, table):
                                 if rule.tag not in grammeme:
                                     gr_list.remove(grammeme)
                             except:
-                                #print grammeme.decode('utf-8')
                                 break
                         for grammeme in gr_list:
                             tokens[i] += ('\t' + grammeme + '\t')
@@ -74,7 +71,6 @@ def apply_rule(rule, table):
                                 if rule.tag not in grammeme:
                                     gr_list.remove(grammeme)
                             except:
-                                #print grammeme.decode('utf-8')
                                 break
                         for grammeme in gr_list:
                             tokens[i] += ('\t' + grammeme + '\t')
@@ -162,12 +158,10 @@ def scoring_function(entries, best_rules):
                                     except:
                                         pass
                 rules_scores[amb_tag] = result_scores
-    #print new_rule
     return rules_scores, new_rule, best_score
 
 
 def find_best_rule():
-    #return BEST_RULE, BEST_SCORE
     pass
 
 if __name__ == '__main__':
@@ -176,7 +170,6 @@ if __name__ == '__main__':
     finish = clock()
     print finish - start
     with open('iter0.txt', 'w') as output:
-        #print context_freq
         for amb_tag in context_freq.keys():
             for context in context_freq[amb_tag].keys():
                 if context is not 'freq':
@@ -202,4 +195,3 @@ if __name__ == '__main__':
                                      '\t' + context + '\t' + \
                                      c_variant + '\t' + str(scores[amb_tag][tag][context][c_variant][1:3]) + '\n')
     print(clock() - finish)
-    print find_best_rule()

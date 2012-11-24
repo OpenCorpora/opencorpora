@@ -2,8 +2,8 @@
 
 import sys
 import os
-from utils import get_list_words_pos
-from rules_stat import scoring_function, Rule, apply_rule
+from utils import get_list_words_pos, Rule
+from rules_stat import scoring_function, apply_rule
 
 # TODO: уметь применять определенное количество правил из сгенерированного списка
 # (или даже до какого-то конкретного правила)
@@ -47,12 +47,6 @@ if __name__ == '__main__':
                             output.write(str(scores[amb_tag][tag][context][c_variant][0]) + '\t' + str(amb_tag) + '\t' + tag + \
                                          '\t' + context + '\t' + \
                                          c_variant + '\t' + str(scores[amb_tag][tag][context][c_variant][1:3]) + '\n')
-        #input = StringIO()
-        '''for sent in apply_rule(rule, input_corpus[:]):
-            input.write('<sent>\n')
-            input.write('\n'.join(sent))
-            input.write('</sent>\n')
-        input_corpus = input.getvalue()'''
         input_corpus = '\n'.join([('sent\n' + '\n'.join(sent) + '/sent') for sent in apply_rule(rule, input_corpus[:])])
         iter_c += 1
         if best_score < 0:
