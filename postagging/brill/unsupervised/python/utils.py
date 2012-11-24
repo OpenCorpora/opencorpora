@@ -10,7 +10,8 @@ CONTEXT = ('w-1', 't-1', 'w+1', 't+1')
 
 
 def split_into_sent(text):
-    return text.split('</sent>')
+    for sent in text.split('</sent>'):
+        yield process_table(sent)
 
 
 def get_pos_tags(line):
