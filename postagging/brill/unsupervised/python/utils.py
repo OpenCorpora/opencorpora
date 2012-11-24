@@ -10,8 +10,7 @@ CONTEXT = ('w-1', 't-1', 'w+1', 't+1')
 
 
 def split_into_sent(text):
-    for sent in text.split('</sent>'):
-        yield process_table(sent)
+    return text.split('</sent>')
 
 
 def get_pos_tags(line):
@@ -27,6 +26,46 @@ def get_pos_tags(line):
     for tag in pos_tags:
             pos_tags_str.write(tag + '_')
     return pos_tags_str.getvalue().lstrip('_').rstrip('_')
+
+
+def get_list_words_pos(corpus):
+    result_dict = {}
+    for sent in split_into_sent(corpus):
+        tokens = process_table(sent)
+        tokens.insert(0, 'sent')
+        tokens.append('/sent')
+        word_2, tag_2 = 'sent', 'sent'
+        word_1, tag_1 = tokens[1][0], tokens[1][1]
+        for token in tokens[1:-1]:
+            tag = token[1]
+            word = token[0]
+            if tag_1 in result_dict.keys():
+                tag_entry = result_dict[tag_1]
+                if tag_2 in tag_entry['t-1'].keys():
+                    tag_entry['t-1'][tag_2] += 1
+                else:
+                    tag_entry['t-1'][tag_2] = 1
+                if word_2 in tag_entry['w-1'].keys():
+                    tag_entry['w-1'][word_2] += 1
+                else:
+                    tag_entry['w-1'][word_2] = 1
+                if tag in tag_entry['t+1'].keys():
+                    tag_entry['t+1'][tag] += 1
+                else:
+                    tag_entry['t+1'][tag] = 1
+                if word in tag_entry['w+1'].keys():
+                    tag_entry['w+1'][word] += 1
+                else:
+                    tag_entry['w+1'][word] = 1
+                if 'freq' in tag_entry.keys():
+                    tag_entry['freq'] += 1
+                else:
+                    tag_entry['freq'] = 1
+            else:
+                result_dict[tag_1] = dict(zip(('t-1', 'w-1', 't+1', 'w+1', 'freq'), \
+                                              ({tag_2: 1}, {word_2: 1}, {tag: 1}, {word: 1}, 1)))
+            tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
+    return result_dict
 
 
 def process_table(sentence):
