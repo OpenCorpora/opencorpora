@@ -14,13 +14,19 @@ def get_text_by_tag(lines, tags):
         if line.lstrip().startswith('<token'):
             for tag in tags:
                 rtag = tag + '="'
-                pattern = re.compile(u'(?<=%s)([A-Za-zА-ЯЁа-яё0-9\-\.\!\?\,\"\']+?)\"' % rtag, re.UNICODE)
+                if tag in ('token id', 'l id'):
+                    pattern = re.compile(u'(?<=%s)(\d+)\"' % rtag, re.UNICODE)
+                if tag == 'v':
+                    pattern = re.compile(u'(?<=%s)([^\"]+?)\"' % rtag, re.UNICODE)
+                if tag == 'text':
+                    #pattern = re.compile(u'(?<=%s)([A-Za-zА-ЯЁа-яё0-9\-\.\!\?\,\"\']+?)\"' % rtag, re.UNICODE)
+                    pattern = re.compile(u'(?<=%s)([^\"]+?)\"' % rtag, re.UNICODE)
                 m = pattern.findall(line)
                 for match in m:
-                    lat_pattern = re.compile('^[A-Z]{4}$', re.UNICODE)
-                    if re.search(lat_pattern, match) is not None and tag == 'v':
+                    postag = re.compile('^[A-Z]{4}$', re.UNICODE)
+                    if re.search(postag, match) is not None and tag == 'v':
                         if tag_text[tag] != []:
-                            if tag_text[tag][-1][0].isupper and re.search(lat_pattern, tag_text[tag][-1]) is None:
+                            if tag_text[tag][-1][0].isupper and re.search(postag, tag_text[tag][-1]) is None:
                                 tag_text[tag][-1] += (' ' + match)
                             else:
                                 tag_text[tag].append(match)

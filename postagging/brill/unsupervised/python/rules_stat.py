@@ -15,7 +15,7 @@ def apply_rule(rule, table):
         if len(tokens) == 0:
             continue
         tokens.insert(0, 'sent')
-        tokens.append('sent')
+        tokens.append('/sent')
         word_2, tag_2 = 'sent', 'sent'
         id_1 = tokens[1].split('\t')[0]
         try:
@@ -35,7 +35,7 @@ def apply_rule(rule, table):
                 if rule.context_type == 'previous tag':
                     if tag_2 == rule.context:
                         tokens[i] = id + '\t' + word
-                        for grammeme in gr_list:
+                        for grammeme in gr_list[:]:
                             if rule.tag not in grammeme:
                                 gr_list.remove(grammeme)
                         for grammeme in gr_list:
@@ -45,11 +45,8 @@ def apply_rule(rule, table):
                     if word_2 == rule.context:
                         tokens[i] = id_1 + '\t' + word_1
                         for grammeme in gr_list[:]:
-                            try:
-                                if rule.tag not in grammeme:
-                                    gr_list.remove(grammeme)
-                            except:
-                                break
+                            if rule.tag not in grammeme:
+                                gr_list.remove(grammeme)
                         for grammeme in gr_list:
                             tokens[i] += ('\t' + grammeme + '\t')
                         tokens[i] += '\n'
@@ -57,11 +54,8 @@ def apply_rule(rule, table):
                     if tag == rule.context:
                         tokens[i] = id_1 + '\t' + word_1
                         for grammeme in gr_list[:]:
-                            try:
-                                if rule.tag not in grammeme:
-                                    gr_list.remove(grammeme)
-                            except:
-                                break
+                            if rule.tag not in grammeme:
+                                gr_list.remove(grammeme)
                         for grammeme in gr_list:
                             tokens[i] += ('\t' + grammeme + '\t')
                         tokens[i] += '\n'
@@ -69,17 +63,14 @@ def apply_rule(rule, table):
                     if word == rule.context:
                         tokens[i] = id_1 + '\t' + word_1
                         for grammeme in gr_list[:]:
-                            try:
-                                if rule.tag not in grammeme:
-                                    gr_list.remove(grammeme)
-                            except:
-                                break
+                            if rule.tag not in grammeme:
+                                gr_list.remove(grammeme)
                         for grammeme in gr_list:
                             tokens[i] += ('\t' + grammeme + '\t')
                         tokens[i] += '\n'
             tag_2, tag_1, word_2, word_1, id_1 = tag_1, tag, word_1, word, id
             i += 1
-        applied.write('sent\n' + '\n'.join(tokens) + '/sent')
+        applied.write('\n'.join(tokens) + '\n')
     return applied.getvalue()
 
 
