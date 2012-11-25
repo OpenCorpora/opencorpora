@@ -13,20 +13,24 @@ def get_text_by_tag(lines, tags):
         output = StringIO()
         if line.lstrip().startswith('<token'):
             for tag in tags:
-                chunks = StringIO()
                 rtag = tag + '="'
                 pattern = re.compile(u'(?<=%s)([A-Za-zА-ЯЁа-яё0-9\-\.\!\?\,\"\']+?)\"' % rtag, re.UNICODE)
                 m = pattern.findall(line)
                 for match in m:
                     lat_pattern = re.compile('^[A-Z]{4}$', re.UNICODE)
                     if re.search(lat_pattern, match) is not None and tag == 'v':
-                        tag_text[tag].append(match)
-                        chunks.write(match + ' ')
-                    elif tag == 'v' and match[0].isupper():
-                        pass
+                        if tag_text[tag] != []:
+                            if tag_text[tag][-1][0].isupper and re.search(lat_pattern, tag_text[tag][-1]) is None:
+                                tag_text[tag][-1] += (' ' + match)
+                            else:
+                                tag_text[tag].append(match)
+                        else:
+                            tag_text[tag].append(match)
                     elif tag == 'v':
-                        chunks.write(match + ' ')
-                        tag_text[tag][-1] += (' ' + match)
+                        try:
+                            tag_text[tag][-1] += (' ' + match)
+                        except:
+                            tag_text[tag].append(match)
                     else:
                         tag_text[tag].append(match)
                     if tag in ('token id', 'text'):

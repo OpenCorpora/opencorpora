@@ -7,7 +7,8 @@ from sets import Set
 
 
 CONTEXT = ('w-1', 't-1', 'w+1', 't+1')
-
+NUMB_AMB = 0
+NUMB_TOKENS = 0
 
 def split_into_sent(text):
     return text.split('</sent>')
@@ -28,17 +29,27 @@ def get_pos_tags(line):
     return pos_tags_str.getvalue().lstrip('_').rstrip('_')
 
 
-def get_list_words_pos(corpus):
+def get_list_words_pos(corpus, numb_amb, numb_tokens, 
+                       counter=None, ignore_numbers=True):
     result_dict = {}
+    tvars = 0
     for sent in split_into_sent(corpus):
         tokens = process_table(sent)
+        if counter is not None:
+            counts = counter(tokens)
+            numb_tokens += counts[1]
+            numb_amb += counts[0]
+            tvars += counts[2]
         tokens.insert(0, 'sent')
         tokens.append('/sent')
         word_2, tag_2 = 'sent', 'sent'
         word_1, tag_1 = tokens[1][0], tokens[1][1]
         for token in tokens[1:-1]:
             tag = token[1]
-            word = token[0]
+            if ignore_numbers and token[0].isdigit():
+                word = '_N_'
+            else:
+                word = token[0]
             if tag_1 in result_dict.keys():
                 tag_entry = result_dict[tag_1]
                 if tag_2 in tag_entry['t-1'].keys():
@@ -65,13 +76,18 @@ def get_list_words_pos(corpus):
                 result_dict[tag_1] = dict(zip(('t-1', 'w-1', 't+1', 'w+1', 'freq'), \
                                               ({tag_2: 1}, {word_2: 1}, {tag: 1}, {word: 1}, 1)))
             tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
+    print numb_amb, numb_tokens, tvars
     return result_dict
+
+
+def after_iter():
+    return NUMB_AMB, NUMB_TOKENS
 
 
 def process_table(sentence):
     to_return_list = []
     for line in sentence.split('\n'):
-        line.decode('utf-8')
+        #line.decode('utf-8')
         if 'sent' not in line:
             pos_tags_str = get_pos_tags(line)
             try:
@@ -81,6 +97,20 @@ def process_table(sentence):
         else:
             pass
     return to_return_list
+
+
+def numb_amb_tokens(tokens):
+    n = 0
+    amb = 0
+    vars = 0
+    for token in tokens:
+        tvars = len(token[1].split('_'))
+        if tvars > 1:
+            amb += 1
+        vars += tvars
+        n += 1
+    #print amb, n
+    return amb, n, vars
 
 
 class Rule(object):

@@ -2,12 +2,15 @@
 
 import sys
 import os
-from utils import get_list_words_pos, Rule
+from utils import get_list_words_pos, Rule, numb_amb_tokens, after_iter
 from rules_stat import scoring_function, apply_rule
 
-# TODO: уметь применять определенное количество правил из сгенерированного списка
-# (или даже до какого-то конкретного правила)
-# (или давать на входе номер итерации, во время которой корпус переразмечать)
+"""2. начать считать кол-во однозначных токенов и кол-во разборов на одно слово на каждой итерации"""
+"""3. объединить правила с числами (лучше всего сделать опцию: объединять или нет, т.к. 
+через некоторое время, когда будем снимать sing / plur, захотим отключить это)"""
+#4. начать считать точность и что-то там вместо полноты
+
+
 if __name__ == '__main__':
     out = open('rules.txt', 'w')
     input_corpus = sys.stdin.read()
@@ -15,7 +18,9 @@ if __name__ == '__main__':
     best_rules = []
     best_score = 0
     while True:
-        context_freq = get_list_words_pos(input_corpus)
+        context_freq = get_list_words_pos(input_corpus, 0, 0,
+                                          counter=numb_amb_tokens)
+        #print after_iter()
         with open('iter_c%s.txt' % iter_c, 'w') as output:
             for amb_tag in context_freq.keys():
                 for context in context_freq[amb_tag].keys():
@@ -47,7 +52,10 @@ if __name__ == '__main__':
                             output.write(str(scores[amb_tag][tag][context][c_variant][0]) + '\t' + str(amb_tag) + '\t' + tag + \
                                          '\t' + context + '\t' + \
                                          c_variant + '\t' + str(scores[amb_tag][tag][context][c_variant][1:3]) + '\n')
-        input_corpus = '\n'.join([('sent\n' + '\n'.join(sent) + '/sent') for sent in apply_rule(rule, input_corpus[:])])
+        new_c = apply_rule(rule, input_corpus[:])
+        with open('iter_c%s_corpus.txt' % iter_c, 'w') as output:
+            output.write(new_c)
+        input_corpus = new_c
         iter_c += 1
         if best_score < 0:
             out.close()

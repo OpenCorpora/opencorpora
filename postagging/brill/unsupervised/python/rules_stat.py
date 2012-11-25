@@ -2,11 +2,13 @@
 
 import sys
 from time import clock
+from StringIO import StringIO
 
 from utils import split_into_sent, get_pos_tags, process_table
-#TODO: проверить, как применяются правила
+
 
 def apply_rule(rule, table):
+    applied = StringIO()
     for sent in split_into_sent(table):
         sent = sent.lstrip('<sent>\n').rstrip('\n')
         tokens = sent.split('\n')
@@ -77,7 +79,8 @@ def apply_rule(rule, table):
                         tokens[i] += '\n'
             tag_2, tag_1, word_2, word_1, id_1 = tag_1, tag, word_1, word, id
             i += 1
-        yield tokens[1:-1]
+        applied.write('sent\n' + '\n'.join(tokens) + '/sent')
+    return applied.getvalue()
 
 
 def get_unamb_tags(entries):
