@@ -320,7 +320,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $fi
             // anything except it
             ($filter != 'focus' &&
             ($disagreement_flag || $filter != 'disagreed') &&
-            ($t['moder_answer_num'] == 0 || $filter != 'not_moderated') &&
+            ($out['status'] <= 4 || $t['moder_answer_num'] == 0 || $filter != 'not_moderated') &&
             (sizeof($t['comments']) > 0 || $filter != 'comments') &&
             ($not_ok_flag || $filter != 'not_ok'))
         )
