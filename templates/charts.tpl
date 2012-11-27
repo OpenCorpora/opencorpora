@@ -72,6 +72,7 @@ $(document).ready(function() {
     $.plot($("#ambig_chart3"), [total_words, unknown], options2);
     $.plot($("#pools_chart"), pools, pie_options);
     options2['legend']['position'] = 'nw';
+    options2['yaxis'] = {min: 0};
     $.plot($("#users_chart"), [samples_by_day, users_by_day], options2);
 });
 {/literal}
