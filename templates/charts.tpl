@@ -42,7 +42,7 @@ $(document).ready(function() {
         {label: 'готовится', data: {/literal}{$pools_stats[2]}{literal}},
         {label: 'размечается', data: {/literal}{$pools_stats[3]}{literal}},
         {label: 'размечено', data: {/literal}{$pools_stats[4]}{literal}},
-        {label: 'на модерации', data: {/literal}{$pools_stats[5]}{literal}},
+        {label: 'на модерации', data: {/literal}{$pools_stats[5] + $pools_stats[6]}{literal}},
         {label: 'ушло в корпус', data: {/literal}{$pools_stats[9]}{literal}},
     ];
 
