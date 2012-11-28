@@ -4,14 +4,23 @@ import sys
 from StringIO import StringIO
 import re
 from sets import Set
+from collections import namedtuple
 
 
 CONTEXT = ('w-1', 't-1', 'w+1', 't+1')
 NUMB_AMB = 0
 NUMB_TOKENS = 0
 
+
+def read_corpus(input):
+    tokens = []
+    for line in input.split('/sent'):
+        for ltoken in line.split('\n'):
+            pass
+
+
 def split_into_sent(text):
-    return text.split('</sent>')
+    return text.split('/sent')
 
 
 def get_pos_tags(line):
@@ -29,17 +38,11 @@ def get_pos_tags(line):
     return pos_tags_str.getvalue().lstrip('_').rstrip('_')
 
 
-def get_list_words_pos(corpus, numb_amb, numb_tokens, 
-                       counter=None, ignore_numbers=True):
+def get_list_words_pos(corpus, ignore_numbers=True):
     result_dict = {}
     tvars = 0
     for sent in split_into_sent(corpus):
         tokens = process_table(sent)
-        if counter is not None:
-            counts = counter(tokens)
-            numb_tokens += counts[1]
-            numb_amb += counts[0]
-            tvars += counts[2]
         tokens.insert(0, 'sent')
         tokens.append('/sent')
         word_2, tag_2 = 'sent', 'sent'
@@ -76,7 +79,6 @@ def get_list_words_pos(corpus, numb_amb, numb_tokens,
                 result_dict[tag_1] = dict(zip(('t-1', 'w-1', 't+1', 'w+1', 'freq'), \
                                               ({tag_2: 1}, {word_2: 1}, {tag: 1}, {word: 1}, 1)))
             tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
-    print numb_amb, numb_tokens, tvars
     return result_dict
 
 
@@ -113,12 +115,25 @@ def numb_amb_tokens(tokens):
     return amb, n, vars
 
 
+def numb_amb_corpus(corpus, numb_amb=0, numb_tokens=0, counter=numb_amb_tokens):
+    tvars = 0
+    for sent in split_into_sent(corpus):
+        tokens = process_table(sent)
+        if counter is not None:
+            counts = counter(tokens)
+            numb_amb += counts[0]
+            numb_tokens += counts[1]
+            tvars += counts[2]
+    return numb_tokens, numb_amb, tvars
+
+
 class Rule(object):
 
     def __init__(self, tagset, tag, context_type, context):
         self.tagset = tagset
         self.context = context
         self.tag = tag
+        self.context_type = context_type
         for item in zip(CONTEXT, ('previous word', 'previous tag',
                                    'next word', 'next tag')):
             if context_type == item[0]:
@@ -131,32 +146,51 @@ class Rule(object):
 class Corpus(Set):
 
     def __init__(self, sentences):
-        pass
+        for i in range(len(sentences)):
+            sent = Sentence(sentences.pop(i))
+            sentences.append(sent)
+        self.update(sentences)
 
 
 class Sentence(Set):
 
-    def __init__(self):
-        pass
+    def __init__(self, tokens):
+        for i in range(len(tokens)):
+            t = Token(tokens.pop(i))
+            tokens.append(t)
+        tokens.insert(0, 'sent')
+        tokens.append('sent')
+        self.update(tokens)
 
 
 class Token(Set):
 
-    def __init__(self, text, tagset):
-        self.text = text
-        self.tagset = tagset
+    def __init__(self, token):
+        self.text = token.split('\t')[1]
+        self.tagset = token.split('\t')[2:]
+
+    def gettext(self):
+        return self.text
+
+    def gettagset(self):
+        return self.tagset
+
+    def getPOStags(self):
+        return self.tagset.getPOStag()
 
 
 class TagSet(Set):
 
     def __init__(self, tags):
-        self.set = tags.split(' ')
+        self.set = tags.split('\t')
 
     def getPOStag(self):
+        pos = []
         for tag in self.set:
-            if tag.isPOStag():
-                return tag
-            break
+            for t in tag.split(' '):
+                if t.isPOStag():
+                    pos.append(t)
+        return '_'.join(pos)
 
 
 class Tag(object):
@@ -175,8 +209,15 @@ class Tag(object):
 class TagStat(dict):
 
     def __init__(self):
-        pass
+        self.stat = dict(zip(CONTEXT, ([] for i in range(4))))
 
+    def update(self, type, context):
+        for t in self.stat.keys():
+            if t == type:
+                if context in self.stat.values():
+                    self.stat[t][context] += 1
+                else:
+                    self.stat[t][context] = 1
 
 if __name__ == '__main__':
     pass
