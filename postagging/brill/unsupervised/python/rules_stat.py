@@ -10,7 +10,7 @@ from utils import split_into_sent, get_pos_tags, process_table
 def apply_rule(rule, table):
     applied = StringIO()
     for sent in split_into_sent(table):
-        sent = sent.lstrip('<sent>\n').rstrip('\n<')
+        sent = sent.lstrip('sent\n').rstrip('\n<')
         tokens = sent.split('\n')
         if len(tokens) == 0:
             continue

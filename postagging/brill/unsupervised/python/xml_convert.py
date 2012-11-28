@@ -45,9 +45,9 @@ def get_text_by_tag(lines, tags):
             for var in variants:
                 output.write(var[0] + '\t' + var[1] + '\t')
         elif line.lstrip().startswith('<sent'):
-            output.write('<sent>')
+            output.write('sent')
         elif line.lstrip().startswith('</sent'):
-            output.write('</sent>')
+            output.write('/sent')
         yield output.getvalue().rstrip().encode('utf-8')
 
 if __name__ == '__main__':
