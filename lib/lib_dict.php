@@ -530,7 +530,7 @@ function del_lemma($id) {
     //delete links (but preserve history)
     $res = sql_query("SELECT link_id FROM dict_links WHERE lemma1_id=$id OR lemma2_id=$id");
     sql_begin();
-    $revset_id = create_revset();
+    $revset_id = create_revset("Delete lemma $id");
     while ($r = sql_fetch_array($res)) {
         if (!del_link($r['link_id'], $revset_id)) {
             return false;
@@ -543,7 +543,7 @@ function del_lemma($id) {
     $rev_id = sql_insert_id();
 
     //update `updated_forms`
-    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$id ORDER BY `rev_id` DESC LIMIT 1"));
+    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$id ORDER BY `rev_id` DESC LIMIT 1, 1"));
     $pdr = parse_dict_rev($r['rev_text']);
     foreach ($pdr['forms'] as $form) {
         if (!sql_query("INSERT INTO `updated_forms` VALUES('".$form['text']."', $rev_id)")) {
