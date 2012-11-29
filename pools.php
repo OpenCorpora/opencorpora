@@ -37,7 +37,7 @@ switch ($action) {
         break;
     case 'samples':
         if (isset($_GET['tabs'])) {
-            $smarty->assign('pool', get_morph_samples_page((int)$_GET['pool_id'], true, 100, false));
+            $smarty->assign('pool', get_morph_samples_page((int)$_GET['pool_id'], true, 100));
             header("Content-type: application/csv; charset=utf-8");
             header("Content-disposition: attachment; filename=pool_".(int)$_GET['pool_id'].".tab");
             $smarty->display('qa/pool_tabs.tpl');
@@ -47,6 +47,7 @@ switch ($action) {
                 (int)$_GET['pool_id'],
                 isset($_GET['ext']),
                 4,
+                isset($_GET['skip']) ? (int)$_GET['skip'] : 0,
                 isset($_GET['filter']) ? $_GET['filter'] : false
             ));
             $smarty->display('qa/pool.tpl');

@@ -240,7 +240,7 @@ function get_morph_pools_page($type, $my_moder=false) {
     }
     return array('pools' => $pools, 'types' => $types);
 }
-function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $filter=false) {
+function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $skip=0, $filter=false) {
     $res = sql_query("SELECT pool_name, pool_type, status, t.grammemes, users_needed, moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
     $r = sql_fetch_array($res);
     $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
@@ -254,6 +254,12 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $fi
     $gram_descr = array();
     $distinct_users = array();
     $out['all_moderated'] = $extended ? true : false;  // for now we never get active button with non-extended view, just for code simplicity
+    $num_samples = sql_num_rows($res);
+    $out['pages'] = array(
+        'active' => $skip / 20,
+        'query' => preg_replace('/&skip=\d+/', '', $_SERVER['QUERY_STRING']),
+        'total' => 0
+    );
     while ($r = sql_fetch_array($res)) {
         $t = get_context_for_word($r['tf_id'], $context_width);
         $t['id'] = $r['sample_id'];
@@ -308,6 +314,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $fi
                 }
             }
         }
+        // to add or not to add
         if (
             !$extended ||
             // special list for moderation
@@ -323,11 +330,18 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $fi
             ($out['status'] <= 4 || $t['moder_answer_num'] == 0 || $filter != 'not_moderated') &&
             (sizeof($t['comments']) > 0 || $filter != 'comments') &&
             ($not_ok_flag || $filter != 'not_ok'))
-        )
-            $out['samples'][] = $t;
+        ) {
+            if ($skip > 0)
+                --$skip;
+            elseif (sizeof($out['samples']) < 20)
+                $out['samples'][] = $t;
+
+            $out['pages']['total'] += 1;
+        }
     }
     $out['user_colors'] = $distinct_users;
     $out['filter'] = $filter;
+    $out['pages']['total'] = ceil($out['pages']['total'] / 20);
     return $out;
 }
 function filter_sample_for_moderation($pool_type, $sample) {

@@ -126,7 +126,13 @@
 {if $pool.filter != 'not_moderated'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=not_moderated">непроверенные</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if}</p>
 {if $is_admin}<p><a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs">в виде tab-separated файла</a> (<a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs&amp;mod_ans">с ответами модератора</a>)</p>{/if}
 {/if}
-<br/>
+<div class="pagination pagination-centered"><ul>
+<li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * 20}">&lt;</a></li>
+{for $i=0 to $pool.pages.total - 1}
+<li {if $i == $pool.pages.active}class="active"{/if}><a href="?{$pool.pages.query}&skip={$i * 20}">{$i+1}</a></li>
+{/for}
+<li {if $pool.pages.active == $pool.pages.total - 1}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active + 1) * 20}">&gt;</a></li>
+</ul></div>
 <table border="1" cellspacing="0" cellpadding="3" class="small">
 <tr>
     <th>id</th>
@@ -208,6 +214,13 @@
 </tr>
 {/foreach}
 </table>
+<div class="pagination pagination-centered"><ul>
+<li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * 20}">&lt;</a></li>
+{for $i=0 to $pool.pages.total - 1}
+<li {if $i == $pool.pages.active}class="active"{/if}><a href="?{$pool.pages.query}&skip={$i * 20}">{$i+1}</a></li>
+{/for}
+<li {if $pool.pages.active == $pool.pages.total - 1}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active + 1) * 20}">&gt;</a></li>
+</ul></div>
 {if isset($smarty.get.ext)}
 <h2>Легенда</h2>
 <table>
