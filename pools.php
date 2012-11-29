@@ -94,6 +94,8 @@ switch ($action) {
             show_error();
         break;
     default:
-        $smarty->assign('pools', get_morph_pools_page((int)$_GET['type'], isset($_GET['my'])));
+        $smarty->assign('statuses', array(
+        ));
+        $smarty->assign('pools', get_morph_pools_page((int)$_GET['type'], (int)$_GET['moder_id'], $_GET['filter']));
         $smarty->display('qa/pools.tpl');
 }

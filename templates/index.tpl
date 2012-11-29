@@ -67,10 +67,6 @@
                     <li><a href='{$web_prefix}/sources.php'>Координация заливки</a></li>
                     {if $user_permission_check_morph}
                         <li><a href='{$web_prefix}/pools.php?type=3'>Задания на разметку</a></li>
-                        <li class="nav-header">Пулы, где я модератор</li>
-                        <li><a href='{$web_prefix}/pools.php?type=5&amp;my=1'>В работе</a></li>
-                        <li><a href='{$web_prefix}/pools.php?type=6&amp;my=1'>Готовые</a></li>
-                        <li><a href='{$web_prefix}/pools.php?type=9&amp;my=1'>В архиве</a></li>
                     {/if}
                     <li class="nav-header">Остальное</li>
                     <li><a href='{$web_prefix}/tokenizer_monitor.php'>Мониторинг качества токенизатора</a></li>

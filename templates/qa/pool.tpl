@@ -103,7 +103,7 @@
 Пул снят с публикации.
 <form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn">Опубликовать заново</button></form>
 {elseif $pool.status == 5}
-Пул модерируется (новые ответы запрещены). <form action="?act=finish_moder&amp;pool_id={$pool.id}" method="post" class="inline"><button{if !$pool.all_moderated} disabled="disabled" class="btn finish_mod"{/if}>Закончить модерацию</button></form>
+Пул модерируется (новые ответы запрещены). <form action="?act=finish_moder&amp;pool_id={$pool.id}" method="post" class="inline"><button{if !$pool.all_moderated} disabled="disabled"{/if} class="btn finish_mod">Закончить модерацию</button></form>
 {elseif $pool.status == 6}
 Модерация пула закончена.
 {if $is_admin}<form action="?act=begin_merge&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn btn-primary" onclick="return confirm('Вы уверены? Это действие необратимо.')">Вернуть результаты в корпус</button></form>{/if}
@@ -127,11 +127,11 @@
 {if $is_admin}<p><a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs">в виде tab-separated файла</a> (<a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs&amp;mod_ans">с ответами модератора</a>)</p>{/if}
 {/if}
 <div class="pagination pagination-centered"><ul>
-<li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * 20}">&lt;</a></li>
+<li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * 15}">&lt;</a></li>
 {for $i=0 to $pool.pages.total - 1}
-<li {if $i == $pool.pages.active}class="active"{/if}><a href="?{$pool.pages.query}&skip={$i * 20}">{$i+1}</a></li>
+<li {if $i == $pool.pages.active}class="active"{/if}><a href="?{$pool.pages.query}&skip={$i * 15}">{$i+1}</a></li>
 {/for}
-<li {if $pool.pages.active == $pool.pages.total - 1}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active + 1) * 20}">&gt;</a></li>
+<li {if $pool.pages.active == $pool.pages.total - 1}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active + 1) * 15}">&gt;</a></li>
 </ul></div>
 <table border="1" cellspacing="0" cellpadding="3" class="small">
 <tr>
@@ -215,11 +215,11 @@
 {/foreach}
 </table>
 <div class="pagination pagination-centered"><ul>
-<li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * 20}">&lt;</a></li>
+<li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * 15}">&lt;</a></li>
 {for $i=0 to $pool.pages.total - 1}
-<li {if $i == $pool.pages.active}class="active"{/if}><a href="?{$pool.pages.query}&skip={$i * 20}">{$i+1}</a></li>
+<li {if $i == $pool.pages.active}class="active"{/if}><a href="?{$pool.pages.query}&skip={$i * 15}">{$i+1}</a></li>
 {/for}
-<li {if $pool.pages.active == $pool.pages.total - 1}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active + 1) * 20}">&gt;</a></li>
+<li {if $pool.pages.active == $pool.pages.total - 1}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active + 1) * 15}">&gt;</a></li>
 </ul></div>
 {if isset($smarty.get.ext)}
 <h2>Легенда</h2>

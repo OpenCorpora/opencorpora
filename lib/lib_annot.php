@@ -192,15 +192,21 @@ function sentence_save($sent_id) {
     return false;
 }
 // annotation pools
-function get_morph_pools_page($type, $my_moder=false) {
+function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     $pools = array();
     $instance_count = array();
+    $moderators = array(0 => '-- Модератор --');
 
     // possible pool types for addition form
     $types = array(0 => 'Новый');
     $res = sql_query("SELECT type_id, grammemes FROM morph_annot_pool_types order by grammemes");
     while ($r = sql_fetch_array($res))
         $types[$r['type_id']] = $r['grammemes'];
+
+    // possible moderators for filter
+    $res = sql_query("SELECT DISTINCT moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN users u ON (p.moderator_id = u.user_id) WHERE moderator_id > 0 ORDER BY user_shown_name");
+    while ($r = sql_fetch_array($res))
+        $moderators[$r['moderator_id']] = $r['user_name'];
     
     // count instances in one query and preserve
     $res = sql_query("SELECT answer, count(instance_id) cnt, pool_id FROM morph_annot_instances LEFT JOIN morph_annot_samples s USING(sample_id) WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status = $type) GROUP BY (answer > 0), pool_id ORDER BY pool_id");
@@ -221,9 +227,14 @@ function get_morph_pools_page($type, $my_moder=false) {
     }
 
     $q_moder = '';
-    if ($my_moder)
-        $q_moder = "AND p.moderator_id = ".$_SESSION['user_id'];
-    $res = sql_query("SELECT p.*, t.grammemes, t.gram_descr, u1.user_shown_name AS author_name, u2.user_shown_name AS moderator_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users u1 ON (p.author_id = u1.user_id) LEFT JOIN users u2 ON (p.moderator_id = u2.user_id) WHERE status = $type $q_moder ORDER BY p.updated_ts DESC");
+    if ($moder_id > 0)
+        $q_moder = "AND p.moderator_id = $moder_id";
+    
+    $q_filter = '';
+    if ($filter)
+        $q_filter = "AND t.grammemes REGEXP '".mysql_real_escape_string($filter)."'";
+
+    $res = sql_query("SELECT p.*, t.grammemes, t.gram_descr, u1.user_shown_name AS author_name, u2.user_shown_name AS moderator_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users u1 ON (p.author_id = u1.user_id) LEFT JOIN users u2 ON (p.moderator_id = u2.user_id) WHERE status = $type $q_moder $q_filter ORDER BY p.updated_ts DESC");
     while ($r = sql_fetch_assoc($res)) {
         if ($type == 1) {
             $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_candidate_samples WHERE pool_id=".$r['pool_id']));
@@ -238,7 +249,7 @@ function get_morph_pools_page($type, $my_moder=false) {
 
         $pools[] = $r;
     }
-    return array('pools' => $pools, 'types' => $types);
+    return array('pools' => $pools, 'types' => $types, 'moderators' => $moderators);
 }
 function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $skip=0, $filter=false) {
     $res = sql_query("SELECT pool_name, pool_type, status, t.grammemes, users_needed, moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
@@ -256,7 +267,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     $out['all_moderated'] = $extended ? true : false;  // for now we never get active button with non-extended view, just for code simplicity
     $num_samples = sql_num_rows($res);
     $out['pages'] = array(
-        'active' => $skip / 20,
+        'active' => $skip / 15,
         'query' => preg_replace('/&skip=\d+/', '', $_SERVER['QUERY_STRING']),
         'total' => 0
     );
@@ -333,7 +344,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         ) {
             if ($skip > 0)
                 --$skip;
-            elseif (sizeof($out['samples']) < 20)
+            elseif (sizeof($out['samples']) < 15)
                 $out['samples'][] = $t;
 
             $out['pages']['total'] += 1;
@@ -341,7 +352,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     }
     $out['user_colors'] = $distinct_users;
     $out['filter'] = $filter;
-    $out['pages']['total'] = ceil($out['pages']['total'] / 20);
+    $out['pages']['total'] = ceil($out['pages']['total'] / 15);
     return $out;
 }
 function filter_sample_for_moderation($pool_type, $sample) {

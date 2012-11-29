@@ -18,6 +18,16 @@ $(document).ready(function(){
         else
             $('tr.ex_pool').show('slow');
     });
+    $('#moder_id').val({/literal}{$smarty.get.moder_id}{literal});
+    $('#moder_id').change(function() {
+        location.href = "?type={/literal}{$smarty.get.type}{literal}&moder_id=" + $(this).val();
+    });
+    $('#gram-filter input[type=button]').click(function() {
+        var reg = $("#gram-cond").val();
+        {/literal}
+        location.href = "?type={$smarty.get.type}&moder_id={if isset($smarty.get.moder_id)}{$smarty.get.moder_id}{else}0{/if}&filter=" + encodeURIComponent(reg);
+        {literal}
+    });
 });
 </script>
 {/literal}
@@ -33,19 +43,19 @@ $(document).ready(function(){
 <li{if $smarty.get.type == 2} class="active"{/if}><a href="?type=2">не опубликованные</a></li>
 <li{if $smarty.get.type == 3} class="active"{/if}><a href="?type=3">опубликованные</a></li>
 <li{if $smarty.get.type == 4} class="active"{/if}><a href="?type=4">снятые с публикации</a></li>
-<li{if $smarty.get.type == 5} class="active"{/if}><a href="?type=5">на модерации</a></li>
-<li{if $smarty.get.type == 6} class="active"{/if}><a href="?type=6">модерация окончена</a></li>
-<li{if $smarty.get.type == 7} class="active"{/if}><a href="?type=7">в очереди на переливку</a></li>
-<li{if $smarty.get.type == 9} class="active"{/if}><a href="?type=9">в архиве</a></li>
+<li{if $smarty.get.type == 5} class="active"{/if}><a href="?type=5{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">на модерации</a></li>
+<li{if $smarty.get.type == 6} class="active"{/if}><a href="?type=6{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">модерация окончена</a></li>
+<li{if $smarty.get.type == 7} class="active"{/if}><a href="?type=7{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">в очереди на переливку</a></li>
+<li{if $smarty.get.type == 9} class="active"{/if}><a href="?type=9{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">в архиве</a></li>
 </ul>
 <table class="table">
 <tr class="borderless">
     <th>ID</th>
     <th>Имя</th>
-    <th>Условия</th>
+    <th>Условия<br/><form class='form-inline' id='gram-filter'><input type='text' id='gram-cond' placeholder='фильтр (regexp)' value='{if isset($smarty.get.filter)}{$smarty.get.filter|htmlspecialchars}{/if}' class='span2'/> <input type='button' value='OK' class='btn'/></form></th>
     <th>Обновлён</th>
     <th>Автор</th>
-    {if $smarty.get.type > 4}<th>Модератор</th>{/if}
+    {if $smarty.get.type > 4}<th>{html_options name=moder_id options=$pools.moderators id=moder_id}</th>{/if}
     {if $smarty.get.type > 0}<th>Состояние</th>{/if}
 </tr>
 {foreach from=$pools.pools item=pool}
