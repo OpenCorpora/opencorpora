@@ -65,7 +65,8 @@ if (isset($_GET['page'])) {
             $smarty->display('charts.tpl');
             break;
         case 'pool_charts':
-            $smarty->assign('charts', get_extended_pools_stats());
+            $smarty->assign('main', get_extended_pools_stats());
+            $smarty->assign('moder', get_moderation_stats());
             $smarty->display('ext_charts.tpl');
             break;
         case 'export':

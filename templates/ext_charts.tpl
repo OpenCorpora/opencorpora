@@ -8,15 +8,15 @@
 <script type="text/javascript">
 {literal}
 $(document).ready(function() {
-    var data = {/literal}{$charts.data}{literal};
-    var data2 = {/literal}{$charts.data2}{literal};
+    var data = {/literal}{$main.data}{literal};
+    var data2 = {/literal}{$main.data2}{literal};
     var stack_opts = {
         series: {
             stack: true,
             bars: {show: true, horizontal: true, barWidth: 0.6, align: 'center'}
         },
         yaxis: {
-            ticks: {/literal}{$charts.ticks}{literal}
+            ticks: {/literal}{$main.ticks}{literal}
         },
         legend: {
             position: 'se'
@@ -24,7 +24,7 @@ $(document).ready(function() {
     };
     $.plot($("#words_chart"), data, stack_opts);
 
-    $("#toggle_chart").click(function() {
+    $("#toggle_chart").click(function(event) {
         var $this = $(this);
         $this.attr('rel', 1 - $this.attr('rel'));
 
@@ -36,6 +36,7 @@ $(document).ready(function() {
             this.innerHTML = 'привести все к 100%';
             $.plot($("#words_chart"), data, stack_opts);
         }
+        event.preventDefault();
     });
 });
 {/literal}
@@ -51,4 +52,45 @@ $(document).ready(function() {
 <h2>Распределение пулов</h2>
 <p><a href="#" id="toggle_chart" class="pseudo" rel="0">привести все к 100%</a></p>
 <div id="words_chart" style="width:100%; height: 1000px"></div>
+<h2>Модерация</h2>
+<div class='progress'>
+    <div class="bar bar-info" style="width: 33%">модерируется</div>
+    <div class="bar bar-warning" style="width: 34%">отмодерировано</div>
+    <div class="bar bar-success" style="width: 33%">в архиве</div>
+</div>
+<table class='table'>
+<tr><td>&nbsp;</td>
+{foreach from=$moder.moderators item=mod key=modnum}
+<td>{if $smarty.session.user_id == $modnum}<b>{$mod|htmlspecialchars}</b>{else}{$mod|htmlspecialchars}{/if}</td>
+{/foreach}
+</tr>
+{foreach from=$moder.types item=type key=typenum}
+    <tr>
+        <td class='small'>{$type|htmlspecialchars}</td>
+        {foreach from=$moder.moderators key=modnum item=mod}
+            <td><div class='progress'>
+            {if isset($moder.data.$modnum.$typenum[5])}
+                <div class="bar bar-info" style="width:{$moder.data.$modnum.$typenum[5][1]}%" title="{$moder.data.$modnum.$typenum[5][0]}">{$moder.data.$modnum.$typenum[5][0]}</div>
+            {/if}
+            {if isset($moder.data.$modnum.$typenum[6])}
+                <div class="bar bar-warning" style="width:{$moder.data.$modnum.$typenum[6][1]}%" title="{$moder.data.$modnum.$typenum[6][0]}">{$moder.data.$modnum.$typenum[6][0]}</div>
+            {/if}
+            {if isset($moder.data.$modnum.$typenum[9])}
+                <div class="bar bar-success" style="width:{$moder.data.$modnum.$typenum[9][1]}%" title="{$moder.data.$modnum.$typenum[9][0]}">{$moder.data.$modnum.$typenum[9][0]}</div>
+            {/if}
+            </div></td>
+        {/foreach}
+    </tr>
+{/foreach}
+<tr>
+    <td>Всего</td>
+    {foreach from=$moder.moderators key=modnum item=mod}
+        <td><div class='progress'>
+            <div class="bar bar-info" style="width:{$moder.data.$modnum.total[5][1]|intval}%" title="{$moder.data.$modnum.total[5][0]}">{$moder.data.$modnum.total[5][0]}</div>
+            <div class="bar bar-warning" style="width:{$moder.data.$modnum.total[6][1]|intval}%" title="{$moder.data.$modnum.total[6][0]}">{$moder.data.$modnum.total[6][0]}</div>
+            <div class="bar bar-success" style="width:{$moder.data.$modnum.total[9][1]|intval}%" title="{$moder.data.$modnum.total[9][0]}">{$moder.data.$modnum.total[9][0]}</div>
+        </div></td>
+    {/foreach}
+</tr>
+</table>
 {/block}

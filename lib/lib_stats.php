@@ -356,4 +356,45 @@ function get_extended_pools_stats() {
         'ticks' => '[' . join(', ', $ticks) . ']'
     );
 }
+function get_moderation_stats() {
+    $res = sql_query("
+        SELECT moderator_id, pool_type, grammemes, status, COUNT(pool_id) AS cnt, u.user_shown_name AS username
+        FROM morph_annot_pools p
+        LEFT JOIN morph_annot_pool_types t
+        ON (p.pool_type = t.type_id)
+        LEFT JOIN users u
+        ON (p.moderator_id = u.user_id)
+        WHERE moderator_id > 0
+        GROUP BY pool_type, moderator_id, status
+        ORDER BY moderator_id, pool_type, status
+    ");
+    $t = array();
+    $type2name = array();
+    $mod2name = array();
+    $mod_total = array();
+
+    while ($r = sql_fetch_array($res)) {
+        $t[$r['moderator_id']][$r['pool_type']][$r['status']] = $r['cnt'];
+        $type2name[$r['pool_type']] = $r['grammemes'];
+        $mod2name[$r['moderator_id']] = $r['username'];
+        $mod_total[$r['moderator_id']][$r['pool_type']] += $r['cnt'];
+        $mod_total[$r['moderator_id']]['total'] += $r['cnt'];
+    }
+
+    foreach ($t as $mod => $mdata) {
+        foreach ($mdata as $type => $tdata) {
+            foreach ($tdata as $st => $sdata) {
+                $t[$mod][$type][$st] = array($sdata, intval($sdata / $mod_total[$mod][$type] * 100));
+                $t[$mod]['total'][$st][0] += $sdata;
+                $t[$mod]['total'][$st][1] += $sdata / $mod_total[$mod]['total'] * 100;
+            }
+        }
+    }
+
+    return array(
+        'types' => $type2name,
+        'moderators' => $mod2name,
+        'data' => $t
+    );
+}
 ?>
