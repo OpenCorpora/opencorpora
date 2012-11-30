@@ -287,4 +287,73 @@ function get_user_stats($weekly=false) {
         'added_sentences' => get_sentence_adders_stats($weekly)
     );
 }
+function get_extended_pools_stats() {
+    $status_text = array(
+        2 => 'Не опубликованы',
+        3 => 'Размечаются',
+        4 => 'Размечены',
+        6 => 'На модерации',
+        9 => 'Готовы'
+    );
+
+    $total = array();
+    $res = sql_query("
+        SELECT status, pool_type, COUNT(s.sample_id) AS cnt
+        FROM morph_annot_samples s
+        LEFT JOIN morph_annot_pools USING (pool_id)
+        GROUP BY status, pool_type
+        ORDER BY status, pool_type
+    ");
+    $t = array();
+    while ($r = sql_fetch_array($res)) {
+        if ($r['status'] == 5)
+            $r['status'] = 6;
+        $t[$r['status']][$r['pool_type']] += $r['cnt'];
+        $total[$r['pool_type']] += $r['cnt'];
+    }
+
+    // sort in ascending order (and renumber)
+    asort($total);
+    $new_order = array_flip(array_keys($total));
+
+    $ticks = array();
+    $res = sql_query("SELECT type_id, grammemes FROM morph_annot_pool_types ORDER BY type_id");
+    $max_type_id = 0;
+    while ($r = sql_fetch_array($res)) {
+        if (isset($new_order[$r['type_id']]))
+            $ticks[] = sprintf("[%d, '%s']", $new_order[$r['type_id']], $r['grammemes']);
+        $max_type_id = $r['type_id'];
+    }
+
+    // add zeros for correct look
+    $tt = array();
+    $tt2 = array();
+    foreach ($t as $status => $data) {
+        for ($i = 1; $i <= $max_type_id; ++$i) {
+            if (isset($data[$i])) {
+                $tt[$status][] = sprintf("[%d, %d]", $data[$i], $new_order[$i]);
+                $tt2[$status][] = sprintf("[%.3f, %d]", $data[$i] / $total[$i], $new_order[$i]);
+            }
+            else {
+                $tt[$status][] = sprintf("[%d, %d]", 0, $new_order[$i]);
+                $tt2[$status][] = sprintf("[%d, %d]", 0, $new_order[$i]);
+            }
+        }
+    }
+
+    $out = array();
+    $out2 = array();
+    ksort($tt);
+    ksort($tt2);
+    foreach ($tt as $status => $data) {
+        $out[] = '{ label: "'.$status_text[$status].'", data: [' . join(', ', $data) . '] }';
+        $out2[] = '{ label: "'.$status_text[$status].'", data: [' . join(', ', $tt2[$status]) . '] }';
+    }
+
+    return array(
+        'data' => '[' . join(",\n    ", $out) . ']',
+        'data2' => '[' . join(",\n    ", $out2) . ']',
+        'ticks' => '[' . join(', ', $ticks) . ']'
+    );
+}
 ?>

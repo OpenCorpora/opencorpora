@@ -67,6 +67,7 @@
                     <li><a href='{$web_prefix}/sources.php'>Координация заливки</a></li>
                     {if $user_permission_check_morph}
                         <li><a href='{$web_prefix}/pools.php?type=3'>Задания на разметку</a></li>
+                        <li><a href='?page=pool_charts'>Графики про них</a></li>
                     {/if}
                     <li class="nav-header">Остальное</li>
                     <li><a href='{$web_prefix}/tokenizer_monitor.php'>Мониторинг качества токенизатора</a></li>
