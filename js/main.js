@@ -189,51 +189,6 @@ function dehighlight_source() {
         $("#src_token_"+i).removeClass();
     }
 }
-function dict_reload_all() {
-    $('#main_annot td').each(function(i, el){
-        dict_reload(el);
-    })
-    highlight_source();
-}
-function dict_reload(td) {
-    var tf_id = parseInt(td.id.substr(4));
-    //delete all vars
-    $(td).find('.var').remove();
-
-    var old_inner = td.firstChild.innerHTML;
-    td.firstChild.innerHTML = 'Загрузка...';
-    var req = makeRequest();
-    req.onreadystatechange = function() {
-        if (req.readyState==4) {
-            var root = req.responseXML.documentElement;
-            var rev = root.firstChild;
-            var i;
-            var j;
-            var cvar;
-            for (i = 0; i < rev.childNodes.length; ++i) {
-                cvar = rev.childNodes[i];
-                var new_div = document.createElement('div');
-                new_div.className = 'var';
-                new_div.setAttribute('id', 'var_'+tf_id+'_'+(i+1));
-                new_div.innerHTML = '<input name="var_flag['+tf_id+']['+(i+1)+']" value="1" type="hidden"/>';
-                if (cvar.firstChild.getAttribute('id') > 0)
-                    new_div.innerHTML += '<a href="dict.php?act=edit&amp;id='+cvar.firstChild.getAttribute('id')+'">'+cvar.firstChild.getAttribute('t')+'</a>';
-                else
-                    new_div.innerHTML += '<span>'+cvar.firstChild.getAttribute('t')+'</span>';
-                new_div.innerHTML += '<a class="best_var" onclick="best_var(this.parentNode); return false" href="#">v</a><a class="del_var" onclick="del_var(this.parentNode); return false" href="#">x</a><br/>' + '<span class="hint" title="' + cvar.firstChild.firstChild.getAttribute('d') + '">' + cvar.firstChild.firstChild.getAttribute('v') + '</span>';
-                for (j = 1; cvar.firstChild.childNodes[j] != null; ++j) {
-                    new_div.innerHTML += ', ' + '<span class="hint" title="' + cvar.firstChild.childNodes[j].getAttribute('d') + '">' + cvar.firstChild.childNodes[j].getAttribute('v') + '</span>';
-                }
-                td.appendChild(new_div);
-            }
-            td.firstChild.innerHTML = old_inner + '<input type="hidden" name="dict_flag['+tf_id+']" value="1"/>';
-            $('#submit_button').removeAttr('disabled');
-            prepareScroll();
-        }
-    }
-    req.open ('get', 'ajax/dict_reload.php?tf_id='+tf_id, true);
-    req.send(null);
-}
 function dict_add_form(event) {
     $('#paradigm tbody').append("<tr><td><input type='text' name='form_text[]'></td><td><input type='text' size='40' name='form_gram[]'></td></tr>")
     if (event)

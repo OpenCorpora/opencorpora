@@ -91,7 +91,6 @@
                 {/if}
                 <button type="reset" onclick="window.location.reload()">Отменить правки</button>&nbsp;
                 <button type="button" onclick="window.location.href='history.php?sent_id={$sentence.id}'">История</button>&nbsp;
-                <button type="button" onclick="dict_reload_all()">Разобрать заново</button>&nbsp;
                 <button type="button" id="a_comments">
                     {if $sentence.comment_count > 0}
                     Комментарии ({$sentence.comment_count})
@@ -107,12 +106,7 @@
         <div id="main_annot"><table><tr>
         {foreach item=token from=$sentence.tokens}
             <td id="var_{$token.tf_id}">
-                <div class="tf">
-                    {$token.tf_text|htmlspecialchars}
-                    {*if $token.dict_updated == 1}
-                        <a href="#" class="reload" title="Разобрать заново из словаря" onClick="dict_reload(this.parentNode.parentNode)">D</a>
-                    {/if*}
-                </div>
+                <div class="tf">{$token.tf_text|htmlspecialchars}</div>
                 {foreach item=variant from=$token.variants}
                     <div class="var" id="var_{$token.tf_id}_{$variant.num}">
                         <input type="hidden" name="var_flag[{$token.tf_id}][{$variant.num}]" value="1"/>
