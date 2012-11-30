@@ -17,7 +17,7 @@
             <th rowspan='3'>Дата регистрации</th>
             <th rowspan='3'>Email</th>
             <th rowspan='3'>Игровой режим</th>
-            <th colspan='6'>Права</th>
+            <th colspan='7'>Права</th>
         </tr>
         <tr>
             <th rowspan='2'>Админ</th>
@@ -25,6 +25,7 @@
             <th rowspan='2'>Словарь</th>
             <th rowspan='2'>Снятие неодн-ти</th>
             <th colspan='2'>Проверка</th>
+            <th rowspan='2'>Переливка</th>
         </tr>
         <tr>
             <th>токенизации</th>
@@ -42,6 +43,7 @@
             <td><input name='perm[{$user.user_id}][disamb]' type='checkbox'{if $user.perm_disamb} checked="checked"{/if}/></td>
             <td><input name='perm[{$user.user_id}][tokens]' type='checkbox'{if $user.perm_check_tokens} checked="checked"{/if}/></td>
             <td><input name='perm[{$user.user_id}][morph]' type='checkbox'{if $user.perm_check_morph} checked="checked"{/if}/></td>
+            <td><input name='perm[{$user.user_id}][merge]' type='checkbox'{if $user.perm_merge} checked="checked"{/if}/></td>
         </tr>
         {/foreach}
     </table>

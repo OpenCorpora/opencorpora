@@ -668,7 +668,7 @@ function finish_moderate_pool($pool_id) {
     return (bool)sql_query("UPDATE morph_annot_pools SET status=6, updated_ts=".time()." WHERE pool_id=$pool_id LIMIT 1");
 }
 function begin_pool_merge($pool_id) {
-    if (!$pool_id || !is_admin())
+    if (!$pool_id || !user_has_permission("perm_merge"))
         return false;
 
     // we can perform this only if pool has been moderated
