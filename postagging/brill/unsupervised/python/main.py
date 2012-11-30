@@ -16,16 +16,16 @@ from rules_stat import scoring_function, apply_rule
 if __name__ == '__main__':
     args = sys.argv[1:]
     apply_all = False
-    if args[0] == '-r':
-        apply_all = True
+    '''if args[0] == '-r':
+        apply_all = True'''
     #out = open('rules.txt', 'w')
-    #out = open('rulesx.txt', 'r').read()
+    out = open('rules.txt', 'r')
     input_corpus = sys.stdin.read()
     iter_c = 0
     best_rules = []
     best_score = 0
     print numb_amb_corpus(input_corpus)
-    '''for line in out.rstrip('\n').split('\n')[::2]:
+    for line in out.read().rstrip('\n').split('\n')[::2]:
         rule = []
         line = line.split(' ')
         rule.append(line[3])
@@ -34,11 +34,13 @@ if __name__ == '__main__':
         rule.append(line[10])
         r = Rule(*rule)
         input_corpus = apply_rule(r, input_corpus[:])
+        with open('iterx_corpus.txt', 'w') as output:
+            output.write(input_corpus)
         print r.display()
     out.close()
     with open('iterx_corpus.txt', 'w') as output:
-        output.write(input_corpus)'''
-    #input_corpus = open('iterx_corpus.txt', 'r').read()
+        output.write(input_corpus)
+    input_corpus = open('iterx_corpus.txt', 'r').read()
     out = open('rulesx.txt', 'w')
     while True:
         context_freq = get_list_words_pos(input_corpus)

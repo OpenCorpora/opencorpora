@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 
 import sys
 import re
@@ -19,19 +19,12 @@ def get_text_by_tag(lines, tags):
                 if tag == 'v':
                     pattern = re.compile(u'(?<=%s)([^\"]+?)\"' % rtag, re.UNICODE)
                 if tag == 'text':
-                    #pattern = re.compile(u'(?<=%s)([A-Za-zА-ЯЁа-яё0-9\-\.\!\?\,\"\']+?)\"' % rtag, re.UNICODE)
                     pattern = re.compile(u'(?<=%s)([^\"]+?)\"' % rtag, re.UNICODE)
                 m = pattern.findall(line)
                 for match in m:
                     postag = re.compile('^[A-Z]{4}$', re.UNICODE)
                     if re.search(postag, match) is not None and tag == 'v':
-                        if tag_text[tag] != []:
-                            if tag_text[tag][-1][0].isupper and re.search(postag, tag_text[tag][-1]) is None:
-                                tag_text[tag][-1] += (' ' + match)
-                            else:
-                                tag_text[tag].append(match)
-                        else:
-                            tag_text[tag].append(match)
+                        tag_text[tag].append(match)
                     elif tag == 'v':
                         try:
                             tag_text[tag][-1] += (' ' + match)
@@ -53,4 +46,4 @@ def get_text_by_tag(lines, tags):
 if __name__ == '__main__':
     for line in get_text_by_tag(sys.stdin, ('token id', 'text', 'l id', 'v')):
         if line.rstrip() is not '':
-            sys.stdout.write(line + '\n')
+            sys.stdout.write(line.decode('utf-8') + '\n')

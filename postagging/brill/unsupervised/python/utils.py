@@ -3,7 +3,7 @@
 import sys
 from StringIO import StringIO
 import re
-from sets import Set
+from sets import Set, ImmutableSet
 from collections import namedtuple
 
 
@@ -13,10 +13,26 @@ NUMB_TOKENS = 0
 
 
 def read_corpus(input):
-    tokens = []
-    for line in input.split('/sent'):
-        for ltoken in line.split('\n'):
-            pass
+    ss = []
+    for sent in input.split('/sent')[:]:
+        tokens = []
+        sent = sent.lstrip('sent\n').rstrip('\n').split('\n')
+        if sent == ['']:
+            continue
+        for ltoken in sent:
+            ltoken = ltoken.decode('utf-8')
+            t = Token(ltoken)
+            tokens.append(t)
+        s = Sentence(tokens)
+        ss.append(s)
+    c = Corpus(ss)
+    return c
+
+
+def write_corpus(corpus, outstream): #corpus is instance of Corpus()
+    for sent in corpus:
+        for token in sent:
+            outstream.write(token.display() + '\n')
 
 
 def split_into_sent(text):
@@ -143,31 +159,37 @@ class Rule(object):
         return 'Change tag from %s to %s if %s is %s' % (self.tagset, self.tag, self.context_type, self.context)
 
 
-class Corpus(Set):
+class Corpus(set):
 
     def __init__(self, sentences):
         for i in range(len(sentences)):
-            sent = Sentence(sentences.pop(i))
+            sent = Sentence(sentences.pop(0))
             sentences.append(sent)
+        self.sents = sentences
         self.update(sentences)
 
 
-class Sentence(Set):
+class Sentence(tuple):
 
     def __init__(self, tokens):
-        for i in range(len(tokens)):
-            t = Token(tokens.pop(i))
-            tokens.append(t)
-        tokens.insert(0, 'sent')
-        tokens.append('sent')
-        self.update(tokens)
+        self._data = tokens
+        tt = []
+        tt.append('sent')
+        try:
+            for i in range(len(tokens)):
+                t = tokens.pop(0)
+                tt.append(t)
+        except:
+            pass
+        tt.append('sent')
+        self.tokens = tt
 
 
-class Token(Set):
+class Token(tuple):
 
     def __init__(self, token):
         self.text = token.split('\t')[1]
-        self.tagset = token.split('\t')[2:]
+        self.tagset = TagSet(token.split('\t')[2:])
 
     def gettext(self):
         return self.text
@@ -177,19 +199,26 @@ class Token(Set):
 
     def getPOStags(self):
         return self.tagset.getPOStag()
+    
+    def display(self):
+        return '\t'.join((self.text, self.tagset.display()))
 
 
-class TagSet(Set):
+class TagSet(set):
 
     def __init__(self, tags):
-        self.set = tags.split('\t')
+        self.set = []
+        for tag in tags:
+            self.set.append(Tag(tag).text)
+    
+    def display(self):
+        return '\t'.join(self.set)
 
     def getPOStag(self):
         pos = []
         for tag in self.set:
-            for t in tag.split(' '):
-                if t.isPOStag():
-                    pos.append(t)
+            if tag.isPOStag():
+                pos.append(tag.text)
         return '_'.join(pos)
 
 
@@ -220,5 +249,7 @@ class TagStat(dict):
                     self.stat[t][context] = 1
 
 if __name__ == '__main__':
-    pass
+    inc = sys.stdin.read()
+    outc = read_corpus(inc)
+    write_corpus(outc, sys.stdout)
 
