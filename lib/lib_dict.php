@@ -49,7 +49,11 @@ function generate_tf_rev($token) {
     if (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {
         $res = sql_query("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text='$token'");
         if (sql_num_rows($res) > 0) {
+            $var = array();
             while ($r = sql_fetch_array($res)) {
+                $var[] = $r;
+            }
+            foreach (yo_filter($token, $var) as $r) {
                 $out .= '<v><l id="'.$r['lemma_id'].'" t="'.$r['lemma_text'].'">'.$r['grammems'].'</l></v>';
             }
         } else {
@@ -67,6 +71,22 @@ function generate_tf_rev($token) {
         $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="UNKN"/></l></v>';
     }
     $out .= '</tfr>';
+    return $out;
+}
+function yo_filter($token, $arr) {
+    if (!preg_match('/ё/u', $token))
+        return $arr;
+
+    // so there is a 'ё'
+    $res = sql_query("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text COLLATE 'utf8_bin' = '".mb_strtolower($token)."'");
+    // return if no difference
+    if (sql_num_rows($res) == sizeof($arr))
+        return $arr;
+
+    // otherwise the difference is what we need to omit
+    $out = array();
+    while ($r = sql_fetch_array($res))
+        $out[] = $r;
     return $out;
 }
 function dict_get_select_gram() {
