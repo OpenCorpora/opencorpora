@@ -269,7 +269,8 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     $out['pages'] = array(
         'active' => $skip / 15,
         'query' => preg_replace('/&skip=\d+/', '', $_SERVER['QUERY_STRING']),
-        'total' => 0
+        'total' => 0,
+        'samples' => array()
     );
     while ($r = sql_fetch_array($res)) {
         $t = get_context_for_word($r['tf_id'], $context_width);
