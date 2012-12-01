@@ -1,5 +1,7 @@
 <?php
 require_once('lib_dict.php');
+require_once('lib_annot.php');
+
 function get_books_list() {
     $res = sql_query("SELECT `book_id`, `book_name` FROM `books` WHERE `parent_id`=0 ORDER BY `book_name`");
     $out = array('num' => sql_num_rows($res));
@@ -392,8 +394,7 @@ function merge_tokens_ii($id_array) {
     if (
         !sql_query("UPDATE text_forms SET tf_text = '".mysql_real_escape_string($new_text)."' WHERE tf_id=$new_id LIMIT 1") ||
         !sql_query("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $new_id)") ||
-        !sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$new_id") ||
-        !sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$new_id', '".mysql_real_escape_string(generate_tf_rev($new_text))."', 1)")
+        !create_tf_revision($revset_id, $new_id, generate_tf_rev($new_text))
     ) {
         return 0;
     }
@@ -434,8 +435,7 @@ function split_token($token_id, $num) {
         //update old token and parse
         !sql_query("UPDATE text_forms SET tf_text='".mysql_real_escape_string($text1)."' WHERE tf_id=$token_id LIMIT 1") ||
         !sql_query("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $token_id)") ||
-        !sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$token_id") ||
-        !sql_query("INSERT INTO tf_revisions VALUES(NULL, '$revset_id', '$token_id', '".mysql_real_escape_string(generate_tf_rev($text1))."', 1)")
+        !create_tf_revision($revset_id, $token_id, generate_tf_rev($text1))
     ) {
         return false;
     }

@@ -1,4 +1,6 @@
 <?php
+require_once('lib_annot.php');
+require_once('lib_history.php');
 require_once('lib_xml.php');
 
 // GENERAL
@@ -80,7 +82,7 @@ function yo_filter($token, $arr) {
     // so there is a 'ё'
     $res = sql_query("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text COLLATE 'utf8_bin' = '".mb_strtolower($token)."'");
     // return if no difference
-    if (sql_num_rows($res) == sizeof($arr))
+    if (sql_num_rows($res) == sizeof($arr) || !sql_num_rows($res))
         return $arr;
 
     // otherwise the difference is what we need to omit
@@ -212,9 +214,6 @@ function form_exists($f) {
     return sql_num_rows(sql_query("SELECT lemma_id FROM form2lemma WHERE form_text='".mysql_real_escape_string($f)."' LIMIT 1"));
 }
 function get_pending_updates($limit=200) {
-    include_once('lib_annot.php');
-    include_once('lib_history.php');
-
     $out = array('revisions' => array());
 
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) cnt FROM updated_tokens"));
@@ -327,8 +326,7 @@ function update_pending_token($token_id, $rev_id, $revset_id=0) {
     if (!$revset_id)
         $revset_id = create_revset("Update tokens from dictionary");
     if (
-        !sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$token_id") ||
-        !sql_query("INSERT INTO tf_revisions VALUES (NULL, $revset_id, $token_id, '".mysql_real_escape_string($new_rev)."', 1)") ||
+        !create_tf_revision($revset_id, $token_id, $new_rev) ||
         !forget_pending_token($token_id, $rev_id)
     )
         return false;

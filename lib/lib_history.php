@@ -1,4 +1,7 @@
 <?php
+require_once('lib_annot.php');
+require_once('lib_diff.php');
+
 function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0) {
     $out = array();
     if (!$sentence_id) {
@@ -89,7 +92,6 @@ function dict_history($lemma_id, $skip = 0) {
     return $out;
 }
 function main_diff($sentence_id, $set_id) {
-    include_once('lib_diff.php');
     $r = sql_fetch_array(sql_query("SELECT DISTINCT s.*, u.user_shown_name AS user_name FROM rev_sets s LEFT JOIN `users` u ON (s.user_id = u.user_id) WHERE s.set_id=$set_id"));
     $out = array(
         'set_id'    => $set_id,
@@ -137,7 +139,6 @@ function main_diff($sentence_id, $set_id) {
     return $out;
 }
 function dict_diff($lemma_id, $set_id) {
-    include_once('lib_diff.php');
     $res = sql_query("SELECT dr.rev_id, dr.rev_text, s.timestamp, s.comment, u.user_shown_name AS user_name FROM dict_revisions dr LEFT JOIN rev_sets s ON (dr.set_id=s.set_id) LEFT JOIN `users` u ON (s.user_id=u.user_id) WHERE dr.set_id<=$set_id AND dr.lemma_id=$lemma_id ORDER BY dr.rev_id DESC LIMIT 2");
     $r1 = sql_fetch_array($res);
     $r2 = sql_fetch_array($res);
@@ -179,12 +180,8 @@ function revert_changeset($set_id, $comment) {
     $res = sql_query("SELECT tf_id FROM tf_revisions WHERE set_id=$set_id");
     while ($r = sql_fetch_array($res)) {
         $arr = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=$r[0] AND set_id<$set_id ORDER BY rev_id DESC LIMIT 1"));
-        if (
-            !sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$r[0]") ||
-            !sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$new_set_id', '$r[0]', '$arr[0]', 1)")
-        ) {
+        if (!create_tf_revision($new_set_id, $r[0], $arr[0]))
             return false;
-        }
     }
 
     $res = sql_query("SELECT lemma_id FROM dict_revisions WHERE set_id=$set_id");
@@ -208,10 +205,7 @@ function revert_token($rev_id) {
     sql_begin();
     $new_set_id = create_revset("Отмена правки, возврат к версии t$rev_id");
 
-    if (
-        sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$r[0]") &&
-        sql_query("INSERT INTO tf_revisions VALUES(NULL, '$new_set_id', '$r[0]', '$r[1]', 1)")
-    ) {
+    if (create_tf_revision($new_set_id, $r[0], $r[1])) {
         sql_commit();
         return true;
     }
