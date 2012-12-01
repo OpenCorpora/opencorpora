@@ -28,6 +28,17 @@ public:
     return POSTagSet;
   }
 
+  bool isWord() const {
+    TagSet POST = getPOST();
+    if (POST.hasTag(T(LATN)) || POST.hasTag(T(ROMN)) || POST.hasTag(T(PNCT)) || POST.hasTag(T(NUMB)))
+      return false;
+    return true;
+  }
+
+  const std::set<MorphInterp>& getMorph() const {
+    return var;
+  }
+
   std::string str() const {
     std::stringstream ss;
     ss << text << '\t';

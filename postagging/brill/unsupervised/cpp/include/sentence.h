@@ -44,6 +44,11 @@ public:
     return v[pos];
   }
 
+  const Token& getToken(size_t pos, int &id) const {
+    id = vId[pos];
+    return v[pos];
+  }
+
   std::string str() const {
     std::stringstream ss;
     for (size_t i = 0; i < v.size(); i++) 

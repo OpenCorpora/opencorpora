@@ -27,10 +27,10 @@ void readCorpus(const string &fn, SentenceCollection &sc) {
   Sentence sent;
   while (getline(f, s)) {
     //cerr << "reading line \"" << s << "\"" << endl;
-    if ("<sent>" == s) {
+    if ("sent" == s) {
       Token t("SentBegin", makeVariants("SBEG"));
       sent.push_back(t);
-    } else if ("</sent>" == s) {
+    } else if ("/sent" == s) {
       Token t("SentEnd", makeVariants("SEND"));
       sent.push_back(t);
       sc.push_back(sent);
@@ -51,10 +51,10 @@ void readCorpus(const string &fn, SentenceCollection &sc) {
           continue;
 
         stringstream ss(fields[i]);
-        unsigned int i;
-        ss >> i;
+        unsigned int lemmaId;
+        ss >> lemmaId;
 
-        MorphInterp ts(i, fields[i+1]); 
+        MorphInterp ts(lemmaId, fields[i+1]); 
         if (0 == ts.size()) {
           cerr << "\"" << s << "\" - \"" << fields[i+1] << "\"" << fields[i+1].size() << endl;
           throw;
@@ -66,4 +66,6 @@ void readCorpus(const string &fn, SentenceCollection &sc) {
       sent.push_back(t, id);
     }
   }
+
+  sc.push_back(sent);
 }

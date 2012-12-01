@@ -46,6 +46,8 @@ inline bool operator<(const Tag& a, const Tag& b) {
   return a.v < b.v;
 }
 
+#define T(str) Tag(# str ) 
+
 class TagSet {
   std::set<Tag> s;
 
@@ -60,7 +62,10 @@ public:
   }
 
   bool hasTag(const Tag t) {
-    return false;
+    //std::cerr << "TagSet(\"" << str() << "\").hasTag(\"" << t.str() << "\")" << std::endl;
+    if (s.end() == s.find(t))
+      return false;
+    return true;
   }
 
   void insert(const Tag t) {
@@ -83,7 +88,7 @@ public:
   }
 
 
-  std::string str() const {
+  virtual std::string str() const {
     std::set<Tag>::const_iterator cit = s.begin();
     std::string r; size_t i = 0;
     while (s.end() != cit) {
@@ -104,9 +109,28 @@ class MorphInterp : public TagSet {
 
 public:
   MorphInterp(unsigned int id, const std::string &str) : TagSet(str), lemmaId(id) {
+    //std::cerr << "MorphInterp::MorphInterp(" << id << ", \"" << str << "\")" << std::endl;
   }
 
   unsigned int getLemmaId() const { return lemmaId; }
+
+  virtual std::string str() const {
+    std::stringstream ss;
+    ss << lemmaId << '\t' << TagSet::str();
+    return ss.str();
+  }
 };
+
+inline std::string toString(const std::set<MorphInterp> &s) {
+  std::stringstream ss;
+  std::set<MorphInterp>::const_iterator cit = s.begin();
+  size_t i = 0;
+  while (s.end() != cit) {
+    ss << cit->str(); i++;
+    if (i < s.size()) ss << '\t';
+    cit++;
+  }
+  return ss.str();
+}
 
 #endif
