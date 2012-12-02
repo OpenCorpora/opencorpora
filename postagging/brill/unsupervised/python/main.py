@@ -12,29 +12,26 @@ if __name__ == '__main__':
     if args != []:
         if args[0] == '-r':
             apply_all = True
-    out = open('rules.txt', 'r')
+    out = open('rules.txt', 'w')
     input_corpus = sys.stdin.read()
     i = 0
     best_rules = []
     best_score = 0
-    print numb_amb_corpus(input_corpus)
+    #print numb_amb_corpus(input_corpus)
     while True:
-        get_list_amb(input_corpus)
         context_freq = get_list_words_pos(input_corpus)
         with open('iter%s.txt' % i, 'w') as output:
             for amb_tag in context_freq.keys():
                 for context in context_freq[amb_tag].keys():
-                    if context is not 'freq':
+                    if context != 'freq':
                         try:
                             for c_variant in context_freq[amb_tag][context].keys():
-                                output.write(str(amb_tag).rstrip('_') + '\t' + \
-                                             context + '\t' + c_variant + \
-                                            '\t' + str(context_freq[amb_tag][context][c_variant]) + '\n')
+                                output.write('\t'.join((amb_tag, context, c_variant, str(context_freq[amb_tag][context][c_variant]))) + '\n')
                         except:
-                            pass
+                            print context_freq[amb_tag]
+                            print amb_tag
                     else:
-                        output.write(str(amb_tag).rstrip('_') + '\t' + 'freq' + \
-                                     '\t' + str(context_freq[amb_tag][context]) + '\n')
+                        output.write('\t'.join((amb_tag, 'freq', str(context_freq[amb_tag][context]))) + '\n')
         scores_rule = scoring_function(context_freq, best_rules)
         scores = scores_rule[0]
         best_rule = scores_rule[1]
@@ -46,9 +43,7 @@ if __name__ == '__main__':
                 for tag in scores[amb_tag].keys():
                     for context in scores[amb_tag][tag].keys():
                         for c_variant in scores[amb_tag][tag][context].keys():
-                            output.write(str(scores[amb_tag][tag][context][c_variant][0]) + '\t' + str(amb_tag) + '\t' + tag + \
-                                         '\t' + context + '\t' + \
-                                         c_variant + '\t' + str(scores[amb_tag][tag][context][c_variant][1:]) + '\n')
+                            output.write('\t'.join((str(scores[amb_tag][tag][context][c_variant]), amb_tag, tag, context, c_variant)) + '\n')
         input_corpus = apply_rule(rule, input_corpus[:])
         out.write(rule.display() + '\n')
         if apply_all:

@@ -10,7 +10,7 @@ from utils import split_into_sent, get_pos_tags, get_list_words_pos
 def apply_rule(rule, table):
     applied = StringIO()
     for sent in split_into_sent(table):
-        sent = sent.lstrip('sent\n').rstrip('\n<')
+        sent = sent.lstrip('sent\n').rstrip('\n')
         tokens = sent.split('\n')
         if len(tokens) == 0:
             continue
@@ -106,7 +106,7 @@ def scoring_function(entries, best_rules):
         value = entries[entry]
         if len(entry) > 4:
             amb_tag = entry
-            amb_tag = amb_tag.rstrip('_')
+            amb_tag = amb_tag
             tags = set(amb_tag.split('_'))
             if len(tags) > 1:
                 result_scores = {}
@@ -114,37 +114,46 @@ def scoring_function(entries, best_rules):
                     for c in context:
                         freqs = [0, 0, 0]
                         for amb_context in value[c]:
-                            amb_context.decode('utf-8')
-                            local_scores = {0: 0}
-                            for unamb_tag in tags:
-                                if unamb_tag != tag:
-                                    if unamb_tag in entries.keys():
-                                        loc_context = entries[unamb_tag][c]
-                                        if amb_context in loc_context.keys():
-                                            if tag in entries.keys() and \
-                                            loc_context[amb_context] > 3:
-                                                local_scores[unamb_tag] = float(entries[tag]['freq']) / \
-                                                float(entries[unamb_tag]['freq']) * float(loc_context[amb_context])
-                                                freqs = [entries[tag]['freq'], entries[unamb_tag]['freq'], loc_context[amb_context]]
+                            loc_max = -sys.maxint
                             try:
-                                score = entries[tag][c][amb_context] - max(local_scores.values())
-                                result_scores[tag][c][amb_context] = [score] + freqs
+                                amb_context.decode('utf-8')
+                                for unamb_tag in tags:
+                                    if unamb_tag != tag:
+                                        try:
+                                            loc_context = entries[unamb_tag][c]
+                                            try:
+                                                if tag in entries.keys() and \
+                                                loc_context[amb_context] > 3:
+                                                    s = float(entries[tag]['freq']) / float(entries[unamb_tag]['freq']) * float(loc_context[amb_context])
+                                                    if s > loc_max:
+                                                        loc_max = s
+                                                    #freqs = [entries[tag]['freq'], entries[unamb_tag]['freq'], loc_context[amb_context]]
+                                            except:
+                                                pass
+                                        except:
+                                            pass
+                            except:
+                                pass
+                            try:
+                                score = entries[tag][c][amb_context] - loc_max
+                                result_scores[tag][c][amb_context] = score
                                 if score > best_score \
                                 and [amb_tag, tag, c, amb_context] not in best_rules:
                                     best_score = score
                                     new_rule = [amb_tag, tag, c, amb_context]
                             except:
                                 try:
-                                    score = entries[tag][c][amb_context] - max(local_scores.values())
-                                    result_scores[tag][c] = {amb_context: [score] + freqs}
+                                    score = entries[tag][c][amb_context] - loc_max
+                                    #result_scores[tag][c] = {amb_context: [score] + freqs}
+                                    result_scores[tag][c] = {amb_context: score}
                                     if score > best_score \
                                     and [amb_tag, tag, c, amb_context] not in best_rules:
                                         best_score = score
                                         new_rule = [amb_tag, tag, c, amb_context]
                                 except:
                                     try:
-                                        score = entries[tag][c][amb_context] - max(local_scores.values())
-                                        result_scores[tag] = {c: {amb_context: [score] + freqs}}
+                                        score = entries[tag][c][amb_context] - loc_max
+                                        result_scores[tag] = {c: {amb_context: score}}
                                         if score > best_score \
                                         and [amb_tag, tag, c, amb_context] not in best_rules:
                                             best_score = score

@@ -2,7 +2,7 @@
 
 import sys
 import os
-from StringIO import StringIO
+from cStringIO import StringIO
 import re
 from time import clock
 
@@ -40,18 +40,21 @@ def split_into_sent(text):
 
 
 def get_pos_tags(line):
+    postag = re.compile('^[A-Z]{4}$', re.UNICODE)
     line = line.split('\t')
     grammar = line[2:]
     pos_tags = []
     for item in grammar:
-        pos = item.split(' ')[0]
-        if pos not in pos_tags and pos != '':
-            pos_tags.append(pos)
+        for i in item.split(' '):
+            if re.match(postag, i):
+                if i not in pos_tags:
+                    pos_tags.append(i)
     pos_tags = sorted(pos_tags)
     if len(pos_tags) > 1:
-        return '_'.join(pos_tags)
+        return '_'.join(pos_tags).lstrip('_').rstrip('\r')
     elif len(pos_tags) == 0:
-        pass
+        print line
+        raise Exception
     else:
         return pos_tags[0]
 
@@ -104,6 +107,10 @@ def get_list_words_pos(corpus, ignore_numbers=True):
                     tag_entry['w+1'][word] += 1
                 except:
                     tag_entry['w+1'][word] = 1
+                try:
+                    tag_entry['freq'] += 1
+                except:
+                    tag_entry['freq'] = 1
             else:
                 result_dict[tag_1] = dict(zip(('t-1', 'w-1', 't+1', 'w+1', 'freq'), \
                                               ({tag_2: 1}, {word_2: 1}, {tag: 1}, {word: 1}, 1)))
@@ -120,14 +127,15 @@ def process_table(sentence):
     for line in sentence.split('\n'):
         line.decode('utf-8')
         if 'sent' not in line:
-            pos_tags_str = get_pos_tags(line)
-            try:
-                line = line.split('\t')
-                to_return_list.append((line[1], pos_tags_str))
-            except:
+            if re.match(r'^\s*$', line):
                 pass
-        else:
-            pass
+            else:
+                pos_tags_str = get_pos_tags(line)
+                try:
+                    line = line.split('\t')
+                    to_return_list.append((line[1], pos_tags_str))
+                except:
+                    pass
     return to_return_list
 
 
@@ -136,12 +144,14 @@ def numb_amb_tokens(tokens):
     posamb = 0
     amb = 0
     for token in tokens[:]:
-        tvars = len(token[1].split('_'))
-        if tvars > 1:
-            posamb += 1
-        amb += tvars
-        n += 1
-    #print posamb, n
+        try:
+            tvars = len(token[1].split('_'))
+            if tvars > 1:
+                posamb += 1
+            amb += tvars
+            n += 1
+        except:
+            print token
     return posamb, n, amb
 
 
@@ -244,7 +254,7 @@ class Tag(object):
 
     def isPOStag(self):
         pattern = re.compile('^[A-Z]{4}$', re.UNICODE)
-        if pattern.search(self.text) is not None:
+        if pattern.match(self.text):
             return True
         else:
             return False
