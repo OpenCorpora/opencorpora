@@ -1,10 +1,10 @@
 #coding: utf-8
 
 import sys
+import os
 from StringIO import StringIO
 import re
-from sets import Set, ImmutableSet
-from collections import namedtuple
+from time import clock
 
 
 CONTEXT = ('w-1', 't-1', 'w+1', 't+1')
@@ -12,9 +12,9 @@ NUMB_AMB = 0
 NUMB_TOKENS = 0
 
 
-def read_corpus(input):
+def read_corpus(inc):
     ss = []
-    for sent in input.split('/sent')[:]:
+    for sent in inc.split('/sent')[:]:
         tokens = []
         sent = sent.lstrip('sent\n').rstrip('\n').split('\n')
         if sent == ['']:
@@ -29,7 +29,7 @@ def read_corpus(input):
     return c
 
 
-def write_corpus(corpus, outstream): #corpus is instance of Corpus()
+def write_corpus(corpus, outstream):  # corpus is an instance of Corpus()
     for sent in corpus:
         for token in sent:
             outstream.write(token.display() + '\n')
@@ -43,26 +43,43 @@ def get_pos_tags(line):
     line = line.split('\t')
     grammar = line[2:]
     pos_tags = []
-    pos_tags_str = StringIO()
     for item in grammar:
         pos = item.split(' ')[0]
-        if pos not in pos_tags:
+        if pos not in pos_tags and pos != '':
             pos_tags.append(pos)
-    pos_tags.sort()
-    for tag in pos_tags:
-            pos_tags_str.write(tag + '_')
-    return pos_tags_str.getvalue().lstrip('_').rstrip('_')
+    pos_tags = sorted(pos_tags)
+    if len(pos_tags) > 1:
+        return '_'.join(pos_tags)
+    elif len(pos_tags) == 0:
+        pass
+    else:
+        return pos_tags[0]
 
 
-def get_list_words_pos(corpus, ignore_numbers=True):
-    result_dict = {}
-    tvars = 0
+def get_list_amb(corpus):
     for sent in split_into_sent(corpus):
         tokens = process_table(sent)
         tokens.insert(0, 'sent')
         tokens.append('/sent')
         word_2, tag_2 = 'sent', 'sent'
-        word_1, tag_1 = tokens[1][0], tokens[1][1]
+        word_1, tag_1 = tokens[0][0], tokens[0][1]
+        for token in tokens[1:-1]:
+            word = token[0]
+            tag = token[1]
+            if len(tag_1.split('_')) > 1:
+                print '\t'.join((word_2.decode('utf-8'), tag_2, \
+                                 word_1.decode('utf-8'), tag_1, word.decode('utf-8'), tag))
+            tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
+
+
+def get_list_words_pos(corpus, ignore_numbers=True):
+    result_dict = {}
+    for sent in split_into_sent(corpus):
+        tokens = process_table(sent)
+        tokens.insert(0, 'sent')
+        tokens.append('/sent')
+        word_2, tag_2 = 'sent', 'sent'
+        word_1, tag_1 = tokens[0][0], tokens[0][1]
         for token in tokens[1:-1]:
             tag = token[1]
             if ignore_numbers and token[0].isdigit():
@@ -71,26 +88,22 @@ def get_list_words_pos(corpus, ignore_numbers=True):
                 word = token[0]
             if tag_1 in result_dict.keys():
                 tag_entry = result_dict[tag_1]
-                if tag_2 in tag_entry['t-1'].keys():
+                try:
                     tag_entry['t-1'][tag_2] += 1
-                else:
+                except:
                     tag_entry['t-1'][tag_2] = 1
-                if word_2 in tag_entry['w-1'].keys():
+                try:
                     tag_entry['w-1'][word_2] += 1
-                else:
+                except:
                     tag_entry['w-1'][word_2] = 1
-                if tag in tag_entry['t+1'].keys():
+                try:
                     tag_entry['t+1'][tag] += 1
-                else:
+                except:
                     tag_entry['t+1'][tag] = 1
-                if word in tag_entry['w+1'].keys():
+                try:
                     tag_entry['w+1'][word] += 1
-                else:
+                except:
                     tag_entry['w+1'][word] = 1
-                if 'freq' in tag_entry.keys():
-                    tag_entry['freq'] += 1
-                else:
-                    tag_entry['freq'] = 1
             else:
                 result_dict[tag_1] = dict(zip(('t-1', 'w-1', 't+1', 'w+1', 'freq'), \
                                               ({tag_2: 1}, {word_2: 1}, {tag: 1}, {word: 1}, 1)))
@@ -105,10 +118,11 @@ def after_iter():
 def process_table(sentence):
     to_return_list = []
     for line in sentence.split('\n'):
-        #line.decode('utf-8')
+        line.decode('utf-8')
         if 'sent' not in line:
             pos_tags_str = get_pos_tags(line)
             try:
+                line = line.split('\t')
                 to_return_list.append((line[1], pos_tags_str))
             except:
                 pass
@@ -119,23 +133,23 @@ def process_table(sentence):
 
 def numb_amb_tokens(tokens):
     n = 0
+    posamb = 0
     amb = 0
-    vars = 0
-    for token in tokens:
+    for token in tokens[:]:
         tvars = len(token[1].split('_'))
         if tvars > 1:
-            amb += 1
-        vars += tvars
+            posamb += 1
+        amb += tvars
         n += 1
-    #print amb, n
-    return amb, n, vars
+    #print posamb, n
+    return posamb, n, amb
 
 
 def numb_amb_corpus(corpus, numb_amb=0, numb_tokens=0, counter=numb_amb_tokens):
     tvars = 0
     for sent in split_into_sent(corpus):
         tokens = process_table(sent)
-        if counter is not None:
+        if counter is not None and tokens != []:
             counts = counter(tokens)
             numb_amb += counts[0]
             numb_tokens += counts[1]
@@ -177,7 +191,8 @@ class Sentence(tuple):
         tt.append('sent')
         try:
             for i in range(len(tokens)):
-                t = tokens.pop(0)
+                token = tokens.pop(0)
+                t = Token(token)
                 tt.append(t)
         except:
             pass
@@ -189,7 +204,7 @@ class Token(tuple):
 
     def __init__(self, token):
         self.text = token.split('\t')[1]
-        self.tagset = TagSet(token.split('\t')[2:])
+        self.tagset = TagSet(token.split('\t')[3::2])
 
     def gettext(self):
         return self.text
@@ -199,7 +214,7 @@ class Token(tuple):
 
     def getPOStags(self):
         return self.tagset.getPOStag()
-    
+
     def display(self):
         return '\t'.join((self.text, self.tagset.display()))
 
@@ -210,7 +225,7 @@ class TagSet(set):
         self.set = []
         for tag in tags:
             self.set.append(Tag(tag).text)
-    
+
     def display(self):
         return '\t'.join(self.set)
 
@@ -252,4 +267,3 @@ if __name__ == '__main__':
     inc = sys.stdin.read()
     outc = read_corpus(inc)
     write_corpus(outc, sys.stdout)
-

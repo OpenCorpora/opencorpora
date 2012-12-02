@@ -2,9 +2,9 @@
 
 import sys
 from time import clock
-from StringIO import StringIO
+from cStringIO import StringIO
 
-from utils import split_into_sent, get_pos_tags, process_table
+from utils import split_into_sent, get_pos_tags, get_list_words_pos
 
 
 def apply_rule(rule, table):
@@ -30,7 +30,7 @@ def apply_rule(rule, table):
             try:
                 word = token.split('\t')[1]
             except:
-                print tokens[i-1]
+                print tokens[i - 1]
                 raise Exception
             if word.isdigit():
                 word = '_N_'

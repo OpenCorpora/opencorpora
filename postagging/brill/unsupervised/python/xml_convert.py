@@ -3,13 +3,13 @@
 import sys
 import re
 
-from StringIO import StringIO
+from cStringIO import StringIO
 
 
 def get_text_by_tag(lines, tags):
     for line in lines:
         tag_text = dict(zip(tags, [[] for i in range(len(tags))]))
-        line = line.decode('utf-8')
+        #line = line.decode('utf-8')
         output = StringIO()
         if line.lstrip().startswith('<token'):
             for tag in tags:
@@ -41,9 +41,9 @@ def get_text_by_tag(lines, tags):
             output.write('sent')
         elif line.lstrip().startswith('</sent'):
             output.write('/sent')
-        yield output.getvalue().rstrip().encode('utf-8')
+        yield output.getvalue().rstrip()
 
 if __name__ == '__main__':
     for line in get_text_by_tag(sys.stdin, ('token id', 'text', 'l id', 'v')):
         if line.rstrip() is not '':
-            sys.stdout.write(line.decode('utf-8') + '\n')
+            sys.stdout.write(line + '\n')

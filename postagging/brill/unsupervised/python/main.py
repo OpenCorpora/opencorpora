@@ -2,50 +2,26 @@
 
 import sys
 import os
-from utils import get_list_words_pos, Rule, numb_amb_corpus
+from utils import get_list_words_pos, Rule, numb_amb_corpus, get_list_amb
 from rules_stat import scoring_function, apply_rule
-
-"""2. начать считать кол-во однозначных токенов и кол-во разборов на одно слово на каждой итерации"""
-"""3. объединить правила с числами (лучше всего сделать опцию: объединять или нет, т.к. 
-через некоторое время, когда будем снимать sing / plur, захотим отключить это)"""
-"""4. начать считать точность"""
-"""и что-то там вместо полноты"""
-"""применять после каждого правила все предыдущие"""
 
 
 if __name__ == '__main__':
     args = sys.argv[1:]
     apply_all = False
-    '''if args[0] == '-r':
-        apply_all = True'''
-    #out = open('rules.txt', 'w')
+    if args != []:
+        if args[0] == '-r':
+            apply_all = True
     out = open('rules.txt', 'r')
     input_corpus = sys.stdin.read()
-    iter_c = 0
+    i = 0
     best_rules = []
     best_score = 0
     print numb_amb_corpus(input_corpus)
-    for line in out.read().rstrip('\n').split('\n')[::2]:
-        rule = []
-        line = line.split(' ')
-        rule.append(line[3])
-        rule.append(line[5])
-        rule.append(' '.join(line[7:9]))
-        rule.append(line[10])
-        r = Rule(*rule)
-        input_corpus = apply_rule(r, input_corpus[:])
-        with open('iterx_corpus.txt', 'w') as output:
-            output.write(input_corpus)
-        print r.display()
-    out.close()
-    with open('iterx_corpus.txt', 'w') as output:
-        output.write(input_corpus)
-    input_corpus = open('iterx_corpus.txt', 'r').read()
-    out = open('rulesx.txt', 'w')
     while True:
+        get_list_amb(input_corpus)
         context_freq = get_list_words_pos(input_corpus)
-        #print after_iter()
-        with open('iterx_%s.txt' % iter_c, 'w') as output:
+        with open('iter%s.txt' % i, 'w') as output:
             for amb_tag in context_freq.keys():
                 for context in context_freq[amb_tag].keys():
                     if context is not 'freq':
@@ -65,7 +41,7 @@ if __name__ == '__main__':
         best_rules.append(best_rule)
         best_score = scores_rule[2]
         rule = Rule(*best_rule)
-        with open('iterx_%s_scores.txt' % iter_c, 'w') as output:
+        with open('iter%s_scores.txt' % i, 'w') as output:
             for amb_tag in scores.keys():
                 for tag in scores[amb_tag].keys():
                     for context in scores[amb_tag][tag].keys():
@@ -79,12 +55,12 @@ if __name__ == '__main__':
             for rule in best_rules[:-1]:
                 r = Rule(*rule)
                 input_corpus = apply_rule(r, input_corpus[:])
-        with open('iterx_corpus.txt', 'w') as output:
+        with open('icorpus.txt', 'w') as output:
             output.write(input_corpus)
         out.write(str(numb_amb_corpus(input_corpus)) + '\n')
         out.flush()
         os.fsync(out)
-        iter_c += 1
+        i += 1
         if best_score < 0:
                 out.close()
                 break
