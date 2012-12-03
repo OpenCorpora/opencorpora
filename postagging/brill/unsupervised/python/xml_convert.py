@@ -20,6 +20,8 @@ def get_text_by_tag(lines, tags):
                     pattern = re.compile(u'(?<=%s)([^\"]+?)\"' % rtag, re.UNICODE)
                 if tag == 'text':
                     pattern = re.compile(u'(?<=%s)([^\"]+?)\"' % rtag, re.UNICODE)
+                if tag == 't':
+                    pattern = re.compile(u'(?<=%s)([^\"><g]+?)\"><g' % rtag, re.UNICODE)
                 m = pattern.findall(line)
                 for match in m:
                     postag = re.compile('^[A-Z]{4}$', re.UNICODE)
@@ -34,9 +36,14 @@ def get_text_by_tag(lines, tags):
                         tag_text[tag].append(match)
                     if tag in ('token id', 'text'):
                         output.write(match + '\t')
-            variants = zip(tag_text['l id'], tag_text['v'])
-            for var in variants:
-                output.write(var[0] + '\t' + var[1] + '\t')
+                    if tag == 't':
+                        tag_text[tag].append(match)
+            variants = zip(tag_text['l id'], tag_text['t'], tag_text['v'])
+            for i in range(len(variants[:])):
+                var = variants.pop(0)
+                var = ' '.join(var)
+                variants.append(var)
+            output.write('\t'.join(variants))
         elif line.lstrip().startswith('<sent'):
             output.write('sent')
         elif line.lstrip().startswith('</sent'):
@@ -44,6 +51,6 @@ def get_text_by_tag(lines, tags):
         yield output.getvalue().rstrip()
 
 if __name__ == '__main__':
-    for line in get_text_by_tag(sys.stdin, ('token id', 'text', 'l id', 'v')):
+    for line in get_text_by_tag(sys.stdin, ('token id', 'text', 'l id', 't', 'v')):
         if line.rstrip() is not '':
             sys.stdout.write(line + '\n')
