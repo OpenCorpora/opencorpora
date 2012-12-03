@@ -143,6 +143,11 @@ $(document).ready(function() {
     <div class="ma_thanx_block">
         Спасибо, что помогаете нам. Не торопитесь, будьте внимательны. Если вы не уверены,  пропускайте пример.
     </div>
+    <div>
+        {if $packet.current_annotators.count > 0}
+        Вместе с вами сейчас размечает ещё <b>{$packet.current_annotators.count}</b> чел., {if $packet.current_annotators.count > 1}например,{else}это{/if} <i class="icon-user"></i> {$packet.current_annotators.random_name|htmlspecialchars}.
+        {/if}
+    </div>
 </div>
 <!--<p><input type="text" id="test-progress"></p>
 <div id="progress-bar" class="progress-bar"><div></div></div>

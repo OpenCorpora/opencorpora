@@ -929,7 +929,30 @@ function get_annotation_packet($pool_id, $size) {
         }
     }
     if ($flag_new) sql_commit();
+    $packet['current_annotators'] = get_current_annotators($user_id);
     return $packet;
+}
+function get_current_annotators($exclude_id=0) {
+    $time = time();
+    $res = sql_query("
+        SELECT user_shown_name
+        FROM users
+        WHERE user_id IN (
+            SELECT DISTINCT user_id
+            FROM morph_annot_click_log
+            WHERE user_id != $exclude_id
+            AND timestamp > $time - 300
+        )
+    ");
+    $out = array(
+        'count' => sql_num_rows($res),
+    );
+    if (sql_num_rows($res) > 0) {
+        $r = sql_fetch_array($res);
+        $out['random_name'] = $r[0];
+    }
+
+    return $out;
 }
 function update_annot_instance($id, $answer) {
     $user_id = $_SESSION['user_id'];
