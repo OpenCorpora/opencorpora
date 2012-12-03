@@ -55,7 +55,10 @@ function generate_tf_rev($token) {
             while ($r = sql_fetch_array($res)) {
                 $var[] = $r;
             }
-            foreach (yo_filter($token, $var) as $r) {
+            if (sizeof($var) > 1) {
+                $var = yo_filter($token, $var);
+            }
+            foreach ($var as $r) {
                 $out .= '<v><l id="'.$r['lemma_id'].'" t="'.$r['lemma_text'].'">'.$r['grammems'].'</l></v>';
             }
         } else {
