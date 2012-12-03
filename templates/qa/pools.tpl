@@ -98,6 +98,7 @@ $(document).ready(function(){
         <input name="gram[]" placeholder="gram5&gram6&gram7" type="text" class="span2"/>
         <input name="gram[]" placeholder="gram8&gram9&gram10" type="text" class="span2"/>
         <input name="gram[]" placeholder="gram8|gram9|gram10" type="text" class="span2"/>
+        <input name="gram[]" placeholder="gram11" type="text" class="span2"/>
 </tr>
 <tr class="ex_pool">
     <td>Описания к ним:<br/><span class='small'>их увидят разметчики</span>
@@ -107,6 +108,7 @@ $(document).ready(function(){
         <input name="descr[]" placeholder="наречие" maxlength='127' type="text" class="span2"/>
         <input name="descr[]" placeholder="предлог" maxlength='127' type="text" class="span2"/>
         <input name="descr[]" placeholder="42" maxlength='127' type="text" class="span2"/>
+        <input name="descr[]" placeholder="двойственное" maxlength='127' type="text" class="span2"/>
 </tr>
 <tr><td>Желаемое число оценок<td><input name="users_needed" maxlength="2" size="3" value="3" type="text" class="span1"/>
 <tr><td>Брать только примеры с<td><input name="token_checked" size="3" maxlength="2" value="0" type="text" class="span1"/> и более подтверждениями токенизации </tr>
