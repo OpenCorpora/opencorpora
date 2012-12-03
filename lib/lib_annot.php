@@ -965,7 +965,7 @@ function update_annot_instance($id, $answer) {
 
     // a valid answer
     if ($answer > 0) {
-        if (!sql_query("UPDATE morph_annot_instances SET answer='$answer' WHERE instance_id=$id LIMIT 1") ||
+        if (!sql_query("UPDATE morph_annot_instances SET user_id=$user_id, answer='$answer' WHERE instance_id=$id LIMIT 1") ||
             !update_user_rating($user_id, $pool_id, false, $previous_answer))
             return 0;
     }
