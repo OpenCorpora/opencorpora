@@ -9,9 +9,12 @@ from rules_stat import scoring_function, apply_rule
 if __name__ == '__main__':
     args = sys.argv[1:]
     apply_all = False
+    fullcorp = False
     if args != []:
         if args[0] == '-r':
             apply_all = True
+        if '-f' in args:
+            fullcorp = True
     out = open('rules.txt', 'w')
     input_corpus = sys.stdin.read()
     i = 0
@@ -20,7 +23,11 @@ if __name__ == '__main__':
     #print numb_amb_corpus(input_corpus)
     while True:
         context_freq = get_list_words_pos(input_corpus)
-        with open('iter%s.txt' % i, 'w') as output:
+        if fullcorp:
+            f = '/data/rubash/brill/full/iter%s.txt' % i
+        else:
+            f = '/data/rubash/brill/1/iter%s.txt' % i
+        with open(f, 'w') as output:
             for amb_tag in context_freq.keys():
                 for context in context_freq[amb_tag].keys():
                     if context != 'freq':
@@ -38,7 +45,11 @@ if __name__ == '__main__':
         best_rules.append(best_rule)
         best_score = scores_rule[2]
         rule = Rule(*best_rule)
-        with open('iter%s_scores.txt' % i, 'w') as output:
+        if fullcorp:
+            f = '/data/rubash/brill/full/iter%s.scores' % i
+        else:
+            f = '/data/rubash/brill/1/iter%s.scores' % i
+        with open(f, 'w') as output:
             for amb_tag in scores.keys():
                 for tag in scores[amb_tag].keys():
                     for context in scores[amb_tag][tag].keys():
@@ -50,7 +61,11 @@ if __name__ == '__main__':
             for rule in best_rules[:-1]:
                 r = Rule(*rule)
                 input_corpus = apply_rule(r, input_corpus[:])
-        with open('icorpus.txt', 'w') as output:
+        if fullcorp:
+            f = '/data/rubash/brill/full/icorpus.txt' % i
+        else:
+            f = '/data/rubash/brill/1/icorpus.txt' % i
+        with open(f, 'w') as output:
             output.write(input_corpus)
         out.write(str(numb_amb_corpus(input_corpus)) + '\n')
         out.flush()

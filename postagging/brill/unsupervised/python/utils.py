@@ -31,8 +31,10 @@ def read_corpus(inc):
 
 def write_corpus(corpus, outstream):  # corpus is an instance of Corpus()
     for sent in corpus:
+        outstream.write('sent\n')
         for token in sent:
             outstream.write(token.display() + '\n')
+        outstream.write('/sent\n')
 
 
 def split_into_sent(text):
@@ -213,6 +215,7 @@ class Sentence(tuple):
 class Token(tuple):
 
     def __init__(self, token):
+        self.id = token.split('\t')[0]
         self.text = token.split('\t')[1]
         self.tagset = TagSet(token.split('\t')[3::2])
 
@@ -226,7 +229,7 @@ class Token(tuple):
         return self.tagset.getPOStag()
 
     def display(self):
-        return '\t'.join((self.text, self.tagset.display()))
+        return '\t'.join((self.id, self.text, self.tagset.display()))
 
 
 class TagSet(set):
