@@ -26,7 +26,7 @@ $dbh->commit();
 sub process_pool {
     my $pool_id = shift;
     my @gram_strings = split /@/, shift;
-    printf STDERR "processing pool #%d: <%s>\n", $pool_id, join('>, <', @gram_strings);
+    #printf STDERR "processing pool #%d: <%s>\n", $pool_id, join('>, <', @gram_strings);
 
     my @gram_sets;
     my @gramset_types;
@@ -69,7 +69,7 @@ sub process_pool {
         AND s.sample_id IS NULL
         AND (".join(' OR ', @q).")
     ";
-    print STDERR $q."\n";
+    #print STDERR $q."\n";
     my $s = $dbh->prepare($q);
     $s->execute();
     while (my $ref = $s->fetchrow_hashref()) {
@@ -87,7 +87,7 @@ sub process_pool {
         AND (".join(' OR ', @q).")
         ORDER BY tfr.tf_id
     ";
-    print STDERR $q."\n";
+    #print STDERR $q."\n";
     my $s = $dbh->prepare($q);
     $s->execute();
     my $last_ref = undef;
@@ -160,13 +160,13 @@ sub combine_and {
 }
 sub check_revision {
     my ($pool_id, $tf_id, $rev_id, $rev_text, $gram_sets, $gramset_types) = @_;
-    print STDERR "will check revision $rev_id, ";
+    #print STDERR "will check revision $rev_id, ";
 
     # are the "and"-restrictions really satisfied?
     for my $i(0..scalar(@$gram_sets)-1) {
         next unless $gramset_types->[$i] eq 'and';
         unless (var_has_all_gram($rev_text, $gram_sets->[$i])) {
-            print STDERR "failed\n";
+            #print STDERR "failed\n";
             return 0;
         }
     }
@@ -174,11 +174,11 @@ sub check_revision {
     # are there any variants that don't match any of the grammeme sets?
 
     if (has_extra_variants($rev_text, $gram_sets, $gramset_types)) {
-        print STDERR "failed: extra variants\n";
+        #print STDERR "failed: extra variants\n";
         return 0;
     }
 
-    print STDERR "ok\n";
+    #print STDERR "ok\n";
     $add->execute($pool_id, $tf_id);
 }
 sub var_has_all_gram {
