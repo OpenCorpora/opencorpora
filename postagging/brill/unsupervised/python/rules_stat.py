@@ -3,6 +3,7 @@
 import sys
 from time import clock
 from cStringIO import StringIO
+from pprint import pprint
 
 from utils import split_into_sent, get_pos_tags, get_list_words_pos
 
@@ -135,29 +136,38 @@ def c_scoring(entries, best_rules):
                             except:
                                 pass
                             try:
-                                score = entries[tag][c][amb_context] - loc_max
-                                result_scores[tag][c][amb_context] = score
-                                if score > best_score \
-                                and [amb_tag, tag, c, amb_context] not in best_rules:
-                                    best_score = score
-                                    new_rule = [amb_tag, tag, c, amb_context]
-                            except:
-                                try:
+                                if loc_max > -sys.maxint:
                                     score = entries[tag][c][amb_context] - loc_max
-                                    #result_scores[tag][c] = {amb_context: [score] + freqs}
-                                    result_scores[tag][c] = {amb_context: score}
+                                    result_scores[tag][c][amb_context] = score
                                     if score > best_score \
                                     and [amb_tag, tag, c, amb_context] not in best_rules:
                                         best_score = score
                                         new_rule = [amb_tag, tag, c, amb_context]
-                                except:
-                                    try:
+                                else:
+                                    pass
+                            except:
+                                try:
+                                    if loc_max > -sys.maxint:
                                         score = entries[tag][c][amb_context] - loc_max
-                                        result_scores[tag] = {c: {amb_context: score}}
+                                        #result_scores[tag][c] = {amb_context: [score] + freqs}
+                                        result_scores[tag][c] = {amb_context: score}
                                         if score > best_score \
                                         and [amb_tag, tag, c, amb_context] not in best_rules:
                                             best_score = score
                                             new_rule = [amb_tag, tag, c, amb_context]
+                                    else:
+                                        pass
+                                except:
+                                    try:
+                                        if loc_max > -sys.maxint:
+                                            score = entries[tag][c][amb_context] - loc_max
+                                            result_scores[tag] = {c: {amb_context: score}}
+                                            if score > best_score \
+                                            and [amb_tag, tag, c, amb_context] not in best_rules:
+                                                best_score = score
+                                                new_rule = [amb_tag, tag, c, amb_context]
+                                        else:
+                                            pass
                                     except:
                                         pass
                 rules_scores[amb_tag] = result_scores
@@ -238,9 +248,10 @@ def find_best_rule():
 if __name__ == '__main__':
     start = clock()
     context_freq = get_list_words_pos(sys.stdin.read())
+    pprint(context_freq)
     finish = clock()
     print finish - start
-    with open('iter0.txt', 'w') as output:
+    '''with open('iter0.txt', 'w') as output:
         for amb_tag in context_freq.keys():
             for context in context_freq[amb_tag].keys():
                 if context is not 'freq':
@@ -251,10 +262,10 @@ if __name__ == '__main__':
                                     '\t' + str(context_freq[amb_tag][context][c_variant]) + '\n')
                 else:
                     output.write(str(amb_tag).rstrip('_') + '\t' + 'freq' + \
-                                 '\t' + str(context_freq[amb_tag][context]) + '\n')
+                                 '\t' + str(context_freq[amb_tag][context]) + '\n')'''
     print(clock() - finish)
     finish = clock()
-    scores = scoring_function(context_freq)
+    scores = c_scoring(context_freq, [])[0]
     print(clock() - finish)
     finish = clock()
     with open('iter0_scores.txt', 'w') as output:
@@ -262,7 +273,7 @@ if __name__ == '__main__':
             for tag in scores[amb_tag].keys():
                 for context in scores[amb_tag][tag].keys():
                     for c_variant in scores[amb_tag][tag][context].keys():
-                        output.write(str(scores[amb_tag][tag][context][c_variant][0]) + '\t' + str(amb_tag) + '\t' + tag + \
+                        output.write(str(scores[amb_tag][tag][context][c_variant]) + '\t' + str(amb_tag) + '\t' + tag + \
                                      '\t' + context + '\t' + \
-                                     c_variant + '\t' + str(scores[amb_tag][tag][context][c_variant][1:3]) + '\n')
+                                     c_variant + '\t' + str(scores[amb_tag][tag][context][c_variant]) + '\n')
     print(clock() - finish)
