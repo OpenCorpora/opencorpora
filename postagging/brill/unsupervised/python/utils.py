@@ -21,7 +21,11 @@ def read_corpus(inc):
             continue
         for ltoken in sent:
             ltoken = ltoken.decode('utf-8')
-            t = Token(ltoken)
+            try:
+                t = Token(ltoken.split('\t'))
+            except:
+                print sent
+                raise Exception
             tokens.append(t)
         s = Sentence(tokens)
         ss.append(s)
@@ -75,6 +79,30 @@ def get_list_amb(corpus):
                 print '\t'.join((word_2.decode('utf-8'), tag_2, \
                                  word_1.decode('utf-8'), tag_1, word.decode('utf-8'), tag))
             tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
+
+
+def c_get_list_words_pos(corpus, ignore_numbers=True):
+    result_dict = {}
+    for tokens in corpus:
+        word_2, tag_2 = 'sent', 'sent'
+        tag_1 = tokens[0].getPOStags()
+        if ignore_numbers and tokens[0].text.isdigit():
+            word_1 = '_N_'
+        else:
+            word_1 = tokens[0].text
+        for token in tokens[1:-1]:
+            tag = token.getPOStags()
+            if ignore_numbers and token.text.isdigit():
+                word = '_N_'
+            else:
+                word = token.text
+            tag_entry = TagStat()
+            for t, c in zip(CONTEXT, [word_2, tag_2, word, tag]):
+                tag_entry.update(t, c)
+            tag_entry.upfreq()
+            result_dict[tag_1] = tag_entry
+            tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
+    return result_dict
 
 
 def get_list_words_pos(corpus, ignore_numbers=True):
@@ -215,9 +243,9 @@ class Sentence(tuple):
 class Token(tuple):
 
     def __init__(self, token):
-        self.id = token.split('\t')[0]
-        self.text = token.split('\t')[1]
-        self.tagset = TagSet(token.split('\t')[3::2])
+        self.id = token[0]
+        self.text = token[1]
+        self.tagset = TagSet(token[3::2])
 
     def gettext(self):
         return self.text
@@ -231,23 +259,34 @@ class Token(tuple):
     def display(self):
         return '\t'.join((self.id, self.text, self.tagset.display()))
 
+    def has_ambig(self):
+        if len(self.gettagset().getPOStag()) > 4:
+            return True
+        else:
+            return False
+
 
 class TagSet(set):
 
     def __init__(self, tags):
         self.set = []
         for tag in tags:
-            self.set.append(Tag(tag).text)
+            self.set.append(Tag(tag))
 
     def display(self):
-        return '\t'.join(self.set)
+        return '\t'.join((t.text for t in self.set))
 
     def getPOStag(self):
         pos = []
         for tag in self.set:
-            if tag.isPOStag():
-                pos.append(tag.text)
-        return '_'.join(pos)
+            pos.append(tag.getPOStag())
+        if len(pos) > 1:
+            return '_'.join(pos)
+        else:
+            try:
+                return pos[0]
+            except:
+                print self.display()
 
 
 class Tag(object):
@@ -255,28 +294,38 @@ class Tag(object):
     def __init__(self, tag):
         self.text = tag
 
-    def isPOStag(self):
+    def getPOStag(self):
         pattern = re.compile('^[A-Z]{4}$', re.UNICODE)
-        if pattern.match(self.text):
-            return True
-        else:
-            return False
+        for tag in self.text.split(' '):
+            if pattern.match(tag):
+                return tag
 
 
 class TagStat(dict):
 
     def __init__(self):
-        self.stat = dict(zip(CONTEXT, ([] for i in range(4))))
+        self.stat = dict(zip(list(CONTEXT) + ['freq'], ([{} for i in range(4)] + [0])))
 
-    def update(self, type, context):
+    def update(self, ctype, context):
         for t in self.stat.keys():
-            if t == type:
-                if context in self.stat.values():
+            if t == ctype:
+                try:
                     self.stat[t][context] += 1
-                else:
+                except:
                     self.stat[t][context] = 1
+
+    def upfreq(self):
+        self.stat['freq'] += 1
 
 if __name__ == '__main__':
     inc = sys.stdin.read()
+    s = clock()
+    get_list_words_pos(inc)
+    print clock() - s
+    s = clock()
     outc = read_corpus(inc)
-    write_corpus(outc, sys.stdout)
+    print clock() - s
+    s = clock()
+    c_get_list_words_pos(outc)
+    print clock() - s
+    #write_corpus(outc, sys.stdout)

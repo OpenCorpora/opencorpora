@@ -97,6 +97,74 @@ def get_unamb_tags(entries):
                 yield (key, chosen_tag, cont_type, chosen_cont)
 
 
+def c_scoring(entries, best_rules):
+    best_score = 0
+    new_rule = []
+    rules_scores = {}
+    context = ('w-1', 't-1', 'w+1', 't+1')
+    for entry in entries:
+        value = entries[entry]
+        if len(entry) > 4:
+            amb_tag = entry
+            amb_tag = amb_tag
+            tags = set(amb_tag.split('_'))
+            if len(tags) > 1:
+                result_scores = {}
+                for tag in tags:
+                    for c in context:
+                        freqs = [0, 0, 0]
+                        for amb_context in value[c]:
+                            loc_max = -sys.maxint
+                            try:
+                                amb_context.decode('utf-8')
+                                for unamb_tag in tags:
+                                    if unamb_tag != tag:
+                                        try:
+                                            loc_context = entries[unamb_tag][c]
+                                            try:
+                                                if tag in entries.keys() and \
+                                                loc_context[amb_context] > 3:
+                                                    s = float(entries[tag]['freq']) / float(entries[unamb_tag]['freq']) * float(loc_context[amb_context])
+                                                    if s > loc_max:
+                                                        loc_max = s
+                                                    #freqs = [entries[tag]['freq'], entries[unamb_tag]['freq'], loc_context[amb_context]]
+                                            except:
+                                                pass
+                                        except:
+                                            pass
+                            except:
+                                pass
+                            try:
+                                score = entries[tag][c][amb_context] - loc_max
+                                result_scores[tag][c][amb_context] = score
+                                if score > best_score \
+                                and [amb_tag, tag, c, amb_context] not in best_rules:
+                                    best_score = score
+                                    new_rule = [amb_tag, tag, c, amb_context]
+                            except:
+                                try:
+                                    score = entries[tag][c][amb_context] - loc_max
+                                    #result_scores[tag][c] = {amb_context: [score] + freqs}
+                                    result_scores[tag][c] = {amb_context: score}
+                                    if score > best_score \
+                                    and [amb_tag, tag, c, amb_context] not in best_rules:
+                                        best_score = score
+                                        new_rule = [amb_tag, tag, c, amb_context]
+                                except:
+                                    try:
+                                        score = entries[tag][c][amb_context] - loc_max
+                                        result_scores[tag] = {c: {amb_context: score}}
+                                        if score > best_score \
+                                        and [amb_tag, tag, c, amb_context] not in best_rules:
+                                            best_score = score
+                                            new_rule = [amb_tag, tag, c, amb_context]
+                                    except:
+                                        pass
+                rules_scores[amb_tag] = result_scores
+    return rules_scores, new_rule, best_score
+
+
+
 def scoring_function(entries, best_rules):
     best_score = 0
     new_rule = []

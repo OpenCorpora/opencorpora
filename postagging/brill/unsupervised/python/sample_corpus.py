@@ -2,7 +2,7 @@
 
 import sys
 import random
-from utils import Corpus, Sentence, read_corpus, write_corpus
+from utils import read_corpus, write_corpus
 
 
 def get_random_sentences(corpus, n):
