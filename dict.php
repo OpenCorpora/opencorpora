@@ -145,10 +145,10 @@ switch ($action) {
     default:
         $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
         $smarty->setCacheLifetime(600);
-        if (!is_cached('dict/main.tpl', user_has_permission('perm_dict'))) {
+        if (!is_cached('dict/main.tpl', (int)user_has_permission('perm_dict'))) {
             $smarty->assign('stats', get_dict_stats());
             $smarty->assign('dl', get_downloads_info());
         }
-        $smarty->display('dict/main.tpl', user_has_permission('perm_dict'));
+        $smarty->display('dict/main.tpl', (int)user_has_permission('perm_dict'));
 }
 ?>
