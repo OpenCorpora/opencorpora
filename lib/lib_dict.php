@@ -79,11 +79,13 @@ function generate_tf_rev($token) {
     return $out;
 }
 function yo_filter($token, $arr) {
+    $token = mb_strtolower($token);
+
     if (!preg_match('/ё/u', $token))
         return $arr;
 
     // so there is a 'ё'
-    $res = sql_query("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text COLLATE 'utf8_bin' = '".mb_strtolower($token)."'");
+    $res = sql_query("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text COLLATE 'utf8_bin' = '$token'");
     // return if no difference
     if (sql_num_rows($res) == sizeof($arr) || !sql_num_rows($res))
         return $arr;
