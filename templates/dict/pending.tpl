@@ -49,12 +49,10 @@ $(document).ready(function(){
 {/foreach}</pre></td>
 </tr>
 {foreach from=$revision.tokens item=token}
-<tr rel="{$token.id}" rev="{$revision.id}" {if $token.is_unkn}class='bggreen'{elseif !$token.human_edits}class='bgblue'{/if}><td colspan='3'>
+<tr rel="{$token.id}" rev="{$revision.id}" {if $token.is_unkn}class='bggreen'{elseif !$token.human_edits}class='bgblue'{else}class='bgpink'{/if}><td colspan='3'>
     <a href="sentence.php?id={$token.sentence_id}">{$token.context}</a>
         <div class='pull-right'>
-            {if $token.is_unkn || !$token.human_edits}
-                <button class='btn btn-small btn-success upd_token'>Обновить</button>
-            {/if}
+            <button class='btn btn-small btn-success upd_token'>Обновить</button>
             <button class='btn btn-small btn-danger forget_token'>Забыть</button>
         </div>
 </td></tr>
