@@ -59,14 +59,30 @@ $(document).ready(function() {
     <div class="bar bar-success" style="width: 33%">в архиве</div>
 </div>
 <table class='table'>
-<tr><td>&nbsp;</td>
+<tr><td></td><td></td>
 {foreach from=$moder.moderators item=mod key=modnum}
 <td>{if $smarty.session.user_id == $modnum}<b>{$mod|htmlspecialchars}</b>{else}{$mod|htmlspecialchars}{/if}</td>
 {/foreach}
 </tr>
 {foreach from=$moder.types item=type key=typenum}
     <tr>
-        <td class='small'>{$type|htmlspecialchars}</td>
+        <td><div class='progress'>
+        {if isset($moder.data.total.$typenum[5])}
+            <div class="bar bar-info" style="width:{$moder.data.total.$typenum[5][1]}%" title="{$moder.data.total.$typenum[5][0]}">{$moder.data.total.$typenum[5][0]}</div>
+        {/if}
+        {if isset($moder.data.total.$typenum[6])}
+            <div class="bar bar-warning" style="width:{$moder.data.total.$typenum[6][1]}%" title="{$moder.data.total.$typenum[6][0]}">{$moder.data.total.$typenum[6][0]}</div>
+        {/if}
+        {if isset($moder.data.total.$typenum[9])}
+            <div class="bar bar-success" style="width:{$moder.data.total.$typenum[9][1]}%" title="{$moder.data.total.$typenum[9][0]}">{$moder.data.total.$typenum[9][0]}</div>
+        {/if}
+        </div></td>
+        <td class='small'>
+            {if $moder.data[0].$typenum[4][0] > 0}
+                <span class='badge badge-important'>{$moder.data[0].$typenum[4][0]}</span>
+            {/if}
+            <a href="{$web_prefix}/pools.php?type=4&amp;filter={$type|urlencode}">{$type|htmlspecialchars}</a>
+        </td>
         {foreach from=$moder.moderators key=modnum item=mod}
             <td><div class='progress'>
             {if isset($moder.data.$modnum.$typenum[5])}
@@ -83,6 +99,11 @@ $(document).ready(function() {
     </tr>
 {/foreach}
 <tr>
+    <td><div class='progress'>
+        <div class="bar bar-info" style="width:{$moder.data.total.total[5][1]|intval}%" title="{$moder.data.total.total[5][0]}">{$moder.data.total.total[5][0]}</div>
+        <div class="bar bar-warning" style="width:{$moder.data.total.total[6][1]|intval}%" title="{$moder.data.total.total[6][0]}">{$moder.data.total.total[6][0]}</div>
+        <div class="bar bar-success" style="width:{$moder.data.total.total[9][1]|intval}%" title="{$moder.data.total.total[9][0]}">{$moder.data.total.total[9][0]}</div>
+    </div></td>
     <td>Всего</td>
     {foreach from=$moder.moderators key=modnum item=mod}
         <td><div class='progress'>

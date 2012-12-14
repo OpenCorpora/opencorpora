@@ -364,7 +364,7 @@ function get_moderation_stats() {
         ON (p.pool_type = t.type_id)
         LEFT JOIN users u
         ON (p.moderator_id = u.user_id)
-        WHERE moderator_id > 0
+        WHERE status >= 4
         GROUP BY pool_type, moderator_id, status
         ORDER BY moderator_id, pool_type, status
     ");
@@ -375,10 +375,15 @@ function get_moderation_stats() {
 
     while ($r = sql_fetch_array($res)) {
         $t[$r['moderator_id']][$r['pool_type']][$r['status']] = $r['cnt'];
-        $type2name[$r['pool_type']] = $r['grammemes'];
-        $mod2name[$r['moderator_id']] = $r['username'];
-        $mod_total[$r['moderator_id']][$r['pool_type']] += $r['cnt'];
-        $mod_total[$r['moderator_id']]['total'] += $r['cnt'];
+        if ($r['moderator_id'] > 0) {
+            $t['total'][$r['pool_type']][$r['status']] += $r['cnt'];
+            $type2name[$r['pool_type']] = $r['grammemes'];
+            $mod2name[$r['moderator_id']] = $r['username'];
+            $mod_total[$r['moderator_id']][$r['pool_type']] += $r['cnt'];
+            $mod_total['total'][$r['pool_type']] += $r['cnt'];
+            $mod_total[$r['moderator_id']]['total'] += $r['cnt'];
+            $mod_total['total']['total'] += $r['cnt'];
+        }
     }
 
     foreach ($t as $mod => $mdata) {
