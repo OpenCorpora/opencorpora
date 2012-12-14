@@ -16,15 +16,16 @@ if ($dbh->{'AutoCommit'}) {
 
 my $add = $dbh->prepare("INSERT INTO morph_annot_candidate_samples VALUES(?, ?)");
 my $update_pool = $dbh->prepare("UPDATE morph_annot_pools SET `status`='1' WHERE pool_id=? LIMIT 1");
-my $find_pools = $dbh->prepare("SELECT pool_id, t.grammemes FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE status=0 LIMIT 1");
+my $find_pools = $dbh->prepare("SELECT pool_id, pool_type, t.grammemes FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE status=0 LIMIT 1");
 $find_pools->execute();
 if (my $ref = $find_pools->fetchrow_hashref()) {
-    process_pool($ref->{'pool_id'}, $ref->{'grammemes'});
+    process_pool($ref->{'pool_id'}, $ref->{'pool_type'}, $ref->{'grammemes'});
 }
 $dbh->commit();
 
 sub process_pool {
     my $pool_id = shift;
+    my $pool_type = shift;
     my @gram_strings = split /@/, shift;
     #printf STDERR "processing pool #%d: <%s>\n", $pool_id, join('>, <', @gram_strings);
 
@@ -78,7 +79,7 @@ sub process_pool {
 
     # part 2, tokens in pools not under annotation
     $q = "
-        SELECT tfr.tf_id, tfr.rev_id, tfr.rev_text, ms.status mod_status, p.status pool_status
+        SELECT tfr.tf_id, tfr.rev_id, tfr.rev_text, ms.status mod_status, p.status pool_status, p.pool_type pool_type
         FROM tf_revisions tfr
         RIGHT JOIN morph_annot_samples s USING (tf_id)
         LEFT JOIN morph_annot_moderated_samples ms USING (sample_id)
@@ -104,10 +105,13 @@ sub process_pool {
         # check whether we should skip this token
         if (
             !$skip &&
+            # pool is in annotation or moderation
             ($ref->{'pool_status'} > 1 && $ref->{'pool_status'} != 9) ||
+            # or pool is moderated and token was marked as misprint or homonymous
+            # or token has already been in this type of pool
             (
                 $ref->{'pool_status'} == 9 &&
-                ($ref->{'mod_status'} == 3 || $ref->{'mod_status'} == 4)
+                ($ref->{'mod_status'} == 3 || $ref->{'mod_status'} == 4 || $ref->{'pool_type'} == $pool_type)
             )
         ) {
             $skip = 1;
