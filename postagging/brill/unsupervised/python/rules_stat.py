@@ -5,7 +5,48 @@ from time import clock
 from cStringIO import StringIO
 from pprint import pprint
 
-from utils import split_into_sent, get_pos_tags, get_list_words_pos
+from utils import split_into_sent, c_get_list_words_pos, read_corpus
+
+CONTEXT = ('w-1', 't-1', 'w+1', 't+1')
+
+
+def scores(s, best_rules):
+    rule = []
+    scores = {}
+    score = 0
+    bestscore = -sys.maxint
+    bestrule = []
+    for atag in s.keys():
+        if len(atag) > 4:
+            stat = s[atag]
+            vtags = atag.split('_')
+            for y in vtags:
+                scores[atag] = {y: dict(zip(CONTEXT, [{} for i in range(4)]))}
+                for ctype in CONTEXT:
+                    for context in stat[ctype].keys():
+                        fr = -sys.maxint
+                        r = y
+                        for z in vtags:
+                            if y != z:
+                                # relative frequency
+                                try:
+                                    relf = s[y]['freq'] / s[z]['freq'] * s[z][ctype][context]
+                                except:
+                                    relf = 0
+                                if relf > fr:
+                                    fr = relf
+                                    r = z
+                        try:
+                            x = s[y][ctype][context] - fr
+                            scores[atag][y][ctype][context] = x
+                            if x > bestscore:
+                                bestscore = x
+                                print bestscore
+                                bestrule = [atag, y, ctype, context]
+                                print bestrule
+                        except:
+                            scores[atag][y][ctype][context] = - fr
+    return scores, bestrule
 
 
 def apply_rule(rule, table):
@@ -247,25 +288,27 @@ def find_best_rule():
 
 if __name__ == '__main__':
     start = clock()
-    context_freq = get_list_words_pos(sys.stdin.read())
-    pprint(context_freq)
+    context_freq = c_get_list_words_pos(read_corpus(sys.stdin.read()))
+    #pprint(context_freq)
     finish = clock()
     print finish - start
-    '''with open('iter0.txt', 'w') as output:
+    with open('iter0.txt', 'w') as output:
         for amb_tag in context_freq.keys():
             for context in context_freq[amb_tag].keys():
                 if context is not 'freq':
                     for c_variant in context_freq[amb_tag][context].keys():
                         #print c_variant.decode('utf-8')
                         output.write(str(amb_tag).rstrip('_') + '\t' + \
-                                     context + '\t' + c_variant + \
+                                     context.encode('utf-8') + '\t' + c_variant.encode('utf-8') + \
                                     '\t' + str(context_freq[amb_tag][context][c_variant]) + '\n')
                 else:
                     output.write(str(amb_tag).rstrip('_') + '\t' + 'freq' + \
-                                 '\t' + str(context_freq[amb_tag][context]) + '\n')'''
+                                 '\t' + str(context_freq[amb_tag][context]) + '\n')
     print(clock() - finish)
     finish = clock()
-    scores = c_scoring(context_freq, [])[0]
+    scores = scores(context_freq, [])
+    print scores[1]
+    scores = scores[0]
     print(clock() - finish)
     finish = clock()
     with open('iter0_scores.txt', 'w') as output:
@@ -273,7 +316,6 @@ if __name__ == '__main__':
             for tag in scores[amb_tag].keys():
                 for context in scores[amb_tag][tag].keys():
                     for c_variant in scores[amb_tag][tag][context].keys():
-                        output.write(str(scores[amb_tag][tag][context][c_variant]) + '\t' + str(amb_tag) + '\t' + tag + \
-                                     '\t' + context + '\t' + \
-                                     c_variant + '\t' + str(scores[amb_tag][tag][context][c_variant]) + '\n')
+                        output.write('\t'.join((str(scores[amb_tag][tag][context][c_variant]), \
+                                                amb_tag, tag, context, c_variant)).encode('utf-8') + '\n')
     print(clock() - finish)

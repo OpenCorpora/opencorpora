@@ -19,13 +19,20 @@ def read_corpus(inc):
         sent = sent.lstrip('sent\n').rstrip('\n').split('\n')
         if sent == ['']:
             continue
-        for ltoken in sent:
-            ltoken = ltoken.decode('utf-8')
+        if isinstance(sent, list) and len(sent) > 1:
+            for ltoken in sent:
+                ltoken = ltoken.decode('utf-8')
+                t = Token(ltoken.split('\t'))
+                tokens.append(t)
+        else:
+            ltoken = sent[0].decode('utf-8')
             try:
                 t = Token(ltoken.split('\t'))
             except:
-                print sent
+                #print sent
                 raise Exception
+                break
+            #print ltoken.split('\t')[3::2]
             tokens.append(t)
         s = Sentence(tokens)
         ss.append(s)
@@ -37,7 +44,10 @@ def write_corpus(corpus, outstream):  # corpus is an instance of Corpus()
     for sent in corpus:
         outstream.write('sent\n')
         for token in sent:
-            outstream.write(token.display() + '\n')
+            try:
+                outstream.write(token.display() + '\n')
+            except:
+                outstream.write(token.display().encode('utf-8') + '\n')
         outstream.write('/sent\n')
 
 
@@ -81,28 +91,91 @@ def get_list_amb(corpus):
             tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
 
 
+"""
+def c_get_list_words_pos(corpus, ignore_numbers=True):
+    result_dict = TagStat()
+    for sent in corpus:
+        tokens = sent
+        word_2, tag_2 = 'sent', 'sent'
+        try:
+            word_1, tag_1 = tokens[1].text, tokens[1].getPOStags()
+        except:
+            print tokens[0]
+            raise Exception
+        for token in tokens[2:-1]:
+            tag = token.getPOStags()
+            if ignore_numbers and token[0].isdigit():
+                word = '_N_'
+            else:
+                word = token.text
+            if tag_1 in result_dict.keys():
+                tag_entry = result_dict[tag_1]
+                try:
+                    tag_entry['t-1'][tag_2] += 1
+                except:
+                    tag_entry['t-1'][tag_2] = 1
+                try:
+                    tag_entry['w-1'][word_2] += 1
+                except:
+                    tag_entry['w-1'][word_2] = 1
+                try:
+                    tag_entry['t+1'][tag] += 1
+                except:
+                    tag_entry['t+1'][tag] = 1
+                try:
+                    tag_entry['w+1'][word] += 1
+                except:
+                    tag_entry['w+1'][word] = 1
+                try:
+                    tag_entry['freq'] += 1
+                except:
+                    tag_entry['freq'] = 1
+            else:
+                result_dict[tag_1] = dict(zip(('t-1', 'w-1', 't+1', 'w+1', 'freq'), \
+                                              ({tag_2: 1}, {word_2: 1}, {tag: 1}, {word: 1}, 1)))
+            tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
+    return result_dict
+"""
+
 def c_get_list_words_pos(corpus, ignore_numbers=True):
     result_dict = {}
     for tokens in corpus:
         word_2, tag_2 = 'sent', 'sent'
-        tag_1 = tokens[0].getPOStags()
+        try:
+            tag_1 = tokens[0].getPOStags()
+        except:
+            continue
         if ignore_numbers and tokens[0].text.isdigit():
             word_1 = '_N_'
         else:
             word_1 = tokens[0].text
         for token in tokens[1:-1]:
-            tag = token.getPOStags()
+            try:
+                tag = token.getPOStags()
+            except:
+                tag = 'sent'
             if ignore_numbers and token.text.isdigit():
                 word = '_N_'
             else:
-                word = token.text
-            tag_entry = TagStat()
-            for t, c in zip(CONTEXT, [word_2, tag_2, word, tag]):
-                tag_entry.update(t, c)
-            tag_entry.upfreq()
-            result_dict[tag_1] = tag_entry
+                try:
+                    word = token.text
+                except:
+                    word = 'sent'
+            try:
+                for t, c in zip(CONTEXT, [word_2, tag_2, word, tag]):
+                    result_dict[tag_1].update(t, c)
+                result_dict[tag_1].upfreq()
+            except:
+                tag_entry = TagStat()
+                for t, c in zip(CONTEXT, [word_2, tag_2, word, tag]):
+                    tag_entry.update(t, c)
+                tag_entry.upfreq()
+                result_dict[tag_1] = tag_entry
             tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
-    return result_dict
+    stats = {}
+    for tag in result_dict.keys():
+        stats[tag] = result_dict[tag].stat
+    return stats
 
 
 def get_list_words_pos(corpus, ignore_numbers=True):
@@ -281,12 +354,16 @@ class TagSet(set):
         for tag in self.set:
             pos.append(tag.getPOStag())
         if len(pos) > 1:
-            return '_'.join(pos)
+            #return '_'.join(pos)
+            return '_'.join(sorted(set(pos)))
         else:
-            try:
-                return pos[0]
-            except:
-                print self.display()
+            return pos[0]
+
+    def hasPOSamb(self):
+        if len(self.getPOStag()) > 4:
+            return True
+        else:
+            return False
 
 
 class Tag(object):
@@ -294,11 +371,17 @@ class Tag(object):
     def __init__(self, tag):
         self.text = tag
 
-    def getPOStag(self):
+    def isPOStag(self, t):
         pattern = re.compile('^[A-Z]{4}$', re.UNICODE)
-        for tag in self.text.split(' '):
-            if pattern.match(tag):
-                return tag
+        if pattern.match(t):
+            return True
+        else:
+            return False
+
+    def getPOStag(self):
+        for t in self.text.split(' '):
+            if self.isPOStag(t):
+                return t
 
 
 class TagStat(dict):
@@ -317,6 +400,7 @@ class TagStat(dict):
     def upfreq(self):
         self.stat['freq'] += 1
 
+
 if __name__ == '__main__':
     inc = sys.stdin.read()
     s = clock()
@@ -324,8 +408,9 @@ if __name__ == '__main__':
     print clock() - s
     s = clock()
     outc = read_corpus(inc)
-    print clock() - s
     s = clock()
     c_get_list_words_pos(outc)
     print clock() - s
-    #write_corpus(outc, sys.stdout)
+    s = clock()
+    get_list_words_pos(inc)
+    print clock() - s

@@ -11,7 +11,7 @@ def get_random_sentences(corpus, n):
 
 def get_corpora(corpus, c, n):
     """
-    Get c instances of Corpus() made of n sentences.
+    Get c instances of Corpus() made up of n sentences.
     Returns iterator!
     """
     for i in range(c):
@@ -29,6 +29,7 @@ if __name__ == '__main__':
             c = int(args[i + 1])
     inc = sys.stdin.read()
     inc = read_corpus(inc)
+    #print write_corpus(inc, sys.stdout)
     for sample in get_corpora(inc, c, n):
         outc = write_corpus(sample[1], sys.stdout)
 
