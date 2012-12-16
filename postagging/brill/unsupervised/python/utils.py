@@ -91,58 +91,15 @@ def get_list_amb(corpus):
             tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
 
 
-"""
-def c_get_list_words_pos(corpus, ignore_numbers=True):
-    result_dict = TagStat()
-    for sent in corpus:
-        tokens = sent
-        word_2, tag_2 = 'sent', 'sent'
-        try:
-            word_1, tag_1 = tokens[1].text, tokens[1].getPOStags()
-        except:
-            print tokens[0]
-            raise Exception
-        for token in tokens[2:-1]:
-            tag = token.getPOStags()
-            if ignore_numbers and token[0].isdigit():
-                word = '_N_'
-            else:
-                word = token.text
-            if tag_1 in result_dict.keys():
-                tag_entry = result_dict[tag_1]
-                try:
-                    tag_entry['t-1'][tag_2] += 1
-                except:
-                    tag_entry['t-1'][tag_2] = 1
-                try:
-                    tag_entry['w-1'][word_2] += 1
-                except:
-                    tag_entry['w-1'][word_2] = 1
-                try:
-                    tag_entry['t+1'][tag] += 1
-                except:
-                    tag_entry['t+1'][tag] = 1
-                try:
-                    tag_entry['w+1'][word] += 1
-                except:
-                    tag_entry['w+1'][word] = 1
-                try:
-                    tag_entry['freq'] += 1
-                except:
-                    tag_entry['freq'] = 1
-            else:
-                result_dict[tag_1] = dict(zip(('t-1', 'w-1', 't+1', 'w+1', 'freq'), \
-                                              ({tag_2: 1}, {word_2: 1}, {tag: 1}, {word: 1}, 1)))
-            tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
-    return result_dict
-"""
-
-def c_get_list_words_pos(corpus, ignore_numbers=True):
+def context_stats(corpus, ignore_numbers=True):
     result_dict = {}
     for tokens in corpus:
         word_2, tag_2 = 'sent', 'sent'
         try:
-            tag_1 = tokens[0].getPOStags()
+            if tokens[0].getPOStags() is not None:
+                tag_1 = tokens[0].getPOStags()
+            else:
+                continue
         except:
             continue
         if ignore_numbers and tokens[0].text.isdigit():
@@ -151,7 +108,10 @@ def c_get_list_words_pos(corpus, ignore_numbers=True):
             word_1 = tokens[0].text
         for token in tokens[1:-1]:
             try:
-                tag = token.getPOStags()
+                if token.getPOStags() is not None:
+                    tag = token.getPOStags()
+                else:
+                    tag = 'sent'
             except:
                 tag = 'sent'
             if ignore_numbers and token.text.isdigit():
@@ -409,7 +369,7 @@ if __name__ == '__main__':
     s = clock()
     outc = read_corpus(inc)
     s = clock()
-    c_get_list_words_pos(outc)
+    context_stats(outc)
     print clock() - s
     s = clock()
     get_list_words_pos(inc)
