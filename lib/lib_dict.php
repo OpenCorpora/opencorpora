@@ -332,7 +332,8 @@ function update_pending_token($token_id, $rev_id, $revset_id=0) {
         $revset_id = create_revset("Update tokens from dictionary");
     if (
         !create_tf_revision($revset_id, $token_id, $new_rev) ||
-        !forget_pending_token($token_id, $rev_id)
+        !forget_pending_token($token_id, $rev_id) ||
+        !delete_samples_by_token_id($token_id)
     )
         return false;
     sql_commit();

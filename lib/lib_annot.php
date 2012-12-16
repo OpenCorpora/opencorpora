@@ -540,6 +540,48 @@ function promote_samples_aux($tf_ids, $orig_pool_id, $lastrev, $new_pool_name, &
     sql_commit();
     return true;
 }
+function delete_samples_by_token_id($token_id) {
+    $res = sql_query("
+        SELECT sample_id, answer
+        FROM morph_annot_samples
+        LEFT JOIN morph_annot_instances USING (sample_id)
+        WHERE tf_id=$token_id
+        ORDER BY sample_id
+    ");
+    $last_sid = 0;
+    $has_answer = false;
+    sql_begin();
+    while ($r = sql_fetch_array($res)) {
+        if ($last_sid != $r['sample_id']) {
+            if ($last_sid && !$has_answer) {
+                if (!delete_sample($last_sid))
+                    return false;
+            }
+            $has_answer = false;
+        }
+        if ($r['answer'] > 0)
+            $has_answer = true;
+        $last_sid = $r['sample_id'];
+    }
+
+    if ($last_sid && !$has_answer)
+        if (!delete_sample($last_sid))
+                return false;
+
+    sql_commit();
+    return true;
+}
+function delete_sample($sample_id) {
+    sql_begin();
+    if (
+        !sql_query("DELETE FROM morph_annot_instances WHERE sample_id=$sample_id") ||
+        !sql_query("DELETE FROM morph_annot_moderated_samples WHERE sample_id=$sample_id LIMIT 1") ||
+        !sql_query("DELETE FROM morph_annot_samples WHERE sample_id=$sample_id LIMIT 1")
+    )
+        return false;
+    sql_commit();
+    return true;
+}
 function promote_samples($pool_id, $type) {
     if (!$pool_id || !$type) return 0;
     
