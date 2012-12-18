@@ -61,7 +61,7 @@ $(document).ready(function() {
 <table class='table'>
 <tr><td></td><td></td>
 {foreach from=$moder.moderators item=mod key=modnum}
-<td>{if $smarty.session.user_id == $modnum}<b>{$mod|htmlspecialchars}</b>{else}{$mod|htmlspecialchars}{/if}</td>
+<td class='small'>{if $smarty.session.user_id == $modnum}<b>{$mod|htmlspecialchars}</b>{else}{$mod|htmlspecialchars}{/if}</td>
 {/foreach}
 </tr>
 {foreach from=$moder.types item=type key=typenum}

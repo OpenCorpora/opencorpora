@@ -375,9 +375,9 @@ function get_moderation_stats() {
 
     while ($r = sql_fetch_array($res)) {
         $t[$r['moderator_id']][$r['pool_type']][$r['status']] = $r['cnt'];
+        $type2name[$r['pool_type']] = $r['grammemes'];
         if ($r['moderator_id'] > 0) {
             $t['total'][$r['pool_type']][$r['status']] += $r['cnt'];
-            $type2name[$r['pool_type']] = $r['grammemes'];
             $mod2name[$r['moderator_id']] = $r['username'];
             $mod_total[$r['moderator_id']][$r['pool_type']] += $r['cnt'];
             $mod_total['total'][$r['pool_type']] += $r['cnt'];
