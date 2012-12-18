@@ -3,22 +3,25 @@
 import sys
 import os
 from utils import context_stats, Rule, numb_amb_corpus, get_list_amb, read_corpus
-from rules_stat import scores, apply_rule
+from rules_stat import scoring_function, apply_rule
 
 
 if __name__ == '__main__':
     args = sys.argv[1:]
     apply_all = False
     fullcorp = False
+    n = 0
     if args != []:
         if args[0] == '-r':
             apply_all = True
         if '-f' in args:
             fullcorp = True
+        if '-n' in args:
+            n = ' '.join(args).partition('-n')[2].lstrip(' ')
     if fullcorp:
         out = open('/data/rubash/brill/full/rules.txt', 'w')
     else:
-        out = open('/data/rubash/brill/rand5000/rules.txt', 'w')
+        out = open('/data/rubash/brill/rand/%s/rules.txt' % n, 'w')
     input_corpus = sys.stdin.read()
     i = 0
     best_rules = []
@@ -29,7 +32,7 @@ if __name__ == '__main__':
         if fullcorp:
             f = '/data/rubash/brill/full/iter%s.txt' % i
         else:
-            f = '/data/rubash/brill/rand5000/iter%s.txt' % i
+            f = '/data/rubash/brill/rand/%s/iter%s.txt' % (n, i)
         with open(f, 'w') as output:
             for amb_tag in context_freq.keys():
                 for context in context_freq[amb_tag].keys():
@@ -43,7 +46,7 @@ if __name__ == '__main__':
                                 print amb_tag, context, c_variant, context_freq[amb_tag][context][c_variant]
                     else:
                         output.write('\t'.join((amb_tag, 'freq', str(context_freq[amb_tag][context]))) + '\n')
-        scores_rule = scores(context_freq, best_rules)
+        scores_rule = scoring_function(context_freq, best_rules)
         ss = scores_rule[0]
         best_rule = scores_rule[1]
         best_rules.append(best_rule)
@@ -55,7 +58,7 @@ if __name__ == '__main__':
         if fullcorp:
             f = '/data/rubash/brill/full/iter%s.scores' % i
         else:
-            f = '/data/rubash/brill/rand5000/iter%s.scores' % i
+            f = '/data/rubash/brill/rand/%s/iter%s.scores' % (n, i)
         with open(f, 'w') as output:
             for amb_tag in ss.keys():
                 for tag in ss[amb_tag].keys():
@@ -74,7 +77,7 @@ if __name__ == '__main__':
         if fullcorp:
             f = '/data/rubash/brill/full/icorpus.txt'
         else:
-            f = '/data/rubash/brill/rand5000/icorpus.txt'
+            f = '/data/rubash/brill/rand/%s/icorpus.txt' % n
         with open(f, 'w') as output:
             output.write(input_corpus)
         out.write(str(numb_amb_corpus(input_corpus)) + '\n')

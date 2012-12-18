@@ -2,7 +2,7 @@
 
 import sys
 import random
-from utils import read_corpus, write_corpus
+from utils import read_corpus, write_corpus, numb_amb_corpus
 
 
 def get_random_sentences(corpus, n):
@@ -31,5 +31,7 @@ if __name__ == '__main__':
     inc = read_corpus(inc)
     #print write_corpus(inc, sys.stdout)
     for sample in get_corpora(inc, c, n):
-        outc = write_corpus(sample[1], sys.stdout)
+        outc = write_corpus(sample[1], open('rand%s.tab' % sample[0], 'w'))
+        corp = open('rand%s.tab' % sample[0], 'r')
+        print numb_amb_corpus(corp.read())
 
