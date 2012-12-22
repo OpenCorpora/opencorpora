@@ -48,7 +48,8 @@ switch ($action) {
                 isset($_GET['ext']),
                 4,
                 isset($_GET['skip']) ? (int)$_GET['skip'] : 0,
-                isset($_GET['filter']) ? $_GET['filter'] : false
+                isset($_GET['filter']) ? $_GET['filter'] : false,
+                15
             ));
             $smarty->display('qa/pool.tpl');
         }

@@ -262,7 +262,7 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     }
     return array('pools' => $pools, 'types' => $types, 'moderators' => $moderators);
 }
-function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $skip=0, $filter=false) {
+function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $skip=0, $filter=false, $samples_by_page=0) {
     $res = sql_query("SELECT pool_name, pool_type, status, t.grammemes, users_needed, moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
     $r = sql_fetch_array($res);
     $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
@@ -278,7 +278,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     $out['all_moderated'] = $extended ? true : false;  // for now we never get active button with non-extended view, just for code simplicity
     $num_samples = sql_num_rows($res);
     $out['pages'] = array(
-        'active' => $skip / 15,
+        'active' => $samples_by_page ? ($skip / $samples_by_page) : 0,
         'query' => preg_replace('/&skip=\d+/', '', $_SERVER['QUERY_STRING']),
         'total' => 0,
         'samples' => array()
@@ -356,7 +356,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         ) {
             if ($skip > 0)
                 --$skip;
-            elseif (sizeof($out['samples']) < 15)
+            elseif ($samples_by_page == 0 || sizeof($out['samples']) < $samples_by_page)
                 $out['samples'][] = $t;
 
             $out['pages']['total'] += 1;
@@ -364,7 +364,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     }
     $out['user_colors'] = $distinct_users;
     $out['filter'] = $filter;
-    $out['pages']['total'] = ceil($out['pages']['total'] / 15);
+    $out['pages']['total'] = $samples_by_page ? ceil($out['pages']['total'] / $samples_by_page) : 1;
     return $out;
 }
 function filter_sample_for_moderation($pool_type, $sample) {
