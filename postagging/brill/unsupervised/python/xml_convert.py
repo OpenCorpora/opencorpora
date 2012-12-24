@@ -5,7 +5,7 @@ import re
 
 from cStringIO import StringIO
 
-
+#TODO: жанр <tag>Тип:
 def get_text_by_tag(lines, tags):
     for line in lines:
         tag_text = dict(zip(tags, [[] for i in range(len(tags))]))

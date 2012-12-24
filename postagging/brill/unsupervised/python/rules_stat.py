@@ -14,7 +14,7 @@ def scores(s, best_rules):
     rule = []
     scores = {}
     score = 0
-    bestscore = -sys.maxint
+    bestscore = 0
     bestrule = []
     for atag in s.keys():
         if len(atag) > 4:
@@ -206,7 +206,6 @@ def scoring_function(entries, best_rules):
                                         pass
                 rules_scores[amb_tag] = result_scores
     return rules_scores, new_rule, best_score
-
 
 if __name__ == '__main__':
     start = clock()

@@ -278,6 +278,7 @@ class Token(tuple):
     def __init__(self, token):
         self.id = token[0]
         self.text = token[1]
+        self.l_id = token[2::2]
         self.tagset = TagSet(token[3::2])
 
     def gettext(self):
@@ -290,7 +291,7 @@ class Token(tuple):
         return self.tagset.getPOStag()
 
     def display(self):
-        return '\t'.join((self.id, self.text, self.tagset.display()))
+        return '\t'.join((self.id, self.text, self.tagset.display(self.l_id)))
 
     def has_ambig(self):
         if len(self.gettagset().getPOStag()) > 4:
@@ -306,8 +307,8 @@ class TagSet(set):
         for tag in tags:
             self.set.append(Tag(tag))
 
-    def display(self):
-        return '\t'.join((t.text for t in self.set))
+    def display(self, l_id):
+        return '\t'.join(('\t'.join(x) for x in zip(l_id, (t.text for t in self.set))))
 
     def getPOStag(self):
         pos = []
@@ -315,7 +316,10 @@ class TagSet(set):
             pos.append(tag.getPOStag())
         if len(pos) > 1:
             #return '_'.join(pos)
-            return '_'.join(sorted(set(pos)))
+            try:
+                return '_'.join(sorted(set(pos)))
+            except:
+                return '_'
         else:
             return pos[0]
 
