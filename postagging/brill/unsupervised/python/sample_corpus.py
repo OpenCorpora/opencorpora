@@ -21,8 +21,22 @@ def get_corpora(corpus, c, n):
     Get c instances of Corpus() made up of n sentences.
     Returns iterator!
     """
+    corpora = []
     for i in range(c):
-        yield (i, get_random_sentences(corpus, n))
+        randomcorp = get_random_sentences(corpus, n)
+        corpora.append(randomcorp)
+        if i == 0:
+            yield (i, randomcorp)
+        else:
+            while True:
+                flag = True
+                randomcorp = get_random_sentences(corpus, n)
+                for cp in corpora:
+                    if randomcorp.isdisjoint(cp):
+                        flag = False
+                if flag:
+                    yield randomcorp
+                    break
 
 
 if __name__ == '__main__':

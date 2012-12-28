@@ -5,7 +5,7 @@ import re
 
 from cStringIO import StringIO
 
-#TODO: æàíð <tag>Òèï:
+#TODO: Ð¶Ð°Ð½Ñ€ <tag>Ð¢Ð¸Ð¿:
 def get_text_by_tag(lines, tags):
     for line in lines:
         tag_text = dict(zip(tags, [[] for i in range(len(tags))]))
@@ -21,7 +21,7 @@ def get_text_by_tag(lines, tags):
                 if tag == 'text':
                     pattern = re.compile(u'(?<=%s)([^\"]+?)\"' % rtag, re.UNICODE)
                 if tag == 't':
-                    pattern = re.compile(u'(?<=%s)([^\"><g]+?)\"><g' % rtag, re.UNICODE)
+                    pattern = re.compile(u'(?<=%s)([^\"]+?)\">' % rtag, re.UNICODE)
                 m = pattern.findall(line)
                 for match in m:
                     postag = re.compile('^[A-Z]{4}$', re.UNICODE)
