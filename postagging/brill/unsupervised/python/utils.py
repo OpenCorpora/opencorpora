@@ -278,8 +278,9 @@ class Token(tuple):
     def __init__(self, token):
         self.id = token[0]
         self.text = token[1]
-        self.l_id = token[2::2]
-        self.tagset = TagSet(token[3::2])
+        self.l_id = []
+        self.l_id = [i.split(' ')[0] for i in token[2:]]
+        self.tagset = TagSet([t.partition(' ')[2] for t in token[2:]])
 
     def gettext(self):
         return self.text
@@ -308,7 +309,7 @@ class TagSet(set):
             self.set.append(Tag(tag))
 
     def display(self, l_id):
-        return '\t'.join(('\t'.join(x) for x in zip(l_id, (t.text for t in self.set))))
+        return '\t'.join((' '.join(x) for x in zip(l_id, (t.text for t in self.set))))
 
     def getPOStag(self):
         pos = []
