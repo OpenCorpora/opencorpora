@@ -14,7 +14,7 @@ NUMB_TOKENS = 0
 
 def read_corpus(inc):
     ss = []
-    for line in inc.split('\n'):
+    '''for line in inc.split('\n'):
         if line == 'sent':
             tokens = []
         elif line == '/sent':
@@ -26,7 +26,8 @@ def read_corpus(inc):
             tokens.append(t)
     c = Corpus(ss)
     return c
-'''    for sent in inc.split('/sent')[:]:
+'''    
+    for sent in inc.split('/sent')[:]:
         tokens = []
         sent = sent.lstrip('sent\n').rstrip('\n').split('\n')
         if sent == ['']:
@@ -50,7 +51,6 @@ def read_corpus(inc):
         ss.append(s)
     c = Corpus(ss)
     return c
-'''
 
 
 def write_corpus(corpus, outstream):  # corpus is an instance of Corpus()

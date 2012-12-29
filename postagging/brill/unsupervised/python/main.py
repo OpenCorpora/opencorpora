@@ -70,7 +70,7 @@ if __name__ == '__main__':
         best_rule = scores_rule[1]
         best_rules.append(best_rule)
         best_score = scores_rule[2]
-        if best_score < 0:
+        if best_score < 0 or best_rule == []:
             out.close()
             break
         rule = Rule(*best_rule)
@@ -88,6 +88,7 @@ if __name__ == '__main__':
                             for c_variant in ss[amb_tag][tag][context].keys():
                                 output.write('\t'.join((str(ss[amb_tag][tag][context][c_variant]), amb_tag, tag, context, c_variant)).encode('utf-8') + '\n')
         input_corpus = apply_rule(rule, input_corpus[:])
+        amb = numb_amb_corpus(input_corpus)
         try:
             out.write(rule.display() + '\n')
         except:

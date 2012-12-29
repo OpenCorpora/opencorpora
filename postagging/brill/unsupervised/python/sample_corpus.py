@@ -30,19 +30,8 @@ def get_corpora(corpus, c, n):
     corpora = []
     for i in range(c):
         randomnums = rand_sent(corpus, n)
-        corpora.append(randomnums)
-        if i == 0:
-            yield (i, get_random_sentences(corpus, randomnums))
-        else:
-            while True:
-                flag = True
-                randomnums = rand_sent(corpus, n)
-                for cp in corpora:
-                    if randomnums.isdisjoint(cp):
-                        flag = False
-                if flag:
-                    yield (i, get_random_sentences(corpus, randomnums))
-                    break
+        #yield (i, get_random_sentences(corpus, randomnums))
+        yield get_random_sentences(corpus, randomnums)
 
 
 if __name__ == '__main__':
