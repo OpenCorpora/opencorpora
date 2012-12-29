@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 
 import sys
 import os
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     best_score = 0
     amb = numb_amb_corpus(input_corpus)
     print amb
-    out.write(amb)
+    out.write(str(amb))
     while True:
         context_freq = context_stats(read_corpus(input_corpus))
         if fullcorp:
@@ -102,10 +102,11 @@ if __name__ == '__main__':
             f = '%s/cont/%s/icorpus.txt' % (path, n)
         else:
             f = '%s/rand/%s/icorpus.txt' % (path, n)
-        with open(f, 'w') as output:
-            output.write(input_corpus)
+        if write:
+            with open(f, 'w') as output:
+                output.write(input_corpus)
         out.write(str(amb) + '\n')
-        out.flush()
-        os.fsync(out)
+        #out.flush()
+        #os.fsync(out)
         print best_score
         i += 1
