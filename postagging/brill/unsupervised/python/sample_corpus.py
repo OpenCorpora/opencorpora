@@ -12,8 +12,14 @@ def get_first_sent(corpus, s, n):
         yield Corpus(c)
 
 
-def get_random_sentences(corpus, n):
-    return random.sample(corpus, n)
+def rand_sent(corpus, n):
+    return set(random.sample(xrange(len(corpus)), n))
+
+def get_random_sentences(corpus, nums):
+    c = []
+    for i in nums:
+        c.append(corpus.sents[i])
+    return Corpus(c)
 
 
 def get_corpora(corpus, c, n):
@@ -23,19 +29,19 @@ def get_corpora(corpus, c, n):
     """
     corpora = []
     for i in range(c):
-        randomcorp = get_random_sentences(corpus, n)
-        corpora.append(randomcorp)
+        randomnums = rand_sent(corpus, n)
+        corpora.append(randomnums)
         if i == 0:
-            yield (i, randomcorp)
+            yield (i, get_random_sentences(corpus, randomnums))
         else:
             while True:
                 flag = True
-                randomcorp = get_random_sentences(corpus, n)
+                randomnums = rand_sent(corpus, n)
                 for cp in corpora:
-                    if randomcorp.isdisjoint(cp):
+                    if randomnums.isdisjoint(cp):
                         flag = False
                 if flag:
-                    yield randomcorp
+                    yield (i, get_random_sentences(corpus, randomnums))
                     break
 
 
@@ -53,7 +59,7 @@ if __name__ == '__main__':
     #print write_corpus(inc, sys.stdout)
     for sample in get_corpora(inc, c, n):
         #outc = write_corpus(sample[1], sys.stdout)
-        outc = write_corpus(sample[1], open('rand%s.tab' % sample[0], 'w'))
+        outc = write_corpus(sample[1], open('rand%s.tab' % (sample[0] + 10), 'w'))
         #corp = open('rand%s.tab' % sample[0], 'r')
         #print numb_amb_corpus(corp.read())
     '''for i in get_first_sent(inc, c, n):
