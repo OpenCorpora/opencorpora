@@ -208,35 +208,4 @@ def scoring_function(entries, best_rules):
     return rules_scores, new_rule, best_score
 
 if __name__ == '__main__':
-    start = clock()
-    context_freq = c_get_list_words_pos(read_corpus(sys.stdin.read()))
-    #pprint(context_freq)
-    finish = clock()
-    print finish - start
-    with open('iter0.txt', 'w') as output:
-        for amb_tag in context_freq.keys():
-            for context in context_freq[amb_tag].keys():
-                if context is not 'freq':
-                    for c_variant in context_freq[amb_tag][context].keys():
-                        #print c_variant.decode('utf-8')
-                        output.write(str(amb_tag).rstrip('_') + '\t' + \
-                                     context.encode('utf-8') + '\t' + c_variant.encode('utf-8') + \
-                                    '\t' + str(context_freq[amb_tag][context][c_variant]) + '\n')
-                else:
-                    output.write(str(amb_tag).rstrip('_') + '\t' + 'freq' + \
-                                 '\t' + str(context_freq[amb_tag][context]) + '\n')
-    print(clock() - finish)
-    finish = clock()
-    scores = scores(context_freq, [])
-    print scores[1]
-    scores = scores[0]
-    print(clock() - finish)
-    finish = clock()
-    with open('iter0_scores.txt', 'w') as output:
-        for amb_tag in scores.keys():
-            for tag in scores[amb_tag].keys():
-                for context in scores[amb_tag][tag].keys():
-                    for c_variant in scores[amb_tag][tag][context].keys():
-                        output.write('\t'.join((str(scores[amb_tag][tag][context][c_variant]), \
-                                                amb_tag, tag, context, c_variant)).encode('utf-8') + '\n')
-    print(clock() - finish)
+    pass

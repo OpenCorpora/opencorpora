@@ -3,9 +3,12 @@
 import sys
 import os
 from time import clock
+from pprint import pprint
+from itertools import combinations
 
 from utils import read_corpus, write_corpus, Rule
 from rules_stat import apply_rule
+from collections import OrderedDict
 
 
 def precision(atagged, mtagged):
@@ -20,8 +23,38 @@ def precision(atagged, mtagged):
     return mistagged
 
 
+def rank_init_list(rlist):
+    ranked = dict(zip(rlist[0], range(1, (len(rlist[0]) + 1))))
+    return ranked
+
+
+def rank_rules(rules, ranked):
+    res = {}
+    i = 1
+    for r in rules[0]:
+        try:
+            res[i] = ranked[r]
+            i += 1
+        except:
+            i += 1
+    return res
+
+
+def spearman(rlist, clist):
+    init_ranks = rank_init_list(rlist)
+    s = 0.0
+    n = min(len(rlist), len(clist))
+    c_ranks = rank_rules(clist, init_ranks)
+    for i in range(1, n + 1):
+        try:
+            s += float((i - c_ranks[i]) ** 2)
+        except:
+            pass
+    return 1.0 - 6.0 * s / (float(n) * (n ** 2 - 1.0))
+
+
 if __name__ == '__main__':
-    r = open('/data/rubash/brill/1/rules.txt', 'r')
+    '''r = open('/data/rubash/brill/1/rules.txt', 'r')
     s = clock()
     inc = open('annot.opcorpora.no_ambig_but_ambig.tab', 'r').read()
     print clock() - s
@@ -29,9 +62,7 @@ if __name__ == '__main__':
     for line in r.read().split('\n')[:-1:2]:
         line = line.split()
         if len(line) > 3:
-            #print line
             rule = Rule(line[3], line[5], ' '.join(line[7:9]), line[10])
-            #print rule.display()
             inc = apply_rule(rule, inc[:])
             with open('my_annot.opcorpora.no_ambig.tab', 'w') as out:
                 out.write(inc)
@@ -42,4 +73,12 @@ if __name__ == '__main__':
     outc = read_corpus(open('my_annot.opcorpora.no_ambig.tab', 'r').read())
     print clock() - s
     inc = read_corpus(sys.stdin.read())
-    print precision(inc, outc)
+    print precision(inc, outc)'''
+    args = sys.argv[1:]
+    #TODO: не указывать все пути
+    paths = OrderedDict()
+    for arg in args:
+        paths[arg] = (open(arg, 'r').read().rstrip().split('\n')[::2])
+    for pair in combinations(paths.keys(), 2):
+        print pair
+        print spearman(*(paths[k] for k in pair))
