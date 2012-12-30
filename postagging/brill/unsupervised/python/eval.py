@@ -4,7 +4,7 @@ import sys
 import os
 from time import clock
 from pprint import pprint
-from itertools import combinations
+from itertools import combinations_with_replacement
 
 from utils import read_corpus, write_corpus, Rule
 from rules_stat import apply_rule
@@ -79,6 +79,7 @@ if __name__ == '__main__':
     paths = OrderedDict()
     for arg in args:
         paths[arg] = (open(arg, 'r').read().rstrip().split('\n')[::2])
-    for pair in combinations(paths.keys(), 2):
-        print pair
-        print spearman(*(paths[k] for k in pair))
+    for pair in combinations_with_replacement(paths.keys(), 2):
+        if len(set(pair)) > 1:
+            print pair
+            print spearman(*(paths[k] for k in pair))

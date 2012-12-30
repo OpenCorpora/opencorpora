@@ -2,7 +2,7 @@
 
 import sys
 import random
-from utils import read_corpus, write_corpus, numb_amb_corpus, Corpus
+from utils import write_corpus, numb_amb_corpus, Corpus
 
 
 def get_first_sent(corpus, s, n):
@@ -12,14 +12,24 @@ def get_first_sent(corpus, s, n):
         yield Corpus(c)
 
 
-def rand_sent(corpus, n):
-    return set(random.sample(xrange(len(corpus)), n))
+def read_corpus(f):
+    c = ['\n'.join((x, '/sent')) for x in f.split('/sent')]
+    return c
+
+def rand_sent(corpus, n, c):
+    used = []
+    for i in range(c):
+        print len(corpus)
+        nums = set(range(len(corpus))) - set(used)
+        sample = random.sample(nums, n)
+        used += sample
+        yield sample
 
 def get_random_sentences(corpus, nums):
     c = []
     for i in nums:
-        c.append(corpus.sents[i])
-    return Corpus(c)
+        c.append(corpus[i])
+    return c
 
 
 def get_corpora(corpus, c, n):
@@ -27,11 +37,12 @@ def get_corpora(corpus, c, n):
     Get c instances of Corpus() made up of n sentences.
     Returns iterator!
     """
-    corpora = []
-    for i in range(c):
-        randomnums = rand_sent(corpus, n)
+    randomnums = rand_sent(corpus, n, c)
+    i = 0
+    for nums in randomnums:
         #yield (i, get_random_sentences(corpus, randomnums))
-        yield get_random_sentences(corpus, randomnums)
+        yield (i, get_random_sentences(corpus, nums))
+        i += 1
 
 
 if __name__ == '__main__':
@@ -43,14 +54,15 @@ if __name__ == '__main__':
             n = int(args[i + 1])
         if args[i] == '-c':
             c = int(args[i + 1])
+    '''for i in rand_sent(range(245), 15, 4):
+        print i'''
     inc = sys.stdin.read()
     inc = read_corpus(inc)
+    print len(inc)
     #print write_corpus(inc, sys.stdout)
     for sample in get_corpora(inc, c, n):
         #outc = write_corpus(sample[1], sys.stdout)
-        outc = write_corpus(sample[1], open('rand%s.tab' % (sample[0] + 10), 'w'))
+        with open('rand%s.tab' % (sample[0] + 10), 'w') as out:
+            out.write('\n'.join(sample[1]))
         #corp = open('rand%s.tab' % sample[0], 'r')
         #print numb_amb_corpus(corp.read())
-    '''for i in get_first_sent(inc, c, n):
-        print write_corpus(i, sys.stdout)'''
-
