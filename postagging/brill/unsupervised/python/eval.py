@@ -24,14 +24,14 @@ def precision(atagged, mtagged):
 
 
 def rank_init_list(rlist):
-    ranked = dict(zip(rlist[0], range(1, (len(rlist[0]) + 1))))
+    ranked = dict(zip(rlist, range(1, (len(rlist) + 1))))
     return ranked
 
 
 def rank_rules(rules, ranked):
     res = {}
     i = 1
-    for r in rules[0]:
+    for r in rules:
         try:
             res[i] = ranked[r]
             i += 1
