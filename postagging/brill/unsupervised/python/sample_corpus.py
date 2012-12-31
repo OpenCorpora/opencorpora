@@ -19,7 +19,6 @@ def read_corpus(f):
 def rand_sent(corpus, n, c):
     used = []
     for i in range(c):
-        print len(corpus)
         nums = set(range(len(corpus))) - set(used)
         sample = random.sample(nums, n)
         used += sample
@@ -58,7 +57,6 @@ if __name__ == '__main__':
         print i'''
     inc = sys.stdin.read()
     inc = read_corpus(inc)
-    print len(inc)
     #print write_corpus(inc, sys.stdout)
     for sample in get_corpora(inc, c, n):
         #outc = write_corpus(sample[1], sys.stdout)

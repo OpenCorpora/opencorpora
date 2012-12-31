@@ -79,7 +79,7 @@ def apply_rule(rule, table):
             if word.isdigit():
                 word = '_N_'
             if tag_1 == rule.tagset:
-                gr_list = tokens[i].split('\t')[2:]
+                gr_list = [' '.join(t.split(' ')[2:]) for t in tokens[i].split('\t')[2:]]
                 if rule.context_type == 'previous tag':
                     if tag_2 == rule.context:
                         tokens[i] = id + '\t' + word
