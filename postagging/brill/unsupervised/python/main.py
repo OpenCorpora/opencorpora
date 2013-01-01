@@ -42,7 +42,7 @@ if __name__ == '__main__':
     best_score = 0
     amb = numb_amb_corpus(input_corpus)
     print amb
-    out.write(str(amb))
+    out.write(str(amb) + '\n')
     while True:
         context_freq = context_stats(read_corpus(input_corpus))
         if fullcorp:
@@ -65,7 +65,7 @@ if __name__ == '__main__':
                                     print amb_tag, context, c_variant, context_freq[amb_tag][context][c_variant]
                         else:
                             output.write('\t'.join((amb_tag, 'freq', str(context_freq[amb_tag][context]))) + '\n')
-        scores_rule = scoring_function(context_freq, best_rules)
+        scores_rule = scores(context_freq, best_rules)
         ss = scores_rule[0]
         best_rule = scores_rule[1]
         best_rules.append(best_rule)

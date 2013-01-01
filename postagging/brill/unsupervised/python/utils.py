@@ -328,7 +328,7 @@ class TagSet(set):
         for tag in self.set:
             pos.append(tag.getPOStag())
         if len(pos) > 1:
-            return '_'.join(sorted(pos))
+            return '_'.join(sorted(set(pos)))
             '''try:
                 return '_'.join(sorted(set(pos)))
             except:

@@ -19,9 +19,10 @@ def scores(s, best_rules):
     for atag in s.keys():
         if len(atag) > 4:
             stat = s[atag]
+            scores[atag] = {}
             vtags = atag.split('_')
             for y in vtags:
-                scores[atag] = {y: dict(zip(CONTEXT, [{} for i in range(4)]))}
+                scores[atag][y] = dict(zip(CONTEXT, [{} for i in range(4)]))
                 for ctype in CONTEXT:
                     for context in stat[ctype].keys():
                         fr = -sys.maxint
@@ -33,20 +34,24 @@ def scores(s, best_rules):
                                     relf = float(s[y]['freq']) / float(s[z]['freq']) * float(s[z][ctype][context])
                                 except:
                                     relf = 0
-                                if relf > fr:
+                                if relf >= fr:
                                     fr = relf
                                     r = z
+                                try:
+                                    w = s[z][ctype][context]
+                                except:
+                                    w = 0
                         try:
                             x = s[y][ctype][context] - float(fr)
                             scores[atag][y][ctype][context] = x
-                            if x >= bestscore and [atag, y, ctype, context] not in best_rules:
+                            if x >= bestscore and [atag, y, ctype, context] not in best_rules \
+                            and s[y][ctype][context] != w:
                                 #if context in s[atag][ctype].keys():
                                 bestscore = x
                                 #print bestscore
                                 bestrule = [atag, y, ctype, context]
                                 #print bestrule
                         except:
-                            #scores[atag][y][ctype][context] = - fr
                             pass
     return scores, bestrule, bestscore
 
