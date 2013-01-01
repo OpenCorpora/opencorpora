@@ -39,7 +39,7 @@ def scores(s, best_rules):
                         try:
                             x = s[y][ctype][context] - float(fr)
                             scores[atag][y][ctype][context] = x
-                            if x > bestscore and [atag, y, ctype, context] not in best_rules:
+                            if x >= bestscore and [atag, y, ctype, context] not in best_rules:
                                 #if context in s[atag][ctype].keys():
                                 bestscore = x
                                 #print bestscore
@@ -54,11 +54,10 @@ def scores(s, best_rules):
 def apply_rule(rule, table):
     applied = StringIO()
     for sent in split_into_sent(table):
-        sent = sent.lstrip('sent\n').rstrip('\n')
+        sent = sent.strip('\n')
         tokens = sent.split('\n')
         if len(tokens) == 0:
             continue
-        tokens.insert(0, 'sent')
         tokens.append('/sent')
         word_2, tag_2 = 'sent', 'sent'
         try:
@@ -79,12 +78,12 @@ def apply_rule(rule, table):
             if word.isdigit():
                 word = '_N_'
             if tag_1 == rule.tagset:
-                gr_list = [' '.join(t.split(' ')[2:]) for t in tokens[i].split('\t')[2:]]
+                gr_list = tokens[i].split('\t')[2:]
                 if rule.context_type == 'previous tag':
                     if tag_2 == rule.context:
                         tokens[i] = id + '\t' + word
                         for grammeme in gr_list[:]:
-                            if rule.tag not in grammeme:
+                            if rule.tag not in grammeme.split(' ')[2:]:
                                 gr_list.remove(grammeme)
                         for grammeme in gr_list:
                             tokens[i] += ('\t' + grammeme + '\t')
@@ -92,7 +91,7 @@ def apply_rule(rule, table):
                     if word_2.decode('utf-8') == rule.context:
                         tokens[i] = id_1 + '\t' + word_1
                         for grammeme in gr_list[:]:
-                            if rule.tag not in grammeme:
+                            if rule.tag not in grammeme.split(' ')[2:]:
                                 gr_list.remove(grammeme)
                         for grammeme in gr_list:
                             tokens[i] += ('\t' + grammeme + '\t')
@@ -100,7 +99,7 @@ def apply_rule(rule, table):
                     if tag == rule.context:
                         tokens[i] = id_1 + '\t' + word_1
                         for grammeme in gr_list[:]:
-                            if rule.tag not in grammeme:
+                            if rule.tag not in grammeme.split(' ')[2:]:
                                 gr_list.remove(grammeme)
                         for grammeme in gr_list:
                             tokens[i] += ('\t' + grammeme + '\t')
@@ -108,7 +107,7 @@ def apply_rule(rule, table):
                     if word.decode('utf-8') == rule.context:
                         tokens[i] = id_1 + '\t' + word_1
                         for grammeme in gr_list[:]:
-                            if rule.tag not in grammeme:
+                            if rule.tag not in grammeme.split(' ')[2:]:
                                 gr_list.remove(grammeme)
                         for grammeme in gr_list:
                             tokens[i] += ('\t' + grammeme + '\t')

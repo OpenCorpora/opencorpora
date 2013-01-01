@@ -34,7 +34,7 @@ def read_corpus(inc):
             continue
         if isinstance(sent, list) and len(sent) > 1:
             for ltoken in sent:
-                ltoken = ltoken.decode('utf-8')
+                ltoken = ltoken.decode('utf-8').rstrip()
                 t = Token(ltoken.split('\t'))
                 tokens.append(t)
         else:
@@ -65,7 +65,7 @@ def write_corpus(corpus, outstream):  # corpus is an instance of Corpus()
 
 
 def split_into_sent(text):
-    return text.split('/sent')
+    return text.split('/sent')[:-1]
 
 
 def get_pos_tags(line):
@@ -119,7 +119,7 @@ def context_stats(corpus, ignore_numbers=True):
             word_1 = '_N_'
         else:
             word_1 = tokens[0].text
-        for token in tokens[1:-1]:
+        for token in tokens[1:]:
             try:
                 if token.getPOStags() is not None:
                     tag = token.getPOStags()
@@ -291,9 +291,8 @@ class Token(tuple):
     def __init__(self, token):
         self.id = token[0]
         self.text = token[1]
-        self.l_id = []
         self.l_id = [i.split(' ')[0] for i in token[2:]]
-        self.tagset = TagSet([t.partition(' ')[2] for t in token[2:]])
+        self.tagset = TagSet([' '.join(t.split(' ')[2:]) for t in token[2:]])
 
     def gettext(self):
         return self.text
@@ -329,11 +328,12 @@ class TagSet(set):
         for tag in self.set:
             pos.append(tag.getPOStag())
         if len(pos) > 1:
-            #return '_'.join(pos)
-            try:
+            return '_'.join(sorted(pos))
+            '''try:
                 return '_'.join(sorted(set(pos)))
             except:
                 return '_'
+            '''
         else:
             return pos[0]
 
