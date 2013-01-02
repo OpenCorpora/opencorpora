@@ -46,17 +46,25 @@ void readCorpus(const string &fn, SentenceCollection &sc) {
       ss >> id >> word;
 
       set<MorphInterp> variants;
-      for (size_t i = 2; i < fields.size(); i += 2) {
+      for (size_t i = 2; i < fields.size(); i++) {
         if (0 == fields[i].size())
           continue;
 
         stringstream ss(fields[i]);
         unsigned int lemmaId;
-        ss >> lemmaId;
+        string lemma;
+        ss >> lemmaId >> lemma;
+        
+        string sgrm;
+        string t;
+        while (ss >> t) { 
+          if (sgrm.size() > 0) sgrm += " ";
+          sgrm += t; 
+        }
 
-        MorphInterp ts(lemmaId, fields[i+1]); 
+        MorphInterp ts(lemmaId, sgrm); 
         if (0 == ts.size()) {
-          cerr << "\"" << s << "\" - \"" << fields[i+1] << "\"" << fields[i+1].size() << endl;
+          cerr << "\"" << s << "\" - \"" << sgrm << "\"" << sgrm.size() << endl;
           throw;
         }
         variants.insert(ts);
@@ -67,5 +75,6 @@ void readCorpus(const string &fn, SentenceCollection &sc) {
     }
   }
 
-  sc.push_back(sent);
+  if (sent.size() > 0) 
+    sc.push_back(sent);
 }

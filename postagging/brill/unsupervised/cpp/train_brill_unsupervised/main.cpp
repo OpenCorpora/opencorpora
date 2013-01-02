@@ -6,6 +6,7 @@
 #include <set>
 #include <map>
 #include <string>
+#include <algorithm>
 
 #include "tag.h"
 #include "token.h"
@@ -65,11 +66,171 @@ int main(int argc, char **argv) {
   return 0;
 }
 
+struct Condition {
+  signed int pos;
+  TagSet value;
+
+  Condition(signed int _pos, const TagSet& _value)
+    : pos(_pos), value(_value) { }
+
+  string str() const {
+    stringstream ss;
+    ss << pos << ":" << "tag" << "=" << value.str();
+    return ss.str();
+  }
+};
+
+inline bool operator<(const Condition& a, const Condition& b) {
+  return a.str() < b.str();
+}
+
+class Context {
+  set<Condition> elements;
+
+public:
+  Context(signed int pos, const TagSet& value) {
+    elements.insert(Condition(pos, value));
+  }
+
+  string str() const {
+    stringstream ss;
+    set<Condition>::const_iterator cit = elements.begin();
+
+    while (elements.end() != cit) {
+      if (ss.str().size() > 0)
+        ss << " & ";
+      ss << cit->str();
+      cit++;
+    }
+
+    return ss.str();
+  }
+};
+
+class Rule {
+  TagSet from;
+  Tag to;
+  Context c;
+
+public:
+  Rule(const TagSet& _from, const Tag& _to, const Context& _c)
+    : from(_from), to(_to), c(_c) { }
+
+  string str() const {
+    stringstream ss;
+    ss << from.str() << " -> " << to.str() << " | " << c.str();
+    return ss.str();
+  }
+};
+
+inline bool operator<(const Rule& a, const Rule& b) {
+  return a.str() < b.str();
+}
+
+template<class T>
+struct less_by_second {
+  map<T, float>& rmap;
+  less_by_second(map<T, float>& _rmap) : rmap(_rmap) { }
+
+  bool operator()(const T& a, const T& b) const {
+    return rmap[a] < rmap[b];
+  }
+};
+
 void DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat) {
   tStat.clear();
   cerr << "1" << endl;
   UpdateCorpusStatistics(sc, tStat);
+
+  cerr << "2" << endl;
+  // Перебираем возможные варианты правил
+  map<Rule, float> rules;
+  vector<Rule> rv;
+  
+  map<TagSet, TagStat>::const_iterator cit = tStat.begin();
+  while (tStat.end() != cit) {
+    if (cit->first.size() > 1) {
+      // это омонимичный тег
+
+      map<TagSet, size_t>::const_iterator pC = cit->second.leftTag.begin();
+      while (cit->second.leftTag.end() != pC) {
+        
+        map<Tag, size_t> freq;
+        map<Tag, size_t> incontext;
+        map<Tag, float> inc2freq; // incontext[X] / freq[X];
+
+        TagSet::const_iterator pT = cit->first.begin();
+        while (cit->first.end() != pT) {
+          // pT - это неомонимичный тег, на который мы будем заменять *cit
+          TagSet tsT(*pT);
+          freq[*pT] = tStat[tsT].freq;
+
+          incontext[*pT] = tStat[tsT].leftTag[pC->first];
+
+          inc2freq[*pT] = float(incontext[*pT]) / float(freq[*pT]);
+
+          pT++;
+        }
+
+        Tag bestY;
+        float bestScore = 0;
+
+        map<Tag, size_t>::const_iterator pY = freq.begin();
+        while (freq.end() != pY) {
+          map<Tag, size_t>::const_iterator pZ = freq.begin();
+          float maxValue = 0;
+          Tag R;
+
+          while (freq.end() != pZ) {
+            if (pY->first == pZ->first) {
+              pZ++;
+              continue;
+            }
+            
+            if (inc2freq[pZ->first] > maxValue) {
+              maxValue = inc2freq[pZ->first];
+              R = pZ->first;
+            } 
  
+            pZ++;
+          }
+
+          float score = incontext[pY->first] - freq[pY->first] * maxValue;
+          //cout << "RULE: " << cit->first.str() << " -> " << pY->first.str() << " | -1:" << pC->first.str()
+          //     << " # " << score << endl;
+          if (score > bestScore) {
+            bestScore = score;
+            bestY = pY->first;
+          }
+          
+          pY++;
+        }
+
+        if (bestScore > 0) {
+          //cout << "RULE: " << cit->first.str() << " -> " << bestY.str() << " | -1:tag=" << pC->first.str()
+          //     << " # " << bestScore << endl;
+
+          Rule r(cit->first, bestY, Context(-1, pC->first)); 
+          rules[r] = bestScore;
+          rv.push_back(r);
+        }
+
+        pC++;
+      }
+
+    }
+
+    cit++;
+  }
+
+  cerr << "3" << endl;
+  less_by_second<Rule> lbs(rules);
+  sort(rv.begin(), rv.end(), lbs);
+
+  for (size_t i = 0; i < rv.size(); i++) {
+    cout << rv[i].str() << " # " << rules[rv[i]] << endl;
+  }
+
   // TODO: сделать тип struct Rule
   // TODO: сгенерировать список правил и выбрать лучшее
   // Rule bestRule; 

@@ -14,6 +14,8 @@ struct Tag {
   int v;
 
 public:
+  Tag() : v(0) { }
+
   Tag(const std::string &str) {
     if (4 != str.size()) {
       std::cerr << "Bad grammeme: \"" << str << "\" of size " << str.size() << std::endl;
@@ -46,12 +48,21 @@ inline bool operator<(const Tag& a, const Tag& b) {
   return a.v < b.v;
 }
 
+inline bool operator==(const Tag& a, const Tag& b) {
+  return a.v == b.v;
+}
+
 #define T(str) Tag(# str ) 
 
 class TagSet {
   std::set<Tag> s;
 
 public:
+
+  typedef std::set<Tag>::iterator const_iterator;
+  inline const_iterator begin() const { return s.begin(); }
+  inline const_iterator end() const { return s.end(); }
+
   TagSet(const std::string &str) {
     std::vector<std::string> v;
     split(str, ' ', v);
@@ -59,6 +70,10 @@ public:
       Tag t(v[i]);
       s.insert(t);
     }    
+  }
+
+  TagSet(const Tag &t) {
+    s.insert(t);
   }
 
   bool hasTag(const Tag t) {
