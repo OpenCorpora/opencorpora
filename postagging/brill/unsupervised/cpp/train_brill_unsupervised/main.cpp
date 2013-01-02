@@ -133,9 +133,52 @@ struct less_by_second {
   less_by_second(map<T, float>& _rmap) : rmap(_rmap) { }
 
   bool operator()(const T& a, const T& b) const {
-    return rmap[a] < rmap[b];
+    return rmap[a] > rmap[b];
   }
 };
+
+//void searchForRules(const TagSet& H, const map<TagSet, TagStat>& tStat, 
+
+float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incontext, const map<Tag, float>& inc2freq, Tag &bestY) {
+
+  //Tag bestY;
+  float bestScore = 0;
+
+  map<Tag, size_t>::const_iterator pY = freq.begin();
+  while (freq.end() != pY) {
+    map<Tag, size_t>::const_iterator pZ = freq.begin();
+    float maxValue = 0;
+    Tag R;
+
+    while (freq.end() != pZ) {
+      if (pY->first == pZ->first) {
+        pZ++;
+        continue;
+      }
+      
+      map<Tag, float>::const_iterator i2f_it = inc2freq.find(pZ->first);      
+      if (i2f_it->second > maxValue) {
+        maxValue = i2f_it->second;
+        R = pZ->first;
+      } 
+ 
+       pZ++;
+    }
+
+    map<Tag, size_t>::const_iterator f_it = freq.find(pY->first);
+    map<Tag, size_t>::const_iterator inc_it = incontext.find(pY->first);
+    float score = inc_it->second - f_it->second * maxValue;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestY = pY->first;
+    }
+          
+    pY++;
+  }
+
+  return bestScore;
+}
 
 void DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat) {
   tStat.clear();
@@ -145,6 +188,7 @@ void DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat) {
   cerr << "2" << endl;
   // Перебираем возможные варианты правил
   map<Rule, float> rules;
+  map<Rule, string> details;
   vector<Rule> rv;
   
   map<TagSet, TagStat>::const_iterator cit = tStat.begin();
@@ -152,13 +196,14 @@ void DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat) {
     if (cit->first.size() > 1) {
       // это омонимичный тег
 
+      // LEFT
       map<TagSet, size_t>::const_iterator pC = cit->second.leftTag.begin();
       while (cit->second.leftTag.end() != pC) {
-        
         map<Tag, size_t> freq;
         map<Tag, size_t> incontext;
         map<Tag, float> inc2freq; // incontext[X] / freq[X];
 
+        stringstream dss;
         TagSet::const_iterator pT = cit->first.begin();
         while (cit->first.end() != pT) {
           // pT - это неомонимичный тег, на который мы будем заменять *cit
@@ -166,52 +211,57 @@ void DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat) {
           freq[*pT] = tStat[tsT].freq;
 
           incontext[*pT] = tStat[tsT].leftTag[pC->first];
-
+          if (dss.str().size() > 0) dss << " ";
+          dss << pT->str() << ":" << freq[*pT] << "/" << incontext[*pT];
           inc2freq[*pT] = float(incontext[*pT]) / float(freq[*pT]);
 
           pT++;
         }
 
         Tag bestY;
-        float bestScore = 0;
-
-        map<Tag, size_t>::const_iterator pY = freq.begin();
-        while (freq.end() != pY) {
-          map<Tag, size_t>::const_iterator pZ = freq.begin();
-          float maxValue = 0;
-          Tag R;
-
-          while (freq.end() != pZ) {
-            if (pY->first == pZ->first) {
-              pZ++;
-              continue;
-            }
-            
-            if (inc2freq[pZ->first] > maxValue) {
-              maxValue = inc2freq[pZ->first];
-              R = pZ->first;
-            } 
- 
-            pZ++;
-          }
-
-          float score = incontext[pY->first] - freq[pY->first] * maxValue;
-          //cout << "RULE: " << cit->first.str() << " -> " << pY->first.str() << " | -1:" << pC->first.str()
-          //     << " # " << score << endl;
-          if (score > bestScore) {
-            bestScore = score;
-            bestY = pY->first;
-          }
-          
-          pY++;
-        }
-
+        float bestScore = constructRule(freq, incontext, inc2freq, bestY);
         if (bestScore > 0) {
-          //cout << "RULE: " << cit->first.str() << " -> " << bestY.str() << " | -1:tag=" << pC->first.str()
-          //     << " # " << bestScore << endl;
-
           Rule r(cit->first, bestY, Context(-1, pC->first)); 
           rules[r] = bestScore;
+          map<TagSet, size_t>::const_iterator i = cit->second.leftTag.find(pC->first);
+          stringstream ss; ss << tStat[cit->first].freq << "/" << i->second << " : " << dss.str();
+          details[r] = ss.str();
+          rv.push_back(r);
+        }
+
+        pC++;
+      }
+
+      // RIGHT
+      pC = cit->second.rightTag.begin();
+      while (cit->second.rightTag.end() != pC) {
+        map<Tag, size_t> freq;
+        map<Tag, size_t> incontext;
+        map<Tag, float> inc2freq; // incontext[X] / freq[X];
+
+        stringstream dss;
+        TagSet::const_iterator pT = cit->first.begin();
+        while (cit->first.end() != pT) {
+          // pT - это неомонимичный тег, на который мы будем заменять *cit
+          TagSet tsT(*pT);
+          freq[*pT] = tStat[tsT].freq;
+
+          incontext[*pT] = tStat[tsT].rightTag[pC->first];
+          if (dss.str().size() > 0) dss << " ";
+          dss << pT->str() << ":" << freq[*pT] << "/" << incontext[*pT];   
+          inc2freq[*pT] = float(incontext[*pT]) / float(freq[*pT]);
+
+          pT++;
+        }
+
+        Tag bestY;
+        float bestScore = constructRule(freq, incontext, inc2freq, bestY);
+        if (bestScore > 0) {
+          Rule r(cit->first, bestY, Context(+1, pC->first)); 
+          rules[r] = bestScore;
+          map<TagSet, size_t>::const_iterator i = cit->second.rightTag.find(pC->first);
+          stringstream ss; ss << tStat[cit->first].freq << "/" << i->second << " : " << dss.str();
+          details[r] = ss.str();
           rv.push_back(r);
         }
 
@@ -228,7 +278,7 @@ void DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat) {
   sort(rv.begin(), rv.end(), lbs);
 
   for (size_t i = 0; i < rv.size(); i++) {
-    cout << rv[i].str() << " # " << rules[rv[i]] << endl;
+    cout << rv[i].str() << " # " << rules[rv[i]] << " " << details[rv[i]] << endl;
   }
 
   // TODO: сделать тип struct Rule
