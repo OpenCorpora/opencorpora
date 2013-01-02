@@ -8,7 +8,7 @@ LDFLAGS=`pkg-config --libs glibmm-2.4`
 all: lemmatizer
 
 lemmatizer: main.o corpora_io.o dict.o
-	$(LD) main.o corpora_io.o $(LDFLAGS) -o lemmatizer
+	$(LD) main.o corpora_io.o dict.o $(LDFLAGS) -o lemmatizer
 
 main.o: main.cpp $(INC_PATH)tag.h $(INC_PATH)token.h $(INC_PATH)utils.h $(INC_PATH)sentence.h $(INC_PATH)corpora_io.h $(INC_PATH)dict.h
 	$(CC) $(CFLAGS) main.cpp
