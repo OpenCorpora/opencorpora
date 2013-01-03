@@ -39,6 +39,21 @@ public:
     return var;
   }
 
+  /*void setMorph(const std::set<MorphInterp>& mi) {
+    var = mi;
+  }*/
+
+  void deleteAllButThis(Tag t) {
+    std::set<MorphInterp>::iterator it = var.begin();
+    while (var.end() != it) {
+      if (! it->hasTag(t)) {
+        var.erase(it);
+        it = var.begin();
+      } else
+          it++;
+    }
+  }
+
   std::string str() const {
     std::stringstream ss;
     ss << text << '\t';

@@ -76,7 +76,7 @@ public:
     s.insert(t);
   }
 
-  bool hasTag(const Tag t) {
+  bool hasTag(const Tag t) const {
     //std::cerr << "TagSet(\"" << str() << "\").hasTag(\"" << t.str() << "\")" << std::endl;
     if (s.end() == s.find(t))
       return false;
@@ -117,6 +117,20 @@ public:
 
 inline bool operator<(const TagSet& a, const TagSet& b) {
   return a.str() < b.str();
+}
+
+inline bool operator==(const TagSet& a, const TagSet& b) {
+  if (a.size() != b.size())
+    return false;
+
+  TagSet::const_iterator cit = a.begin();
+  while (a.end() != cit) {
+    if (!b.hasTag(*cit))
+      return false;
+    cit++;
+  }
+
+  return true;
 }
 
 class MorphInterp : public TagSet {

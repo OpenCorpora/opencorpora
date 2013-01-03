@@ -1,7 +1,7 @@
 CC=g++
 INC_PATH=../include/
 LIB_PATH=../lib/
-CFLAGS=-c -g -Wall -I$(INC_PATH)
+CFLAGS=-c -Wall -I$(INC_PATH)
 
 all: train
 

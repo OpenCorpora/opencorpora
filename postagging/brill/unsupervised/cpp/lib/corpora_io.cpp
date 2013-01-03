@@ -30,14 +30,18 @@ void readCorpus(const string &fn, SentenceCollection &sc) {
     if ("sent" == s) {
       Token t("SentBegin", makeVariants("SBEG"));
       sent.push_back(t);
+      continue;
     } else if ("/sent" == s) {
       Token t("SentEnd", makeVariants("SEND"));
       sent.push_back(t);
       sc.push_back(sent);
       sent.clear();
+      continue;
     } else {
       vector<string> fields;
       split(s, '\t', fields);
+      if (fields.size() < 2) 
+        continue;      
 
       int id;
       string word;

@@ -40,12 +40,16 @@ public:
     return v.size();
   }
 
-  const Token& getToken(size_t pos) const {
+  inline const Token& getToken(size_t pos) const {
     return v[pos];
   }
 
   const Token& getToken(size_t pos, int &id) const {
     id = vId[pos];
+    return v[pos];
+  }
+
+  inline Token& getNonConstToken(size_t pos) {
     return v[pos];
   }
 
