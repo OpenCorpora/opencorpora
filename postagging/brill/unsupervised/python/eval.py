@@ -36,6 +36,7 @@ def rank_rules(rules, ranked):
             res[i] = ranked[r]
             i += 1
         except:
+            res[i] = len(ranked) + 1
             i += 1
     return res
 
@@ -54,31 +55,11 @@ def spearman(rlist, clist):
 
 
 if __name__ == '__main__':
-    '''r = open('/data/rubash/brill/1/rules.txt', 'r')
-    s = clock()
-    inc = open('annot.opcorpora.no_ambig_but_ambig.tab', 'r').read()
-    print clock() - s
-    s = clock()
-    for line in r.read().split('\n')[:-1:2]:
-        line = line.split()
-        if len(line) > 3:
-            rule = Rule(line[3], line[5], ' '.join(line[7:9]), line[10])
-            inc = apply_rule(rule, inc[:])
-            with open('my_annot.opcorpora.no_ambig.tab', 'w') as out:
-                out.write(inc)
-                out.flush()
-                os.fsync(out)
-        else:
-            break
-    outc = read_corpus(open('my_annot.opcorpora.no_ambig.tab', 'r').read())
-    print clock() - s
-    inc = read_corpus(sys.stdin.read())
-    print precision(inc, outc)'''
     args = sys.argv[1:]
     #TODO: не указывать все пути
     paths = OrderedDict()
     for arg in args:
-        paths[arg] = (open(arg, 'r').read().rstrip().split('\n')[::2])
+        paths[arg] = (open(arg, 'r').read().rstrip().split('\n')[1::2])
     for pair in combinations_with_replacement(paths.keys(), 2):
         if len(set(pair)) > 1:
             print pair

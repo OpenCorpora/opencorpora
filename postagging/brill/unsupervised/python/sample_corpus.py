@@ -13,7 +13,7 @@ def get_first_sent(corpus, s, n):
 
 
 def read_corpus(f):
-    c = ['\n'.join((x, '/sent')) for x in f.split('/sent')]
+    c = [''.join((x, '/sent')) for x in f.split('/sent')]
     return c
 
 def rand_sent(corpus, n, c):
@@ -61,6 +61,6 @@ if __name__ == '__main__':
     for sample in get_corpora(inc, c, n):
         #outc = write_corpus(sample[1], sys.stdout)
         with open('rand%s.tab' % (sample[0] + 10), 'w') as out:
-            out.write('\n'.join(sample[1]))
+            out.write(''.join(sample[1]))
         #corp = open('rand%s.tab' % sample[0], 'r')
         #print numb_amb_corpus(corp.read())

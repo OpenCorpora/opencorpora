@@ -5,7 +5,8 @@ from time import clock
 from cStringIO import StringIO
 from pprint import pprint
 
-from utils import split_into_sent, context_stats, read_corpus, get_pos_tags
+from utils import split_into_sent, context_stats, read_corpus, get_pos_tags, \
+write_corpus, Rule
 
 CONTEXT = ('w-1', 't-1', 'w+1', 't+1')
 
@@ -122,6 +123,41 @@ def apply_rule(rule, table):
     return applied.getvalue()
 
 
+def apply(rule, corpus): #rule is an instance of Rule, corpus is an instance of Corpus
+    for s in corpus.sents:
+        word_2, tag_2 = 'sent', 'sent'
+        if len(s) > 2:
+            id_1, word_1, tag_1 = s[1].id, s[1].text, s[1].getPOStags()
+            if word_1.isdigit():
+                word_1 = '_N_'
+            i = 1
+            for token in s[1:-1]:
+                tag = s[i + 1].getPOStags()
+                id = s[i + 1].id
+                try:
+                    word = s[i + 1].text
+                except:
+                    print tokens[i - 1]
+                    raise Exception
+                if word.isdigit():
+                    word = '_N_'
+                if tag_1 == rule.tagset:
+                    if rule.context_type == 'previous tag':
+                        if tag_2 == rule.context:
+                            token.disambiguate(rule.tag)
+                    if rule.context_type == 'previous word':
+                        if word_2 == rule.context:
+                            token.disambiguate(rule.tag)
+                    if rule.context_type == 'next tag':
+                        if tag == rule.context:
+                            token.disambiguate(rule.tag)
+                    if rule.context_type == 'next word':
+                        if word == rule.context:
+                            token.disambiguate(rule.tag)
+                tag_2, tag_1, word_2, word_1, id_1 = tag_1, tag, word_1, word, id
+                i += 1
+
+
 def get_unamb_tags(entries):
     context = ('w-1', 't-1', 'w+1', 't+1')
     for key in entries:
@@ -212,4 +248,7 @@ def scoring_function(entries, best_rules):
     return rules_scores, new_rule, best_score
 
 if __name__ == '__main__':
-    pass
+    inc = read_corpus(sys.stdin.read())
+    r = Rule(*['ADJF_NOUN', 'NOUN', 't+1', 'ADJF'])
+    apply(r, inc)
+    write_corpus(inc, sys.stdout)

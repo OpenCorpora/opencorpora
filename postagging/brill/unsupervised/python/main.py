@@ -2,8 +2,9 @@
 
 import sys
 import os
-from utils import context_stats, Rule, numb_amb_corpus, get_list_amb, read_corpus
-from rules_stat import scoring_function, apply_rule, scores
+from utils import context_stats, Rule, numb_amb_corpus, get_list_amb, read_corpus, \
+write_corpus
+from rules_stat import scoring_function, apply_rule, scores, apply
 
 
 if __name__ == '__main__':
@@ -36,15 +37,15 @@ if __name__ == '__main__':
         out = open('%s/cont/%s/rules.txt' % (path, n), 'w')
     else:
         out = open('%s/rand/%s/rules.txt' % (path, n), 'w')
-    input_corpus = sys.stdin.read()
     i = 0
     best_rules = []
     best_score = 0
-    amb = numb_amb_corpus(input_corpus)
+    inc = read_corpus(sys.stdin.read())
+    amb = numb_amb_corpus(inc)
     print amb
     out.write(str(amb) + '\n')
     while True:
-        context_freq = context_stats(read_corpus(input_corpus))
+        context_freq = context_stats(inc)
         if fullcorp:
             f = '%s/full/iter%s.txt' % (path, i)
         if continuous:
@@ -87,8 +88,8 @@ if __name__ == '__main__':
                         for context in ss[amb_tag][tag].keys():
                             for c_variant in ss[amb_tag][tag][context].keys():
                                 output.write('\t'.join((str(ss[amb_tag][tag][context][c_variant]), amb_tag, tag, context, c_variant)).encode('utf-8') + '\n')
-        input_corpus = apply_rule(rule, input_corpus[:])
-        amb = numb_amb_corpus(input_corpus)
+        apply(rule, inc)
+        amb = numb_amb_corpus(inc)
         try:
             out.write(rule.display() + '\n')
         except:
@@ -96,7 +97,7 @@ if __name__ == '__main__':
         if apply_all:
             for rule in best_rules[:-1]:
                 r = Rule(*rule)
-                input_corpus = apply_rule(r, input_corpus[:])
+                apply(r, inc)
         if fullcorp:
             f = '%s/full/icorpus.txt' % path
         if continuous:
@@ -104,8 +105,9 @@ if __name__ == '__main__':
         else:
             f = '%s/rand/%s/icorpus.txt' % (path, n)
         if write:
-            with open(f, 'w') as output:
-                output.write(input_corpus)
+            output = open(f, 'w')
+            write_corpus(inc, output)
+            output.close()
         out.write(str(amb) + '\n')
         #out.flush()
         #os.fsync(out)

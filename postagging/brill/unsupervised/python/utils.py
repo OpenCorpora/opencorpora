@@ -35,8 +35,11 @@ def read_corpus(inc):
         if isinstance(sent, list) and len(sent) > 1:
             for ltoken in sent:
                 ltoken = ltoken.decode('utf-8').rstrip()
-                t = Token(ltoken.split('\t'))
-                tokens.append(t)
+                try:
+                    t = Token(ltoken.split('\t'))
+                    tokens.append(t)
+                except:
+                    print ltoken
         else:
             ltoken = sent[0].decode('utf-8')
             try:
@@ -54,7 +57,7 @@ def read_corpus(inc):
 
 
 def write_corpus(corpus, outstream):  # corpus is an instance of Corpus()
-    for sent in corpus:
+    for sent in corpus.sents:
         outstream.write('sent\n')
         for token in sent:
             try:
@@ -219,24 +222,20 @@ def numb_amb_tokens(tokens):
     n = 0
     posamb = 0
     amb = 0
-    for token in tokens[:]:
-        try:
-            tvars = len(token[1].split('_'))
-            if tvars > 1:
-                posamb += 1
-            amb += tvars
-            n += 1
-        except:
-            print token
+    for token in tokens:
+        if token.has_ambig():
+            #print token.display()
+            posamb += 1
+        amb += len(token.tagset.getPOStag().split('_'))
+        n += 1
     return posamb, n, amb
 
 
 def numb_amb_corpus(corpus, numb_amb=0, numb_tokens=0, counter=numb_amb_tokens):
     tvars = 0
-    for sent in split_into_sent(corpus):
-        tokens = process_table(sent)
-        if counter is not None and tokens != []:
-            counts = counter(tokens)
+    for sent in corpus:
+        if counter is not None and sent != []:
+            counts = counter(sent)
             numb_amb += counts[0]
             numb_tokens += counts[1]
             tvars += counts[2]
@@ -292,6 +291,7 @@ class Token(tuple):
         self.id = token[0]
         self.text = token[1]
         self.l_id = [i.split(' ')[0] for i in token[2:]]
+        self.ls = [i.split(' ')[1] for i in token[2:]]
         self.tagset = TagSet([' '.join(t.split(' ')[2:]) for t in token[2:]])
 
     def gettext(self):
@@ -304,13 +304,16 @@ class Token(tuple):
         return self.tagset.getPOStag()
 
     def display(self):
-        return '\t'.join((self.id, self.text, self.tagset.display(self.l_id)))
+        return '\t'.join((self.id, self.text, self.tagset.display(self.l_id, self.ls)))
 
     def has_ambig(self):
-        if len(self.gettagset().getPOStag()) > 4:
+        if len(self.tagset.getPOStag()) > 4:
             return True
         else:
             return False
+    
+    def disambiguate(self, pos):
+        self.tagset.disambiguate(pos)
 
 
 class TagSet(set):
@@ -320,8 +323,8 @@ class TagSet(set):
         for tag in tags:
             self.set.append(Tag(tag))
 
-    def display(self, l_id):
-        return '\t'.join((' '.join(x) for x in zip(l_id, (t.text for t in self.set))))
+    def display(self, l_id, ls):
+        return '\t'.join((' '.join(x) for x in zip(l_id, ls, (t.text for t in self.set))))
 
     def getPOStag(self):
         pos = []
@@ -335,7 +338,19 @@ class TagSet(set):
                 return '_'
             '''
         else:
-            return pos[0]
+            try:
+                return pos[0]
+            except:
+                #print self.set
+                return '0'
+
+    def disambiguate(self, pos):
+        result = []
+        for tag in self.set:
+            if pos in tag.text:
+                pass
+            else:
+                self.set.remove(tag)
 
     def hasPOSamb(self):
         if len(self.getPOStag()) > 4:
