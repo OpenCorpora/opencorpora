@@ -15,6 +15,8 @@
 
 using namespace std;
 
+#define APPLY_WITH_IDX
+
 string toString(const map<TagSet, size_t> &m);
 string toString(const map<string, size_t> &m);
 
@@ -25,6 +27,17 @@ struct TagStat {
   map<string, size_t> leftWord;
   map<string, size_t> rightWord;
 
+  TagStat() : freq(0) {
+#ifdef APPLY_WITH_IDX
+    idx.reserve(1000);
+#endif
+  }
+
+#ifdef APPLY_WITH_IDX
+  // index
+  vector< pair<size_t, size_t> > idx;
+#endif
+
   string str() const;
 };
 
@@ -32,7 +45,7 @@ class Rule;
 
 void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &tStat);
 float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule>& knownRules); 
-void ApplyRule(SentenceCollection &sc, const Rule &rule);
+void ApplyRule(SentenceCollection &sc, const Rule &rule, const map<TagSet, TagStat> &tStat);
 
 string PrintRules(const list<Rule>& lr);
 string PrintSC(const SentenceCollection &sc);
@@ -45,14 +58,18 @@ int main(int argc, char **argv) {
     return -1;
   }
 
+#ifdef APPLY_WITH_IDX
+  cerr << "# APPLY_WITH_IDX defined" << endl;
+#endif
+
   for (int i = 1; i < argc; i++) {
     SentenceCollection originalCorpus;
     SentenceCollection currentCorpus;
 
     tagStat.clear();
 
-    cout << argv[i] << endl;
     readCorpus(argv[i], originalCorpus);
+    cout << argv[i] << endl;
 
     currentCorpus = originalCorpus;
     list<Rule> rules;
@@ -430,7 +447,7 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
   if (rv.size() > 0) {
     cerr << rv[0].str() << " # " << rules[rv[0]] << endl;
 
-    ApplyRule(sc, rv[0]);
+    ApplyRule(sc, rv[0], tStat);
     knownRules.push_back(rv[0]);
     return rules[rv[0]];
   }
@@ -449,7 +466,20 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
  
 }
 
-void ApplyRule(SentenceCollection &sc, const Rule &rule) {
+void ApplyRule(SentenceCollection &sc, const Rule &rule, const map<TagSet, TagStat> &tStat) {
+#ifdef APPLY_WITH_IDX
+  map<TagSet, TagStat>::const_iterator cit = tStat.find(rule.from);
+  if (tStat.end() == cit) throw;
+  const TagStat& r = cit->second;
+
+  for (size_t i = 0; i < r.idx.size(); ++i) {
+    Sentence &rs = sc[r.idx[i].first];
+
+    if (rule.c.match(rs, r.idx[i].second)) {
+      rs.getNonConstToken(r.idx[i].second).deleteAllButThis(rule.to);
+    }
+  }
+#else
   SentenceCollection::iterator it = sc.begin();
   while (sc.end() != it) {
     for (size_t i = 0; i < it->size()-1; i++) {
@@ -462,24 +492,42 @@ void ApplyRule(SentenceCollection &sc, const Rule &rule) {
     }
     it++;
   }
+#endif
 }
 
 void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &tStat) {
-  SentenceCollection::const_iterator cit = sc.begin();
-  while (sc.end() != cit) {
-    for (size_t i = 1; i < cit->size()-1; i++) {
-      TagSet POST = cit->getToken(i).getPOST();
+  //SentenceCollection::const_iterator cit = sc.begin();
+  //  while (sc.end() != cit) {
+  for (size_t sid = 0; sid < sc.size(); sid++) {
+    const Sentence& rsent = sc[sid];
+
+    for (size_t i = 1; i < sc[sid].size()-1; i++) {
+      TagSet POST = rsent.getToken(i).getPOST();
+
       tStat[POST].freq += 1;
       TagStat& r = tStat[POST];
-      r.leftTag[cit->getToken(i-1).getPOST()] += 1;
-      r.rightTag[cit->getToken(i+1).getPOST()] += 1;
-      r.leftWord[cit->getToken(i-1).getText()] += 1;
-      r.rightWord[cit->getToken(i+1).getText()] += 1;
+
+      r.leftTag[rsent.getToken(i-1).getPOST()] += 1;
+      r.rightTag[rsent.getToken(i+1).getPOST()] += 1;
+      r.leftWord[rsent.getToken(i-1).getText()] += 1;
+      r.rightWord[rsent.getToken(i+1).getText()] += 1;
+
+#ifdef APPLY_WITH_IDX
+      if (POST.size() > 1) {
+        // строим индексы только для омонимичных тегов
+        pair<size_t, size_t> p;
+        p.first = sid;
+        p.second = i;
+        r.idx.push_back(p);
+      }
+#endif
     }
     
-    cit++;
+    //cit++;
   }
+
   return;
+
   map<TagSet, TagStat>::const_iterator mcit = tStat.begin();
   while (tStat.end() != mcit) {
     cout << mcit->first.str() << '\t' << mcit->second.str() << endl;
