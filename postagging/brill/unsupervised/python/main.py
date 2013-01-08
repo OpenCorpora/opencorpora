@@ -70,7 +70,11 @@ if __name__ == '__main__':
         best_rule = scores_rule[1]
         best_rules.append(best_rule)
         best_score = scores_rule[2]
+        applied = scores_rule[3]
         if best_score < 0 or best_rule == []:
+            output = open('%s/rand/%s/icorpus.txt', 'w')
+            write_corpus(inc, output)
+            output.close()
             out.close()
             break
         rule = Rule(*best_rule)
@@ -107,7 +111,7 @@ if __name__ == '__main__':
             output = open(f, 'w')
             write_corpus(inc, output)
             output.close()
-        out.write(' '.join((str(best_score), str(amb))) + '\n')
+        out.write('score=%s applied=%s\n' % (str(best_score), applied))
         print rule.display()
         #out.flush()
         #os.fsync(out)

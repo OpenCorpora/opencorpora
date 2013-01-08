@@ -110,6 +110,7 @@ def context_stats(corpus, ignore_numbers=True):
             word_1 = '_N_'
         else:
             word_1 = tokens[0].text
+        i = 1
         for token in tokens[1:]:
             try:
                 if token.getPOStags() is not None:
@@ -136,6 +137,7 @@ def context_stats(corpus, ignore_numbers=True):
                 tag_entry.upfreq()
                 result_dict[tag_1] = tag_entry
             tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
+            i += 1
     stats = {}
     for tag in result_dict.keys():
         stats[tag] = result_dict[tag].stat

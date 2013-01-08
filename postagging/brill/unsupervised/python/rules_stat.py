@@ -47,14 +47,12 @@ def scores(s, best_rules):
                             scores[atag][y][ctype][context] = x
                             if x >= bestscore and s[y][ctype][context] != w:
                             #and [atag, y, ctype, context] not in best_rules 
-                                #if context in s[atag][ctype].keys():
                                 bestscore = x
-                                #print bestscore
                                 bestrule = [atag, y, ctype, context]
-                                #print bestrule
+                                a = stat[ctype][context]
                         except:
                             pass
-    return scores, bestrule, bestscore
+    return scores, bestrule, bestscore, a
 
 
 def apply_rule(rule, table):
@@ -123,39 +121,49 @@ def apply_rule(rule, table):
     return applied.getvalue()
 
 
-def apply(rule, corpus): #rule is an instance of Rule, corpus is an instance of Corpus
-    for s in corpus.sents:
+def apply(rule, corpus, ignore_numbers=True): #rule is an instance of Rule, corpus is an instance of Corpus
+    for s in corpus:
         word_2, tag_2 = 'sent', 'sent'
-        if len(s) > 2:
-            id_1, word_1, tag_1 = s[1].id, s[1].text, s[1].getPOStags()
-            if word_1.isdigit():
-                word_1 = '_N_'
-            i = 1
-            for token in s[1:-1]:
+        try:
+            if s[0].getPOStags() is not None:
+                tag_1 = s[0].getPOStags()
+            else:
+                continue
+        except:
+            continue
+        id_1, word_1 = s[0].id, s[0].text
+        if word_1.isdigit() and ignore_numbers:
+            word_1 = '_N_'
+        i = 0
+        for token in s:
+            try:
                 tag = s[i + 1].getPOStags()
                 id = s[i + 1].id
-                try:
-                    word = s[i + 1].text
-                except:
-                    print tokens[i - 1]
-                    raise Exception
-                if word.isdigit():
+                word = s[i + 1].text
+                if word.isdigit() and ignore_numbers:
                     word = '_N_'
-                if tag_1 == rule.tagset:
-                    if rule.context_type == 't-1':
-                        if tag_2 == rule.context:
-                            token.disambiguate(rule.tag)
-                    if rule.context_type == 'w-1':
-                        if word_2 == rule.context:
-                            token.disambiguate(rule.tag)
-                    if rule.context_type == 't+1':
-                        if tag == rule.context:
-                            token.disambiguate(rule.tag)
-                    if rule.context_type == 'w+1':
-                        if word == rule.context:
-                            token.disambiguate(rule.tag)
-                tag_2, tag_1, word_2, word_1, id_1 = tag_1, tag, word_1, word, id
-                i += 1
+            except:
+                tag = 'sent'
+                id = '0'
+                word = 'sent'
+            if word.isdigit():
+                word = '_N_'
+            if tag_1 == rule.tagset:
+                #print tag_1, tag
+                if rule.context_type == 't-1':
+                    if tag_2 == rule.context:
+                        token.disambiguate(rule.tag)
+                if rule.context_type == 'w-1':
+                    if word_2 == rule.context:
+                        token.disambiguate(rule.tag)
+                if rule.context_type == 't+1':
+                    if tag == rule.context:
+                        token.disambiguate(rule.tag)
+                if rule.context_type == 'w+1':
+                    if word == rule.context:
+                        token.disambiguate(rule.tag)
+            tag_2, tag_1, word_2, word_1, id_1 = tag_1, tag, word_1, word, id
+            i += 1
 
 
 def get_unamb_tags(entries):
