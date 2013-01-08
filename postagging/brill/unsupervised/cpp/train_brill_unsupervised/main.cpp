@@ -16,6 +16,7 @@
 using namespace std;
 
 #define APPLY_WITH_IDX
+#define OPT_SKIP_LOWSCORE_RULES
 
 string toString(const map<TagSet, size_t> &m);
 string toString(const map<string, size_t> &m);
@@ -24,12 +25,14 @@ struct TagStat {
   size_t freq;
   map<TagSet, size_t> leftTag;
   map<TagSet, size_t> rightTag;
+
+  bool needsUpdate; // word counts and ind need update
   map<string, size_t> leftWord;
   map<string, size_t> rightWord;
 
-  TagStat() : freq(0) {
+  TagStat() : freq(0), needsUpdate(true) {
 #ifdef APPLY_WITH_IDX
-    idx.reserve(1000);
+    idx.reserve(10000);
 #endif
   }
 
@@ -45,12 +48,12 @@ class Rule;
 
 void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &tStat);
 float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule>& knownRules); 
-void ApplyRule(SentenceCollection &sc, const Rule &rule, const map<TagSet, TagStat> &tStat);
+size_t ApplyRule(SentenceCollection &sc, const Rule &rule, map<TagSet, TagStat> &tStat);
 
 string PrintRules(const list<Rule>& lr);
 string PrintSC(const SentenceCollection &sc);
 
-map<TagSet, TagStat> tagStat;
+//map<TagSet, TagStat> tagStat;
 
 int main(int argc, char **argv) {
   if (argc <= 1) {
@@ -65,8 +68,9 @@ int main(int argc, char **argv) {
   for (int i = 1; i < argc; i++) {
     SentenceCollection originalCorpus;
     SentenceCollection currentCorpus;
+    map<TagSet, TagStat> tagStat;
 
-    tagStat.clear();
+    //tagStat.clear();
 
     readCorpus(argv[i], originalCorpus);
     cout << argv[i] << endl;
@@ -191,6 +195,7 @@ struct Rule {
   TagSet from;
   Tag to;
   Context c;
+  string comments;
 
 public:
   Rule(const TagSet& _from, const Tag& _to, const Context& _c)
@@ -199,7 +204,15 @@ public:
   string str() const {
     stringstream ss;
     ss << from.str() << " -> " << to.str() << " | " << c.str();
+    if (comments.size() > 0)
+      ss << " # " << comments;
     return ss.str();
+  }
+
+  void add_comment(const string &s) {
+    if (comments.size() > 0)
+      comments += "; ";
+    comments += s;
   }
 };
 
@@ -238,6 +251,14 @@ float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incont
 
   map<Tag, size_t>::const_iterator pY = freq.begin();
   while (freq.end() != pY) {
+    map<Tag, size_t>::const_iterator inc_it = incontext.find(pY->first);
+
+#ifdef OPT_SKIP_LOWSCORE_RULES
+    if (inc_it->second < bestScore) { pY++; continue; }
+#endif
+    // нет смысла досчитывать, т.к. score = inc_it->second - (что-то там)
+    // и, следовательно, больше уже не станет
+
     map<Tag, size_t>::const_iterator pZ = freq.begin();
     float maxValue = 0;
     Tag R;
@@ -254,11 +275,11 @@ float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incont
         R = pZ->first;
       } 
  
-       pZ++;
+      pZ++;
     }
 
     map<Tag, size_t>::const_iterator f_it = freq.find(pY->first);
-    map<Tag, size_t>::const_iterator inc_it = incontext.find(pY->first);
+    //map<Tag, size_t>::const_iterator inc_it = incontext.find(pY->first);
     float score = inc_it->second - f_it->second * maxValue;
 
     if (score > bestScore) {
@@ -273,7 +294,7 @@ float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incont
 }
 
 float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> &knownRules) {
-  tStat.clear();
+  //tStat.clear();
   //cerr << "1" << endl;
   UpdateCorpusStatistics(sc, tStat);
 
@@ -282,10 +303,11 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
   map<Rule, float> rules;
   //map<Rule, string> details;
   vector<Rule> rv;
+  float fBestScore = 0;
   
   map<TagSet, TagStat>::const_iterator cit = tStat.begin();
   while (tStat.end() != cit) {
-    if (cit->first.size() > 1) {
+    if (cit->first.size() > 1 /*&& cit->second.freq > 0*/) {
       // это омонимичный тег
 
       // LEFT
@@ -294,6 +316,7 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
         map<Tag, size_t> freq;
         map<Tag, size_t> incontext;
         map<Tag, float> inc2freq; // incontext[X] / freq[X];
+        size_t maxIncontext = 0;
 
         //stringstream dss;
         TagSet::const_iterator pT = cit->first.begin();
@@ -302,19 +325,25 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
           TagSet tsT(*pT);
           freq[*pT] = tStat[tsT].freq;
 
-          incontext[*pT] = tStat[tsT].leftTag[pC->first];
+          size_t TinC = tStat[tsT].leftTag[pC->first];
+          incontext[*pT] = TinC;
+          if (TinC > maxIncontext) maxIncontext = TinC;
           //if (dss.str().size() > 0) dss << " ";
           //dss << pT->str() << ":" << freq[*pT] << "/" << incontext[*pT];
-          inc2freq[*pT] = float(incontext[*pT]) / float(freq[*pT]);
+          inc2freq[*pT] = float(TinC) / float(freq[*pT]);
 
           pT++;
         }
 
+#ifdef OPT_SKIP_LOWSCORE_RULES
+        if (fBestScore > maxIncontext) { pC++; continue; }
+#endif
+
         Tag bestY;
         float bestScore = constructRule(freq, incontext, inc2freq, bestY);
-        if (bestScore > 0) {
+        if (bestScore > fBestScore) {
           Rule r(cit->first, bestY, Context(-1, pC->first)); 
-          rules[r] = bestScore;
+          rules[r] = fBestScore = bestScore;
           //map<TagSet, size_t>::const_iterator i = cit->second.leftTag.find(pC->first);
           //stringstream ss; ss << tStat[cit->first].freq << "/" << i->second << " : " << dss.str();
           //details[r] = ss.str();
@@ -331,23 +360,30 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
         map<Tag, size_t> freq;
         map<Tag, size_t> incontext;
         map<Tag, float> inc2freq;
+        size_t maxIncontext = 0;
 
         TagSet::const_iterator pT = cit->first.begin();
         while (cit->first.end() != pT) {
           TagSet tsT(*pT);
           freq[*pT] = tStat[tsT].freq;
 
-          incontext[*pT] = tStat[tsT].leftWord[pCW->first];
-          inc2freq[*pT] = float(incontext[*pT]) / float(freq[*pT]);
+          size_t TinC  = tStat[tsT].leftWord[pCW->first];
+          incontext[*pT] = TinC;
+          if (TinC > maxIncontext) maxIncontext = TinC;
+          inc2freq[*pT] = float(TinC) / float(freq[*pT]);
 
           pT++;
         }
 
+#ifdef OPT_SKIP_LOWSCORE_RULES
+        if (fBestScore > maxIncontext) { pCW++; continue; }
+#endif
+
         Tag bestY;
         float bestScore = constructRule(freq, incontext, inc2freq, bestY);
-        if (bestScore > 0) {
+        if (bestScore > fBestScore) {
           Rule r(cit->first, bestY, Context(-1, pCW->first)); 
-          rules[r] = bestScore;
+          rules[r] = fBestScore = bestScore;
           //map<string, size_t>::const_iterator i = cit->second.leftWord.find(pCW->first);
           //stringstream ss; ss << tStat[cit->first].freq << "/" << i->second;// << " : " << dss.str();
           //details[r] = ss.str();
@@ -363,6 +399,7 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
         map<Tag, size_t> freq;
         map<Tag, size_t> incontext;
         map<Tag, float> inc2freq; // incontext[X] / freq[X];
+        size_t maxIncontext = 0;
 
         //stringstream dss;
         TagSet::const_iterator pT = cit->first.begin();
@@ -371,19 +408,25 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
           TagSet tsT(*pT);
           freq[*pT] = tStat[tsT].freq;
 
-          incontext[*pT] = tStat[tsT].rightTag[pC->first];
+          size_t TinC = tStat[tsT].rightTag[pC->first];
+          incontext[*pT] = TinC;
+          if (TinC > maxIncontext) maxIncontext = TinC;
           //if (dss.str().size() > 0) dss << " ";
           //dss << pT->str() << ":" << freq[*pT] << "/" << incontext[*pT];   
-          inc2freq[*pT] = float(incontext[*pT]) / float(freq[*pT]);
+          inc2freq[*pT] = float(TinC) / float(freq[*pT]);
 
           pT++;
         }
 
+#ifdef OPT_SKIP_LOWSCORE_RULES
+        if (fBestScore > maxIncontext) { pC++; continue; }
+#endif
+
         Tag bestY;
         float bestScore = constructRule(freq, incontext, inc2freq, bestY);
-        if (bestScore > 0) {
+        if (bestScore > fBestScore) {
           Rule r(cit->first, bestY, Context(+1, pC->first)); 
-          rules[r] = bestScore;
+          rules[r] = fBestScore = bestScore;
           //map<TagSet, size_t>::const_iterator i = cit->second.rightTag.find(pC->first);
           //stringstream ss; ss << tStat[cit->first].freq << "/" << i->second << " : " << dss.str();
           //details[r] = ss.str();
@@ -400,23 +443,30 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
         map<Tag, size_t> freq;
         map<Tag, size_t> incontext;
         map<Tag, float> inc2freq;
+        size_t maxIncontext = 0;
 
         TagSet::const_iterator pT = cit->first.begin();
         while (cit->first.end() != pT) {
           TagSet tsT(*pT);
           freq[*pT] = tStat[tsT].freq;
 
-          incontext[*pT] = tStat[tsT].rightWord[pCW->first];
-          inc2freq[*pT] = float(incontext[*pT]) / float(freq[*pT]);
+          size_t TinC = tStat[tsT].rightWord[pCW->first];
+          incontext[*pT] = TinC;
+          if (TinC > maxIncontext) maxIncontext = TinC;
+          inc2freq[*pT] = float(TinC) / float(freq[*pT]);
 
           pT++;
         }
 
+#ifdef OPT_SKIP_LOWSCORE_RULES
+        if (fBestScore > maxIncontext) { pCW++; continue; }
+#endif
+
         Tag bestY;
         float bestScore = constructRule(freq, incontext, inc2freq, bestY);
-        if (bestScore > 0) {
+        if (bestScore > fBestScore) {
           Rule r(cit->first, bestY, Context(1, pCW->first)); 
-          rules[r] = bestScore;
+          rules[r] = fBestScore = bestScore;
           //map<string, size_t>::const_iterator i = cit->second.rightWord.find(pCW->first);
           //stringstream ss; ss << tStat[cit->first].freq << "/" << i->second;// << " : " << dss.str();
           //details[r] = ss.str();
@@ -437,19 +487,25 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
 
 /*
   cerr << "RULES:" << endl;
-  for (size_t i = 0; i < rv.size(); i++) {
-    cerr << rv[i].str() << " # " << rules[rv[i]] << endl; // << " " << details[rv[i]] << endl;
+  for (size_t i = 0; i < 10; i++) { //rv.size(); i++) {
+    cerr << "R " << rv[i].str() << " # " << rules[rv[i]] << endl; // << " " << details[rv[i]] << endl;
   }
   cerr << endl;
-  return 0;
+//  return 0;
 */
 
   if (rv.size() > 0) {
-    cerr << rv[0].str() << " # " << rules[rv[0]] << endl;
+    stringstream ss;
+    size_t n = ApplyRule(sc, rv[0], tStat);
+    float score = rules[rv[0]];
+    ss << "score=" << score << " applied=" << n;
+    rv[0].add_comment(ss.str()); // начиная с этого места правило изменилось и не будет искаться в map
+    
+    cerr << rv[0].str() << endl;
 
-    ApplyRule(sc, rv[0], tStat);
     knownRules.push_back(rv[0]);
-    return rules[rv[0]];
+
+    return score;
   }
 
   return 0;
@@ -466,17 +522,21 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
  
 }
 
-void ApplyRule(SentenceCollection &sc, const Rule &rule, const map<TagSet, TagStat> &tStat) {
+size_t ApplyRule(SentenceCollection &sc, const Rule &rule, map<TagSet, TagStat> &tStat) {
+  size_t n = 0;
+
 #ifdef APPLY_WITH_IDX
   map<TagSet, TagStat>::const_iterator cit = tStat.find(rule.from);
   if (tStat.end() == cit) throw;
   const TagStat& r = cit->second;
 
+  //cerr << "IDX size for \"" << rule.from.str() << "\" is " << r.idx.size() << endl;
   for (size_t i = 0; i < r.idx.size(); ++i) {
     Sentence &rs = sc[r.idx[i].first];
 
     if (rule.c.match(rs, r.idx[i].second)) {
       rs.getNonConstToken(r.idx[i].second).deleteAllButThis(rule.to);
+      n++;
     }
   }
 #else
@@ -488,14 +548,47 @@ void ApplyRule(SentenceCollection &sc, const Rule &rule, const map<TagSet, TagSt
         //cerr << "BEFORE: " << it->getToken(i).str() << endl;
         it->getNonConstToken(i).deleteAllButThis(rule.to);
         //cerr << "AFTER:  " << it->getToken(i).str() << endl << endl;
+        n++;
       }
     }
     it++;
   }
 #endif
+
+  //cerr << "RULE \"" << rule.str() << "\" applied " << n << " times" << endl;
+
+  tStat[rule.from].needsUpdate = true;
+  tStat[rule.to].needsUpdate = true;
+  return n;
 }
 
 void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &tStat) {
+  // удаляем устаревшую статистику
+  vector<TagSet> sNeedUpdate;
+  sNeedUpdate.reserve(16);
+  map<TagSet, TagStat>::iterator it = tStat.begin();
+  while (tStat.end() != it) {
+    it->second.leftTag.clear();
+    it->second.rightTag.clear();
+    //it->second.needsUpdate=true;
+
+    if (it->second.needsUpdate) {
+      sNeedUpdate.push_back(it->first);
+
+      it->second.leftWord.clear();
+      it->second.rightWord.clear();
+
+#ifdef APPLY_WITH_IDX
+      it->second.idx.reserve(it->second.freq);
+      it->second.idx.clear();
+#endif
+    }
+
+    it->second.freq = 0;
+
+    it++;
+  }
+
   //SentenceCollection::const_iterator cit = sc.begin();
   //  while (sc.end() != cit) {
   for (size_t sid = 0; sid < sc.size(); sid++) {
@@ -504,27 +597,49 @@ void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &
     for (size_t i = 1; i < sc[sid].size()-1; i++) {
       TagSet POST = rsent.getToken(i).getPOST();
 
-      tStat[POST].freq += 1;
       TagStat& r = tStat[POST];
+      r.freq += 1;
+      //TagStat& r = tStat[POST];
 
-      r.leftTag[rsent.getToken(i-1).getPOST()] += 1;
-      r.rightTag[rsent.getToken(i+1).getPOST()] += 1;
-      r.leftWord[rsent.getToken(i-1).getText()] += 1;
-      r.rightWord[rsent.getToken(i+1).getText()] += 1;
+      const Token& rleftToken = rsent.getToken(i-1);
+      const Token& rrightToken = rsent.getToken(i+1);
+
+      const TagSet& leftTS = rleftToken.getPOST();
+      const TagSet& rightTS = rrightToken.getPOST();
+
+      r.leftTag[leftTS] += 1;
+      r.rightTag[rightTS] += 1;
+
+      if (r.needsUpdate) {
+        //cerr << "UPD: \"" << POST.str() << "\" needs update" << endl;
+
+        if (!leftTS.hasTag(T(SBEG)) )
+          r.leftWord[rleftToken.getText()] += 1;
+
+        if (!rightTS.hasTag(T(SEND)) )
+          r.rightWord[rrightToken.getText()] += 1;
 
 #ifdef APPLY_WITH_IDX
-      if (POST.size() > 1) {
-        // строим индексы только для омонимичных тегов
-        pair<size_t, size_t> p;
-        p.first = sid;
-        p.second = i;
-        r.idx.push_back(p);
-      }
+        if (POST.size() > 1) {
+          // строим индексы только для омонимичных тегов
+          pair<size_t, size_t> p;
+          p.first = sid;
+          p.second = i;
+          r.idx.push_back(p);
+        }
 #endif
+        //r.needsUpdate = false;
+      }
     }
     
     //cit++;
   }
+
+  vector<TagSet>::const_iterator cit = sNeedUpdate.begin();
+  while (sNeedUpdate.end() != cit) {
+    tStat[*cit].needsUpdate = false;
+    cit++;
+  }    
 
   return;
 
