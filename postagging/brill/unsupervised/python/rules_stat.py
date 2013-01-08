@@ -45,8 +45,8 @@ def scores(s, best_rules):
                         try:
                             x = s[y][ctype][context] - float(fr)
                             scores[atag][y][ctype][context] = x
-                            if x >= bestscore and [atag, y, ctype, context] not in best_rules \
-                            and s[y][ctype][context] != w:
+                            if x >= bestscore and s[y][ctype][context] != w:
+                            #and [atag, y, ctype, context] not in best_rules 
                                 #if context in s[atag][ctype].keys():
                                 bestscore = x
                                 #print bestscore
