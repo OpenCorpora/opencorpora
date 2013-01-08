@@ -142,16 +142,16 @@ def apply(rule, corpus): #rule is an instance of Rule, corpus is an instance of 
                 if word.isdigit():
                     word = '_N_'
                 if tag_1 == rule.tagset:
-                    if rule.context_type == 'previous tag':
+                    if rule.context_type == 't-1':
                         if tag_2 == rule.context:
                             token.disambiguate(rule.tag)
-                    if rule.context_type == 'previous word':
+                    if rule.context_type == 'w-1':
                         if word_2 == rule.context:
                             token.disambiguate(rule.tag)
-                    if rule.context_type == 'next tag':
+                    if rule.context_type == 't+1':
                         if tag == rule.context:
                             token.disambiguate(rule.tag)
-                    if rule.context_type == 'next word':
+                    if rule.context_type == 'w+1':
                         if word == rule.context:
                             token.disambiguate(rule.tag)
                 tag_2, tag_1, word_2, word_1, id_1 = tag_1, tag, word_1, word, id

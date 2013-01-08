@@ -43,7 +43,6 @@ if __name__ == '__main__':
     inc = read_corpus(sys.stdin.read())
     amb = numb_amb_corpus(inc)
     print amb
-    out.write(str(amb) + '\n')
     while True:
         context_freq = context_stats(inc)
         if fullcorp:
@@ -91,9 +90,9 @@ if __name__ == '__main__':
         apply(rule, inc)
         amb = numb_amb_corpus(inc)
         try:
-            out.write(rule.display() + '\n')
+            out.write(rule.display())
         except:
-            out.write(rule.display().encode('utf-8') + '\n')
+            out.write(rule.display().encode('utf-8'))
         if apply_all:
             for rule in best_rules[:-1]:
                 r = Rule(*rule)
@@ -108,8 +107,9 @@ if __name__ == '__main__':
             output = open(f, 'w')
             write_corpus(inc, output)
             output.close()
-        out.write(str(amb) + '\n')
+        out.write(' '.join((str(best_score), str(amb))) + '\n')
+        print rule.display()
         #out.flush()
         #os.fsync(out)
-        print best_score
+        #print best_score
         i += 1

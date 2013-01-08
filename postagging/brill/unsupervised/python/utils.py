@@ -14,19 +14,6 @@ NUMB_TOKENS = 0
 
 def read_corpus(inc):
     ss = []
-    '''for line in inc.split('\n'):
-        if line == 'sent':
-            tokens = []
-        elif line == '/sent':
-            s = Sentence(tokens)
-            ss.append(s)
-        else:
-            line = line.decode('utf-8')
-            t = Token(line.split('\t'))
-            tokens.append(t)
-    c = Corpus(ss)
-    return c
-'''    
     for sent in inc.split('/sent')[:]:
         tokens = []
         sent = sent.lstrip('sent\n').rstrip('\n').split('\n')
@@ -40,6 +27,7 @@ def read_corpus(inc):
                     tokens.append(t)
                 except:
                     print ltoken
+                    raise Exception
         else:
             ltoken = sent[0].decode('utf-8')
             try:
@@ -249,13 +237,18 @@ class Rule(object):
         self.context = context
         self.tag = tag
         self.context_type = context_type
-        for item in zip(CONTEXT, ('previous word', 'previous tag',
+        '''for item in zip(CONTEXT, ('previous word', 'previous tag',
                                    'next word', 'next tag')):
             if context_type == item[0]:
-                self.context_type = item[1]
+                self.context_type = item[1]'''
 
     def display(self):
-        return 'Change tag from %s to %s if %s is %s' % (self.tagset, self.tag, self.context_type, self.context)
+        if self.context_type[0] == 'w':
+            self.c = 'word'
+        else:
+            self.c = 'tag'
+        return '%s -> %s | %s:%s=%s #' % (self.tagset, self.tag, self.context_type[1:], self.c, self.context)
+        #return 'Change tag from %s to %s if %s is %s' % (self.tagset, self.tag, self.context_type, self.context)
 
 
 class Corpus(set):
@@ -346,7 +339,7 @@ class TagSet(set):
 
     def disambiguate(self, pos):
         result = []
-        for tag in self.set:
+        for tag in self.set[:]:
             if pos in tag.text:
                 pass
             else:
