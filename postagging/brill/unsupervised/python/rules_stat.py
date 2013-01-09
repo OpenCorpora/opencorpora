@@ -17,6 +17,7 @@ def scores(s, best_rules):
     score = 0
     bestscore = 0
     bestrule = []
+    a = 0
     for atag in s.keys():
         if len(atag) > 4:
             stat = s[atag]
@@ -51,7 +52,7 @@ def scores(s, best_rules):
                                 bestrule = [atag, y, ctype, context]
                                 a = stat[ctype][context]
                         except:
-                            a = 0
+                            pass
     return scores, bestrule, bestscore, a
 
 
