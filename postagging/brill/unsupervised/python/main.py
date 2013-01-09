@@ -112,7 +112,7 @@ if __name__ == '__main__':
             write_corpus(inc, output)
             output.close()
         out.write('score=%s applied=%s\n' % (str(best_score), applied))
-        print rule.display()
+        #print rule.display()
         #out.flush()
         #os.fsync(out)
         #print best_score
