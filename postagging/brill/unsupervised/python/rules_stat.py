@@ -51,7 +51,7 @@ def scores(s, best_rules):
                                 bestrule = [atag, y, ctype, context]
                                 a = stat[ctype][context]
                         except:
-                            pass
+                            a = 0
     return scores, bestrule, bestscore, a
 
 

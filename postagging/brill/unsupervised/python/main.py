@@ -72,7 +72,7 @@ if __name__ == '__main__':
         best_score = scores_rule[2]
         applied = scores_rule[3]
         if best_score < 0 or best_rule == []:
-            output = open('%s/rand/%s/icorpus.txt', 'w')
+            output = open('%s/rand/%s/icorpus.txt' % (path, n), 'w')
             write_corpus(inc, output)
             output.close()
             out.close()
