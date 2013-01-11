@@ -143,7 +143,7 @@ struct Condition {
   string str() const {
     stringstream ss;
     if (tag == what)
-      ss << pos << ":" << "tag" << "=" << value.str();
+      ss << pos << ":" << "tag" << "=" << value.str(true);
     else if (word == what)
       ss << pos << ":" << "word" << "=" << form;
     return ss.str();
@@ -151,6 +151,9 @@ struct Condition {
 };
 
 inline bool operator<(const Condition& a, const Condition& b) {
+  if (a.pos < b.pos) return true;
+  else if (a.pos > b.pos) return false;
+
   return a.str() < b.str();
 }
 
@@ -198,13 +201,16 @@ struct Rule {
   string comments;
 
 public:
+  Rule()
+    : from(T(UNKN)), to(T(UNKN)), c(Context(0, T(UNKN))) { }
+
   Rule(const TagSet& _from, const Tag& _to, const Context& _c)
     : from(_from), to(_to), c(_c) { }
 
-  string str() const {
+  string str(bool bNoComments = false) const {
     stringstream ss;
-    ss << from.str() << " -> " << to.str() << " | " << c.str();
-    if (comments.size() > 0)
+    ss << from.str(true) << " -> " << to.str() << " | " << c.str();
+    if (!bNoComments && comments.size() > 0)
       ss << " # " << comments;
     return ss.str();
   }
@@ -217,7 +223,10 @@ public:
 };
 
 inline bool operator<(const Rule& a, const Rule& b) {
-  return a.str() < b.str();
+/*  if (a.from < b.from) return true;
+  else if (b.from < a.from) return false;*/
+
+  return a.str(true) < b.str(true);
 }
 
 string PrintRules(const list<Rule>& lr) {
@@ -244,7 +253,7 @@ struct less_by_second {
 
 //void searchForRules(const TagSet& H, const map<TagSet, TagStat>& tStat, 
 
-float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incontext, const map<Tag, float>& inc2freq, Tag &bestY) {
+float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incontext, const map<Tag, float>& inc2freq, Tag &bestY, float fBestScore = 0) {
 
   //Tag bestY;
   float bestScore = 0;
@@ -254,7 +263,7 @@ float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incont
     map<Tag, size_t>::const_iterator inc_it = incontext.find(pY->first);
 
 #ifdef OPT_SKIP_LOWSCORE_RULES
-    if (inc_it->second < bestScore) { pY++; continue; }
+    if (inc_it->second < bestScore /*|| inc_it->second < fBestScore*/) { pY++; continue; }
 #endif
     // нет смысла досчитывать, т.к. score = inc_it->second - (что-то там)
     // и, следовательно, больше уже не станет
@@ -293,6 +302,16 @@ float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incont
   return bestScore;
 }
 
+template<class T>
+struct less_by_from_freq {
+  map<TagSet, TagStat>& rmap;
+  less_by_from_freq(map<TagSet, TagStat>& _rmap) : rmap(_rmap) { }
+
+  bool operator()(const T& a, const T& b) const {
+    return rmap[a.from].freq > rmap[b.from].freq;
+  }
+};
+
 float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> &knownRules) {
   //tStat.clear();
   //cerr << "1" << endl;
@@ -300,10 +319,12 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
 
   //cerr << "2" << endl;
   // Перебираем возможные варианты правил
-  map<Rule, float> rules;
+  //map<Rule, float> rules;
   //map<Rule, string> details;
-  vector<Rule> rv;
+  //vector<Rule> rv;
   float fBestScore = 0;
+  vector<Rule> bestRules;
+  bestRules.reserve(32);
   
   map<TagSet, TagStat>::const_iterator cit = tStat.begin();
   while (tStat.end() != cit) {
@@ -340,15 +361,21 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
 #endif
 
         Tag bestY;
-        float bestScore = constructRule(freq, incontext, inc2freq, bestY);
-        if (bestScore > fBestScore) {
-          Rule r(cit->first, bestY, Context(-1, pC->first)); 
-          rules[r] = fBestScore = bestScore;
+        float bestScore = constructRule(freq, incontext, inc2freq, bestY, fBestScore);
+
+        if (bestScore >= fBestScore) {
+          if (bestScore > fBestScore) {
+            fBestScore = bestScore;
+            bestRules.clear();
+          }
+
+          bestRules.push_back(Rule(cit->first, bestY, Context(-1, pC->first)));
+
           //map<TagSet, size_t>::const_iterator i = cit->second.leftTag.find(pC->first);
           //stringstream ss; ss << tStat[cit->first].freq << "/" << i->second << " : " << dss.str();
           //details[r] = ss.str();
-          rv.push_back(r);
-        }
+          //rv.push_back(r);
+        } 
 
         pC++;
       }
@@ -356,7 +383,7 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
       // LEFT WORD
       map<string, size_t>::const_iterator pCW = cit->second.leftWord.begin();
       while (cit->second.leftWord.end() != pCW) {
-        if (pCW->second < 3) { pCW++; continue; }
+        //if (pCW->second < 3) { pCW++; continue; }
         map<Tag, size_t> freq;
         map<Tag, size_t> incontext;
         map<Tag, float> inc2freq;
@@ -380,14 +407,19 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
 #endif
 
         Tag bestY;
-        float bestScore = constructRule(freq, incontext, inc2freq, bestY);
-        if (bestScore > fBestScore) {
-          Rule r(cit->first, bestY, Context(-1, pCW->first)); 
-          rules[r] = fBestScore = bestScore;
+        float bestScore = constructRule(freq, incontext, inc2freq, bestY, fBestScore);
+        if (bestScore >= fBestScore) {
+          if (bestScore > fBestScore) {
+            fBestScore = bestScore;
+            bestRules.clear();
+          }
+
+          bestRules.push_back(Rule(cit->first, bestY, Context(-1, pCW->first))); 
+
           //map<string, size_t>::const_iterator i = cit->second.leftWord.find(pCW->first);
           //stringstream ss; ss << tStat[cit->first].freq << "/" << i->second;// << " : " << dss.str();
           //details[r] = ss.str();
-          rv.push_back(r);
+          //rv.push_back(r);
         }
         
         pCW++;
@@ -423,14 +455,18 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
 #endif
 
         Tag bestY;
-        float bestScore = constructRule(freq, incontext, inc2freq, bestY);
-        if (bestScore > fBestScore) {
-          Rule r(cit->first, bestY, Context(+1, pC->first)); 
-          rules[r] = fBestScore = bestScore;
+        float bestScore = constructRule(freq, incontext, inc2freq, bestY, fBestScore);
+        if (bestScore >= fBestScore) {
+          if (bestScore > fBestScore) {
+            fBestScore = bestScore;
+            bestRules.clear();
+          }
+
+          bestRules.push_back(Rule(cit->first, bestY, Context(+1, pC->first))); 
           //map<TagSet, size_t>::const_iterator i = cit->second.rightTag.find(pC->first);
           //stringstream ss; ss << tStat[cit->first].freq << "/" << i->second << " : " << dss.str();
           //details[r] = ss.str();
-          rv.push_back(r);
+          //rv.push_back(r);
         }
 
         pC++;
@@ -439,7 +475,7 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
       // RIGHT WORD
       pCW = cit->second.rightWord.begin();
       while (cit->second.rightWord.end() != pCW) {
-        if (pCW->second < 3) { pCW++; continue; }
+        //if (pCW->second < 3) { pCW++; continue; }
         map<Tag, size_t> freq;
         map<Tag, size_t> incontext;
         map<Tag, float> inc2freq;
@@ -463,14 +499,18 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
 #endif
 
         Tag bestY;
-        float bestScore = constructRule(freq, incontext, inc2freq, bestY);
-        if (bestScore > fBestScore) {
-          Rule r(cit->first, bestY, Context(1, pCW->first)); 
-          rules[r] = fBestScore = bestScore;
+        float bestScore = constructRule(freq, incontext, inc2freq, bestY, fBestScore);
+        if (bestScore >= fBestScore) {
+          if (bestScore > fBestScore) {
+            fBestScore = bestScore;
+            bestRules.clear();
+          }
+
+          bestRules.push_back(Rule(cit->first, bestY, Context(1, pCW->first))); 
           //map<string, size_t>::const_iterator i = cit->second.rightWord.find(pCW->first);
           //stringstream ss; ss << tStat[cit->first].freq << "/" << i->second;// << " : " << dss.str();
           //details[r] = ss.str();
-          rv.push_back(r);
+          //rv.push_back(r);
         }
         
         pCW++;
@@ -482,8 +522,8 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
   }
 
   //cerr << "3" << endl;
-  less_by_second<Rule> lbs(rules);
-  sort(rv.begin(), rv.end(), lbs);
+  //less_by_second<Rule> lbs(rules);
+  //sort(rv.begin(), rv.end(), lbs);
 
 /*
   cerr << "RULES:" << endl;
@@ -494,18 +534,46 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
 //  return 0;
 */
 
-  if (rv.size() > 0) {
-    stringstream ss;
-    size_t n = ApplyRule(sc, rv[0], tStat);
-    float score = rules[rv[0]];
-    ss << "score=" << score << " applied=" << n;
-    rv[0].add_comment(ss.str()); // начиная с этого места правило изменилось и не будет искаться в map
+  if (/*rv.size()*/ fBestScore > 0) {
+    less_by_from_freq<Rule> lbff(tStat);
+    sort(bestRules.begin(), bestRules.end(), lbff);
+
+//    string altFrom;
+//    size_t nBestRule = 0;
+//    size_t maxTSFreq = 0;
+    for (size_t i = 0; i < bestRules.size(); ++i) {
+      Rule &r = bestRules[i];
+      size_t n = ApplyRule(sc, r, tStat);
+      stringstream ss;
+      ss << "score=" << fBestScore << " applied=" << n << " fromfreq=" << tStat[r.from].freq;
+      if (bestRules.size() > 1)
+        ss << " gpos=" << i;
+      r.add_comment(ss.str()); // начиная с этого места правило изменилось и не будет искаться в map
     
-    cerr << rv[0].str() << endl;
+      cerr << r.str() << endl;
+      knownRules.push_back(r);
 
-    knownRules.push_back(rv[0]);
+/*      if (tStat[bestRules[i].from].freq > maxTSFreq) {
+        nBestRule = i;
+        maxTSFreq = tStat[bestRules[i].from].freq;
+      }*/
+    }
 
-    return score;
+/*    for (size_t i = 0; i < bestRules.size(); ++i)
+      if (i != nBestRule)
+        altFrom += bestRules[i].from.str(true) + " / ";*/
+/*
+    Rule &bestRule = bestRules[nBestRule];
+
+    size_t n = ApplyRule(sc, bestRule, tStat);
+    ss << "score=" << fBestScore << " applied=" << n << " freq(from)=" << maxTSFreq;
+    bestRule.add_comment(ss.str()); // начиная с этого места правило изменилось и не будет искаться в map
+    
+    cerr << bestRule.str() << endl;
+
+    knownRules.push_back(bestRule);*/
+
+    return fBestScore;
   }
 
   return 0;
@@ -648,6 +716,7 @@ void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &
     cout << mcit->first.str() << '\t' << mcit->second.str() << endl;
     mcit++;
   } 
+  throw;
 }
 
 string toString(const map<TagSet, size_t> &m) {

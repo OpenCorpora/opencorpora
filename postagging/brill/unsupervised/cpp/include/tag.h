@@ -1,5 +1,7 @@
 #include <string>
 #include <sstream>
+#include <algorithm>
+#include <vector>
 #include <set>
 
 // TODO: remove dependecy from "iostream"
@@ -102,21 +104,54 @@ public:
     return POSTag;
   }
 
+  virtual std::string str(bool bSortAlpha = false) const {
+    std::string r;
 
-  virtual std::string str() const {
-    std::set<Tag>::const_iterator cit = s.begin();
-    std::string r; size_t i = 0;
-    while (s.end() != cit) {
-      r += cit->str(); i++;
-      if (i < s.size()) r += ' ';
-      cit++;
+    if (bSortAlpha) {
+      std::vector<std::string> v;
+      std::set<Tag>::const_iterator cit = s.begin();
+      while (s.end() != cit) {
+        v.push_back(cit->str());
+        cit++;
+      }
+      size_t i = 0; 
+      std::sort(v.begin(), v.end());
+      std::vector<std::string>::const_iterator vit = v.begin();
+      while (v.end() != vit) {
+        r += *vit; i++;
+        if (i < v.size()) r += ' ';
+        vit++;
+      }
+    } else {
+      std::set<Tag>::const_iterator cit = s.begin();
+      size_t i = 0;
+      while (s.end() != cit) {
+        r += cit->str(); i++;
+        if (i < s.size()) r += ' ';
+        cit++;
+      }
     }
     return r;
   }
 };
 
 inline bool operator<(const TagSet& a, const TagSet& b) {
-  return a.str() < b.str();
+/*  std::set<Tag>::const_iterator cita = a.begin();
+  std::set<Tag>::const_iterator citb = b.begin();
+  while (*cita == *citb) { 
+    cita++;
+    citb++;
+    if (a.end() == cita)
+      if (b.end() != citb) return true;
+      else return false;
+    if (b.end() == citb) return false;
+  }
+
+  return *cita < *citb;*/
+
+  /*if (a.size() > b.size()) return true;
+  else if (a.size() < b.size()) return false;
+  else */return a.str() < b.str();
 }
 
 inline bool operator==(const TagSet& a, const TagSet& b) {
