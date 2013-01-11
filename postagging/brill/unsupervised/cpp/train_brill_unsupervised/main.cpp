@@ -331,12 +331,25 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
     if (cit->first.size() > 1 /*&& cit->second.freq > 0*/) {
       // это омонимичный тег
 
+      map<Tag, size_t> freq;
+      TagSet::const_iterator pT = cit->first.begin();
+      while (cit->first.end() != pT) {
+        // pT - это неомонимичный тег, на который мы будем заменять *cit
+        TagSet tsT(*pT);
+        freq[*pT] = tStat[tsT].freq;
+        pT++;
+      }
+
+      map<Tag, size_t> incontext;
+      map<Tag, float> inc2freq; // incontext[X] / freq[X];
+ 
+
       // LEFT
       map<TagSet, size_t>::const_iterator pC = cit->second.leftTag.begin();
       while (cit->second.leftTag.end() != pC) {
-        map<Tag, size_t> freq;
-        map<Tag, size_t> incontext;
-        map<Tag, float> inc2freq; // incontext[X] / freq[X];
+        //map<Tag, size_t> freq;
+        //map<Tag, size_t> incontext;
+        //map<Tag, float> inc2freq; // incontext[X] / freq[X];
         size_t maxIncontext = 0;
 
         //stringstream dss;
@@ -344,7 +357,7 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
         while (cit->first.end() != pT) {
           // pT - это неомонимичный тег, на который мы будем заменять *cit
           TagSet tsT(*pT);
-          freq[*pT] = tStat[tsT].freq;
+          //freq[*pT] = tStat[tsT].freq;
 
           size_t TinC = tStat[tsT].leftTag[pC->first];
           incontext[*pT] = TinC;
@@ -384,15 +397,15 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
       map<string, size_t>::const_iterator pCW = cit->second.leftWord.begin();
       while (cit->second.leftWord.end() != pCW) {
         //if (pCW->second < 3) { pCW++; continue; }
-        map<Tag, size_t> freq;
-        map<Tag, size_t> incontext;
-        map<Tag, float> inc2freq;
+        //map<Tag, size_t> freq;
+        //map<Tag, size_t> incontext;
+        //map<Tag, float> inc2freq;
         size_t maxIncontext = 0;
 
         TagSet::const_iterator pT = cit->first.begin();
         while (cit->first.end() != pT) {
           TagSet tsT(*pT);
-          freq[*pT] = tStat[tsT].freq;
+          //freq[*pT] = tStat[tsT].freq;
 
           size_t TinC  = tStat[tsT].leftWord[pCW->first];
           incontext[*pT] = TinC;
@@ -428,9 +441,9 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
       // RIGHT
       pC = cit->second.rightTag.begin();
       while (cit->second.rightTag.end() != pC) {
-        map<Tag, size_t> freq;
-        map<Tag, size_t> incontext;
-        map<Tag, float> inc2freq; // incontext[X] / freq[X];
+        //map<Tag, size_t> freq;
+        //map<Tag, size_t> incontext;
+        //map<Tag, float> inc2freq; // incontext[X] / freq[X];
         size_t maxIncontext = 0;
 
         //stringstream dss;
@@ -438,7 +451,7 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
         while (cit->first.end() != pT) {
           // pT - это неомонимичный тег, на который мы будем заменять *cit
           TagSet tsT(*pT);
-          freq[*pT] = tStat[tsT].freq;
+          //freq[*pT] = tStat[tsT].freq;
 
           size_t TinC = tStat[tsT].rightTag[pC->first];
           incontext[*pT] = TinC;
@@ -476,15 +489,15 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
       pCW = cit->second.rightWord.begin();
       while (cit->second.rightWord.end() != pCW) {
         //if (pCW->second < 3) { pCW++; continue; }
-        map<Tag, size_t> freq;
-        map<Tag, size_t> incontext;
-        map<Tag, float> inc2freq;
+        //map<Tag, size_t> freq;
+        //map<Tag, size_t> incontext;
+        //map<Tag, float> inc2freq;
         size_t maxIncontext = 0;
 
         TagSet::const_iterator pT = cit->first.begin();
         while (cit->first.end() != pT) {
           TagSet tsT(*pT);
-          freq[*pT] = tStat[tsT].freq;
+          //freq[*pT] = tStat[tsT].freq;
 
           size_t TinC = tStat[tsT].rightWord[pCW->first];
           incontext[*pT] = TinC;
