@@ -2,12 +2,14 @@
 
 import sys
 import os
+from time import clock
 from utils import context_stats, Rule, numb_amb_corpus, get_list_amb, read_corpus, \
 write_corpus
 from rules_stat import scoring_function, apply_rule, scores, apply
 
 
 if __name__ == '__main__':
+    s = clock()
     args = sys.argv[1:]
     apply_all = False
     fullcorp = False
@@ -68,16 +70,16 @@ if __name__ == '__main__':
         scores_rule = scores(context_freq, best_rules)
         ss = scores_rule[0]
         best_rule = scores_rule[1]
-        best_rules.append(best_rule)
+        for r in best_rule.keys():
+            best_rules.append(r)
         best_score = scores_rule[2]
         applied = scores_rule[3]
-        if best_score < 0 or best_rule == []:
+        if best_score <= 0:
             output = open('%s/rand/%s/icorpus.txt' % (path, n), 'w')
             write_corpus(inc, output)
             output.close()
             out.close()
             break
-        rule = Rule(*best_rule)
         if write:
             if fullcorp:
                 f = '%s/full/iter%s.scores' % (path, i)
@@ -91,12 +93,15 @@ if __name__ == '__main__':
                         for context in ss[amb_tag][tag].keys():
                             for c_variant in ss[amb_tag][tag][context].keys():
                                 output.write('\t'.join((str(ss[amb_tag][tag][context][c_variant]), amb_tag, tag, context, c_variant)).encode('utf-8') + '\n')
-        apply(rule, inc)
-        amb = numb_amb_corpus(inc)
-        try:
-            out.write(rule.display())
-        except:
-            out.write(rule.display().encode('utf-8'))
+        best_rule = reversed(sorted(best_rule.items(), key=lambda t: t[1]))
+        for r, a in best_rule:
+            rule = Rule(*r)
+            apply(rule, inc)
+            try:
+                out.write(rule.display())
+            except:
+                out.write(rule.display().encode('utf-8'))
+            out.write('score=%s applied=%s\n' % (str(best_score), a))
         if apply_all:
             for rule in best_rules[:-1]:
                 r = Rule(*rule)
@@ -111,7 +116,6 @@ if __name__ == '__main__':
             output = open(f, 'w')
             write_corpus(inc, output)
             output.close()
-        out.write('score=%s applied=%s\n' % (str(best_score), applied))
         #print rule.display()
         #out.flush()
         #os.fsync(out)

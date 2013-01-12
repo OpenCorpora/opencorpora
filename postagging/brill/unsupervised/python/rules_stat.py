@@ -18,6 +18,7 @@ def scores(s, best_rules):
     bestscore = 0
     bestrule = []
     a = 0
+    top_rules = {}
     for atag in s.keys():
         if len(atag) > 4:
             stat = s[atag]
@@ -46,14 +47,20 @@ def scores(s, best_rules):
                         try:
                             x = s[y][ctype][context] - float(fr)
                             scores[atag][y][ctype][context] = x
-                            if x >= bestscore and s[y][ctype][context] != w:
+                            if x > bestscore and s[y][ctype][context] != w:
                             #and [atag, y, ctype, context] not in best_rules 
                                 bestscore = x
                                 bestrule = [atag, y, ctype, context]
-                                a = stat[ctype][context]
+                                a = stat['freq']
+                                top_rules = {}
+                                top_rules[tuple(bestrule)] = a
+                            elif x == bestscore and s[y][ctype][context] != w:
+                                bestrule = [atag, y, ctype, context]
+                                a = stat['freq']
+                                top_rules[tuple(bestrule)] = a
                         except:
                             pass
-    return scores, bestrule, bestscore, a
+    return scores, top_rules, bestscore, a
 
 
 def apply_rule(rule, table):
@@ -124,7 +131,7 @@ def apply_rule(rule, table):
 
 def apply(rule, corpus, ignore_numbers=True): #rule is an instance of Rule, corpus is an instance of Corpus
     for s in corpus:
-        word_2, tag_2 = 'sent', 'sent'
+        word_2, tag_2 = 'sent', 'SENT'
         try:
             if s[0].getPOStags() is not None:
                 tag_1 = s[0].getPOStags()
@@ -144,7 +151,7 @@ def apply(rule, corpus, ignore_numbers=True): #rule is an instance of Rule, corp
                 if word.isdigit() and ignore_numbers:
                     word = '_N_'
             except:
-                tag = 'sent'
+                tag = 'SENT'
                 id = '0'
                 word = 'sent'
             if word.isdigit():

@@ -38,7 +38,7 @@ def read_corpus(inc):
                 break
             #print ltoken.split('\t')[3::2]
             tokens.append(t)
-        s = Sentence(tokens)
+        s = Sentence(tokens + [Token(('sent', 'sent'))])
         ss.append(s)
     c = Corpus(ss)
     return c
@@ -98,12 +98,9 @@ def get_list_amb(corpus):
 def context_stats(corpus, ignore_numbers=True):
     result_dict = {}
     for tokens in corpus:
-        word_2, tag_2 = 'sent', 'sent'
+        word_2, tag_2 = '<sent', 'SENT'
         try:
-            if tokens[0].getPOStags() is not None:
-                tag_1 = tokens[0].getPOStags()
-            else:
-                continue
+            tag_1 = tokens[0].getPOStags()
         except:
             continue
         if ignore_numbers and tokens[0].text.isdigit():
@@ -113,27 +110,26 @@ def context_stats(corpus, ignore_numbers=True):
         i = 1
         for token in tokens[1:]:
             try:
-                if token.getPOStags() is not None:
-                    tag = token.getPOStags()
-                else:
-                    tag = 'sent'
+                tag = token.getPOStags()
             except:
-                tag = 'sent'
+                tag = 'SENT'
             if ignore_numbers and token.text.isdigit():
                 word = '_N_'
             else:
                 try:
                     word = token.text
                 except:
-                    word = 'sent'
+                    word = '<sent'
             try:
                 for t, c in zip(CONTEXT, [word_2, tag_2, word, tag]):
-                    result_dict[tag_1].update(t, c)
+                    if c != '<sent':
+                        result_dict[tag_1].update(t, c)
                 result_dict[tag_1].upfreq()
             except:
                 tag_entry = TagStat()
                 for t, c in zip(CONTEXT, [word_2, tag_2, word, tag]):
-                    tag_entry.update(t, c)
+                    if c != '<sent':
+                        tag_entry.update(t, c)
                 tag_entry.upfreq()
                 result_dict[tag_1] = tag_entry
             tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
@@ -213,11 +209,14 @@ def numb_amb_tokens(tokens):
     posamb = 0
     amb = 0
     for token in tokens:
-        if token.has_ambig():
-            #print token.display()
-            posamb += 1
-        amb += len(token.tagset.getPOStag().split('_'))
-        n += 1
+        try:
+            if token.has_ambig():
+                #print token.display()
+                posamb += 1
+            amb += len(token.tagset.getPOStag().split('_'))
+            n += 1
+        except:
+            pass
     return posamb, n, amb
 
 
@@ -336,8 +335,7 @@ class TagSet(set):
             try:
                 return pos[0]
             except:
-                #print self.set
-                return '0'
+                raise Exception('sentence border!')
 
     def disambiguate(self, pos):
         result = []
@@ -391,14 +389,5 @@ class TagStat(dict):
 
 if __name__ == '__main__':
     inc = sys.stdin.read()
-    s = clock()
-    get_list_words_pos(inc)
-    print clock() - s
-    s = clock()
     outc = read_corpus(inc)
-    s = clock()
-    context_stats(outc)
-    print clock() - s
-    s = clock()
-    get_list_words_pos(inc)
-    print clock() - s
+    print context_stats(outc)
