@@ -674,9 +674,14 @@ void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &
   //  while (sc.end() != cit) {
   for (size_t sid = 0; sid < sc.size(); sid++) {
     const Sentence& rsent = sc[sid];
+    vector<TagSet> vPOST;
+    vPOST.resize(rsent.size());
 
-    for (size_t i = 1; i < sc[sid].size()-1; i++) {
-      TagSet POST = rsent.getToken(i).getPOST();
+    for (size_t j = 0; j < rsent.size(); j++)
+      vPOST[j] = rsent.getToken(j).getPOST();
+
+    for (size_t i = 1; i < rsent.size()-1; i++) {
+      TagSet POST = vPOST[i]; //rsent.getToken(i).getPOST();
 
       TagStat& r = tStat[POST];
       r.freq += 1;
@@ -685,8 +690,8 @@ void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &
       const Token& rleftToken = rsent.getToken(i-1);
       const Token& rrightToken = rsent.getToken(i+1);
 
-      const TagSet& leftTS = rleftToken.getPOST();
-      const TagSet& rightTS = rrightToken.getPOST();
+      const TagSet& leftTS = vPOST[i-1]; //rleftToken.getPOST();
+      const TagSet& rightTS = vPOST[i+1]; //rrightToken.getPOST();
 
       r.leftTag[leftTS] += 1;
       r.rightTag[rightTS] += 1;

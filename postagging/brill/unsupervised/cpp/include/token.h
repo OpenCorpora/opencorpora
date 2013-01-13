@@ -25,6 +25,7 @@ public:
       POSTagSet.insert(cit->getPOST());
       cit++;
     }
+
     return POSTagSet;
   }
 

@@ -65,6 +65,8 @@ public:
   inline const_iterator begin() const { return s.begin(); }
   inline const_iterator end() const { return s.end(); }
 
+  TagSet() { }
+
   TagSet(const std::string &str) {
     std::vector<std::string> v;
     split(str, ' ', v);
@@ -136,22 +138,26 @@ public:
 };
 
 inline bool operator<(const TagSet& a, const TagSet& b) {
-/*  std::set<Tag>::const_iterator cita = a.begin();
+  std::set<Tag>::const_iterator cita = a.begin();
   std::set<Tag>::const_iterator citb = b.begin();
   while (*cita == *citb) { 
     cita++;
     citb++;
-    if (a.end() == cita)
+ //   if (a.end() == cita || b.end() == citb) break;
+
+    if (a.end() == cita) {
       if (b.end() != citb) return true;
       else return false;
+    }
     if (b.end() == citb) return false;
   }
 
-  return *cita < *citb;*/
+  return *cita < *citb;
 
   /*if (a.size() > b.size()) return true;
   else if (a.size() < b.size()) return false;
-  else */return a.str() < b.str();
+  else */
+  //return a.str() < b.str();
 }
 
 inline bool operator==(const TagSet& a, const TagSet& b) {
