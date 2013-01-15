@@ -186,7 +186,7 @@ public:
 
   virtual std::string str() const {
     std::stringstream ss;
-    ss << lemmaId << '\t' << TagSet::str();
+    ss << lemmaId << " d " << TagSet::str();
     return ss.str();
   }
 };
