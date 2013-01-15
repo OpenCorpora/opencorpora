@@ -1,12 +1,12 @@
 CC=g++
 INC_PATH=../include/
 LIB_PATH=../lib/
-CFLAGS=-c -g -Wall -I$(INC_PATH)
+CFLAGS=-c -O3 -Wall -I$(INC_PATH)
 
 all: train
 
 train: main.o corpora_io.o
-	$(CC) main.o corpora_io.o -o train
+	$(CC) -O3 main.o corpora_io.o -o train
 
 main.o: main.cpp $(INC_PATH)tag.h $(INC_PATH)token.h $(INC_PATH)utils.h $(INC_PATH)sentence.h $(INC_PATH)corpora_io.h
 	$(CC) $(CFLAGS) main.cpp
