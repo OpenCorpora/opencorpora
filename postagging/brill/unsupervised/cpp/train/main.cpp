@@ -615,7 +615,9 @@ size_t ApplyRule(SentenceCollection &sc, const Rule &rule, map<TagSet, TagStat> 
   for (size_t i = 0; i < r.idx.size(); ++i) {
     Sentence &rs = sc[r.idx[i].first];
 
-    if (rule.c.match(rs, r.idx[i].second)) {
+    if (rule.c.match(rs, r.idx[i].second && rs.getToken(r.idx[i].second).getPOST() == rule.from)) {
+      // вторая проверка нужна на случай, если это не первое правило в группе и предыдущие
+      // уже изменили этот токен ... может быть стоит отмечать такие токены в индексе?
       rs.getNonConstToken(r.idx[i].second).deleteAllButThis(rule.to);
       n++;
     }
