@@ -565,6 +565,7 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
     
       cerr << r.str() << endl;
       knownRules.push_back(r);
+      break; // временно отключаем повторы
 
 /*      if (tStat[bestRules[i].from].freq > maxTSFreq) {
         nBestRule = i;
