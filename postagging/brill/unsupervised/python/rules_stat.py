@@ -139,7 +139,7 @@ def apply(rule, corpus, ignore_numbers=True): #rule is an instance of Rule, corp
                 continue
         except:
             continue
-        id_1, word_1 = s[0].id, s[0].text
+        word_1 = s[0].text
         if word_1.isdigit() and ignore_numbers:
             word_1 = '_N_'
         i = 0
@@ -170,7 +170,7 @@ def apply(rule, corpus, ignore_numbers=True): #rule is an instance of Rule, corp
                 if rule.context_type == 'w+1':
                     if word == rule.context:
                         token.disambiguate(rule.tag)
-            tag_2, tag_1, word_2, word_1, id_1 = tag_1, tag, word_1, word, id
+            tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
             i += 1
 
 

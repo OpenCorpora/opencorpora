@@ -387,7 +387,12 @@ class TagStat(dict):
         self.stat['freq'] += 1
 
 
+def tokens(files):
+    def t(f):
+        f = read_corpus(f)
+        return numb_amb_corpus(f)[0]
+    return [t(open(f, 'r').read()) for f in files]
+
 if __name__ == '__main__':
-    inc = sys.stdin.read()
-    outc = read_corpus(inc)
-    print context_stats(outc)
+    for t in tokens(sys.argv[1:]):
+        print t
