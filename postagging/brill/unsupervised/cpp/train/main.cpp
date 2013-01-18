@@ -66,16 +66,16 @@ int main(int argc, char **argv) {
 #endif
 
   for (int i = 1; i < argc; i++) {
-    SentenceCollection originalCorpus;
+    //SentenceCollection originalCorpus;
     SentenceCollection currentCorpus;
     map<TagSet, TagStat> tagStat;
 
     //tagStat.clear();
 
-    readCorpus(argv[i], originalCorpus);
+    readCorpus(argv[i], currentCorpus);
     cout << argv[i] << endl;
 
-    currentCorpus = originalCorpus;
+    //currentCorpus = originalCorpus;
     list<Rule> rules;
 
     // TODO: делать это в цикле до тех пор, пока годных правил не останется
@@ -86,9 +86,8 @@ int main(int argc, char **argv) {
 
     //cerr << PrintRules(rules);
 
-    ofstream f_orig((string(argv[i]) + ".orig").c_str());
-    //cerr << "ORIGINAL:" << endl;
-    f_orig << PrintSC(originalCorpus) << endl;
+    //ofstream f_orig((string(argv[i]) + ".orig").c_str());
+    //f_orig << PrintSC(originalCorpus) << endl;
 
     ofstream f_final((string(argv[i]) + ".final").c_str());
     //cerr << "FINAL:" << endl;
