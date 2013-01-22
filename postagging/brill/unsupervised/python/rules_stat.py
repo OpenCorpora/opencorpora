@@ -156,21 +156,34 @@ def apply(rule, corpus, ignore_numbers=True): #rule is an instance of Rule, corp
                 word = 'sent'
             if word.isdigit():
                 word = '_N_'
-            if tag_1 == rule.tagset:
                 #print tag_1, tag
-                if rule.context_type == 't-1':
-                    if tag_2 == rule.context:
+            if rule.context_type == 't-1':
+                try:
+                    if tag_2 == rule.context and token.getPOStags() == rule.tagset:
                         token.disambiguate(rule.tag)
-                if rule.context_type == 'w-1':
-                    if word_2 == rule.context:
+                except:
+                    pass
+            if rule.context_type == 'w-1':
+                try:
+                    if word_2.decode('utf-8') == rule.context.decode('utf-8') \
+                     and token.getPOStags() == rule.tagset:
                         token.disambiguate(rule.tag)
-                if rule.context_type == 't+1':
-                    if tag == rule.context:
+                except:
+                    pass
+            if rule.context_type == 't+1':
+                try:
+                    if tag == rule.context and token.getPOStags() == rule.tagset:
                         token.disambiguate(rule.tag)
-                if rule.context_type == 'w+1':
-                    if word == rule.context:
+                except:
+                    pass
+            if rule.context_type == 'w+1':
+                try:
+                    if word.decode('utf-8') == rule.context.decode('utf-8') \
+                     and token.getPOStags() == rule.tagset:
                         token.disambiguate(rule.tag)
-            tag_2, tag_1, word_2, word_1 = tag_1, tag, word_1, word
+                except:
+                    pass
+            tag_2, tag_1, word_2, word_1, id_1 = tag_1, tag, word_1, word, id
             i += 1
 
 

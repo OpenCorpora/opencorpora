@@ -47,7 +47,7 @@ def read_corpus(inc):
 def write_corpus(corpus, outstream):  # corpus is an instance of Corpus()
     for sent in corpus.sents:
         outstream.write('sent\n')
-        for token in sent:
+        for token in sent[:-1]:
             try:
                 outstream.write(token.display() + '\n')
             except:
@@ -248,7 +248,7 @@ class Rule(object):
             self.c = 'word'
         else:
             self.c = 'tag'
-        return '%s -> %s | %s:%s=%s #' % (self.tagset, self.tag, self.context_type[1:], self.c, self.context)
+        return '%s -> %s | %s:%s=%s #' % (self.tagset, self.tag, self.context_type[1:].lstrip('+'), self.c, self.context)
         #return 'Change tag from %s to %s if %s is %s' % (self.tagset, self.tag, self.context_type, self.context)
 
 
@@ -339,11 +339,15 @@ class TagSet(set):
 
     def disambiguate(self, pos):
         result = []
-        for tag in self.set[:]:
-            if pos in tag.text:
-                pass
-            else:
-                self.set.remove(tag)
+        try:
+            if self.hasPOSamb():
+                for tag in self.set[:]:
+                    if pos in tag.text:
+                        pass
+                    else:
+                        self.set.remove(tag)
+        except:
+            pass
 
     def hasPOSamb(self):
         if len(self.getPOStag()) > 4:
