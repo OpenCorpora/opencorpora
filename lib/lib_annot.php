@@ -286,6 +286,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     while ($r = sql_fetch_array($res)) {
         $t = get_context_for_word($r['tf_id'], $context_width);
         $t['id'] = $r['sample_id'];
+        $t['token_id'] = $r['tf_id'];
         $r1 = sql_fetch_array(sql_query("SELECT book_id FROM paragraphs WHERE par_id = (SELECT par_id FROM sentences WHERE sent_id = ".$t['sentence_id']." LIMIT 1) LIMIT 1"));
         $t['book_id'] = $r1['book_id'];
         $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." AND answer>0"));
@@ -333,7 +334,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
                     $t['moder_answer_gram'] = ($r1['answer'] == 99 ? 'Other' : $pool_gram[$r1['answer']-1]);
                     // highlight samples where the moderator disagreed with all the annotators
                     if (!$t['disagreed'] && $t['moder_answer_num'] != $t['instances'][0]['answer_num'])
-                        $t['disagreed'] = 1;
+                        $t['disagreed'] = true;
                 }
             }
         }
@@ -342,17 +343,18 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
             !$extended ||
             // special list for moderation
             ($filter == 'focus' && (
-                $disagreement_flag ||
+                $t['disagreed'] ||
                 sizeof($t['comments']) > 0 ||
                 filter_sample_for_moderation($out['type'], $t)
             ))
             ||
             // anything except it
-            ($filter != 'focus' &&
-            ($disagreement_flag || $filter != 'disagreed') &&
-            ($out['status'] <= 4 || $t['moder_answer_num'] == 0 || $filter != 'not_moderated') &&
-            (sizeof($t['comments']) > 0 || $filter != 'comments') &&
-            ($not_ok_flag || $filter != 'not_ok'))
+            ($filter != 'focus' && (
+            ($t['disagreed'] && $filter == 'disagreed') ||
+            ($out['status'] > 4 && $t['moder_answer_num'] == 0 && $filter == 'not_moderated') ||
+            (sizeof($t['comments']) > 0 && $filter == 'comments') ||
+            ($not_ok_flag && $filter == 'not_ok')
+            ))
         ) {
             if ($skip > 0)
                 --$skip;
