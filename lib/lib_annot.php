@@ -341,6 +341,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         // to add or not to add
         if (
             !$extended ||
+            !$filter ||
             // special list for moderation
             ($filter == 'focus' && (
                 $t['disagreed'] ||
