@@ -53,7 +53,7 @@ function get_sentence($sent_id) {
     $j = 0; //token position, for further highlighting
     $gram_descr = array();  //associative array to keep info about grammemes
     while ($r = sql_fetch_array($res)) {
-        array_push ($tf_text, '<span id="src_token_'.($j++).'">'.$r['tf_text'].'</span>');
+        array_push($tf_text, '<span id="src_token_'.($j++).'">'.htmlspecialchars($r['tf_text']).'</span>');
         $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." AND is_last=1 LIMIT 1"));
         $arr = xml2ary($rev['rev_text']);
 
