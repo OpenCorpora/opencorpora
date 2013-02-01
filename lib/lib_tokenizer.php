@@ -2,7 +2,11 @@
 require_once('lib_books.php');
 
 function split2paragraphs($txt) {
-    return preg_split('/\r?\n\r?\n\r?/', $txt);
+    $pars = array();
+    foreach (preg_split('/\r?\n\r?\n\r?/', $txt) as $par)
+        if (preg_match('/\S/', $par))
+            $pars[] = $par;
+    return $pars;
 }
 function split2sentences($txt) {
     return preg_split('/[\r\n]+/', $txt);
@@ -237,7 +241,6 @@ function addtext_check($array) {
     $out = array('full' => $clear_text, 'select0' => get_books_for_select(0));
     $pars = split2paragraphs($clear_text);
     foreach ($pars as $par) {
-        if (!preg_match('/\S/', $par)) continue;
         $par_array = array();
         $sents = split2sentences($par);
         foreach ($sents as $sent) {
@@ -272,8 +275,12 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
     if (!$revset_id) return 0;
     $sent_count = 0;
     $pars = split2paragraphs($text);
+
+    // move the following paragraphs
+    if (!sql_query("UPDATE paragraphs SET pos=pos+".sizeof($pars)." WHERE book_id = $book_id AND pos >= $par_num"))
+        return false;
+
     foreach ($pars as $par) {
-        if (!preg_match('/\S/', $par)) continue;
         //adding a paragraph
         if (!sql_query("INSERT INTO `paragraphs` VALUES(NULL, '$book_id', '".($par_num++)."')")) return 0;
         $par_id = sql_insert_id();
