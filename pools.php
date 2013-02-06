@@ -10,12 +10,6 @@ if ($action && !in_array($action, array('samples', 'candidates')) && !user_has_p
     return;
 }
 
-// temporarily hidden pools
-if (isset($_GET['pool_id']) && !isset($_GET['tabs']) && in_array((int)$_GET['pool_id'], array(19, 23, 29, 46))) {
-    show_error("Этот пул временно скрыт.");
-    return;
-}
-
 switch ($action) {
     case 'add':
         if (add_morph_pool()) {
