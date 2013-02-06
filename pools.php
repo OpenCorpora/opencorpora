@@ -78,13 +78,13 @@ switch ($action) {
         break;
     case 'finish_moder':
         if (finish_moderate_pool((int)$_GET['pool_id']))
-            header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
+            header("Location:index.php?page=pool_charts");
         else
             show_error("Ошибка. Убедитесь, что все примеры отмодерированы и что вы являетесь модератором пула.");
         break;
     case 'begin_merge':
         if (begin_pool_merge((int)$_GET['pool_id']))
-            header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
+            header("Location:index.php?page=pool_charts");
         else
             show_error();
         break;
