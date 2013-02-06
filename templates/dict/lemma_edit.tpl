@@ -26,7 +26,7 @@
     </script>
     {/literal}
     {if isset($smarty.get.saved)}
-        <div class='info'>Изменения сохранены.</div>
+        <div class='info'>Изменения сохранены. <a href="?act=edit&amp;id=-1">Добавить другую лемму</a></div>
     {/if}
     <!--p><form class='inline' method="post" action="?act=lemmata">
     {if $smarty.get.found_lemma}
