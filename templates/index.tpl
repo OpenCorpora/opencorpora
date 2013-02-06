@@ -69,6 +69,10 @@
                         <li><a href='{$web_prefix}/pools.php?type=3'>Задания на разметку</a></li>
                         <li><a href='?page=pool_charts'>Графики про них</a></li>
                     {/if}
+                    <li class="nav-header">Пулы, где я модератор</li>
+                    <li><a href='{$web_prefix}/pools.php?type=5&amp;moder_id={$smarty.session.user_id}'>В работе</a></li>
+                    <li><a href='{$web_prefix}/pools.php?type=6&amp;moder_id={$smarty.session.user_id}'>Готовые</a></li>
+                    <li><a href='{$web_prefix}/pools.php?type=9&amp;moder_id={$smarty.session.user_id}'>В архиве</a></li>
                     <li class="nav-header">Остальное</li>
                     <li><a href='{$web_prefix}/tokenizer_monitor.php'>Мониторинг качества токенизатора</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=tokenizer'>Странная токенизация</a></li>
