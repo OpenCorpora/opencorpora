@@ -385,10 +385,13 @@ function filter_sample_for_moderation($pool_type, $sample) {
         }
     }
     // left context with numbers
-    for ($i = max(0, $sample['mainword'] - 3); $i < $sample['mainword']; ++$i) {
+    for ($i = max(0, $sample['mainword'] - 3); $i < min($sample['mainword'] + 3, sizeof($sample['context'])); ++$i) {
+        if ($i == $sample['mainword'])
+            continue;
         if (preg_match('/^(?:\d+|полтор[аы]|дв[ае]|об[ае]|три|четыре)$/u', $sample['context'][$i]))
             return true;
     }
+
     // nothing suspicious, ok
     return false;
 }
