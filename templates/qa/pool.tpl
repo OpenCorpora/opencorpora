@@ -77,8 +77,8 @@
                     $.post('ajax/post_comment.php', {'type': 'morph_annot', 'id': $(event.target).attr('rel'), 'text': $(this).closest('div').find('textarea').val()}, function(res) {
                         var $r = $(res).find('response');
                         if ($r.attr('ok') == 1) {
-                            $(event.target).closest('div').find('div').replaceWith('<p>Спасибо, ваш комментарий добавлен!</p>');
-                            $(event.target).closest('div').find('p').fadeOut(3000);
+                            $(event.target).closest('td').find('div').replaceWith('<p>Спасибо, ваш комментарий добавлен!</p>');
+                            $(event.target).closest('td').find('p').fadeOut(3000);
                         } else {
                             alert('Comment saving failed');
                         }
