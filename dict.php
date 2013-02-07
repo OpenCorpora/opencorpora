@@ -129,11 +129,8 @@ switch ($action) {
         $smarty->display('dict/errata.tpl');
         break;
     case 'pending':
-        if (isset($_POST['count']))
-            $count = (int)$_POST['count'];
-        else
-            $count = 200;
-        $smarty->assign('data', get_pending_updates($count));
+        $skip = isset($_GET['skip']) ? (int)$_GET['skip'] : 0;
+        $smarty->assign('data', get_pending_updates($skip));
         $smarty->display('dict/pending.tpl');
         break;
     case 'reannot':

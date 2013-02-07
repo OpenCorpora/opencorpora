@@ -218,7 +218,7 @@ function form_exists($f) {
     }
     return sql_num_rows(sql_query("SELECT lemma_id FROM form2lemma WHERE form_text='".mysql_real_escape_string($f)."' LIMIT 1"));
 }
-function get_pending_updates($limit=200) {
+function get_pending_updates($skip=0, $limit=500) {
     $out = array('revisions' => array());
 
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) cnt FROM updated_tokens"));
@@ -237,8 +237,13 @@ function get_pending_updates($limit=200) {
         LEFT JOIN tf_revisions tfr USING (tf_id)
         WHERE is_last = 1
         ORDER BY dict_revision, tf_id
-        LIMIT $limit
+        LIMIT $skip, $limit
     ");
+
+    $out['pages'] = array(
+        'active' => $limit ? ($skip / $limit) : 0,
+        'total' => $limit ? ($out['cnt_tokens'] / $limit) : 1
+    );
 
     $t = array();
     $last = NULL;

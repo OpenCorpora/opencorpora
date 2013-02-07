@@ -33,8 +33,13 @@ $(document).ready(function(){
 <h1>Влияние словаря на корпус</h1>
 <p>Токенов в очереди &mdash; <b>{$data.cnt_tokens}</b> {if $data.cnt_forms}<b>(+ {$data.cnt_forms} форм, т.е. список неполон)</b>{/if}</p>
 {if $data.outdated_f2l}<h2>Осторожно, в словаре есть свежие правки, перезаливать не рекомендуется!</h2>{/if}
-<p>Показано не более {if isset($smarty.post.count)}{$smarty.post.count}{else}200{/if} токенов в порядке добавления в очередь.</p>
-<form class='form-inline' action="?act=pending" method="post"><button class='btn'>Показать</button> <input type='text' name='count' class='span1' value='500'></form>
+<div class="pagination pagination-centered"><ul>
+<li {if $data.pages.active == 0}class="disabled"{/if}><a href="?act=pending&skip={($data.pages.active - 1) * 500}">&lt;</a></li>
+{for $i=0 to $data.pages.total - 1}
+<li {if $i == $data.pages.active}class="active"{/if}><a href="?act=pending&skip={$i * 500}">{$i+1}</a></li>
+{/for}
+<li {if $data.pages.active == $data.pages.total - 1}class="disabled"{/if}><a href="?act=pending&skip={($data.pages.active + 1) * 500}">&gt;</a></li>
+</ul></div>
 <table class='table'>
 {foreach from=$data.revisions item=revision}
 <tr>
