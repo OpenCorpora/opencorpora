@@ -296,16 +296,16 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
             $arr = xml2ary($r1['rev_text']);
             $t['parses'] = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
             $res1 = sql_query("SELECT instance_id, user_id, answer FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." ORDER BY instance_id");
-            $disagreement_flag = false;
+            $disagreement_flag = 0;
             $not_ok_flag = false;
             $vars = '';
             while ($r1 = sql_fetch_array($res1)) {
                 if ($r1['answer'] == 99)
-                    $disagreement_flag = true;
+                    $disagreement_flag = 1;
                 elseif (!$vars)
                     $vars = $r1['answer'];
                 elseif ($r1['answer'] && $vars != $r1['answer'])
-                    $disagreement_flag = true;
+                    $disagreement_flag = 1;
                 //about users
                 if (!isset($distinct_users[$r1['user_id']])) {
                     $r2 = sql_fetch_array(sql_query("SELECT user_shown_name AS user_name FROM users WHERE user_id=".$r1['user_id']." LIMIT 1"));
@@ -334,7 +334,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
                     $t['moder_answer_gram'] = ($r1['answer'] == 99 ? 'Other' : $pool_gram[$r1['answer']-1]);
                     // highlight samples where the moderator disagreed with all the annotators
                     if (!$t['disagreed'] && $t['moder_answer_num'] != $t['instances'][0]['answer_num'])
-                        $t['disagreed'] = true;
+                        $t['disagreed'] = 2;
                 }
             }
         }
