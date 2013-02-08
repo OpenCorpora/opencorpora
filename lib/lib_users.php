@@ -249,6 +249,74 @@ function user_change_shown_name($new_name) {
     }
     return 0;
 }
+function get_user_info($user_id) {
+    $res = sql_query("SELECT user_name, user_shown_name, user_reg FROM users WHERE user_id=$user_id LIMIT 1");
+    $r = sql_fetch_array($res);
+    $user = array(
+        'name' => $r['user_name'],
+        'shown_name' => $r['user_shown_name'],
+        'registered' => $r['user_reg'],
+        'total_answers' => 0,
+        'checked_answers' => 0,
+        'incorrect_answers' => 0
+    );
+    
+    // annotation stats
+    $annot = array();
+    $last_type = '';
+    $res = sql_query("
+        SELECT pool_id, pool_name, type_id, t.grammemes, t.complexity, COUNT(instance_id) AS total, SUM(ms.answer != 0) AS checked,
+            SUM(CASE WHEN (i.answer != ms.answer AND ms.answer > 0) THEN 1 ELSE 0 END) AS errors
+        FROM morph_annot_instances i
+        LEFT JOIN morph_annot_samples s USING (sample_id)
+        LEFT JOIN morph_annot_pools p USING (pool_id)
+        LEFT JOIN morph_annot_moderated_samples ms USING (sample_id)
+        LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id)
+        WHERE i.user_id = $user_id AND i.answer > 0
+        GROUP BY pool_id
+        ORDER BY type_id, pool_id
+    ");
+
+    $type = array();
+    while ($r = sql_fetch_array($res)) {
+        if ($r['type_id'] != $last_type) {
+            if ($last_type)
+                $annot[] = $type;
+                $user['total_answers'] += $type['total_answers'];
+                $user['checked_answers'] += $type['checked_answers'];
+                $user['incorrect_answers'] += $type['incorrect_answers'];
+            $type = array(
+                'id' => $r['type_id'],
+                'grammemes' => str_replace('@', ' / ', $r['grammemes']),
+                'name' => preg_replace('/\s+#\d+\s*$/', '', $r['pool_name']),
+                'complexity' => $r['complexity'],
+                'pools' => array(),
+                'total_answers' => 0,
+                'checked_answers' => 0,
+                'incorrect_answers' => 0
+            );
+        }
+        $type['pools'][] = array(
+            'id' => $r['pool_id'],
+            'type' => $r['type_id'],
+            'name' => $r['pool_name'],
+            'total_answers' => $r['total'],
+            'checked_answers' => $r['checked'],
+            'incorrect_answers' => $r['errors']
+        );
+        $type['total_answers'] += $r['total'];
+        $type['incorrect_answers'] += $r['errors'];
+        $type['checked_answers'] += $r['checked'];
+        $last_type = $r['type_id'];
+    }
+    $annot[] = $type;
+    $user['total_answers'] += $type['total_answers'];
+    $user['checked_answers'] += $type['checked_answers'];
+    $user['incorrect_answers'] += $type['incorrect_answers'];
+
+    $user['annot'] = $annot;
+    return $user;
+}
 function get_user_email($user_id) {
     if (!$user_id) return;
     $res = sql_query("SELECT user_email FROM `users` WHERE user_id=$user_id LIMIT 1");

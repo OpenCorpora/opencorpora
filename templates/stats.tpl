@@ -43,7 +43,7 @@ $(document).ready(function(){
 {foreach item=s from=$user_stats.annotators}
     <tr {if $s@iteration>20 && (!isset($smarty.session.user_id) || $smarty.session.user_id != $s.user_id)}style="display:none;"{/if}>
         <td><a name="user{$s.user_id}"></a>{$s@iteration}
-        <td>{$s.fin.user_name}
+        <td>{if $is_admin}<a href="{$web_prefix}/user.php?id={$s.user_id}">{$s.fin.user_name}</a>{else}{$s.fin.user_name}{/if}
         <td>{$s.total}
         <td>{$s.fin.value|default:'0'}
         <td>{if isset($s.fin.divergence)}{$s.fin.divergence|string_format:"%.1f%%"}{else}&mdash;{/if}
