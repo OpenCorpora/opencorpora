@@ -20,7 +20,7 @@
     }
     function agree_all() {
         if (confirm('Согласиться со всеми однозначными ответами?')) {
-            $('tr:not(.notagreed)').each(function(i, el) {
+            $('table.samples_tbl tr:not(.notagreed)').each(function(i, el) {
                 $el = $(el);
                 if ($el.find('select.sel_var').val() == 0)
                     submit($el.attr('rel'), $el.attr('rev'), $el.find('a.agree'), 0);
@@ -133,7 +133,7 @@
 {/for}
 <li {if $pool.pages.active == $pool.pages.total - 1}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active + 1) * 15}">&gt;</a></li>
 </ul></div>
-<table border="1" cellspacing="0" cellpadding="3" class="small">
+<table border="1" cellspacing="0" cellpadding="3" class="small samples_tbl">
 <tr>
     <th>id</th>
     <th>&nbsp;</th>
@@ -213,6 +213,7 @@
     {/if}
 </tr>
 {/foreach}
+<tr><th colspan='{$pool.num_users + 3}' align='right'><a class='agree_all pseudo' href='#'>согласен со всеми однозначными</a></th></tr>
 </table>
 <div class="pagination pagination-centered"><ul>
 <li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * 15}">&lt;</a></li>
