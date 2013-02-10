@@ -89,6 +89,7 @@ def update_sample(dbh, sample_id, xml, changeset_id):
     res = dbh.fetchone()
     dbh.execute("UPDATE tf_revisions SET is_last=0 WHERE tf_id={0}".format(res['tf_id']))
     dbh.execute("INSERT INTO tf_revisions VALUES(NULL, {0}, {1}, '{2}', 1)".format(changeset_id, res['tf_id'], xml))
+    dbh.execute("UPDATE morph_annot_moderated_samples SET merge_status=1 WHERE sample_id = {0} LIMIT 1".format(sample_id))
 def generate_empty_parse(token):
     return ''.join(('<tfr t="', token, '"><v><l id="0" t="', token, '"><g v="UNKN"/></l></v></tfr>'))
 def get_pool_grammemes(dbh, pool_id):
