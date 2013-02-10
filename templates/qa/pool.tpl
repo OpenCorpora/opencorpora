@@ -213,7 +213,9 @@
     {/if}
 </tr>
 {/foreach}
+{if isset($smarty.get.ext) && $user_permission_check_morph && $pool.status == 5}
 <tr><th colspan='{$pool.num_users + 3}' align='right'><a class='agree_all pseudo' href='#'>согласен со всеми однозначными</a></th></tr>
+{/if}
 </table>
 <div class="pagination pagination-centered"><ul>
 <li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * 15}">&lt;</a></li>
