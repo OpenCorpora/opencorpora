@@ -13,7 +13,7 @@
     <ul>
     <li>
         принять участие в снятии морфологической неоднозначности {if $is_logged}(см. <b><a href="manual.php">руководство</a></b>, <a href="tasks.php">задания</a>):{else}(<a href="{$web_prefix}/login.php">зарегистрируйтесь</a>, чтобы получить доступ к заданиям, а также прочтите <a href="{$web_prefix}/manual.php">руководство</a>){/if}
-        <div>(всего мы получили уже <b>больше {($answer_count / 1000)|string_format:"%d"} тыс.</b> ответов)</div>
+        <div>(всего мы получили уже <b>больше {($answer_count / 1000000)|string_format:"%.2f"} млн</b> ответов)</div>
         {if $is_logged}
             <div>
                 <table class="table" style="width:800px; margin-top:7px;">
