@@ -37,12 +37,21 @@ switch ($action) {
             $smarty->display('qa/pool_tabs.tpl');
         }
         else {
+            $filter = isset($_GET['filter']) ? $_GET['filter'] : false;
+            $matches = NULL;
+            if ($filter && !user_has_permission('perm_check_morph') && preg_match('/^user:(\d+)$/', $filter, $matches)) {
+                if ($matches[1] != $_SESSION['user_id']) {
+                    show_error("Можно просматривать только свои ответы.");
+                    return;
+                }
+            }
+
             $smarty->assign('pool', get_morph_samples_page(
                 (int)$_GET['pool_id'],
                 isset($_GET['ext']),
                 4,
                 isset($_GET['skip']) ? (int)$_GET['skip'] : 0,
-                isset($_GET['filter']) ? $_GET['filter'] : false,
+                $filter,
                 15
             ));
             $smarty->display('qa/pool.tpl');

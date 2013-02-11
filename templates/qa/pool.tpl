@@ -149,7 +149,15 @@
     {/if}
 </tr>
 {foreach from=$pool.samples item=sample}
-<tr rel='{$sample.id}'{if isset($smarty.get.ext)}{if $sample.disagreed > 0} class='notagreed {if $sample.disagreed == 1}bgpink{else}bgorange{/if}'{else} rev='{$sample.instances[0].answer_num}'{/if}{/if}>
+{if isset($smarty.get.ext)}
+    {if isset($pool.has_user_filter)}
+        <tr rel='{$sample.id}'{if isset($sample.incorrect)} class='bgpink'{/if}>
+    {else}
+        <tr rel='{$sample.id}'{if $sample.disagreed > 0} class='notagreed {if $sample.disagreed == 1}bgpink{else}bgorange{/if}'{else} rev='{$sample.instances[0].answer_num}'{/if}>
+    {/if}
+{else}
+    <tr rel='{$sample.id}'>
+{/if}
     <td>{$sample.id}</td>
     <td>
         <a href="{$web_prefix}/books.php?book_id={$sample.book_id}&amp;full#sen{$sample.sentence_id}" target="_blank">контекст</a>

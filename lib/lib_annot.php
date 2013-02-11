@@ -272,6 +272,8 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     }
     $select_options[99] = 'Other';
     $out = array('id' => $pool_id, 'type' => $r['pool_type'], 'variants' => $select_options, 'name' => $r['pool_name'], 'status' => $r['status'], 'num_users' => $r['users_needed'], 'moderator_name' => $r['user_name']);
+    if (preg_match('/^user:\d+$/', $filter))
+        $out['has_user_filter'] = true;
     $res = sql_query("SELECT sample_id, tf_id FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id");
     $gram_descr = array();
     $distinct_users = array();
@@ -316,6 +318,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
                     'id' => $r1['instance_id'],
                     'answer_num' => $r1['answer'],
                     'answer_gram' => ($r1['answer'] > 0 && $r1['answer'] < 99) ? $pool_gram[$r1['answer']-1] : '',
+                    'user_id' => $r1['user_id'],
                     'user_color' => $distinct_users[$r1['user_id']][0]
                 );
             }
@@ -338,25 +341,39 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
                 }
             }
         }
+
         // to add or not to add
-        if (
-            !$extended ||
-            !$filter ||
-            // special list for moderation
-            ($filter == 'focus' && (
-                $t['disagreed'] ||
-                sizeof($t['comments']) > 0 ||
-                filter_sample_for_moderation($out['type'], $t)
-            ))
-            ||
-            // anything except it
+        $add = false;
+        $m = NULL;
+
+        if (!$extended || !$filter)
+            $add = true;
+        elseif (preg_match('/^user:(\d+)$/', $filter, $m)) {
+            foreach ($t['instances'] as $answer) {
+                if ($answer['user_id'] == $m[1]) {
+                    $add = true;
+                    if ($answer['answer_num'] != $t['moder_answer_num'])
+                        $t['incorrect'] = true;
+                }
+            }
+        }
+        elseif ($filter == 'focus' && (
+                    $t['disagreed'] ||
+                    sizeof($t['comments']) > 0 ||
+                    filter_sample_for_moderation($out['type'], $t)
+                ))
+            $add = true;
+        elseif (
             ($filter != 'focus' && (
             ($t['disagreed'] && $filter == 'disagreed') ||
             ($out['status'] > 4 && $t['moder_answer_num'] == 0 && $filter == 'not_moderated') ||
             (sizeof($t['comments']) > 0 && $filter == 'comments') ||
             ($not_ok_flag && $filter == 'not_ok')
             ))
-        ) {
+        )
+            $add = true;
+
+        if ($add) {
             if ($skip > 0)
                 --$skip;
             elseif ($samples_by_page == 0 || sizeof($out['samples']) < $samples_by_page)
