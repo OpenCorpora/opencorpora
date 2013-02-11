@@ -1098,7 +1098,14 @@ function save_moderated_answer($id, $answer, $manual, $field_name='answer') {
         if ($field_name != 'answer')
             return 1;
         //check whether it was the last sample to be moderated
-        $res = sql_query("SELECT sample_id FROM morph_annot_moderated_samples WHERE pool_id=$pool_id AND answer = 0 LIMIT 1");
+        $res = sql_query("
+            SELECT sample_id
+            FROM morph_annot_moderated_samples
+            LEFT JOIN morph_annot_samples USING (sample_id)
+            WHERE pool_id=$pool_id
+            AND answer = 0 
+            LIMIT 1
+        ");
         if (sql_num_rows($res) == 0)
             return 2;
         return 1;
