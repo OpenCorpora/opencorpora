@@ -272,8 +272,6 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     }
     $select_options[99] = 'Other';
     $out = array('id' => $pool_id, 'type' => $r['pool_type'], 'variants' => $select_options, 'name' => $r['pool_name'], 'status' => $r['status'], 'num_users' => $r['users_needed'], 'moderator_name' => $r['user_name']);
-    if (preg_match('/^user:\d+$/', $filter))
-        $out['has_user_filter'] = true;
     $res = sql_query("SELECT sample_id, tf_id FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id");
     $gram_descr = array();
     $distinct_users = array();
@@ -350,11 +348,8 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
             $add = true;
         elseif (preg_match('/^user:(\d+)$/', $filter, $m)) {
             foreach ($t['instances'] as $answer) {
-                if ($answer['user_id'] == $m[1]) {
+                if ($answer['user_id'] == $m[1] && $answer['answer_num'] != $t['moder_answer_num'])
                     $add = true;
-                    if ($answer['answer_num'] != $t['moder_answer_num'])
-                        $t['incorrect'] = true;
-                }
             }
         }
         elseif ($filter == 'focus' && (

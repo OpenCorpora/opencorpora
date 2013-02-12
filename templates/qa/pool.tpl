@@ -150,11 +150,7 @@
 </tr>
 {foreach from=$pool.samples item=sample}
 {if isset($smarty.get.ext)}
-    {if isset($pool.has_user_filter)}
-        <tr rel='{$sample.id}'{if isset($sample.incorrect)} class='bgpink'{/if}>
-    {else}
-        <tr rel='{$sample.id}'{if $sample.disagreed > 0} class='notagreed {if $sample.disagreed == 1}bgpink{else}bgorange{/if}'{else} rev='{$sample.instances[0].answer_num}'{/if}>
-    {/if}
+    <tr rel='{$sample.id}'{if $sample.disagreed > 0} class='notagreed {if $sample.disagreed == 1}bgpink{else}bgorange{/if}'{else} rev='{$sample.instances[0].answer_num}'{/if}>
 {else}
     <tr rel='{$sample.id}'>
 {/if}
