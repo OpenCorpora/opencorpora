@@ -265,7 +265,7 @@ function get_user_info($user_id) {
     $annot = array();
     $last_type = '';
     $res = sql_query("
-        SELECT pool_id, pool_name, type_id, t.grammemes, t.complexity, COUNT(instance_id) AS total, SUM(ms.answer != 0) AS checked,
+        SELECT pool_id, pool_name, p.status, type_id, t.grammemes, t.complexity, COUNT(instance_id) AS total, SUM(ms.answer != 0) AS checked,
             SUM(CASE WHEN (i.answer != ms.answer AND ms.answer > 0) THEN 1 ELSE 0 END) AS errors
         FROM morph_annot_instances i
         LEFT JOIN morph_annot_samples s USING (sample_id)
@@ -300,6 +300,7 @@ function get_user_info($user_id) {
             'id' => $r['pool_id'],
             'type' => $r['type_id'],
             'name' => $r['pool_name'],
+            'status' => $r['status'],
             'total_answers' => $r['total'],
             'checked_answers' => $r['checked'],
             'incorrect_answers' => $r['errors']
