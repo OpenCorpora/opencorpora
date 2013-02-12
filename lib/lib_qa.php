@@ -97,4 +97,25 @@ function get_good_sentences($no_zero = false) {
         $out[] = array('id' => $r['sent_id'], 'total' => $r['num_words'], 'homonymous' => $r['num_homonymous']);
     return $out;
 }
+function get_merge_fails() {
+    $res = sql_query("
+        SELECT sample_id, p.pool_name, ms.status
+        FROM morph_annot_moderated_samples ms
+        LEFT JOIN morph_annot_samples USING (sample_id)
+        LEFT JOIN morph_annot_pools p USING (pool_id)
+        WHERE p.status = 9
+        AND merge_status = 0
+        ORDER BY sample_id
+    ");
+
+    $data = array();
+    while ($r = sql_fetch_array($res)) {
+        $data[] = array(
+            'id' => $r['sample_id'],
+            'mod_status' => $r['status'],
+            'pool_name' => $r['pool_name']
+        );
+    }
+    return $data;
+}
 ?>

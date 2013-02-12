@@ -45,6 +45,10 @@ switch ($action) {
             $smarty->display('qa/book_tags.tpl');
         }
         break;
+    case 'merge_fails':
+        $smarty->assign('data', get_merge_fails());
+        $smarty->display('qa/merge_fails.tpl');
+        break;
     case 'good_sentences':
         $smarty->assign('sentences', get_good_sentences(isset($_GET['no_zero'])));
         $smarty->display('qa/good_sentences.tpl');
