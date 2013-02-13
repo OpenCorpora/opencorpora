@@ -233,7 +233,7 @@ function addtext_check($array) {
             uniord($char) != 173 &&
             //remove different spaces
             (uniord($char) < 8192 || uniord($char) > 8203) &&
-            !in_array(uniord($char), array(8237, 8239, 8288, 12288))
+            !in_array(uniord($char), array(160, 8237, 8239, 8288, 12288))
             //the numbers are decimal unicode codes
         ) $clear_text .= $char;
     }
