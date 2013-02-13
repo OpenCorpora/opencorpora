@@ -226,14 +226,18 @@ function addtext_check($array) {
     $clear_text = '';
     for ($i = 0; $i < mb_strlen($array['txt'], 'UTF-8'); ++$i) {
         $char = mb_substr($array['txt'], $i, 1, 'UTF-8');
+        $code = uniord($char);
         if (
             //remove diacritic modifier
-            uniord($char) != 769 &&
+            $code != 769 &&
             //remove soft hyphen
-            uniord($char) != 173 &&
-            //remove different spaces
-            (uniord($char) < 8192 || uniord($char) > 8203) &&
-            !in_array(uniord($char), array(160, 8237, 8239, 8288, 12288))
+            $code != 173 &&
+            //remove different spaces 8206 8207
+            ($code < 8192 || $code > 8203) &&
+            //char order marks
+            !in_array($code, array(8206, 8207)) &&
+            //other bad symbols
+            !in_array($code, array(160, 8237, 8239, 8288, 12288))
             //the numbers are decimal unicode codes
         ) $clear_text .= $char;
     }
