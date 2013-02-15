@@ -60,20 +60,11 @@
                 </form>
             {/if}
         </div>
-        {if $user_permission_adder || $is_admin}
-            <div class="well nav-wrapper span5">
-                <ul class="nav nav-list">
+        <div class="well nav-wrapper span5">
+            <ul class="nav nav-list">
+                {if $user_permission_adder}
                     <li class="nav-header">Контроль качества</li>
                     <li><a href='{$web_prefix}/sources.php'>Координация заливки</a></li>
-                    {if $user_permission_check_morph}
-                        <li><a href='{$web_prefix}/pools.php?type=3'>Задания на разметку</a></li>
-                        <li><a href='?page=pool_charts'>Графики про них</a></li>
-                    {/if}
-                    <li class="nav-header">Пулы, где я модератор</li>
-                    <li><a href='{$web_prefix}/pools.php?type=5&amp;moder_id={$smarty.session.user_id}'>В работе</a></li>
-                    <li><a href='{$web_prefix}/pools.php?type=6&amp;moder_id={$smarty.session.user_id}'>Готовые</a></li>
-                    <li><a href='{$web_prefix}/pools.php?type=9&amp;moder_id={$smarty.session.user_id}'>В архиве</a></li>
-                    <li class="nav-header">Остальное</li>
                     <li><a href='{$web_prefix}/tokenizer_monitor.php'>Мониторинг качества токенизатора</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=tokenizer'>Странная токенизация</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=good_sentences&no_zero'>Наименее омонимичные предложения</a></li>
@@ -81,15 +72,25 @@
                     <li><a href='{$web_prefix}/qa.php?act=empty_books'>Пустые тексты</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=book_tags'>Ошибки в тегах текстов</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=dl_urls'>Сохранённые копии источников</a></li>
-                    {* Admin options *}
-                    {if $is_admin}
-                        <li class="nav-header">Функции администратора</li>
-                        <li><a href='{$web_prefix}/users.php'>Управление пользователями</a></li>
-                        <li><a href='{$web_prefix}/generator_cp.php'>Генерация данных для CPAN-токенизатора</a></li>
-                    {/if}
-                </ul>
-            </div>
-        {/if}
+                {/if}
+                {if $user_permission_check_morph}
+                    <li class="nav-header">Задания на разметку</li>
+                    <li><a href='{$web_prefix}/pools.php?type=3'>Опубликованные задания</a></li>
+                    <li><a href='{$web_prefix}/qa.php?act=merge_fails'>То, что не удалось перелить</a></li>
+                    <li><a href='?page=pool_charts'>Графики</a></li>
+                    <li class="nav-header">Пулы, где я модератор</li>
+                    <li><a href='{$web_prefix}/pools.php?type=5&amp;moder_id={$smarty.session.user_id}'>В работе</a></li>
+                    <li><a href='{$web_prefix}/pools.php?type=6&amp;moder_id={$smarty.session.user_id}'>Готовые</a></li>
+                    <li><a href='{$web_prefix}/pools.php?type=9&amp;moder_id={$smarty.session.user_id}'>В архиве</a></li>
+                {/if}
+                {* Admin options *}
+                {if $is_admin}
+                    <li class="nav-header">Функции администратора</li>
+                    <li><a href='{$web_prefix}/users.php'>Управление пользователями</a></li>
+                    <li><a href='{$web_prefix}/generator_cp.php'>Генерация данных для CPAN-токенизатора</a></li>
+                {/if}
+            </ul>
+        </div>
     </div>
 {/if}
 <!-- VK api -->
