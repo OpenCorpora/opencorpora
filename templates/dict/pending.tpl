@@ -33,6 +33,12 @@ $(document).ready(function(){
 <h1>Влияние словаря на корпус</h1>
 <p>Токенов в очереди &mdash; <b>{$data.cnt_tokens}</b> {if $data.cnt_forms}<b>(+ {$data.cnt_forms} форм, т.е. список неполон)</b>{/if}</p>
 {if $data.outdated_f2l}<h2>Осторожно, в словаре есть свежие правки, перезаливать не рекомендуется!</h2>{/if}
+<h2>Оглавление</h2>
+<ol>
+{foreach from=$data.header item=i}
+    <li><a href="?act=pending&amp;skip={$i.skip}">{$i.revision}</a>: <a href="{$web_prefix}/dict.php?act=edit&id={$i.lemma_id}">{$i.lemma|htmlspecialchars}</a> ({$i.count})</li>
+{/foreach}
+</ol>
 <div class="pagination pagination-centered"><ul>
 <li {if $data.pages.active == 0}class="disabled"{/if}><a href="?act=pending&skip={($data.pages.active - 1) * 500}">&lt;</a></li>
 {for $i=0 to $data.pages.total - 1}

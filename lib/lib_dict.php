@@ -219,7 +219,7 @@ function form_exists($f) {
     return sql_num_rows(sql_query("SELECT lemma_id FROM form2lemma WHERE form_text='".mysql_real_escape_string($f)."' LIMIT 1"));
 }
 function get_pending_updates($skip=0, $limit=500) {
-    $out = array('revisions' => array());
+    $out = array('revisions' => array(), 'header' => array());
 
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) cnt FROM updated_tokens"));
     $out['cnt_tokens'] = $r['cnt'];
@@ -228,6 +228,28 @@ function get_pending_updates($skip=0, $limit=500) {
     $res = sql_query("SELECT rev_id FROM dict_revisions WHERE f2l_check=0 LIMIT 1");
     $out['outdated_f2l'] = sql_num_rows($res);
 
+    // header
+    $res = sql_query("
+        SELECT dict_revision, lemma_id, lemma_text, COUNT(token_id) AS cnt
+        FROM updated_tokens ut
+        LEFT JOIN dict_revisions dr ON (ut.dict_revision = dr.rev_id)
+        LEFT JOIN dict_lemmata dl USING (lemma_id)
+        GROUP BY dict_revision
+        ORDER BY dict_revision
+    ");
+    $sum = 0;  // to count pages
+    while ($r = sql_fetch_array($res)) {
+        $out['header'][] = array(
+            'lemma' => $r['lemma_text'],
+            'lemma_id' => $r['lemma_id'],
+            'revision' => $r['dict_revision'],
+            'count' => $r['cnt'],
+            'skip' => $sum
+        );
+        $sum += $r['cnt'];
+    }
+
+    // main table
     $res = sql_query("
         SELECT DISTINCT token_id, tf_text, sent_id, dict_revision, lemma_id, dr.set_id,
             tfr.rev_text AS token_rev_text
@@ -241,7 +263,7 @@ function get_pending_updates($skip=0, $limit=500) {
     ");
 
     $out['pages'] = array(
-        'active' => $limit ? ($skip / $limit) : 0,
+        'active' => $limit ? floor($skip / $limit) : 0,
         'total' => $limit ? ($out['cnt_tokens'] / $limit) : 1
     );
 
