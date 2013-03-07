@@ -375,7 +375,7 @@ function get_moderation_stats() {
 
     while ($r = sql_fetch_array($res)) {
         $t[$r['moderator_id']][$r['pool_type']][$r['status']] = $r['cnt'];
-        $type2name[$r['pool_type']] = $r['grammemes'];
+        $type2name[$r['pool_type']] = array($r['grammemes'], 0);
         if ($r['moderator_id'] > 0) {
             $t['total'][$r['pool_type']][$r['status']] += $r['cnt'];
             $mod2name[$r['moderator_id']] = $r['username'];
@@ -392,9 +392,17 @@ function get_moderation_stats() {
                 $t[$mod][$type][$st] = array($sdata, intval($sdata / $mod_total[$mod][$type] * 100));
                 $t[$mod]['total'][$st][0] += $sdata;
                 $t[$mod]['total'][$st][1] += $sdata / $mod_total[$mod]['total'] * 100;
+                if ($mod == 0 && $st == 4)
+                    $type2name[$type][1] = $sdata;
             }
         }
     }
+
+    uasort($type2name, function($a, $b) {
+        if ($a[1] == $b[1])
+            return 0;
+        return $a[1] < $b[1] ? 1 : -1;
+    });
 
     return array(
         'types' => $type2name,
