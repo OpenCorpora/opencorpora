@@ -40,7 +40,7 @@
     <li>сделать ещё что-нибудь полезное и интересное (разумеется, напишите нам письмо на {mailto address="opencorpora@opencorpora.org" encode="javascript"})</li>
     </ul>
 {/if}
-{if $is_logged && ($user_permission_adder || $user_permission_dict)}
+{if $is_logged && ($user_permission_adder || $user_permission_dict || $user_permission_check_morph)}
     <div class="row">
         <div class="well nav-wrapper span5">
             <ul class="nav nav-list">
