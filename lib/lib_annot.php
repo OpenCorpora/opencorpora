@@ -387,8 +387,18 @@ function filter_sample_for_moderation($pool_type, $sample) {
     if (mb_strlen($sample['context'][$sample['mainword']]) == 1)
         return true;
     // disregard context in any pools except NOUN sing-plur
-    if ($pool_type != 12)
+    if (!in_array($pool_type, array(2, 12)))
         return false;
+
+    // ADJF masc/neut
+    if ($pool_type == 2) {
+        if (preg_match('/^общем$/iu', $sample['context'][$sample['mainword']]))
+            return true;
+        if (sizeof($sample['context']) > $sample['mainword'] &&
+            mb_strlen($sample['context'][$sample['mainword'] + 1]) == 1)
+            return true;
+        return false;
+    }
     // focus word with Fixd or Pltm 
     foreach ($sample['parses'] as $parse) {
         foreach ($parse['gram_list'] as $gram) {
@@ -396,7 +406,7 @@ function filter_sample_for_moderation($pool_type, $sample) {
                 return true;
         }
     }
-    // left context with numbers
+    // left or right context with numbers
     for ($i = max(0, $sample['mainword'] - 3); $i < min($sample['mainword'] + 3, sizeof($sample['context'])); ++$i) {
         if ($i == $sample['mainword'])
             continue;
