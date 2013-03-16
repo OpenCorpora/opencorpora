@@ -383,8 +383,11 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     return $out;
 }
 function filter_sample_for_moderation($pool_type, $sample) {
-    // check all one-symbol focus words
-    if (mb_strlen($sample['context'][$sample['mainword']]) == 1)
+    // check all one-symbol focus words except aux parts of speech
+    if (
+        !in_array($pool_type, array(35, 36, 44, 70)) &&
+        mb_strlen($sample['context'][$sample['mainword']]) == 1
+    )
         return true;
     // disregard context in any pools except NOUN sing-plur
     if (!in_array($pool_type, array(2, 12, 35, 36, 44, 70)))
