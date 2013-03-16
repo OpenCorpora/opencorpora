@@ -387,18 +387,65 @@ function filter_sample_for_moderation($pool_type, $sample) {
     if (mb_strlen($sample['context'][$sample['mainword']]) == 1)
         return true;
     // disregard context in any pools except NOUN sing-plur
-    if (!in_array($pool_type, array(2, 12)))
+    if (!in_array($pool_type, array(2, 12, 35, 36, 44, 70)))
         return false;
 
     // ADJF masc/neut
     if ($pool_type == 2) {
         if (preg_match('/^общем$/iu', $sample['context'][$sample['mainword']]))
             return true;
-        if (sizeof($sample['context']) > $sample['mainword'] &&
+        if (isset($sample['context'][$sample['mainword'] + 1]) &&
             mb_strlen($sample['context'][$sample['mainword'] + 1]) == 1)
             return true;
         return false;
     }
+
+    // NOUN/PREP
+    if ($pool_type == 35) {
+        if (preg_match('/^(?:посредством|типа)$/iu', $sample['context'][$sample['mainword']]))
+            return true;
+        if (isset($sample['context'][$sample['mainword'] - 1]) &&
+            (
+                preg_match('/^только$/iu', $sample['context'][$sample['mainword'] - 1]) ||
+                mb_strlen($sample['context'][$sample['mainword'] - 1]) == 2
+            ))
+            return true;
+        return false;
+    }
+
+    // GRND/PREP
+    if ($pool_type == 36) {
+        if (preg_match('/^(?:включая|благодаря)$/iu', $sample['context'][$sample['mainword']]))
+            return true;
+        if (isset($sample['context'][$sample['mainword'] - 1]) &&
+            mb_strlen($sample['context'][$sample['mainword'] - 1]) == 1)
+            return true;
+        return false;
+    }
+
+    // CONJ/INTJ
+    if ($pool_type == 44) {
+        if (preg_match('/^однако$/iu', $sample['context'][$sample['mainword']]))
+            return true;
+        if (isset($sample['context'][$sample['mainword'] + 1]) &&
+            mb_strlen($sample['context'][$sample['mainword'] + 1]) == 1)
+            return true;
+        return false;
+    }
+
+    // INTJ/PREP
+    if ($pool_type == 70) {
+        if (isset($sample['context'][$sample['mainword'] - 1]) &&
+            $sample['context'][$sample['mainword'] - 1] == '-')
+            return true;
+        if (isset($sample['context'][$sample['mainword'] + 1]) &&
+            mb_strlen($sample['context'][$sample['mainword'] + 1]) == 1)
+            return true;
+        return false;
+    }
+
+    // therefore it is 12
+
     // focus word with Fixd or Pltm 
     foreach ($sample['parses'] as $parse) {
         foreach ($parse['gram_list'] as $gram) {
