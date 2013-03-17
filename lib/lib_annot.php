@@ -389,8 +389,9 @@ function filter_sample_for_moderation($pool_type, $sample) {
         mb_strlen($sample['context'][$sample['mainword']]) == 1
     )
         return true;
-    // disregard context in any pools except NOUN sing-plur
-    if (!in_array($pool_type, array(2, 12, 35, 36, 44, 70)))
+    // disregard context in any pools except the following
+    $r = sql_fetch_array(sql_query("SELECT has_focus FROM morph_annot_pool_types WHERE type_id = $pool_type LIMIT 1"));
+    if (!$r['has_focus'])
         return false;
 
     // ADJF masc/neut
@@ -548,7 +549,7 @@ function add_morph_pool_type($post_gram, $post_descr) {
     $gram_sets_str = mysql_real_escape_string(join('@', $gram_sets));
     $gram_descr_str = mysql_real_escape_string(join('@', $gram_descr));
 
-    if (sql_query("INSERT INTO morph_annot_pool_types VALUES (NULL, '$gram_sets_str', '$gram_descr_str', '', 0)"))
+    if (sql_query("INSERT INTO morph_annot_pool_types VALUES (NULL, '$gram_sets_str', '$gram_descr_str', '', 0, 0)"))
         return sql_insert_id();
     return false;
 }
