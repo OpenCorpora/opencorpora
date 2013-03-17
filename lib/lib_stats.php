@@ -358,7 +358,7 @@ function get_extended_pools_stats() {
 }
 function get_moderation_stats() {
     $res = sql_query("
-        SELECT moderator_id, pool_type, grammemes, status, COUNT(pool_id) AS cnt, u.user_shown_name AS username
+        SELECT moderator_id, pool_type, grammemes, status, has_focus, COUNT(pool_id) AS cnt, u.user_shown_name AS username
         FROM morph_annot_pools p
         LEFT JOIN morph_annot_pool_types t
         ON (p.pool_type = t.type_id)
@@ -375,7 +375,7 @@ function get_moderation_stats() {
 
     while ($r = sql_fetch_array($res)) {
         $t[$r['moderator_id']][$r['pool_type']][$r['status']] = $r['cnt'];
-        $type2name[$r['pool_type']] = array($r['grammemes'], 0);
+        $type2name[$r['pool_type']] = array($r['grammemes'], 0, $r['has_focus']);
         if ($r['moderator_id'] > 0) {
             $t['total'][$r['pool_type']][$r['status']] += $r['cnt'];
             $mod2name[$r['moderator_id']] = $r['username'];

@@ -65,7 +65,7 @@ $(document).ready(function() {
 {/foreach}
 </tr>
 {foreach from=$moder.types item=type key=typenum}
-    <tr>
+    <tr {if $type[2]}class='success'{/if}>
         <td><div class='progress'>
         {if isset($moder.data.total.$typenum[5])}
             <div class="bar bar-info" style="width:{$moder.data.total.$typenum[5][1]}%" title="{$moder.data.total.$typenum[5][0]}">{$moder.data.total.$typenum[5][0]}</div>
