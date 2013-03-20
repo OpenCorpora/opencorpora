@@ -85,6 +85,12 @@ switch ($action) {
             show_error("Ошибка. Возможно, пул не полностью заполнен.");
         }
         break;
+    case 'agree':
+        if (moder_agree_with_all((int)$_GET['pool_id']))
+            header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
+        else
+            show_error();
+        break;
     case 'finish_moder':
         if (finish_moderate_pool((int)$_GET['pool_id']))
             header("Location:index.php?page=pool_charts");

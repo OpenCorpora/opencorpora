@@ -1138,6 +1138,17 @@ function check_moderator_right($user_id, $pool_id, $make_owner=false) {
     sql_commit();
     return true;
 }
+function moder_agree_with_all($pool_id) {
+    $samples = get_morph_samples_page($pool_id, true, 1, 0, 'not_moderated');
+    sql_begin();
+    foreach ($samples['samples'] as $sample) {
+        if ($sample['disagreed'] === 0)
+            if (!save_moderated_answer($sample['id'], $sample['instances'][0]['answer_num'], 0))
+                return false;
+    }
+    sql_commit();
+    return true;
+}
 function save_moderated_answer($id, $answer, $manual, $field_name='answer') {
     $user_id = $_SESSION['user_id'];
     if (!$id || !$user_id || $answer < 0) return 0;

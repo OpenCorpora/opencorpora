@@ -104,6 +104,7 @@
 <form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn">Опубликовать заново</button></form>
 {elseif $pool.status == 5}
 Пул модерируется (новые ответы запрещены). <form action="?act=finish_moder&amp;pool_id={$pool.id}" method="post" class="inline"><button{if !$pool.all_moderated} disabled="disabled"{/if} class="btn finish_mod">Закончить модерацию</button></form>
+<form action="?act=agree&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn" onclick="return confirm('Вы уверены? Это действие необратимо.')">Согласиться со всеми однозначными</button></form>
 {elseif $pool.status == 6}
 Модерация пула закончена.
 {if $user_permission_merge}<form action="?act=begin_merge&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn btn-primary" onclick="return confirm('Вы уверены? Это действие необратимо.')">Вернуть результаты в корпус</button></form>{/if}
