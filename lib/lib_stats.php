@@ -306,7 +306,7 @@ function get_extended_pools_stats() {
     ");
     $t = array();
     while ($r = sql_fetch_array($res)) {
-        if ($r['status'] == 5)
+        if (in_array($r['status'], array(5, 7, 8)))
             $r['status'] = 6;
         $t[$r['status']][$r['pool_type']] += $r['cnt'];
         $total[$r['pool_type']] += $r['cnt'];
