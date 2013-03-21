@@ -64,6 +64,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
     $crossval_id = $ref->{'sent_id'} % CROSSVAL_FOLDS;
 
     $border = get_borders_from_tokens($str, get_tokens_by_sent_id($ref->{'sent_id'}), $ref->{'sent_id'});
+    next unless $border;
 
     for my $i(0..length($str)-1) {
         $vector = oct('0b'.join('', @{calc($str, $i)}));
@@ -104,6 +105,7 @@ printf "Total %d different vectors; predictor is sure in %.3f%% cases\n", scalar
 query_wrapper($dry_run, $stat, time(), int($stat_sure/$stat_total * 100000));
 
 #second pass
+query_wrapper($dry_run, $drop_broken);
 query_wrapper($dry_run, $drop2);
 $sent->execute();
 while(my $ref = $sent->fetchrow_hashref()) {
@@ -112,7 +114,7 @@ while(my $ref = $sent->fetchrow_hashref()) {
     $crossval_id = $ref->{'sent_id'} % CROSSVAL_FOLDS;
 
     $border = get_borders_from_tokens($str, get_tokens_by_sent_id($ref->{'sent_id'}), $ref->{'sent_id'});
-    query_wrapper($dry_run, $drop_broken);
+    next unless $border;
 
     for my $i(0..length($str)-1) {
         my $s = calc($str, $i);
@@ -433,7 +435,7 @@ sub get_borders_from_tokens {
             if ($pos > length($str)) {
                 query_wrapper($dry_run, $broken_token, time(), $token->[0]);
                 printf STDERR "Too long, sentence %d, failed token is <%s>\n", $sent_id, $token->[1];
-                exit;
+                return undef;
             }
         }
         $border{$pos + length($token->[1]) - 1} = 1;

@@ -3,9 +3,9 @@
 {block name=content}
 <h1>Странно токенизированные места</h1>
 <p>Обновлено {$obj.timestamp|date_format:"%d.%m.%Y, %H:%M"}, однозначные решения в {$obj.coeff}% случаев.</p>
-{if isset($obj.broken_sent_id)}
-<p class='bgpink'>Сломалось на <a href="{$web_prefix}/sentence.php?id={$obj.broken_sent_id}">предложении {$obj.broken_sent_id}</a>, токен &laquo;<b>{$obj.broken_token_text|htmlspecialchars}</b>&raquo;.</p>
-{/if}
+{foreach from=$obj.broken item=token}
+<p class='bgpink'>Сломалось на <a href="{$web_prefix}/sentence.php?id={$token.sent_id}">предложении {$token.sent_id}</a>, токен &laquo;<b>{$token.token_text|htmlspecialchars}</b>&raquo;.</p>
+{/foreach}
 <p>
 {if isset($smarty.get.newest)}
 <a href="?act=tokenizer">важные сверху</a>
