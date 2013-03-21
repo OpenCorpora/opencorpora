@@ -188,6 +188,9 @@ function sentence_save($sent_id) {
     }
     return false;
 }
+function sentence_save_source($sent_id, $text) {
+    return (bool)sql_query("UPDATE sentences SET source = '".mysql_real_escape_string(trim($text))."' WHERE sent_id=$sent_id LIMIT 1");
+}
 function create_tf_revision($revset_id, $token_id, $rev_xml) {
     $r = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=$token_id ORDER BY rev_id DESC LIMIT 1"));
     if ($r && $r['rev_text'] === $rev_xml)

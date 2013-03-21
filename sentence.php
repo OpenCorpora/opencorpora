@@ -14,8 +14,8 @@ if (isset($_GET['act'])) {
     switch ($action) {
         case 'save':
             if (user_has_permission('perm_disamb')) {
-                if (isset($_GET['id']) && sentence_save($sent_id = (int)$_GET['id'])) {
-                    header("Location:sentence.php?id=$sent_id");
+                if (sentence_save($id)) {
+                    header("Location:sentence.php?id=$id");
                 } else {
                     show_error();
                 }
@@ -23,6 +23,12 @@ if (isset($_GET['act'])) {
             } else {
                 show_error($config['msg']['notlogged']);
             }
+            break;
+        case 'save_src':
+            if (is_admin() && sentence_save_source($id, $_POST['src_text'])) {
+                header("Location:sentence.php?id=$id");
+            } else
+                show_error();
     }
 } else {
     $smarty->assign('sentence', get_sentence($id));
