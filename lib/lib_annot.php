@@ -266,7 +266,7 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     return array('pools' => $pools, 'types' => $types, 'moderators' => $moderators);
 }
 function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $skip=0, $filter=false, $samples_by_page=0) {
-    $res = sql_query("SELECT pool_name, pool_type, status, t.grammemes, users_needed, moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
+    $res = sql_query("SELECT pool_name, pool_type, status, t.grammemes, t.has_focus, users_needed, moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
     $r = sql_fetch_array($res);
     $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
     $select_options = array('---');
@@ -274,7 +274,17 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         $select_options[] = $v;
     }
     $select_options[99] = 'Other';
-    $out = array('id' => $pool_id, 'type' => $r['pool_type'], 'variants' => $select_options, 'name' => $r['pool_name'], 'status' => $r['status'], 'num_users' => $r['users_needed'], 'moderator_name' => $r['user_name']);
+    $out = array(
+        'id' => $pool_id,
+        'type' => $r['pool_type'],
+        'variants' => $select_options,
+        'name' => $r['pool_name'],
+        'status' => $r['status'],
+        'num_users' => $r['users_needed'],
+        'moderator_name' => $r['user_name'],
+        'has_focus' => $r['has_focus'],
+        'samples' => array()
+    );
     $res = sql_query("SELECT sample_id, tf_id FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id");
     $gram_descr = array();
     $distinct_users = array();
@@ -283,8 +293,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     $out['pages'] = array(
         'active' => $samples_by_page ? ($skip / $samples_by_page) : 0,
         'query' => preg_replace('/&skip=\d+/', '', $_SERVER['QUERY_STRING']),
-        'total' => 0,
-        'samples' => array()
+        'total' => 0
     );
     while ($r = sql_fetch_array($res)) {
         $t = get_context_for_word($r['tf_id'], $context_width);
