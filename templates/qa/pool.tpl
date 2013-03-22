@@ -4,9 +4,9 @@
 {if $user_permission_check_morph}
 {literal}
 <script type="text/javascript">
-    function submit(id, answer, $target, manual) {
+    function submit(id, answer, $target) {
         $('select').attr('disabled', 'disabled');
-        $.get('ajax/annot.php', {'id':id, 'answer':answer, 'moder':1, 'manual':manual}, function(res) {
+        $.get('ajax/annot.php', {'id':id, 'answer':answer, 'moder':1, 'manual':1}, function(res) {
             var $r = $(res).find('result');
             if ($r.attr('ok') > 0) {
                 $target.closest('td').addClass('bggreen').find('select.sel_var [value=\''+answer+'\']').attr("selected", "selected");
@@ -18,19 +18,10 @@
             }
         });
     }
-    function agree_all() {
-        if (confirm('Согласиться со всеми однозначными ответами?')) {
-            $('table.samples_tbl tr:not(.notagreed)').each(function(i, el) {
-                $el = $(el);
-                if ($el.find('select.sel_var').val() == 0)
-                    submit($el.attr('rel'), $el.attr('rev'), $el.find('a.agree'), 0);
-            });
-        }
-    }
     $(document).ready(function(){
         $('select.sel_var').bind('change', function(event) {
             var $tgt = $(event.target);
-            submit($tgt.closest('tr').attr('rel'), $tgt.val(), $tgt, 1);
+            submit($tgt.closest('tr').attr('rel'), $tgt.val(), $tgt);
         });
         $('select.sel_status').bind('change', function(event) {
             var $tgt = $(event.target);
@@ -46,14 +37,10 @@
                 }
             });
         });
-        $('a.agree_all').click(function(event) {
-            agree_all();
-            event.preventDefault();
-        });
         $('a.agree').click(function(event) {
             var $tgt = $(event.target);
             var answer = $tgt.closest('tr').attr('rev');
-            submit($tgt.closest('tr').attr('rel'), answer, $tgt, 1);
+            submit($tgt.closest('tr').attr('rel'), answer, $tgt);
             event.preventDefault();
         });
         $('a.expand').click(function(event) {
@@ -140,9 +127,7 @@
     <th>&nbsp;</th>
     {if isset($smarty.get.ext)}
         {for $i=1 to $pool.num_users}<th>{$i}</th>{/for}
-        {if $user_permission_check_morph && $pool.status == 5}
-            <th><a class='agree_all pseudo' href='#'>согласен со всеми однозначными</a></th>
-        {elseif $pool.status > 5}
+        {if $pool.status > 5}
             <th>Модератор<br/>({$pool.moderator_name})</th>
         {/if}
     {else}
@@ -218,9 +203,6 @@
     {/if}
 </tr>
 {/foreach}
-{if isset($smarty.get.ext) && $user_permission_check_morph && $pool.status == 5}
-<tr><th colspan='{$pool.num_users + 3}' align='right'><a class='agree_all pseudo' href='#'>согласен со всеми однозначными</a></th></tr>
-{/if}
 </table>
 <div class="pagination pagination-centered"><ul>
 <li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * 15}">&lt;</a></li>
