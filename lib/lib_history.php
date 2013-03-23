@@ -91,7 +91,21 @@ function dict_history($lemma_id, $skip = 0) {
     }
     return $out;
 }
-function main_diff($sentence_id, $set_id) {
+function main_diff($sentence_id, $set_id, $rev_id) {
+    if (!$sentence_id || !$set_id) {
+        if (!$rev_id)
+            return false;
+        $r = sql_fetch_array(sql_query("
+            SELECT sent_id, set_id
+            FROM tf_revisions
+            LEFT JOIN text_forms USING (tf_id)
+            WHERE rev_id = $rev_id
+            LIMIT 1
+        "));
+
+        $sentence_id = $r['sent_id'];
+        $set_id = $r['set_id'];
+    }
     $r = sql_fetch_array(sql_query("SELECT DISTINCT s.*, u.user_shown_name AS user_name FROM rev_sets s LEFT JOIN `users` u ON (s.user_id = u.user_id) WHERE s.set_id=$set_id"));
     $out = array(
         'set_id'    => $set_id,
