@@ -266,7 +266,13 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     return array('pools' => $pools, 'types' => $types, 'moderators' => $moderators);
 }
 function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $skip=0, $filter=false, $samples_by_page=0) {
-    $res = sql_query("SELECT pool_name, pool_type, status, t.grammemes, t.has_focus, users_needed, moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users ON (p.moderator_id = users.user_id) WHERE pool_id=$pool_id LIMIT 1");
+    $res = sql_query("
+        SELECT pool_name, pool_type, status, t.grammemes, t.has_focus, users_needed, moderator_id, user_shown_name AS user_name
+        FROM morph_annot_pools p
+        LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id)
+        LEFT JOIN users ON (p.moderator_id = users.user_id)
+        WHERE pool_id=$pool_id
+        LIMIT 1");
     $r = sql_fetch_array($res);
     $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
     $select_options = array('---');
@@ -285,7 +291,13 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         'has_focus' => $r['has_focus'],
         'samples' => array()
     );
-    $res = sql_query("SELECT sample_id, tf_id FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id");
+    $res = sql_query("
+        SELECT sample_id, s.tf_id
+        FROM morph_annot_samples s
+        LEFT JOIN text_forms f ON (s.tf_id = f.tf_id)
+        WHERE pool_id=$pool_id
+        ORDER BY tf_text, sample_id
+    ");
     $gram_descr = array();
     $distinct_users = array();
     $out['all_moderated'] = $extended ? true : false;  // for now we never get active button with non-extended view, just for code simplicity
