@@ -19,7 +19,7 @@
     <td>{strip}
         {if     $sample.mod_status == 3}опечатка
         {elseif $sample.mod_status == 4}неснимаемая омонимия
-        {elseif $sample.mod_status == 5}ручная правка
+        {elseif $sample.mod_status == 5}<a href="{$web_prefix}/diff.php?rev_id={$sample.revision}">ручная правка</a>
         {else}???
         {/if}
         {/strip}

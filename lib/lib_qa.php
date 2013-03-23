@@ -114,17 +114,18 @@ function get_merge_fails() {
         'total' => array()
     );
     while ($r = sql_fetch_array($res)) {
-        $has_changes = sql_num_rows(sql_query("
+        $r1 = sql_fetch_array(sql_query("
             SELECT rev_id
             FROM tf_revisions tfr
             LEFT JOIN rev_sets USING (set_id)
             WHERE tf_id = ".$r['tf_id']."
             AND rev_id > ".$r['pool_revision']."
+            ORDER BY rev_id
             LIMIT 1
         "));
 
         if (!in_array($r['status'], array(3, 4))) {
-            if ($has_changes)
+            if ($r1)
                 $r['status'] = 5;
             else
                 $r['status'] = -1;
@@ -134,6 +135,7 @@ function get_merge_fails() {
             'id' => $r['sample_id'],
             'mod_status' => $r['status'],
             'pool_name' => $r['pool_name'],
+            'revision' => $r1['rev_id']
         );
         if (!isset($data['total'][$r['status']]))
             $data['total'][$r['status']] = 0;
