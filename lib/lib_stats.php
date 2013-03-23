@@ -377,6 +377,8 @@ function get_moderation_stats() {
         $t[$r['moderator_id']][$r['pool_type']][$r['status']] = $r['cnt'];
         $type2name[$r['pool_type']] = array($r['grammemes'], 0, $r['has_focus']);
         if ($r['moderator_id'] > 0) {
+            if (!isset($t['total'][$r['pool_type']][$r['status']]))
+                $t['total'][$r['pool_type']][$r['status']] = 0;
             $t['total'][$r['pool_type']][$r['status']] += $r['cnt'];
             $mod2name[$r['moderator_id']] = $r['username'];
             $mod_total[$r['moderator_id']][$r['pool_type']] += $r['cnt'];
@@ -389,9 +391,11 @@ function get_moderation_stats() {
     foreach ($t as $mod => $mdata) {
         foreach ($mdata as $type => $tdata) {
             foreach ($tdata as $st => $sdata) {
-                $t[$mod][$type][$st] = array($sdata, intval($sdata / $mod_total[$mod][$type] * 100));
-                $t[$mod]['total'][$st][0] += $sdata;
-                $t[$mod]['total'][$st][1] += $sdata / $mod_total[$mod]['total'] * 100;
+                if ($sdata > 0) {
+                    $t[$mod][$type][$st] = array($sdata, intval($sdata / $mod_total[$mod][$type] * 100));
+                    $t[$mod]['total'][$st][0] += $sdata;
+                    $t[$mod]['total'][$st][1] += $sdata / $mod_total[$mod]['total'] * 100;
+                }
                 if ($mod == 0 && $st == 4)
                     $type2name[$type][1] = $sdata;
             }
