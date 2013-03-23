@@ -100,22 +100,44 @@ function get_good_sentences($no_zero = false) {
 }
 function get_merge_fails() {
     $res = sql_query("
-        SELECT sample_id, p.pool_name, ms.status
+        SELECT sample_id, p.pool_name, p.revision AS pool_revision, ms.status, s.tf_id
         FROM morph_annot_moderated_samples ms
-        LEFT JOIN morph_annot_samples USING (sample_id)
+        LEFT JOIN morph_annot_samples s USING (sample_id)
         LEFT JOIN morph_annot_pools p USING (pool_id)
         WHERE p.status = 9
         AND merge_status = 0
         ORDER BY sample_id
     ");
 
-    $data = array();
+    $data = array(
+        'samples' => array(),
+        'total' => array()
+    );
     while ($r = sql_fetch_array($res)) {
-        $data[] = array(
+        $has_changes = sql_num_rows(sql_query("
+            SELECT rev_id
+            FROM tf_revisions tfr
+            LEFT JOIN rev_sets USING (set_id)
+            WHERE tf_id = ".$r['tf_id']."
+            AND rev_id > ".$r['pool_revision']."
+            LIMIT 1
+        "));
+
+        if (!in_array($r['status'], array(3, 4))) {
+            if ($has_changes)
+                $r['status'] = 5;
+            else
+                $r['status'] = -1;
+        }
+
+        $data['samples'][] = array(
             'id' => $r['sample_id'],
             'mod_status' => $r['status'],
-            'pool_name' => $r['pool_name']
+            'pool_name' => $r['pool_name'],
         );
+        if (!isset($data['total'][$r['status']]))
+            $data['total'][$r['status']] = 0;
+        ++$data['total'][$r['status']];
     }
     return $data;
 }
