@@ -391,7 +391,7 @@ function get_moderation_stats() {
     foreach ($t as $mod => $mdata) {
         foreach ($mdata as $type => $tdata) {
             foreach ($tdata as $st => $sdata) {
-                if ($sdata > 0) {
+                if (isset($mod_total[$mod]) && isset($mod_total[$mod][$type])) {
                     $t[$mod][$type][$st] = array($sdata, intval($sdata / $mod_total[$mod][$type] * 100));
                     $t[$mod]['total'][$st][0] += $sdata;
                     $t[$mod]['total'][$st][1] += $sdata / $mod_total[$mod]['total'] * 100;
