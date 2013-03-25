@@ -31,7 +31,7 @@ if ($max1->fetchrow_hashref()->{'max1'} == $max2->fetchrow_hashref()->{'max2'}) 
     exit 0;
 }
 
-$scan->execute(50);
+$scan->execute(500);
 while (my $ref = $scan->fetchrow_hashref()) {
     my $txt = $ref->{'tf_text'};
     $txt = decode('utf-8', $txt);
