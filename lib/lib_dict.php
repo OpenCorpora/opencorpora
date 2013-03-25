@@ -251,7 +251,7 @@ function get_pending_updates($skip=0, $limit=500) {
 
     // main table
     $res = sql_query("
-        SELECT DISTINCT token_id, tf_text, sent_id, dict_revision, lemma_id, dr.set_id,
+        SELECT token_id, tf_text, sent_id, dict_revision, lemma_id, dr.set_id,
             tfr.rev_text AS token_rev_text
         FROM updated_tokens ut
         LEFT JOIN dict_revisions dr ON (ut.dict_revision = dr.rev_id)
@@ -440,7 +440,7 @@ function dict_add_lemma($array) {
     $upd_forms = array_unique($upd_forms);
     sql_begin();
     //new lemma in dict_lemmata
-    if (!sql_query("INSERT INTO dict_lemmata VALUES(NULL, '".mysql_real_escape_string($lemma_text)."')")) {
+    if (!sql_query("INSERT INTO dict_lemmata VALUES(NULL, '".mysql_real_escape_string(mb_strtolower($lemma_text))."')")) {
         return false;
     }
     $lemma_id = sql_insert_id();
@@ -530,7 +530,7 @@ function dict_save($array) {
     }
 }
 function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
-    $new_xml = '<dr><l t="'.htmlspecialchars($lemma_text).'">';
+    $new_xml = '<dr><l t="'.htmlspecialchars(mb_strtolower($lemma_text)).'">';
     //lemma's grammems
     $lg = explode(',', $lemma_gram);
     foreach ($lg as $gr) {
@@ -542,7 +542,7 @@ function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
     //paradigm
     foreach ($paradigm as $new_form) {
         list($txt, $gram) = $new_form;
-        $new_xml .= '<f t="'.htmlspecialchars($txt).'">';
+        $new_xml .= '<f t="'.htmlspecialchars(mb_strtolower($txt)).'">';
         $gram = explode(',', $gram);
         foreach ($gram as $gr) {
             if (!trim($gr))
