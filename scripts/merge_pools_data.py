@@ -96,6 +96,23 @@ def get_pool_grammemes(dbh, pool_id):
     dbh.execute("SELECT grammemes FROM morph_annot_pool_types WHERE type_id = (SELECT pool_type FROM morph_annot_pools WHERE pool_id={0} LIMIT 1) LIMIT 1".format(pool_id))
     row = dbh.fetchone()
     return re.split('@', row['grammemes'])
+def check_for_manual_changes(dbh, revision):
+    dbh.execute("""
+        SELECT rev_id
+        FROM tf_revisions
+        LEFT JOIN rev_sets
+            USING (set_id)
+        WHERE tf_id = (
+            SELECT tf_id 
+            FROM tf_revisions
+            WHERE rev_id = {0}
+            LIMIT 1
+        )
+        AND rev_id > {0}
+        AND user_id > 0
+        LIMIT 1
+    """.format(revision))
+    return bool(dbh.fetchone())
 def process_pool(dbh, pool_id, revision):
     changeset_id = make_new_changeset(dbh, pool_id)
     set_pool_status(dbh, pool_id, POOL_STATUS_IN_PROGRESS)
@@ -108,7 +125,7 @@ def process_pool(dbh, pool_id, revision):
         
         old_xml, rev_id = get_xml_by_sample_id(dbh, sample['sample_id'])
         # do nothing if token has changed since pool creation
-        if rev_id > revision:
+        if rev_id > revision and check_for_manual_changes(dbh, revision) is True:
             continue
 
         token, old_vars = xml2vars(old_xml)
