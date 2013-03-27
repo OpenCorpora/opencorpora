@@ -392,9 +392,11 @@ function get_moderation_stats() {
         foreach ($mdata as $type => $tdata) {
             foreach ($tdata as $st => $sdata) {
                 if ($sdata > 0) {
-                    $t[$mod][$type][$st] = array($sdata, intval($sdata / $mod_total[$mod][$type] * 100));
+                    $share = $mod_total[$mod][$type] > 0 ? ($sdata / $mod_total[$mod][$type]) : 0;
+                    $t[$mod][$type][$st] = array($sdata, intval($share * 100));
                     $t[$mod]['total'][$st][0] += $sdata;
-                    $t[$mod]['total'][$st][1] += $sdata / $mod_total[$mod]['total'] * 100;
+                    $share = $mod_total[$mod]['total'] > 0 ? ($sdata / $mod_total[$mod]['total']) : 0;
+                    $t[$mod]['total'][$st][1] += $share * 100;
                 }
                 if ($mod == 0 && $st == 4)
                     $type2name[$type][1] = $sdata;
