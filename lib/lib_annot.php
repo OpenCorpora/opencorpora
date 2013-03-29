@@ -407,12 +407,20 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     return $out;
 }
 function filter_sample_for_moderation($pool_type, $sample) {
+    $mainword = $sample['context'][$sample['mainword']];
+
+    // check all focus words beginning with a capital letter
+    $first_letter = mb_substr($mainword, 0, 1);
+    if (mb_strtoupper($first_letter) === $first_letter)
+        return true;
+
     // check all one-symbol focus words except aux parts of speech
     if (
         !in_array($pool_type, array(35, 36, 44, 70)) &&
-        mb_strlen($sample['context'][$sample['mainword']]) == 1
+        mb_strlen($mainword) == 1
     )
         return true;
+
     // disregard context in any pools except the following
     $r = sql_fetch_array(sql_query("SELECT has_focus FROM morph_annot_pool_types WHERE type_id = $pool_type LIMIT 1"));
     if (!$r['has_focus'])
@@ -420,7 +428,7 @@ function filter_sample_for_moderation($pool_type, $sample) {
 
     // ADJF masc/neut
     if ($pool_type == 2) {
-        if (preg_match('/^общем$/iu', $sample['context'][$sample['mainword']]))
+        if (preg_match('/^общем$/iu', $mainword))
             return true;
         if (isset($sample['context'][$sample['mainword'] + 1]) &&
             mb_strlen($sample['context'][$sample['mainword'] + 1]) == 1)
@@ -430,7 +438,7 @@ function filter_sample_for_moderation($pool_type, $sample) {
 
     // NOUN/PREP
     if ($pool_type == 35) {
-        if (preg_match('/^(?:посредством|типа)$/iu', $sample['context'][$sample['mainword']]))
+        if (preg_match('/^(?:посредством|типа)$/iu', $mainword))
             return true;
         if (isset($sample['context'][$sample['mainword'] - 1]) &&
             (
@@ -443,7 +451,7 @@ function filter_sample_for_moderation($pool_type, $sample) {
 
     // GRND/PREP
     if ($pool_type == 36) {
-        if (preg_match('/^(?:включая|благодаря)$/iu', $sample['context'][$sample['mainword']]))
+        if (preg_match('/^(?:включая|благодаря)$/iu', $mainword))
             return true;
         if (isset($sample['context'][$sample['mainword'] - 1]) &&
             mb_strlen($sample['context'][$sample['mainword'] - 1]) == 1)
@@ -453,7 +461,7 @@ function filter_sample_for_moderation($pool_type, $sample) {
 
     // CONJ/INTJ
     if ($pool_type == 44) {
-        if (preg_match('/^однако$/iu', $sample['context'][$sample['mainword']]))
+        if (preg_match('/^однако$/iu', $mainword))
             return true;
         if (isset($sample['context'][$sample['mainword'] + 1]) &&
             mb_strlen($sample['context'][$sample['mainword'] + 1]) == 1)
