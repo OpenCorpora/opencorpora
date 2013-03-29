@@ -18,12 +18,12 @@
             }
         });
     }
-    function agree_all() {
+    function agree_all(manual) {
         if (confirm('Согласиться со всеми однозначными ответами?')) {
             $('table.samples_tbl tr:not(.notagreed)').each(function(i, el) {
                 $el = $(el);
                 if ($el.find('select.sel_var').val() == 0)
-                    submit($el.attr('rel'), $el.attr('rev'), $el.find('a.agree'), 0);
+                    submit($el.attr('rel'), $el.attr('rev'), $el.find('a.agree'), manual);
             });
         }
     }
@@ -46,8 +46,12 @@
                 }
             });
         });
-        $('a.agree_all').click(function(event) {
-            agree_all();
+        $('a.agree_all_auto').click(function(event) {
+            agree_all(0);
+            event.preventDefault();
+        });
+        $('a.agree_all_manual').click(function(event) {
+            agree_all(1);
             event.preventDefault();
         });
         $('a.agree').click(function(event) {
@@ -141,7 +145,8 @@
     {if isset($smarty.get.ext)}
         {for $i=1 to $pool.num_users}<th>{$i}</th>{/for}
         {if $user_permission_check_morph && $pool.status == 5}
-            <th><a class='agree_all pseudo' href='#'>согласен со всеми однозначными</a></th>
+            <th><a class='agree_all_auto pseudo' href='#'>согласен со всеми однозначными (не читал)</a><br/>
+            <i class="icon-eye-open"></i> <a class='agree_all_manual pseudo' href='#'>согласен со всеми однозначными (читал)</a></th></tr>
         {elseif $pool.status > 5}
             <th>Модератор<br/>({$pool.moderator_name})</th>
         {/if}
@@ -219,7 +224,8 @@
 </tr>
 {/foreach}
 {if isset($smarty.get.ext) && $user_permission_check_morph && $pool.status == 5}
-<tr><th colspan='{$pool.num_users + 3}' align='right'><a class='agree_all pseudo' href='#'>согласен со всеми однозначными</a></th></tr>
+<tr><th colspan='{$pool.num_users + 3}' align='right'><a class='agree_all_auto pseudo' href='#'>согласен со всеми однозначными (не читал)</a><br/>
+<i class="icon-eye-open"></i> <a class='agree_all_manual pseudo' href='#'>согласен со всеми однозначными (читал)</a></th></tr>
 {/if}
 </table>
 <div class="pagination pagination-centered"><ul>
