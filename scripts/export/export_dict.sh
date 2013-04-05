@@ -21,6 +21,4 @@ if [ `ls -l $newpath.xml | awk '{print $5}'` -gt 100 ]; then
     zip -q9 $newpath.txt.zip.new $newpath.txt
     mv $newpath.txt.zip.new $newpath.txt.zip
     rm $newpath.txt
-else
-    echo 'Generated dictionary export is too small, no overwriting' >&2
 fi

@@ -23,7 +23,7 @@ my $ts = $dbh->prepare("SELECT MAX(`timestamp`) `timestamp` FROM `rev_sets` WHER
 $ts->execute();
 my $r = $ts->fetchrow_hashref();
 if (time() - $r->{'timestamp'} > 60*60*25 && !FORCE) {
-    die ("Dictionary not updated for 25 hours, exiting");
+    exit();
 }
 
 my $rev = $dbh->prepare("SELECT MAX(rev_id) AS m FROM dict_revisions");
