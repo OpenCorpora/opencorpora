@@ -1228,6 +1228,8 @@ function get_sample_comments($sample_id) {
     return $out;
 }
 function log_click($sample_id, $type) {
+    if (!is_logged())
+        return false;
     $user_id = $_SESSION['user_id'];
     if (!$sample_id || !$type || !$user_id) return false;
 

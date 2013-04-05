@@ -260,7 +260,7 @@ function get_user_stats($weekly=false) {
             'user_name' => $r['user_name'],
             'value' => number_format($r['param_value'], 0, '', ' '),
             'divergence' => $divergence[$r['user_id']] / $r['param_value'] * 100,
-            'last_active' => $last_click[$r['user_id']],
+            'last_active' => isset($last_click[$r['user_id']]) ? $last_click[$r['user_id']] : 0,
             'moderated' => isset($moderated[$r['user_id']]) ? $moderated[$r['user_id']] : 0,
             'error_rate' => (!isset($moderated[$r['user_id']]) || !$moderated[$r['user_id']]) ? 0 : (1 - $correct[$r['user_id']] / $moderated[$r['user_id']]) * 100
         );
