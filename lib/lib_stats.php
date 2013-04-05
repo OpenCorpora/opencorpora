@@ -335,8 +335,8 @@ function get_extended_pools_stats() {
                 $tt2[$status][] = sprintf("[%.3f, %d]", $data[$i] / $total[$i], $new_order[$i]);
             }
             else {
-                $tt[$status][] = sprintf("[%d, %d]", 0, $new_order[$i]);
-                $tt2[$status][] = sprintf("[%d, %d]", 0, $new_order[$i]);
+                $tt[$status][] = sprintf("[%d, %d]", 0, isset($new_order[$i]) ? $new_order[$i] : 0);
+                $tt2[$status][] = sprintf("[%d, %d]", 0, isset($new_order[$i]) ? $new_order[$i] : 0);
             }
         }
     }
@@ -392,6 +392,8 @@ function get_moderation_stats() {
         foreach ($mdata as $type => $tdata) {
             foreach ($tdata as $st => $sdata) {
                 if ($sdata > 0) {
+                    if (!isset($t[$mod]['total'][$st]))
+                        $t[$mod]['total'][$st] = array(0, 0);
                     $share = $mod_total[$mod][$type] > 0 ? ($sdata / $mod_total[$mod][$type]) : 0;
                     $t[$mod][$type][$st] = array($sdata, intval($share * 100));
                     $t[$mod]['total'][$st][0] += $sdata;
