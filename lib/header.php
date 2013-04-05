@@ -34,7 +34,7 @@ if (!is_logged() && isset($_COOKIE['auth'])) {
     if ($user_id = check_auth_cookie()) {
         if (user_login('', '', $user_id, $_COOKIE['auth'])) {
             header("Location:".$_SERVER['REQUEST_URI']);
-            return;
+            exit;
         }
     }
 }
@@ -47,7 +47,7 @@ if (is_admin() && isset($_GET['debug']) && $debug = $_GET['debug']) {
         unset ($_SESSION['debug_mode']);
     }
     header("Location:".$_SERVER['HTTP_REFERER']);
-    return;
+    exit;
 }
 
 //admin pretends that he is a user
@@ -57,7 +57,7 @@ if (is_logged() && isset($_SESSION['user_permissions']['perm_admin']) && $_SESSI
     elseif ($pretend == 'off')
         unset($_SESSION['user_permissions']['pretend']);
     header("Location:".$_SERVER['HTTP_REFERER']);
-    return;
+    exit;
 }
 
 //some globals
