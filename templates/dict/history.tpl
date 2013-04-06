@@ -5,8 +5,8 @@
 {if !isset($smarty.get.lemma_id)}
     <p>Всего: {$history.total}</p>
     <ul class="pager">
-        {if $history.total <= ($smarty.get.skip + 20)}<li class="next disabled"><a href="#">раньше &rarr;</a></li>{else}<li class="next"><a href='?skip={$smarty.get.skip + 20}'>раньше &rarr;</a></li>{/if}
-        {if $smarty.get.skip == 0}<li class="previous disabled"><a href='#'>&larr; позже</a></li>{else}<li class="previous"><a href='?skip={$smarty.get.skip - 20}'>&larr; позже</a></li>{/if}
+        {if $history.total <= ($skip + 20)}<li class="next disabled"><a href="#">раньше &rarr;</a></li>{else}<li class="next"><a href='?skip={$skip + 20}'>раньше &rarr;</a></li>{/if}
+        {if $skip == 0}<li class="previous disabled"><a href='#'>&larr; позже</a></li>{else}<li class="previous"><a href='?skip={$skip - 20}'>&larr; позже</a></li>{/if}
     </ul>
 {/if}
 <table class="table">
@@ -35,8 +35,8 @@
 </table>
 {if !isset($smarty.get.lemma_id)}
     <ul class="pager">
-        {if $history.total <= ($smarty.get.skip + 20)}<li class="next disabled"><a href="#">раньше &rarr;</a></li>{else}<li class="next"><a href='?skip={$smarty.get.skip + 20}'>раньше &rarr;</a></li>{/if}
-        {if $smarty.get.skip == 0}<li class="previous disabled"><a href='#'>&larr; позже</li>{else}<li class="previous"><a href='?skip={$smarty.get.skip - 20}'>&larr; позже</a></li>{/if}
+        {if $history.total <= ($skip + 20)}<li class="next disabled"><a href="#">раньше &rarr;</a></li>{else}<li class="next"><a href='?skip={$skip + 20}'>раньше &rarr;</a></li>{/if}
+        {if $skip == 0}<li class="previous disabled"><a href='#'>&larr; позже</li>{else}<li class="previous"><a href='?skip={$skip - 20}'>&larr; позже</a></li>{/if}
     </ul>
 {/if}
 {/block}

@@ -8,5 +8,6 @@ if (isset($_GET['skip']))
     $skip = (int)$_GET['skip'];
     else $skip = 0;
 $smarty->assign('history', dict_history($lemma_id, $skip));
+$smarty->assign('skip', $skip);
 $smarty->display('dict/history.tpl');
 ?>

@@ -20,12 +20,15 @@ switch($action) {
         } else {
             header('Location:login.php?act=error');
         }
-        break;
+        exit();
     case 'login_openid':
         $r = user_login_openid($_POST['token']);
         switch ($r) {
             case 1:
-                header('Location:'.$_SESSION['return_to']);
+                if (isset($_SESSION['return_to']))
+                    header('Location:'.$_SESSION['return_to']);
+                else
+                    header('Location:index.php');
                 break;
             case 2:
                 $smarty->display('openid_license.tpl');
@@ -33,17 +36,17 @@ switch($action) {
             default:
                 header('Location:login.php?act=error');
         }
-        break;
+        exit();
     case 'login_openid2':
         if (user_login_openid_agree(isset($_POST['agree'])))
             header('Location:'.$_SESSION['return_to']);
         else
             show_error();
-        break;
+        exit();
     case 'logout':
         if (!user_logout()) {
             show_error();
-            break;
+            exit();
         }
 
         if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'login.php') === false) {
@@ -51,11 +54,12 @@ switch($action) {
         } else {
             header('Location:index.php');
         }
-        break;
+        exit();
     case 'reg_done':
         $reg_status = user_register($_POST);
         if ($reg_status == 1)
             header("Location:index.php");
+            exit();
         else
             $smarty->assign('reg_status', $reg_status);
         break;

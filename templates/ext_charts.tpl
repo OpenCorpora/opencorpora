@@ -107,9 +107,15 @@ $(document).ready(function() {
     <td>Всего</td>
     {foreach from=$moder.moderators key=modnum item=mod}
         <td><div class='progress'>
-            <div class="bar bar-info" style="width:{$moder.data.$modnum.total[5][1]|intval}%" title="{$moder.data.$modnum.total[5][0]}">{$moder.data.$modnum.total[5][0]}</div>
+            {if isset($moder.data.$modnum.total[5])}
+                <div class="bar bar-info" style="width:{$moder.data.$modnum.total[5][1]|intval}%" title="{$moder.data.$modnum.total[5][0]}">{$moder.data.$modnum.total[5][0]}</div>
+            {/if}
+            {if isset($moder.data.$modnum.total[6])}
             <div class="bar bar-warning" style="width:{$moder.data.$modnum.total[6][1]|intval}%" title="{$moder.data.$modnum.total[6][0]}">{$moder.data.$modnum.total[6][0]}</div>
+            {/if}
+            {if isset($moder.data.$modnum.total[9])}
             <div class="bar bar-success" style="width:{$moder.data.$modnum.total[9][1]|intval}%" title="{$moder.data.$modnum.total[9][0]}">{$moder.data.$modnum.total[9][0]}</div>
+            {/if}
         </div></td>
     {/foreach}
 </tr>

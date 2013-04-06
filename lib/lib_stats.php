@@ -381,6 +381,8 @@ function get_moderation_stats() {
                 $t['total'][$r['pool_type']][$r['status']] = 0;
             $t['total'][$r['pool_type']][$r['status']] += $r['cnt'];
             $mod2name[$r['moderator_id']] = $r['username'];
+            if (!isset($mod_total[$r['moderator_id']]))
+                $mod_total[$r['moderator_id']] = array();
             $mod_total[$r['moderator_id']][$r['pool_type']] += $r['cnt'];
             $mod_total['total'][$r['pool_type']] += $r['cnt'];
             $mod_total[$r['moderator_id']]['total'] += $r['cnt'];
