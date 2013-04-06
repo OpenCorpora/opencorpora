@@ -17,6 +17,8 @@ CHANGESET_COMMENT       = "Merge data from annotation pool #{0}"
 GRAMMEMES_CONJUNCTION   = 1
 GRAMMEMES_DISJUNCTION   = 2
 
+EQUIVALENT_GRAM = [('gent', 'gen1', 'gen2'), ('loct', 'loc1', 'loc2')]
+
 def make_new_changeset(dbh, pool_id):
     timestamp = int(time.time())
     dbh.execute("INSERT INTO rev_sets VALUES(NULL, {0}, 0, '{1}')".format(timestamp, CHANGESET_COMMENT.format(pool_id)))
@@ -66,7 +68,7 @@ def filter_variants(variants, grammemes, bind_type):
         flag_conj = True
         flag_disj = False
         for gram in grammemes:
-            if var.find('<g v="' + gram + '"/>') > -1:
+            if check_for_grammeme(var, gram):
                 if bind_type == GRAMMEMES_DISJUNCTION:
                     flag_disj = True
                     break
@@ -80,6 +82,20 @@ def filter_variants(variants, grammemes, bind_type):
             out_variants.append(var)
 
     return out_variants
+def check_for_grammeme(var_xml, gram):
+    # check for equivalence class
+    equiv = None
+    for cl in EQUIVALENT_GRAM:
+        if gram in cl:
+            equiv = cl
+            break
+    if equiv is None:
+        equiv = (gram,)
+
+    for gr in equiv:
+        if var_xml.find('<g v="' + gr + '"/>') > -1:
+            return True
+    return False
 def get_xml_by_sample_id(dbh, sample_id):
     dbh.execute("SELECT rev_id, rev_text FROM tf_revisions WHERE tf_id=(SELECT tf_id FROM morph_annot_samples WHERE sample_id={0} LIMIT 1) AND is_last = 1 LIMIT 1".format(sample_id))
     xml = dbh.fetchone()
