@@ -57,9 +57,10 @@ switch($action) {
         exit();
     case 'reg_done':
         $reg_status = user_register($_POST);
-        if ($reg_status == 1)
+        if ($reg_status == 1) {
             header("Location:index.php");
             exit();
+        }
         else
             $smarty->assign('reg_status', $reg_status);
         break;
