@@ -65,9 +65,35 @@ function sql_commit() {
         --$transaction_counter;
     }
 }
-function sql_query_pdo($q) {
+function sql_query_pdo($q, $debug=1, $override_readonly=0) {
     global $pdo_db;
-    return $pdo_db->query($q);
+    global $total_time;
+    global $total_queries;
+    if (file_exists('/var/lock/oc_readonly.lock') && stripos(trim($q), 'select') !== 0 && !$override_readonly)
+        return false;
+    $debug = isset($_SESSION['debug_mode']) && $debug;
+    if ($debug) {
+        $time_start = microtime(true);
+        $q = str_ireplace('select ', 'SELECT SQL_NO_CACHE ', $q);
+    }
+    $res = $pdo_db->query($q);
+    if ($debug) {
+        $time = microtime(true)-$time_start;
+        $total_time += $time;
+        $total_queries++;
+        printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>%d<td>SQL: %s</td><td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", $total_queries, htmlspecialchars($q), $time, $total_time);
+        if ($err = $pdo_db->errorInfo()) {
+            print "<table class='debug_error' width='100%'><tr><td colspan='3'>".htmlspecialchars($err[2])."</td></tr></table>\n";
+        }
+    }
+    return $res;
+}
+function sql_fetchall($res) {
+    return $res->fetchAll();
+}
+function sql_prepare($q) {
+    global $pdo_db;
+    return $pdo_db->prepare($q);
 }
 //sql checks
 function sql_get_schema() {

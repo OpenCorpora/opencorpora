@@ -1,22 +1,30 @@
 <?php
 function get_page_tok_strange($newest = false) {
-    $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE param_id=7 ORDER BY timestamp DESC LIMIT 1");
+    $res = sql_query_pdo("SELECT timestamp, param_value FROM stats_values WHERE param_id=7 ORDER BY timestamp DESC LIMIT 1");
     $r = sql_fetch_array($res);
-    $out = array('timestamp' => $r['timestamp'], 'coeff' => $r['param_value']/1000, 'broken' => array(), 'items' => array());
-    $res = sql_query("SELECT param_value FROM stats_values WHERE param_id=28 ORDER BY param_value");
-    while ($r = sql_fetch_array($res)) {
-        $tid = $r['param_value'];
-        $r1 = sql_fetch_array(sql_query("SELECT tf_text, sent_id FROM text_forms WHERE tf_id=$tid LIMIT 1"));
+    $out = array(
+        'timestamp' => $r['timestamp'],
+        'coeff' => $r['param_value'] / 1000,
+        'broken' => array(),
+        'items' => array()
+    );
+    $res = sql_fetchall(sql_query_pdo("SELECT param_value FROM stats_values WHERE param_id=28 ORDER BY param_value"));
+    $res1 = sql_prepare("SELECT tf_text, sent_id FROM text_forms WHERE tf_id=? LIMIT 1");
+    foreach ($res as $r) {
+        $res1->execute(array($r['param_value']));
+        $r1 = sql_fetch_array($res1);
         $out['broken'][] = array(
             'token_text' => $r1['tf_text'],
             'sent_id' => $r1['sent_id']
         );
     }
+    $res1->closeCursor();
     $comments = array();
-    $res = sql_query("SELECT ts.sent_id, ts.pos, ts.border, ts.coeff, s.source, p.book_id FROM tokenizer_strange ts LEFT JOIN sentences s ON (ts.sent_id=s.sent_id) LEFT JOIN paragraphs p ON (s.par_id=p.par_id) ORDER BY ".($newest ? "ts.sent_id DESC" : "ts.coeff DESC"));
-    while ($r = sql_fetch_array($res)) {
+    $res = sql_query_pdo("SELECT ts.sent_id, ts.pos, ts.border, ts.coeff, s.source, p.book_id FROM tokenizer_strange ts LEFT JOIN sentences s ON (ts.sent_id=s.sent_id) LEFT JOIN paragraphs p ON (s.par_id=p.par_id) ORDER BY ".($newest ? "ts.sent_id DESC" : "ts.coeff DESC"));
+    $res1 = sql_prepare("SELECT comment_id FROM sentence_comments WHERE sent_id=? LIMIT 1");
+    foreach (sql_fetchall($res) as $r) {
         if (!isset($comments[$r['sent_id']])) {
-            $res1 = sql_query("SELECT comment_id FROM sentence_comments WHERE sent_id=".$r['sent_id']." LIMIT 1");
+            $res1->execute(array($r['sent_id']));
             $comments[$r['sent_id']] = sql_num_rows($res1) > 0 ? 1 : -1;
         }
         $out['items'][] = array(
