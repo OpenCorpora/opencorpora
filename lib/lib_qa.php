@@ -43,7 +43,7 @@ function get_page_sent_strange() {
     return $out;
 }
 function get_empty_books() {
-    $res = sql_query("
+    $res = sql_query_pdo("
         SELECT book_id, book_name
         FROM books
         WHERE book_id NOT IN (SELECT DISTINCT book_id FROM paragraphs)

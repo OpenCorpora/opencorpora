@@ -26,14 +26,20 @@ function sql_query($q, $debug=1, $override_readonly=0) {
 }
 function sql_fetch_array($q) {
     if (!$q) return false;
+    if (is_a($q, 'PDOStatement'))
+        return $q->fetch();
     return mysql_fetch_array($q);
 }
 function sql_fetch_assoc($q) {
     if (!$q) return false;
+    if (is_a($q, 'PDOStatement'))
+        return $q->fetch(PDO::FETCH_ASSOC);
     return mysql_fetch_assoc($q);
 }
 function sql_num_rows($q) {
     if (!$q) return false;
+    if (is_a($q, 'PDOStatement'))
+        return $q->rowCount();
     return mysql_num_rows($q);
 }
 function sql_insert_id() {
@@ -58,6 +64,10 @@ function sql_commit() {
         sql_query("COMMIT", 1, 1);
         --$transaction_counter;
     }
+}
+function sql_query_pdo($q) {
+    global $pdo_db;
+    return $pdo_db->query($q);
 }
 //sql checks
 function sql_get_schema() {
