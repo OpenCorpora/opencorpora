@@ -28,6 +28,7 @@ sql_query("SET names utf8", 0, 1);
 // another connect (temporary) for PDO
 $pdo_db = new PDO(sprintf('mysql:host=%s;dbname=%s;charset=utf8', $config['mysql']['host'], $config['mysql']['dbname']), $config['mysql']['user'], $config['mysql']['passwd']);
 $pdo_db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+$pdo_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
 $pdo_db->query("SET NAMES utf8");
 
 $transaction_counter = 0;
@@ -36,7 +37,7 @@ $total_time = 0;
 $total_queries = 0;
 
 //cookie check
-if (!is_logged() && isset($_COOKIE['auth'])) {
+if (!is_logged() && !isset($_SESSION['user_pending']) && isset($_COOKIE['auth'])) {
     if ($user_id = check_auth_cookie()) {
         if (user_login('', '', $user_id, $_COOKIE['auth'])) {
             header("Location:".$_SERVER['REQUEST_URI']);

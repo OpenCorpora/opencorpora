@@ -39,7 +39,7 @@ switch($action) {
         exit();
     case 'login_openid2':
         if (user_login_openid_agree(isset($_POST['agree'])))
-            header('Location:'.$_SESSION['return_to']);
+            header('Location:index.php');
         else
             show_error();
         exit();
