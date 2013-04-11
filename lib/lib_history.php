@@ -118,7 +118,9 @@ function main_diff($sentence_id, $set_id, $rev_id) {
         'tokens'    => array()
     );
     $res = sql_query("SELECT tf_id, `pos` FROM text_forms WHERE sent_id=$sentence_id ORDER BY `pos`");
+    $token_ids = array();
     while ($r = sql_fetch_array($res)) {
+        $token_ids[] = $r['tf_id'];
         $token = array();
         $res1 = sql_query("SELECT tr.*, rs.*, `users`.user_shown_name AS user_name FROM tf_revisions tr LEFT JOIN rev_sets rs ON (tr.set_id = rs.set_id) LEFT JOIN `users` ON (rs.user_id = `users`.user_id) WHERE tr.tf_id=".$r['tf_id']." AND tr.set_id<=$set_id ORDER BY tr.rev_id DESC LIMIT 2");
         $r1 = sql_fetch_array($res1);
@@ -140,12 +142,12 @@ function main_diff($sentence_id, $set_id, $rev_id) {
         );
         $out['tokens'][] = $token;
     }
-    $res = sql_query("SELECT set_id FROM tf_revisions WHERE tf_id IN (SELECT tf_id FROM text_forms WHERE sent_id=$sentence_id) AND set_id<$set_id ORDER BY set_id DESC LIMIT 1");
+    $res = sql_query("SELECT set_id FROM tf_revisions WHERE tf_id IN (".join(',', $token_ids).") AND set_id<$set_id ORDER BY set_id DESC LIMIT 1");
     if ($res) {
         $r = sql_fetch_array($res);
         $out['prev_set'] = $r[0];
     }
-    $res = sql_query("SELECT set_id FROM tf_revisions WHERE tf_id IN (SELECT tf_id FROM text_forms WHERE sent_id=$sentence_id) AND set_id>$set_id ORDER BY set_id ASC LIMIT 1");
+    $res = sql_query("SELECT set_id FROM tf_revisions WHERE tf_id IN (".join(',', $token_ids).") AND set_id>$set_id ORDER BY set_id ASC LIMIT 1");
     if ($res) {
         $r = sql_fetch_array($res);
         $out['next_set'] = $r[0];
