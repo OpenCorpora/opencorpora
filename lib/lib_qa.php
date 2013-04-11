@@ -11,7 +11,7 @@ function get_page_tok_strange($newest = false) {
     $res = sql_fetchall(sql_query_pdo("SELECT param_value FROM stats_values WHERE param_id=28 ORDER BY param_value"));
     $res1 = sql_prepare("SELECT tf_text, sent_id FROM text_forms WHERE tf_id=? LIMIT 1");
     foreach ($res as $r) {
-        $res1->execute(array($r['param_value']));
+        sql_execute($res1, array($r['param_value']));
         $r1 = sql_fetch_array($res1);
         $out['broken'][] = array(
             'token_text' => $r1['tf_text'],
@@ -24,7 +24,7 @@ function get_page_tok_strange($newest = false) {
     $res1 = sql_prepare("SELECT comment_id FROM sentence_comments WHERE sent_id=? LIMIT 1");
     foreach (sql_fetchall($res) as $r) {
         if (!isset($comments[$r['sent_id']])) {
-            $res1->execute(array($r['sent_id']));
+            sql_execute($res1, array($r['sent_id']));
             $comments[$r['sent_id']] = sql_num_rows($res1) > 0 ? 1 : -1;
         }
         $out['items'][] = array(
@@ -42,12 +42,15 @@ function get_page_tok_strange($newest = false) {
 }
 function get_page_sent_strange() {
     $out = array();
-    $res = sql_query("SELECT sent_id FROM sentences_strange ORDER BY sent_id DESC");
-    while ($r = sql_fetch_array($res)) {
-        $r1 = sql_fetch_array(sql_query("SELECT source FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
-        $r2 = sql_fetch_array(sql_query("SELECT book_id FROM paragraphs WHERE par_id = (SELECT par_id FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1) LIMIT 1"));
-        $out[] = array('id' => $r['sent_id'], 'text' => $r1['source'], 'book_id' => $r2['book_id']);
-    }
+    $res = sql_query_pdo("
+        SELECT DISTINCT sent_id, source, book_id
+        FROM sentences_strange
+        LEFT JOIN sentences USING (sent_id)
+        LEFT JOIN paragraphs USING (par_id)
+        ORDER BY sent_id DESC
+    ");
+    while ($r = sql_fetch_array($res))
+        $out[] = array('id' => $r['sent_id'], 'text' => $r['source'], 'book_id' => $r['book_id']);
     return $out;
 }
 function get_empty_books() {
@@ -64,7 +67,7 @@ function get_empty_books() {
     return $out;
 }
 function get_downloaded_urls() {
-    $res = sql_query("
+    $res = sql_query_pdo("
         SELECT b.book_id, b.book_name, SUBSTR(t.tag_name, 5) url, u.filename
         FROM book_tags t
         LEFT JOIN books b
@@ -87,7 +90,7 @@ function get_downloaded_urls() {
     return $out;
 }
 function get_tag_errors() {
-    $res = sql_query("SELECT * FROM tag_errors ORDER BY book_id DESC");
+    $res = sql_query_pdo("SELECT * FROM tag_errors ORDER BY book_id DESC");
     $out = array();
     while ($r = sql_fetch_array($res)) {
         $out[] = array(
@@ -101,13 +104,13 @@ function get_tag_errors() {
 function get_good_sentences($no_zero = false) {
     $where = $no_zero ? "WHERE num_homonymous > 0" : "";
     $out = array();
-    $res = sql_query("SELECT sent_id, num_words, num_homonymous FROM good_sentences $where ORDER BY (num_homonymous / num_words), num_words desc LIMIT 1000");
+    $res = sql_query_pdo("SELECT sent_id, num_words, num_homonymous FROM good_sentences $where ORDER BY (num_homonymous / num_words), num_words desc LIMIT 1000");
     while ($r = sql_fetch_array($res))
         $out[] = array('id' => $r['sent_id'], 'total' => $r['num_words'], 'homonymous' => $r['num_homonymous']);
     return $out;
 }
 function get_merge_fails() {
-    $res = sql_query("
+    $res = sql_query_pdo("
         SELECT sample_id, p.pool_name, p.revision AS pool_revision, ms.status, s.tf_id
         FROM morph_annot_moderated_samples ms
         LEFT JOIN morph_annot_samples s USING (sample_id)
@@ -116,21 +119,25 @@ function get_merge_fails() {
         AND merge_status = 0
         ORDER BY sample_id
     ");
+            
+    $res1 = sql_prepare("
+        SELECT rev_id
+        FROM tf_revisions tfr
+        LEFT JOIN rev_sets USING (set_id)
+        WHERE tf_id = ?
+        AND rev_id > ?
+        ORDER BY rev_id
+        LIMIT 1
+    ");
 
     $data = array(
         'samples' => array(),
         'total' => array()
     );
+
     while ($r = sql_fetch_array($res)) {
-        $r1 = sql_fetch_array(sql_query("
-            SELECT rev_id
-            FROM tf_revisions tfr
-            LEFT JOIN rev_sets USING (set_id)
-            WHERE tf_id = ".$r['tf_id']."
-            AND rev_id > ".$r['pool_revision']."
-            ORDER BY rev_id
-            LIMIT 1
-        "));
+        sql_execute($res1, array($r['tf_id'], $r['pool_revision']));
+        $r1 = sql_fetch_array($res1);
 
         if (!in_array($r['status'], array(3, 4))) {
             if ($r1)

@@ -96,6 +96,25 @@ function sql_prepare($q) {
     global $pdo_db;
     return $pdo_db->prepare($q);
 }
+function sql_execute($res, $params) {
+    global $pdo_db;
+    global $total_time;
+    global $total_queries;
+    $debug = isset($_SESSION['debug_mode']);
+    if ($debug)
+        $time_start = microtime(true);
+    $res->execute($params);
+    if ($debug) {
+        $time = microtime(true)-$time_start;
+        $total_time += $time;
+        $total_queries++;
+        printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>%d<td>SQL: %s</td><td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", $total_queries, "(prepared statement)", $time, $total_time);
+        $err = $res->errorInfo();
+        if ($err[2]) {
+            print "<table class='debug_error' width='100%'><tr><td colspan='3'>".htmlspecialchars($err[2])."</td></tr></table>\n";
+        }
+    }
+}
 //sql checks
 function sql_get_schema() {
     $res = sql_query("SHOW TABLES");
