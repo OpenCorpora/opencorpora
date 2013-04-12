@@ -18,7 +18,7 @@
 	{if $h.sent_cnt}
         <td><a href="?set_id={$h.set_id}&amp;maa={$maa}">{$h.sent_cnt} предл.</a></td>
     {/if}
-    {if $h.sent_id}
+    {if isset($h.sent_id)}
         <td><a href="sentence.php?id={$h.sent_id}">Предложение {$h.sent_id}</a></td>
         <td><a href="diff.php?sent_id={$h.sent_id}&amp;set_id={$h.set_id}">Изменения</a></td>
     {/if}
