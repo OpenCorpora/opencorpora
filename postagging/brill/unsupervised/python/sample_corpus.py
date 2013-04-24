@@ -16,51 +16,45 @@ def read_corpus(f):
     c = [''.join((x, '/sent')) for x in f.split('/sent')]
     return c
 
-def rand_sent(corpus, n, c):
+def rand_sent(l, n, c):
     used = []
     for i in range(c):
-        nums = set(range(len(corpus))) - set(used)
+        nums = set(range(l)) - set(used)
         sample = random.sample(nums, n)
         used += sample
         yield sample
 
 def get_random_sentences(corpus, nums):
     c = []
-    for i in nums:
-        c.append(corpus[i])
+    i = 0
+    for line in corpus:
+        line = line.rstrip().decode('utf-8')
+        if not line:
+            print
+            i += 1
+            continue
+        if i in nums:
+            print line.encode('utf-8')
     return c
 
 
-def get_corpora(corpus, c, n):
-    """
-    Get c instances of Corpus() made up of n sentences.
-    Returns iterator!
-    """
-    randomnums = rand_sent(corpus, n, c)
+def get_corpora(corpus, l, c, n):    
+    randomnums = rand_sent(l, n, c)
     i = 0
     for nums in randomnums:
         #yield (i, get_random_sentences(corpus, randomnums))
-        yield (i, get_random_sentences(corpus, nums))
-        i += 1
+        get_random_sentences(corpus, nums)
+
 
 
 if __name__ == '__main__':
     args = sys.argv[1:]
+    l = int(args[0])
     n = 1
     c = 1
     for i in range(len(args)):
         if args[i] == '-n':
             n = int(args[i + 1])
         if args[i] == '-c':
-            c = int(args[i + 1])
-    '''for i in rand_sent(range(245), 15, 4):
-        print i'''
-    inc = sys.stdin.read()
-    inc = read_corpus(inc)
-    #print write_corpus(inc, sys.stdout)
-    for sample in get_corpora(inc, c, n):
-        #outc = write_corpus(sample[1], sys.stdout)
-        with open('rand%s.tab' % (sample[0] + 10), 'w') as out:
-            out.write(''.join(sample[1]))
-        #corp = open('rand%s.tab' % sample[0], 'r')
-        #print numb_amb_corpus(corp.read())
+            c = int(args[i + 1])        
+    get_corpora(sys.stdin, l, c, n)

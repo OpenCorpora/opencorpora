@@ -3,44 +3,39 @@
 import sys
 import re
 
-from utils import read_corpus, write_corpus, Rule, Sentence, Corpus
-from rules_stat import apply
-from StringIO import StringIO
+from utils import read_corpus, write_corpus, Rule
+from rules_stat import apply_rule
 
 
 if __name__ == '__main__':
+    TYPES = {'tag': 0, 'word': 1}
     rules = []
     for line in open(sys.argv[1], 'r').read().rstrip('\n').split('\n'):
+        line = line.decode('utf-8')
         p = re.compile(u'.+(?= ->)')
         ambtag = p.findall(line)[0]
         p = re.compile(u'(?<=-> )(\w+)', re.UNICODE)
         tag = p.findall(line)[0]
-        p = re.compile(u'(?<=\| )(.+)(?=:)')
-        pos = p.findall(line)[0]
+        p = re.compile(u'(-?\d+)(?=:)')
+        pos = p.findall(line)
+        pos = tuple(int(x) for x in pos)
+        if len(pos) < 2:
+            pos = pos[0]
         p = re.compile(u'(?<=:)(\w+)')
         type = p.findall(line)[0]
-        p = re.compile(u'(?<==)(\w+|,|.|:|;)', re.UNICODE)
-        c = p.findall(line)[0]
-        if pos == '1':
-            t = '+'.join((type[0], pos))
+        p = re.compile(u'(?u)(?<==)(\w+|,|.|:|;)[( #)&]')
+        c = p.findall(line)
+        if len(c) > 1:
+            c = tuple(c)
         else:
-            t = type[0] + pos
-        r = Rule('_'.join(ambtag.split()), tag, t, c)
+            c = c[0]
+        #print ambtag, tag, pos, type, c
+        t = TYPES[type]
+        r = Rule(ambtag, tag, (pos, c), t)
+        #print ambtag
         rules.append(r)
-    flag = True
-    while flag:
-        s = StringIO()
-        while True:
-            l = sys.stdin.readline()
-            if 'sent' in l:
-                break
-            elif l == '':
-                flag = False
-                break
-            s.write(l)
-        if len(s.getvalue()) > 0:
-            c = read_corpus(s.getvalue())
-            for r in rules:
-                apply(r, c)
-            write_corpus(c, sys.stdout)
-            s = []
+    inc = read_corpus(sys.stdin)
+    for r in rules:
+        #print >> sys.stderr, r.display()
+        inc = list(apply_rule(r, inc))
+    write_corpus(inc)

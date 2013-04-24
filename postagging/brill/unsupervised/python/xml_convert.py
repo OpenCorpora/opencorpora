@@ -36,17 +36,15 @@ def get_text_by_tag(lines, tags):
                         tag_text[tag].append(match)
                     if tag in ('token id', 'text'):
                         output.write(match + '\t')
-                    if tag == 't':
-                        tag_text[tag].append(match)
             variants = zip(tag_text['l id'], tag_text['t'], tag_text['v'])
             for i in range(len(variants[:])):
                 var = variants.pop(0)
                 var = ' '.join(var)
                 variants.append(var)
             output.write('\t'.join(variants))
-        elif line.lstrip().startswith('<sent'):
+        elif line.lstrip().startswith('sent'):
             output.write('sent')
-        elif line.lstrip().startswith('</sent'):
+        elif line.lstrip().startswith('/sent'):
             output.write('/sent')
         yield output.getvalue().rstrip()
 

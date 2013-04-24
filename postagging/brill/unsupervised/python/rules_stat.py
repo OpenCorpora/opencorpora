@@ -1,20 +1,14 @@
-#coding: utf-8
+# coding: utf-8
 
+import random
 import sys
-from time import clock
-from cStringIO import StringIO
 from pprint import pprint
+from utils import read_corpus, write_corpus, Rule, context_stats, Token
 
-from utils import split_into_sent, context_stats, read_corpus, get_pos_tags, \
-write_corpus, Rule
-
-CONTEXT = ('w-1', 't-1', 'w+1', 't+1')
-
+_NULL_TOKEN = Token(('SENT', 'SENT'))
 
 def scores(s, best_rules):
-    rule = []
-    scores = {}
-    score = 0
+    #scores = {}
     bestscore = 0
     bestrule = []
     a = 0
@@ -22,262 +16,150 @@ def scores(s, best_rules):
     for atag in s.keys():
         if len(atag) > 4:
             stat = s[atag]
-            scores[atag] = {}
-            vtags = atag.split('_')
+            vtags = atag.split()
             for y in vtags:
-                scores[atag][y] = dict(zip(CONTEXT, [{} for i in range(4)]))
-                for ctype in CONTEXT:
-                    for context in stat[ctype].keys():
-                        fr = -sys.maxint
-                        r = y
-                        for z in vtags:
-                            if y != z:
+                try:
+                    freq = s[y]
+                except:
+                    s[y] = ({0: {}}, {0: {}}, 0)
+                    continue
+                for i, cont_type in enumerate(s[y][:2]):
+                    for distance in cont_type:
+                        for context in cont_type[distance]:
+                            fr = -sys.maxint
+                            for z in vtags:
+                                if y != z:
                                 # relative frequency
+                                    try:
+                                        incontext_z = s[z][i][distance][context]
+                                    except:
+                                        incontext_z = 0.0
+                                    try:
+                                        freq_z = s[z][2]
+                                        relf = float(s[y][2]) / float(freq_z) * float(incontext_z)
+                                    except:
+                                        freq_z = 0.0
+                                        relf = 0.0
+                                    if relf >= fr:
+                                        fr = relf
+                                    try:
+                                        w = incontext_z
+                                    except:
+                                        w = 0
+                            x = s[y][i][distance][context] - float(fr)
+                            curr_rule = Rule(*[atag, y, (distance, context), i])
+                            #scores[curr_rule] = x
+                            if x > bestscore and s[y][i][distance][context] != w:
                                 try:
-                                    relf = float(s[y]['freq']) / float(s[z]['freq']) * float(s[z][ctype][context])
+                                    a = stat[i][distance][context]
                                 except:
-                                    relf = 0
-                                if relf >= fr:
-                                    fr = relf
-                                    r = z
-                                try:
-                                    w = s[z][ctype][context]
-                                except:
-                                    w = 0
-                        try:
-                            x = s[y][ctype][context] - float(fr)
-                            scores[atag][y][ctype][context] = x
-                            if x > bestscore and s[y][ctype][context] != w:
-                            #and [atag, y, ctype, context] not in best_rules 
+                                    continue
                                 bestscore = x
-                                bestrule = [atag, y, ctype, context]
-                                a = stat['freq']
+                                bestrule = curr_rule
                                 top_rules = {}
-                                top_rules[tuple(bestrule)] = a
-                            elif x == bestscore and s[y][ctype][context] != w:
-                                bestrule = [atag, y, ctype, context]
-                                a = stat['freq']
-                                top_rules[tuple(bestrule)] = a
+                                top_rules[bestrule] = a
+                            elif x == bestscore and s[y][i][distance][context] != w:
+                                try:
+                                    a = stat[i][distance][context]
+                                except:
+                                    continue
+                                bestrule = curr_rule
+                                top_rules[bestrule] = a
+    return top_rules, bestscore, a
+
+
+def apply_rule(rule, corpus, ignore_numbers=True, wsize=2):
+    s = [_NULL_TOKEN]
+    rc = rule.context
+    more = False
+    if isinstance(rc[0], (set, tuple)):
+        more = True
+        context = zip(*rc)
+    else:
+        context = list(rc)
+    for t in corpus:
+
+        if t.orig_text != 'SENT':
+            s.append(t)
+            continue
+        else:
+            s.append(t)
+            for i, token in enumerate(s[1:], 1):
+                left = i - wsize
+                right = i + wsize + 1
+
+                if left < 0:
+                    left = 0
+                c = s[left:right]
+                if right > len(s) - 1:
+                    right = len(s) - 1
+                    c = s[left:]
+
+                if token.getPOStags() == rule.tagset:
+
+                    if not more:
+                        try:
+                            curr_context = list(list(x for x in enumerate([w.getByIndex(rule.ind) for w in c],
+                                                              - (i - left)) if x[0] in rc)[0])
                         except:
-                            pass
-    return scores, top_rules, bestscore, a
+                            curr_context = []
+                    else:
+                        curr_context = [x for x in enumerate([w.getByIndex(rule.ind) for w in c],
+                                                              - (i - left)) if x[0] in rc[0]]
+
+                    #print >> sys.stderr, curr_context, context
+                    if context == curr_context:
+                        #print >> sys.stderr, 0
+                        token.disambiguate(rule.tag)
+                yield token
+            s = [_NULL_TOKEN]
+    else:
+        for i, token in enumerate(s[1:], 1):
+            left = i - wsize
+            right = i + wsize + 1
+
+            if left < 0:
+                left = 0
+            c = s[left:right]
+            if right > len(s) - 1:
+                right = len(s) - 1
+                c = s[left:]
+
+            if token.getPOStags() == rule.tagset:
+                if not more:
+                    curr_context = [x[0] for x in enumerate([w.getByIndex(rule.ind) for w in c],
+                                                          - (i - left)) if x[0] in rc]
+                    curr_context.append([x[1] for x in enumerate([w.getByIndex(rule.ind) for w in c],
+                                                          - (i - left)) if x[0] in rc][0])
+                        #print context, curr_context
+                else:
+                    curr_context = [x for x in enumerate([w.getByIndex(rule.ind) for w in c],
+                                                          - (i - left)) if x[0] in rc[0]]
+                if context == curr_context:
+                    token.disambiguate(rule.tag)
+            yield token
 
 
-def apply_rule(rule, table):
-    applied = StringIO()
-    for sent in split_into_sent(table):
-        sent = sent.strip('\n')
-        tokens = sent.split('\n')
-        if len(tokens) == 0:
-            continue
-        tokens.append('/sent')
-        word_2, tag_2 = 'sent', 'sent'
-        try:
-            id_1, word_1, tag_1 = tokens[1].split('\t')[0], tokens[1].split('\t')[1], get_pos_tags(tokens[1])
-            if word_1.isdigit():
-                word_1 = '_N_'
-        except:
-            pass
-        i = 1
-        for token in tokens[2:-1]:
-            tag = get_pos_tags(token)
-            id = token.split('\t')[0]
-            try:
-                word = token.split('\t')[1]
-            except:
-                print tokens[i - 1]
-                raise Exception
-            if word.isdigit():
-                word = '_N_'
-            if tag_1 == rule.tagset:
-                gr_list = tokens[i].split('\t')[2:]
-                if rule.context_type == 'previous tag':
-                    if tag_2 == rule.context:
-                        tokens[i] = id + '\t' + word
-                        for grammeme in gr_list[:]:
-                            if rule.tag not in grammeme.split(' ')[2:]:
-                                gr_list.remove(grammeme)
-                        for grammeme in gr_list:
-                            tokens[i] += ('\t' + grammeme + '\t')
-                if rule.context_type == 'previous word':
-                    if word_2.decode('utf-8') == rule.context:
-                        tokens[i] = id_1 + '\t' + word_1
-                        for grammeme in gr_list[:]:
-                            if rule.tag not in grammeme.split(' ')[2:]:
-                                gr_list.remove(grammeme)
-                        for grammeme in gr_list:
-                            tokens[i] += ('\t' + grammeme + '\t')
-                if rule.context_type == 'next tag':
-                    if tag == rule.context:
-                        tokens[i] = id_1 + '\t' + word_1
-                        for grammeme in gr_list[:]:
-                            if rule.tag not in grammeme.split(' ')[2:]:
-                                gr_list.remove(grammeme)
-                        for grammeme in gr_list:
-                            tokens[i] += ('\t' + grammeme + '\t')
-                if rule.context_type == 'next word':
-                    if word.decode('utf-8') == rule.context:
-                        tokens[i] = id_1 + '\t' + word_1
-                        for grammeme in gr_list[:]:
-                            if rule.tag not in grammeme.split(' ')[2:]:
-                                gr_list.remove(grammeme)
-                        for grammeme in gr_list:
-                            tokens[i] += ('\t' + grammeme + '\t')
-            tag_2, tag_1, word_2, word_1, id_1 = tag_1, tag, word_1, word, id
-            i += 1
-        applied.write('\n'.join(tokens) + '\n')
-    return applied.getvalue()
-
-
-def apply(rule, corpus, ignore_numbers=True): #rule is an instance of Rule, corpus is an instance of Corpus
+def random_choice(corpus):
     for s in corpus:
-        word_2, tag_2 = 'sent', 'SENT'
-        try:
-            if s[0].getPOStags() is not None:
-                tag_1 = s[0].getPOStags()
-            else:
-                continue
-        except:
-            continue
-        word_1 = s[0].text
-        if word_1.isdigit() and ignore_numbers:
-            word_1 = '_N_'
-        i = 0
         for token in s:
             try:
-                tag = s[i + 1].getPOStags()
-                id = s[i + 1].id
-                word = s[i + 1].text
-                if word.isdigit() and ignore_numbers:
-                    word = '_N_'
-            except:
-                tag = 'SENT'
-                id = '0'
-                word = 'sent'
-            if word.isdigit():
-                word = '_N_'
-                #print tag_1, tag
-            if rule.context_type == 't-1':
-                try:
-                    if tag_2 == rule.context and token.getPOStags() == rule.tagset:
-                        token.disambiguate(rule.tag)
-                except:
-                    pass
-            if rule.context_type == 'w-1':
-                try:
-                    if word_2.decode('utf-8') == rule.context.decode('utf-8') \
-                     and token.getPOStags() == rule.tagset:
-                        token.disambiguate(rule.tag)
-                except:
-                    pass
-            if rule.context_type == 't+1':
-                try:
-                    if tag == rule.context and token.getPOStags() == rule.tagset:
-                        token.disambiguate(rule.tag)
-                except:
-                    pass
-            if rule.context_type == 'w+1':
-                try:
-                    if word.decode('utf-8') == rule.context.decode('utf-8') \
-                     and token.getPOStags() == rule.tagset:
-                        token.disambiguate(rule.tag)
-                except:
-                    pass
-            tag_2, tag_1, word_2, word_1, id_1 = tag_1, tag, word_1, word, id
-            i += 1
-
-
-def get_unamb_tags(entries):
-    context = ('w-1', 't-1', 'w+1', 't+1')
-    for key in entries:
-        entry = entries[key]
-        for cont_type in context:
-            first_tag = entry.keys()[0]
-            chosen_tag = first_tag
-            chosen_score = 0
-            try:
-                chosen_cont = entry[entry.keys()[0]][cont_type].keys()[0]
+                if token.has_ambig():
+                    token.disambiguate(random.choice(token.getPOStags().split('_')))
             except:
                 pass
-            for tag in entry.keys():
-                for cont in entry[tag][cont_type].keys():
-                    score = entry[tag][cont_type][cont]
-                    if score > chosen_score:
-                        chosen_score = score
-                        chosen_tag = tag
-                        chosen_cont = cont.decode('utf-8')
-        if chosen_score > 0:
-                yield (key, chosen_tag, cont_type, chosen_cont)
 
-
-def scoring_function(entries, best_rules):
-    best_score = 0
-    new_rule = []
-    rules_scores = {}
-    context = ('w-1', 't-1', 'w+1', 't+1')
-    for entry in entries:
-        value = entries[entry]
-        if len(entry) > 4:
-            amb_tag = entry
-            amb_tag = amb_tag
-            tags = set(amb_tag.split('_'))
-            if len(tags) > 1:
-                result_scores = {}
-                for tag in tags:
-                    for c in context:
-                        freqs = [0, 0, 0]
-                        for amb_context in value[c]:
-                            loc_max = -sys.maxint
-                            try:
-                                amb_context.decode('utf-8')
-                                for unamb_tag in tags:
-                                    if unamb_tag != tag:
-                                        try:
-                                            loc_context = entries[unamb_tag][c]
-                                            try:
-                                                if tag in entries.keys() and \
-                                                loc_context[amb_context] > 3:
-                                                    s = float(entries[tag]['freq']) / float(entries[unamb_tag]['freq']) * float(loc_context[amb_context])
-                                                    if s > loc_max:
-                                                        loc_max = s
-                                                    #freqs = [entries[tag]['freq'], entries[unamb_tag]['freq'], loc_context[amb_context]]
-                                            except:
-                                                pass
-                                        except:
-                                            pass
-                            except:
-                                pass
-                            try:
-                                score = entries[tag][c][amb_context] - loc_max
-                                result_scores[tag][c][amb_context] = score
-                                if score > best_score \
-                                and [amb_tag, tag, c, amb_context] not in best_rules:
-                                    best_score = score
-                                    new_rule = [amb_tag, tag, c, amb_context]
-                            except:
-                                try:
-                                    score = entries[tag][c][amb_context] - loc_max
-                                    #result_scores[tag][c] = {amb_context: [score] + freqs}
-                                    result_scores[tag][c] = {amb_context: score}
-                                    if score > best_score \
-                                    and [amb_tag, tag, c, amb_context] not in best_rules:
-                                        best_score = score
-                                        new_rule = [amb_tag, tag, c, amb_context]
-                                except:
-                                    try:
-                                        score = entries[tag][c][amb_context] - loc_max
-                                        result_scores[tag] = {c: {amb_context: score}}
-                                        if score > best_score \
-                                        and [amb_tag, tag, c, amb_context] not in best_rules:
-                                            best_score = score
-                                            new_rule = [amb_tag, tag, c, amb_context]
-                                    except:
-                                        pass
-                rules_scores[amb_tag] = result_scores
-    return rules_scores, new_rule, best_score
 
 if __name__ == '__main__':
-    inc = read_corpus(sys.stdin.read())
-    r = Rule(*['ADJF_NOUN', 'NOUN', 't+1', 'ADJF'])
-    apply(r, inc)
-    write_corpus(inc, sys.stdout)
+    inc = read_corpus(sys.stdin)
+    #s = context_stats(inc, join_context=True)
+    #print s
+    #rs = scores(s, [])
+    #pprint(rs[1:3])
+    '''for x in rs[1].keys():
+        print x.display()
+        print rs[1][x]
+    print rs[2]'''
+    r = Rule('ADVB NOUN', 'NOUN', (1, 'PNCT'), 0)
+
+    write_corpus(apply_rule(r, inc))
