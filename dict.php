@@ -5,10 +5,10 @@ if (isset($_GET['act']))
     $action = $_GET['act'];
 else $action = '';
 
-$smarty->assign('active_page','dict');
+$smarty->assign('active_page', 'dict');
 
 //check permissions
-if (!in_array($action, array('', 'gram', 'gram_restr', 'lemmata', 'errata', 'edit')) &&
+if (!in_array($action, array('', 'gram', 'gram_restr', 'lemmata', 'errata', 'edit', 'absent')) &&
     !user_has_permission('perm_dict')) {
         show_error($config['msg']['notadmin']);
         return;
@@ -138,6 +138,13 @@ switch ($action) {
             header("Location:dict.php?act=pending");
         else
             show_error();
+        break;
+    case 'absent':
+        $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
+        $smarty->setCacheLifetime(3600);
+        if (!is_cached('dict/absent.tpl'))
+            $smarty->assign('words', get_top_absent_words());
+        $smarty->display('dict/absent.tpl');
         break;
     default:
         $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);

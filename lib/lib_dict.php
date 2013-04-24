@@ -373,6 +373,23 @@ function update_pending_token($token_id, $rev_id, $revset_id=0) {
     sql_commit();
     return true;
 }
+function get_top_absent_words() {
+    $out = array();
+    $res = sql_query_pdo("
+        SELECT LOWER(tf_text) AS word, COUNT(tf_id) AS cnt
+        FROM text_forms
+        LEFT JOIN tf_revisions USING (tf_id)
+        WHERE is_last = 1
+            AND rev_text LIKE '%\"UNKN\"%'
+        GROUP BY LOWER(tf_text)
+        ORDER BY COUNT(tf_id) DESC
+        LIMIT 500
+    ");
+    while ($r = sql_fetch_array($res))
+        $out[] = array('word' => $r['word'], 'count' => $r['cnt']);
+
+    return $out;
+}
 
 // DICTIONARY EDITOR
 function get_lemma_editor($id) {

@@ -31,6 +31,7 @@
         <p><a href="?act=lemmata">Редактор лемм</a><br/>
         <a href="?act=errata">Ошибки в словаре</a> ({$stats.cnt_v} ревизий не проверено)<br/>
         <a href="?act=pending">Токены, которые надо переразобрать</a></p>
+        <a href="?act=absent">Top несловарных токенов</a></p>
         <p><button class="btn" onClick="location.href='?act=edit&amp;id=-1'">Добавить лемму</button></p>
     {else}
         <p><a href="?act=gram">Просмотр граммем</a><br/>
