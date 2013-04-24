@@ -6,41 +6,44 @@ require_once('lib_xml.php');
 // GENERAL
 function get_dict_stats() {
     $out = array();
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_g FROM `gram`"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT COUNT(*) AS cnt_g FROM `gram`"));
     $out['cnt_g'] = $r['cnt_g'];
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_l FROM `dict_lemmata`"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT COUNT(*) AS cnt_l FROM `dict_lemmata`"));
     $out['cnt_l'] = $r['cnt_l'];
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_f FROM `form2lemma`"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT COUNT(*) AS cnt_f FROM `form2lemma`"));
     $out['cnt_f'] = $r['cnt_f'];
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_r FROM `dict_revisions` WHERE f2l_check=0"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT COUNT(*) AS cnt_r FROM `dict_revisions` WHERE f2l_check=0"));
     $out['cnt_r'] = $r['cnt_r'];
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_v FROM `dict_revisions` WHERE dict_check=0"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT COUNT(*) AS cnt_v FROM `dict_revisions` WHERE dict_check=0"));
     $out['cnt_v'] = $r['cnt_v'];
     return $out;
 }
 function get_dict_search_results($post) {
     $out = array();
+    $find_pos = sql_prepare("SELECT SUBSTR(grammems, 7, 4) AS gr FROM form2lemma WHERE lemma_id = ? LIMIT 1");
     if (isset($post['search_lemma'])) {
-        $q = mysql_real_escape_string($post['search_lemma']);
-        $res = sql_query("SELECT lemma_id FROM `dict_lemmata` WHERE `lemma_text`='$q'");
+        $res = sql_prepare("SELECT lemma_id FROM `dict_lemmata` WHERE `lemma_text`= ?");
+        sql_execute($res, array($post['search_lemma']));
         $count = sql_num_rows($res);
         $out['lemma']['count'] = $count;
         if ($count == 0)
             return $out;
         while ($r = sql_fetch_array($res)) {
-            $r1 = sql_fetch_array(sql_query("SELECT SUBSTR(grammems, 7, 4) AS gr FROM form2lemma WHERE lemma_id=".$r['lemma_id']." LIMIT 1"));
-            $out['lemma']['found'][] = array('id' => $r['lemma_id'], 'text' => $q, 'pos' => $r1['gr']);
+            sql_execute($find_pos, array($r['lemma_id']));
+            $r1 = sql_fetch_array($find_pos);
+            $out['lemma']['found'][] = array('id' => $r['lemma_id'], 'text' => $post['search_lemma'], 'pos' => $r1['gr']);
         }
     }
     elseif (isset($post['search_form'])) {
-        $q = mysql_real_escape_string($post['search_form']);
-        $res = sql_query("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE fl.`form_text`='$q'");
+        $res = sql_prepare("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE fl.`form_text`= ?");
+        sql_execute($res, array($post['search_form']));
         $count = sql_num_rows($res);
         $out['form']['count'] = $count;
         if ($count == 0)
             return $out;
         while ($r = sql_fetch_array($res)) {
-            $r1 = sql_fetch_array(sql_query("SELECT SUBSTR(grammems, 7, 4) AS gr FROM form2lemma WHERE lemma_id=".$r['lemma_id']." LIMIT 1"));
+            sql_execute($find_pos, array($r['lemma_id']));
+            $r1 = sql_fetch_array($find_pos);
             $out['form']['found'][] = array('id' => $r['lemma_id'], 'text' => $r['lemma_text'], 'pos' => $r1['gr']);
         }
     }
@@ -49,7 +52,7 @@ function get_dict_search_results($post) {
 function generate_tf_rev($token) {
     $out = '<tfr t="'.htmlspecialchars($token).'">';
     if (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {
-        $res = sql_query("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text='$token'");
+        $res = sql_query_pdo("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text='$token'");
         if (sql_num_rows($res) > 0) {
             $var = array();
             while ($r = sql_fetch_array($res)) {
@@ -85,7 +88,7 @@ function yo_filter($token, $arr) {
         return $arr;
 
     // so there is a 'ё'
-    $res = sql_query("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text COLLATE 'utf8_bin' = '$token'");
+    $res = sql_query_pdo("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text COLLATE 'utf8_bin' = '$token'");
     // return if no difference
     if (sql_num_rows($res) == sizeof($arr) || !sql_num_rows($res))
         return $arr;
@@ -97,7 +100,7 @@ function yo_filter($token, $arr) {
     return $out;
 }
 function dict_get_select_gram() {
-    $res = sql_query("SELECT `gram_id`, `inner_id` FROM `gram` ORDER by `inner_id`");
+    $res = sql_query_pdo("SELECT `gram_id`, `inner_id` FROM `gram` ORDER by `inner_id`");
     $out = array();
     while ($r = sql_fetch_array($res)) {
         $out[$r['gram_id']] = $r['inner_id'];
@@ -105,7 +108,7 @@ function dict_get_select_gram() {
     return $out;
 }
 function get_link_types() {
-    $res = sql_query("SELECT * FROM dict_links_types ORDER BY link_name");
+    $res = sql_query_pdo("SELECT * FROM dict_links_types ORDER BY link_name");
     $out = array();
     while ($r = sql_fetch_array($res)) {
         $out[$r['link_id']] = $r['link_name'];
@@ -168,7 +171,9 @@ function parse_dict_rev($text) {
     return $parsed;
 }
 function get_word_paradigm($lemma) {
-    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions LEFT JOIN dict_lemmata USING (lemma_id) WHERE lemma_text='".mysql_real_escape_string($lemma)."' ORDER BY rev_id DESC LIMIT 1"));
+    $res = sql_prepare("SELECT rev_text FROM dict_revisions LEFT JOIN dict_lemmata USING (lemma_id) WHERE lemma_text=? ORDER BY rev_id DESC LIMIT 1");
+    sql_execute($res, array($lemma));
+    $r = sql_fetch_array($res);
     if (!$r)
         return false;
     $arr = parse_dict_rev($r['rev_text']);
@@ -213,10 +218,12 @@ function get_common_prefix($word1, $word2) {
 }
 function form_exists($f) {
     $f = mb_strtolower($f, 'UTF-8');
-    if (!preg_match('/^[А-Яа-яЁё]/u', $f)) {
+    if (!preg_match('/^[а-яё]/u', $f)) {
         return -1;
     }
-    return sql_num_rows(sql_query("SELECT lemma_id FROM form2lemma WHERE form_text='".mysql_real_escape_string($f)."' LIMIT 1"));
+    $res = sql_prepare("SELECT lemma_id FROM form2lemma WHERE form_text=? LIMIT 1");
+    sql_execute($res, array($f));
+    return sql_num_rows($res);
 }
 function get_pending_updates($skip=0, $limit=500) {
     $out = array('revisions' => array(), 'header' => array());

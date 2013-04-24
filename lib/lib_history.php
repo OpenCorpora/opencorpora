@@ -51,12 +51,12 @@ function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0) {
 function dict_history($lemma_id, $skip = 0) {
     $out = array();
     if (!$lemma_id) {
-        $res = sql_fetch_array(sql_query("SELECT COUNT(*) FROM dict_revisions"));
+        $res = sql_fetch_array(sql_query_pdo("SELECT COUNT(*) FROM dict_revisions"));
         $out['total'] = $res[0];
-        $res = sql_fetch_array(sql_query("SELECT COUNT(*) FROM dict_links_revisions"));
+        $res = sql_fetch_array(sql_query_pdo("SELECT COUNT(*) FROM dict_links_revisions"));
         $out['total'] += $res[0];
     }
-    $res = sql_query("SELECT * FROM (
+    $res = sql_query_pdo("SELECT * FROM (
                         (SELECT s.*, u.user_shown_name AS user_name, dl.*, '0' lemma2_id, '0' lemma2_text, '0' is_link
                             FROM dict_revisions dr
                             LEFT JOIN rev_sets s ON (dr.set_id=s.set_id)
@@ -155,7 +155,7 @@ function main_diff($sentence_id, $set_id, $rev_id) {
     return $out;
 }
 function dict_diff($lemma_id, $set_id) {
-    $res = sql_query("SELECT dr.rev_id, dr.rev_text, s.timestamp, s.comment, u.user_shown_name AS user_name FROM dict_revisions dr LEFT JOIN rev_sets s ON (dr.set_id=s.set_id) LEFT JOIN `users` u ON (s.user_id=u.user_id) WHERE dr.set_id<=$set_id AND dr.lemma_id=$lemma_id ORDER BY dr.rev_id DESC LIMIT 2");
+    $res = sql_query_pdo("SELECT dr.rev_id, dr.rev_text, s.timestamp, s.comment, u.user_shown_name AS user_name FROM dict_revisions dr LEFT JOIN rev_sets s ON (dr.set_id=s.set_id) LEFT JOIN `users` u ON (s.user_id=u.user_id) WHERE dr.set_id<=$set_id AND dr.lemma_id=$lemma_id ORDER BY dr.rev_id DESC LIMIT 2");
     $r1 = sql_fetch_array($res);
     $r2 = sql_fetch_array($res);
     $old_rev = format_xml($r2['rev_text']);
@@ -174,12 +174,12 @@ function dict_diff($lemma_id, $set_id) {
         'prev_set'      => 0,
         'next_set'      => 0
     );
-    $res = sql_query("SELECT set_id FROM dict_revisions WHERE lemma_id=$lemma_id AND set_id<$set_id ORDER BY set_id DESC LIMIT 1");
+    $res = sql_query_pdo("SELECT set_id FROM dict_revisions WHERE lemma_id=$lemma_id AND set_id<$set_id ORDER BY set_id DESC LIMIT 1");
     if ($res) {
         $r = sql_fetch_array($res);
         $out['prev_set'] = $r[0];
     }
-    $res = sql_query("SELECT set_id FROM dict_revisions WHERE lemma_id=$lemma_id AND set_id>$set_id ORDER BY set_id ASC LIMIT 1");
+    $res = sql_query_pdo("SELECT set_id FROM dict_revisions WHERE lemma_id=$lemma_id AND set_id>$set_id ORDER BY set_id ASC LIMIT 1");
     if ($res) {
         $r = sql_fetch_array($res);
         $out['next_set'] = $r[0];
@@ -243,10 +243,10 @@ function revert_dict($rev_id) {
 function get_latest_comments($skip = 0) {
     $out = array();
 
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt FROM sentence_comments"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT COUNT(*) AS cnt FROM sentence_comments"));
     $out['total'] = $r['cnt'];
 
-    $res = sql_query("SELECT sc.comment_id, sc.sent_id, u.user_shown_name AS user_name, sc.timestamp, SUBSTRING_INDEX(sc.text, ' ', 8) txt FROM sentence_comments sc LEFT JOIN users u ON (sc.user_id=u.user_id) ORDER BY comment_id DESC LIMIT $skip,20");
+    $res = sql_query_pdo("SELECT sc.comment_id, sc.sent_id, u.user_shown_name AS user_name, sc.timestamp, SUBSTRING_INDEX(sc.text, ' ', 8) txt FROM sentence_comments sc LEFT JOIN users u ON (sc.user_id=u.user_id) ORDER BY comment_id DESC LIMIT $skip,20");
 
     while ($r = sql_fetch_array($res)) {
         $out['c'][] = array(

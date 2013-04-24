@@ -3,7 +3,7 @@ require_once('lib_dict.php');
 require_once('lib_annot.php');
 
 function get_books_list() {
-    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` WHERE `parent_id`=0 ORDER BY `book_name`");
+    $res = sql_query_pdo("SELECT `book_id`, `book_name` FROM `books` WHERE `parent_id`=0 ORDER BY `book_name`");
     $out = array('num' => sql_num_rows($res));
     while ($r = sql_fetch_array($res)) {
        $out['list'][] = array('id' => $r['book_id'], 'title' => $r['book_name']);
@@ -11,7 +11,7 @@ function get_books_list() {
     return $out;
 }
 function get_book_page($book_id, $full = false) {
-    $r = sql_fetch_array(sql_query("SELECT * FROM `books` WHERE `book_id`=$book_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT * FROM `books` WHERE `book_id`=$book_id LIMIT 1"));
     $out = array (
         'id'     => $book_id,
         'title'  => $r['book_name'],
