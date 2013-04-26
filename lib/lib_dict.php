@@ -380,6 +380,7 @@ function get_top_absent_words() {
         FROM text_forms
         LEFT JOIN tf_revisions USING (tf_id)
         WHERE is_last = 1
+            AND LENGTH(tf_text) > 2
             AND rev_text LIKE '%\"UNKN\"%'
         GROUP BY LOWER(tf_text)
         ORDER BY COUNT(tf_id) DESC
