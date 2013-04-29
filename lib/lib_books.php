@@ -20,13 +20,14 @@ function get_book_page($book_id, $full = false) {
         'is_chaskor_news' => (int)$r['parent_id'] == 226
     );
     //tags
-    $res = sql_query("SELECT tag_name FROM book_tags WHERE book_id=$book_id");
+    $res = sql_query_pdo("SELECT tag_name FROM book_tags WHERE book_id=$book_id");
+    $url_res = sql_prepare("SELECT filename FROM downloaded_urls WHERE url=? LIMIT 1");
     while ($r = sql_fetch_array($res)) {
         if (preg_match('/^(.+?)\:(.+)$/', $r['tag_name'], $matches)) {
             $ar = array('prefix' => $matches[1], 'body' => $matches[2], 'full' => $r['tag_name']);
             if ($matches[1] == 'url') {
-                $res1 = sql_query("SELECT filename FROM downloaded_urls WHERE url='".mysql_real_escape_string(htmlspecialchars_decode($matches[2]))."' LIMIT 1");
-                if ($r1 = sql_fetch_array($res1)) {
+                sql_execute($url_res, array(htmlspecialchars_decode($matches[2])));
+                if ($r1 = sql_fetch_array($url_res)) {
                     $ar['filename'] = $r1['filename'];
                 }
                 if (preg_match('/^http:\/\/ru.wikinews.org\/wiki\/(.+)$/', $matches[2], $wn_matches)) {
@@ -41,17 +42,18 @@ function get_book_page($book_id, $full = false) {
             $out['tags'][] = array('prefix' => '', 'body' => $r['tag_name'], 'full' => $r['tag_name']);
     }
     //sub-books
-    $res = sql_query("SELECT book_id, book_name FROM books WHERE parent_id=$book_id ORDER BY book_name");
+    $res = sql_query_pdo("SELECT book_id, book_name FROM books WHERE parent_id=$book_id ORDER BY book_name");
     while ($r = sql_fetch_array($res)) {
         $out['children'][] = array('id' => $r['book_id'], 'title' => $r['book_name']);
     }
     //parents
     $out['parents'] = array();
     $tid = $book_id;
+    $res = sql_prepare("SELECT book_id, book_name FROM books WHERE book_id=(SELECT parent_id FROM books WHERE book_id=? LIMIT 1) AND book_id>0 LIMIT 1");
     while ($tid) {
-        $res = sql_query("SELECT book_id, book_name FROM books WHERE book_id=(SELECT parent_id FROM books WHERE book_id=$tid LIMIT 1) AND book_id>0 LIMIT 1");
-        if (sql_num_rows($res) > 0) {
-            $r = sql_fetch_array($res);
+        sql_execute($res, array($tid));
+        $r = sql_fetch_array($res);
+        if ($r) {
             array_unshift($out['parents'], array('id' => $r['book_id'], 'title' => $r['book_name']));
             $tid = $r['book_id'];
         } else
@@ -68,9 +70,10 @@ function get_book_page($book_id, $full = false) {
         if (user_has_permission('perm_adder')) $q .= "LEFT JOIN sentence_check ss ON (s.sent_id = ss.sent_id AND ss.status=1 AND ss.user_id=".$_SESSION['user_id'].")\n";
         $q .= "WHERE p.book_id = $book_id
             ORDER BY p.`pos`, s.`pos`";
-        $res = sql_query($q);
+        $res = sql_query_pdo($q);
+        $res1 = sql_prepare("SELECT tf_id, tf_text FROM text_forms WHERE sent_id=? ORDER BY pos");
         while ($r = sql_fetch_array($res)) {
-            $res1 = sql_query("SELECT tf_id, tf_text FROM text_forms WHERE sent_id=".$r['sent_id']." ORDER BY pos");
+            sql_execute($res1, array($r['sent_id']));
             $tokens = array();
             while ($r1 = sql_fetch_array($res1)) {
                 $tokens[] = array('text' => $r1['tf_text'], 'id' => $r1['tf_id']);
@@ -81,7 +84,7 @@ function get_book_page($book_id, $full = false) {
             $out['paragraphs'][$r['ppos']][] = $new_a;
         }
     } else {
-        $res = sql_query("SELECT p.`pos` ppos, s.sent_id, s.`pos` spos FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = $book_id ORDER BY p.`pos`, s.`pos`");
+        $res = sql_query_pdo("SELECT p.`pos` ppos, s.sent_id, s.`pos` spos FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = $book_id ORDER BY p.`pos`, s.`pos`");
         while ($r = sql_fetch_array($res)) {
             $r1 = sql_fetch_array(sql_query("SELECT source, SUBSTRING_INDEX(source, ' ', 6) AS `cnt` FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
             if ($r1['source'] === $r1['cnt']) {
