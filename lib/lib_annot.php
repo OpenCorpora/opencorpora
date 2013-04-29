@@ -267,7 +267,8 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
 }
 function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $skip=0, $filter=false, $samples_by_page=0) {
     $res = sql_query("
-        SELECT pool_name, pool_type, status, t.grammemes, t.has_focus, users_needed, moderator_id, user_shown_name AS user_name
+        SELECT pool_name, pool_type, status, t.grammemes, t.has_focus, t.doc_link,
+            users_needed, moderator_id, user_shown_name AS user_name
         FROM morph_annot_pools p
         LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id)
         LEFT JOIN users ON (p.moderator_id = users.user_id)
@@ -286,6 +287,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         'variants' => $select_options,
         'name' => $r['pool_name'],
         'status' => $r['status'],
+        'has_manual' => (bool)$r['doc_link'],
         'num_users' => $r['users_needed'],
         'moderator_name' => $r['user_name'],
         'has_focus' => $r['has_focus'],

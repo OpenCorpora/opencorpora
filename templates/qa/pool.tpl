@@ -107,6 +107,9 @@
 Пул снят с публикации.
 <form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn">Опубликовать заново</button></form>
 {elseif $pool.status == 5}
+    {if $pool.has_manual}<div>
+        <a class="btn btn-primary" href="manual.php?pool_type={$pool.type}" target="_blank"><i class="icon-info-sign icon-white"></i> Инструкция</a>
+    </div>{/if}
 Пул модерируется (новые ответы запрещены). <form action="?act=finish_moder&amp;pool_id={$pool.id}" method="post" class="inline"><button{if !$pool.all_moderated} disabled="disabled"{/if} class="btn finish_mod">Закончить модерацию</button></form>
 <form action="?act=agree&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn" onclick="return confirm('Вы уверены? Это действие необратимо.')">Согласиться со всеми однозначными</button></form>
 {elseif $pool.status == 6}
