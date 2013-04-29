@@ -350,6 +350,7 @@ function delete_token($tf_id, $delete_history=true) {
         sql_query("DELETE FROM morph_annot_comments WHERE sample_id IN ($sids)") &&
         sql_query("DELETE FROM morph_annot_click_log WHERE sample_id IN ($sids)") &&
         sql_query("DELETE FROM morph_annot_samples WHERE tf_id = $tf_id") &&
+        sql_query("DELETE FROM updated_tokens WHERE token_id = $tf_id") &&
         sql_query("DELETE FROM text_forms WHERE tf_id = $tf_id LIMIT 1")
     ) {
         sql_commit();
