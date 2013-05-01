@@ -8,7 +8,7 @@
 30 6 * * * nice /corpus/scripts/cronrunner.pl "/corpus/export/pools/export_pools.sh" 2>>/home/grand/error.log
 0 7 * * * /corpus/scripts/invalidate_auth_tokens.pl /corpus/config.ini
 # several times a day
-45 */3 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/train_tokenizer.sh" >/dev/null 2>/dev/null
+45 7,19 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/train_tokenizer.sh" >/dev/null 2>/dev/null
 20 * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/unpublish_pools.py /corpus/config.ini" 2>>/home/grand/error.log
 15 * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/tokenizer/check_sentence_split.pl /corpus/config.ini" 2>>/home/grand/error.log
 0,30 * * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/stats/update_annot_stats.pl /corpus/config.ini" 2>>/home/grand/error.log
