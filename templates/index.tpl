@@ -77,6 +77,7 @@
                     <li class="nav-header">Задания на разметку</li>
                     <li><a href='{$web_prefix}/pools.php?type=3'>Опубликованные задания</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=merge_fails'>То, что не удалось перелить</a></li>
+                    <li><a href='{$web_prefix}/qa.php?act=useful_pools'><span class="small bggreen">new!</span> Пулы для приоритетной модерации</a></li>
                     <li><a href='?page=pool_charts'>Графики</a></li>
                     <li class="nav-header">Пулы, где я модератор</li>
                     <li><a href='{$web_prefix}/pools.php?type=5&amp;moder_id={$smarty.session.user_id}'>В работе</a></li>

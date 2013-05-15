@@ -53,6 +53,10 @@ switch ($action) {
         $smarty->assign('sentences', get_good_sentences(isset($_GET['no_zero'])));
         $smarty->display('qa/good_sentences.tpl');
         break;
+    case 'useful_pools':
+        $smarty->assign('pools', get_most_useful_pools());
+        $smarty->display('qa/useful_pools.tpl');
+        break;
     default:
         header("Location:index.php");
 }
