@@ -35,6 +35,8 @@ $(document).ready(function() {
     var avg_parses = {label: "разборов на слово", data: [{/literal}{$ambig_chart.avg_parses}{literal}], yaxis: 2, lines: {show: true}};
     var non_ambig = {label: "% однозначных", data: [{/literal}{$ambig_chart.non_ambig}{literal}], yaxis: 2, lines: {show: true}, color: 'green'};
     var unknown = {label: "% неизвестных", data: [{/literal}{$ambig_chart.unknown}{literal}], yaxis: 2, lines: {show: true}, color: 'red'};
+    var disamb_sents = {label: "однозначных предложений", data: [{/literal}{$ambig_chart.disamb_sentences}{literal}], yaxis: 1, lines: {show: true}, color: 'navy'}
+    var disamb_sent_length = {label: "средняя длина (слов)", data: [{/literal}{$ambig_chart.disamb_sent_length}{literal}], yaxis: 2, lines: {show: true}, color: 'green'}
     var total_words = {label: "всего слов", data: [{/literal}{$ambig_chart.total_words}{literal}], lines: {show:true, fill: true}};
     var users_by_day = {label: "размечавших", data: [{/literal}{$annot_chart.users}{literal}], yaxis:2, lines: {show: true}, color: 'navy'}
     var samples_by_day = {label: "ответов", data: [{/literal}{$annot_chart.samples}{literal}], lines: {show:true, fill:true}}
@@ -70,6 +72,7 @@ $(document).ready(function() {
     $.plot($("#ambig_chart1"), [total_words, avg_parses], options2);
     $.plot($("#ambig_chart2"), [total_words, non_ambig], options2);
     $.plot($("#ambig_chart3"), [total_words, unknown], options2);
+    $.plot($("#ambig_chart4"), [disamb_sents, disamb_sent_length], options2);
     $.plot($("#pools_chart"), pools, pie_options);
     options2['legend']['position'] = 'nw';
     options2['yaxis'] = {min: 0};
@@ -91,6 +94,8 @@ $(document).ready(function() {
 <div id="ambig_chart1" style="width:700px; height: 400px"></div>
 <h3>% однозначно разобранных слов</h3>
 <div id="ambig_chart2" style="width:700px; height: 400px"></div>
+<h3>Однозначные разборы</h3>
+<div id="ambig_chart4" style="width:700px; height: 400px"></div>
 <h3>% неизвестных слов</h3>
 <div id="ambig_chart3" style="width:700px; height: 400px"></div>
 <h2>Задания на разметку</h2>
