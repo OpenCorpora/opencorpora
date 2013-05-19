@@ -8,7 +8,7 @@
 <h1>Top 500 токенов с UNKN</h1>
 <ol>
 {foreach from=$words item=word}
-<li>{$word.word|htmlspecialchars} [{$word.count}]</li>
+<li>{$word.word|htmlspecialchars} [<a href="search.php?q={$word.word}">{$word.count}</a>]</li>
 {/foreach}
 </ol>
 {/block}

@@ -1251,4 +1251,22 @@ function get_pool_manual_page($type_id) {
     $r = sql_fetch_array(sql_query("SELECT doc_link FROM morph_annot_pool_types WHERE type_id=$type_id LIMIT 1"));
     return $r['doc_link'];
 }
+function get_search_results($query) {
+    $r = sql_fetch_array(sql_query(
+        "SELECT COUNT(*)
+        FROM form2tf
+        WHERE form_text = '".mysql_real_escape_string($query)."'
+    "));
+    
+    $out = array('total' => $r[0], 'results' => array());
+    $res = sql_query("
+        SELECT tf_id
+        FROM form2tf
+        WHERE form_text = '".mysql_real_escape_string($query)."'
+        LIMIT 100
+    ");
+    while ($r = sql_fetch_array($res))
+        $out['results'][] = get_context_for_word($r['tf_id'], 20);
+    return $out;
+}
 ?>
