@@ -89,7 +89,7 @@ function get_ambiguity_stats_for_chart() {
 
     $res = sql_prepare("SELECT timestamp, param_value FROM stats_values WHERE timestamp > ? AND param_id = ? ORDER BY timestamp");
     foreach ($param_set as $param_id) {
-        sql_execute($res, array($time - 30*24*60*60, $param_id));
+        sql_execute($res, array($time - 90*24*60*60, $param_id));
         while ($r = sql_fetch_array($res)) {
             $day = intval($r['timestamp'] / 86400);
             $t[$day][$param_id] = $r['param_value'];
