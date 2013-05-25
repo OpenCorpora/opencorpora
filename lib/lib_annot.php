@@ -583,7 +583,7 @@ function add_morph_pool_type($post_gram, $post_descr) {
     $gram_sets_str = mysql_real_escape_string(join('@', $gram_sets));
     $gram_descr_str = mysql_real_escape_string(join('@', $gram_descr));
 
-    if (sql_query("INSERT INTO morph_annot_pool_types VALUES (NULL, '$gram_sets_str', '$gram_descr_str', '', 0, 0)"))
+    if (sql_query("INSERT INTO morph_annot_pool_types VALUES (NULL, '$gram_sets_str', '$gram_descr_str', '', 0, 0, 0)"))
         return sql_insert_id();
     return false;
 }
