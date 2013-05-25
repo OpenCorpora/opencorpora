@@ -35,7 +35,8 @@ $(document).ready(function(){
 <tr>
     <th rowspan='2'>#</th>
     <th rowspan='2'>Участник</th>
-    <th rowspan='2'>Всего</th>
+    {if !isset($smarty.get.weekly)}<th rowspan='2'>Рейтинг</th>{/if}
+    <th rowspan='2'>Ответов</th>
     <th colspan='2'>В завершённых пулах</th>
     {if !isset($smarty.get.weekly)}<th colspan='2'>В проверенных пулах</th>{/if}
     <th rowspan='2'>Последняя<br/>активность</th></tr>
@@ -44,6 +45,7 @@ $(document).ready(function(){
     <tr {if $s@iteration>20 && (!isset($smarty.session.user_id) || $smarty.session.user_id != $s.user_id)}style="display:none;"{/if}>
         <td><a name="user{$s.user_id}"></a>{$s@iteration}
         <td>{if $is_admin}<a href="{$web_prefix}/user.php?id={$s.user_id}">{$s.fin.user_name}</a>{else}{$s.fin.user_name}{/if}
+        {if !isset($smarty.get.weekly)}<td>{$s.rating}</td>{/if}
         <td>{$s.total}
         <td>{$s.fin.value|default:'0'}
         <td>{if isset($s.fin.divergence)}{$s.fin.divergence|string_format:"%.1f%%"}{else}&mdash;{/if}

@@ -197,9 +197,21 @@ function get_user_stats($weekly=false) {
     }
 
     $uid2sid = array();
-    $res = sql_query_pdo("SELECT user_id, COUNT(*) AS cnt FROM morph_annot_instances WHERE answer > 0 AND ts_finish > $start_time GROUP BY user_id ORDER BY cnt DESC");
+    $res = sql_query_pdo("
+        SELECT user_id, COUNT(*) AS cnt, FLOOR(user_rating10 / 10) AS rating
+        FROM morph_annot_instances
+        LEFT JOIN users USING(user_id)
+        WHERE answer > 0
+            AND ts_finish > $start_time
+        GROUP BY user_id
+        ORDER BY ".($weekly ? 'cnt' : 'rating')." DESC
+    ");
     while ($r = sql_fetch_array($res)) {
-        $annotators[] = array('total' => number_format($r['cnt'], 0, '', ' '), 'user_id' => $r['user_id']);
+        $annotators[] = array(
+            'total' => number_format($r['cnt'], 0, '', ' '),
+            'user_id' => $r['user_id'],
+            'rating' => number_format($r['rating'], 0, '', ' ')
+        );
         $uid2sid[$r['user_id']] = sizeof($annotators) - 1;
         if (isset($uid2team[$r['user_id']])) {
             $teams[$uid2team[$r['user_id']]]['total'] += $r['cnt'];
