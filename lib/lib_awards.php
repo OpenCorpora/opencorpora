@@ -22,10 +22,21 @@ function update_user_rating($user_id, $pool_id, $is_skip, $previous_answer) {
     if (($previous_answer && !$is_skip) ||
         (!$previous_answer && $is_skip))
         return true;
+
+    $r = sql_fetch_array(sql_query("
+        SELECT rating_weight
+        FROM morph_annot_pools p
+        JOIN morph_annot_pool_types t
+            ON (p.pool_type = t.type_id)
+        WHERE pool_id = $pool_id
+        LIMIT 1
+    "));
+
+    $weight = $r['rating_weight'];
     
     if ($is_skip)
-        return add_user_rating($user_id, $pool_id, -10);
-    return add_user_rating($user_id, $pool_id, 10);
+        return add_user_rating($user_id, $pool_id, -$weight);
+    return add_user_rating($user_id, $pool_id, $weight);
 }
 function add_user_rating($user_id, $pool_id, $weight) {
     sql_begin();
