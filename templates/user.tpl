@@ -19,7 +19,18 @@
     })
 </script>
 <h1>{$user.shown_name|htmlspecialchars}</h1>
-<p>настоящий логин &mdash; {$user.name|htmlspecialchars}, зарегистрировался {$user.registered|date_format:"%d.%m.%Y"}</p>
+<p>настоящий логин &mdash; {$user.name|htmlspecialchars}, дата регистрации {$user.registered|date_format:"%d.%m.%Y"}</p>
+{if $game_is_on == 1}
+<h2>Награды</h2>
+<div class="clearfix">
+{foreach from=$badges item=badge}
+<div class="pull-left" style="border: 1px black solid; margin-right: 10px; padding: 5px">
+    <div><img style="margin-bottom: 5px; cursor: help" src="{if $badge.image}img/badges/{$badge.image}-100x100.png{else}http://placehold.it/100x100{/if}" title="{$badge.description|htmlspecialchars}"></div>
+    <div align="center"><b>{$badge.name}</b></div>
+</div>
+{/foreach}
+</div>
+{/if}
 <h2>Разметка</h2>
 <table class='table-condensed table'>
 <tr><th>Тип пула<th>Название пула<th>Всего ответов<th>Проверено<th colspan='2'>Ошибок</tr>

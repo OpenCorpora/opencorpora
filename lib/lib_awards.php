@@ -142,7 +142,7 @@ function get_user_badges($user_id, $only_shown=true) {
             'id' => $r['badge_id'],
             'name' => $r['badge_name'],
             'description' => $r['badge_descr'],
-            'image_name' => $r['badge_image'],
+            'image' => $r['badge_image'],
             'shown_time' => $r['shown']
         );
     }

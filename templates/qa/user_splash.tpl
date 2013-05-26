@@ -1,7 +1,7 @@
 {if $new_badge}
     <div class="alert alert-block clearfix" id="badge-alert">
         <button type="button" class="close" data-dismiss="alert">×</button>
-        <div class="pull-left" style="margin-right: 15px;"><img src="img/{if $new_badge.image}{$new_badge.image}{else}icon_target.png{/if}" width="32" height="32"></div>
+        <div class="pull-left" style="margin-right: 15px;"><img src="img/{if $new_badge.image}badges/{$new_badge.image}-100x100.png{else}icon_target.png{/if}"></div>
         <h4>Поздравляем!</h4>
         Вы получили медаль <strong>«{$new_badge.name}»</strong>{if $new_badge.description} &mdash; {$new_badge.description}{/if}! Спасибо, что помогаете нам!
     </div>
