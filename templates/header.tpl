@@ -28,6 +28,7 @@
                             {if mb_strlen($smarty.session.user_name) > 20}{$smarty.session.user_name|mb_substr:0:20}…{else}{$smarty.session.user_name}{/if}
                             <b class="caret"></b></a>
                             <ul class="dropdown-menu">
+                                <li><a href="{$web_prefix}/user.php?id={$smarty.session.user_id}">Мои успехи</a></li>
                                 <li><a href="{$web_prefix}/options.php">Настройки</a></li>
                                 {if $smarty.session.user_permissions.perm_admin == 1}
                                     {if isset($smarty.session.debug_mode)}
