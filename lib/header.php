@@ -85,15 +85,18 @@ $smarty->assign('goals', $config['goals']);
 $smarty->assign('game_is_on', 0);
 
 if (is_logged()) {
-    //$new_badge = check_user_simple_badges($_SESSION['user_id']);
-    //$new_level = check_user_level($_SESSION['user_id']);
-    //if ($new_level)
-    //    update_user_level($new_level);
-
     if (game_is_on()) {
         $smarty->assign('game_is_on', 1);
-        //if ($new_badge)
-        //    $smarty->assign('new_badge', $new_badge);
+        $new_badge = check_user_simple_badges($_SESSION['user_id']);
+        //$new_level = check_user_level($_SESSION['user_id']);
+
+        if ($new_badge) {
+            $smarty->assign('new_badge', $new_badge);
+            if (!mark_shown_badge($_SESSION['user_id'], $new_badge['id']))
+                show_error("Badge error");
+        }
+        //if ($new_level)
+        //    update_user_level($new_level);
         //if ($new_level > 1)
         //    $smarty->assign('new_level', $new_level);
     }
