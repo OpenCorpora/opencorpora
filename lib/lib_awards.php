@@ -189,11 +189,12 @@ function check_user_simple_badges($user_id) {
     if (!$badge_id)
         return false;
 
-    $r = sql_fetch_array(sql_query("SELECT badge_name, badge_descr FROM user_badges_types WHERE badge_id=$badge_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query("SELECT badge_name, badge_descr, badge_image FROM user_badges_types WHERE badge_id=$badge_id LIMIT 1"));
     return array (
         'id' => $badge_id,
         'name' => $r['badge_name'],
-        'description' => $r['badge_descr']
+        'description' => $r['badge_descr'],
+        'image' => $r['badge_image']
     );
 }
 ?>

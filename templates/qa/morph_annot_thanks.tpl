@@ -1,6 +1,6 @@
 {* Smarty *}
 {extends file='common.tpl'}
-{block name=before_content}{if $game_is_on == 1}{include file="qa/game_status.tpl"}{/if}{/block}
+{*block name=before_content}{if $game_is_on == 1}{include file="qa/game_status.tpl"}{/if}{/block*}
 {block name=content}
 <h3>Спасибо!</h3>
 <p>{if isset($final)}Вы разметили задание! {/if}Сейчас вы можете:
