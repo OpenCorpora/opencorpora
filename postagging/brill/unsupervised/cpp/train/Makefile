@@ -2,17 +2,17 @@ CC=g++
 INC_PATH=../include/
 LIB_PATH=../lib/
 CFLAGS=-c -O3 -Wall -I$(INC_PATH)
+SOURCES=main.cpp aux.cpp $(LIB_PATH)corpora_io.cpp
+OBJECTS=$(SOURCES:.cpp=.o)
+INCLUDES=$(wildcard $(INC_PATH)/*.h) $(wildcard *.h)
 
 all: train
 
-train: main.o aux.o corpora_io.o
-	$(CC) -O3 main.o aux.o corpora_io.o -o train
+train: $(OBJECTS)
+	$(CC) -O3 $(OBJECTS) -o train
 
-main.o: main.cpp aux.h $(INC_PATH)tag.h $(INC_PATH)token.h $(INC_PATH)utils.h $(INC_PATH)sentence.h $(INC_PATH)corpora_io.h $(INC_PATH)brill.h
-	$(CC) $(CFLAGS) main.cpp
+.cpp.o: $< ${INCLUDES}
+	$(CC) $(CFLAGS) $< -o $@
 
-aux.o: aux.cpp aux.h $(INC_PATH)tag.h $(INC_PATH)sentence.h $(INC_PATH)corpora_io.h $(INC_PATH)brill.h
-	$(CC) $(CFLAGS) aux.cpp
-
-corpora_io.o: $(LIB_PATH)corpora_io.cpp $(INC_PATH)corpora_io.h $(INC_PATH)sentence.h $(INC_PATH)token.h $(INC_PATH)tag.h $(INC_PATH)utils.h 
-	$(CC) $(CFLAGS) $(LIB_PATH)corpora_io.cpp
+clean:
+	rm -rf *.o train
