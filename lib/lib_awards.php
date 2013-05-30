@@ -197,4 +197,23 @@ function check_user_simple_badges($user_id) {
         'image' => $r['badge_image']
     );
 }
+
+// admin
+function get_badges_info() {
+    $res = sql_query_pdo("
+        SELECT badge_id, badge_name, badge_descr, badge_image
+        FROM user_badges_types
+        ORDER BY badge_id
+    ");
+    $out = array();
+
+    while ($r = sql_fetch_array($res))
+        $out[] = array(
+            'id' => $r['badge_id'],
+            'name' => $r['badge_name'],
+            'description' => $r['badge_descr'],
+            'image' => $r['badge_image']
+        );
+    return $out;
+}
 ?>
