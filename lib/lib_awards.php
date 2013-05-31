@@ -133,10 +133,19 @@ function check_user_level($user_id) {
 function get_user_badges($user_id, $only_shown=true) {
     $only_shown_str = $only_shown ? "AND shown > 0" : '';
     $out = array();
-    $res = sql_query("SELECT t.badge_id, t.badge_name, t.badge_descr, t.badge_image, b.shown
-                        FROM user_badges b
-                        LEFT JOIN user_badges_types t USING (badge_id)
-                        WHERE user_id=$user_id $only_shown_str");
+    $res = sql_query("
+        SELECT t.badge_id, t.badge_name, t.badge_descr, t.badge_image, b.shown
+        FROM user_badges b
+        LEFT JOIN user_badges_types t USING (badge_id)
+        WHERE user_id=$user_id $only_shown_str
+        AND badge_id IN (
+            SELECT MAX(badge_id)
+            FROM user_badges
+            LEFT JOIN user_badges_types USING (badge_id)
+            WHERE user_id=$user_id $only_shown_str
+            GROUP BY badge_group
+        )
+    ");
     while ($r = sql_fetch_array($res)) {
         $out[] = array(
             'id' => $r['badge_id'],
