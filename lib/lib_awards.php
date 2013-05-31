@@ -230,10 +230,19 @@ function save_badges_info($post) {
     sql_begin();
     foreach ($post['badge_name'] as $id => $name) {
         $id = (int)$id;
-        $image = trim($post['badge_image'][$id]);
-        $descr = trim($post['badge_descr'][$id]);
+        $name = mysql_real_escape_string(trim($name));
+        $image = mysql_real_escape_string(trim($post['badge_image'][$id]));
+        $descr = mysql_real_escape_string(trim($post['badge_descr'][$id]));
         $group = (int)trim($post['badge_group'][$id]);
-        if (!sql_query("
+        if ($id == -1 && $name) {
+            $r = sql_fetch_array(sql_query("SELECT MAX(badge_id) FROM user_badges_types"));
+            if (!sql_query("
+                INSERT INTO user_badges_types
+                VALUES ($r[0]+1, '$name', '$descr', '$image', $group)
+            "))
+                return false;
+        }
+        elseif ($id > 0 && !sql_query("
                 UPDATE user_badges_types
                 SET badge_name='".mysql_real_escape_string($name)."',
                 badge_image='".mysql_real_escape_string($image)."',
