@@ -201,9 +201,9 @@ function check_user_simple_badges($user_id) {
 // admin
 function get_badges_info() {
     $res = sql_query_pdo("
-        SELECT badge_id, badge_name, badge_descr, badge_image
+        SELECT badge_id, badge_name, badge_descr, badge_image, badge_group
         FROM user_badges_types
-        ORDER BY badge_id
+        ORDER BY badge_group, badge_id
     ");
     $out = array();
 
@@ -212,8 +212,30 @@ function get_badges_info() {
             'id' => $r['badge_id'],
             'name' => $r['badge_name'],
             'description' => $r['badge_descr'],
-            'image' => $r['badge_image']
+            'image' => $r['badge_image'],
+            'group' => $r['badge_group']
         );
     return $out;
+}
+function save_badges_info($post) {
+    sql_begin();
+    foreach ($post['badge_name'] as $id => $name) {
+        $id = (int)$id;
+        $image = trim($post['badge_image'][$id]);
+        $descr = trim($post['badge_descr'][$id]);
+        $group = (int)trim($post['badge_group'][$id]);
+        if (!sql_query("
+                UPDATE user_badges_types
+                SET badge_name='".mysql_real_escape_string($name)."',
+                badge_image='".mysql_real_escape_string($image)."',
+                badge_descr='".mysql_real_escape_string($descr)."',
+                badge_group=$group
+                WHERE badge_id=$id
+                LIMIT 1
+            "))
+            return false;
+    }
+    sql_commit();
+    return true;
 }
 ?>
