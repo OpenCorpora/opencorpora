@@ -831,6 +831,24 @@ function finish_moderate_pool($pool_id) {
     if (sql_num_rows($res) > 0)
         return false;
 
+    // check for bad moderator answers
+    $res = sql_query("
+        SELECT sample_id
+        FROM morph_annot_moderated_samples
+        JOIN morph_annot_samples
+            USING (sample_id)
+        WHERE pool_id=$pool_id
+            AND answer = 99
+            AND status IN (0, 1)
+        LIMIT 1
+    ");
+    if (sql_num_rows($res) > 0) {
+        global $smarty;
+        $r = sql_fetch_array($res);
+        $smarty->assign('error_msg', "Error in sample #".$r['sample_id']);
+        return false;
+    }
+
     return (bool)sql_query("UPDATE morph_annot_pools SET status=6, updated_ts=".time()." WHERE pool_id=$pool_id LIMIT 1");
 }
 function begin_pool_merge($pool_id) {
