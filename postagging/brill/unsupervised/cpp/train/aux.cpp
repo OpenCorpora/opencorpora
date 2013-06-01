@@ -34,7 +34,7 @@ string PrintRules(const list<Rule>& lr) {
   return ss.str();
 }
 
-string toString(const map<TagSet, size_t> &m) {
+/*string toString(const map<TagSet, size_t> &m) {
   map<TagSet, size_t>::const_iterator cit = m.begin();
   stringstream ss;
   while (m.end() != cit) {
@@ -43,7 +43,7 @@ string toString(const map<TagSet, size_t> &m) {
   }
 
   return ss.str();
-}
+}*/
 
 string toString(const map<string, size_t> &m) {
   map<string, size_t>::const_iterator cit = m.begin();

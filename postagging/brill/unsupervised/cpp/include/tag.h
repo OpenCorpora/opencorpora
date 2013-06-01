@@ -71,6 +71,7 @@ public:
     std::vector<std::string> v;
     split(str, ' ', v);
     for (size_t i = 0; i < v.size(); i++) {
+      if (4 != v[i].size()) throw;
       Tag t(v[i]);
       s.insert(t);
     }    

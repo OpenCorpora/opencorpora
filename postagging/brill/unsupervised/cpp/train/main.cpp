@@ -14,22 +14,26 @@
 #include "corpora_io.h"
 
 #include "brill.h"
+#include "corpus_stat.h"
 
 #include "aux.h"
 
 using namespace std;
 
-#define APPLY_WITH_IDX
+//#define APPLY_WITH_IDX
 #define OPT_SKIP_LOWSCORE_RULES
 
+/*
 struct TagStat {
   size_t freq;
-  map<TagSet, size_t> leftTag;
-  map<TagSet, size_t> rightTag;
+  //map<TagSet, size_t> leftTag;
+  //map<TagSet, size_t> rightTag;
+  KWiCNode<TagSet> leftTagContext;
+  KWiCNode<TagSet> rightTagContext;
 
   bool needsUpdate; // word counts and ind need update
-  map<string, size_t> leftWord;
-  map<string, size_t> rightWord;
+  KWiCNode<string> leftWordContext;
+  KWiCNode<string> rightWordContext;
 
   TagStat() : freq(0), needsUpdate(true) {
 #ifdef APPLY_WITH_IDX
@@ -43,11 +47,26 @@ struct TagStat {
 #endif
 
   string str() const;
+
+  size_t getFreq(const vector<pair<TagSet, signed int> > &v) {
+    
+  }
+};
+*/
+
+struct TrainingOptions {
+  size_t leftContextSize;
+  size_t rightContextSize;
+
+  TrainingOptions()
+    : leftContextSize(2), rightContextSize(2) { }
 };
 
-void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &tStat);
-float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule>& knownRules); 
-size_t ApplyRule(SentenceCollection &sc, const Rule &rule, map<TagSet, TagStat> &tStat);
+//void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &tStat, const TrainingOptions &opt);
+float DoOneStep(SentenceCollection &sc, const CorpusStat& stat, list<Rule>& knownRules, const TrainingOptions &opt); 
+size_t ApplyRule(SentenceCollection &sc, const Rule &rule);
+
+TrainingOptions options;
 
 int main(int argc, char **argv) {
   if (argc <= 1) {
@@ -62,18 +81,32 @@ int main(int argc, char **argv) {
   for (int i = 1; i < argc; i++) {
     //SentenceCollection originalCorpus;
     SentenceCollection currentCorpus;
-    map<TagSet, TagStat> tagStat;
+    //map<TagSet, TagStat> tagStat;
 
     readCorpus(argv[i], currentCorpus);
     cout << argv[i] << endl;
+
+    //CorpusStat stat(currentCorpus, options.leftContextSize, options.rightContextSize, options.leftContextSize, options.rightContextSize);
+    /*cout << stat.toString() << endl;
+
+    Context c1("2:tag=PNCT & 1:tag=NOUN");
+    cout << "c1 == " << c1.str() << endl;
+    TagSet t1("NOUN");
+    cout << "getFreq(t1, c1) == " << stat.getFreq(t1, c1) << endl;
+    return 0;*/ 
 
     //currentCorpus = originalCorpus;
     list<Rule> rules;
 
     // TODO: делать это в цикле до тех пор, пока годных правил не останется
-    float score = 0;
+    CorpusStat stat(currentCorpus, options.leftContextSize, options.rightContextSize, options.leftContextSize, options.rightContextSize);
+
+   float score = 0;
     do {
-      score = DoOneStep(currentCorpus, tagStat, rules);
+      //cerr << stat.toString() << endl;
+      score = DoOneStep(currentCorpus, stat, rules, options);
+      stat.clear();
+      stat.update();
     } while (score > 0);
 
     //cerr << PrintRules(rules);
@@ -94,6 +127,7 @@ int main(int argc, char **argv) {
   return 0;
 }
 
+
 float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incontext, const map<Tag, float>& inc2freq, Tag &bestY, float fBestScore = 0) {
   float bestScore = 0;
 
@@ -102,7 +136,7 @@ float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incont
     map<Tag, size_t>::const_iterator inc_it = incontext.find(pY->first);
 
 #ifdef OPT_SKIP_LOWSCORE_RULES
-    if (inc_it->second < bestScore /*|| inc_it->second < fBestScore*/) { pY++; continue; }
+    if (inc_it->second < bestScore || inc_it->second < fBestScore) { pY++; continue; }
 #endif
     // нет смысла досчитывать, т.к. score = inc_it->second - (что-то там)
     // и, следовательно, больше уже не станет
@@ -141,195 +175,191 @@ float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incont
   return bestScore;
 }
 
-float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> &knownRules) {
-  UpdateCorpusStatistics(sc, tStat);
+string toString(const vector<set<Condition> > &v) {
+  stringstream ss;
+  for (size_t i = 0; i < v.size(); i++) {
+    set<Condition>::const_iterator cit = v[i].begin();
+    while (v[i].end() != cit) {
+      ss << "[" << i << "] = " << cit->str() << endl;
+      cit++;
+    }
+  }
+  return ss.str();
+}
+
+template <class E>
+class PermutationGenerator {
+
+  const vector<set<E> > &data;
+  size_t len;
+
+  // result
+  list<set<E> > res;
+
+  size_t get_pos_list(set<set<size_t> > &l, set<size_t> &v, size_t start, size_t limit, size_t num_pos) {
+    size_t c = 0;
+    for (size_t i = start; i < limit; i++) {
+      set<size_t> t = v;
+      //if (t.size() > 0 && i == t[t.size()-1]) continue;
+      t.insert(i);
+      if (t.size() < num_pos && start < limit) {
+        size_t nc = get_pos_list(l, t, start + 1, limit, num_pos);
+        c += nc;
+        if (nc <= 1) return c;
+      } else {
+        l.insert(t);
+        c++;
+      }
+    }
+    return c;
+  }
+
+  bool get_impl(set<E> &s, const set<size_t> &v, set<size_t>::const_iterator n) {
+    typename set<E>::const_iterator cit = data[*n].begin();
+    while (data[*n].end() != cit) {
+      set<E> t = s;
+      t.insert(*cit);
+      set<size_t>::const_iterator z = n;
+      z++;
+      if (z == v.end()) {
+        res.push_back(t);
+      } else {
+        get_impl(t, v, z);
+      }
+     
+      cit++;
+    }
+
+    return true;
+  }
+
+public:
+  PermutationGenerator(const vector<set<E> > &d, size_t l)
+    : data(d), len(l) {
+
+   set<set<size_t> > lst;
+   for (size_t c = 1; c <= len; c++) {
+     set<size_t> v;
+     get_pos_list(lst, v, 0, data.size(), c);
+   }
+
+   set<set<size_t> >::const_iterator cit = lst.begin();
+   while (lst.end() != cit) {
+     set<E> s;
+     //for (set<size_t>::const_iterator i = cit->begin(); i != cit->end(); i++) cerr << *i << " "; cerr << endl;
+     get_impl(s, *cit, cit->begin());
+     cit++;
+   }
+
+    //cerr << toString(data) << endl;
+    //cerr << "res.size() == " << res.size() << endl;
+  }
+
+  bool get(set<E> &s) {
+    if (res.size() > 0) {
+      s = res.front();
+      res.pop_front();
+      return true;
+    }
+    return false;
+  }
+};
+
+float DoOneStep(SentenceCollection &sc, const CorpusStat& stat, list<Rule>& knownRules, const TrainingOptions &opt) {
 
   // Перебираем возможные варианты правил
   float fBestScore = 0;
   vector<Rule> bestRules;
   bestRules.reserve(32);
-  
-  map<TagSet, TagStat>::const_iterator cit = tStat.begin();
-  while (tStat.end() != cit) {
-    if (cit->first.size() > 1 /*&& cit->second.freq > 0*/) {
-      // это омонимичный тег
 
-      map<Tag, size_t> freq;
+  map<TagSet, size_t>::const_iterator cit = stat.mapTagSetFreq.begin();
+  while (stat.mapTagSetFreq.end() != cit) {
+    if (cit->first.size() < 2) {
+      // Это не омонимичный тег. А мы ищем омонимичные.
+      cit++;
+      continue;
+    }
+    //cerr << "TS = " << cit->first.str() << endl;
+
+    map<Tag, size_t> freq;
+    TagSet::const_iterator pT = cit->first.begin();
+    while (cit->first.end() != pT) {
+      // pT - это неомонимичный тег, на который мы будем заменять cit->first
+      TagSet tsT(*pT);
+
+      map<TagSet, size_t>::const_iterator fr_it = stat.mapTagSetFreq.find(tsT);
+      if (stat.mapTagSetFreq.end() != fr_it) {
+        freq[*pT] = fr_it->second;
+      } else {
+        cerr << "WARNING: no stat for tag \"" << pT->str() << "\"" << endl;
+      }
+
+      pT++;
+    }
+
+    // Перебираем возможные контексты (в которых встречается cit->first)
+    map<TagSet, vector<set<Condition> > >::const_iterator it_ctx = stat.mapTagSet2Features.find(cit->first);
+    if (stat.mapTagSet2Features.end() == it_ctx) {
+      cit++;
+      continue;
+    }
+
+    const vector<set<Condition> > &map_ctx = it_ctx->second; 
+    //cerr << toString(map_ctx) << endl;
+    PermutationGenerator<Condition> pg(map_ctx, map_ctx.size());
+    //cerr << "map_ctx.size() == " << map_ctx.size() << endl;
+    set<Condition> s;
+    while (pg.get(s)) { 
+      Context ctx(s);
+      //cerr << "ctx = " << ctx.str() << endl;
+
+      map<Tag, size_t> incontext;
+      map<Tag, float> inc2freq; // incontext[X] / freq[X];
+      size_t maxIncontext = 0;
+
       TagSet::const_iterator pT = cit->first.begin();
       while (cit->first.end() != pT) {
         // pT - это неомонимичный тег, на который мы будем заменять *cit
         TagSet tsT(*pT);
-        freq[*pT] = tStat[tsT].freq;
+
+        size_t TinC = stat.getFreq(tsT, ctx);
+        incontext[*pT] = TinC;
+        if (TinC > maxIncontext) maxIncontext = TinC;
+        inc2freq[*pT] = float(TinC) / float(freq[*pT]);
+
         pT++;
       }
 
-      map<Tag, size_t> incontext;
-      map<Tag, float> inc2freq; // incontext[X] / freq[X];
+      Tag bestY;
+      float bestScore = constructRule(freq, incontext, inc2freq, bestY, fBestScore);
 
-      // LEFT
-      map<TagSet, size_t>::const_iterator pC = cit->second.leftTag.begin();
-      while (cit->second.leftTag.end() != pC) {
-        size_t maxIncontext = 0;
-
-        TagSet::const_iterator pT = cit->first.begin();
-        while (cit->first.end() != pT) {
-          // pT - это неомонимичный тег, на который мы будем заменять *cit
-          TagSet tsT(*pT);
-
-          size_t TinC = tStat[tsT].leftTag[pC->first];
-          incontext[*pT] = TinC;
-          if (TinC > maxIncontext) maxIncontext = TinC;
-          inc2freq[*pT] = float(TinC) / float(freq[*pT]);
-
-          pT++;
+      if (bestScore >= fBestScore) {
+        if (bestScore > fBestScore) {
+          fBestScore = bestScore;
+          bestRules.clear();
         }
 
-#ifdef OPT_SKIP_LOWSCORE_RULES
-        if (fBestScore > maxIncontext) { pC++; continue; }
-#endif
-
-        Tag bestY;
-        float bestScore = constructRule(freq, incontext, inc2freq, bestY, fBestScore);
-
-        if (bestScore >= fBestScore) {
-          if (bestScore > fBestScore) {
-            fBestScore = bestScore;
-            bestRules.clear();
-          }
-
-          bestRules.push_back(Rule(cit->first, bestY, Context(-1, pC->first)));
-        } 
-
-        pC++;
-      }
-
-      // LEFT WORD
-      map<string, size_t>::const_iterator pCW = cit->second.leftWord.begin();
-      while (cit->second.leftWord.end() != pCW) {
-        //if (pCW->second < 3) { pCW++; continue; }
-        size_t maxIncontext = 0;
-
-        TagSet::const_iterator pT = cit->first.begin();
-        while (cit->first.end() != pT) {
-          TagSet tsT(*pT);
-
-          size_t TinC  = tStat[tsT].leftWord[pCW->first];
-          incontext[*pT] = TinC;
-          if (TinC > maxIncontext) maxIncontext = TinC;
-          inc2freq[*pT] = float(TinC) / float(freq[*pT]);
-
-          pT++;
-        }
-
-#ifdef OPT_SKIP_LOWSCORE_RULES
-        if (fBestScore > maxIncontext) { pCW++; continue; }
-#endif
-
-        Tag bestY;
-        float bestScore = constructRule(freq, incontext, inc2freq, bestY, fBestScore);
-        if (bestScore >= fBestScore) {
-          if (bestScore > fBestScore) {
-            fBestScore = bestScore;
-            bestRules.clear();
-          }
-
-          bestRules.push_back(Rule(cit->first, bestY, Context(-1, pCW->first))); 
-        }
-        
-        pCW++;
-      }
-
-      // RIGHT
-      pC = cit->second.rightTag.begin();
-      while (cit->second.rightTag.end() != pC) {
-        size_t maxIncontext = 0;
-
-        //stringstream dss;
-        TagSet::const_iterator pT = cit->first.begin();
-        while (cit->first.end() != pT) {
-          // pT - это неомонимичный тег, на который мы будем заменять *cit
-          TagSet tsT(*pT);
-
-          size_t TinC = tStat[tsT].rightTag[pC->first];
-          incontext[*pT] = TinC;
-          if (TinC > maxIncontext) maxIncontext = TinC;
-          inc2freq[*pT] = float(TinC) / float(freq[*pT]);
-
-          pT++;
-        }
-
-#ifdef OPT_SKIP_LOWSCORE_RULES
-        if (fBestScore > maxIncontext) { pC++; continue; }
-#endif
-
-        Tag bestY;
-        float bestScore = constructRule(freq, incontext, inc2freq, bestY, fBestScore);
-        if (bestScore >= fBestScore) {
-          if (bestScore > fBestScore) {
-            fBestScore = bestScore;
-            bestRules.clear();
-          }
-
-          bestRules.push_back(Rule(cit->first, bestY, Context(+1, pC->first))); 
-        }
-
-        pC++;
-      }
-
-      // RIGHT WORD
-      pCW = cit->second.rightWord.begin();
-      while (cit->second.rightWord.end() != pCW) {
-        //if (pCW->second < 3) { pCW++; continue; }
-        size_t maxIncontext = 0;
-
-        TagSet::const_iterator pT = cit->first.begin();
-        while (cit->first.end() != pT) {
-          TagSet tsT(*pT);
-
-          size_t TinC = tStat[tsT].rightWord[pCW->first];
-          incontext[*pT] = TinC;
-          if (TinC > maxIncontext) maxIncontext = TinC;
-          inc2freq[*pT] = float(TinC) / float(freq[*pT]);
-
-          pT++;
-        }
-
-#ifdef OPT_SKIP_LOWSCORE_RULES
-        if (fBestScore > maxIncontext) { pCW++; continue; }
-#endif
-
-        Tag bestY;
-        float bestScore = constructRule(freq, incontext, inc2freq, bestY, fBestScore);
-        if (bestScore >= fBestScore) {
-          if (bestScore > fBestScore) {
-            fBestScore = bestScore;
-            bestRules.clear();
-          }
-
-          bestRules.push_back(Rule(cit->first, bestY, Context(1, pCW->first))); 
-        }
-        
-        pCW++;
-      }
+        bestRules.push_back(Rule(cit->first, bestY, ctx));
+      } 
     }
 
     cit++;
   }
-
+ 
   if (fBestScore > 0) {
-    less_by_from_freq<Rule> lbff(tStat);
-    sort(bestRules.begin(), bestRules.end(), lbff);
+    less_by_context_size lbss;
+    sort(bestRules.begin(), bestRules.end(), lbss);
 
     for (size_t i = 0; i < bestRules.size(); ++i) {
       Rule &r = bestRules[i];
-      size_t n = ApplyRule(sc, r, tStat);
+      size_t n = ApplyRule(sc, r);
       stringstream ss;
-      ss << "score=" << fBestScore << " applied=" << n << " fromfreq=" << tStat[r.from].freq;
+      ss << "score=" << fBestScore << " applied=" << n ; //<< " fromfreq=" << tStat[r.from].freq;
       if (bestRules.size() > 1)
         ss << " gpos=" << i;
       r.add_comment(ss.str()); // начиная с этого места правило изменилось и не будет искаться в map
     
-      cerr << r.str() << endl;
+      cout << r.str() << endl;
       knownRules.push_back(r);
       //break; // временно отключаем повторы
     }
@@ -340,7 +370,8 @@ float DoOneStep(SentenceCollection &sc, map<TagSet, TagStat> &tStat, list<Rule> 
   return 0;
 }
 
-size_t ApplyRule(SentenceCollection &sc, const Rule &rule, map<TagSet, TagStat> &tStat) {
+
+size_t ApplyRule(SentenceCollection &sc, const Rule &rule) {
   size_t n = 0;
 
 #ifdef APPLY_WITH_IDX
@@ -377,11 +408,12 @@ size_t ApplyRule(SentenceCollection &sc, const Rule &rule, map<TagSet, TagStat> 
 
   //cerr << "RULE \"" << rule.str() << "\" applied " << n << " times" << endl;
 
-  tStat[rule.from].needsUpdate = true;
-  tStat[rule.to].needsUpdate = true;
+  //tStat[rule.from].needsUpdate = true;
+  //tStat[rule.to].needsUpdate = true;
   return n;
 }
 
+/*
 void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &tStat) {
   // удаляем устаревшую статистику
   vector<TagSet> sNeedUpdate;
@@ -486,4 +518,4 @@ string TagStat::str() const {
 
   return ss.str();
 }
-
+*/

@@ -4,16 +4,19 @@
 #include "dict.h"
 
 using namespace std;
+using namespace std::tr1;
 
 const std::set<MorphInterp>& Dict::lookup(const Glib::ustring &str) const {
   // to uppercase
   string searchKey = str.uppercase();
-  map<string, std::set<MorphInterp> >::const_iterator cit = d.find(searchKey);
+  //unordered_map<string, std::set<MorphInterp> >::const_iterator cit = d.find(searchKey);
+  unordered_map<string, size_t>::const_iterator cit = d.find(searchKey);
 
   if (d.end() == cit)
     return unknown;
 
-  return cit->second;
+  //return cit->second;
+  return v_interp[cit->second];
 }
 
 void Dict::load(const std::string &fn) {
@@ -22,6 +25,8 @@ void Dict::load(const std::string &fn) {
     cerr << "can't open file \"" << fn << "\"" << endl;
     throw;
   }
+
+//  unordered_map<set<MorphInterp>, size_t> t;
 
   size_t c = 0;
   string t;
@@ -48,7 +53,17 @@ void Dict::load(const std::string &fn) {
           }
         }
         MorphInterp mi(lemmaId, grm);
-        d[form].insert(mi); 
+        unordered_map<string, size_t>::const_iterator cit = d.find(form);
+        if (d.end() == cit) {
+          set<MorphInterp> smi;
+          smi.insert(mi);
+          v_interp.push_back(smi);
+          d[form] = v_interp.size() - 1;
+        } else {
+          v_interp[cit->second].insert(mi);
+        }
+
+        //d[form].insert(mi); 
         ++c;
       }
     }

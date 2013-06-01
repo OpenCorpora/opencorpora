@@ -3,6 +3,7 @@
 #include <set>
 
 #include "tag.h"
+#include "sentence.h"
 
 #ifndef __BRILL_H
 #define __BRILL_H
@@ -19,6 +20,10 @@ struct Condition {
 
   Condition(signed int _pos, const std::string& _form)
     : pos(_pos), what(word), value(T(UNKN)), form(_form) { }
+
+  Condition(const std::string &s) {
+    parse(s);
+  }
 
   inline bool match(const Sentence& s, size_t _pos) const {
     if (_pos + pos < 0 || _pos + pos > s.size() - 1)
@@ -40,6 +45,8 @@ struct Condition {
       ss << pos << ":" << "word" << "=" << form;
     return ss.str();
   }
+
+  void parse(const std::string &s);
 };
 
 inline bool operator<(const Condition& a, const Condition& b) {
@@ -52,6 +59,8 @@ inline bool operator<(const Condition& a, const Condition& b) {
 class Context {
   std::set<Condition> elements;
 
+  void parse(const std::string &s);
+
 public:
   Context(signed int pos, const TagSet& value) {
     elements.insert(Condition(pos, value));
@@ -61,6 +70,20 @@ public:
     elements.insert(Condition(pos, word));
   }
 
+  Context(const std::string &s) {
+    parse(s);
+  }
+
+  Context(const std::set<Condition> &sc) {
+    std::set<Condition>::const_iterator cit = sc.begin();
+    while (sc.end() != cit) {
+      elements.insert(*cit);
+      cit++;
+    }
+  }
+
+  size_t size() const { return elements.size(); }
+
   inline bool match(const Sentence& s, size_t pos) const {
     std::set<Condition>::const_iterator cit = elements.begin();
     while (elements.end() != cit) {
@@ -69,6 +92,14 @@ public:
       cit++;
     }
     return true;
+  }
+
+  std::set<Condition>::const_iterator begin() const {
+    return elements.begin();
+  }
+
+  std::set<Condition>::const_iterator end() const {
+    return elements.end();
   }
 
   std::string str() const {
@@ -112,10 +143,37 @@ public:
       comments += "; ";
     comments += s;
   }
+
+  friend class less_by_context_size;
 };
 
 inline bool operator<(const Rule& a, const Rule& b) {
   return a.str(true) < b.str(true);
 }
+
+inline size_t countTags(const Context &c) {
+  size_t r = 0;
+  std::set<Condition>::const_iterator cit = c.begin();
+  while (c.end() != cit) {
+    if (Condition::tag == cit->what)
+      r++;
+    cit++;
+  }
+  return r;
+}
+
+struct less_by_context_size {
+  bool operator()(const Rule& a, const Rule& b) const {
+    if (a.c.size() == b.c.size()) {
+      size_t aTags = countTags(a.c);
+      size_t bTags = countTags(b.c);
+      return aTags > bTags; 
+    }
+      
+    return a.c.size() < b.c.size();
+  }
+};
+
+
 
 #endif

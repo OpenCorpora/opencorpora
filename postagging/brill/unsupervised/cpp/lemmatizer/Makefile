@@ -2,7 +2,7 @@ CC=g++
 LD=g++
 INC_PATH=../include/
 LIB_PATH=../lib/
-CFLAGS=-c -O3 -Wall -I$(INC_PATH) `pkg-config --cflags glibmm-2.4`
+CFLAGS=-c -O3 -Wall -std=c++0x -I$(INC_PATH) `pkg-config --cflags glibmm-2.4`
 LDFLAGS=`pkg-config --libs glibmm-2.4`
 
 all: lemmatizer
