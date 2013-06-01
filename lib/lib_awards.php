@@ -165,36 +165,97 @@ function mark_shown_badge($user_id, $badge_id) {
         return true;
     return false;
 }
-function check_user_simple_badges($user_id) {
-    global $config;
-    $badge_id = false;
-
+function check_user_badges($user_id) {
     $res = sql_query("SELECT badge_id FROM user_badges WHERE user_id=$user_id AND shown=0 ORDER BY badge_id LIMIT 1");
     if (sql_num_rows($res) > 0) {
         $r = sql_fetch_array($res);
-        $badge_id = $r['badge_id'];
+        return get_badge($r['badge_id']);
     }
-    else {
-        $thresholds = explode(',', $config['badges']['simple']);
-        $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt FROM morph_annot_instances WHERE user_id = $user_id AND answer > 0"));
-        $count = $r['cnt'];
-        $res = sql_query("SELECT MAX(badge_id) AS max_badge FROM user_badges WHERE user_id = $user_id AND badge_id <= 20");
-        $r = sql_fetch_array($res);
-        $max_badge = (int)$r['max_badge'];
+    return check_user_simple_badges($user_id);
+}
+function get_user_max_badge_level($user_id, $group_id) {
+    $res = sql_query("
+        SELECT MAX(badge_id)
+        FROM user_badges
+        LEFT JOIN user_badges_types USING (badge_id)
+        WHERE user_id = $user_id
+        AND badge_group = $group_id
+    ");
+    $r = sql_fetch_array($res);
+    $max = $r[0];
+    if ($max == 0)
+        return 0;
 
-        foreach ($thresholds as $i => $thr) {
-            if ($max_badge > $i)
-                continue;
-            if ($count < $thr)
-                break;
-            // user should get a badge!
-            $badge_id = $i + 1;
-            if (!sql_query("INSERT INTO user_badges VALUES($user_id, $badge_id, 0)"))
-                return false;
+    $res = sql_query("
+        SELECT badge_id
+        FROM user_badges_types
+        WHERE badge_group=$group_id
+        ORDER BY badge_id
+    ");
+    $level = 1;
+    while ($r = sql_fetch_array($res))
+        if ($r[0] == $max)
+            return $level;
+        else
+            ++$level;
+    return 0;
+}
+function check_user_simple_badges($user_id) {
+    global $config;
+
+    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt FROM morph_annot_instances WHERE user_id = $user_id AND answer > 0"));
+    $count = $r['cnt'];
+    $max_badge = get_user_max_badge_level($user_id, 1);
+
+    $thresholds = explode(',', $config['badges']['simple']);
+    foreach ($thresholds as $i => $thr) {
+        if ($max_badge > $i)
+            continue;
+        if ($count < $thr)
             break;
-        }
+        // user should get a badge!
+        $badge_level = $i + 1;
+        if (give_badge($user_id, 1, $badge_level))
+            return get_badge_by_group(1, $badge_level);
+        return false;
     }
+}
+function check_user_diversity_badges($user_id) {
+    $res = sql_query_pdo("
+        SELECT COUNT(instance_id)
+        FROM morph_annot_instances
+        LEFT JOIN morph_annot_samples
+            USING (sample_id)
+        LEFT JOIN morph_annot_pools
+            USING (pool_id)
+        WHERE user_id = $user_id
+            AND answer > 0
+        GROUP BY pool_type
+        ORDER BY COUNT(instance_id) DESC
+    ");
 
+    $cnt = array();
+    while ($r = sql_fetch_array($res))
+        $cnt[] = $r[0];
+
+    $thresholds = array(); // to be done, presume that item is array(num_of_types, num_of_answers)
+    $max_badge = get_user_max_badge_level($user_id, 2);
+    foreach ($thresholds as $i => $thr) {
+        if ($max_badge > $i)
+            continue;
+        if (sizeof($cnt) < $thr[$i][0] || $cnt[$i] < $thr[$i][1])
+            break;
+        // user should get a badge
+        $badge_level = $i + 1;
+        if (give_badge($user_id, 2, $badge_level))
+            return get_badge_by_group(2, $badge_level);
+        return false;
+    }
+}
+function give_badge($user_id, $group_id, $badge_level) {
+    return (bool)sql_query("INSERT INTO user_badges VALUES($user_id, (SELECT badge_id FROM user_badges_types WHERE badge_group=$group_id LIMIT ".($badge_level-1).", 1), 0)");
+}
+function get_badge($badge_id) {
     if (!$badge_id)
         return false;
 
@@ -205,6 +266,16 @@ function check_user_simple_badges($user_id) {
         'description' => $r['badge_descr'],
         'image' => $r['badge_image']
     );
+}
+function get_badge_by_group($group_id, $level) {
+    $r = sql_fetch_array(sql_query("
+        SELECT badge_id
+        FROM user_badges_types
+        WHERE badge_group = $group_id
+        ORDER BY badge_id
+        LIMIT ".($level - 1).", 1
+    "));
+    return get_badge($r[0]);
 }
 
 // admin

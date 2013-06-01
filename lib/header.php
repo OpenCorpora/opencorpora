@@ -87,7 +87,7 @@ $smarty->assign('game_is_on', 0);
 if (is_logged()) {
     if (game_is_on()) {
         $smarty->assign('game_is_on', 1);
-        $new_badge = check_user_simple_badges($_SESSION['user_id']);
+        $new_badge = check_user_badges($_SESSION['user_id']);
         //$new_level = check_user_level($_SESSION['user_id']);
 
         if ($new_badge) {
