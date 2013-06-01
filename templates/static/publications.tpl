@@ -20,6 +20,17 @@
 <h2>Публикации</h2>
 <table class="table">
 <tr>
+    <td colspan="3"><h4>2013</h4></td>
+</tr>
+<tr>
+    <td>
+        <p>Морфологическая разметка корпуса силами волонтёров<br/>(доклад на конференции &laquo;Диалог&raquo;)</p>
+        <a href='#' class='pseudo tog'>выходные данные</a>
+        <div class='hidden-block'><i>Bocharov V.V., Alexeeva S.V., Granovsky D.V., Protopopova E.V., Stepanova M.E., Surikov A.V.</i> Crowdsourcing morphological annotation // Компьютерная лингвистика и интеллектуальные технологии: По материалам ежегодной Международной конференции «Диалог» (Бекасово, 29&nbsp;мая–2&nbsp;июня 2013 г.). Вып. 12 (19). — М.: РГГУ, 2013.</div>
+    </td>
+    <td colspan='2'><a href='{$web_prefix}/doc/articles/2013_Dialog.pdf'>pdf</a></td>
+</tr>
+<tr>
     <td colspan="3"><h4>2012</h4></td>
 </tr>
 <tr>
