@@ -33,6 +33,7 @@ $(document).ready(function() {
         <input type="text" name="badge_group[{$badge.id}]" class="pull-left span1" value="{$badge.group}"/><br/>
         <input type="text" name="badge_image[{$badge.id}]" value="{$badge.image|htmlspecialchars}"/>-100x100.png<br/>
         <textarea name="badge_descr[{$badge.id}]" class="pull-left">{$badge.description|htmlspecialchars}</textarea>
+        <input type="text" class="pull-left span1" value="{$badge.id}" readonly/><br/>
     </div>
 </div>
 {/foreach}
