@@ -171,7 +171,10 @@ function check_user_badges($user_id) {
         $r = sql_fetch_array($res);
         return get_badge($r['badge_id']);
     }
-    return check_user_simple_badges($user_id);
+    $ch = check_user_simple_badges($user_id);
+    if ($ch)
+        return $ch;
+    return check_user_diversity_badges($user_id);
 }
 function get_user_max_badge_level($user_id, $group_id) {
     $res = sql_query("
@@ -221,6 +224,9 @@ function check_user_simple_badges($user_id) {
     }
 }
 function check_user_diversity_badges($user_id) {
+    // done at least X samples in each of Y pool types
+    global $config;
+
     $res = sql_query_pdo("
         SELECT COUNT(instance_id)
         FROM morph_annot_instances
@@ -238,7 +244,8 @@ function check_user_diversity_badges($user_id) {
     while ($r = sql_fetch_array($res))
         $cnt[] = $r[0];
 
-    $thresholds = array(); // to be done, presume that item is array(num_of_types, num_of_answers)
+    $thresholds = explode(',', $config['badges']['diversity']);
+    $thresholds = array_map('explode', array_fill(0, sizeof($thresholds), ':'), $thresholds);
     $max_badge = get_user_max_badge_level($user_id, 2);
     foreach ($thresholds as $i => $thr) {
         if ($max_badge > $i)
@@ -251,6 +258,15 @@ function check_user_diversity_badges($user_id) {
             return get_badge_by_group(2, $badge_level);
         return false;
     }
+}
+function check_user_sticking_badges($user_id) {
+    // at least X1 every day within a week
+    // at least X2 every week within a month
+    // at least X3 every month within a year
+    // etc.
+}
+function check_user_date_badges($user_id) {
+    // at least N samples with error rate at most E on day(s) X
 }
 function give_badge($user_id, $group_id, $badge_level) {
     return (bool)sql_query("INSERT INTO user_badges VALUES($user_id, (SELECT badge_id FROM user_badges_types WHERE badge_group=$group_id LIMIT ".($badge_level-1).", 1), 0)");
