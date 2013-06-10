@@ -41,6 +41,7 @@ function get_book_page($book_id, $full = false) {
         } else
             $out['tags'][] = array('prefix' => '', 'body' => $r['tag_name'], 'full' => $r['tag_name']);
     }
+    $url_res->closeCursor();
     //sub-books
     $res = sql_query_pdo("SELECT book_id, book_name FROM books WHERE parent_id=$book_id ORDER BY book_name");
     while ($r = sql_fetch_array($res)) {
