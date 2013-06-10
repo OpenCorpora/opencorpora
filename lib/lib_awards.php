@@ -287,6 +287,8 @@ function check_user_sticking_badges($user_id) {
             if ($cur_days > $max_days)
                 $max_days = $cur_days;
         }
+        else
+            $cur_days = 1;
         $last_day = $r[0];
     }
 
@@ -310,6 +312,8 @@ function check_user_sticking_badges($user_id) {
             if ($cur_weeks > $max_weeks)
                 $max_weeks = $cur_weeks;
         }
+        else
+            $cur_weeks = 1;
         $last_week = $r[0];
     }
 
