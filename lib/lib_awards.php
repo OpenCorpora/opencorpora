@@ -174,7 +174,10 @@ function check_user_badges($user_id) {
     $ch = check_user_simple_badges($user_id);
     if ($ch)
         return $ch;
-    return check_user_diversity_badges($user_id);
+    $ch = check_user_diversity_badges($user_id);
+    if ($ch)
+        return $ch;
+    return check_user_sticking_badges($user_id);
 }
 function get_user_max_badge_level($user_id, $group_id) {
     $res = sql_query("
@@ -260,10 +263,76 @@ function check_user_diversity_badges($user_id) {
     }
 }
 function check_user_sticking_badges($user_id) {
-    // at least X1 every day within a week
-    // at least X2 every week within a month
-    // at least X3 every month within a year
-    // etc.
+    // parameters are:
+    // at least 10 answers within a day for M days
+    // at least 50 answers within a week for N weeks
+    global $config;
+
+    // days
+    $res = sql_query_pdo("
+        SELECT TO_DAYS(FROM_UNIXTIME(timestamp)) AS day
+        FROM morph_annot_click_log
+        WHERE user_id = $user_id
+            AND clck_type < 10
+        GROUP BY TO_DAYS(FROM_UNIXTIME(timestamp))
+        HAVING COUNT(*) >= 10
+        ORDER BY day
+    ");
+    $max_days = 1;
+    $cur_days = 1;
+    $last_day = 0;
+    while ($r = sql_fetch_array($res)) {
+        if ($r[0] == $last_day + 1) {
+            $cur_days++;
+            if ($cur_days > $max_days)
+                $max_days = $cur_days;
+        }
+        $last_day = $r[0];
+    }
+
+    // weeks
+    // -2 comes from 1 Jan 0000 being not a Monday
+    $res = sql_query_pdo("
+        SELECT FLOOR((TO_DAYS(FROM_UNIXTIME(timestamp)) - 2) / 7) AS week
+        FROM morph_annot_click_log
+        WHERE user_id = $user_id
+            AND clck_type < 10
+        GROUP BY FLOOR((TO_DAYS(FROM_UNIXTIME(timestamp)) - 2) / 7)
+        HAVING COUNT(*) >= 50
+        ORDER BY week
+    ");
+    $max_weeks = 1;
+    $cur_weeks = 1;
+    $last_week = 0;
+    while ($r = sql_fetch_array($res)) {
+        if ($r[0] == $last_week + 1) {
+            $cur_weeks++;
+            if ($cur_weeks > $max_weeks)
+                $max_weeks = $cur_weeks;
+        }
+        $last_week = $r[0];
+    }
+
+    $thresholds = explode(',', $config['badges']['returns']);
+    $thresholds = array_map('explode', array_fill(0, sizeof($thresholds), ':'), $thresholds);
+
+    $max_badge = get_user_max_badge_level($user_id, 3);
+    foreach ($thresholds as $i => $thr) {
+        if ($max_badge > $i)
+            continue;
+        if ($thr[1] != 'd' && $thr[1] != 'w')
+            return false;
+        if (
+            ($thr[1] == 'd' && $max_days < $thr[0]) ||
+            ($thr[1] == 'w' && $max_weeks < $thr[0])
+        )
+            break;
+        // user should get a badge
+        $badge_level = $i + 1;
+        if (give_badge($user_id, 3, $badge_level))
+            return get_badge_by_group(3, $badge_level);
+        return false;
+    }
 }
 function check_user_date_badges($user_id) {
     // at least N samples with error rate at most E on day(s) X
