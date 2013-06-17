@@ -9,29 +9,39 @@ if (isset($_GET['id'])) {
     header('Location:index.php');
     return;
 }
-if (isset($_GET['act'])) {
-    $action = $_GET['act'];
-    switch ($action) {
-        case 'save':
-            if (user_has_permission('perm_disamb')) {
-                if (sentence_save($id)) {
-                    header("Location:sentence.php?id=$id");
-                } else {
-                    show_error();
-                }
-                break;
+
+$action = isset($_GET['act']) ? $_GET['act'] : '';
+$mode = isset($_GET['mode']) ? $_GET['mode'] : 'morph';
+
+switch ($action) {
+    case 'save':
+        if (user_has_permission('perm_disamb')) {
+            if (sentence_save($id)) {
+                header("Location:sentence.php?id=$id");
             } else {
-                show_error($config['msg']['notlogged']);
+                show_error();
             }
             break;
-        case 'save_src':
-            if (is_admin() && sentence_save_source($id, $_POST['src_text'])) {
-                header("Location:sentence.php?id=$id");
-            } else
-                show_error();
-    }
-} else {
-    $smarty->assign('sentence', get_sentence($id));
-    $smarty->display('sentence.tpl');
+        } else {
+            show_error($config['msg']['notlogged']);
+        }
+        break;
+    case 'save_src':
+        if (is_admin() && sentence_save_source($id, $_POST['src_text'])) {
+            header("Location:sentence.php?id=$id");
+        } else
+            show_error();
+        break;
+    default:
+        $smarty->assign('sentence', get_sentence($id));
+        if ($mode == 'syntax') {
+            $smarty->assign('group_types', array(
+                1 => 'Тип А',
+                2 => 'Тип Б',
+                3 => 'Тип В'
+            ));
+            $smarty->display('sentence_syntax.tpl');
+        } else
+            $smarty->display('sentence.tpl');
 }
 ?>

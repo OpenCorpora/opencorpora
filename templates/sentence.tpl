@@ -76,6 +76,12 @@
                 };
         }
     </script>
+    {if $user_permission_disamb == 1}
+        <div class="btn-group">
+            <a href="?id={$sentence.id}&mode=morph" class="btn {if !isset($smarty.get.mode) || $smarty.get.mode == 'morph'}btn-success{/if}">Морфология</a>
+            <a href="?id={$sentence.id}&mode=syntax" class="btn {if isset($smarty.get.mode) && $smarty.get.mode == 'syntax'}btn-success{/if}">Синтаксис</a>
+        </div>
+    {/if}
     <p align='right'>
     {if $sentence.status == 0}
     <span class='sent_status0'>Предложение разобрано автоматически.</span>
@@ -104,12 +110,6 @@
                     Комментировать
                     {/if}
                 </button>
-                {if $user_permission_disamb == 1}
-                    <div class="btn-group">
-                        <a href="?id={$sentence.id}&mode=morph" class="btn {if !isset($smarty.get.mode) || $smarty.get.mode == 'morph'}btn-success{/if}">Морфология</a>
-                        <a href="?id={$sentence.id}&mode=syntax" class="btn {if isset($smarty.get.mode) && $smarty.get.mode == 'syntax'}btn-success{/if}">Синтаксис</a>
-                    </div>
-                {/if}
                 <br/>
                 <span id='comment_fld'>Комментарий: <input name='comment' size='60' placeholder='необязательно' type="text"/></span>
             </div>
