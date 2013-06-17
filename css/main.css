@@ -330,7 +330,7 @@ div#main_scroller {
 div#main_scroller span#comment_fld {
     display: none;
 }
-div#main_scroller div {
+div#main_scroller div#main_scroller_inner {
     display: inline;
     float: left;
     margin-left: 5%;
