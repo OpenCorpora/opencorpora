@@ -381,7 +381,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         elseif ($filter == 'focus' && (
                     $t['disagreed'] ||
                     sizeof($t['comments']) > 0 ||
-                    filter_sample_for_moderation($out['type'], $t)
+                    filter_sample_for_moderation($out['type'], $t, $out['has_focus'])
                 ))
             $add = true;
         elseif (
@@ -408,7 +408,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     $out['pages']['total'] = $samples_by_page ? ceil($out['pages']['total'] / $samples_by_page) : 1;
     return $out;
 }
-function filter_sample_for_moderation($pool_type, $sample) {
+function filter_sample_for_moderation($pool_type, $sample, $has_focus) {
     $mainword = $sample['context'][$sample['mainword']];
 
     // check all focus words beginning with a capital letter
@@ -424,8 +424,7 @@ function filter_sample_for_moderation($pool_type, $sample) {
         return true;
 
     // disregard context in any pools except the following
-    $r = sql_fetch_array(sql_query("SELECT has_focus FROM morph_annot_pool_types WHERE type_id = $pool_type LIMIT 1"));
-    if (!$r['has_focus'])
+    if (!$has_focus)
         return false;
 
     // ADJF masc/neut
@@ -482,7 +481,7 @@ function filter_sample_for_moderation($pool_type, $sample) {
         return false;
     }
 
-    // therefore it is 12
+    // therefore it is 12 (NOUN sing/plur)
 
     // focus word with Fixd or Pltm 
     foreach ($sample['parses'] as $parse) {
@@ -491,7 +490,16 @@ function filter_sample_for_moderation($pool_type, $sample) {
                 return true;
         }
     }
+
     // left or right context with numbers
+    // except 'NNNN goda'
+    if (
+        preg_match('/^года$/iu', $mainword) &&
+        isset($sample['context'][$sample['mainword'] - 1]) &&
+        preg_match('/^[0-9]{4}$/', $sample['context'][$sample['mainword'] - 1])
+    )
+        return false;
+
     for ($i = max(0, $sample['mainword'] - 3); $i < min($sample['mainword'] + 3, sizeof($sample['context'])); ++$i) {
         if ($i == $sample['mainword'])
             continue;
