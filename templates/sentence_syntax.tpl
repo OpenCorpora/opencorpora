@@ -13,12 +13,33 @@ function check_adjacency($token) {
     return false;
 }
 function update_selection() {
-    var l = $("span.token.bggreen").length;
+    var l = $("span.token.bggreen").length + $("span.group.bggreen").length;
     $("#selection_info b").html(l);
     if (l > 1)
         $("#selection_info #new_group").show().find('#add1').hide();
-    else
+    else {
         $("#selection_info #new_group").hide();
+        $("#group_type").hide();
+    }
+}
+function show_new_group() {
+    $('span.token.bggreen:first').before('<span class="group" id="last_group"></span>');
+    $('span.token.bggreen').appendTo($('span#last_group')).removeClass('token').removeClass('bggreen').unbind('click').not(':first').each(function(i, el) {
+        $(el).html(' ' + $(el).html());
+    });
+    $("span#last_group").attr('id', null);
+}
+function save_group() {
+    alert('Not implemented');
+    show_new_group();
+}
+function clck_handler($target) {
+    if (!check_adjacency($target)) {
+        $('span.token').removeClass('bggreen');
+        $('span.group').removeClass('bggreen');
+    }
+    $target.addClass('bggreen');
+    update_selection();
 }
 $(document).ready(function(){
     $('#group_type').hide();
@@ -28,17 +49,16 @@ $(document).ready(function(){
         $("#add1").show();
     });
     $('#add1').click(function() {
-        alert('Not implemented');
+        save_group();
         $("#group_type").hide();
         $("#add0").show();
-        $("span.token").removeClass('bggreen');
         update_selection();
     });
     $('span.token').click(function() {
-        if (!check_adjacency($(this)))
-            $('span.token').removeClass('bggreen');
-        $(this).addClass('bggreen');
-        update_selection();
+        clck_handler($(this));
+    });
+    $('#main_annot_syntax').delegate('span.group', 'click', function() {
+        clck_handler($(this));
     });
 });
 </script>
