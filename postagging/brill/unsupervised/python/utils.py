@@ -22,7 +22,8 @@ def read_corpus(inc, ignore_numbers=True):
             token = Token(t)
         except:
             print t
-            raise Exception
+            #raise Exception
+            continue
         yield token
 
 
@@ -61,8 +62,8 @@ def context_stats(corpus, ignore_numbers=True,
                 context = s[left:right]
                 for j, t in enumerate(context, - (i - left)):
 
-                    if not j:
-                        continue
+                    '''if not j:
+                        continue'''
 
                     try:
                         result_dict[tag_1][0].update(j, t.getPOStags())
@@ -75,10 +76,10 @@ def context_stats(corpus, ignore_numbers=True,
 
                 if join_context: # переписать для разного количества конт.признаков
                     for t1, t2 in combinations(enumerate(context, - (i - left)), cf):
-                        if not t1[0]:
+                        '''if not t1[0]:
                             continue
                         if not t2[0]:
-                            continue
+                            continue'''
                         result_dict[tag_1][0].update((t1[0], t2[0]), \
                                                       (t1[1].getPOStags(), t2[1].getPOStags()))
             s = [_NULL_TOKEN]
@@ -96,8 +97,8 @@ def context_stats(corpus, ignore_numbers=True,
                 context = s[left:right]
                 for j, t in enumerate(context, - (i - left)):
 
-                    if not j:
-                        continue
+                    '''if not j:
+                        continue'''
 
                     try:
                         result_dict[tag_1][0].update(j, t.getPOStags())
@@ -133,6 +134,7 @@ def numb_amb_corpus(corpus):
             continue
         if token.has_ambig():
             numb_amb += 1
+            #print token.getPOStags()
         tvars += len(token.getPOStags().split())
         tokens += 1
     return tokens, numb_amb, tvars, sents

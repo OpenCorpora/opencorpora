@@ -104,8 +104,11 @@ def apply_rule(rule, corpus, ignore_numbers=True, wsize=2):
                         except:
                             curr_context = []
                     else:
-                        curr_context = [x for x in enumerate([w.getByIndex(rule.ind) for w in c],
+                        try:
+                            curr_context = [x for x in enumerate([w.getByIndex(rule.ind) for w in c],
                                                               - (i - left)) if x[0] in rc[0]]
+                        except:
+                            curr_context = []
 
                     #print >> sys.stderr, curr_context, context
                     if context == curr_context:
@@ -127,14 +130,20 @@ def apply_rule(rule, corpus, ignore_numbers=True, wsize=2):
 
             if token.getPOStags() == rule.tagset:
                 if not more:
-                    curr_context = [x[0] for x in enumerate([w.getByIndex(rule.ind) for w in c],
+                    try:
+                        curr_context = [x[0] for x in enumerate([w.getByIndex(rule.ind) for w in c],
                                                           - (i - left)) if x[0] in rc]
-                    curr_context.append([x[1] for x in enumerate([w.getByIndex(rule.ind) for w in c],
+                        curr_context.append([x[1] for x in enumerate([w.getByIndex(rule.ind) for w in c],
                                                           - (i - left)) if x[0] in rc][0])
                         #print context, curr_context
+                    except:
+                        curr_context = []
                 else:
-                    curr_context = [x for x in enumerate([w.getByIndex(rule.ind) for w in c],
+                    try:
+                        curr_context = [x for x in enumerate([w.getByIndex(rule.ind) for w in c],
                                                           - (i - left)) if x[0] in rc[0]]
+                    except:
+                        curr_context = []
                 if context == curr_context:
                     token.disambiguate(rule.tag)
             yield token

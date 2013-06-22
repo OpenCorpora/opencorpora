@@ -25,7 +25,7 @@ def precision(atagged, mtagged, init=None):
         try:
             if t[0].getPOStags() != t[1].getPOStags():
                 #print t[0].display(), t[1].display()
-                print t[0].getPOStags(), '|', t[1].getPOStags()
+                #print t[0].getPOStags(), '|', t[1].getPOStags()
                 mistagged += 1
         except:
             print 1
@@ -79,22 +79,22 @@ if __name__ == '__main__':
         t = 0
         mist = 0
         m = []
-        res = list(read_corpus(open(i, 'r').read().split('\n')))
+        #res = list(read_corpus(open(i, 'r').read().split('\n')))
         #init = read_corpus(open(sys.argv[2], 'r').read())
-        ref = list(read_corpus(sys.stdin))
-        n = numb_amb_corpus(ref)[0]
-        '''args = sys.argv[1:]
-        paths = OrderedDict()
-        for arg in args:
-            paths[arg] = get_rules(open(arg, 'r').read().rstrip().split('\n'))
-        for pair in combinations_with_replacement(paths.keys(), 2):
-            if len(set(pair)) > 1:
-                print spearman(*(paths[k] for k in pair))'''
-        '''for s1, s2 in zip(res, ref):
+        #ref = list(read_corpus(sys.stdin))
+        #n = numb_amb_corpus(ref)[0]
+        #pr = precision(res, ref)
+        #mt = pr[0]
+        #t = pr[1]
+        #print mt, t, round((t - mt) / t, 4) * 100
+    args = sys.argv[1:]
+    paths = OrderedDict()
+    for arg in args:
+        paths[arg] = get_rules(open(arg, 'r').read().rstrip().split('\n'))
+    for pair in combinations_with_replacement(paths.keys(), 2):
+        if len(set(pair)) > 1:
+            print spearman(*(paths[k] for k in pair))
+    '''for s1, s2 in zip(res, ref):
             pr = precision(s1, s2)
             mt += pr[0]
             t += pr[1]'''
-        pr = precision(res, ref)
-        mt = pr[0]
-        t = pr[1]
-        print mt, t, round((t - mt) / t, 4) * 100

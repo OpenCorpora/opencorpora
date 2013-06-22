@@ -10,7 +10,6 @@ def get_text_by_tag(lines, tags):
     for line in lines:
         tag_text = dict(zip(tags, [[] for i in range(len(tags))]))
         #line = line.decode('utf-8')
-        output = StringIO()
         if line.lstrip().startswith('<token'):
             for tag in tags:
                 rtag = tag + '="'
@@ -35,20 +34,19 @@ def get_text_by_tag(lines, tags):
                     else:
                         tag_text[tag].append(match)
                     if tag in ('token id', 'text'):
-                        output.write(match + '\t')
+                        sys.stdout.write(match + '\t')
             variants = zip(tag_text['l id'], tag_text['t'], tag_text['v'])
             for i in range(len(variants[:])):
                 var = variants.pop(0)
                 var = ' '.join(var)
                 variants.append(var)
-            output.write('\t'.join(variants))
-        elif line.lstrip().startswith('sent'):
-            output.write('sent')
-        elif line.lstrip().startswith('/sent'):
-            output.write('/sent')
-        yield output.getvalue().rstrip()
+            sys.stdout.write('\t'.join(variants))
+            print
+        elif line.lstrip().startswith('<sent'):
+            print 'sent'
+        elif line.lstrip().startswith('</sent'):
+            print '/sent'
 
 if __name__ == '__main__':
-    for line in get_text_by_tag(sys.stdin, ('token id', 'text', 'l id', 't', 'v')):
-        if line.rstrip() is not '':
-            sys.stdout.write(line + '\n')
+    get_text_by_tag(sys.stdin, ('token id', 'text', 'l id', 't', 'v'))
+
