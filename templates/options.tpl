@@ -4,6 +4,7 @@
 <h1>Настройки</h1>
 <form action="?act=save" method="post">
     {foreach key=id item=option from=$meta}
+        {if $id != 4 || $user_permission_check_morph}
         <div class="control-group">
             {$option.name}
             <div class="controls">
@@ -15,6 +16,7 @@
             {/if}
             </div>
         </div>
+        {/if}
     {/foreach}
     <div class="controls">
         <input type='button' class="btn btn-primary" onclick="submit_with_readonly_check($(this).closest('form'))" value='Сохранить'>&nbsp;&nbsp;<input type='reset' value='Отменить' class="btn">

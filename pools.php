@@ -52,7 +52,7 @@ switch ($action) {
                 4,
                 isset($_GET['skip']) ? (int)$_GET['skip'] : 0,
                 $filter,
-                15
+                (!user_has_permission('perm_check_morph') || $_SESSION['options'][4] == 1) ? 15 : 0
             ));
             $smarty->display('qa/pool.tpl');
         }
