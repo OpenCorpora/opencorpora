@@ -337,10 +337,6 @@ function get_extended_pools_stats() {
         $total_by_status[$r['status']] += $r['cnt'];
     }
 
-    $total_sum = array_sum($total_by_status);
-    foreach ($total_by_status as $status => $v)
-        $total_by_status[$status] /= ($total_sum / 100);
-
     // sort in ascending order (and renumber)
     asort($total);
     $new_order = array_flip(array_keys($total));

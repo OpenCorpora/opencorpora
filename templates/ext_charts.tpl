@@ -22,6 +22,35 @@ $(document).ready(function() {
             position: 'se'
         }
     };
+
+    var pie_options = {
+        series: {
+            pie: {
+                show: true,
+                radius: 1,
+                label: {
+                    show: true,
+                    radius: 5/6,
+                    formatter: function(label, series) {
+                        return '<div style="text-align: center; padding: 2px; color: white">' + Math.round(series.percent * 100) / 100 + '%</div>'
+                    },
+                    background: {
+                        opacity: 0.5,
+                        color: '#000'
+                    }
+                }
+            }
+        }
+    };
+    var totals = [
+        {label: 'не опубликованы', data: {/literal}{$main.total[2]}{literal}},
+        {label: 'размечаются', data: {/literal}{$main.total[3]}{literal}},
+        {label: 'размечены', data: {/literal}{$main.total[4]}{literal}},
+        {label: 'на модерации', data: {/literal}{$main.total[6]}{literal}},
+        {label: 'готовы', data: {/literal}{$main.total[9]}{literal}},
+    ];
+    $.plot($("#totals_chart"), totals, pie_options);
+
     $.plot($("#words_chart"), data, stack_opts);
 
     $("#toggle_chart").click(function(event) {
@@ -53,13 +82,7 @@ $(document).ready(function() {
 <p><a href="#" id="toggle_chart" class="pseudo" rel="0">привести все к 100%</a></p>
 <div id="words_chart" style="width:100%; height: 1000px"></div>
 <h3>Всего</h3>
-<div class="progress">
-    <div class="bar" style="background-color: #edc240; background-image: none; width: {$main.total[2]|string_format:"%.1f"}%">{$main.total[2]|string_format:"%.1f%%"}</div>
-    <div class="bar" style="background-color: #afd8f8; background-image: none; width: {$main.total[3]|string_format:"%.1f"}%">{$main.total[3]|string_format:"%.1f%%"}</div>
-    <div class="bar" style="background-color: #cb4b4b; background-image: none; width: {$main.total[4]|string_format:"%.1f"}%">{$main.total[4]|string_format:"%.1f%%"}</div>
-    <div class="bar" style="background-color: #4da74d; background-image: none; width: {$main.total[6]|string_format:"%.1f"}%">{$main.total[6]|string_format:"%.1f%%"}</div>
-    <div class="bar" style="background-color: #9440ed; background-image: none; width: {$main.total[9]|string_format:"%.1f"}%">{$main.total[9]|string_format:"%.1f%%"}</div>
-</div>
+<div id="totals_chart" style="width:700px; height: 400px"></div>
 <h2>Модерация</h2>
 <div class='progress'>
     <div class="bar bar-info" style="width: 33%">модерируется</div>
