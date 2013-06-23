@@ -2,19 +2,7 @@
 
 import sys
 import random
-from utils import write_corpus, numb_amb_corpus, Corpus
-
-
-def get_first_sent(corpus, s, n):
-    ss = sorted(corpus.sents[s:s+n])
-    for i in ss:
-        c = [i]
-        yield Corpus(c)
-
-
-def read_corpus(f):
-    c = [''.join((x, '/sent')) for x in f.split('/sent')]
-    return c
+from utils import write_corpus, numb_amb_corpus
 
 def rand_sent(l, n, c):
     used = []
@@ -27,14 +15,20 @@ def rand_sent(l, n, c):
 def get_random_sentences(corpus, nums):
     c = []
     i = 0
+    s = False
     for line in corpus:
         line = line.rstrip().decode('utf-8')
-        if not line:
-            print
+        if not line or 'sent' in line:
+            #print
             i += 1
+            s = True
             continue
         if i in nums:
-            print line.encode('utf-8')
+            if s:
+                print '/sent'
+                print 'sent'
+                s = False
+            print line.rstrip().encode('utf-8')
     return c
 
 

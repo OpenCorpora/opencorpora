@@ -47,6 +47,50 @@ def get_text_by_tag(lines, tags):
         elif line.lstrip().startswith('</sent'):
             print '/sent'
 
+def get_text_id_by_type(lines, type_tag):
+    t = re.compile(u'<tag>Тип:%s' % type_tag, re.U)
+    parent = re.compile(u'<text id=\"(?P<id>\d+)\" parent=\"(?P<p>\d+)', re.U)
+    f = re.compile(u'</text>', re.U)
+    found = False
+    started = False
+    nums = ["0"]
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        if line.decode('utf-8').startswith(u'<tag>Тип:%s' % type_tag):
+            nums.append(id)
+            found = True
+            continue
+        m = parent.match(line)
+        if m:
+            if m.group('p') in nums:
+                id = m.group('id')
+                if found and m.group('p') != "0":
+                    nums.append(id)
+                    started = True
+        if started:
+            yield line
+        if f.match(line):
+            started = False
+    #return nums
+
+def get_texts_by_id(lines, ids):
+    p = re.compile(u'<text id=\"(?P<id>\d+)\" parent=\"(?P<p>\d+)', re.U)
+    f = re.compile(u'</text>', re.U)
+    started = False
+    for line in lines:
+         line = line.strip()
+         m = p.match(line)
+         if m and m.group('id') in ids:
+             started = True
+         if started:
+             print line
+         if f.match(line):
+             started = False    
+            
+
 if __name__ == '__main__':
-    get_text_by_tag(sys.stdin, ('token id', 'text', 'l id', 't', 'v'))
+    get_text_by_tag(get_text_id_by_type(sys.stdin, u'Юридические тексты'), ('token id', 'text', 'l id', 't', 'v'))
+    #get_text_id_by_type(sys.stdin, u'Юридические тексты')
 
