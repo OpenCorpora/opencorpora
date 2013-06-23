@@ -315,6 +315,7 @@ function get_extended_pools_stats() {
     );
 
     $total = array();
+    $total_by_status = array();
     $res = sql_query_pdo("
         SELECT status, pool_type, COUNT(s.sample_id) AS cnt
         FROM morph_annot_samples s
@@ -330,7 +331,15 @@ function get_extended_pools_stats() {
             $t[$r['status']][$r['pool_type']] = 0;
         $t[$r['status']][$r['pool_type']] += $r['cnt'];
         $total[$r['pool_type']] += $r['cnt'];
+
+        if (!isset($total_by_status[$r['status']]))
+            $total_by_status[$r['status']] = 0;
+        $total_by_status[$r['status']] += $r['cnt'];
     }
+
+    $total_sum = array_sum($total_by_status);
+    foreach ($total_by_status as $status => $v)
+        $total_by_status[$status] /= ($total_sum / 100);
 
     // sort in ascending order (and renumber)
     asort($total);
@@ -373,7 +382,8 @@ function get_extended_pools_stats() {
     return array(
         'data' => '[' . join(",\n    ", $out) . ']',
         'data2' => '[' . join(",\n    ", $out2) . ']',
-        'ticks' => '[' . join(', ', $ticks) . ']'
+        'ticks' => '[' . join(', ', $ticks) . ']',
+        'total' => $total_by_status
     );
 }
 function get_moderation_stats() {
