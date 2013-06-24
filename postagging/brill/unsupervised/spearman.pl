@@ -18,7 +18,7 @@ for (my $i = 0; $i <= $#files; $i++) {
 
     print "$names[$i] $names[$j] " 
           . join(" ", intersect($files[$i], $files[$j])) . " " 
-          . spearman($files[$i], $files[$j]) . "\n";
+          . spearman($files[$i], $files[$j], 1) . "\n";
   }
 }
 

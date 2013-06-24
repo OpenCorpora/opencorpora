@@ -2,7 +2,7 @@ use strict;
 use utf8;
 use Data::Dumper;
 use List::Util qw(min);
-use Algorithm::NeedlemanWunsch;
+#use Algorithm::NeedlemanWunsch;
 
 #print levenshtein([split //, "mwma"], [split //, "mama"]) ."\n";
 
@@ -32,21 +32,7 @@ sub score_sub {
   return ($_[0] eq $_[1]) ? 1 : -1;
 }
 
-my $matcher = Algorithm::NeedlemanWunsch->new(\&score_sub);
-
-for (my $i = 0; $i <= $#files; $i++) {
-  for (my $j = $i + 1; $j <= $#files; $j++) {
-
-    if (1 == $edit_distance) {
-      print "$names[$i] $names[$j] " . levenshtein($files[$i], $files[$j]) . "\n";
-      print "\t" . $matcher->align($files[$i], $files[$j]) . "\n";
-    } else {
-      print "$names[$i] $names[$j] " 
-            . join(" ", intersect($files[$i], $files[$j])) . " " 
-            . spearman($files[$i], $files[$j]) . "\n";
-    }
-  }
-}
+#my $matcher = Algorithm::NeedlemanWunsch->new(\&score_sub);
 
 sub spearman {
   my ($_ra, $_rb, $append_missing) = @_;

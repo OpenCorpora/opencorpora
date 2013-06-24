@@ -20,7 +20,7 @@ Dict dict;
 
 int main(int argc, char **argv) {
 
-  dict.load("/home/lazyfrog-nb-ubuntu/my/opencorpora/dump/dict.opcorpora.txt");
+  dict.load("~/dict.opcorpora.txt");
   cout << "end" << endl; //cin >> ws; return -1;
   if (argc > 1)
     readCorpus(argv[1], corpus);
