@@ -1,7 +1,7 @@
 <?php
 require('lib/header.php');
-require('lib/lib_history.php');
-if (!is_logged()) {
+require_once('lib/lib_history.php');
+if (!is_logged() || !user_has_permission('perm_dict')) {
     header("Location:index.php");
     return;
 }
@@ -25,7 +25,7 @@ elseif (isset($_GET['tf_rev']) && $rev_id = (int)$_GET['tf_rev']) {
         show_error();
     }
 }
-elseif (isset($_GET['dict_rev']) && $rev_id = (int)$_GET['dict_rev'] && revert_dict($rev_id)) {
+elseif (isset($_GET['dict_rev']) && ($rev_id = (int)$_GET['dict_rev']) && revert_dict($rev_id)) {
     header("Location:dict_history.php");
 } else {
     show_error();
