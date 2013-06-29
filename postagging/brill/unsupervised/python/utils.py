@@ -38,7 +38,7 @@ def write_corpus(corpus, outstream=sys.stdout):  # corpus is an instance of Corp
 def context_stats(corpus, ignore_numbers=True,
                   wsize=2, join_context=True,
                   cf=2, fixed=False):
-    
+
     _NULL_TOKEN = Token(('SENT', 'SENT'))
     result_dict = {}
     s = [_NULL_TOKEN]
@@ -155,12 +155,11 @@ class Rule(object):
         context_info = []
         if type(self.context[0]) == int:
             self.c = '%s:%s=%s' % (str(self.context[0]), self.id, self.context[1])
-            return '%s -> %s | %s #' % (self.tagset, self.tag, self.c)
         else:
             for c in zip(*self.context):
                 context_info.append('%s:%s=%s' % (str(c[0]), self.id, c[1]))
             self.c = '&'.join(context_info)
-            return '%s -> %s | %s #' % (self.tagset, self.tag, self.c)
+        return '%s -> %s | %s #' % (self.tagset, self.tag, self.c)
 
 
 class Context(dict):

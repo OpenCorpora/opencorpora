@@ -7,6 +7,7 @@ from utils import read_corpus, write_corpus, Rule, context_stats, Token
 
 _NULL_TOKEN = Token(('SENT', 'SENT'))
 
+
 def scores(s, best_rules):
     #scores = {}
     bestscore = 0

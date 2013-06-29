@@ -1,6 +1,6 @@
 # coding: utf-8
 
-
+from argparse import ArgumentParser
 from rules_stat import scores, apply_rule
 import sys
 from time import clock
@@ -11,21 +11,13 @@ TYPES = {0: 'tag', 1: 'word'}
 
 if __name__ == '__main__':
     s = clock()
-    args = sys.argv[1:]
-    apply_all = False
-    fullcorp = False
-    continuous = False
+    p = ArgumentParser()
+    p.add_argument('r', default=False)
+    p.add_argument('w', default=False)
+    args = p.parse_args()
     path = '.'
     write = False
     n = 0
-    if args != []:
-        i = 0
-        for arg in args:
-            if arg == '-r':
-                apply_all = True
-            if arg == '-w':
-                write = True
-            i += 1
     out = sys.stdout
     i = 0
     best_rules = []
@@ -54,7 +46,7 @@ if __name__ == '__main__':
             except:
                 out.write(r.display().encode('utf-8'))
             out.write('score=%s applied=%s\n' % (str(best_score), a))
-        if apply_all:
+        if args.p:
             for r in best_rules[:-1]:
                 inc = list(apply_rule(r, inc))
         i += 1
