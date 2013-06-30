@@ -7,6 +7,8 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <tr1/unordered_map>
+#include <tr1/unordered_set>
 
 #include "tag.h"
 #include "token.h"
@@ -19,6 +21,7 @@
 #include "aux.h"
 
 using namespace std;
+using namespace std::tr1;
 
 //#define APPLY_WITH_IDX
 #define OPT_SKIP_LOWSCORE_RULES
@@ -64,7 +67,7 @@ struct TrainingOptions {
 
 //void UpdateCorpusStatistics(const SentenceCollection &sc, map<TagSet, TagStat> &tStat, const TrainingOptions &opt);
 float DoOneStep(SentenceCollection &sc, const CorpusStat& stat, list<Rule>& knownRules, const TrainingOptions &opt); 
-size_t ApplyRule(SentenceCollection &sc, const Rule &rule);
+size_t ApplyRule(SentenceCollection &sc, const Rule &rule, bool reallyApply);
 
 TrainingOptions options;
 
@@ -128,12 +131,12 @@ int main(int argc, char **argv) {
 }
 
 
-float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incontext, const map<Tag, float>& inc2freq, Tag &bestY, float fBestScore = 0) {
+float constructRule(const unordered_map<Tag, size_t>& freq, const unordered_map<Tag, size_t>& incontext, const unordered_map<Tag, float>& inc2freq, Tag &bestY, float fBestScore = 0) {
   float bestScore = 0;
 
-  map<Tag, size_t>::const_iterator pY = freq.begin();
+  unordered_map<Tag, size_t>::const_iterator pY = freq.begin();
   while (freq.end() != pY) {
-    map<Tag, size_t>::const_iterator inc_it = incontext.find(pY->first);
+    unordered_map<Tag, size_t>::const_iterator inc_it = incontext.find(pY->first);
 
 #ifdef OPT_SKIP_LOWSCORE_RULES
     if (inc_it->second < bestScore || inc_it->second < fBestScore) { pY++; continue; }
@@ -141,7 +144,7 @@ float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incont
     // нет смысла досчитывать, т.к. score = inc_it->second - (что-то там)
     // и, следовательно, больше уже не станет
 
-    map<Tag, size_t>::const_iterator pZ = freq.begin();
+    unordered_map<Tag, size_t>::const_iterator pZ = freq.begin();
     float maxValue = 0;
     Tag R;
 
@@ -151,7 +154,7 @@ float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incont
         continue;
       }
       
-      map<Tag, float>::const_iterator i2f_it = inc2freq.find(pZ->first);      
+      unordered_map<Tag, float>::const_iterator i2f_it = inc2freq.find(pZ->first);      
       if (i2f_it->second > maxValue) {
         maxValue = i2f_it->second;
         R = pZ->first;
@@ -160,7 +163,7 @@ float constructRule(const map<Tag, size_t>& freq, const map<Tag, size_t>& incont
       pZ++;
     }
 
-    map<Tag, size_t>::const_iterator f_it = freq.find(pY->first);
+    unordered_map<Tag, size_t>::const_iterator f_it = freq.find(pY->first);
     //map<Tag, size_t>::const_iterator inc_it = incontext.find(pY->first);
     float score = inc_it->second - f_it->second * maxValue;
 
@@ -187,19 +190,52 @@ string toString(const vector<set<Condition> > &v) {
   return ss.str();
 }
 
+namespace std { namespace tr1 {
+template <>
+struct hash<unordered_set<size_t> > {
+public:
+  inline size_t operator()(const unordered_set<size_t> &x) const throw() {
+    size_t h = 0;
+ 
+    unordered_set<size_t>::const_iterator cit = x.begin();
+    while (x.end() != cit) {
+      h = h ^ hash<int>()(*cit);
+      cit++;
+    }
+   
+    return h;
+  }
+};
+} }
+
+namespace std { namespace tr1 {
+inline bool operator==(const std::tr1::unordered_set<size_t> &a, const std::tr1::unordered_set<size_t> &b) {
+  if (a.size() != b.size()) return false;
+
+  std::tr1::unordered_set<size_t>::const_iterator cit = a.begin();
+  while (a.end() != cit) {
+    if (b.end() == b.find(*cit))
+      return false;
+    cit++;
+  }
+ 
+  return true;
+}
+} }
+
 template <class E>
 class PermutationGenerator {
 
-  const vector<set<E> > &data;
   size_t len;
+  unordered_set<unordered_set<size_t> > lst;
 
   // result
-  list<set<E> > res;
+  list<unordered_set<E> > res;
 
-  size_t get_pos_list(set<set<size_t> > &l, set<size_t> &v, size_t start, size_t limit, size_t num_pos) {
+  size_t get_pos_list(unordered_set<unordered_set<size_t> > &l, unordered_set<size_t> &v, size_t start, size_t limit, size_t num_pos) {
     size_t c = 0;
     for (size_t i = start; i < limit; i++) {
-      set<size_t> t = v;
+      unordered_set<size_t> t = v;
       //if (t.size() > 0 && i == t[t.size()-1]) continue;
       t.insert(i);
       if (t.size() < num_pos && start < limit) {
@@ -214,17 +250,17 @@ class PermutationGenerator {
     return c;
   }
 
-  bool get_impl(set<E> &s, const set<size_t> &v, set<size_t>::const_iterator n) {
-    typename set<E>::const_iterator cit = data[*n].begin();
+  bool get_impl(const vector<unordered_set<E> > &data, unordered_set<E> &s, const unordered_set<size_t> &v, unordered_set<size_t>::const_iterator n) {
+    typename unordered_set<E>::const_iterator cit = data[*n].begin();
     while (data[*n].end() != cit) {
-      set<E> t = s;
+      unordered_set<E> t = s;
       t.insert(*cit);
-      set<size_t>::const_iterator z = n;
+      unordered_set<size_t>::const_iterator z = n;
       z++;
       if (z == v.end()) {
         res.push_back(t);
       } else {
-        get_impl(t, v, z);
+        get_impl(data, t, v, z);
       }
      
       cit++;
@@ -234,28 +270,27 @@ class PermutationGenerator {
   }
 
 public:
-  PermutationGenerator(const vector<set<E> > &d, size_t l)
-    : data(d), len(l) {
+  PermutationGenerator(size_t sz, size_t l)
+    : len(l) {
 
-   set<set<size_t> > lst;
    for (size_t c = 1; c <= len; c++) {
-     set<size_t> v;
-     get_pos_list(lst, v, 0, data.size(), c);
+     unordered_set<size_t> v;
+     get_pos_list(lst, v, 0, sz, c);
    }
-
-   set<set<size_t> >::const_iterator cit = lst.begin();
-   while (lst.end() != cit) {
-     set<E> s;
-     //for (set<size_t>::const_iterator i = cit->begin(); i != cit->end(); i++) cerr << *i << " "; cerr << endl;
-     get_impl(s, *cit, cit->begin());
-     cit++;
-   }
-
-    //cerr << toString(data) << endl;
-    //cerr << "res.size() == " << res.size() << endl;
   }
 
-  bool get(set<E> &s) {
+  void init(const vector<unordered_set<E> > &d) {
+    res.clear();
+    unordered_set<unordered_set<size_t> >::const_iterator cit = lst.begin();
+    while (lst.end() != cit) {
+      unordered_set<E> s;
+      //for (set<size_t>::const_iterator i = cit->begin(); i != cit->end(); i++) cerr << *i << " "; cerr << endl;
+      get_impl(d, s, *cit, cit->begin());
+      cit++;
+    }
+  }
+
+  bool get(unordered_set<E> &s) {
     if (res.size() > 0) {
       s = res.front();
       res.pop_front();
@@ -272,49 +307,56 @@ float DoOneStep(SentenceCollection &sc, const CorpusStat& stat, list<Rule>& know
   vector<Rule> bestRules;
   bestRules.reserve(32);
 
-  map<TagSet, size_t>::const_iterator cit = stat.mapTagSetFreq.begin();
+  PermutationGenerator<Condition> pg(opt.leftContextSize + opt.rightContextSize + 1, 2);
+  size_t searchSpaceSize = 0;
+  unordered_map<TagSet, size_t>::const_iterator cit = stat.mapTagSetFreq.begin();
   while (stat.mapTagSetFreq.end() != cit) {
     if (cit->first.size() < 2) {
       // Это не омонимичный тег. А мы ищем омонимичные.
       cit++;
       continue;
     }
-    //cerr << "TS = " << cit->first.str() << endl;
+//    cerr << "TS = " << cit->first.str() << endl;
 
-    map<Tag, size_t> freq;
+    unordered_map<Tag, size_t> freq;
     TagSet::const_iterator pT = cit->first.begin();
     while (cit->first.end() != pT) {
       // pT - это неомонимичный тег, на который мы будем заменять cit->first
       TagSet tsT(*pT);
 
-      map<TagSet, size_t>::const_iterator fr_it = stat.mapTagSetFreq.find(tsT);
+      unordered_map<TagSet, size_t>::const_iterator fr_it = stat.mapTagSetFreq.find(tsT);
       if (stat.mapTagSetFreq.end() != fr_it) {
         freq[*pT] = fr_it->second;
       } else {
-        cerr << "WARNING: no stat for tag \"" << pT->str() << "\"" << endl;
+        freq[*pT] = 0;
+        //cerr << "WARNING: no stat for tag \"" << pT->str() << "\"" << endl;
       }
 
       pT++;
     }
 
     // Перебираем возможные контексты (в которых встречается cit->first)
-    map<TagSet, vector<set<Condition> > >::const_iterator it_ctx = stat.mapTagSet2Features.find(cit->first);
+    unordered_map<TagSet, vector<unordered_set<Condition> > >::const_iterator it_ctx = stat.mapTagSet2Features.find(cit->first);
     if (stat.mapTagSet2Features.end() == it_ctx) {
       cit++;
       continue;
     }
 
-    const vector<set<Condition> > &map_ctx = it_ctx->second; 
+    const vector<unordered_set<Condition> > &map_ctx = it_ctx->second; 
     //cerr << toString(map_ctx) << endl;
-    PermutationGenerator<Condition> pg(map_ctx, map_ctx.size());
+    pg.init(map_ctx);
     //cerr << "map_ctx.size() == " << map_ctx.size() << endl;
-    set<Condition> s;
-    while (pg.get(s)) { 
-      Context ctx(s);
+    unordered_set<Condition> s;
+    while (pg.get(s)) {
+      size_t x = 0;
+      for (unordered_set<Condition>::const_iterator sit = s.begin(); s.end() != sit; sit++)
+        x += (Condition::word == sit->what ? 1 : 0);
+      if (x > 1) continue;
+      Context ctx(s); searchSpaceSize += 1;
       //cerr << "ctx = " << ctx.str() << endl;
 
-      map<Tag, size_t> incontext;
-      map<Tag, float> inc2freq; // incontext[X] / freq[X];
+      unordered_map<Tag, size_t> incontext;
+      unordered_map<Tag, float> inc2freq; // incontext[X] / freq[X];
       size_t maxIncontext = 0;
 
       TagSet::const_iterator pT = cit->first.begin();
@@ -329,6 +371,10 @@ float DoOneStep(SentenceCollection &sc, const CorpusStat& stat, list<Rule>& know
 
         pT++;
       }
+
+#ifdef OPT_SKIP_LOWSCORE_RULES
+      if (fBestScore > maxIncontext) continue; 
+#endif
 
       Tag bestY;
       float bestScore = constructRule(freq, incontext, inc2freq, bestY, fBestScore);
@@ -345,14 +391,29 @@ float DoOneStep(SentenceCollection &sc, const CorpusStat& stat, list<Rule>& know
 
     cit++;
   }
+
+  cerr << "searchSpaceSize " << searchSpaceSize << endl;
  
   if (fBestScore > 0) {
     less_by_context_size lbss;
     sort(bestRules.begin(), bestRules.end(), lbss);
 
+    size_t iMaxApplied = 0;
+    size_t iMaxAppliedPos = 0;
+
     for (size_t i = 0; i < bestRules.size(); ++i) {
       Rule &r = bestRules[i];
-      size_t n = ApplyRule(sc, r);
+      size_t n = ApplyRule(sc, r, false);
+
+      if (n > iMaxApplied) {
+        iMaxApplied = n;
+        iMaxAppliedPos = i;
+      }
+
+      if (n < 1 && 0 == i) {
+        cerr << "ERROR: rule (" << r.str() << ") found but can't be applied. Can't continue." << endl;
+        throw;
+      }
       stringstream ss;
       ss << "score=" << fBestScore << " applied=" << n ; //<< " fromfreq=" << tStat[r.from].freq;
       if (bestRules.size() > 1)
@@ -360,9 +421,14 @@ float DoOneStep(SentenceCollection &sc, const CorpusStat& stat, list<Rule>& know
       r.add_comment(ss.str()); // начиная с этого места правило изменилось и не будет искаться в map
     
       cout << r.str() << endl;
-      knownRules.push_back(r);
+      //knownRules.push_back(r);
       //break; // временно отключаем повторы
     }
+
+    Rule &r = bestRules[iMaxAppliedPos];
+    cout << "-> [" << iMaxAppliedPos << "] " << r.str() << endl;
+    ApplyRule(sc, r, true);
+    knownRules.push_back(r);
 
     return fBestScore;
   }
@@ -371,7 +437,7 @@ float DoOneStep(SentenceCollection &sc, const CorpusStat& stat, list<Rule>& know
 }
 
 
-size_t ApplyRule(SentenceCollection &sc, const Rule &rule) {
+size_t ApplyRule(SentenceCollection &sc, const Rule &rule, bool reallyApply) {
   size_t n = 0;
 
 #ifdef APPLY_WITH_IDX
@@ -397,7 +463,8 @@ size_t ApplyRule(SentenceCollection &sc, const Rule &rule) {
       if (it->getToken(i).getPOST() == rule.from && rule.c.match(*it, i)) {
         //cerr << "Applying rule \"" << rule.str() << "\":" << endl;
         //cerr << "BEFORE: " << it->getToken(i).str() << endl;
-        it->getNonConstToken(i).deleteAllButThis(rule.to);
+        if (reallyApply)
+	  it->getNonConstToken(i).deleteAllButThis(rule.to);
         //cerr << "AFTER:  " << it->getToken(i).str() << endl << endl;
         n++;
       }

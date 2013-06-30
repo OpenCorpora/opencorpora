@@ -1,12 +1,16 @@
 #include <string>
 #include <sstream>
 #include <set>
+#include <tr1/unordered_map>
+#include <tr1/unordered_set>
 
 #include "tag.h"
 #include "sentence.h"
 
 #ifndef __BRILL_H
 #define __BRILL_H
+
+//namespace std { namespace tr1 { } }
 
 struct Condition {
   enum EType { tag, word };
@@ -37,7 +41,7 @@ struct Condition {
     return false;
   }
 
-  std::string str() const {
+  inline std::string str() const {
     std::stringstream ss;
     if (tag == what)
       ss << pos << ":" << "tag" << "=" << value.str(true);
@@ -50,11 +54,36 @@ struct Condition {
 };
 
 inline bool operator<(const Condition& a, const Condition& b) {
+  if (a.what < b.what) return true;
+  else if (a.what > b.what) return false;
+
   if (a.pos < b.pos) return true;
   else if (a.pos > b.pos) return false;
+ 
+  if (Condition::tag == a.what) {
+      if (a.value < b.value) return true;
+      else /*if (a.value => b.value)*/ return false;
+  } else if (Condition::word == a.what) {
+      if (a.form < b.form) return true;
+      else /*if (a.form => b.form)*/ return false;
+  }
 
   return a.str() < b.str();
 }
+
+inline bool operator==(const Condition& a, const Condition& b) {
+  return (a.what == b.what) && (a.pos == b.pos) && (Condition::tag == a.what ? a.value == b.value : a.form == b.form);
+}
+
+namespace std { namespace tr1 {
+template <>
+struct hash<Condition> {
+public:
+  size_t operator()(const Condition &x) const throw() {
+    return hash<int>()((int)(x.what)) ^ hash<int>()(x.pos) ^ (Condition::tag == x.what ? hash<TagSet>()(x.value) : hash<std::string>()(x.form));
+  }
+};
+} }
 
 class Context {
   std::set<Condition> elements;
@@ -82,6 +111,14 @@ public:
     }
   }
 
+  Context(const std::tr1::unordered_set<Condition> &sc) {
+    std::tr1::unordered_set<Condition>::const_iterator cit = sc.begin();
+    while (sc.end() != cit) {
+      elements.insert(*cit);
+      cit++;
+    }
+  }
+
   size_t size() const { return elements.size(); }
 
   inline bool match(const Sentence& s, size_t pos) const {
@@ -102,7 +139,7 @@ public:
     return elements.end();
   }
 
-  std::string str() const {
+  inline std::string str() const {
     std::stringstream ss;
     std::set<Condition>::const_iterator cit = elements.begin();
 
@@ -130,7 +167,7 @@ public:
   Rule(const TagSet& _from, const Tag& _to, const Context& _c)
     : from(_from), to(_to), c(_c) { }
 
-  std::string str(bool bNoComments = false) const {
+  inline std::string str(bool bNoComments = false) const {
     std::stringstream ss;
     ss << from.str(true) << " -> " << to.str() << " | " << c.str();
     if (!bNoComments && comments.size() > 0)

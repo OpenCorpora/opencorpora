@@ -6,6 +6,8 @@
 #include <set>
 #include <string>
 #include <sstream>
+#include <tr1/unordered_map>
+#include <tr1/unordered_set>
 
 #include "brill.h"
 #include "corpora_io.h"
@@ -16,7 +18,7 @@ struct CorpusPos {
 
   CorpusPos(size_t sp, size_t tp) : sentPos(sp), tokenPos(tp) { }
 
-  std::string str() const {
+  inline std::string str() const {
     std::stringstream ss;
     ss << "(" << sentPos << "," << tokenPos << ")";
     return ss.str(); 
@@ -30,8 +32,26 @@ inline bool operator<(const CorpusPos &cp1, const CorpusPos &cp2) {
   return cp1.tokenPos < cp2.tokenPos;
 }
 
+inline bool operator==(const CorpusPos &cp1, const CorpusPos &cp2) {
+  return (cp1.sentPos == cp2.sentPos) && (cp1.tokenPos == cp2.tokenPos);
+}
+
+namespace std { namespace tr1 {
+template <>
+struct hash<CorpusPos> {
+public:
+  inline size_t operator()(const CorpusPos &x) const throw() {
+    return hash<int>()((size_t)(x.sentPos)) ^ hash<size_t>()(x.tokenPos);
+  }
+};
+} }
+
+
 class CorpusStat {
-  std::map<Condition, std::set<CorpusPos> > entries;
+//  typedef std::tr1::unordered_set<CorpusPos> inner_set_t;
+  typedef std::set<CorpusPos> inner_set_t;
+
+  std::tr1::unordered_map<Condition, inner_set_t> entries;
 
   const SentenceCollection &sc;
   size_t leftTagContext;
@@ -44,9 +64,9 @@ class CorpusStat {
 
 public:
 
-  std::map<TagSet, size_t> mapTagSetFreq;
-  std::map<std::string, size_t> mapFormFreq;
-  std::map<TagSet, std::vector<std::set<Condition> > > mapTagSet2Features;
+  std::tr1::unordered_map<TagSet, size_t> mapTagSetFreq;
+  std::tr1::unordered_map<std::string, size_t> mapFormFreq;
+  std::tr1::unordered_map<TagSet, std::vector<std::tr1::unordered_set<Condition> > > mapTagSet2Features;
 
 public:
   CorpusStat(const SentenceCollection &_sc, size_t _leftTagContext=1, size_t _rightTagContext=1, size_t _leftWordContext=1, size_t _rightWordContext=1)

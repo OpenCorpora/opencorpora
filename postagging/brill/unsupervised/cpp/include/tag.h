@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <vector>
 #include <set>
+#include <tr1/unordered_map>
+#include <tr1/unordered_set>
 
 // TODO: remove dependecy from "iostream"
 #include <iostream>
@@ -44,6 +46,10 @@ public:
     ch[4] = 0;
     return ch;
   }
+
+  inline int getInt() const {
+    return v;
+  }
 };
 
 inline bool operator<(const Tag& a, const Tag& b) {
@@ -54,14 +60,28 @@ inline bool operator==(const Tag& a, const Tag& b) {
   return a.v == b.v;
 }
 
+namespace std { namespace tr1 {
+template <>
+struct hash<Tag> {
+public:
+  inline size_t operator()(const Tag &x) const throw() {
+    return hash<int>()(hash<int>()(x.getInt()));
+  }
+};
+} }
+
+
 #define T(str) Tag(# str ) 
 
 class TagSet {
-  std::set<Tag> s;
+//  typedef std::tr1::unordered_set<Tag> basic_set_t;
+  typedef std::set<Tag> basic_set_t;
+
+  basic_set_t s;
 
 public:
 
-  typedef std::set<Tag>::iterator const_iterator;
+  typedef basic_set_t::const_iterator const_iterator;
   inline const_iterator begin() const { return s.begin(); }
   inline const_iterator end() const { return s.end(); }
 
@@ -96,7 +116,7 @@ public:
 
   Tag getPOST() const {
     Tag POSTag("ERRR");
-    std::set<Tag>::const_iterator cit = s.begin();
+    basic_set_t::const_iterator cit = s.begin();
     while (s.end() != cit) {
       if (cit->isPOST())
         POSTag = *cit;
@@ -112,7 +132,7 @@ public:
 
     if (bSortAlpha) {
       std::vector<std::string> v;
-      std::set<Tag>::const_iterator cit = s.begin();
+      basic_set_t::const_iterator cit = s.begin();
       while (s.end() != cit) {
         v.push_back(cit->str());
         cit++;
@@ -126,7 +146,7 @@ public:
         vit++;
       }
     } else {
-      std::set<Tag>::const_iterator cit = s.begin();
+      basic_set_t::const_iterator cit = s.begin();
       size_t i = 0;
       while (s.end() != cit) {
         r += cit->str(); i++;
@@ -139,8 +159,8 @@ public:
 };
 
 inline bool operator<(const TagSet& a, const TagSet& b) {
-  std::set<Tag>::const_iterator cita = a.begin();
-  std::set<Tag>::const_iterator citb = b.begin();
+  TagSet::const_iterator cita = a.begin();
+  TagSet::const_iterator citb = b.begin();
   while (*cita == *citb) { 
     cita++;
     citb++;
@@ -174,6 +194,24 @@ inline bool operator==(const TagSet& a, const TagSet& b) {
 
   return true;
 }
+
+namespace std { namespace tr1 {
+template <>
+struct hash<TagSet> {
+public:
+  inline size_t operator()(const TagSet &x) const throw() {
+    size_t h = 0;
+ 
+    TagSet::const_iterator cit = x.begin();
+    while (x.end() != cit) {
+      h = h ^ hash<Tag>()(*cit);
+      cit++;
+    }
+   
+    return h;
+  }
+};
+} }
 
 class MorphInterp : public TagSet {
   unsigned int lemmaId;
