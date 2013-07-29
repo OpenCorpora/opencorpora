@@ -49,10 +49,10 @@ switch ($action) {
             $smarty->assign('pool', get_morph_samples_page(
                 (int)$_GET['pool_id'],
                 isset($_GET['ext']),
-                4,
+                $config['misc']['morph_annot_moder_context_size'],
                 isset($_GET['skip']) ? (int)$_GET['skip'] : 0,
                 $filter,
-                (!user_has_permission('perm_check_morph') || $_SESSION['options'][4] == 1) ? 15 : 0
+                (!user_has_permission('perm_check_morph') || $_SESSION['options'][4] == 1) ? $config['misc']['morph_annot_moder_page_size'] : 0
             ));
             $smarty->display('qa/pool.tpl');
         }
