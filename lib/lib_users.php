@@ -156,6 +156,7 @@ function user_logout() {
     unset($_SESSION['user_permissions']);
     unset($_SESSION['token']);
     unset($_SESSION['show_game']);
+    unset($_SESSION['user_pending']);
     return true;
 }
 function user_register($post) {
