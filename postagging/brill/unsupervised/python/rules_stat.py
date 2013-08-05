@@ -22,9 +22,9 @@ def scores(s, best_rules):
                 try:
                     freq = s[y]
                 except:
-                    s[y] = ({0: {}}, {0: {}}, 0)
+                    s[y] = ({0: {}}, {0: {}}, {0: {}}, 0)
                     continue
-                for i, cont_type in enumerate(s[y][:2]):
+                for i, cont_type in enumerate(s[y][:3]):
                     for distance in cont_type:
                         for context in cont_type[distance]:
                             fr = -sys.maxint
@@ -36,8 +36,8 @@ def scores(s, best_rules):
                                     except:
                                         incontext_z = 0.0
                                     try:
-                                        freq_z = s[z][2]
-                                        relf = float(s[y][2]) / float(freq_z) * float(incontext_z)
+                                        freq_z = s[z][3]
+                                        relf = float(s[y][3]) / float(freq_z) * float(incontext_z)
                                     except:
                                         freq_z = 0.0
                                         relf = 0.0
@@ -48,6 +48,7 @@ def scores(s, best_rules):
                                     except:
                                         w = 0
                             x = s[y][i][distance][context] - float(fr)
+                            #print atag, y, distance, context, i
                             curr_rule = Rule(*[atag, y, (distance, context), i])
                             #scores[curr_rule] = x
                             if x > bestscore and s[y][i][distance][context] != w:
@@ -72,6 +73,7 @@ def scores(s, best_rules):
 def apply_rule(rule, corpus, ignore_numbers=True, wsize=2):
     s = [_NULL_TOKEN]
     rc = rule.context
+    #print rule.ind
     more = False
     if isinstance(rc[0], (set, tuple)):
         more = True
@@ -96,7 +98,8 @@ def apply_rule(rule, corpus, ignore_numbers=True, wsize=2):
                     right = len(s) - 1
                     c = s[left:]
 
-                if token.getPOStags() == rule.tagset:
+                #if token.getPOStags() == rule.tagset:
+                if token.getNUMBtag() == rule.tagset:
 
                     if not more:
                         try:
@@ -129,7 +132,8 @@ def apply_rule(rule, corpus, ignore_numbers=True, wsize=2):
                 right = len(s) - 1
                 c = s[left:]
 
-            if token.getPOStags() == rule.tagset:
+            #if token.getPOStags() == rule.tagset:
+            if token.getNUMBtag() == rule.tagset:
                 if not more:
                     try:
                         curr_context = [x[0] for x in enumerate([w.getByIndex(rule.ind) for w in c],

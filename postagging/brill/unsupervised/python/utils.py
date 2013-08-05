@@ -36,8 +36,8 @@ def write_corpus(corpus, outstream=sys.stdout):  # corpus is an instance of Corp
 
 
 def context_stats(corpus, ignore_numbers=True,
-                  wsize=2, join_context=True,
-                  cf=2, fixed=False):
+                  wsize=2, join_context=False,
+                  cf=2, fixed=False, feature=None): # feature: дополнительные признаки
 
     _NULL_TOKEN = Token(('SENT', 'SENT'))
     result_dict = {}
@@ -50,76 +50,96 @@ def context_stats(corpus, ignore_numbers=True,
         else:
             s.append(t)
             for i, token in enumerate(s[1:], 1):
-                tag_1 = token.getPOStags()
-                left = i - wsize
-                right = i + wsize + 1
+                tag_1 = token.getNUMBtag()
+                if not tag_1:
+                    continue
+                if token.has_ambig():
+                    left = i - wsize
+                    right = i + wsize + 1
 
-                if left < 0:
-                    left = 0
-                if right > len(s) - 1:
-                    right = len(s) - 1
+                    if left < 0:
+                        left = 0
+                    if right > len(s) - 1:
+                        right = len(s) - 1
 
-                context = s[left:right]
-                for j, t in enumerate(context, - (i - left)):
+                    context = s[left:right]
+                    for j, t in enumerate(context, - (i - left)):
 
-                    '''if not j:
-                        continue'''
-
-                    try:
-                        result_dict[tag_1][0].update(j, t.getPOStags())
-                    except:
-                        result_dict[tag_1] = [TagStat(), TagStat(), 0]
-                        result_dict[tag_1][0].update(j, t.getPOStags())
-                    if t.text != 'SENT':
-                        result_dict[tag_1][1].update(j, t.text)
-                result_dict[tag_1][2] += 1
-
-                if join_context: # переписать для разного количества конт.признаков
-                    for t1, t2 in combinations(enumerate(context, - (i - left)), cf):
-                        '''if not t1[0]:
-                            continue
-                        if not t2[0]:
+                        '''if not j:
                             continue'''
-                        result_dict[tag_1][0].update((t1[0], t2[0]), \
-                                                      (t1[1].getPOStags(), t2[1].getPOStags()))
+
+                        try:
+                            result_dict[tag_1][0].update(j, t.getPOStags())
+                        except:
+                            result_dict[tag_1] = [TagStat(), TagStat(), TagStat(), 0]
+                            result_dict[tag_1][0].update(j, t.getPOStags())
+                        if t.text != 'SENT':
+                            result_dict[tag_1][1].update(j, t.text)
+                            if t.getNUMBtag():
+                                result_dict[tag_1][2].update(j, t.getNUMBtag())
+
+                    if join_context: # переписать для разного количества конт.признаков
+                        for t1, t2 in combinations(enumerate(context, - (i - left)), cf):
+                            '''if not t1[0]:
+                                continue
+                            if not t2[0]:
+                                continue'''
+                            result_dict[tag_1][0].update((t1[0], t2[0]), \
+                                                          (t1[1].getPOStags(), t2[1].getPOStags()))
+                try:
+                    result_dict[tag_1][3] += 1
+                except:
+                    result_dict[tag_1] = [TagStat(), TagStat(), TagStat(), 0]
+                    result_dict[tag_1][3] += 1
+
             s = [_NULL_TOKEN]
     else:
         for i, token in enumerate(s[1:], 1):
-                tag_1 = token.getPOStags()
-                left = i - wsize
-                right = i + wsize + 1
+                tag_1 = token.getNUMBtag()
+                if not tag_1:
+                    continue
+                if token.has_ambig():
+                    left = i - wsize
+                    right = i + wsize + 1
 
-                if left < 0:
-                    left = 0
-                if right > len(s) - 1:
-                    right = len(s) - 1
+                    if left < 0:
+                        left = 0
+                    if right > len(s) - 1:
+                        right = len(s) - 1
 
-                context = s[left:right]
-                for j, t in enumerate(context, - (i - left)):
+                    context = s[left:right]
+                    for j, t in enumerate(context, - (i - left)):
 
-                    '''if not j:
-                        continue'''
+                        '''if not j:
+                            continue'''
 
-                    try:
-                        result_dict[tag_1][0].update(j, t.getPOStags())
-                    except:
-                        result_dict[tag_1] = [TagStat(), TagStat(), 0]
-                        result_dict[tag_1][0].update(j, t.getPOStags())
-                    if t.text != 'SENT':
-                        result_dict[tag_1][1].update(j, t.text)
-                result_dict[tag_1][2] += 1
+                        try:
+                            result_dict[tag_1][0].update(j, t.getPOStags())
+                        except:
+                            result_dict[tag_1] = [TagStat(), TagStat(), TagStat(), 0]
+                            result_dict[tag_1][0].update(j, t.getPOStags())
+                        if t.text != 'SENT':
+                            result_dict[tag_1][1].update(j, t.text)
+                            if t.getNUMBtag():
+                                result_dict[tag_1][2].update(j, t.getNUMBtag())
 
-                if join_context:
-                    for t1, t2 in combinations(enumerate(context, - (i - left)), cf):
-                        if not t1[0]:
-                            continue
-                        if not t2[0]:
-                            continue
-                        result_dict[tag_1][0].update((t1[0], t2[0]), \
-                                                      (t1[1].getPOStags(), t2[1].getPOStags()))
+                        if join_context:
+                            for t1, t2 in combinations(enumerate(context, - (i - left)), cf):
+                                if not t1[0]:
+                                    continue
+                                if not t2[0]:
+                                    continue
+                                result_dict[tag_1][0].update((t1[0], t2[0]), \
+                                                              (t1[1].getPOStags(), t2[1].getPOStags()))
+                try:
+                    result_dict[tag_1][3] += 1
+                except:
+                    result_dict[tag_1] = [TagStat(), TagStat(), TagStat(), 0]
+                    result_dict[tag_1][3] += 1
     stats = {}
     for tag in result_dict.keys():
-        stats[tag] = (result_dict[tag][0].stat, result_dict[tag][1].stat, result_dict[tag][2])
+        stats[tag] = (result_dict[tag][0].stat, result_dict[tag][1].stat,
+                       result_dict[tag][2].stat, result_dict[tag][3])
     return stats
 
 
@@ -143,7 +163,7 @@ def numb_amb_corpus(corpus):
 class Rule(object):
 
     def __init__(self, tagset, tag, context, cnum):
-        TYPES = {0: 'tag', 1: 'word'}
+        TYPES = {0: 'tag', 1: 'word', 2: 'other'}
         # TEMPLATE: self.context = [{0: None}, {0: None}]
         self.tagset = tagset
         self.context = context
@@ -197,9 +217,14 @@ class Token(tuple):
     def getPOStags(self):
         return self.tagset.getPOStag()
 
+    def getNUMBtag(self):
+        return self.tagset.getNUMBtag()
+
     def getByIndex(self, i):
         if i == 0:
             return self.getPOStags()
+        if i == 2:
+            return self.getNUMBtag()
         return self.text
 
     def display(self):
@@ -240,14 +265,28 @@ class TagSet(set):
             except:
                 pass
 
+    def getNUMBtag(self):
+        pos = []
+        for tag in self.set:
+            n = tag.getNUMBtag()
+            if n:
+                pos.append(n)
+        if len(pos) > 1:
+            return ' '.join(sorted(set(pos)))
+        else:
+            try:
+                return pos[0]
+            except:
+                pass
+
     def disambiguate(self, pos):
         try:
-            if self.hasPOSamb():
-                for tag in self.set[:]:
-                    if pos in tag.orig_text:
-                        pass
-                    else:
-                        self.set.remove(tag)
+            #if self.hasPOSamb():
+            for tag in self.set[:]:
+                if pos in tag.orig_text:
+                    pass
+                else:
+                    self.set.remove(tag)
         except:
             pass
 
@@ -269,6 +308,12 @@ class Tag(object):
             return True
         else:
             return False
+
+    def getNUMBtag(self):
+        nums = ('sing', 'plur')
+        for t in self.orig_text.split():
+            if t in nums:
+                return t
 
     def getPOStag(self):
         for t in self.orig_text.split(' '):

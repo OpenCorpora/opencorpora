@@ -18,7 +18,7 @@ def get_random_sentences(corpus, nums, out):
     i = 0
     with open(out, 'w') as out:
         for line in corpus:
-            print i
+            #print i
             line = line.rstrip().decode('utf-8')
             if not line:
                 continue
@@ -31,13 +31,13 @@ def get_random_sentences(corpus, nums, out):
 def get_corpora(corpus, l, c, n, out):
     randomnums = rand_sent(l, n, c)
     for i, nums in enumerate(randomnums):
-        out = '%s%d.tab' % (out, i)
-        get_random_sentences(corpus, nums, out)
+        i_out = '%s%d.tab' % (out, i)
+        get_random_sentences(corpus, nums, i_out)
 
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
-    p.add_argument('-l', '--limit', type=int, required=True,
+    p.add_argument('-l', '--limit', type=int, default=1000000,
                    help='Specify the number of sentences from which random corpora should be extracted')
     p.add_argument('-n', type=int, default=1,
                    help='Size of corpus to be extracted')

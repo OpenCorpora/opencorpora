@@ -12,8 +12,9 @@ TYPES = {0: 'tag', 1: 'word'}
 if __name__ == '__main__':
     s = clock()
     p = ArgumentParser()
-    p.add_argument('r', default=False)
-    p.add_argument('w', default=False)
+    p.add_argument('-r', default=False)
+    p.add_argument('-w', default=False)
+    p.add_argument('-p', default=False)
     args = p.parse_args()
     path = '.'
     write = False
