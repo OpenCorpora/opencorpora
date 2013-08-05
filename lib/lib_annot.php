@@ -1060,6 +1060,8 @@ function get_next_pool($user_id, $prev_pool_id) {
     return false;
 }
 function get_annotation_packet($pool_id, $size) {
+    global $config;
+
     $r = sql_fetch_array(sql_query("SELECT status, t.gram_descr, revision, pool_type, doc_link FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE pool_id=$pool_id"));
     if ($r['status'] != 3) return false;
     $packet = array(
@@ -1089,12 +1091,12 @@ function get_annotation_packet($pool_id, $size) {
     if (!sql_num_rows($res)) return false;
 
     //when the timeout will be - same for each sample
-    $ts_finish = time() +  600;
+    $ts_finish = time() +  $config['misc']['morph_annot_timeout'];
     if ($flag_new) sql_begin();
     $gram_descr = array();
     while ($r = sql_fetch_array($res)) {
         $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) AND rev_id <= $pool_revision ORDER BY rev_id DESC LIMIT 1"));
-        $instance = get_context_for_word($r1['tf_id'], 4);
+        $instance = get_context_for_word($r1['tf_id'], $config['misc']['morph_annot_user_context_size']);
         $arr = xml2ary($r1['rev_text']);
         $parses = get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
         $lemmata = array();
@@ -1114,6 +1116,8 @@ function get_annotation_packet($pool_id, $size) {
     return $packet;
 }
 function get_current_annotators($exclude_id=0) {
+    global $config;
+
     $time = time();
     $res = sql_query("
         SELECT user_shown_name
@@ -1122,7 +1126,7 @@ function get_current_annotators($exclude_id=0) {
             SELECT DISTINCT user_id
             FROM morph_annot_click_log
             WHERE user_id != $exclude_id
-            AND timestamp > $time - 300
+            AND timestamp > $time - ".$config['misc']['morph_annot_current_annotators_threshold']."
         )
     ");
     $out = array(

@@ -145,8 +145,9 @@ function create_revset($comment = '') {
         return 0;
     
     $now = time();
+    global $config;
     // check if there is a recent set by the same user with the same comment
-    $timeout = $now - 600;
+    $timeout = $now - $config['misc']['changeset_timeout'];
     $res = sql_query("
         SELECT set_id
         FROM rev_sets
