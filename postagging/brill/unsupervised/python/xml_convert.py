@@ -91,6 +91,7 @@ def get_texts_by_id(lines, ids):
             
 
 if __name__ == '__main__':
-    get_text_by_tag(get_text_id_by_type(sys.stdin, u'Юридические тексты'), ('token id', 'text', 'l id', 't', 'v'))
+    #get_text_by_tag(get_text_id_by_type(sys.stdin, u'Юридические тексты'), ('token id', 'text', 'l id', 't', 'v'))
     #get_text_id_by_type(sys.stdin, u'Юридические тексты')
+    get_text_by_tag(sys.stdin, ('token id', 'text', 'l id', 't', 'v'))
 

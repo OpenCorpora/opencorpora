@@ -50,7 +50,8 @@ def context_stats(corpus, ignore_numbers=True,
         else:
             s.append(t)
             for i, token in enumerate(s[1:], 1):
-                tag_1 = token.getNUMBtag()
+                #tag_1 = token.getNUMBtag()
+                tag_1 = token.getCase()
                 if not tag_1:
                     continue
                 if token.has_ambig():
@@ -75,8 +76,10 @@ def context_stats(corpus, ignore_numbers=True,
                             result_dict[tag_1][0].update(j, t.getPOStags())
                         if t.text != 'SENT':
                             result_dict[tag_1][1].update(j, t.text)
-                            if t.getNUMBtag():
-                                result_dict[tag_1][2].update(j, t.getNUMBtag())
+                            #if t.getNUMBtag():
+                            #    result_dict[tag_1][2].update(j, t.getNUMBtag())
+                            if t.getCase():
+                                result_dict[tag_1][2].update(j, t.getCase())
 
                     if join_context: # переписать для разного количества конт.признаков
                         for t1, t2 in combinations(enumerate(context, - (i - left)), cf):
@@ -95,7 +98,8 @@ def context_stats(corpus, ignore_numbers=True,
             s = [_NULL_TOKEN]
     else:
         for i, token in enumerate(s[1:], 1):
-                tag_1 = token.getNUMBtag()
+                #tag_1 = token.getNUMBtag()
+                tag_1 = token.getCase()
                 if not tag_1:
                     continue
                 if token.has_ambig():
@@ -120,8 +124,10 @@ def context_stats(corpus, ignore_numbers=True,
                             result_dict[tag_1][0].update(j, t.getPOStags())
                         if t.text != 'SENT':
                             result_dict[tag_1][1].update(j, t.text)
-                            if t.getNUMBtag():
-                                result_dict[tag_1][2].update(j, t.getNUMBtag())
+                            #if t.getNUMBtag():
+                            #    result_dict[tag_1][2].update(j, t.getNUMBtag())
+                            if t.getCase():
+                                result_dict[tag_1][2].update(j, t.getCase())
 
                         if join_context:
                             for t1, t2 in combinations(enumerate(context, - (i - left)), cf):
@@ -220,11 +226,15 @@ class Token(tuple):
     def getNUMBtag(self):
         return self.tagset.getNUMBtag()
 
+    def getCase(self):
+        return self.tagset.getCase()
+
     def getByIndex(self, i):
         if i == 0:
             return self.getPOStags()
         if i == 2:
-            return self.getNUMBtag()
+            #return self.getNUMBtag()
+            return self.getCase()
         return self.text
 
     def display(self):
@@ -251,7 +261,7 @@ class TagSet(set):
             self.set.append(Tag(tag))
 
     def display(self, l_id, ls):
-        return '\t'.join((' '.join(x) for x in zip(l_id, ls, (t.orig_text for t in self.set))))
+        return '\t'.join((' '.join(x) for x in zip(l_id, ls, (' '.join(t.orig_text) for t in self.set))))
 
     def getPOStag(self):
         pos = []
@@ -269,6 +279,20 @@ class TagSet(set):
         pos = []
         for tag in self.set:
             n = tag.getNUMBtag()
+            if n:
+                pos.append(n)
+        if len(pos) > 1:
+            return ' '.join(sorted(set(pos)))
+        else:
+            try:
+                return pos[0]
+            except:
+                pass
+
+    def getCase(self):
+        pos = []
+        for tag in self.set:
+            n = tag.getCase()
             if n:
                 pos.append(n)
         if len(pos) > 1:
@@ -300,7 +324,7 @@ class TagSet(set):
 class Tag(object):
 
     def __init__(self, tag):
-        self.orig_text = tag
+        self.orig_text = tag.split()
 
     def isPOStag(self, t):
         pattern = re.compile('^[A-Z]{4}$', re.UNICODE)
@@ -311,12 +335,19 @@ class Tag(object):
 
     def getNUMBtag(self):
         nums = ('sing', 'plur')
-        for t in self.orig_text.split():
+        for t in self.orig_text:
             if t in nums:
                 return t
 
+    def getCase(self):
+        case = ('nomn', 'gent', 'datv', 'accs',
+                'ablt', 'loct', 'acc2', 'gen2')
+        for t in self.orig_text:
+            if t in case:
+                return t
+
     def getPOStag(self):
-        for t in self.orig_text.split(' '):
+        for t in self.orig_text:
             if self.isPOStag(t):
                 return t
 

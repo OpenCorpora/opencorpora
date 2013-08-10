@@ -99,7 +99,8 @@ def apply_rule(rule, corpus, ignore_numbers=True, wsize=2):
                     c = s[left:]
 
                 #if token.getPOStags() == rule.tagset:
-                if token.getNUMBtag() == rule.tagset:
+                #if token.getNUMBtag() == rule.tagset:
+                if token.getCase() == rule.tagset:
 
                     if not more:
                         try:
@@ -133,7 +134,8 @@ def apply_rule(rule, corpus, ignore_numbers=True, wsize=2):
                 c = s[left:]
 
             #if token.getPOStags() == rule.tagset:
-            if token.getNUMBtag() == rule.tagset:
+            #if token.getNUMBtag() == rule.tagset:
+            if token.getCase() == rule.tagset:
                 if not more:
                     try:
                         curr_context = [x[0] for x in enumerate([w.getByIndex(rule.ind) for w in c],
