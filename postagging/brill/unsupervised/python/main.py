@@ -15,15 +15,19 @@ if __name__ == '__main__':
     p.add_argument('-r', default=False)
     p.add_argument('-w', default=False)
     p.add_argument('-p', default=False)
+    p.add_argument('corpus')
     args = p.parse_args()
     path = '.'
     write = False
     n = 0
-    out = sys.stdout
+    #out = sys.stdout
+    out = open('%s.rules' % args.corpus, 'w')
     i = 0
     best_rules = []
     best_score = 0
-    inc = list(read_corpus(sys.stdin))
+    orig = open(args.corpus, 'r')
+    inc = list(read_corpus(orig))
+    orig.close()
     while True:
         context_freq = context_stats(inc)
         scores_rule = scores(context_freq, best_rules)
@@ -34,7 +38,7 @@ if __name__ == '__main__':
         best_score = scores_rule[1]
         applied = scores_rule[2]
         if best_score <= 0:
-            output = open('icorpus.txt', 'w')
+            output = open('%s' % args.corpus, 'w')
             write_corpus(inc, output)
             output.close()
             out.close()
