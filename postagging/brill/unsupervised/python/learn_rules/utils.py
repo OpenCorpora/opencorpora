@@ -1,11 +1,16 @@
 # coding: utf-8
 
-from itertools import combinations
 import re
 import sys
 
+_feature_lists = {'case': ('ablt', 'accs', 'acc2', 'datv',
+                           'gent', 'loct', 'loc2', 'nomn'),
+                  'number': ('sing', 'plur')}
 
+
+# TODO: переделать представление признаков в правиле
 def read_corpus(inc, ignore_numbers=True):
+    '''Convert each line of text file into Token()'''
     global _NULL_TOKEN
     _NULL_TOKEN = Token(('SENT', 'SENT'))
     for sent in inc:
@@ -21,7 +26,7 @@ def read_corpus(inc, ignore_numbers=True):
         try:
             token = Token(t)
         except:
-            print t
+            print >> sys.stderr, t
             #raise Exception
             continue
         yield token
@@ -35,121 +40,8 @@ def write_corpus(corpus, outstream=sys.stdout):  # corpus is an instance of Corp
             print >> outstream, token.display().encode('utf-8')
 
 
-def context_stats(corpus, ignore_numbers=True,
-                  wsize=2, join_context=False,
-                  cf=2, fixed=False, feature=None): # feature: дополнительные признаки
-
-    _NULL_TOKEN = Token(('SENT', 'SENT'))
-    result_dict = {}
-    s = [_NULL_TOKEN]
-    for t in corpus:
-
-        if t.orig_text != 'SENT':
-            s.append(t)
-            continue
-        else:
-            s.append(t)
-            for i, token in enumerate(s[1:], 1):
-                #tag_1 = token.getNUMBtag()
-                tag_1 = token.getCase()
-                if not tag_1:
-                    continue
-                if token.has_ambig():
-                    left = i - wsize
-                    right = i + wsize + 1
-
-                    if left < 0:
-                        left = 0
-                    if right > len(s) - 1:
-                        right = len(s) - 1
-
-                    context = s[left:right]
-                    for j, t in enumerate(context, - (i - left)):
-
-                        '''if not j:
-                            continue'''
-
-                        try:
-                            result_dict[tag_1][0].update(j, t.getPOStags())
-                        except:
-                            result_dict[tag_1] = [TagStat(), TagStat(), TagStat(), 0]
-                            result_dict[tag_1][0].update(j, t.getPOStags())
-                        if t.text != 'SENT':
-                            result_dict[tag_1][1].update(j, t.text)
-                            #if t.getNUMBtag():
-                            #    result_dict[tag_1][2].update(j, t.getNUMBtag())
-                            if t.getCase():
-                                result_dict[tag_1][2].update(j, t.getCase())
-
-                    if join_context: # переписать для разного количества конт.признаков
-                        for t1, t2 in combinations(enumerate(context, - (i - left)), cf):
-                            '''if not t1[0]:
-                                continue
-                            if not t2[0]:
-                                continue'''
-                            result_dict[tag_1][0].update((t1[0], t2[0]), \
-                                                          (t1[1].getPOStags(), t2[1].getPOStags()))
-                try:
-                    result_dict[tag_1][3] += 1
-                except:
-                    result_dict[tag_1] = [TagStat(), TagStat(), TagStat(), 0]
-                    result_dict[tag_1][3] += 1
-
-            s = [_NULL_TOKEN]
-    else:
-        for i, token in enumerate(s[1:], 1):
-                #tag_1 = token.getNUMBtag()
-                tag_1 = token.getCase()
-                if not tag_1:
-                    continue
-                if token.has_ambig():
-                    left = i - wsize
-                    right = i + wsize + 1
-
-                    if left < 0:
-                        left = 0
-                    if right > len(s) - 1:
-                        right = len(s) - 1
-
-                    context = s[left:right]
-                    for j, t in enumerate(context, - (i - left)):
-
-                        '''if not j:
-                            continue'''
-
-                        try:
-                            result_dict[tag_1][0].update(j, t.getPOStags())
-                        except:
-                            result_dict[tag_1] = [TagStat(), TagStat(), TagStat(), 0]
-                            result_dict[tag_1][0].update(j, t.getPOStags())
-                        if t.text != 'SENT':
-                            result_dict[tag_1][1].update(j, t.text)
-                            #if t.getNUMBtag():
-                            #    result_dict[tag_1][2].update(j, t.getNUMBtag())
-                            if t.getCase():
-                                result_dict[tag_1][2].update(j, t.getCase())
-
-                        if join_context:
-                            for t1, t2 in combinations(enumerate(context, - (i - left)), cf):
-                                if not t1[0]:
-                                    continue
-                                if not t2[0]:
-                                    continue
-                                result_dict[tag_1][0].update((t1[0], t2[0]), \
-                                                              (t1[1].getPOStags(), t2[1].getPOStags()))
-                try:
-                    result_dict[tag_1][3] += 1
-                except:
-                    result_dict[tag_1] = [TagStat(), TagStat(), TagStat(), 0]
-                    result_dict[tag_1][3] += 1
-    stats = {}
-    for tag in result_dict.keys():
-        stats[tag] = (result_dict[tag][0].stat, result_dict[tag][1].stat,
-                       result_dict[tag][2].stat, result_dict[tag][3])
-    return stats
-
-
 def numb_amb_corpus(corpus):
+    '''Return some numeric information about corpus'''
     tokens = 0
     sents = 0
     numb_amb = 0.0
@@ -164,6 +56,129 @@ def numb_amb_corpus(corpus):
         tvars += len(token.getPOStags().split())
         tokens += 1
     return tokens, numb_amb, tvars, sents
+
+
+def feature_type(f):
+    f = f.split()[0]
+    pattern = re.compile('^[A-Z]{4}$', re.UNICODE)
+    if pattern.match(f):
+        return 'POS'
+    for t, fs in _feature_lists.iteritems():
+        if f in fs:
+            return t
+    return 'word'
+
+
+def apply_rule(rule, corpus, ignore_numbers=True, wsize=2, f=None):
+    if not f:
+        f = 'POS'
+    s = [_NULL_TOKEN]
+    rc = rule.context
+    more = False
+    if isinstance(rc[0], (set, tuple)):
+        more = True
+        context = zip(*rc)
+    else:
+        context = list(rc)
+    for t in corpus:
+
+        if t.orig_text != 'SENT':
+            s.append(t)
+            continue
+        else:
+            s.append(t)
+            for i, token in enumerate(s[1:], 1):
+                left = i - wsize
+                right = i + wsize + 1
+
+                if left < 0:
+                    left = 0
+                c = s[left:right]
+                if right > len(s) - 1:
+                    right = len(s) - 1
+                    c = s[left:]
+
+                if token.getFeature(f) == rule.tagset:
+
+                    if not more:
+                        try:
+                            curr_context = list(list(x for x in enumerate([w.getById(rule.id) for w in c],
+                                                              - (i - left)) if x[0] in rc)[0])
+                        except:
+                            curr_context = []
+                    else:
+                        try:
+                            curr_context = [x for x in enumerate([w.getById(rule.id) for w in c],
+                                                              - (i - left)) if x[0] in rc[0]]
+                        except:
+                            curr_context = []
+
+                    #print >> sys.stderr, curr_context, context
+                    if context == curr_context:
+                        #print >> sys.stderr, 0
+                        token.disambiguate(rule.tag)
+                yield token
+            s = [_NULL_TOKEN]
+    else:
+        for i, token in enumerate(s[1:], 1):
+            left = i - wsize
+            right = i + wsize + 1
+
+            if left < 0:
+                left = 0
+            c = s[left:right]
+            if right > len(s) - 1:
+                right = len(s) - 1
+                c = s[left:]
+
+            if token.getFeature(f) == rule.tagset:
+                if not more:
+                    try:
+                        curr_context = [x[0] for x in enumerate([w.getById(rule.id) for w in c],
+                                                          - (i - left)) if x[0] in rc]
+                        curr_context.append([x[1] for x in enumerate([w.getById(rule.id) for w in c],
+                                                          - (i - left)) if x[0] in rc][0])
+                        #print context, curr_context
+                    except:
+                        curr_context = []
+                else:
+                    try:
+                        curr_context = [x for x in enumerate([w.getById(rule.id) for w in c],
+                                                          - (i - left)) if x[0] in rc[0]]
+                    except:
+                        curr_context = []
+                if context == curr_context:
+                    token.disambiguate(rule.tag)
+            yield token
+
+
+def parse_rule(line):
+    '''Convert line into Rule()'''
+    TYPES = {0: 'tag', 1: 'word', 2: 'other'}
+
+    line = line.decode('utf-8')
+    p = re.compile(u'.+(?= ->)')
+    ambtag = p.findall(line)[0]
+    p = re.compile(u'(?<=-> )(\w+)', re.UNICODE)
+    tag = p.findall(line)[0]
+    p = re.compile(u'(-?\d+)(?=:)')
+    pos = p.findall(line)
+    pos = tuple(int(x) for x in pos)
+    if len(pos) < 2:
+        pos = pos[0]
+    p = re.compile(u'(?<=:)(\w+)')
+    type = p.findall(line)[0]
+    p = re.compile(u'(?u)(?<==)(\w+|,|.|:|;)[( #)&]')
+    c = p.findall(line)
+
+    if len(c) > 1:
+        c = tuple(c)
+    else:
+        c = c[0]
+
+    t = TYPES[type]
+    r = Rule(ambtag, tag, (pos, c), t)
+    return r
 
 
 class Rule(object):
@@ -220,6 +235,9 @@ class Token(tuple):
     def gettagset(self):
         return self.tagset
 
+    def getFeature(self, f):
+        return self.tagset.getFeature(f)
+
     def getPOStags(self):
         return self.tagset.getPOStag()
 
@@ -229,13 +247,12 @@ class Token(tuple):
     def getCase(self):
         return self.tagset.getCase()
 
-    def getByIndex(self, i):
-        if i == 0:
+    def getById(self, i):
+        if i == 'POS':
             return self.getPOStags()
-        if i == 2:
-            #return self.getNUMBtag()
-            return self.getCase()
-        return self.text
+        if i == 'word':
+            return self.text
+        return self.getFeature(i)
 
     def display(self):
         if self.orig_text != 'SENT':
@@ -243,8 +260,8 @@ class Token(tuple):
         else:
             return 'SENT'
 
-    def has_ambig(self):
-        if len(self.tagset.getPOStag()) > 4:
+    def has_ambig(self, f):
+        if len(self.tagset.getFeature(f)) > 4:
             return True
         else:
             return False
@@ -262,6 +279,20 @@ class TagSet(set):
 
     def display(self, l_id, ls):
         return '\t'.join((' '.join(x) for x in zip(l_id, ls, (' '.join(t.orig_text) for t in self.set))))
+
+    def getFeature(self, f):
+        fs = []
+        for tag in self.set:
+            ff = tag.getFeature(f)
+            if ff:
+                fs.append(ff)
+        if len(fs) > 1:
+            return ' '.join(sorted(set(fs)))
+        else:
+            try:
+                return fs[0]
+            except IndexError:
+                pass
 
     def getPOStag(self):
         pos = []
@@ -333,6 +364,13 @@ class Tag(object):
         else:
             return False
 
+    def getFeature(self, f):
+        if f == 'POS':
+            return self.getPOStag()
+        for t in self.orig_text:
+            if t in _feature_lists[f]:
+                return t
+
     def getNUMBtag(self):
         nums = ('sing', 'plur')
         for t in self.orig_text:
@@ -378,8 +416,3 @@ def tokens(files):
 
 if __name__ == '__main__':
     print numb_amb_corpus(read_corpus(sys.stdin))
-    #print Rule('ADJF_NOUN', 'NOUN', ((-1, 1), ('PNCT', 'ADJF')), 0).display()
-    #s = context_stats(read_corpus(sys.stdin), join_context=True)
-    #for k in s:
-        #print k, s[k]
-        #print '\t'.join((str(k), str(s[k])))
