@@ -4,7 +4,7 @@ from itertools import combinations
 import random
 import sys
 from utils import read_corpus, Rule, Token, TagStat
-from learn_rules.utils import feature_type
+from utils import feature_type
 
 _NULL_TOKEN = Token(('SENT', 'SENT'))
 
