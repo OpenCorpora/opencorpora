@@ -154,7 +154,7 @@ def apply_rule(rule, corpus, ignore_numbers=True, wsize=2, f=None):
 
 def parse_rule(line):
     '''Convert line into Rule()'''
-    TYPES = {0: 'tag', 1: 'word', 2: 'other'}
+    TYPES = {'tag': 0, 'word': 1, 'other': 2, 'number': 2, 'case': 2}
 
     line = line.decode('utf-8')
     p = re.compile(u'.+(?= ->)')
@@ -415,4 +415,6 @@ def tokens(files):
     return [t(open(f, 'r').read()) for f in files]
 
 if __name__ == '__main__':
-    print numb_amb_corpus(read_corpus(sys.stdin))
+    #print numb_amb_corpus(read_corpus(sys.stdin))
+    r = parse_rule('ADVB NOUN -> ADVB | -1:tag=ADJF #')
+    print r.display()
