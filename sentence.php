@@ -2,6 +2,7 @@
 require('lib/header.php');
 require('lib/lib_xml.php');
 require('lib/lib_annot.php');
+require('lib/lib_syntax.php');
 require('lib/lib_dict.php');
 if (isset($_GET['id'])) {
     $id = (int)$_GET['id'];
@@ -35,11 +36,8 @@ switch ($action) {
     default:
         $smarty->assign('sentence', get_sentence($id));
         if ($mode == 'syntax') {
-            $smarty->assign('group_types', array(
-                1 => 'Тип А',
-                2 => 'Тип Б',
-                3 => 'Тип В'
-            ));
+            $smarty->assign('group_types', get_syntax_group_types());
+            $smarty->assign('groups', get_groups_by_sentence($id));
             $smarty->display('sentence_syntax.tpl');
         } else
             $smarty->display('sentence.tpl');
