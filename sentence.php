@@ -42,4 +42,3 @@ switch ($action) {
         } else
             $smarty->display('sentence.tpl');
 }
-?>

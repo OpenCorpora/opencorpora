@@ -13,7 +13,7 @@
 .badge {
     padding: 2px 9px 2px;
 }
-a { 
+a {
     text-decoration: underline;
 }
 a.close {
@@ -171,7 +171,7 @@ a.loginza {
     background-color: #406cbd;
 }
 .promo-unit p span {
-    background-color: #f8c206; 
+    background-color: #f8c206;
 }
 .promo-unit .promo-button {
     font-size: 28px;
@@ -409,7 +409,25 @@ div#main_annot_syntax {
 div#main_annot_syntax #tokens {
     font-size: 20px;
     margin-bottom: 15px;
+    line-height: 30px;
 }
+div#main_annot_syntax #tokens span.token,
+div#main_annot_syntax #tokens span.group {
+    cursor: pointer;
+}
+
+div#main_annot_syntax #tokens > span.group {
+    border-bottom: dashed 1px gray;
+}
+
+div#main_annot_syntax #tokens span.group_root {
+    color: #51a351;
+}
+
+div#main_annot_syntax button#save_group_roots {
+    display: none;
+}
+
 div.comment_main {
     margin-top: 15px;
     margin-left: 15px;
