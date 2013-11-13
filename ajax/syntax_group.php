@@ -39,11 +39,14 @@ if (!user_has_permission('perm_disamb')) {
 
 switch ($_POST['act']) {
     case 'newGroup':
-        $gid = add_simple_group($_POST['tokens'], $_POST['type']);
+        $gid = add_simple_group($_POST['tokens'], (int)$_POST['type']);
         if ($gid)
             echo "<result><error>0</error><gid>$gid</gid></result>";
         else
             echo "<result><error>1</error></result>";
+        break;
+    case 'setGroupRoot':
+        echo "<result><error>".(int)!set_group_head((int)$_POST['gid'], (int)$_POST['root_id'])."</error></result>";
         break;
     default:
         break;

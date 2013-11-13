@@ -49,7 +49,7 @@ function add_simple_group($token_ids, $type) {
         WHERE tf_id IN (".join(',', $token_ids).")
     ");
     
-    if (sql_num_rows($res) > 1)
+    if (sql_num_rows($res) > 1 || !$type)
         return false;
 
     sql_begin();
@@ -58,7 +58,7 @@ function add_simple_group($token_ids, $type) {
     if (!$revset_id)
         return false;
 
-    if (!sql_query("INSERT INTO syntax_groups VALUES (NULL, ".(int)$type.", $revset_id)"))
+    if (!sql_query("INSERT INTO syntax_groups VALUES (NULL, $type, $revset_id, 0)"))
         return false;
     $group_id = sql_insert_id();
 
@@ -68,5 +68,18 @@ function add_simple_group($token_ids, $type) {
 
     sql_commit();
     return $group_id;
+}
+function set_group_head($group_id, $head_id) {
+    // assume the group is simple for now
+
+    // check if head belongs to the group
+    $res = sql_query_pdo("SELECT * FROM syntax_groups_simple WHERE group_id=$group_id AND token_id=$head_id LIMIT 1");
+    if (!sql_num_rows($res))
+        return false;
+
+    // set the head
+    if (sql_query("UPDATE syntax_groups SET head_id=$head_id WHERE group_id=$group_id LIMIT 1"))
+        return true;
+    return false;
 }
 ?>
