@@ -41,4 +41,32 @@ function get_groups_by_sentence($sent_id) {
         $last_r = $r;
     }
 }
+function add_simple_group($token_ids, $type) {
+    $token_ids = array_map('intval', $token_ids);
+    $res = sql_query_pdo("
+        SELECT DISTINCT sent_id
+        FROM text_forms
+        WHERE tf_id IN (".join(',', $token_ids).")
+    ");
+    
+    if (sql_num_rows($res) > 1)
+        return false;
+
+    sql_begin();
+
+    $revset_id = create_revset();
+    if (!$revset_id)
+        return false;
+
+    if (!sql_query("INSERT INTO syntax_groups VALUES (NULL, ".(int)$type.", $revset_id)"))
+        return false;
+    $group_id = sql_insert_id();
+
+    foreach ($token_ids as $token_id)
+        if (!sql_query("INSERT INTO syntax_groups_simple VALUES ($group_id, $token_id)"))
+            return false;
+
+    sql_commit();
+    return $group_id;
+}
 ?>
