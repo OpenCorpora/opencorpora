@@ -49,7 +49,7 @@ function add_simple_group($token_ids, $type) {
         WHERE tf_id IN (".join(',', $token_ids).")
     ");
     
-    if (sql_num_rows($res) > 1 || !$type)
+    if (sql_num_rows($res) > 1)
         return false;
 
     sql_begin();
