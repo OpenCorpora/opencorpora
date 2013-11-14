@@ -82,10 +82,6 @@
                     <li><a href='{$web_prefix}/pools.php?type=6&amp;moder_id={$smarty.session.user_id}'>Готовые</a></li>
                     <li><a href='{$web_prefix}/pools.php?type=9&amp;moder_id={$smarty.session.user_id}'>В архиве</a></li>
                 {/if}
-                {if $is_admin}
-                    <li class="nav-header">Задания на разметку (синтаксис)</li>
-                    <li><a href='{$web_prefix}/syntax_pools.php'>Пулы (under construction)</a></li>
-                {/if}
                 {if $user_permission_adder}
                     <li class="nav-header">Контроль качества</li>
                     <li><a href='{$web_prefix}/sources.php'>Координация заливки</a></li>
