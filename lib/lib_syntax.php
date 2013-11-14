@@ -80,8 +80,7 @@ function add_complex_group($ids, $type) {
     // TODO recursively check that everything is within one sentence
     sql_begin();
 
-    if (!$revset_id)
-        $revset_id = create_revset();
+    $revset_id = create_revset();
     if (!$revset_id)
         return false;
 
