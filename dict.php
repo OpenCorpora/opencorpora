@@ -97,6 +97,12 @@ switch ($action) {
         } else
             show_error();
         break;
+    case 'change_link_dir':
+        if (change_link_direction((int)$_GET['id']))
+            header("Location:dict.php?act=edit&id=".(int)$_GET['lemma_id']);
+        else
+            show_error();
+        break;
     case 'del_lemma':
         if (del_lemma((int)$_GET['lemma_id']))
             header("Location:dict.php");

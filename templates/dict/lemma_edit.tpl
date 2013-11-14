@@ -116,7 +116,15 @@
     </form>
     <ul>
     {foreach item=link from=$editor.links}
-    <li><a href="?act=edit&amp;id={$link.lemma_id}">{$link.lemma_text}</a> ({$link.name}) [<a href="?act=del_link&amp;id={$link.id}&amp;lemma_id={$editor.lemma.id}" onclick="return confirm('Вы уверены?')">удалить</a>]
+    <li>
+        {if $link.is_target}
+            <a href="?act=edit&amp;id={$link.lemma_id}">{$link.lemma_text}</a> -&gt; {$editor.lemma.text} ({$link.name})
+        {else}
+            {$editor.lemma.text} -&gt; <a href="?act=edit&amp;id={$link.lemma_id}">{$link.lemma_text}</a> ({$link.name})
+        {/if}
+        [<a href="?act=change_link_dir&amp;id={$link.id}&amp;lemma_id={$editor.lemma.id}" title="Изменить направление" onclick="return confirm('Изменить направление связи?')">&#8644;</a>]
+        [<a href="?act=del_link&amp;id={$link.id}&amp;lemma_id={$editor.lemma.id}" onclick="return confirm('Вы уверены?')">удалить</a>]
+    </li>
     {/foreach}
     </ul>
 {/block}

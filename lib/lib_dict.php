@@ -406,20 +406,20 @@ function get_lemma_editor($id) {
     }
     //links
     $res = sql_query("
-    (SELECT lemma1_id lemma_id, lemma_text, link_name, l.link_id
+    (SELECT lemma1_id lemma_id, lemma_text, link_name, l.link_id, 1 AS target
         FROM dict_links l
         LEFT JOIN dict_links_types t ON (l.link_type=t.link_id)
         LEFT JOIN dict_lemmata lm ON (l.lemma1_id=lm.lemma_id)
         WHERE lemma2_id=$id)
     UNION
-    (SELECT lemma2_id lemma_id, lemma_text, link_name, l.link_id
+    (SELECT lemma2_id lemma_id, lemma_text, link_name, l.link_id, 0 AS target
         FROM dict_links l
         LEFT JOIN dict_links_types t ON (l.link_type=t.link_id)
         LEFT JOIN dict_lemmata lm ON (l.lemma2_id=lm.lemma_id)
         WHERE lemma1_id=$id)
     ", 1, 1);
     while ($r = sql_fetch_array($res)) {
-        $out['links'][] = array('lemma_id' => $r['lemma_id'], 'lemma_text' => $r['lemma_text'], 'name' => $r['link_name'], 'id' => $r['link_id']);
+        $out['links'][] = array('lemma_id' => $r['lemma_id'], 'lemma_text' => $r['lemma_text'], 'name' => $r['link_name'], 'id' => $r['link_id'], 'is_target' => (bool)$r['target']);
     }
     //errata
     $res = sql_query("SELECT e.*, x.item_id, x.timestamp exc_time, x.comment exc_comment, u.user_shown_name AS user_name
@@ -658,6 +658,21 @@ function add_link($from_id, $to_id, $link_type, $revset_id=0) {
         return true;
     }
     return false;
+}
+function change_link_direction($link_id) {
+    if (!$link_id)
+        return false;
+    sql_begin();
+    $revset_id = create_revset();
+    if (!$revset_id) return false;
+    $r = sql_fetch_array(sql_query_pdo("SELECT * FROM dict_links WHERE link_id=$link_id LIMIT 1"));
+    if (
+        !del_link($link_id, $revset_id) ||
+        !add_link($r['lemma2_id'], $r['lemma1_id'], $r['link_type'], $revset_id)
+    )
+        return false;
+    sql_commit();
+    return true;
 }
 
 // GRAMMEM EDITOR
