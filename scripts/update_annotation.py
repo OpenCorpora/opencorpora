@@ -1,23 +1,19 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 import sys
-import re
-import time
-import ConfigParser, MySQLdb
-from MySQLdb.cursors import DictCursor 
 sys.path.append('/corpus/python')
-from Annotation import AnnotationEditor
+from Annotation import AnnotationEditor, VectorOfParses, ParsingVariant
 
 CONFIG_PATH = "/corpus/config.ini"
 CHANGESET_COMMENT = "Update tokens from dictionary"
 
-DICT_REVISION = 389447
+DICT_REVISION = 390046
 FILTER_OUT = None
 CHANGE_LEMMA = None
 GRAM_CHANGE = None
 
-FILTER_OUT = ("plur", )
-GRAM_CHANGE = (("Fixd",), ("Fixd", "Sgtm"))
+#FILTER_OUT = ("masc", )
+GRAM_CHANGE = (("neut",), ("masc", ))
 #CHANGE_LEMMA = ("Википедия", "википедия")
 
 def get_tokens(dbh, revision):
@@ -34,34 +30,10 @@ def get_tokens(dbh, revision):
     for row in results:
         out.append((row['token_id'], row['rev_text']))
     return out
-def filter_out_gram(variants, gram):
-    out_variants = []
-    for var in variants:
-        found = False
-        for g in gram:
-            if var.find('<g v="' + g + '"/>') > -1:
-                found = True
-                break
-        if not found:
-            out_variants.append(var)
-    return out_variants
-def change_gram(variants, chg):
-    out_variants = []
-    search_seq = []
-    replace_seq = []
-
-    for gr in chg[0]:
-        search_seq.append('<g v="' + gr + '"/>')
-    for gr in chg[1]:
-        replace_seq.append('<g v="' + gr + '"/>')
-
-    for var in variants:
-        out_variants.append(var.replace(''.join(search_seq), ''.join(replace_seq)))
-    return out_variants
 def change_lemma(variants, chg):
     out_variants = []
     for var in variants:
-        out_variants.append(var.replace('t="' + chg[0] + '"', 't="' + chg[1] + '"'))
+        out_variants.append(ParsingVariant(var.xml.replace('t="' + chg[0] + '"', 't="' + chg[1] + '"')))
     return out_variants
 def update_token(dbh, token_id, revset_id, rev_text):
     dbh.execute("UPDATE tf_revisions SET is_last = 0 WHERE tf_id = {0} AND is_last = 1".format(token_id))
@@ -69,7 +41,7 @@ def update_token(dbh, token_id, revset_id, rev_text):
 def delete_pending(dbh, revision):
     dbh.execute("DELETE FROM updated_tokens WHERE dict_revision = {0}".format(revision))
 def update_annotation(editor):
-    editor.create_revset()
+    editor.create_revset(CHANGESET_COMMENT)
     for token_id, rev_text in get_tokens(editor._db_cursor, DICT_REVISION):
         rev_text = rev_text.encode('utf-8')
         if 'debug' in sys.argv:
@@ -77,14 +49,17 @@ def update_annotation(editor):
             print(rev_text)
         new_rev_text = rev_text
         if FILTER_OUT:
-            token, vs = editor.xml2vars(new_rev_text)
-            new_rev_text = editor.vars2xml(token, filter_out_gram(vs, FILTER_OUT))
+            parses = VectorOfParses(new_rev_text)
+            parses.delete_parses_with_gramset(FILTER_OUT)
+            new_rev_text = parses.to_xml()
         if GRAM_CHANGE:
-            token, vs = editor.xml2vars(new_rev_text)
-            new_rev_text = editor.vars2xml(token, change_gram(vs, GRAM_CHANGE))
+            parses = VectorOfParses(new_rev_text)
+            parses.replace_gramset(GRAM_CHANGE[0], GRAM_CHANGE[1])
+            new_rev_text = parses.to_xml()
         if CHANGE_LEMMA:
-            token, vs = editor.xml2vars(new_rev_text)
-            new_rev_text = editor.vars2xml(token, change_lemma(vs, CHANGE_LEMMA))
+            parses = VectorOfParses(new_rev_text)
+            parses.parses = change_lemma(parses.parses, CHANGE_LEMMA)
+            new_rev_text = parses.to_xml()
         if 'debug' in sys.argv:
             print("after:")
             print(new_rev_text)

@@ -28,23 +28,79 @@ class AnnotationEditor(object):
     def commit(self):
         self._db_connect.commit()
 
-    @staticmethod
-    def xml2vars(xml):
-        lemma = re.findall('<tfr t="([^"]+)">', xml)
-        variants = re.split('(?:<\/?v>)+', xml)
-        return lemma[0], variants[1:-1]
+class ParsingVariant(object):
+    
+    def __init__(self, xml):
+        assert isinstance(xml, str)
+        self.xml = xml
 
-    @staticmethod
-    def vars2xml(lemma, variants):
-        if len(variants) == 0:
-            return generate_empty_parse(lemma)
-        out = ['<tfr t="', lemma, '">']
-        for var in variants:
+    def to_xml(self):
+        return self.xml
+
+    def has_all_grams(self, gramset):
+        assert hasattr(gramset, '__iter__')
+        for g in gramset:
+            if self.xml.find('<g v="' + g + '"/>') == -1:
+                return False
+        return True
+
+    def replace_gramset(self, search, replace):
+        assert hasattr(search, '__iter__')
+        assert hasattr(replace, '__iter__')
+
+        search_seq = []
+        replace_seq = []
+        for gr in search:
+            search_seq.append('<g v="' + gr + '"/>')
+        for gr in replace:
+            replace_seq.append('<g v="' + gr + '"/>')
+
+        self.xml = self.xml.replace(''.join(search_seq), ''.join(replace_seq))
+
+class VectorOfParses(object):
+    
+    def __init__(self, xml):
+        assert isinstance(xml, str)
+        l = re.findall('<tfr t="([^"]+)">', xml)
+        self.token_text = l[0]
+        self.parses = []
+        variants = re.split('(?:<\/?v>)+', xml)
+        for v in variants[1:-1]:
+            self.parses.append(ParsingVariant(v))
+
+    def to_xml(self):
+        if len(self.parses) == 0:
+            return generate_empty_parse(self.token_text)
+        out = ['<tfr t="', self.token_text, '">']
+        for parse in self.parses:
             out.append('<v>')
-            out.append(var)
+            out.append(parse.to_xml())
             out.append('</v>')
         out.append('</tfr>')
         return ''.join(out)
+
+    def delete_parses_with_gramset(self, grams):
+        if len(self.parses) == 0:
+            return
+        if isinstance(grams, str):
+            grams = grams,
+
+        new_parses = []
+        for parse in self.parses:
+            if not parse.has_all_grams(grams):
+                new_parses.append(parse)
+        self.parses = new_parses
+
+    def replace_gramset(self, search_gram, replace_gram):
+        if len(self.parses) == 0:
+            return
+        if isinstance(search_gram, str):
+            search_gram = search_gram,
+        if isinstance(replace_gram, str):
+            search_gram = replace_gram,
+
+        for parse in self.parses:
+            parse.replace_gramset(search_gram, replace_gram)
 
     @staticmethod
     def generate_empty_parse(token):
