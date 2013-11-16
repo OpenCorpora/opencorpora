@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys
 sys.path.append('/corpus/python')
-from Annotation import AnnotationEditor, VectorOfParses, ParsingVariant
+from Annotation import AnnotationEditor
 
 CONFIG_PATH = "/corpus/config.ini"
 CHANGESET_COMMENT = "Update tokens from dictionary"
@@ -18,56 +18,39 @@ GRAM_CHANGE = (("neut",), ("masc", ))
 
 def get_tokens(dbh, revision):
     dbh.execute("""
-        SELECT token_id, rev_text
+        SELECT token_id
         FROM updated_tokens t
-        LEFT JOIN tf_revisions r
-            ON (t.token_id = r.tf_id)
         WHERE dict_revision = {0}
-        AND is_last = 1
     """.format(revision))
     results = dbh.fetchall()
     out = []
     for row in results:
-        out.append((row['token_id'], row['rev_text']))
+        out.append(row['token_id'])
     return out
-def change_lemma(variants, chg):
-    out_variants = []
-    for var in variants:
-        out_variants.append(ParsingVariant(var.xml.replace('t="' + chg[0] + '"', 't="' + chg[1] + '"')))
-    return out_variants
-def update_token(dbh, token_id, revset_id, rev_text):
-    dbh.execute("UPDATE tf_revisions SET is_last = 0 WHERE tf_id = {0} AND is_last = 1".format(token_id))
-    dbh.execute("INSERT INTO tf_revisions VALUES(NULL, {0}, {1}, '{2}', 1)".format(revset_id, token_id, rev_text))
 def delete_pending(dbh, revision):
     dbh.execute("DELETE FROM updated_tokens WHERE dict_revision = {0}".format(revision))
 def update_annotation(editor):
     editor.create_revset(CHANGESET_COMMENT)
-    for token_id, rev_text in get_tokens(editor._db_cursor, DICT_REVISION):
-        rev_text = rev_text.encode('utf-8')
+    for token_id in get_tokens(editor.db_cursor, DICT_REVISION):
+        ann = editor.get_token_by_id(token_id)
         if 'debug' in sys.argv:
             print("before:")
-            print(rev_text)
-        new_rev_text = rev_text
+            print(ann.to_xml())
         if FILTER_OUT:
-            parses = VectorOfParses(new_rev_text)
-            parses.delete_parses_with_gramset(FILTER_OUT)
-            new_rev_text = parses.to_xml()
+            ann.delete_parses_with_gramset(FILTER_OUT)
         if GRAM_CHANGE:
-            parses = VectorOfParses(new_rev_text)
-            parses.replace_gramset(GRAM_CHANGE[0], GRAM_CHANGE[1])
-            new_rev_text = parses.to_xml()
+            ann.replace_gramset(GRAM_CHANGE[0], GRAM_CHANGE[1])
         if CHANGE_LEMMA:
-            parses = VectorOfParses(new_rev_text)
-            parses.parses = change_lemma(parses.parses, CHANGE_LEMMA)
-            new_rev_text = parses.to_xml()
+            ann.replace_lemma(CHANGE_LEMMA[0], CHANGE_LEMMA[1])
+        new_rev_text = ann.to_xml()
         if 'debug' in sys.argv:
             print("after:")
             print(new_rev_text)
             print
         if rev_text == new_rev_text:
             continue
-        update_token(editor._db_cursor, token_id, editor.revset_id, new_rev_text)
-    delete_pending(editor._db_cursor, DICT_REVISION)
+        ann.save()
+    delete_pending(editor.db_cursor, DICT_REVISION)
 
 def main():
     editor = AnnotationEditor(CONFIG_PATH)

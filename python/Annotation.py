@@ -17,16 +17,34 @@ class AnnotationEditor(object):
         password = config.get('mysql', 'passwd')
 
         self._db_connect = MySQLdb.connect(hostname, username, password, dbname, use_unicode=True, charset="utf8")
-        self._db_cursor = self._db_connect.cursor(DictCursor)
-        self._db_cursor.execute('START TRANSACTION')
+        self.db_cursor = self._db_connect.cursor(DictCursor)
+        self.db_cursor.execute('START TRANSACTION')
+        self.revset_id = None
 
     def create_revset(self, comment=""):
         timestamp = int(time.time())
-        self._db_cursor.execute("INSERT INTO rev_sets VALUES(NULL, {0}, 0, '{1}')".format(timestamp, comment))
-        self.revset_id = self._db_cursor.lastrowid
+        self.db_cursor.execute("INSERT INTO rev_sets VALUES(NULL, {0}, 0, '{1}')".format(timestamp, comment))
+        self.revset_id = self.db_cursor.lastrowid
+
+    def get_revset_id(self, comment=""):
+        if not self.revset_id:
+            self.create_revset(comment)
+        return self.revset_id
+
+    def sql(self, sql):
+        self.db_cursor.execute(sql)
 
     def commit(self):
         self._db_connect.commit()
+
+    def get_token_by_id(self, token_id):
+        """ Get the current annotation of the token """
+        self.db_cursor.execute("""
+            SELECT rev_text FROM text_revisions WHERE tf_id={0} AND is_last = 1
+        """.format(token_id))
+        row = self.db_cursor.fetchone()
+        token = AnnotatedToken(row['rev_text'].encode('utf-8'), token_id, editor=self)
+        return token
 
 class ParsingVariant(object):
     
@@ -57,16 +75,24 @@ class ParsingVariant(object):
 
         self.xml = self.xml.replace(''.join(search_seq), ''.join(replace_seq))
 
-class VectorOfParses(object):
+    def replace_lemma(self, find, search, replace):
+        assert isinstance(search, str)
+        assert isinstance(replace, str)
+
+        self.xml = self.xml.replace('t="' + search + '"', 't="' + replace + '"')
+
+class AnnotatedToken(object):
     
-    def __init__(self, xml):
+    def __init__(self, tid, xml, editor=None):
         assert isinstance(xml, str)
         l = re.findall('<tfr t="([^"]+)">', xml)
         self.token_text = l[0]
         self.parses = []
+        self._id = tid
         variants = re.split('(?:<\/?v>)+', xml)
         for v in variants[1:-1]:
             self.parses.append(ParsingVariant(v))
+        self._editor = editor
 
     def to_xml(self):
         if len(self.parses) == 0:
@@ -101,6 +127,18 @@ class VectorOfParses(object):
 
         for parse in self.parses:
             parse.replace_gramset(search_gram, replace_gram)
+
+    def replace_lemma(self, search, replace):
+        for parse in self.parses:
+            parse.replace_lemma(search, replace)
+
+    def save(self):
+        self.editor.sql("""
+            UPDATE tf_revisions SET is_last = 0 WHERE tf_id = {0} AND is_last = 1
+        """.format(self._id))
+        self.editor.sql("""
+            INSERT INTO tf_revisions VALUES(NULL, {0}, {1}, '{2}', 1)
+        """.format(self.editor.get_revset_id(), self._id, self.to_xml()))
 
     @staticmethod
     def generate_empty_parse(token):
