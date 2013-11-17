@@ -6,7 +6,7 @@ function get_syntax_group_types() {
         $out[$r['type_id']] = $r['type_name'];
     return $out;
 }
-function get_groups_by_sentence($sent_id) {
+function get_groups_by_sentence($sent_id, $user_id) {
     $out = array(
         'simple' => array(),
         'complex' => array()
@@ -20,6 +20,7 @@ function get_groups_by_sentence($sent_id) {
         JOIN text_forms tf ON (sg.token_id = tf.tf_id)
         JOIN sentences s USING (sent_id)
         WHERE sent_id = $sent_id
+        AND user_id = $user_id
         ORDER BY group_id, token_id
     ");
 
@@ -59,7 +60,7 @@ function add_simple_group($token_ids, $type, $revset_id=0) {
     if (!$revset_id)
         return false;
 
-    if (!sql_query("INSERT INTO syntax_groups VALUES (NULL, $type, $revset_id, 0)"))
+    if (!sql_query("INSERT INTO syntax_groups VALUES (NULL, $type, $revset_id, 0, ".$_SESSION['user_id'].")"))
         return false;
     $group_id = sql_insert_id();
 
@@ -84,7 +85,7 @@ function add_complex_group($ids, $type) {
     if (!$revset_id)
         return false;
 
-    if (!sql_query("INSERT INTO syntax_groups VALUES (NULL, $type, $revset_id, 0)"))
+    if (!sql_query("INSERT INTO syntax_groups VALUES (NULL, $type, $revset_id, 0, ".$_SESSION['user_id'].")"))
         return false;
     $group_id = sql_insert_id();
 
@@ -124,6 +125,8 @@ function get_dummy_group_for_token($token_id, $create_if_absent=true) {
         return false;
 }
 function delete_group($group_id) {
+    if (!is_group_owner($group_id, $_SESSION['user_id']))
+        return false;
     sql_begin();
     if (
         !sql_query("DELETE FROM syntax_groups_simple WHERE group_id=$group_id") ||
@@ -136,6 +139,9 @@ function delete_group($group_id) {
 }
 function set_group_head($group_id, $head_id) {
     // assume that the head of a complex group is also a group
+
+    if (!is_group_owner($group_id, $_SESSION['user_id']))
+        return false;
 
     // check if head belongs to the group
     $res = sql_query_pdo("SELECT * FROM syntax_groups_simple WHERE group_id=$group_id AND token_id=$head_id LIMIT 1");
@@ -150,5 +156,9 @@ function set_group_head($group_id, $head_id) {
     if (sql_query("UPDATE syntax_groups SET head_id=$head_id WHERE group_id=$group_id LIMIT 1"))
         return true;
     return false;
+}
+function is_group_owner($group_id, $user_id) {
+    $res = sql_query_pdo("SELECT * FROM syntax_groups WHERE group_id=$group_id AND user_id=$user_id LIMIT 1");
+    return sql_num_rows($res) > 0;
 }
 ?>

@@ -37,7 +37,7 @@ switch ($action) {
         $smarty->assign('sentence', get_sentence($id));
         if ($mode == 'syntax') {
             $smarty->assign('group_types', get_syntax_group_types());
-            $smarty->assign('groups', get_groups_by_sentence($id));
+            $smarty->assign('groups', get_groups_by_sentence($id, $_SESSION['user_id']));
             $smarty->display('sentence_syntax.tpl');
         } else
             $smarty->display('sentence.tpl');
