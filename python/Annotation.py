@@ -40,10 +40,10 @@ class AnnotationEditor(object):
     def get_token_by_id(self, token_id):
         """ Get the current annotation of the token """
         self.db_cursor.execute("""
-            SELECT rev_text FROM text_revisions WHERE tf_id={0} AND is_last = 1
+            SELECT rev_text FROM tf_revisions WHERE tf_id={0} AND is_last = 1
         """.format(token_id))
         row = self.db_cursor.fetchone()
-        token = AnnotatedToken(row['rev_text'].encode('utf-8'), token_id, editor=self)
+        token = AnnotatedToken(token_id, row['rev_text'].encode('utf-8'), editor=self)
         return token
 
 class ParsingVariant(object):
@@ -133,12 +133,12 @@ class AnnotatedToken(object):
             parse.replace_lemma(search, replace)
 
     def save(self):
-        self.editor.sql("""
+        self._editor.sql("""
             UPDATE tf_revisions SET is_last = 0 WHERE tf_id = {0} AND is_last = 1
         """.format(self._id))
-        self.editor.sql("""
+        self._editor.sql("""
             INSERT INTO tf_revisions VALUES(NULL, {0}, {1}, '{2}', 1)
-        """.format(self.editor.get_revset_id(), self._id, self.to_xml()))
+        """.format(self._editor.get_revset_id(), self._id, self.to_xml()))
 
     @staticmethod
     def generate_empty_parse(token):
