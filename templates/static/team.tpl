@@ -17,7 +17,7 @@
     <tr><td>Мария Николаева</td></tr>
     <tr class='muted'><td>Наталья Остапук</td><td>2010&ndash;2011</td></tr>
     <tr><td>Екатерина Протопопова</td></tr>
-    <tr><td>Мария Степанова</td><td>{mailto address="stepanova@opencorpora.org" encode="javascript"}</td></tr>
+    <tr class='muted'><td>Мария Степанова</td><td>2010&ndash;2012</td></tr>
     <tr><td>Алексей Суриков</td></tr>
     <tr><td>Александр Чучунков</td></tr>
 </table>
