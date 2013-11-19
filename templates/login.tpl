@@ -66,9 +66,9 @@
     {elseif $gen_status == 2}
         <div class="alert alert-error">Пользователь с таким электронным адресом не зарегистрирован.</div>
     {elseif $gen_status == 3}
-        <div class="alert alert-error">Ошибка при отправке сообщения.</div>
-    {elseif $gen_status == 4}
-        <div class="alert alert-error">Пользователь с этим электронным адресом зарегистрирован через одну из соцсетей, без ввода логина и пароля. Попробуйте вспомнить, с помощью какой именно соцсети вы заходили к нам в прошлый раз, и <a href='?'>войти ещё раз</a>.</div>
+        <div class="alert alert-error">Ошибка при отправке сообщения. Попробуйте ещё раз через несколько минут.</div>
+    {elseif $gen_status != ""}
+        <div class="alert alert-warning">Пользователь с этим электронным адресом зарегистрирован через <b>{$gen_status}</b>, без ввода логина и пароля. <a href='?'>Войти ещё раз</a>.</div>
     {else}
         <div class="alert alert-error">Ошибка :(</div>
     {/if}

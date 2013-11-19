@@ -14,7 +14,7 @@ function user_generate_password($email) {
     if (sql_num_rows($res) == 0) return 2;
     $r = sql_fetch_array($res);
     if ($r['user_passwd'] == '' || $r['user_passwd'] == 'notagreed')
-        return 4;
+        return get_openid_domain_by_username($r['user_name']);
     $pwd = gen_password();
     //send email
     if (send_email($email, 'Восстановление пароля на opencorpora.org', "Добрый день,\n\nВаш новый пароль для входа на opencorpora.org:\n\n$pwd\n\nРекомендуем как можно быстрее изменить его через интерфейс сайта.\n\nOpenCorpora")) {
@@ -27,6 +27,21 @@ function user_generate_password($email) {
     } else {
         return 3;
     }
+}
+function get_openid_domain_by_username($username) {
+    if (strpos($username, 'facebook.com') !== false)
+        return 'Facebook';
+    if (strpos($username, 'vk.com') !== false)
+        return 'ВКонтакте';
+    if (strpos($username, 'twitter.com') !== false)
+        return 'Twitter';
+    if (strpos($username, 'yandex.ru') !== false)
+        return 'Яндекс';
+    if (strpos($username, 'google.com') !== false)
+        return 'Google';
+    if (strpos($username, 'mail.ru') !== false)
+        return 'Mail.Ru';
+    return 'Unknown openid provider';
 }
 function gen_password() {
     srand((double)microtime()*1000000);
