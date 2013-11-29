@@ -6,6 +6,12 @@ function get_syntax_group_types() {
         $out[$r['type_id']] = $r['type_name'];
     return $out;
 }
+function group_type_exists($type) {
+    if ($type == 0)
+        return true;
+    $res = sql_query_pdo("SELECT type_id FROM syntax_group_types WHERE type_id=$type LIMIT 1");
+    return sql_num_rows($res) > 0;
+}
 function get_groups_by_sentence($sent_id, $user_id) {
     $out = array(
         'simple' => array(),
@@ -13,10 +19,9 @@ function get_groups_by_sentence($sent_id, $user_id) {
     );
 
     $res = sql_query_pdo("
-        SELECT group_id, type_name, token_id
+        SELECT group_id, group_type, token_id, tf_text, head_id
         FROM syntax_groups_simple sg
         JOIN syntax_groups g USING (group_id)
-        JOIN syntax_group_types gt ON (g.group_type = gt.type_id)
         JOIN text_forms tf ON (sg.token_id = tf.tf_id)
         JOIN sentences s USING (sent_id)
         WHERE sent_id = $sent_id
@@ -24,23 +29,37 @@ function get_groups_by_sentence($sent_id, $user_id) {
         ORDER BY group_id, token_id
     ");
 
-    $simple = array();
     $last_r = NULL;
     $token_ids = array();
+    $token_texts = array();
 
     while ($r = sql_fetch_array($res)) {
         if ($last_r && $r['group_id'] != $last_r['group_id']) {
             $out['simple'][] = array(
                 'id' => $last_r['group_id'],
-                'type' => $last_r['type_name'],
-                'tokens' => $token_ids
+                'type' => $last_r['group_type'],
+                'tokens' => $token_ids,
+                'head_id' => $last_r['head_id'],
+                'text' => join(' ', $token_texts)
             );
-            $token_ids = array();
-            $simple[] = $r['group_id'];
+            $token_ids = $token_texts = array();
         }
         $token_ids[] = $r['token_id'];
+        $token_texts[] = $r['tf_text'];
         $last_r = $r;
     }
+    if (sizeof($token_ids) > 0) {
+        $out['simple'][] = array(
+            'id' => $last_r['group_id'],
+            'type' => $last_r['group_type'],
+            'tokens' => $token_ids,
+            'head_id' => $last_r['head_id'],
+            'text' => join(' ', $token_texts)
+        );
+    }
+
+    print "<!--".print_r($out, true)."-->";
+    return $out;
 }
 function add_simple_group($token_ids, $type, $revset_id=0) {
     $token_ids = array_map('intval', $token_ids);
@@ -49,7 +68,7 @@ function add_simple_group($token_ids, $type, $revset_id=0) {
         FROM text_forms
         WHERE tf_id IN (".join(',', $token_ids).")
     ");
-    
+ 
     if (sql_num_rows($res) > 1)
         return false;
 
@@ -58,6 +77,9 @@ function add_simple_group($token_ids, $type, $revset_id=0) {
     if (!$revset_id)
         $revset_id = create_revset();
     if (!$revset_id)
+        return false;
+
+    if (!group_type_exists($type))
         return false;
 
     if (!sql_query("INSERT INTO syntax_groups VALUES (NULL, $type, $revset_id, 0, ".$_SESSION['user_id'].")"))
@@ -156,6 +178,13 @@ function set_group_head($group_id, $head_id) {
     if (sql_query("UPDATE syntax_groups SET head_id=$head_id WHERE group_id=$group_id LIMIT 1"))
         return true;
     return false;
+}
+function set_group_type($group_id, $type_id) {
+    if (!is_group_owner($group_id, $_SESSION['user_id']))
+        return false;
+    if (!group_type_exists($type_id))
+        return false;
+    return (bool)sql_query("UPDATE syntax_groups SET group_type=$type WHERE group_id=$group_id LIMIT 1");
 }
 function is_group_owner($group_id, $user_id) {
     $res = sql_query_pdo("SELECT * FROM syntax_groups WHERE group_id=$group_id AND user_id=$user_id LIMIT 1");
