@@ -161,7 +161,7 @@ function get_merge_fails() {
 function get_most_useful_pools() {
     $res = sql_query_pdo("
         SELECT pool_id, pool_name, p.status, user_name,
-            COUNT(sent_id) cnt, SUM(1/num_homonymous) cnt2
+            COUNT(sent_id) cnt
         FROM morph_annot_samples
             LEFT JOIN morph_annot_pools p
                 USING (pool_id)
@@ -171,12 +171,14 @@ function get_most_useful_pools() {
                 USING (tf_id)
             RIGHT JOIN good_sentences
                 USING (sent_id)
+            LEFT JOIN text_forms tf2
+                USING (sent_id)
         WHERE p.status >= 4
             AND p.status <=6
-            AND num_homonymous < 3
+            AND num_homonymous = 1
         GROUP BY pool_id
-        ORDER BY COUNT(sent_id) DESC, SUM(1/num_homonymous) DESC
-        LIMIT 20
+        ORDER BY COUNT(sent_id) DESC
+        LIMIT 50
     ");
     $out = array();
     while ($r = sql_fetch_array($res))
@@ -185,8 +187,7 @@ function get_most_useful_pools() {
             'name' => $r['pool_name'],
             'status' => $r['status'],
             'moderator' => $r['user_name'],
-            'count' => $r['cnt'],
-            'count2' => $r['cnt2']
+            'count' => $r['cnt']
         );
     return $out;
 }
