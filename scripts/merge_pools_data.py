@@ -96,6 +96,8 @@ def check_for_grammeme(var_xml, gram):
         if var_xml.find('<g v="' + gr + '"/>') > -1:
             return True
     return False
+def is_unknown(parses):
+    return (len(parses) == 1) and check_for_grammeme(parses[0], 'UNKN')
 def get_xml_by_sample_id(dbh, sample_id):
     dbh.execute("SELECT rev_id, rev_text FROM tf_revisions WHERE tf_id=(SELECT tf_id FROM morph_annot_samples WHERE sample_id={0} LIMIT 1) AND is_last = 1 LIMIT 1".format(sample_id))
     xml = dbh.fetchone()
@@ -145,6 +147,10 @@ def process_pool(dbh, pool_id, revision):
             continue
 
         token, old_vars = xml2vars(old_xml)
+
+        # do nothing if there is only an UNKN
+        if is_unknown(old_vars):
+            continue
         
         # generate empty parse if marked as 'no correct parses'
         if sample['status'] == 2:
