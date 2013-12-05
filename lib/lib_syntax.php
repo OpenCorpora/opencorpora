@@ -34,18 +34,20 @@ function get_groups_by_sentence($sent_id, $user_id) {
     $token_texts = array();
 
     while ($r = sql_fetch_array($res)) {
+
         if ($last_r && $r['group_id'] != $last_r['group_id']) {
             $out['simple'][] = array(
                 'id' => $last_r['group_id'],
                 'type' => $last_r['group_type'],
                 'tokens' => $token_ids,
+                'token_texts' => $token_texts,
                 'head_id' => $last_r['head_id'],
-                'text' => join(' ', $token_texts)
+                'text' => join(' ', array_values($token_texts))
             );
             $token_ids = $token_texts = array();
         }
         $token_ids[] = $r['token_id'];
-        $token_texts[] = $r['tf_text'];
+        $token_texts[$r['token_id']] = $r['tf_text'];
         $last_r = $r;
     }
     if (sizeof($token_ids) > 0) {
@@ -53,12 +55,13 @@ function get_groups_by_sentence($sent_id, $user_id) {
             'id' => $last_r['group_id'],
             'type' => $last_r['group_type'],
             'tokens' => $token_ids,
+            'token_texts' => $token_texts,
             'head_id' => $last_r['head_id'],
-            'text' => join(' ', $token_texts)
+            'text' => join(' ', array_values($token_texts))
         );
     }
 
-    print "<!--".print_r($out, true)."-->";
+    // print "<!--".print_r($out, true)."-->";
     return $out;
 }
 function add_simple_group($token_ids, $type, $revset_id=0) {
@@ -68,7 +71,7 @@ function add_simple_group($token_ids, $type, $revset_id=0) {
         FROM text_forms
         WHERE tf_id IN (".join(',', $token_ids).")
     ");
- 
+
     if (sql_num_rows($res) > 1)
         return false;
 
@@ -152,7 +155,7 @@ function delete_group($group_id) {
     sql_begin();
     if (
         !sql_query("DELETE FROM syntax_groups_simple WHERE group_id=$group_id") ||
-        !sql_query("DELETE FROM syntax_groups_complex WHERE group_id=$group_id") ||
+        // !sql_query("DELETE FROM syntax_groups_complex WHERE group_id=$group_id") ||
         !sql_query("DELETE FROM syntax_groups WHERE group_id=$group_id LIMIT 1")
     )
         return false;
@@ -180,11 +183,13 @@ function set_group_head($group_id, $head_id) {
     return false;
 }
 function set_group_type($group_id, $type_id) {
-    if (!is_group_owner($group_id, $_SESSION['user_id']))
+    if (!is_group_owner($group_id, $_SESSION['user_id'])) {
         return false;
-    if (!group_type_exists($type_id))
+    }
+    if (!group_type_exists($type_id)) {
         return false;
-    return (bool)sql_query("UPDATE syntax_groups SET group_type=$type WHERE group_id=$group_id LIMIT 1");
+    }
+    return (bool)sql_query("UPDATE syntax_groups SET group_type=$type_id WHERE group_id=$group_id LIMIT 1");
 }
 function is_group_owner($group_id, $user_id) {
     $res = sql_query_pdo("SELECT * FROM syntax_groups WHERE group_id=$group_id AND user_id=$user_id LIMIT 1");

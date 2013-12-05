@@ -46,9 +46,9 @@ return array(
 
             // Database
             'db' => array(
-                'connectionString' => 'mysql:host=localhost;dbname=corpora',
-                'username' => 'corpora',
-                'password' => 'corpora',
+                'connectionString' => 'mysql:host=127.0.0.1;dbname=corpora',
+                'username' => 'root',
+                // 'password' => 'corpora',
                 'enableParamLogging' => true,
             ),
 

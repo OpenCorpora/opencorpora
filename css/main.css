@@ -407,24 +407,44 @@ div#main_annot_syntax {
     margin-top: 15px;
 }
 div#main_annot_syntax #tokens {
-    font-size: 20px;
+    font-size: 17px;
     margin-bottom: 15px;
     line-height: 30px;
+    margin-left: -5px;
 }
+
 div#main_annot_syntax #tokens span.token,
 div#main_annot_syntax #tokens span.group {
     cursor: pointer;
+    display: inline-block;
 }
 
-div#main_annot_syntax #tokens > span.group {
-    border-bottom: dashed 1px gray;
+div#main_annot_syntax #tokens span.token {
+    margin-left: 5px;
 }
 
-div#main_annot_syntax #tokens span.group_root {
-    color: #51a351;
+div#main_annot_syntax #tokens span.group {
+    /*border-bottom: dashed 1px gray;*/
+    margin-left: 5px;
+    padding: 0px 2px;
+    line-height: 25px;
+    background-color: #d9edf7;
+    border-radius: 3px;
 }
 
-div#main_annot_syntax button#save_group_roots {
+div#main_annot_syntax #tokens span.group span.token:first-child {
+    margin-left: 0px;
+}
+
+.remove_group {
+    cursor: pointer;
+}
+
+table.empty_table tr.stub_tr {
+    display: table-row;
+}
+
+table tr.stub_tr {
     display: none;
 }
 

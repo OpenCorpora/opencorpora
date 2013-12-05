@@ -3,7 +3,7 @@
 {block name=body}<body onload="highlight_source(); document.onkeyup=checkKeyUp; document.onkeydown=checkKeyDown; document.onmouseup=endScroll; prepareScroll();">{/block}
 {block name=content}
     <script type="text/javascript">
-        
+
         function show_comments(event, need_scroll) {
             $(".oc_tabs").hide();
             $("#comments").show();
@@ -18,14 +18,14 @@
         }
 
         $(document).ready(function(){
-            
+
             $("#source_text,#main_scroller,#scrollbar").mousewheel(function(event,delta){
                 $('#scrollbar').data('state', delta > 0 ? -1: 1);
                 scroll_annot( delta>0 ? -50 : 50);
                 endScroll();
                 event.preventDefault()
                 });
-            
+
             $("#submit_button").click(function(){
                 if($(this).data('step') == '1') {
                     $(this).data('step','2')
@@ -63,7 +63,7 @@
             if (location.hash.substring(1, 5) == 'comm') {
                 show_comments(null, (location.hash.substring(5,6) == '_'));
             }
-            
+
         });
         var unload_msg = "Вы уверены, что хотите уйти, не сохранив предложение?";
         var root = window.addEventListener || window.attachEvent ? window : document.addEventListener ? document : null;
@@ -72,13 +72,13 @@
                 if($("#submit_button").length && !$("#submit_button").attr('disabled') && $("#submit_button").data('step') != '2') {
                     return unload_msg;
                     };
-                
+
                 };
         }
     </script>
     {if $user_permission_disamb == 1}
         <div class="btn-group">
-            <a href="?id={$sentence.id}&mode=morph" class="btn {if !isset($smarty.get.mode) || $smarty.get.mode == 'morph'}btn-success{/if}">Морфология</a>
+            <a href="?id={$sentence.id}&mode=morph" class="btn {if !isset($smarty.get.mode) || $smarty.get.mode == 'morph'}btn-success active{/if}">Морфология</a>
             <a href="?id={$sentence.id}&mode=syntax" class="btn {if isset($smarty.get.mode) && $smarty.get.mode == 'syntax'}btn-success{/if}">Синтаксис</a>
         </div>
     {/if}
