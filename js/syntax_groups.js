@@ -25,7 +25,7 @@ function update_selection() {
     var l = $("span.token.bggreen").length; // + $("span.group.bggreen").length;
     $("#selection_info b").html(l);
     if (l > 1)
-        $("#selection_info #new_group").show().find('#add1').hide();
+        $("#selection_info #new_group").add('#add0').show().find('#add1').hide();
     else {
         $("#selection_info #new_group").hide();
         $("#group_type").hide();

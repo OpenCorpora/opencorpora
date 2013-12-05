@@ -24,7 +24,7 @@
     <a href="?id={$sentence.id}&mode=syntax" class="btn {if isset($smarty.get.mode) && $smarty.get.mode == 'syntax'}btn-success active{/if}">Синтаксис</a>
 </div>
 <div id="main_annot_syntax" class="row">
-    <div class="span8">
+    <div class="span7">
         <div id="tokens" data-sentenceid="{$sentence.id}">
             {foreach item=token from=$sentence.tokens}<span data-tid="{$token.tf_id}" class="token">{$token.tf_text|htmlspecialchars}</span>{/foreach}
         </div>
