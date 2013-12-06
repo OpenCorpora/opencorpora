@@ -28,6 +28,7 @@
 
 
     </head>
+{block name=nojs}<noscript><meta http-equiv="refresh" content="0; URL=/no_js.php"></noscript>{/block}
 {block name=body}<body>{/block}
 <div id='wrap'>
 {nocache}{include file='header.tpl'}
