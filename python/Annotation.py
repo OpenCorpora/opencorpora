@@ -127,7 +127,7 @@ class AnnotatedToken(object):
 
     def to_xml(self):
         if len(self.parses) == 0:
-            return generate_empty_parse(self.token_text)
+            return self.generate_empty_parse(self.token_text)
         out = ['<tfr t="', self.token_text, '">']
         for parse in self.parses:
             out.append('<v>')
@@ -163,13 +163,13 @@ class AnnotatedToken(object):
         for parse in self.parses:
             parse.replace_lemma(search, replace)
 
-    def save(self):
+    def save(self, comment=""):
         self._editor.sql("""
             UPDATE tf_revisions SET is_last = 0 WHERE tf_id = {0} AND is_last = 1
         """.format(self._id))
         self._editor.sql("""
             INSERT INTO tf_revisions VALUES(NULL, {0}, {1}, '{2}', 1)
-        """.format(self._editor.get_revset_id(), self._id, self.to_xml()))
+        """.format(self._editor.get_revset_id(comment), self._id, self.to_xml()))
 
     @staticmethod
     def generate_empty_parse(token):
