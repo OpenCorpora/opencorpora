@@ -47,6 +47,8 @@
         </div>
     </div>
 </div>
+{if $sentence.prev_id}<div><a href="?id={$sentence.prev_id}&amp;mode=syntax">&lt;&lt; предыдущее предложение</a></div>{/if}
+{if $sentence.next_id}<div><a href="?id={$sentence.next_id}&amp;mode=syntax">следующее предложение &gt;&gt;</a></div>{/if}
 
 <div class="notifications top-right"></div>
 {/block}

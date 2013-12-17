@@ -3,6 +3,8 @@ function get_sentence($sent_id) {
     $r = sql_fetch_array(sql_query("SELECT `check_status`, source FROM sentences WHERE sent_id=$sent_id LIMIT 1"));
     $out = array(
         'id' => $sent_id,
+        'next_id' => get_next_sentence_id($sent_id),
+        'prev_id' => get_previous_sentence_id($sent_id),
         'status' => $r['check_status'],
         'source' => $r['source']
     );
@@ -65,6 +67,72 @@ function get_sentence($sent_id) {
     }
     $out['fulltext'] = typo_spaces(implode(' ', $tf_text), 1);
     return $out;
+}
+function get_previous_sentence_id($sent_id) {
+    return get_adjacent_sentence_id($sent_id, false);
+}
+function get_next_sentence_id($sent_id) {
+    return get_adjacent_sentence_id($sent_id, true);
+}
+function get_adjacent_sentence_id($sent_id, $next) {
+    // same paragraph
+    $r = sql_fetch_array(sql_query_pdo("
+        SELECT par_id, pos
+        FROM sentences
+        WHERE sent_id = $sent_id LIMIT 1
+    "));
+
+    $par_id = $r['par_id'];
+    $sent_pos = $r['pos'];
+    if (!$par_id)
+        return 0;
+
+    $res = sql_query_pdo("
+        SELECT sent_id
+        FROM sentences
+        WHERE par_id = $par_id
+        AND pos ".($next ? ">" : "<")." $sent_pos
+        ORDER BY pos ".($next ? "ASC" : "DESC")."
+        LIMIT 1
+    ");
+
+    if (sql_num_rows($res) == 1) {
+        $r = sql_fetch_array($res);
+        return $r['sent_id'];
+    }
+
+    // next/previous paragraph
+    $r = sql_fetch_array(sql_query_pdo("
+        SELECT book_id, pos
+        FROM paragraphs
+        WHERE par_id = $par_id LIMIT 1
+    "));
+    
+    $book_id = $r['book_id'];
+    $par_pos = $r['pos'];
+    
+    if (!$book_id)
+        return 0;
+
+    $res = sql_query_pdo("
+        SELECT sent_id
+        FROM sentences s
+        JOIN paragraphs p
+            USING (par_id)
+        JOIN books b
+            USING (book_id)
+        WHERE book_id = $book_id
+        AND p.pos ".($next ? ">" : "<")." $par_pos
+        ORDER BY p.pos ".($next ? "ASC" : "DESC").", s.pos ".($next ? "ASC" : "DESC")."
+        LIMIT 1
+    ");
+
+    if (sql_num_rows($res) == 1) {
+        $r = sql_fetch_array($res);
+        return $r['sent_id'];
+    }
+
+    return 0;
 }
 function get_morph_vars($xml_arr, &$gram_descr) {
     if (isset($xml_arr['_c']) && is_array($xml_arr['_c'])) {
