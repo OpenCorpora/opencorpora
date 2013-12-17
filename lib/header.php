@@ -80,6 +80,8 @@ $smarty->assign('user_permission_adder', user_has_permission('perm_adder') ? 1 :
 $smarty->assign('user_permission_check_tokens', user_has_permission('perm_check_tokens') ? 1 : 0);
 $smarty->assign('user_permission_check_morph', user_has_permission('perm_check_morph') ? 1 : 0);
 $smarty->assign('user_permission_merge', user_has_permission('perm_merge') ? 1 : 0);
+$smarty->assign('user_permission_syntax', user_has_permission('perm_syntax') ? 1 : 0);
+$smarty->assign('user_permission_check_syntax', user_has_permission('perm_check_syntax') ? 1 : 0);
 $smarty->assign('readonly', file_exists('/var/lock/oc_readonly.lock') ? 1 : 0);
 $smarty->assign('goals', $config['goals']);
 $smarty->assign('game_is_on', 0);

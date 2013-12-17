@@ -76,7 +76,8 @@
                 };
         }
     </script>
-    {if $user_permission_disamb == 1}
+    {* TODO allow only perm_syntax *}
+    {if $user_permission_disamb == 1 || $user_permission_syntax == 1}
         <div class="btn-group">
             <a href="?id={$sentence.id}&mode=morph" class="btn {if !isset($smarty.get.mode) || $smarty.get.mode == 'morph'}btn-success active{/if}">Морфология</a>
             <a href="?id={$sentence.id}&mode=syntax" class="btn {if isset($smarty.get.mode) && $smarty.get.mode == 'syntax'}btn-success{/if}">Синтаксис</a>

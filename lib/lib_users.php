@@ -201,7 +201,7 @@ function user_register($post) {
     sql_begin();
     if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name', 0, 1, 1, 0, 0)")) {
         $user_id = sql_insert_id();
-        if (!sql_query("INSERT INTO `user_permissions` VALUES ('$user_id', '0', '0', '0', '0', '0', '0', '0')")) return 0;
+        if (!sql_query("INSERT INTO `user_permissions` VALUES ('$user_id', '0', '0', '0', '0', '0', '0', '0', 0, 0)")) return 0;
         if (isset($post['subscribe']) && $email) {
             //perhaps we should subscribe the user
             $ch = curl_init();
@@ -379,7 +379,7 @@ function get_user_permissions($user_id) {
 
     if (sql_num_rows($res) == 0) {
         //autovivify
-        if (!sql_query("INSERT INTO user_permissions VALUES ('$user_id', '0', '0', '0', '0', '0', '0', '0')")) {
+        if (!sql_query("INSERT INTO user_permissions VALUES ('$user_id', '0', '0', '0', '0', '0', '0', '0', 0, 0)")) {
             return false;
         }
         $res = sql_query("SELECT * FROM user_permissions WHERE user_id = $user_id LIMIT 1");

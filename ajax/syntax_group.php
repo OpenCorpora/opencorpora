@@ -20,7 +20,8 @@ header('Content-type: application/json');
 
 $res = array('error' => 1);
 
-if (!user_has_permission('perm_disamb')) {
+// TODO allow only perm_syntax
+if (!user_has_permission('perm_disamb') && !user_has_permission('perm_syntax')) {
     die(json_encode($res));
 }
 
