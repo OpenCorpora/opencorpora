@@ -40,7 +40,7 @@
     <li>сделать ещё что-нибудь полезное и интересное (разумеется, напишите нам письмо на {mailto address="opencorpora@opencorpora.org" encode="javascript"})</li>
     </ul>
 {/if}
-{if $is_logged && ($user_permission_adder || $user_permission_dict || $user_permission_check_morph)}
+{if $is_logged && ($user_permission_adder || $user_permission_dict || $user_permission_check_morph || $user_permission_syntax)}
     <div class="row">
         <div class="well nav-wrapper span5">
             <ul class="nav nav-list">
@@ -81,6 +81,10 @@
                     <li><a href='{$web_prefix}/pools.php?type=5&amp;moder_id={$smarty.session.user_id}'>В работе</a></li>
                     <li><a href='{$web_prefix}/pools.php?type=6&amp;moder_id={$smarty.session.user_id}'>Готовые</a></li>
                     <li><a href='{$web_prefix}/pools.php?type=9&amp;moder_id={$smarty.session.user_id}'>В архиве</a></li>
+                {/if}
+                {if $user_permission_syntax}
+                    <li class="nav-header">Синтаксис</li>
+                    <li><a href='{$web_prefix}/syntax.php'><span class="small bggreen">new!</span> Тексты</a></li>
                 {/if}
                 {if $user_permission_adder}
                     <li class="nav-header">Контроль качества</li>

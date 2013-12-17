@@ -1,4 +1,31 @@
 <?php
+function get_books_with_syntax() {
+    $res = sql_query_pdo("SELECT book_id, status, user_id FROM syntax_annotators");
+    $syntax = array();
+    while ($r = sql_fetch_array($res)) {
+        if (!isset($syntax[$r['book_id']]))
+            $syntax[$r['book_id']] = array(1 => 0, 2 => 0);
+        if ($r['user_id'] == $_SESSION['user_id'])
+            $syntax[$r['book_id']]['self'] = $r['status'];
+        $syntax[$r['book_id']][$r['status']] += 1;
+    }
+
+    $res = sql_query_pdo("SELECT book_id, book_name FROM books WHERE syntax_on=1 ORDER BY book_id");
+    $out = array();
+    while ($r = sql_fetch_array($res))
+        $out[] = array(
+            'id' => $r['book_id'],
+            'name' => $r['book_name'],
+            'status' => array(
+                'syntax' => array(
+                    'self' => isset($syntax[$r['book_id']]['self']) ? $syntax[$r['book_id']]['self'] : 0,
+                    'total' => isset($syntax[$r['book_id']]) ? $syntax[$r['book_id']] : array(1 => 0, 2 => 0)
+                ),
+                'anaphor' => 0
+            )
+        );
+    return $out;
+}
 function get_syntax_group_types() {
     $res = sql_query_pdo("SELECT type_id, type_name FROM syntax_group_types ORDER BY type_name");
     $out = array();
@@ -61,7 +88,6 @@ function get_groups_by_sentence($sent_id, $user_id) {
         );
     }
 
-    // print "<!--".print_r($out, true)."-->";
     return $out;
 }
 function add_simple_group($token_ids, $type, $revset_id=0) {
@@ -194,5 +220,22 @@ function set_group_type($group_id, $type_id) {
 function is_group_owner($group_id, $user_id) {
     $res = sql_query_pdo("SELECT * FROM syntax_groups WHERE group_id=$group_id AND user_id=$user_id LIMIT 1");
     return sql_num_rows($res) > 0;
+}
+function set_syntax_annot_status($book_id, $status) {
+    if (!$book_id || !user_has_permission('perm_syntax') || !in_array($status, array(0, 1, 2)))
+        return false;
+    $user_id = $_SESSION['user_id'];
+    sql_begin();
+    if (!sql_query("DELETE FROM syntax_annotators WHERE user_id=$user_id AND book_id=$book_id"))
+        return false;
+    if ($status > 0)
+        if (sql_query("INSERT INTO syntax_annotators VALUES($user_id, $book_id, $status)")) {
+            sql_commit();
+            return true;
+        }
+        else
+            return false;
+    sql_commit();
+    return true;
 }
 ?>
