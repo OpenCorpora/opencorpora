@@ -14,6 +14,7 @@
 {literal}
     <script>
     var syntax_groups_json = JSON.parse('{/literal}{$groups.simple|@json_encode}{literal}');
+    var complex_groups_json = JSON.parse('{/literal}{$groups.complex|@json_encode}{literal}');
     </script>
 {/literal}
 

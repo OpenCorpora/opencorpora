@@ -22,7 +22,7 @@ function is_uttermost($target) {
 // Пересчитывает количество выделенных токенов\именных групп
 // и обновляет #selection_info b
 function update_selection() {
-    var l = $("span.token.bggreen").length; // + $("span.group.bggreen").length;
+    var l = $("span.token.bggreen").length + $("span.group.bggreen").length;
     $("#selection_info b").html(l);
     if (l > 0)
         $("#selection_info #new_group").add('#add0').show().find('#add1').hide();
@@ -35,6 +35,7 @@ function update_selection() {
 // Объединяет выделенные токены в группу и присваивает ей id,
 // полученный с сервера
 function show_new_group(gid) {
+    $('span.bggreen.group').addClass('deep');
     $('span.bggreen:first').before('<span class="group" id="last_group" data-gid="' + gid + '"></span>');
     $('span.bggreen').appendTo($('span#last_group')).removeClass('bggreen');
     $("span#last_group").attr('id', null);
@@ -64,7 +65,10 @@ function refresh_table() {
 function save_group(on_success) {
 
     parts = $('.bggreen').map(function() {
-            return $(this).attr('data-tid');
+            if ($(this).hasClass('group'))
+                return {'id': $(this).attr('data-gid'), 'is_group': '1'};
+            else
+                return {'id': $(this).attr('data-tid'), 'is_group': '0'};
         }).get();
 
     type = $('#group_type').val();
@@ -165,7 +169,7 @@ function notify(text) {
 function clck_handler($target) {
     if (!$target.hasClass('bggreen')) {
         if (!check_adjacency($target)) {
-            $('span.token').removeClass('bggreen');
+            $('#tokens > span').removeClass('bggreen');
         }
         $target.addClass('bggreen');
     }
@@ -191,7 +195,17 @@ function group_tokens() {
         }
         base.wrapAll('<span class="group" data-gid="' + sg[i].id + '"></span>');
     }
-
+    
+    cg = complex_groups_json;
+    for (i in cg) {
+        base = $();
+        for (j in cg[i].children) {
+            console.log(cg[i].children[j]);
+            base = base.add('span.group[data-gid=' + cg[i].children[j] + ']');
+            $('span.group[data-gid=' + cg[i].children[j] + ']').addClass('deep');
+        }
+        base.wrapAll('<span class="group" data-gid="' + cg[i].id + '"></span>');
+    }
 }
 
 $(document).ready(function(){
@@ -219,7 +233,7 @@ $(document).ready(function(){
         // сохраняем группу, которую он(а) выделил(а),
         save_group(function(new_group) {
             // уведомляем пользователя,
-            notify("Именная группа добавлена!");
+            notify("Группа добавлена!");
 
             // скрываем селект с типом группы и снова показываем кнопку "Создать группу",
             $("#group_type").hide();
@@ -236,6 +250,9 @@ $(document).ready(function(){
 
     // Выбираем только непосредственно токены, исключая токены в группах
     $('#tokens > .token').live('click', function() {
+        clck_handler($(this));
+    });
+    $('#tokens > .group').live('click', function() {
         clck_handler($(this));
     });
 

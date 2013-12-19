@@ -39,70 +39,143 @@ function group_type_exists($type) {
     $res = sql_query_pdo("SELECT type_id FROM syntax_group_types WHERE type_id=$type LIMIT 1");
     return sql_num_rows($res) > 0;
 }
-function get_groups_by_sentence($sent_id, $user_id) {
-    $out = array(
-        'simple' => array(),
-        'complex' => array()
-    );
-
+function get_simple_groups_by_sentence($sent_id, $user_id) {
+    $out = array();
     $res = sql_query_pdo("
-        SELECT group_id, group_type, token_id, tf_text, head_id
+        SELECT group_id, group_type, token_id, tf_text, head_id, tf.pos
         FROM syntax_groups_simple sg
         JOIN syntax_groups g USING (group_id)
         JOIN text_forms tf ON (sg.token_id = tf.tf_id)
-        JOIN sentences s USING (sent_id)
         WHERE sent_id = $sent_id
         AND user_id = $user_id
-        ORDER BY group_id, token_id
+        ORDER BY group_id, tf.pos
     ");
 
     $last_r = NULL;
     $token_ids = array();
     $token_texts = array();
+    $token_pos = array();
 
     while ($r = sql_fetch_array($res)) {
-
         if ($last_r && $r['group_id'] != $last_r['group_id']) {
-            $out['simple'][] = array(
+            $out[] = array(
                 'id' => $last_r['group_id'],
                 'type' => $last_r['group_type'],
                 'tokens' => $token_ids,
                 'token_texts' => $token_texts,
                 'head_id' => $last_r['head_id'],
-                'text' => join(' ', array_values($token_texts))
+                'text' => join(' ', array_values($token_texts)),
+                'start_pos' => min($token_pos),
+                'end_pos' => max($token_pos)
             );
-            $token_ids = $token_texts = array();
+            $token_ids = $token_texts = $token_pos = array();
         }
         $token_ids[] = $r['token_id'];
+        $token_pos[] = $r['pos'];
         $token_texts[$r['token_id']] = $r['tf_text'];
         $last_r = $r;
     }
     if (sizeof($token_ids) > 0) {
-        $out['simple'][] = array(
+        $out[] = array(
             'id' => $last_r['group_id'],
             'type' => $last_r['group_type'],
             'tokens' => $token_ids,
             'token_texts' => $token_texts,
             'head_id' => $last_r['head_id'],
-            'text' => join(' ', array_values($token_texts))
+            'text' => join(' ', array_values($token_texts)),
+            'start_pos' => min($token_pos)
         );
     }
 
     return $out;
 }
-function add_simple_group($token_ids, $type, $revset_id=0) {
-    $token_ids = array_map('intval', $token_ids);
-    $res = sql_query_pdo("
-        SELECT DISTINCT sent_id
-        FROM text_forms
-        WHERE tf_id IN (".join(',', $token_ids).")
-    ");
+function get_complex_groups_by_simple($simple_groups, $user_id) {
+    $groups = array();
+    $possible_children = array();
+    $groups_pos = array();
+    $groups_text = array();
+    foreach ($simple_groups as $g) {
+        $possible_children[] = $g['id'];
+        $groups_pos[$g['id']] = $g['start_pos'];
+        $groups_text[$g['id']] = $g['text'];
+    }
+    $new_added = true;
+    while ($new_added) {
+        $new_added = false;
+        $res = sql_query_pdo("
+            SELECT parent_gid, child_gid, group_type, head_id
+            FROM syntax_groups g
+            JOIN syntax_groups_complex gc
+                ON (g.group_id = gc.parent_gid)
+            WHERE user_id = $user_id
+                AND child_gid IN (".join(',', $possible_children).")
+            ORDER BY parent_gid
+        ");
+        
+        while ($r = sql_fetch_array($res)) {
+            if (isset($groups[$r['parent_gid']])) {
+                $groups[$r['parent_gid']]['children'] = array_unique(array_merge($groups[$r['parent_gid']]['children'], array($r['child_gid'])));
+                $groups[$r['parent_gid']]['start_pos'] = min($groups[$r['parent_gid']]['start_pos'], $groups_pos[$r['child_gid']]);
+            }
+            else {
+                // new group
+                $new_added = true;
+                $possible_children[] = $r['parent_gid'];
+                $groups[$r['parent_gid']] = array(
+                    'type' => $r['group_type'],
+                    'children' => array($r['child_gid']),
+                    'head_id' => $r['head_id'],
+                    'start_pos' => $groups_pos[$r['child_gid']]
+                );
+            }
+            $groups_pos[$r['parent_gid']] = $groups[$r['parent_gid']]['start_pos'];
+        }
+    }
 
-    if (sql_num_rows($res) > 1)
+    $out = array();
+    ksort($groups);
+    foreach ($groups as $id => $g) {
+        $atext = array();
+        foreach ($g['children'] as $ch)
+            $atext[$ch] = array($groups_pos[$ch], $groups_text[$ch]);
+        uasort($atext, function($a, $b) {
+            if ($a[0] < $b[0])
+                return -1;
+            if ($a[0] > $b[0])
+                return 1;
+            return 0;
+        });
+        $groups_text[$id] = join(' ', array_map(function($ar) {return $ar[1];}, $atext));
+        $out[] = array_merge($g, array(
+            'id' => $id,
+            'text' => $groups_text[$id],
+            'children_texts' => $atext
+        ));
+    }
+}
+function get_groups_by_sentence($sent_id, $user_id) {
+    $simple = get_simple_groups_by_sentence($sent_id, $user_id);
+    return array(
+        #'simple' => array_filter($simple, function($el) {return $el['type'] != 16;}),
+        'simple' => $simple,
+        'complex' => get_complex_groups_by_simple($simple, $user_id)
+    );
+}
+function add_group($parts, $type, $revset_id=0) {
+    $is_complex = false;
+    $ids = array();
+    foreach ($parts as $i => $el) {
+        if ($el['is_group'])
+            $is_complex = true;
+        $parts[$i]['id'] = (int)$el['id'];
+        $ids[] = (int)$el['id'];
+    }
+
+    // TODO check complex groups too
+    if (!$is_complex && !check_for_same_sentence($ids))
         return false;
 
     sql_begin();
-
     if (!$revset_id)
         $revset_id = create_revset();
     if (!$revset_id)
@@ -115,52 +188,37 @@ function add_simple_group($token_ids, $type, $revset_id=0) {
         return false;
     $group_id = sql_insert_id();
 
-    foreach ($token_ids as $token_id)
-        if (!sql_query("INSERT INTO syntax_groups_simple VALUES ($group_id, $token_id)"))
+    foreach ($parts as $el) {
+        $token_id = $el['id'];
+        if ($is_complex && !$el['is_group'])
+            $token_id = get_dummy_group_for_token($token_id, true, $revset_id); 
+        if (!$token_id)
             return false;
-
-    sql_commit();
-    return $group_id;
-}
-function parse_complex_group_data() {
-    // input: whatever structure comes from frontend
-    // output: array of array(2): [int id, bool is_group_id (otherwise token_id)]
-}
-function add_complex_group($ids, $type) {
-    // assume input has gone through parse_complex_group_data()
-
-    // TODO recursively check that everything is within one sentence
-    sql_begin();
-
-    $revset_id = create_revset();
-    if (!$revset_id)
-        return false;
-
-    if (!sql_query("INSERT INTO syntax_groups VALUES (NULL, $type, $revset_id, 0, ".$_SESSION['user_id'].")"))
-        return false;
-    $group_id = sql_insert_id();
-
-    foreach ($ids as $id) {
-        $cur_id = ($id[1] == true) ? $id[0] : get_dummy_group_for_token($id[0]);
-        if (!$cur_id)
-            return false;
-        if (!sql_query("INSERT INTO syntax_groups_complex VALUES ($group_id, $cur_id)"))
+        if (!sql_query("INSERT INTO syntax_groups_".($is_complex ? "complex" : "simple")." VALUES ($group_id, $token_id)"))
             return false;
     }
     sql_commit();
     return $group_id;
 }
+function check_for_same_sentence($token_ids) {
+    $res = sql_query_pdo("
+        SELECT DISTINCT sent_id
+        FROM text_forms
+        WHERE tf_id IN (".join(',', $token_ids).")
+    ");
+    return (sql_num_rows($res) == 1);
+}
 function add_dummy_group($token_id, $revset_id=0) {
     sql_begin();
     if (!$revset_id)
         $revset_id = create_revset();
-    $gid = add_simple_group(array($token_id), 16, $revset_id);
+    $gid = add_group(array(array('id' => $token_id, 'is_group' => false)), 16, $revset_id);
     if (!$gid)
         return false;
     sql_commit();
     return $gid;
 }
-function get_dummy_group_for_token($token_id, $create_if_absent=true) {
+function get_dummy_group_for_token($token_id, $create_if_absent=true, $revset_id=0) {
     $res = sql_query_pdo("SELECT group_id FROM syntax_groups_simple WHERE group_type=16 AND token_id=$token_id");
     if (sql_num_rows($res) > 1)
         return false;
@@ -171,7 +229,7 @@ function get_dummy_group_for_token($token_id, $create_if_absent=true) {
 
     // therefore there is none
     if ($create_if_absent)
-        return add_dummy_group($token_id);
+        return add_dummy_group($token_id, $revset_id);
     else
         return false;
 }
@@ -181,7 +239,7 @@ function delete_group($group_id) {
     sql_begin();
     if (
         !sql_query("DELETE FROM syntax_groups_simple WHERE group_id=$group_id") ||
-        // !sql_query("DELETE FROM syntax_groups_complex WHERE group_id=$group_id") ||
+        !sql_query("DELETE FROM syntax_groups_complex WHERE parent_gid=$group_id") ||
         !sql_query("DELETE FROM syntax_groups WHERE group_id=$group_id LIMIT 1")
     )
         return false;

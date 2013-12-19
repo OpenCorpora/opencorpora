@@ -27,7 +27,7 @@ if (!user_has_permission('perm_disamb') && !user_has_permission('perm_syntax')) 
 
 switch ($_POST['act']) {
     case 'newGroup':
-        $gid = add_simple_group($_POST['tokens'], (int)$_POST['type']);
+        $gid = add_group($_POST['tokens'], (int)$_POST['type']);
         if ($gid) {
             $res['gid'] = $gid;
             $res['error'] = 0;

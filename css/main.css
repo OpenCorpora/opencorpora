@@ -424,12 +424,16 @@ div#main_annot_syntax #tokens span.token {
 }
 
 div#main_annot_syntax #tokens span.group {
-    /*border-bottom: dashed 1px gray;*/
+    border-bottom: solid 1px navy;
     margin-left: 5px;
     padding: 0px 2px;
     line-height: 25px;
-    background-color: #d9edf7;
+    /*background-color: #d9edf7;*/
     border-radius: 3px;
+}
+
+div#main_annot_syntax #tokens span.group.deep {
+    border-bottom: none;
 }
 
 div#main_annot_syntax #tokens span.group span.token:first-child {
