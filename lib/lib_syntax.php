@@ -152,6 +152,7 @@ function get_complex_groups_by_simple($simple_groups, $user_id) {
             'children_texts' => $atext
         ));
     }
+    return $out;
 }
 function get_groups_by_sentence($sent_id, $user_id) {
     $simple = get_simple_groups_by_sentence($sent_id, $user_id);
