@@ -38,11 +38,15 @@ def get_samples_and_answers(dbh, pool_id):
                 (SELECT sample_id FROM morph_annot_samples WHERE pool_id={0})""".format(pool_id))
     results = dbh.fetchall()
     return results
+def generate_empty_parse(token):
+    return ''.join(('<tfr t="', token, '"><v><l id="0" t="', token, '"><g v="UNKN"/></l></v></tfr>'))
 def xml2vars(xml):
     lemma = re.findall('<tfr t="([^"]+)">', xml)
     variants = re.split('(?:<\/?v>)+', xml)
     return lemma[0], variants[1:-1]
 def vars2xml(lemma, variants):
+    if len(variants) == 0:
+        return generate_empty_parse(lemma)
     out = ['<tfr t="', lemma, '">']
     for var in variants:
         out.append('<v>')
@@ -108,8 +112,6 @@ def update_sample(dbh, sample_id, xml, changeset_id):
     dbh.execute("UPDATE tf_revisions SET is_last=0 WHERE tf_id={0}".format(res['tf_id']))
     dbh.execute("INSERT INTO tf_revisions VALUES(NULL, {0}, {1}, '{2}', 1)".format(changeset_id, res['tf_id'], xml))
     dbh.execute("UPDATE morph_annot_moderated_samples SET merge_status=1 WHERE sample_id = {0} LIMIT 1".format(sample_id))
-def generate_empty_parse(token):
-    return ''.join(('<tfr t="', token, '"><v><l id="0" t="', token, '"><g v="UNKN"/></l></v></tfr>'))
 def get_pool_grammemes(dbh, pool_id):
     dbh.execute("SELECT grammemes FROM morph_annot_pool_types WHERE type_id = (SELECT pool_type FROM morph_annot_pools WHERE pool_id={0} LIMIT 1) LIMIT 1".format(pool_id))
     row = dbh.fetchone()
