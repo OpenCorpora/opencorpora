@@ -42,6 +42,10 @@ def get_text_by_tag(lines, tags):
                 variants.append(var)
             sys.stdout.write('\t'.join(variants))
             print
+        elif line.lstrip().startswith('<paragraph '):
+            print 'p'
+        elif line.lstrip().startswith('</paragraph>'):
+            print '/p'
         elif line.lstrip().startswith('<sent'):
             print 'sent'
         elif line.lstrip().startswith('</sent'):
@@ -75,20 +79,21 @@ def get_text_id_by_type(lines, type_tag):
             started = False
     #return nums
 
+
 def get_texts_by_id(lines, ids):
     p = re.compile(u'<text id=\"(?P<id>\d+)\" parent=\"(?P<p>\d+)', re.U)
     f = re.compile(u'</text>', re.U)
     started = False
     for line in lines:
-         line = line.strip()
-         m = p.match(line)
-         if m and m.group('id') in ids:
-             started = True
-         if started:
-             print line
-         if f.match(line):
-             started = False    
-            
+        line = line.strip()
+        m = p.match(line)
+        if m and m.group('id') in ids:
+            started = True
+        if started:
+            print line
+        if f.match(line):
+            started = False
+
 
 if __name__ == '__main__':
     #get_text_by_tag(get_text_id_by_type(sys.stdin, u'Юридические тексты'), ('token id', 'text', 'l id', 't', 'v'))

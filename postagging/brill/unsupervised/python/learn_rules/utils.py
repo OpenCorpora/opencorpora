@@ -72,6 +72,7 @@ def feature_type(f):
 def apply_rule(rule, corpus, ignore_numbers=True, wsize=2, f=None):
     if not f:
         f = 'POS'
+    _NULL_TOKEN = Token(('SENT', 'SENT'))
     s = [_NULL_TOKEN]
     rc = rule.context
     more = False
