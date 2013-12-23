@@ -18,7 +18,7 @@ if (isset($_GET['page'])) {
             $smarty->display('static/' . $page . '.tpl');
             break;
         case 'downloads':
-            $smarty->assign('active_page','downloads');
+            $smarty->assign('active_page', 'downloads');
             $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
             $smarty->setCacheLifetime(600);
             if (!is_cached('static/downloads.tpl')) {
@@ -34,17 +34,18 @@ if (isset($_GET['page'])) {
         case 'stats':
             $uid = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
             $weekly = isset($_GET['weekly']);
-            $smarty->assign('active_page','stats');
+            $smarty->assign('active_page', 'stats');
             $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
             $smarty->setCacheLifetime(300);
-            if (!is_cached('stats.tpl', $uid.'@'.(int)$weekly)) {
-                $smarty->assign('user_stats', get_user_stats($weekly));
+            $cache_key = $uid.'@'.(int)$weekly.(isset($_GET['team']) ? (int)$_GET['team'] : 0);
+            if (!is_cached('stats.tpl', $cache_key)) {
+                $smarty->assign('user_stats', get_user_stats($weekly, isset($_GET['team']) ? (int)$_GET['team'] : 0));
                 $smarty->assign('ma_count', count_all_answers());
             }
-            $smarty->display('stats.tpl', $uid.'@'.(int)$weekly);
+            $smarty->display('stats.tpl', $cache_key);
             break;
         case 'tag_stats':
-            $smarty->assign('active_page','stats');
+            $smarty->assign('active_page', 'stats');
             $smarty->assign('stats', get_tag_stats());
             $smarty->display('tag_stats.tpl');
             break;

@@ -24,14 +24,21 @@ function get_common_stats() {
 
     return $stats;
 }
-function get_sentence_adders_stats($last_week=false) {
+function get_sentence_adders_stats($last_week=false, $team=0) {
     if ($last_week)
         $param = 7;
     else
         $param = 6;
 
     $out = array();
-    $res = sql_query_pdo("SELECT user_shown_name AS user_name, param_value FROM user_stats LEFT JOIN users USING (user_id) WHERE param_id=$param ORDER BY param_value DESC");
+    $res = sql_query_pdo("
+        SELECT user_shown_name AS user_name, param_value
+        FROM user_stats
+        LEFT JOIN users USING (user_id)
+        WHERE param_id=$param
+        ".($team ? "AND user_team = $team" : "")."
+        ORDER BY param_value DESC
+    ");
     while ($r = sql_fetch_array($res)) {
         $out[] = array('user_name' => $r['user_name'], 'value' => $r['param_value']);
     }
@@ -170,7 +177,7 @@ function get_tag_stats() {
     }
     return $out;
 }
-function get_user_stats($weekly=false) {
+function get_user_stats($weekly=false, $team=0) {
     if ($weekly) {
         $start_time = time() - 7 * 24 * 60 * 60;
         $counter_param = 58;
@@ -188,8 +195,8 @@ function get_user_stats($weekly=false) {
     while ($r = sql_fetch_array($res))
         $uid2team[$r['user_id']] = $r['user_team'];
     $teams = get_team_list();
-    foreach ($teams as $i => $team) {
-        if ($team['num_users'] == 0) {
+    foreach ($teams as $i => $v) {
+        if ($v['num_users'] == 0) {
             unset($teams[$i]);
             continue;
         }
@@ -203,6 +210,7 @@ function get_user_stats($weekly=false) {
         LEFT JOIN users USING(user_id)
         WHERE answer > 0
             AND ts_finish > $start_time
+            ".($team ? "AND user_team = $team" : "")."
         GROUP BY user_id
         ORDER BY ".($weekly ? 'cnt' : 'rating')." DESC
     ");
@@ -260,13 +268,13 @@ function get_user_stats($weekly=false) {
         }
     }
 
-    foreach ($teams as $i => $team) {
-        if ($team['total'] == 0) {
+    foreach ($teams as $i => $v) {
+        if ($v['total'] == 0) {
             unset($teams[$i]);
             continue;
         }
-        if ($team['moderated'])
-            $teams[$i]['error_rate'] = 100 * (1 - $team['correct'] / $team['moderated']);
+        if ($v['moderated'])
+            $teams[$i]['error_rate'] = 100 * (1 - $v['correct'] / $v['moderated']);
         else
             $teams[$i]['error_rate'] = 0;
     }
@@ -302,7 +310,7 @@ function get_user_stats($weekly=false) {
         'teams' => $teams,
         'timestamp_today' => $timestamp_today,
         'timestamp_yesterday' => $timestamp_yesterday,
-        'added_sentences' => get_sentence_adders_stats($weekly)
+        'added_sentences' => get_sentence_adders_stats($weekly, $team)
     );
 }
 function get_extended_pools_stats() {

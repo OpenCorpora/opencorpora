@@ -66,7 +66,7 @@ $(document).ready(function(){
     {foreach $user_stats.teams as $i=>$team name=x}
         <tr>
             <td>{$team@iteration}</td>
-            <td>{$team.name}</td>
+            <td><a href="?page=stats&amp;team={$i}">{$team.name}</a></td>
             <td>{$team.active_users}/{$team.num_users}</td>
             <td>{$team.total}</td>
             {if !isset($smarty.get.weekly)}<td>{$team.moderated}</td>
