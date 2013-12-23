@@ -1,4 +1,6 @@
+p
 sent
+
 1	«	0 « PNCT
 2	Школа	380220 школа NOUN inan femn sing nomn
 3	злословия	115766 злословие NOUN inan neut sing gent
@@ -8,6 +10,7 @@ sent
 7	язык	387572 язык NOUN anim masc sing nomn	387573 язык NOUN inan masc sing nomn	387573 язык NOUN inan masc sing accs
 /sent
 sent
+
 8	Сохранится	330994 сохранился VERB perf intr sing 3per futr indc
 9	ли	148847 ли CONJ	148848 ли PRCL	148849 ли NOUN anim masc Sgtm Fixd Name sing nomn	148849 ли NOUN anim masc Sgtm Fixd Name sing gent	148849 ли NOUN anim masc Sgtm Fixd Name sing datv	148849 ли NOUN anim masc Sgtm Fixd Name sing accs	148849 ли NOUN anim masc Sgtm Fixd Name sing ablt	148849 ли NOUN anim masc Sgtm Fixd Name sing loct
 10	градус	74514 градус NOUN inan masc sing nomn	74514 градус NOUN inan masc sing accs
@@ -17,7 +20,10 @@ sent
 14	сезоне	317857 сезон NOUN inan masc sing loct
 15	?	0 ? PNCT
 /sent
+/p
+p
 sent
+
 16	Великолепная	40652 великолепный ADJF Qual femn sing nomn
 17	«	0 « PNCT
 18	Школа	380220 школа NOUN inan femn sing nomn
@@ -25,30 +31,31 @@ sent
 20	»	0 » PNCT
 21	вернулась	41483 вернулся VERB perf intr femn sing past indc
 22	в	37409 в PREP
-n23	эфир	386632 эфир NOUN inan masc sing nomn	386632 эфир NOUN inan masc sing accs
+23	эфир	386632 эфир NOUN inan masc sing nomn	386632 эфир NOUN inan masc sing accs
 24	после	261542 после PREP	261543 после ADVB	261868 посол NOUN anim masc sing loct
-n25	летних	148685 летний ADJF plur gent	148685 летний ADJF anim plur accs	148685 летний ADJF plur loct
-n26	каникул	129355 каникулы NOUN inan GNdr Pltm plur gent
+25	летних	148685 летний ADJF plur gent	148685 летний ADJF anim plur accs	148685 летний ADJF plur loct
+26	каникул	129355 каникулы NOUN inan GNdr Pltm plur gent
 27	в	37409 в PREP
-n28	новом	191611 новое NOUN inan neut sing loct	191918 новый ADJF Qual masc sing loct	191918 новый ADJF Qual neut sing loct
-n29	формате	367137 формат NOUN inan masc sing loct
+28	новом	191611 новое NOUN inan neut sing loct	191918 новый ADJF Qual masc sing loct	191918 новый ADJF Qual neut sing loct
+29	формате	367137 формат NOUN inan masc sing loct
 30	.	0 . PNCT
 /sent
 sent
 
 31	В	37409 в PREP
-n32	истории	126437 история NOUN inan femn sing gent	126437 история NOUN inan femn sing datv	126437 история NOUN inan femn sing loct
-nn33	программы	278686 программа NOUN inan femn sing gent
+32	истории	126437 история NOUN inan femn sing gent	126437 история NOUN inan femn sing datv	126437 история NOUN inan femn sing loct
+33	программы	278686 программа NOUN inan femn sing gent
 34	это	386574 это PRCL	386575 это NPRO neut sing nomn	386575 это NPRO neut sing accs	386581 этот ADJF Apro neut sing nomn	386581 этот ADJF Apro neut sing accs
 35	уже	355422 уж NOUN anim masc sing loct	355498 уже ADVB	355674 уже COMP Qual
 36	не	178876 не PRCL
 37	первый	226359 первый ADJF Anum masc sing nomn	226359 первый ADJF Anum inan masc sing accs
 38	«	0 « PNCT
-n39	ребрендинг	0 ребрендинг UNKN
+39	ребрендинг	0 ребрендинг UNKN
 40	»	0 » PNCT
 41	.	0 . PNCT
 /sent
 sent
+
 42	Сейчас	317975 сейчас ADVB
 43	с	311151 с PREP
 44	трудом	350729 труд NOUN inan masc sing ablt
@@ -57,28 +64,28 @@ sent
 47	,	0 , PNCT
 48	что	377004 что CONJ	377005 что NPRO neut sing nomn	377005 что NPRO neut sing accs	377006 что ADVB Ques
 49	начиналась	178347 начинаюсь VERB impf intr femn sing past indc
-n50	«	0 « PNCT
-n51	Школа	380220 школа NOUN inan femn sing nomn
-n52	…	0 … PNCT
-n53	»	0 » PNCT
+50	«	0 « PNCT
+51	Школа	380220 школа NOUN inan femn sing nomn
+52	…	0 … PNCT
+53	»	0 » PNCT
 54	на	166264 на PREP
-n55	канале	129205 канал NOUN inan masc sing loct
-n56	«	0 « PNCT
-n57	Культура	144838 культура NOUN inan femn sing nomn
-n58	»	0 » PNCT
+55	канале	129205 канал NOUN inan masc sing loct
+56	«	0 « PNCT
+57	Культура	144838 культура NOUN inan femn sing nomn
+58	»	0 » PNCT
 59	как	128190 как CONJ	128191 как PRCL	128192 как ADVB Ques
 60	стандартное	334613 стандартный ADJF Qual neut sing nomn	334613 стандартный ADJF Qual neut sing accs
-n61	ток-шоу	0 ток-шоу UNKN
+61	ток-шоу	0 ток-шоу UNKN
 62	,	0 , PNCT
-n63	которое	141203 который ADJF Apro neut sing nomn	141203 который ADJF Apro neut sing accs
+63	которое	141203 который ADJF Apro neut sing nomn	141203 который ADJF Apro neut sing accs
 64	отличалось	215151 отличаюсь VERB impf intr neut sing past indc
 65	от	211644 от PREP
-n66	других	92342 другой ADJF Apro plur gent	92342 другой ADJF Apro anim plur accs	92342 другой ADJF Apro plur loct
-n67	«	0 « PNCT
-n68	кухонными	145819 кухонный ADJF Qual plur ablt
-n69	»	0 » PNCT
-n70	обсуждениями	200180 обсуждение NOUN inan neut plur ablt
-n71	гостя	74145 гость NOUN anim masc sing gent	74145 гость NOUN anim masc sing accs
+66	других	92342 другой ADJF Apro plur gent	92342 другой ADJF Apro anim plur accs	92342 другой ADJF Apro plur loct
+67	«	0 « PNCT
+68	кухонными	145819 кухонный ADJF Qual plur ablt
+69	»	0 » PNCT
+70	обсуждениями	200180 обсуждение NOUN inan neut plur ablt
+71	гостя	74145 гость NOUN anim masc sing gent	74145 гость NOUN anim masc sing accs
 72	,	0 , PNCT
 73	что	377004 что CONJ	377005 что NPRO neut sing nomn	377005 что NPRO neut sing accs	377006 что ADVB Ques
 74	называется	170480 называюсь VERB impf intr sing 3per pres indc
@@ -89,22 +96,24 @@ n71	гостя	74145 гость NOUN anim masc sing gent	74145 гость NOUN a
 79	»	0 » PNCT
 80	,	0 , PNCT
 81	и	116949 и CONJ
-n82	неожиданными	184966 неожиданный ADJF Qual plur ablt
-n83	персонами	237444 персона NOUN anim femn plur ablt
+82	неожиданными	184966 неожиданный ADJF Qual plur ablt
+83	персонами	237444 персона NOUN anim femn plur ablt
 84	в	37409 в PREP
 85	качестве	131638 качество NOUN inan neut sing loct
-n86	ведущих	40370 ведущий ADJF Subx plur gent	40370 ведущий ADJF Subx anim plur accs	40370 ведущий ADJF Subx plur loct	42112 ведущий PRTF Subx impf tran pres actv plur gent	42112 ведущий PRTF Subx impf tran pres actv anim plur accs	42112 ведущий PRTF Subx impf tran pres actv plur loct
+86	ведущих	40370 ведущий ADJF Subx plur gent	40370 ведущий ADJF Subx anim plur accs	40370 ведущий ADJF Subx plur loct	42112 ведущий PRTF Subx impf tran pres actv plur gent	42112 ведущий PRTF Subx impf tran pres actv anim plur accs	42112 ведущий PRTF Subx impf tran pres actv plur loct
 87	.	0 . PNCT
 /sent
+/p
+p
 sent
 
-n88	Писательница	239098 писательница NOUN anim femn sing nomn
-n89	Татьяна	343513 татьяна NOUN anim femn Name sing nomn
-n90	Толстая	347280 толстая NOUN anim femn Sgtm Surn sing nomn	347362 толстый ADJF Qual femn sing nomn
+88	Писательница	239098 писательница NOUN anim femn sing nomn
+89	Татьяна	343513 татьяна NOUN anim femn Name sing nomn
+90	Толстая	347280 толстая NOUN anim femn Sgtm Surn sing nomn	347362 толстый ADJF Qual femn sing nomn
 91	и	116949 и CONJ	116950 и INTJ
-n92	сценаристка	341044 сценаристка NOUN anim femn sing nomn
-n93	Дуня	93069 дуня NOUN anim femn Name sing nomn
-n94	Смирнова	326440 смирнов NOUN anim masc Sgtm Surn sing gent	326440 смирнов NOUN anim masc Sgtm Surn sing accs	326441 смирнова NOUN anim femn Sgtm Surn sing nomn
+92	сценаристка	341044 сценаристка NOUN anim femn sing nomn
+93	Дуня	93069 дуня NOUN anim femn Name sing nomn
+94	Смирнова	326440 смирнов NOUN anim masc Sgtm Surn sing gent	326440 смирнов NOUN anim masc Sgtm Surn sing accs	326441 смирнова NOUN anim femn Sgtm Surn sing nomn
 95	вроде	53158 вроде PREP	53159 вроде PRCL
 96	бы	36985 бы PRCL
 97	не	178876 не PRCL
@@ -112,30 +121,32 @@ n94	Смирнова	326440 смирнов NOUN anim masc Sgtm Surn sing gent	32
 99	соответствовали	329624 соответствую VERB impf intr plur past indc
 100	принятым	272698 принятый ADJF masc sing ablt	272698 принятый ADJF neut sing ablt	272698 принятый ADJF plur datv	272703 принятый PRTF perf tran past pssv masc sing ablt	272703 принятый PRTF perf tran past pssv neut sing ablt	272703 принятый PRTF perf tran past pssv plur datv
 101	на	166264 на PREP
-n102	российском	309319 российский ADJF masc sing loct	309319 российский ADJF neut sing loct
-n103	телевидении	344095 телевидение NOUN inan neut sing loct
-n104	стандартам	334571 стандарт NOUN inan masc plur datv
-n105	телеведущих	344091 телеведущая NOUN anim femn plur gent	344091 телеведущая NOUN anim femn plur accs	344091 телеведущая NOUN anim femn plur loct	344092 телеведущий NOUN anim masc plur gent	344092 телеведущий NOUN anim masc plur accs	344092 телеведущий NOUN anim masc plur loct
+102	российском	309319 российский ADJF masc sing loct	309319 российский ADJF neut sing loct
+103	телевидении	344095 телевидение NOUN inan neut sing loct
+104	стандартам	334571 стандарт NOUN inan masc plur datv
+105	телеведущих	344091 телеведущая NOUN anim femn plur gent	344091 телеведущая NOUN anim femn plur accs	344091 телеведущая NOUN anim femn plur loct	344092 телеведущий NOUN anim masc plur gent	344092 телеведущий NOUN anim masc plur accs	344092 телеведущий NOUN anim masc plur loct
 106	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 107	Впрочем	52738 впрочем CONJ
 108	,	0 , PNCT
 109	на	166264 на PREP
-n110	канале	129205 канал NOUN inan masc sing loct
-n111	«	0 « PNCT
-n112	Культура	144838 культура NOUN inan femn sing nomn
-n113	»	0 » PNCT
+110	канале	129205 канал NOUN inan masc sing loct
+111	«	0 « PNCT
+112	Культура	144838 культура NOUN inan femn sing nomn
+113	»	0 » PNCT
 114	в	37409 в PREP
-n115	роли	308800 роль NOUN inan femn sing gent	308800 роль NOUN inan femn sing datv	308800 роль NOUN inan femn sing loct	308813 роля NOUN inan femn sing gent
-n116	телеведущих	344091 телеведущая NOUN anim femn plur gent	344091 телеведущая NOUN anim femn plur accs	344091 телеведущая NOUN anim femn plur loct	344092 телеведущий NOUN anim masc plur gent	344092 телеведущий NOUN anim masc plur accs	344092 телеведущий NOUN anim masc plur loct
+115	роли	308800 роль NOUN inan femn sing gent	308800 роль NOUN inan femn sing datv	308800 роль NOUN inan femn sing loct	308813 роля NOUN inan femn sing gent
+116	телеведущих	344091 телеведущая NOUN anim femn plur gent	344091 телеведущая NOUN anim femn plur accs	344091 телеведущая NOUN anim femn plur loct	344092 телеведущий NOUN anim masc plur gent	344092 телеведущий NOUN anim masc plur accs	344092 телеведущий NOUN anim masc plur loct
 117	выступают	62880 выступаю VERB impf intr plur 3per pres indc
 118	и	116949 и CONJ	116950 и INTJ
-n119	писатели	239097 писатель NOUN anim masc plur nomn
+119	писатели	239097 писатель NOUN anim masc plur nomn
 120	,	0 , PNCT
 121	и	116949 и CONJ	116950 и INTJ
-n122	композиторы	137299 композитор NOUN anim masc plur nomn
+122	композиторы	137299 композитор NOUN anim masc plur nomn
 123	,	0 , PNCT
 124	так	342451 так CONJ	342452 так PRCL	342453 так ADVB Dmns
 125	что	377004 что CONJ	377005 что NPRO neut sing nomn	377005 что NPRO neut sing accs	377006 что ADVB Ques
@@ -147,38 +158,40 @@ n122	композиторы	137299 композитор NOUN anim masc plur nomn
 131	было	37044 было PRCL	37265 есть VERB impf intr neut sing past indc
 132	,	0 , PNCT
 133	а	51 а CONJ	52 а INTJ	53 а PRCL
-n134	идея	117499 идея NOUN inan femn sing nomn
-n135	кухонных	145819 кухонный ADJF Qual plur gent	145819 кухонный ADJF Qual anim plur accs	145819 кухонный ADJF Qual plur loct
-n136	обсуждений	200180 обсуждение NOUN inan neut plur gent
+134	идея	117499 идея NOUN inan femn sing nomn
+135	кухонных	145819 кухонный ADJF Qual plur gent	145819 кухонный ADJF Qual anim plur accs	145819 кухонный ADJF Qual plur loct
+136	обсуждений	200180 обсуждение NOUN inan neut plur gent
 137	не	178876 не PRCL
 138	слишком	325109 слишком ADVB
 139	прижилась	270503 прижился VERB perf intr femn sing past indc
 140	,	0 , PNCT
 141	и	116949 и CONJ	116950 и INTJ
-n142	некоторые	183541 некоторые NPRO plur nomn	183541 некоторые NPRO inan plur accs	183542 некоторый ADJF Apro plur nomn	183542 некоторый ADJF Apro inan plur accs
-n143	выпуски	60996 выпуск NOUN inan masc plur nomn
-n144	программы	278686 программа NOUN inan femn sing gent
+142	некоторые	183541 некоторые NPRO plur nomn	183541 некоторые NPRO inan plur accs	183542 некоторый ADJF Apro plur nomn	183542 некоторый ADJF Apro inan plur accs
+143	выпуски	60996 выпуск NOUN inan masc plur nomn
+144	программы	278686 программа NOUN inan femn sing gent
 145	обходились	201028 обхожусь VERB impf intr plur past indc
 146	практически	265904 практически ADVB
 147	без	25481 без PREP
-n148	них	206619 они NPRO 3per plur gent Af-p	206619 они NPRO 3per plur accs Af-p	206619 они NPRO 3per plur loct Af-p
+148	них	206619 они NPRO 3per plur gent Af-p	206619 они NPRO 3per plur accs Af-p	206619 они NPRO 3per plur loct Af-p
 149	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 150	В	37409 в PREP
 151	остальном	210836 остальной ADJF Apro masc sing loct	210836 остальной ADJF Apro neut sing loct
-n152	«	0 « PNCT
-n153	Школа	380220 школа NOUN inan femn sing nomn
-n154	злословия	115766 злословие NOUN inan neut sing gent
-n155	»	0 » PNCT
+152	«	0 « PNCT
+153	Школа	380220 школа NOUN inan femn sing nomn
+154	злословия	115766 злословие NOUN inan neut sing gent
+155	»	0 » PNCT
 156	представляла	267112 представляю VERB impf tran femn sing past indc
 157	собой	317456 себя NPRO sing ablt
-n158	интервью	123140 интервью NOUN inan neut Fixd sing nomn	123140 интервью NOUN inan neut Fixd sing gent	123140 интервью NOUN inan neut Fixd sing datv	123140 интервью NOUN inan neut Fixd sing accs	123140 интервью NOUN inan neut Fixd sing ablt	123140 интервью NOUN inan neut Fixd sing loct
-n159	ведущих	40370 ведущий ADJF Subx plur gent	40370 ведущий ADJF Subx anim plur accs	40370 ведущий ADJF Subx plur loct	42112 ведущий PRTF Subx impf tran pres actv plur gent	42112 ведущий PRTF Subx impf tran pres actv anim plur accs	42112 ведущий PRTF Subx impf tran pres actv plur loct
+158	интервью	123140 интервью NOUN inan neut Fixd sing nomn	123140 интервью NOUN inan neut Fixd sing gent	123140 интервью NOUN inan neut Fixd sing datv	123140 интервью NOUN inan neut Fixd sing accs	123140 интервью NOUN inan neut Fixd sing ablt	123140 интервью NOUN inan neut Fixd sing loct
+159	ведущих	40370 ведущий ADJF Subx plur gent	40370 ведущий ADJF Subx anim plur accs	40370 ведущий ADJF Subx plur loct	42112 ведущий PRTF Subx impf tran pres actv plur gent	42112 ведущий PRTF Subx impf tran pres actv anim plur accs	42112 ведущий PRTF Subx impf tran pres actv plur loct
 160	с	311151 с PREP
-n161	героем	69212 герой NOUN anim masc sing ablt
-n162	выпуска	60996 выпуск NOUN inan masc sing gent
+161	героем	69212 герой NOUN anim masc sing ablt
+162	выпуска	60996 выпуск NOUN inan masc sing gent
 163	.	0 . PNCT
 /sent
 sent
@@ -190,81 +203,83 @@ sent
 168	деле	80628 дело NOUN inan neut sing loct
 169	не	178876 не PRCL
 170	без	25481 без PREP
-n171	злословия	115766 злословие NOUN inan neut sing gent
+171	злословия	115766 злословие NOUN inan neut sing gent
 172	,	0 , PNCT
 173	а	51 а CONJ	52 а INTJ	53 а PRCL
 174	по	241240 по PREP
 175	большей	32439 больший ADJF femn sing gent	32439 больший ADJF femn sing datv	32439 больший ADJF femn sing ablt	32439 больший ADJF femn sing loct
 176	части	374820 часть NOUN inan femn sing gent	374820 часть NOUN inan femn sing datv	374820 часть NOUN inan femn sing loct	374820 часть NOUN inan femn plur nomn	374820 часть NOUN inan femn plur accs
 177	–	0 – PNCT
-n178	разговор	293018 разговор NOUN inan masc sing nomn	293018 разговор NOUN inan masc sing accs
-n179	«	0 « PNCT
-n180	с	311151 с PREP
-n181	придыханиями	270322 придыхание NOUN inan neut plur ablt
-n182	»	0 » PNCT
+178	разговор	293018 разговор NOUN inan masc sing nomn	293018 разговор NOUN inan masc sing accs
+179	«	0 « PNCT
+180	с	311151 с PREP
+181	придыханиями	270322 придыхание NOUN inan neut plur ablt
+182	»	0 » PNCT
 183	,	0 , PNCT
 184	например	174036 например CONJ Prnt
 185	в	37409 в PREP
-n186	программах	278686 программа NOUN inan femn plur loct
-n187	с	311151 с PREP
-n188	участием	363132 участие NOUN inan neut sing ablt
-nn189	Бориса	32732 борис NOUN anim masc Name sing gent
-nn190	Бермана	28004 берман NOUN anim masc Sgtm Surn sing gent
-n191	и	116949 и CONJ	116950 и INTJ
-nn192	Ильдара	121366 ильдар NOUN anim masc Name sing gent
-nn193	Жандарева	95919 жандарев NOUN anim masc Sgtm Surn sing gent	95919 жандарев NOUN anim masc Sgtm Surn sing accs	95920 жандарева NOUN anim femn Sgtm Surn sing nomn
+186	программах	278686 программа NOUN inan femn plur loct
+187	с	311151 с PREP
+188	участием	363132 участие NOUN inan neut sing ablt
+189	Бориса	32732 борис NOUN anim masc Name sing gent
+190	Бермана	28004 берман NOUN anim masc Sgtm Surn sing gent
+191	и	116949 и CONJ	116950 и INTJ
+192	Ильдара	121366 ильдар NOUN anim masc Name sing gent
+193	Жандарева	95919 жандарев NOUN anim masc Sgtm Surn sing gent	95919 жандарев NOUN anim masc Sgtm Surn sing accs	95920 жандарева NOUN anim femn Sgtm Surn sing nomn
 194	,	0 , PNCT
 195	с	311151 с PREP
-n196	которыми	141203 который ADJF Apro plur ablt
+196	которыми	141203 который ADJF Apro plur ablt
 197	чем	375161 чем CONJ	377005 что NPRO neut sing ablt	377005 что NPRO neut sing loct
 198	дальше	77926 дальше COMP Qual
 199	,	0 , PNCT
 200	тем	344449 тем CONJ	344450 тема NOUN inan femn plur gent	348430 тот ADJF Apro masc sing ablt	348430 тот ADJF Apro neut sing ablt	348430 тот ADJF Apro plur datv	352311 тьма NOUN inan femn plur gent
 201	больше	32325 больше ADVB	32440 больше ADJS neut sing	32447 больше COMP Qual
 202	«	0 « PNCT
-n203	родства	308420 родство NOUN inan neut Sgtm sing gent
+203	родства	308420 родство NOUN inan neut Sgtm sing gent
 204	»	0 » PNCT
 205	наблюдалось	166539 наблюдаюсь VERB impf intr neut sing past indc
 206	у	352818 у PREP	352819 у INTJ
-n207	ведущих	40370 ведущий ADJF Subx plur gent	40370 ведущий ADJF Subx anim plur accs	40370 ведущий ADJF Subx plur loct	42112 ведущий PRTF Subx impf tran pres actv plur gent	42112 ведущий PRTF Subx impf tran pres actv anim plur accs	42112 ведущий PRTF Subx impf tran pres actv plur loct
-nn208	«	0 « PNCT
-nn209	Школы	380220 школа NOUN inan femn sing gent
-nn210	…	0 … PNCT
-nn211	»	0 » PNCT
+207	ведущих	40370 ведущий ADJF Subx plur gent	40370 ведущий ADJF Subx anim plur accs	40370 ведущий ADJF Subx plur loct	42112 ведущий PRTF Subx impf tran pres actv plur gent	42112 ведущий PRTF Subx impf tran pres actv anim plur accs	42112 ведущий PRTF Subx impf tran pres actv plur loct
+208	«	0 « PNCT
+209	Школы	380220 школа NOUN inan femn sing gent
+210	…	0 … PNCT
+211	»	0 » PNCT
 212	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 213	Потом	262867 пот NOUN inan masc sing ablt	263319 потом ADVB
-n214	проект	279545 проект NOUN inan masc sing nomn	279545 проект NOUN inan masc sing accs
+214	проект	279545 проект NOUN inan masc sing nomn	279545 проект NOUN inan masc sing accs
 215	переехал	228592 переехал VERB perf tran masc sing past indc
 216	с	311151 с PREP
-n217	«	0 « PNCT
-n218	Культуры	144838 культура NOUN inan femn sing gent
-n219	»	0 » PNCT
+217	«	0 « PNCT
+218	Культуры	144838 культура NOUN inan femn sing gent
+219	»	0 » PNCT
 220	на	166264 на PREP
-n221	НТВ	192522 нтв NOUN inan neut Sgtm Fixd Orgn sing nomn	192522 нтв NOUN inan neut Sgtm Fixd Orgn sing gent	192522 нтв NOUN inan neut Sgtm Fixd Orgn sing datv	192522 нтв NOUN inan neut Sgtm Fixd Orgn sing accs	192522 нтв NOUN inan neut Sgtm Fixd Orgn sing ablt	192522 нтв NOUN inan neut Sgtm Fixd Orgn sing loct
+221	НТВ	192522 нтв NOUN inan neut Sgtm Fixd Orgn sing nomn	192522 нтв NOUN inan neut Sgtm Fixd Orgn sing gent	192522 нтв NOUN inan neut Sgtm Fixd Orgn sing datv	192522 нтв NOUN inan neut Sgtm Fixd Orgn sing accs	192522 нтв NOUN inan neut Sgtm Fixd Orgn sing ablt	192522 нтв NOUN inan neut Sgtm Fixd Orgn sing loct
 222	.	0 . PNCT
 /sent
 sent
 
-n223	Это	386574 это PRCL	386575 это NPRO neut sing nomn	386575 это NPRO neut sing accs	386581 этот ADJF Apro neut sing nomn	386581 этот ADJF Apro neut sing accs
+223	Это	386574 это PRCL	386575 это NPRO neut sing nomn	386575 это NPRO neut sing accs	386581 этот ADJF Apro neut sing nomn	386581 этот ADJF Apro neut sing accs
 224	помимо	257727 помимо PREP
 225	явных	387393 явный ADJF Qual plur gent	387393 явный ADJF Qual anim plur accs	387393 явный ADJF Qual plur loct
-n226	перемен	231082 перемена NOUN inan femn plur gent
+226	перемен	231082 перемена NOUN inan femn plur gent
 227	в	37409 в PREP
 228	виде	44437 вид NOUN inan masc sing loc1
 229	тут	351922 тут NOUN inan masc sing nomn	351922 тут NOUN inan masc sing accs	351923 тут ADVB Dmns	351925 тута NOUN inan femn plur gent
 230	же	96208 же CONJ	96209 же PRCL
 231	появившихся	265509 появившийся PRTF perf intr past actv plur gent	265509 появившийся PRTF perf intr past actv anim plur accs	265509 появившийся PRTF perf intr past actv plur loct
-n232	рекламных	305693 рекламный ADJF Qual plur gent	305693 рекламный ADJF Qual anim plur accs	305693 рекламный ADJF Qual plur loct
-n233	блоков	30975 блок NOUN inan masc plur gent
+232	рекламных	305693 рекламный ADJF Qual plur gent	305693 рекламный ADJF Qual anim plur accs	305693 рекламный ADJF Qual plur loct
+233	блоков	30975 блок NOUN inan masc plur gent
 234	,	0 , PNCT
 235	отсутствовавших	218696 отсутствовавший PRTF impf intr past actv plur gent	218696 отсутствовавший PRTF impf intr past actv anim plur accs	218696 отсутствовавший PRTF impf intr past actv plur loct
 236	на	166264 на PREP
-n237	«	0 « PNCT
-n238	Культуре	144838 культура NOUN inan femn sing datv	144838 культура NOUN inan femn sing loct
-n239	»	0 » PNCT
+237	«	0 « PNCT
+238	Культуре	144838 культура NOUN inan femn sing datv	144838 культура NOUN inan femn sing loct
+239	»	0 » PNCT
 240	,	0 , PNCT
 241	позволило	253425 позволил VERB perf tran neut sing past indc
 242	,	0 , PNCT
@@ -273,23 +288,25 @@ n239	»	0 » PNCT
 245	стороны	336894 сторона NOUN inan femn sing gent
 246	,	0 , PNCT
 247	расширить	303641 расширить INFN perf tran
-n248	круг	143467 круг NOUN inan masc sing nomn	143467 круг NOUN inan masc sing accs
-n249	гостей	74145 гость NOUN anim masc plur gent	74145 гость NOUN anim masc plur accs
+248	круг	143467 круг NOUN inan masc sing nomn	143467 круг NOUN inan masc sing accs
+249	гостей	74145 гость NOUN anim masc plur gent	74145 гость NOUN anim masc plur accs
 250	,	0 , PNCT
 251	с	311151 с PREP
 252	другой	92342 другой ADJF Apro femn sing gent	92342 другой ADJF Apro femn sing datv	92342 другой ADJF Apro femn sing ablt	92342 другой ADJF Apro femn sing loct
 253	–	0 – PNCT
 254	изменить	119489 изменить INFN perf tran	119495 изменить INFN perf intr
-n255	тон	347554 тон NOUN inan masc sing nomn	347554 тон NOUN inan masc sing accs
-nn256	разговора	293018 разговор NOUN inan masc sing gent
+255	тон	347554 тон NOUN inan masc sing nomn	347554 тон NOUN inan masc sing accs
+256	разговора	293018 разговор NOUN inan masc sing gent
 257	.	0 . PNCT
 /sent
+/p
+p
 sent
 
-n258	Набор	166595 набор NOUN inan masc sing nomn	166595 набор NOUN inan masc sing accs
-nn259	героев	69212 герой NOUN anim masc plur gent	69212 герой NOUN anim masc plur accs
-nnn260	программы	278686 программа NOUN inan femn sing gent
-261n	расширился	303646 расширился VERB perf intr masc sing past indc
+258	Набор	166595 набор NOUN inan masc sing nomn	166595 набор NOUN inan masc sing accs
+259	героев	69212 герой NOUN anim masc plur gent	69212 герой NOUN anim masc plur accs
+260	программы	278686 программа NOUN inan femn sing gent
+261	расширился	303646 расширился VERB perf intr masc sing past indc
 262	самым	313174 самый ADJF Apro masc sing ablt	313174 самый ADJF Apro neut sing ablt	313174 самый ADJF Apro plur datv
 263	причудливым	276615 причудливый ADJF Qual masc sing ablt	276615 причудливый ADJF Qual neut sing ablt	276615 причудливый ADJF Qual plur datv
 264	образом	198787 образ NOUN inan masc sing ablt
@@ -297,7 +314,7 @@ nnn260	программы	278686 программа NOUN inan femn sing gent
 266	да	77569 да CONJ	77570 да PRCL	77571 да INTJ
 267	и	116949 и CONJ	116950 и INTJ
 268	«	0 « PNCT
-n269	злословия	115766 злословие NOUN inan neut sing gent
+269	злословия	115766 злословие NOUN inan neut sing gent
 270	»	0 » PNCT
 271	стало	335164 стал VERB perf intr neut sing past indc
 272	меньше	153697 меньше COMP Qual	153763 мало ADVB
@@ -309,11 +326,11 @@ sent
 275	года	72149 год NOUN inan masc sing gent
 276	два	78668 два NUMR masc nomn	78668 два NUMR inan masc accs	78668 два NUMR neut nomn	78668 два NUMR neut accs
 277	назад	170252 назад ADVB
-n278	концепцию	138952 концепция NOUN inan femn sing accs
-nn279	«	0 « PNCT
-nn280	Школы	380220 школа NOUN inan femn sing gent
-nn281	злословия	115766 злословие NOUN inan neut sing gent
-nn282	»	0 » PNCT
+278	концепцию	138952 концепция NOUN inan femn sing accs
+279	«	0 « PNCT
+280	Школы	380220 школа NOUN inan femn sing gent
+281	злословия	115766 злословие NOUN inan neut sing gent
+282	»	0 » PNCT
 283	как	128190 как CONJ	128191 как PRCL	128192 как ADVB Ques
 284	будто	35148 будто CONJ	35149 будто PRCL
 285	подменили	247559 подменил VERB perf tran plur past indc
@@ -322,32 +339,32 @@ nn282	»	0 » PNCT
 sent
 
 287	В	37409 в PREP
-n288	студию	338240 студия NOUN inan femn sing accs
+288	студию	338240 студия NOUN inan femn sing accs
 289	все	42156 весь ADJF Apro neut sing nomn	42156 весь ADJF Apro neut sing accs	42156 весь ADJF Apro plur nomn	42156 весь ADJF Apro inan plur accs	53309 всё ADVB
 290	чаще	374819 чаще COMP Qual	374872 чаща NOUN inan femn sing datv	374872 чаща NOUN inan femn sing loct
 291	стали	335164 стал VERB perf intr plur past indc
 292	приходить	276250 приходить INFN impf intr
-n293	малоизвестные	153934 малоизвестный ADJF plur nomn	153934 малоизвестный ADJF inan plur accs
-n294	широкой	379815 широкий ADJF Qual femn sing gent	379815 широкий ADJF Qual femn sing datv	379815 широкий ADJF Qual femn sing ablt	379815 широкий ADJF Qual femn sing loct
-n295	публике	288823 публика NOUN inan femn sing datv	288823 публика NOUN inan femn sing loct
-n296	люди	375073 человек NOUN anim masc plur nomn
+293	малоизвестные	153934 малоизвестный ADJF plur nomn	153934 малоизвестный ADJF inan plur accs
+294	широкой	379815 широкий ADJF Qual femn sing gent	379815 широкий ADJF Qual femn sing datv	379815 широкий ADJF Qual femn sing ablt	379815 широкий ADJF Qual femn sing loct
+295	публике	288823 публика NOUN inan femn sing datv	288823 публика NOUN inan femn sing loct
+296	люди	375073 человек NOUN anim masc plur nomn
 297	–	0 – PNCT
 298	как	128190 как CONJ	128191 как PRCL	128192 как ADVB Ques
 299	говорится	72062 говорюсь VERB impf intr sing 3per pres indc
 300	,	0 , PNCT
-n301	«	0 « PNCT
-n302	немедийные	0 немедийные UNKN
-n303	лица	150189 лицо NOUN anim neut plur nomn	150190 лицо NOUN inan neut plur nomn	150190 лицо NOUN inan neut plur accs
-n304	»	0 » PNCT
+301	«	0 « PNCT
+302	немедийные	0 немедийные UNKN
+303	лица	150189 лицо NOUN anim neut plur nomn	150190 лицо NOUN inan neut plur nomn	150190 лицо NOUN inan neut plur accs
+304	»	0 » PNCT
 305	:	0 : PNCT
-n306	популярные	259762 популярный ADJF Qual plur nomn	259762 популярный ADJF Qual inan plur accs
-n307	блогеры	388654 блогер NOUN anim masc plur nomn
+306	популярные	259762 популярный ADJF Qual plur nomn	259762 популярный ADJF Qual inan plur accs
+307	блогеры	388654 блогер NOUN anim masc plur nomn
 308	,	0 , PNCT
-n309	ученые	363100 учёный NOUN anim masc plur nomn	363101 учёный ADJF Qual plur nomn	363101 учёный ADJF Qual inan plur accs
-n310	-	0 - PNCT
-n311	гуманитарии	76864 гуманитарий NOUN anim masc plur nomn
+309	ученые	363100 учёный NOUN anim masc plur nomn	363101 учёный ADJF Qual plur nomn	363101 учёный ADJF Qual inan plur accs
+310	-	0 - PNCT
+311	гуманитарии	76864 гуманитарий NOUN anim masc plur nomn
 312	,	0 , PNCT
-n313	кое-кто	135370 кое-кто NPRO masc sing nomn
+313	кое-кто	135370 кое-кто NPRO masc sing nomn
 314	заглядывал	100582 заглядываю VERB impf intr masc sing past indc
 315	на	166264 на PREP
 316	огонек	202755 огонёк NOUN inan masc sing nomn	202755 огонёк NOUN inan masc sing accs
@@ -356,6 +373,8 @@ n313	кое-кто	135370 кое-кто NPRO masc sing nomn
 319	дружбе	92343 дружба NOUN inan femn sing datv	92343 дружба NOUN inan femn sing loct
 320	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 321	Но	191429 но CONJ	191430 но INTJ
@@ -364,8 +383,8 @@ sent
 324	,	0 , PNCT
 325	резко	305327 резок ADJS Qual neut sing	305329 резко ADVB
 326	сместился	326200 сместился VERB perf intr masc sing past indc
-n327	вектор	40519 вектор NOUN inan masc sing nomn	40519 вектор NOUN inan masc sing accs
-nn328	разговора	293018 разговор NOUN inan masc sing gent
+327	вектор	40519 вектор NOUN inan masc sing nomn	40519 вектор NOUN inan masc sing accs
+328	разговора	293018 разговор NOUN inan masc sing gent
 329	.	0 . PNCT
 /sent
 sent
@@ -374,48 +393,48 @@ sent
 331	нацеленный	178047 нацеленный PRTF perf tran past pssv masc sing nomn	178047 нацеленный PRTF perf tran past pssv inan masc sing accs
 332	собственно	327830 собственно ADVB	327831 собственно PRCL	327832 собственно CONJ Prnt	327841 собствен ADJS neut sing
 333	на	166264 на PREP
-n334	личность	150210 личность NOUN inan femn sing nomn	150210 личность NOUN inan femn sing accs
-nn335	гостя	74145 гость NOUN anim masc sing gent	74145 гость NOUN anim masc sing accs
+334	личность	150210 личность NOUN inan femn sing nomn	150210 личность NOUN inan femn sing accs
+335	гостя	74145 гость NOUN anim masc sing gent	74145 гость NOUN anim masc sing accs
 336	,	0 , PNCT
 337	теперь	344864 теперь ADVB
-n338	интерес	123163 интерес NOUN inan masc sing nomn	123163 интерес NOUN inan masc sing accs
-nn339	ведущих	40370 ведущий ADJF Subx plur gent	40370 ведущий ADJF Subx anim plur accs	40370 ведущий ADJF Subx plur loct	42112 ведущий PRTF Subx impf tran pres actv plur gent	42112 ведущий PRTF Subx impf tran pres actv anim plur accs	42112 ведущий PRTF Subx impf tran pres actv plur loct
+338	интерес	123163 интерес NOUN inan masc sing nomn	123163 интерес NOUN inan masc sing accs
+339	ведущих	40370 ведущий ADJF Subx plur gent	40370 ведущий ADJF Subx anim plur accs	40370 ведущий ADJF Subx plur loct	42112 ведущий PRTF Subx impf tran pres actv plur gent	42112 ведущий PRTF Subx impf tran pres actv anim plur accs	42112 ведущий PRTF Subx impf tran pres actv plur loct
 340	расширился	303646 расширился VERB perf intr masc sing past indc
 341	до	85153 до PREP
 342	самых	313174 самый ADJF Apro plur gent	313174 самый ADJF Apro anim plur accs	313174 самый ADJF Apro plur loct
 343	общих	201663 общий ADJF plur gent	201663 общий ADJF anim plur accs	201663 общий ADJF plur loct
-n344	вопросов	50830 вопрос NOUN inan masc plur gent
-n345	социально-исторического	0 социально-исторического UNKN
+344	вопросов	50830 вопрос NOUN inan masc plur gent
+345	социально-исторического	0 социально-исторического UNKN
 346	,	0 , PNCT
 347	а	51 а CONJ	52 а INTJ	53 а PRCL
 348	то	346835 то CONJ	346836 то PRCL	348430 тот ADJF Apro neut sing nomn	348430 тот ADJF Apro neut sing accs
-n349	и	116949 и CONJ	116950 и INTJ
-n350	чисто	376618 чисто ADVB	376680 чист ADJS Qual neut sing
-n351	философского	365982 философский ADJF masc sing gent	365982 философский ADJF anim masc sing accs	365982 философский ADJF neut sing gent
-n352	характера	369409 характер NOUN inan masc sing gent
+349	и	116949 и CONJ	116950 и INTJ
+350	чисто	376618 чисто ADVB	376680 чист ADJS Qual neut sing
+351	философского	365982 философский ADJF masc sing gent	365982 философский ADJF anim masc sing accs	365982 философский ADJF neut sing gent
+352	характера	369409 характер NOUN inan masc sing gent
 353	.	0 . PNCT
 /sent
 sent
 
 354	В	37409 в PREP
-n355	момент	163050 момент NOUN inan masc sing nomn	163050 момент NOUN inan masc sing accs
+355	момент	163050 момент NOUN inan masc sing nomn	163050 момент NOUN inan masc sing accs
 356	,	0 , PNCT
 357	когда	135239 когда CONJ	135240 когда ADVB Ques
-n358	все	42156 весь ADJF Apro neut sing nomn	42156 весь ADJF Apro neut sing accs	42156 весь ADJF Apro plur nomn	42156 весь ADJF Apro inan plur accs	53309 всё ADVB
-n359	остальные	210836 остальной ADJF Apro plur nomn	210836 остальной ADJF Apro inan plur accs
-n360	программы	278686 программа NOUN inan femn plur nomn	278686 программа NOUN inan femn plur accs
-n361	общественно-политической	201609 общественно-политический ADJF femn sing gent	201609 общественно-политический ADJF femn sing datv	201609 общественно-политический ADJF femn sing ablt	201609 общественно-политический ADJF femn sing loct
-n362	(	0 ( PNCT
-n363	по	241240 по PREP
-n364	характеру	369409 характер NOUN inan masc sing datv
-n365	)	0 ) PNCT
-n366	и	116949 и CONJ	116950 и INTJ
-n367	либерально-интеллигентской	0 либерально-интеллигентской UNKN
-n368	направленности	173964 направленность NOUN inan femn sing gent	173964 направленность NOUN inan femn sing datv	173964 направленность NOUN inan femn sing loct
-n369	(	0 ( PNCT
-n370	по	241240 по PREP
-n371	настрою	176278 настрой NOUN inan masc sing datv
-n372	)	0 ) PNCT
+358	все	42156 весь ADJF Apro neut sing nomn	42156 весь ADJF Apro neut sing accs	42156 весь ADJF Apro plur nomn	42156 весь ADJF Apro inan plur accs	53309 всё ADVB
+359	остальные	210836 остальной ADJF Apro plur nomn	210836 остальной ADJF Apro inan plur accs
+360	программы	278686 программа NOUN inan femn plur nomn	278686 программа NOUN inan femn plur accs
+361	общественно-политической	201609 общественно-политический ADJF femn sing gent	201609 общественно-политический ADJF femn sing datv	201609 общественно-политический ADJF femn sing ablt	201609 общественно-политический ADJF femn sing loct
+362	(	0 ( PNCT
+363	по	241240 по PREP
+364	характеру	369409 характер NOUN inan masc sing datv
+365	)	0 ) PNCT
+366	и	116949 и CONJ	116950 и INTJ
+367	либерально-интеллигентской	0 либерально-интеллигентской UNKN
+368	направленности	173964 направленность NOUN inan femn sing gent	173964 направленность NOUN inan femn sing datv	173964 направленность NOUN inan femn sing loct
+369	(	0 ( PNCT
+370	по	241240 по PREP
+371	настрою	176278 настрой NOUN inan masc sing datv
+372	)	0 ) PNCT
 373	ушли	355910 ушёл VERB perf intr plur past indc	360522 услал VERB perf tran sing impr excl
 374	одна	203319 один ADJF Apro femn sing nomn
 375	за	98043 за PREP
@@ -423,20 +442,22 @@ n372	)	0 ) PNCT
 377	в	37409 в PREP
 378	небытие	179565 небытие NOUN inan neut Sgtm sing nomn	179565 небытие NOUN inan neut Sgtm sing accs
 379	,	0 , PNCT
-n380	«	0 « PNCT
-n381	Школа	380220 школа NOUN inan femn sing nomn
-n382	злословия	115766 злословие NOUN inan neut sing gent
-n383	»	0 » PNCT
+380	«	0 « PNCT
+381	Школа	380220 школа NOUN inan femn sing nomn
+382	злословия	115766 злословие NOUN inan neut sing gent
+383	»	0 » PNCT
 384	стала	335164 стал VERB perf intr femn sing past indc
 385	как	128190 как CONJ	128191 как PRCL	128192 как ADVB Ques
 386	бы	36985 бы PRCL
-n387	заповедником	107513 заповедник NOUN inan masc sing ablt
-n388	«	0 « PNCT
-n389	свободы	316212 свобода NOUN inan femn sing gent
-n390	слова	325168 слово NOUN inan neut sing gent
-n391	»	0 » PNCT
+387	заповедником	107513 заповедник NOUN inan masc sing ablt
+388	«	0 « PNCT
+389	свободы	316212 свобода NOUN inan femn sing gent
+390	слова	325168 слово NOUN inan neut sing gent
+391	»	0 » PNCT
 392	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 393	Это	386574 это PRCL	386575 это NPRO neut sing nomn	386575 это NPRO neut sing accs	386581 этот ADJF Apro neut sing nomn	386581 этот ADJF Apro neut sing accs
@@ -521,11 +542,15 @@ sent
 469	единственной	94404 единственный ADJF femn sing gent	94404 единственный ADJF femn sing datv	94404 единственный ADJF femn sing ablt	94404 единственный ADJF femn sing loct
 470	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 471	Народные	174724 народный ADJF Qual plur nomn	174724 народный ADJF Qual inan plur accs
 472	любимцы	151951 любимец NOUN anim masc plur nomn
 /sent
+/p
+p
 sent
 
 473	Однако	203386 однако INTJ	203387 однако CONJ Prnt
@@ -625,6 +650,8 @@ sent
 555	Лазарева	146384 лазарев NOUN anim masc Sgtm Surn sing gent	146384 лазарев NOUN anim masc Sgtm Surn sing accs	146385 лазарева NOUN anim femn Sgtm Surn sing nomn
 556	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 557	Цикл	373831 цикл NOUN inan masc sing nomn	373831 цикл NOUN inan masc sing accs
@@ -689,6 +716,8 @@ sent
 613	»	0 » PNCT
 614	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 615	Не	178876 не PRCL
@@ -738,6 +767,8 @@ sent
 656	предмете	266555 предмет NOUN inan masc sing loct
 657	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 658	Разговор	293018 разговор NOUN inan masc sing nomn	293018 разговор NOUN inan masc sing accs
@@ -778,6 +809,8 @@ sent
 690	можно	162467 можно PRED pres
 691	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 692	От	211644 от PREP
@@ -814,6 +847,8 @@ sent
 723	прошлого	287714 прошлое NOUN inan neut sing gent	287715 прошлый ADJF masc sing gent	287715 прошлый ADJF anim masc sing accs	287715 прошлый ADJF neut sing gent
 724	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 725	В	37409 в PREP
@@ -830,12 +865,16 @@ sent
 736	»	0 » PNCT
 737	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 738	Шарада	378116 шарада NOUN inan femn sing nomn
 739	от	211644 от PREP
 740	Шеридана	0 шеридана UNKN
 /sent
+/p
+p
 sent
 
 741	Апокалиптический	15233 апокалиптический ADJF masc sing nomn	15233 апокалиптический ADJF inan masc sing accs
@@ -914,6 +953,8 @@ sent
 808	долго	87737 долог ADJS Qual neut sing	87742 долго ADVB
 809	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 810	Этот	386581 этот ADJF Apro masc sing nomn	386581 этот ADJF Apro inan masc sing accs
@@ -981,6 +1022,8 @@ sent
 869	мешает	159503 мешаю VERB impf tran sing 3per pres indc	159512 мешаю VERB impf intr sing 3per pres indc
 870	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 871	Судя	339002 судя GRND impf tran pres
@@ -1040,6 +1083,8 @@ sent
 922	ведущих	40370 ведущий ADJF Subx plur gent	40370 ведущий ADJF Subx anim plur accs	40370 ведущий ADJF Subx plur loct	42112 ведущий PRTF Subx impf tran pres actv plur gent	42112 ведущий PRTF Subx impf tran pres actv anim plur accs	42112 ведущий PRTF Subx impf tran pres actv plur loct
 923	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 924	При	268625 при PREP
@@ -1113,6 +1158,8 @@ sent
 989	»	0 » PNCT
 990	.	0 . PNCT
 /sent
+/p
+p
 sent
 
 991	То	346835 то CONJ	346836 то PRCL	348430 тот ADJF Apro neut sing nomn	348430 тот ADJF Apro neut sing accs
@@ -1153,3 +1200,4 @@ sent
 1026	язык	387572 язык NOUN anim masc sing nomn	387573 язык NOUN inan masc sing nomn	387573 язык NOUN inan masc sing accs
 1027	.	0 . PNCT
 /sent
+/p
