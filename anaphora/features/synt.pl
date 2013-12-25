@@ -1,5 +1,6 @@
 #!/usr/bin/perl
-
+use strict;
+use utf8;
 
 open (F, "ana_test.tab"); # хеш вида номер токена -> токен
 @s=<F>;
@@ -17,17 +18,7 @@ foreach $line (@g=<FIL>){
 	chomp ($line);
 	@evth = split (/\t/, $line);
 
-#	if (@evth[2] == 'ALL'){
-#		@np = split (/\,/, @evth[1]);
-#		foreach $arg(@np){ 
-#			%groups = (%groups,$arg,@evth[0]);
-#		}
-#	}
-#	else{
-#		%groups = (%groups, @evth[2], @evth[0]);
-#	}
-
-	  @np = split (/\,/, @evth[1]);
+	 @np = split (/\,/, @evth[1]);
                foreach $arg(@np){ 
                        %groups = (%groups,$arg,@evth[0]);
                }
