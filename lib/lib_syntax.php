@@ -237,6 +237,12 @@ function get_dummy_group_for_token($token_id, $create_if_absent=true, $revset_id
 function delete_group($group_id) {
     if (!is_group_owner($group_id, $_SESSION['user_id']))
         return false;
+
+    // forbid deletion if group is part of another group
+    $res = sql_query_pdo("SELECT * FROM syntax_groups_complex WHERE child_gid=$group_id LIMIT 1");
+    if (sql_num_rows($res) > 0)
+        return false;
+
     sql_begin();
     if (
         !sql_query("DELETE FROM syntax_groups_simple WHERE group_id=$group_id") ||
