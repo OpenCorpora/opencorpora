@@ -11,8 +11,7 @@
     </thead>
     <tbody>
         {foreach $groups.simple as $group}
-            {if $group.type != 16}
-            <tr data-gid="{$group.id}">
+            <tr data-gid="{$group.id}" {if $group.type == 16}class="gr16" style="display: none"{/if}>
                 <td><i class="icon-remove remove_group" title="Удалить группу"></i></td>
                 <td class="group_text">{$group.text}</td>
                 <td>
@@ -32,7 +31,6 @@
                     </select>
                 </td>
             </tr>
-            {/if}
         {/foreach}
         {foreach $groups.complex as $group}
             <tr data-gid="{$group.id}">

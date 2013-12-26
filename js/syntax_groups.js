@@ -285,4 +285,9 @@ $(document).ready(function(){
             notify("Вершина группы изменена на " + that.find('option:selected').text());
         });
     });
+
+    $('a.show-dummy').click(function() {
+        $('.gr16').show();
+        $(this).hide();
+    });
 });

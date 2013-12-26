@@ -42,7 +42,7 @@
         </div>
     </div>
     <div id="groups_table" class="span4">
-        <h5>Выделенные именные группы</h5>
+        <h5>Выделенные группы <a href="#" class="small toggle show-dummy">показать искусственные</a></h5>
         <div class="table_wrapper">
         {include "sentence_syntax_groups.tpl" groups=$groups group_types=$group_types}
         </div>
