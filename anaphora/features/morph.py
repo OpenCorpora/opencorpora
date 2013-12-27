@@ -29,7 +29,7 @@ def parse_NPs(lines, pairs):
         l = l.rstrip('\r\n')
         if not l:
             continue
-        np, token, head = l.split()
+        np, token, head = l.split('\t')
         if head == 'ALL':
             head = 0
         np = int(np)
@@ -56,7 +56,7 @@ def isNomn(token):
     if not c:
         return None
     if len(c) > 1:
-        print 'Warning: more than one annotation for one token!'
+        print >> sys.stderr, 'Warning: more than one annotation for one token!'
     return int('nomn' in c)
 
 
@@ -132,14 +132,13 @@ def main():
                 hf['text'] = token.orig_text.encode('utf-8')
                 hf['id'] = token.id
                 hf['POS'] = token.getPOStags()[0]
-                hf['gnc'] = gnc(token)
-                hf['gender'], hf['number'], hf['case'] = gnc(token).split('_')
+                # может быть несколько разборов, это плохой вариант
+                hf['gnc'] = gnc(token).split()[0]
+                hf['gender'], hf['number'], hf['case'] = hf['gnc'].split('_')
                 head_funcs[token.id] = hf
                 if in_pair[0]:
                     antc = np_head[in_pair[1]]
                     anph = np_head[in_pair[2]]
-                    #for p_anph in in_pair[2]:
-                    #    anph = np_head[p_anph]
                     hf['c_agr'] = agreement(head_funcs[antc]['case'], head_funcs[anph]['case'])
                     hf['g_agr'] = agreement(head_funcs[antc]['gender'], head_funcs[anph]['gender'])
                     hf['n_agr'] = agreement(head_funcs[antc]['number'], head_funcs[anph]['number'])
@@ -159,5 +158,4 @@ def main():
             '\t'.join(str(x[1]) for x in sorted(filter(lambda x: x[0] in func, hhf.items() + ana.items()), key=lambda x: x[0]))
 
 if __name__ == '__main__':
-    #head_funcs = defaultdict(namedtuple)
     main()

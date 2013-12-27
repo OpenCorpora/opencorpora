@@ -15,7 +15,7 @@ def read_corpus(inc, ignore_numbers=True):
     _NULL_TOKEN = Token(('SENT', 'SENT'))
     for sent in inc:
         sent = sent.rstrip().decode('utf-8')
-        if not sent:
+        if not sent or sent in ['p', '/p']:
             continue
         if sent == u'sent' or sent == u'SENT':
             yield _NULL_TOKEN
