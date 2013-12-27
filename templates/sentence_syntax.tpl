@@ -24,6 +24,21 @@
     <a href="?id={$sentence.id}&mode=morph" class="btn {if !isset($smarty.get.mode) || $smarty.get.mode == 'morph'}btn-success{/if}">Морфология</a>
     <a href="?id={$sentence.id}&mode=syntax" class="btn {if isset($smarty.get.mode) && $smarty.get.mode == 'syntax'}btn-success active{/if}">Синтаксис</a>
 </div>
+<div class="pagination">
+    <ul>
+        <li>
+            {if $sentence.prev_id}<a href="?id={$sentence.prev_id}&amp;mode=syntax" >&lt;&lt;</a>
+            {else}<span>&lt;&lt;</span>{/if}
+        </li>
+        <li class="disabled"><span>Перейти к предложению</span></li>
+        <li>
+            {if $sentence.next_id}<a href="?id={$sentence.next_id}&amp;mode=syntax" >&gt;&gt;</a>
+            {else}<span>&gt;&gt;</span>{/if}
+        </li>
+    </ul>
+</div>
+
+
 <div id="main_annot_syntax" class="row">
     <div class="span7">
         <div id="tokens" data-sentenceid="{$sentence.id}">
@@ -48,8 +63,5 @@
         </div>
     </div>
 </div>
-{if $sentence.prev_id}<div><a href="?id={$sentence.prev_id}&amp;mode=syntax">&lt;&lt; предыдущее предложение</a></div>{/if}
-{if $sentence.next_id}<div><a href="?id={$sentence.next_id}&amp;mode=syntax">следующее предложение &gt;&gt;</a></div>{/if}
-
 <div class="notifications top-right"></div>
 {/block}
