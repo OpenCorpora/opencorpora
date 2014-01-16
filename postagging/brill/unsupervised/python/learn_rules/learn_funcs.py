@@ -5,6 +5,7 @@ import random
 import sys
 from utils import read_corpus, Rule, Token, TagStat
 from utils import feature_type
+from utils import TagSet
 
 _NULL_TOKEN = Token(('SENT', 'SENT'))
 
@@ -14,8 +15,8 @@ def context_stats(corpus, ignore_numbers=True,
                   cf=2, fixed=False, f=None):
     # feature: дополнительные признаки
 
-    if not f:
-        f = 'POS'
+    #if not f:
+    #    f = 'POS'
     _NULL_TOKEN = Token(('SENT', 'SENT'))
     result_dict = {}
     s = [_NULL_TOKEN]
@@ -30,6 +31,7 @@ def context_stats(corpus, ignore_numbers=True,
                 tag_1 = token.getFeature(f)
                 if not tag_1:
                     continue
+                #print tag_1
                 left = i - wsize
                 right = i + wsize + 1
 
@@ -133,7 +135,7 @@ def context_stats(corpus, ignore_numbers=True,
     return stats
 
 
-def scores(s, best_rules, f='POS'):
+def scores(s, best_rules, f=None):
     #scores = {}
     bestscore = 0
     bestrule = []
@@ -143,6 +145,8 @@ def scores(s, best_rules, f='POS'):
         if len(atag) > 4:
             stat = s[atag]
             vtags = atag.split()
+            if len(vtags) < 2:
+                continue
             for y in vtags:
                 try:
                     freq = s[y]
@@ -172,6 +176,7 @@ def scores(s, best_rules, f='POS'):
                                         w = incontext_z
                                     except:
                                         w = 0
+                                #print vtags
                             x = s[y][i][distance][context] - float(fr)
                             curr_rule = Rule(*[atag, y, (distance, context), i])
                             curr_rule.id = feature_type(context)

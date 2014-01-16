@@ -59,6 +59,10 @@ def numb_amb_corpus(corpus):
 
 
 def feature_type(f):
+    if not f:
+        return 'all'
+    if len(f.split('_')) > 1:
+        return 'all'
     f = f.split()[0]
     pattern = re.compile('^[A-Z]{4}$', re.UNICODE)
     if pattern.match(f):
@@ -70,8 +74,8 @@ def feature_type(f):
 
 
 def apply_rule(rule, corpus, ignore_numbers=True, wsize=2, f=None):
-    if not f:
-        f = 'POS'
+    #if not f:
+    #    f = 'POS'
     _NULL_TOKEN = Token(('SENT', 'SENT'))
     s = [_NULL_TOKEN]
     rc = rule.context
@@ -116,7 +120,7 @@ def apply_rule(rule, corpus, ignore_numbers=True, wsize=2, f=None):
 
                     #print >> sys.stderr, curr_context, context
                     if context == curr_context:
-                        #print >> sys.stderr, 0
+                        #print token, context
                         token.disambiguate(rule.tag)
                 yield token
             s = [_NULL_TOKEN]
@@ -149,6 +153,7 @@ def apply_rule(rule, corpus, ignore_numbers=True, wsize=2, f=None):
                     except:
                         curr_context = []
                 if context == curr_context:
+                    #print token, context
                     token.disambiguate(rule.tag)
             yield token
 
@@ -236,7 +241,16 @@ class Token(tuple):
     def gettagset(self):
         return self.tagset
 
+    def getfullannot(self):
+        full = ' '.join(['_'.join(t.orig_text) for t in self.tagset.set])
+        if not full:
+            print self.text, self.tagset.set, self.id
+            raise Exception
+        return full
+
     def getFeature(self, f):
+        if not f or f == 'all':
+            return self.getfullannot()
         return self.tagset.getFeature(f)
 
     def getPOStags(self):
@@ -262,10 +276,12 @@ class Token(tuple):
             return 'SENT'
 
     def has_ambig(self, f):
+        if not f:
+            if len(self.getfullannot().split()) > 1:
+                return True
         if len(self.tagset.getFeature(f)) > 4:
             return True
-        else:
-            return False
+        return False
 
     def disambiguate(self, pos):
         self.tagset.disambiguate(pos)
@@ -282,6 +298,8 @@ class TagSet(set):
         return '\t'.join((' '.join(x) for x in zip(l_id, ls, (' '.join(t.orig_text) for t in self.set))))
 
     def getFeature(self, f):
+        if not f:
+            return ' '.join('_'.join(t.orig_text) for t in self.set)
         fs = []
         for tag in self.set:
             ff = tag.getFeature(f)
@@ -336,15 +354,20 @@ class TagSet(set):
                 pass
 
     def disambiguate(self, pos):
-        try:
-            #if self.hasPOSamb():
+        if len(pos.split('_')) > 1:
+            pos = pos.split('_')
             for tag in self.set[:]:
-                if pos in tag.orig_text:
+                if pos == tag.orig_text:
                     pass
                 else:
                     self.set.remove(tag)
-        except:
-            pass
+        else:
+            for tag in self.set[:]:
+                if pos == 'CONJ':
+                    if tag.orig_text == ['CONJ', 'Prnt']:
+                        self.set.remove(tag)
+                if pos not in tag.orig_text:
+                    self.set.remove(tag)
 
     def hasPOSamb(self):
         if len(self.getPOStag()) > 4:

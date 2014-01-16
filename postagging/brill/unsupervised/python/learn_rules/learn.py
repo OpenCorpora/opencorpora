@@ -7,9 +7,8 @@ if __name__ == '__main__':
 
     from argparse import ArgumentParser
     from learn_funcs import context_stats, scores
-    from pprint import pprint
+    #from pprint import pprint
     from shutil import copyfile
-    #import sys
     from utils import apply_rule, read_corpus, write_corpus
 
     p = ArgumentParser()
@@ -38,7 +37,6 @@ if __name__ == '__main__':
 
     while True:
         context_freq = context_stats(inc, f=args.f)
-        #print json.dumps(context_freq, indent=4)
         scores_rule = scores(context_freq, best_rules, f=args.f)
         #ss = scores_rule[0]
         best_rule = scores_rule[0]
