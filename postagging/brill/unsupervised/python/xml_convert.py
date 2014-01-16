@@ -51,6 +51,7 @@ def get_text_by_tag(lines, tags):
         elif line.lstrip().startswith('</sent'):
             print '/sent'
 
+
 def get_text_id_by_type(lines, type_tag):
     t = re.compile(u'<tag>Тип:%s' % type_tag, re.U)
     parent = re.compile(u'<text id=\"(?P<id>\d+)\" parent=\"(?P<p>\d+)', re.U)
@@ -90,13 +91,23 @@ def get_texts_by_id(lines, ids):
         if m and m.group('id') in ids:
             started = True
         if started:
-            print line
+            yield line
         if f.match(line):
             started = False
 
 
 if __name__ == '__main__':
-    #get_text_by_tag(get_text_id_by_type(sys.stdin, u'Юридические тексты'), ('token id', 'text', 'l id', 't', 'v'))
-    #get_text_id_by_type(sys.stdin, u'Юридические тексты')
-    get_text_by_tag(sys.stdin, ('token id', 'text', 'l id', 't', 'v'))
+    from argparse import ArgumentParser
 
+    p = ArgumentParser()
+    g = p.add_mutually_exclusive_group()
+    g.add_argument('-type', default='', help=u'Document type - <tag>Тип:...')
+    g.add_argument('-all', action='store_true', default=False, help='Convert all.')
+    g.add_argument('-id', default='', help='Document ids, comma separated.')
+    args = p.parse_args()
+    if args.all:
+        get_text_by_tag(sys.stdin, ('token id', 'text', 'l id', 't', 'v'))
+    if args.type:
+        get_text_id_by_type(sys.stdin, args.type)
+    if args.id:
+        get_texts_by_id(sys.stdin, args.id.split(','))
