@@ -19,6 +19,19 @@ elseif (is_admin() && $action == 'del_sentence') {
         header("Location:books.php?book_id=".(int)$_GET['book_id'].'&full');
     }
 }
+elseif (user_has_permission('perm_syntax')) {
+// elseif (TRUE) {
+    switch ($action) {
+        case 'anaphora':
+            if (isset($_GET['book_id']) && $book_id = (int)$_GET['book_id']) {
+                $smarty->assign('book', get_book_page($book_id, TRUE));
+                $smarty->display('syntax/book.tpl');
+            } else {
+                show_error();
+            }
+            break;
+    }
+}
 elseif (user_has_permission('perm_adder')) {
     switch ($action) {
         case 'add':

@@ -19,6 +19,7 @@
             <a href="?act=set_status&amp;status=2&amp;book_id={$book.id}" class="btn{if $book.status.syntax.self == 2} btn-success active{/if}">готово{if $book.status.syntax.total[2] > 0} ({$book.status.syntax.total[2]}){/if}</a>
         </div>
     </td>
+    <td><a href="{$web_prefix}/books.php?book_id={$book.id}&act=anaphora" class="btn">Размечать &raquo;</a></td>
 </tr>
 {/foreach}
 </table>

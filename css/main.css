@@ -648,3 +648,10 @@ button.ma_next_pack {
     color: #fff;
 }
 
+/* Anaphora module */
+.anaph-paragraph {
+    text-indent: 20px;
+    margin-top: 18px;
+    font-size: 16px;
+    line-height: 24px;
+}
