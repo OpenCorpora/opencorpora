@@ -54,6 +54,10 @@
                 {/foreach}
                 </select>
             </form>
+            <p>
+                <a href="/books.php?book_id={$sentence.book_id}" class="btn btn-small">Вернуться к списку предложений</a>
+                <a href="/syntax.php" class="btn btn-small">Вернуться к текстам</a>
+            </p>
         </div>
     </div>
     <div id="groups_table" class="span4">
