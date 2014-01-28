@@ -6,6 +6,7 @@
     <td></td>
     <td></td>
     <th>Синтаксис</td>
+    <th>ИГ</th>
     <th>Анафора</td>
 </tr>
 {foreach from=$books item=book}
@@ -19,7 +20,8 @@
             <a href="?act=set_status&amp;status=2&amp;book_id={$book.id}" class="btn{if $book.status.syntax.self == 2} btn-success active{/if}">готово{if $book.status.syntax.total[2] > 0} ({$book.status.syntax.total[2]}){/if}</a>
         </div>
     </td>
-    <td><a href="{$web_prefix}/books.php?book_id={$book.id}&act=anaphora" class="btn">Размечать &raquo;</a></td>
+    <td><!--a href="{$web_prefix}/sentence.php?id={* FIXME *}" class="btn btn-small">К 1-ому предложению &raquo;</a--></td>
+    <td><a href="{$web_prefix}/books.php?book_id={$book.id}&act=anaphora" class="btn btn-small">Размечать &raquo;</a></td>
 </tr>
 {/foreach}
 </table>

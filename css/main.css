@@ -650,8 +650,22 @@ button.ma_next_pack {
 
 /* Anaphora module */
 .anaph-paragraph {
-    text-indent: 20px;
+    /*text-indent: 20px;*/
     margin-top: 18px;
     font-size: 16px;
     line-height: 24px;
+}
+
+.anaph-prop {
+    background-color: #FCE;
+    padding: 2px 5px;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.anaph-group.anaph-active {
+    background-color: #ECF;
+    padding: 2px 5px;
+    border-radius: 2px;
+    cursor: pointer;
 }

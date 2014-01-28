@@ -1,6 +1,7 @@
 <?php
 require('lib/header.php');
 require('lib/lib_books.php');
+require('lib/lib_syntax.php');
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 if (!$action) {
     if (isset($_GET['book_id']) && $book_id = (int)$_GET['book_id']) {
@@ -19,12 +20,34 @@ elseif (is_admin() && $action == 'del_sentence') {
         header("Location:books.php?book_id=".(int)$_GET['book_id'].'&full');
     }
 }
-elseif (user_has_permission('perm_syntax')) {
-// elseif (TRUE) {
+// elseif (user_has_permission('perm_syntax')) {
+elseif (TRUE) {
     switch ($action) {
         case 'anaphora':
             if (isset($_GET['book_id']) && $book_id = (int)$_GET['book_id']) {
-                $smarty->assign('book', get_book_page($book_id, TRUE));
+                $book = get_book_page($book_id, TRUE);
+                foreach ($book['paragraphs'] as &$paragraph) {
+
+                    foreach ($paragraph as &$sentence) {
+                        // TODO: вынести в отдельную функцию
+                        $sentence['props'] = array();
+                        $sentence['groups'] = get_groups_by_sentence_assoc($sentence['id'],
+                            $_SESSION['user_id']);
+
+                        $res = sql_query("SELECT t1.tf_id
+                            FROM text_forms AS t1
+                            LEFT JOIN tf_revisions AS t2
+                                ON t1.tf_id=t2.tf_id
+                            WHERE t1.sent_id={$sentence['id']}
+                                AND (t2.rev_text LIKE '%Apro%'
+                                    OR t2.rev_text LIKE '%Npro%')");
+                        while ($r = sql_fetch_array($res)) {
+                            array_push($sentence['props'], $r['tf_id']);
+                        }
+                    }
+                }
+
+                $smarty->assign('book', $book);
                 $smarty->display('syntax/book.tpl');
             } else {
                 show_error();

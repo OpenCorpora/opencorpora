@@ -111,7 +111,7 @@ function get_complex_groups_by_simple($simple_groups, $user_id) {
                 AND child_gid IN (".join(',', $possible_children).")
             ORDER BY parent_gid
         ");
-        
+
         while ($r = sql_fetch_array($res)) {
             if (isset($groups[$r['parent_gid']])) {
                 $groups[$r['parent_gid']]['children'] = array_unique(array_merge($groups[$r['parent_gid']]['children'], array($r['child_gid'])));
@@ -162,6 +162,22 @@ function get_groups_by_sentence($sent_id, $user_id) {
         'complex' => get_complex_groups_by_simple($simple, $user_id)
     );
 }
+
+function get_groups_by_sentence_assoc($sent_id, $user_id) {
+    $out = array();
+    $gr = get_groups_by_sentence($sent_id, $user_id);
+    foreach ($gr['simple'] as $simple) {
+        if (empty($out[$simple['head_id']])) $out[$simple['head_id']] = array();
+        array_push($out[$simple['head_id']], $simple);
+    }
+
+    foreach ($gr['complex'] as $complex) {
+        if (empty($out[$complex['head_id']])) $out[$complex['head_id']] = array();
+        array_push($out[$complex['head_id']], $complex);
+    }
+    return $out;
+}
+
 function add_group($parts, $type, $revset_id=0) {
     $is_complex = false;
     $ids = array();
@@ -192,7 +208,7 @@ function add_group($parts, $type, $revset_id=0) {
     foreach ($parts as $el) {
         $token_id = $el['id'];
         if ($is_complex && !$el['is_group'])
-            $token_id = get_dummy_group_for_token($token_id, true, $revset_id); 
+            $token_id = get_dummy_group_for_token($token_id, true, $revset_id);
         if (!$token_id)
             return false;
         if (!sql_query("INSERT INTO syntax_groups_".($is_complex ? "complex" : "simple")." VALUES ($group_id, $token_id)"))
