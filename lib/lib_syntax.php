@@ -12,7 +12,7 @@ function get_books_with_syntax() {
     }
 
     $res = sql_query_pdo("
-        SELECT book_id, book_name, COUNT(tf_id) AS token_count
+        SELECT book_id, book_name, syntax_moder_id COUNT(tf_id) AS token_count
         FROM books
             JOIN paragraphs
                 USING (book_id)
@@ -33,6 +33,7 @@ function get_books_with_syntax() {
             'id' => $r['book_id'],
             'name' => $r['book_name'],
             'first_sentence_id' => get_book_first_sentence_id($r['book_id']),
+            'syntax_moder_id' => $r['syntax_moder_id'],
             'status' => array(
                 'syntax' => array(
                     'self' => isset($syntax[$r['book_id']]['self']) ? $syntax[$r['book_id']]['self'] : 0,
@@ -208,6 +209,7 @@ function get_groups_by_sentence_assoc($sent_id, $user_id) {
         if (empty($out[$complex['head_id']])) $out[$complex['head_id']] = array();
         array_push($out[$complex['head_id']], $complex);
     }
+
     return $out;
 }
 
@@ -413,11 +415,11 @@ function copy_group($source_group_id, $dest_user, $revset_id=0) {
     "))
         return false;
     $copy_id = sql_insert_id();
-    
+
     // save head
     $r = sql_fetch_array(sql_query("SELECT head_id FROM syntax_groups WHERE group_id = $copy_id LIMIT 1"));
     $head_id = $r['head_id'];
-    
+
     // simple group
     if (!copy_simple_group($source_group_id, $copy_id))
         return false;

@@ -16,6 +16,14 @@ switch ($action) {
         else
             show_error();
         break;
+
+    case 'set_moderated':
+        if (become_syntax_moderator((int)$_GET['book_id']))
+            header("Location:syntax.php");
+        else
+            show_error();
+        break;
+
     default:
         $smarty->assign('page', get_books_with_syntax());
         $smarty->display('syntax/main.tpl');
