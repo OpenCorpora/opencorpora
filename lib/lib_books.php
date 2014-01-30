@@ -126,7 +126,7 @@ function books_add($name, $parent_id=0) {
     if ($name === '') {
         return false;
     }
-    if (sql_query("INSERT INTO `books` VALUES(NULL, '$name', '$parent_id', 0)")) {
+    if (sql_query("INSERT INTO `books` VALUES(NULL, '$name', '$parent_id', 0, 0)")) {
         return true;
     }
     return false;

@@ -370,4 +370,100 @@ function set_syntax_annot_status($book_id, $status) {
     sql_commit();
     return true;
 }
+
+// SYNTAX MODERATION
+
+function become_syntax_moderator($book_id) {
+    if (!$book_id || !user_has_permission('perm_syntax'))
+        return false;
+    $r = sql_fetch_array(sql_query("
+        SELECT syntax_moder_id AS mid
+        FROM books
+        WHERE book_id=$book_id
+        LIMIT 1
+    "));
+    if ($r['mid'] > 0)
+        return false;
+    return (bool)sql_query("
+        UPDATE books
+        SET syntax_moder_id = ".$_SESSION['user_id']."
+        WHERE book_id = $book_id
+        LIMIT 1
+    ");
+}
+
+function copy_group($source_group_id, $dest_user, $revset_id=0) {
+    if (!$source_group_id || !$dest_user || !user_has_permission('perm_syntax'))
+        return false;
+    sql_begin();
+
+    if (!$revset_id)
+        $revset_id = create_revset();
+    if (!$revset_id)
+        return false;
+
+    if (!sql_query("
+        INSERT INTO syntax_groups
+        (
+            SELECT NULL, group_type, $revset_id, head_id, $dest_user
+            FROM syntax_groups
+            WHERE group_id = $source_group_id
+            LIMIT 1
+        )
+    "))
+        return false;
+    $copy_id = sql_insert_id();
+    
+    // save head
+    $r = sql_fetch_array(sql_query("SELECT head_id FROM syntax_groups WHERE group_id = $copy_id LIMIT 1"));
+    $head_id = $r['head_id'];
+    
+    // simple group
+    if (!copy_simple_group($source_group_id, $copy_id))
+        return false;
+
+    // complex group (recursive)
+    $res = sql_query("
+        SELECT child_gid
+        FROM syntax_groups_complex
+        WHERE parent_gid = $source_group_id
+    ");
+
+    while ($r = sql_fetch_array($res)) {
+        $gid = copy_group($r['child_gid'], $dest_user, $revset_id);
+        if (!$gid || !sql_query("INSERT INTO syntax_groups_complex VALUES ($copy_id, $gid)"))
+            return false;
+        if ($r['child_gid'] == $head_id)
+            $head_id = $gid;
+    }
+
+    // update head
+    if (!sql_query("UPDATE syntax_groups SET head_id=$head_id WHERE group_id=$copy_id LIMIT 1"))
+        return false;
+
+    sql_commit();
+    return $copy_id;
+}
+function copy_simple_group($source_group_id, $dest_group_id) {
+    return (bool)sql_query("
+        INSERT INTO syntax_groups_simple
+        (
+            SELECT $dest_group_id, token_id
+            FROM syntax_groups_simple
+            WHERE group_id = $source_group_id
+        )
+    ");
+}
+
+function get_moderated_groups_by_sentence($sent_id) {
+    $r = sql_fetch_array(sql_query("
+        SELECT syntax_moder_id AS mid
+        FROM sentences
+            JOIN paragraphs USING (par_id)
+            JOIN books USING (book_id)
+        WHERE sent_id=$sent_id
+        LIMIT 1
+    "));
+    return get_groups_by_sentence($sent_id, $r['mid']);
+}
 ?>
