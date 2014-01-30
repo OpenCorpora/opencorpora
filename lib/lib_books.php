@@ -108,6 +108,20 @@ function get_book_page($book_id, $full = false) {
     }
     return $out;
 }
+function get_book_first_sentence_id($book_id) {
+    $res = sql_query("
+        SELECT sent_id
+        FROM sentences s
+            JOIN paragraphs p USING (par_id)
+        WHERE book_id = $book_id
+        ORDER BY p.pos, s.pos
+        LIMIT 1
+    ");
+    if (sql_num_rows($res) == 0)
+        return 0;
+    $r = sql_fetch_array($res);
+    return $r['sent_id'];
+}
 function books_add($name, $parent_id=0) {
     if ($name === '') {
         return false;

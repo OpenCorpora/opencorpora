@@ -32,6 +32,7 @@ function get_books_with_syntax() {
         $out['books'][] = array(
             'id' => $r['book_id'],
             'name' => $r['book_name'],
+            'first_sentence_id' => get_book_first_sentence_id($r['book_id']),
             'status' => array(
                 'syntax' => array(
                     'self' => isset($syntax[$r['book_id']]['self']) ? $syntax[$r['book_id']]['self'] : 0,
