@@ -1,4 +1,5 @@
 <?php
+require_once('lib_books.php');
 function get_books_with_syntax() {
     $res = sql_query_pdo("SELECT book_id, status, user_id FROM syntax_annotators");
     $syntax = array();
@@ -174,10 +175,24 @@ function get_complex_groups_by_simple($simple_groups, $user_id) {
 function get_groups_by_sentence($sent_id, $user_id) {
     $simple = get_simple_groups_by_sentence($sent_id, $user_id);
     return array(
-        #'simple' => array_filter($simple, function($el) {return $el['type'] != 16;}),
         'simple' => $simple,
         'complex' => get_complex_groups_by_simple($simple, $user_id)
     );
+}
+
+function get_all_groups_by_sentence($sent_id) {
+    $res = sql_query_pdo("
+        SELECT DISTINCT user_id
+        FROM syntax_groups_simple sg
+        JOIN text_forms tf ON (sg.token_id = tf.tf_id)
+        WHERE sent_id = $sent_id
+    ");
+    $out = array();
+
+    while ($r = sql_fetch_array($res))
+        $out[$r['user_id']] = get_groups_by_sentence($sent_id, $r['user_id']);
+
+    return $out;
 }
 
 function get_groups_by_sentence_assoc($sent_id, $user_id) {
