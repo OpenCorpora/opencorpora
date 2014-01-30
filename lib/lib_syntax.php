@@ -10,10 +10,25 @@ function get_books_with_syntax() {
         $syntax[$r['book_id']][$r['status']] += 1;
     }
 
-    $res = sql_query_pdo("SELECT book_id, book_name FROM books WHERE syntax_on=1 ORDER BY book_id");
-    $out = array();
-    while ($r = sql_fetch_array($res))
-        $out[] = array(
+    $res = sql_query_pdo("
+        SELECT book_id, book_name, COUNT(tf_id) AS token_count
+        FROM books
+            JOIN paragraphs
+                USING (book_id)
+            JOIN sentences
+                USING (par_id)
+            JOIN text_forms
+                USING (sent_id)
+        WHERE syntax_on=1
+        GROUP BY book_id
+        ORDER BY book_id
+    ");
+    $out = array(
+        'books' => array(),
+        'token_count' => 0
+    );
+    while ($r = sql_fetch_array($res)) {
+        $out['books'][] = array(
             'id' => $r['book_id'],
             'name' => $r['book_name'],
             'status' => array(
@@ -24,6 +39,8 @@ function get_books_with_syntax() {
                 'anaphor' => 0
             )
         );
+        $out['token_count'] += $r['token_count'];
+    }
     return $out;
 }
 function get_syntax_group_types() {
@@ -176,6 +193,24 @@ function get_groups_by_sentence_assoc($sent_id, $user_id) {
         array_push($out[$complex['head_id']], $complex);
     }
     return $out;
+}
+
+function get_pronouns_by_sentence($sent_id) {
+    $token_ids = array();
+    $res = sql_query_pdo("
+        SELECT tf_id
+        FROM text_forms
+        LEFT JOIN tf_revisions
+            USING (tf_id)
+        WHERE
+            sent_id=$sent_id
+            AND is_last = 1
+            AND (rev_text LIKE '%<g v=\"Apro\"/>%'
+                OR rev_text LIKE '%<g v=\"Npro\"\>%')");
+    while ($r = sql_fetch_array($res)) {
+        array_push($token_ids, $r['tf_id']);
+    }
+    return $token_ids;
 }
 
 function add_group($parts, $type, $revset_id=0) {

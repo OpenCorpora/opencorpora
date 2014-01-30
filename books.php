@@ -29,21 +29,10 @@ elseif (TRUE) {
                 foreach ($book['paragraphs'] as &$paragraph) {
 
                     foreach ($paragraph as &$sentence) {
-                        // TODO: вынести в отдельную функцию
-                        $sentence['props'] = array();
+                        $sentence['props'] = get_pronouns_by_sentence($sentence['id']);
                         $sentence['groups'] = get_groups_by_sentence_assoc($sentence['id'],
                             $_SESSION['user_id']);
 
-                        $res = sql_query("SELECT t1.tf_id
-                            FROM text_forms AS t1
-                            LEFT JOIN tf_revisions AS t2
-                                ON t1.tf_id=t2.tf_id
-                            WHERE t1.sent_id={$sentence['id']}
-                                AND (t2.rev_text LIKE '%Apro%'
-                                    OR t2.rev_text LIKE '%Npro%')");
-                        while ($r = sql_fetch_array($res)) {
-                            array_push($sentence['props'], $r['tf_id']);
-                        }
                     }
                 }
 

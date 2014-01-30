@@ -1,6 +1,7 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
+Всего токенов &mdash; <b>{$page.token_count}</b>
 <table class='table'>
 <tr>
     <td></td>
@@ -9,7 +10,7 @@
     <th>ИГ</th>
     <th>Анафора</td>
 </tr>
-{foreach from=$books item=book}
+{foreach from=$page.books item=book}
 <tr>
     <td><a href="{$web_prefix}/books.php?book_id={$book.id}">{$book.id}</a></td>
     <td>{$book.name|htmlspecialchars}</td>

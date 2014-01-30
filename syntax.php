@@ -17,7 +17,7 @@ switch ($action) {
             show_error();
         break;
     default:
-        $smarty->assign('books', get_books_with_syntax());
+        $smarty->assign('page', get_books_with_syntax());
         $smarty->display('syntax/main.tpl');
 }
 ?>
