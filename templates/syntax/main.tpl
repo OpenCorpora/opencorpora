@@ -23,7 +23,7 @@
         </div>
     </td>
     <td>
-        <a href="{$web_prefix}/sentence.php?id={$book.first_sentence_id}" class="btn btn-small">К 1-ому предложению &raquo;</a>
+        <a href="{$web_prefix}/sentence.php?mode=syntax&amp;id={$book.first_sentence_id}" class="btn btn-small">К 1-ому предложению &raquo;</a>
     <td><a href="{$web_prefix}/books.php?book_id={$book.id}&amp;act=anaphora" class="btn btn-small">Размечать &raquo;</a></td>
 </tr>
 {/foreach}
