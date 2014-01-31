@@ -13,7 +13,7 @@ function get_sentence($sent_id) {
     $out['comment_count'] = $r['comm_cnt'];
     //looking for source name
     $r = sql_fetch_array(sql_query("
-        SELECT book_id
+        SELECT book_id, syntax_moder_id
         FROM books
         WHERE book_id = (
             SELECT book_id
@@ -27,6 +27,7 @@ function get_sentence($sent_id) {
         )
     "));
     $out['book_id'] = $book_id = $r['book_id'];
+    $out['syntax_moder_id'] = $r['syntax_moder_id'];
     $r = sql_fetch_array(sql_query("
         SELECT book_name
         FROM books
@@ -107,10 +108,10 @@ function get_adjacent_sentence_id($sent_id, $next) {
         FROM paragraphs
         WHERE par_id = $par_id LIMIT 1
     "));
-    
+
     $book_id = $r['book_id'];
     $par_pos = $r['pos'];
-    
+
     if (!$book_id)
         return 0;
 
@@ -289,7 +290,7 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     $res = sql_query("SELECT DISTINCT moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN users u ON (p.moderator_id = u.user_id) WHERE moderator_id > 0 ORDER BY user_shown_name");
     while ($r = sql_fetch_array($res))
         $moderators[$r['moderator_id']] = $r['user_name'];
-    
+
     // count instances in one query and preserve
     $res = sql_query("SELECT answer, count(instance_id) cnt, pool_id FROM morph_annot_instances LEFT JOIN morph_annot_samples s USING(sample_id) WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status = $type) GROUP BY (answer > 0), pool_id ORDER BY pool_id");
     while ($r = sql_fetch_array($res)) {
@@ -311,7 +312,7 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     $q_moder = '';
     if ($moder_id > 0)
         $q_moder = "AND p.moderator_id = $moder_id";
-    
+
     $q_filter = '';
     if ($filter)
         $q_filter = "AND t.grammemes REGEXP '".mysql_real_escape_string($filter)."'";
@@ -551,7 +552,7 @@ function filter_sample_for_moderation($pool_type, $sample, $has_focus) {
 
     // therefore it is 12 (NOUN sing/plur)
 
-    // focus word with Fixd or Pltm 
+    // focus word with Fixd or Pltm
     foreach ($sample['parses'] as $parse) {
         foreach ($parse['gram_list'] as $gram) {
             if (in_array($gram['inner'], array('Fixd', 'Pltm')))
@@ -652,7 +653,7 @@ function add_morph_pool_type($post_gram, $post_descr) {
         $gram_sets[] = str_replace(' ', '', trim($gr));
         $gram_descr[] = trim($_POST['descr'][$i]);
     }
-    
+
     if (sizeof($gram_sets) < 2)
         return false;
 
@@ -773,7 +774,7 @@ function delete_sample($sample_id) {
 }
 function promote_samples($pool_id, $type) {
     if (!$pool_id || !$type) return 0;
-    
+
     $cond = "WHERE pool_id=$pool_id";
     $pools_num = (int)$_POST['pools_num'];
     if (!$pools_num)
@@ -983,28 +984,28 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
 
     $r_available_samples = sql_query('
         SELECT pool_id,count(distinct sample_id) as cnt
-        FROM morph_annot_instances 
-        LEFT JOIN morph_annot_samples USING(sample_id) 
-        WHERE 
-            answer=0 
+        FROM morph_annot_instances
+        LEFT JOIN morph_annot_samples USING(sample_id)
+        WHERE
+            answer=0
             AND ts_finish < ' . $time . '
             AND pool_id IN (' . implode(', ',$pool_ids) . ')
             AND sample_id NOT IN ('. join(',', $rejected).')
             AND sample_id NOT IN (
-                SELECT sample_id 
-                FROM morph_annot_instances 
-                WHERE user_id=' . $user_id . ') 
+                SELECT sample_id
+                FROM morph_annot_instances
+                WHERE user_id=' . $user_id . ')
         GROUP BY pool_id');
     while ($available_samples = sql_fetch_array($r_available_samples)) {
         $pools[$available_samples['pool_id']]['num'] = $available_samples['cnt'];
     }
     // gather count of all samples with started instances with empty answer grouped by pool
     $r_started_samples = sql_query('
-        SELECT pool_id, count(*) as cnt 
-        FROM morph_annot_instances 
-        LEFT JOIN morph_annot_samples USING(sample_id) 
+        SELECT pool_id, count(*) as cnt
+        FROM morph_annot_instances
+        LEFT JOIN morph_annot_samples USING(sample_id)
         WHERE user_id=' . $user_id . '
-            AND morph_annot_instances.answer=0 
+            AND morph_annot_instances.answer=0
             AND pool_id IN (' . implode(',',$pool_ids) . ')
         GROUP BY pool_id');
     while ($started_samples = sql_fetch_array($r_started_samples)) {
@@ -1012,11 +1013,11 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     }
     // gather count of all samples with instance & answer grouped by pool
     $r_done_samples = sql_query('
-        SELECT pool_id, count(*) as cnt 
-        FROM morph_annot_instances 
-        LEFT JOIN morph_annot_samples USING(sample_id) 
+        SELECT pool_id, count(*) as cnt
+        FROM morph_annot_instances
+        LEFT JOIN morph_annot_samples USING(sample_id)
         WHERE user_id=' . $user_id . '
-            AND morph_annot_instances.answer>0 
+            AND morph_annot_instances.answer>0
             AND pool_id IN (' . implode(',', $pool_ids) . ')
         GROUP BY pool_id');
     while ($done_samples = sql_fetch_array($r_done_samples)) {
@@ -1113,12 +1114,12 @@ function get_next_pool($user_id, $prev_pool_id) {
             AND pool_id = ".$r['pool_id']."
             AND ts_finish < $time
             AND sample_id NOT IN (
-                SELECT sample_id 
-                FROM morph_annot_instances 
+                SELECT sample_id
+                FROM morph_annot_instances
                 WHERE user_id=$user_id)
             AND sample_id NOT IN (
-                SELECT sample_id 
-                FROM morph_annot_rejected_samples 
+                SELECT sample_id
+                FROM morph_annot_rejected_samples
                 WHERE user_id=$user_id)
             LIMIT 1
         ");
@@ -1226,7 +1227,7 @@ function update_annot_instance($id, $answer) {
         // if another user has taken it, no chance
         if ($r['user_id'] > 0)
             return 0;
-        
+
         // or, perhaps, this user has rejected it before but has changed his mind
         $res = sql_query("SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id AND sample_id = (SELECT sample_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1) LIMIT 1");
         if (sql_num_rows($res) > 0) {
@@ -1302,7 +1303,7 @@ function save_moderated_answer($id, $answer, $manual, $field_name='answer') {
             FROM morph_annot_moderated_samples
             LEFT JOIN morph_annot_samples USING (sample_id)
             WHERE pool_id=$pool_id
-            AND answer = 0 
+            AND answer = 0
             LIMIT 1
         ");
         if (sql_num_rows($res) == 0)
@@ -1355,7 +1356,7 @@ function get_search_results($query) {
         FROM form2tf
         WHERE form_text = '".mysql_real_escape_string($query)."'
     "));
-    
+
     $out = array('total' => $r[0], 'results' => array());
     $res = sql_query("
         SELECT tf_id

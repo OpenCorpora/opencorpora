@@ -34,11 +34,22 @@ switch ($action) {
             show_error();
         break;
     default:
-        $smarty->assign('sentence', get_sentence($id));
+        $smarty->assign('sentence', $sentence = get_sentence($id));
         if ($mode == 'syntax') {
-            $smarty->assign('group_types', get_syntax_group_types());
-            $smarty->assign('groups', get_groups_by_sentence($id, $_SESSION['user_id']));
-            $smarty->display('sentence_syntax.tpl');
+
+            if ($sentence['syntax_moder_id']
+                && $_SESSION['user_id'] == $sentence['syntax_moder_id']) {
+                $smarty->assign('group_types', get_syntax_group_types());
+                $smarty->assign('groups', get_groups_by_sentence($id, $_SESSION['user_id']));
+                $smarty->assign('all_groups', get_all_groups_by_sentence($id));
+                $smarty->display('sentence_syntax_moderator.tpl');
+
+            } else {
+                $smarty->assign('group_types', get_syntax_group_types());
+                $smarty->assign('groups', get_groups_by_sentence($id, $_SESSION['user_id']));
+                $smarty->display('sentence_syntax.tpl');
+            }
+
         } else
             $smarty->display('sentence.tpl');
 }

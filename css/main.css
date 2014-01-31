@@ -403,27 +403,27 @@ div#main_annot div.var a.best_var {
 div#main_annot div.var span.lt {
     display: block;
 }
-div#main_annot_syntax {
+div.main_annot_syntax {
     margin-top: 15px;
 }
-div#main_annot_syntax #tokens {
+div.main_annot_syntax #tokens {
     font-size: 17px;
     margin-bottom: 15px;
     line-height: 30px;
     margin-left: -5px;
 }
 
-div#main_annot_syntax #tokens span.token,
-div#main_annot_syntax #tokens span.group {
+div.main_annot_syntax .tokens span.token,
+div.main_annot_syntax .tokens span.group {
     cursor: pointer;
     display: inline-block;
 }
 
-div#main_annot_syntax #tokens span.token {
+div.main_annot_syntax .tokens span.token {
     margin-left: 5px;
 }
 
-div#main_annot_syntax #tokens span.group {
+div.main_annot_syntax .tokens span.group {
     border-bottom: solid 1px navy;
     margin-left: 5px;
     padding: 0px 2px;
@@ -432,11 +432,11 @@ div#main_annot_syntax #tokens span.group {
     border-radius: 3px;
 }
 
-div#main_annot_syntax #tokens span.group.deep {
+div.main_annot_syntax .tokens span.group.deep {
     border-bottom: none;
 }
 
-div#main_annot_syntax #tokens span.group span.token:first-child {
+div.main_annot_syntax .tokens span.group span.token:first-child {
     margin-left: 0px;
 }
 
@@ -663,9 +663,13 @@ button.ma_next_pack {
     cursor: pointer;
 }
 
-.anaph-group.anaph-active {
+.anaph-head.anaph-active {
     background-color: #ECF;
     padding: 2px 5px;
     border-radius: 2px;
     cursor: pointer;
+}
+
+.anaph-prop.anaph-active {
+    font-weight: bold;
 }

@@ -7,25 +7,25 @@
 
 {block name=javascripts}
     <script src="bootstrap/js/bootstrap-notify.js"></script>
+    <script type="text/javascript" src="/js/syntax_groups.js"></script>
+    {block name=inject_groups_json}
+    {literal}
+        <script>
+        var syntax_groups_json = JSON.parse('{/literal}{$groups.simple|@json_encode|replace:"\"":"\\\""}{literal}');
+        var complex_groups_json = JSON.parse('{/literal}{$groups.complex|@json_encode|replace:"\"":"\\\""}{literal}');
+        </script>
+    {/literal}
+    {/block}
 {/block}
 
 {block name=content}
-
-{literal}
-    <script>
-    var syntax_groups_json = JSON.parse('{/literal}{$groups.simple|@json_encode|replace:"\"":"\\\""}{literal}');
-    var complex_groups_json = JSON.parse('{/literal}{$groups.complex|@json_encode|replace:"\"":"\\\""}{literal}');
-    </script>
-{/literal}
-
-<script type="text/javascript" src="/js/syntax_groups.js"></script>
 
 <div class="btn-group">
     <a href="?id={$sentence.id}&mode=morph" class="btn {if !isset($smarty.get.mode) || $smarty.get.mode == 'morph'}btn-success{/if}">Морфология</a>
     <a href="?id={$sentence.id}&mode=syntax" class="btn {if isset($smarty.get.mode) && $smarty.get.mode == 'syntax'}btn-success active{/if}">Синтаксис</a>
 <a href="/books.php?book_id={$sentence.book_id}" class="btn">Вернуться к списку предложений</a>
                 <a href="/syntax.php" class="btn">Вернуться к текстам</a>
-  
+
 </div>
 <div class="pagination">
     <ul>
@@ -41,10 +41,10 @@
     </ul>
 </div>
 
-
-<div id="main_annot_syntax" class="row">
+{block name=syntax_heading}{/block}
+<div class="main_annot_syntax row" id="my_syntax">
     <div class="span7">
-        <div id="tokens" data-sentenceid="{$sentence.id}">
+        <div class="tokens" data-sentenceid="{$sentence.id}">
             {foreach item=token from=$sentence.tokens}<span data-tid="{$token.tf_id}" class="token">{$token.tf_text|htmlspecialchars}</span>{/foreach}
         </div>
         <div id="selection_info">
@@ -66,5 +66,7 @@
         </div>
     </div>
 </div>
+{block name=syntax_bottom}{/block}
+
 <div class="notifications top-right"></div>
 {/block}

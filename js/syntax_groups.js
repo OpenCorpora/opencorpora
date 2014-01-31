@@ -44,11 +44,11 @@ function show_new_group(gid) {
 
 // Обновляет таблицу с группами
 function refresh_table() {
-    table = $('.syntax_groups');
+    table = $('.syntax_groups').first();
 
     $.post('/ajax/syntax_group.php', {
         act: 'getGroupsTable',
-        sentence_id: $('#tokens').attr('data-sentenceid'),
+        sentence_id: $('#my_syntax .tokens').attr('data-sentenceid'),
     }, function(response) {
 
         if (response.error) {
@@ -104,7 +104,7 @@ function delete_group(table_row) {
         if (!response.error) {
             text = table_row.find('td.group_text').text();
             refresh_table();
-            $('#tokens').find('.group[data-gid=' + table_row.attr('data-gid') + ']').children().unwrap();
+            $('#my_syntax .tokens').find('.group[data-gid=' + table_row.attr('data-gid') + ']').children().unwrap();
             notify("Группа «" + text + "» удалена.");
         } else {
             notify('Произошла ошибка. Напишите разработчикам \
@@ -169,7 +169,7 @@ function notify(text) {
 function clck_handler($target) {
     if (!$target.hasClass('bggreen')) {
         if (!check_adjacency($target)) {
-            $('#tokens > span').removeClass('bggreen');
+            $('#my_syntax .tokens > span').removeClass('bggreen');
         }
         $target.addClass('bggreen');
     }
@@ -195,7 +195,7 @@ function group_tokens() {
         }
         base.wrapAll('<span class="group" data-gid="' + sg[i].id + '"></span>');
     }
-    
+
     cg = complex_groups_json;
     for (i in cg) {
         base = $();
@@ -249,10 +249,10 @@ $(document).ready(function(){
     });
 
     // Выбираем только непосредственно токены, исключая токены в группах
-    $('#tokens > .token').live('click', function() {
+    $('#my_syntax .tokens > .token').live('click', function() {
         clck_handler($(this));
     });
-    $('#tokens > .group').live('click', function() {
+    $('#my_syntax .tokens > .group').live('click', function() {
         clck_handler($(this));
     });
 
