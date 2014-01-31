@@ -1,9 +1,9 @@
 <?php
-require('lib/header.php');
-require('lib/lib_xml.php');
-require('lib/lib_annot.php');
-require('lib/lib_syntax.php');
-require('lib/lib_dict.php');
+require_once('lib/header.php');
+require_once('lib/lib_xml.php');
+require_once('lib/lib_annot.php');
+require_once('lib/lib_syntax.php');
+require_once('lib/lib_dict.php');
 if (isset($_GET['id'])) {
     $id = (int)$_GET['id'];
 } else {
