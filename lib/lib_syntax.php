@@ -12,7 +12,7 @@ function get_books_with_syntax() {
     }
 
     $res = sql_query_pdo("
-        SELECT book_id, book_name, syntax_moder_id COUNT(tf_id) AS token_count
+        SELECT book_id, book_name, syntax_moder_id, COUNT(tf_id) AS token_count
         FROM books
             JOIN paragraphs
                 USING (book_id)
