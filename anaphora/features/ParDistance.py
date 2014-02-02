@@ -9,6 +9,8 @@ second_num = []
 tops = {}
 token_num = []
 
+# здесь и далее лучше передавать файлы "снаружи"
+# это можно сделать, например, параметрами с помощью модуля argparse
 with open('ana_test.pairs') as fd:  # списки первых и вторых цифр из пар
     for line in fd: 
         match = pattern.search(line)
@@ -27,11 +29,13 @@ with open('ana_test.tab') as doc:   # список тэгов и номеров 
     for r in doc:
         r = r.strip().split('\t')
         token_num.append(r[0])
-        
+
+# вывод лучше вынести в sys.stdout        
 results = open('ParDistance.txt', 'w')
 for i in range(len(first_num)):                      # от нуля до количества пар
     first_top = tops[first_num[i]]                   # определение вершины ИГ
-    second_top = tops[second_num[i]]              
+    second_top = tops[second_num[i]]
+    # это довольно дорогая операция              
     start = token_num.index(first_top)               # индекс номеров вершин в списке токенов 
     end = token_num.index(second_top)
     par = 0
