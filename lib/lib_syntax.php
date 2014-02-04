@@ -223,8 +223,8 @@ function get_pronouns_by_sentence($sent_id) {
         WHERE
             sent_id=$sent_id
             AND is_last = 1
-            AND (rev_text LIKE '%<g v=\"Apro\"/>%'
-                OR rev_text LIKE '%<g v=\"Npro\"\>%')");
+            AND rev_text LIKE '%<g v=\"Anph\"/>%'
+    ");
     while ($r = sql_fetch_array($res)) {
         array_push($token_ids, $r['tf_id']);
     }
