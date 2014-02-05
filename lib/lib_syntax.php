@@ -468,4 +468,51 @@ function get_moderated_groups_by_sentence($sent_id) {
     "));
     return get_groups_by_sentence($sent_id, $r['mid']);
 }
+
+// ANAPHORA
+
+function add_anaphora($anaphor_id, $antecedent_id) {
+    // check that anaphor exists and has Anph grammeme
+    $res = sql_query_pdo("SELECT rev_text FROM tf_revisions WHERE tf_id=$anaphor_id AND is_last=1 LIMIT 1");
+    if (sql_num_rows($res) == 0)
+        return false;
+    $r = sql_fetch_array($res);
+    if (strpos('<g v="Anph"/>', $r['rev_text']) === false)
+        return false;
+    // check that antecedent exists
+    $res = sql_query_pdo("SELECT * FROM syntax_groups WHERE group_id=$antecedent_id LIMIT 1");
+    if (sql_num_rows($res) == 0)
+        return false;
+
+    // TODO check that the group belongs to the moderator
+    // TODO check that both token and group are within one book
+    
+    $revset_id = create_revset();
+    if (!$revset_id)
+        return false;
+
+    if (!sql_query("INSERT INTO anaphora VALUES (NULL, $anaphor_id, $antecedent_id, $revset_id, ".$_SESSION['user_id'].")"))
+        return false;
+    return sql_insert_id();
+}
+
+function delete_anaphora($ref_id) {
+    return (bool)sql_query("DELETE FROM anaphora WHERE ref_id=$ref_id LIMIT 1");
+}
+
+function get_anaphora_by_book($book_id) {
+    $res = sql_query("
+        SELECT token_id, group_id
+        FROM anaphora a
+            JOIN text_forms tf ON (a.token_id = tf.tf_id)
+            JOIN sentences USING (sent_id)
+            JOIN paragraphs USING (par_id)
+        WHERE book_id = $book_id
+    ");
+    $out = array();
+    while ($r = sql_fetch_array($res)) {
+        $out[$r['token_id']] = $r['group_id'];
+    }
+    return $out;
+}
 ?>
