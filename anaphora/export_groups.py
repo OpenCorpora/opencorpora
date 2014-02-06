@@ -69,6 +69,11 @@ def get_simple_groups(dbh, annotators, include_dummy=False):
 
 def export_complex_groups(dbh, annotators):
     print("COMPLEX")
+    groups = get_complex_groups(dbh, annotators)
+    for gid, group in sorted(groups.items()):
+        print("{0}\t{1}\t{2}\t{3}".format(gid, ','.join(map(str, sorted(group['tokens']))), group['head'], group['type']))
+
+def get_complex_groups(dbh, annotators):
     valid_children = set()
     simple = get_simple_groups(dbh, annotators, include_dummy=True)
     for gid in simple:
@@ -88,13 +93,20 @@ def export_complex_groups(dbh, annotators):
             groups[row['parent_gid']] = {
                 'head': row['head_id'],
                 'type': row['group_type'],
-                'children': [row['child_gid']]
+                'children': [row['child_gid']],
+                'tokens': get_tokens_by_group(row['child_gid'], simple, groups)
             }
         else:
             groups[row['parent_gid']]['children'].append(row['child_gid'])
+            groups[row['parent_gid']]['tokens'].extend(get_tokens_by_group(row['child_gid'], simple, groups))
+    return groups
 
-    for gid, group in sorted(groups.items()):
-        print("{0}\t{1}\t{2}\t{3}".format(gid, ','.join(map(str, group['children'])), group['head'], group['type']))
+def get_tokens_by_group(gid, simple_groups, complex_groups):
+    if gid in simple_groups:
+        return simple_groups[gid]['tokens']
+    if gid in complex_groups:
+        return complex_groups[gid]['tokens']
+    raise KeyError("group #{0} not found".format(gid))
 
 def do_export(dbh, gtype, only_moderated):
     annotators = choose_annotators(dbh, only_moderated)
