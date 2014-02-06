@@ -16,15 +16,21 @@
     <td>{$book.name|htmlspecialchars}</td>
     <td>
         <div class="btn-group">
-            <a href="?act=set_status&amp;status=0&amp;book_id={$book.id}" class="btn{if $book.status.syntax.self == 0} active{/if}">&mdash;</a>
-            <a href="?act=set_status&amp;status=1&amp;book_id={$book.id}" class="btn{if $book.status.syntax.self == 1} btn-info active{/if}">буду размечать{if $book.status.syntax.total[1] > 0} ({$book.status.syntax.total[1]}){/if}</a>
-            <a href="?act=set_status&amp;status=2&amp;book_id={$book.id}" class="btn{if $book.status.syntax.self == 2} btn-success active{/if}">готово{if $book.status.syntax.total[2] > 0} ({$book.status.syntax.total[2]}){/if}</a>
-            <a href="?act=set_moderated&amp;book_id={$book.id}" class="btn btn-small" {if $book.syntax_moder_id}disabled{/if}>буду модерировать</a></td>
+            <a href="?act=set_status&amp;status=0&amp;book_id={$book.id}" class="btn{if $book.status.syntax.self == 0} active{/if} btn-small">&mdash;</a>
+            <a href="?act=set_status&amp;status=1&amp;book_id={$book.id}" class="btn{if $book.status.syntax.self == 1} btn-info active{/if} btn-small">буду размечать{if $book.status.syntax.total[1] > 0} ({$book.status.syntax.total[1]}){/if}</a>
+            <a href="?act=set_status&amp;status=2&amp;book_id={$book.id}" class="btn{if $book.status.syntax.self == 2} btn-success active{/if} btn-small">готово{if $book.status.syntax.total[2] > 0} ({$book.status.syntax.total[2]}){/if}</a>
+            {if not $book.syntax_moder_id}
+            <a href="?act=set_moderated&amp;book_id={$book.id}" class="btn btn-small">буду модерировать</a>
+            {elseif $smarty.session.user_id eq $book.syntax_moder_id}
+            <button disabled class="btn btn-small btn-success">Вы - модератор</button>
+            {else}
+            <button disabled class="btn btn-small btn-info">На модерации</button>
+            {/if}
         </div>
     </td>
     <td>
-        <a href="{$web_prefix}/sentence.php?mode=syntax&amp;id={$book.first_sentence_id}" class="btn btn-small">К 1-ому предложению &raquo;</a>
-    <td><a href="{$web_prefix}/books.php?book_id={$book.id}&amp;act=anaphora" class="btn btn-small">Размечать &raquo;</a></td>
+        <a href="{$web_prefix}/sentence.php?mode=syntax&amp;id={$book.first_sentence_id}" class="btn btn-mini">К 1-ому предложению&nbsp;&raquo;</a>
+    <td><a href="{$web_prefix}/books.php?book_id={$book.id}&amp;act=anaphora" class="btn btn-mini">Размечать</a></td>
 </tr>
 {/foreach}
 </table>

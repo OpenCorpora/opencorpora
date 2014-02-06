@@ -22,11 +22,12 @@
 
 <div class="btn-group">
     <a href="?id={$sentence.id}&mode=morph" class="btn {if !isset($smarty.get.mode) || $smarty.get.mode == 'morph'}btn-success{/if}">Морфология</a>
-    <a href="?id={$sentence.id}&mode=syntax" class="btn {if isset($smarty.get.mode) && $smarty.get.mode == 'syntax'}btn-success active{/if}">Синтаксис</a>
+    <a href="?id={$sentence.id}&mode=syntax" class="btn {if isset($smarty.get.mode) && $smarty.get.mode == 'syntax'}btn-success active{/if}">Синтаксис {block name=button_caption}{/block}</a>
 <a href="/books.php?book_id={$sentence.book_id}" class="btn">Вернуться к списку предложений</a>
                 <a href="/syntax.php" class="btn">Вернуться к текстам</a>
 
 </div>
+{block name=syntax_heading}{/block}
 <div class="pagination">
     <ul>
         <li>
@@ -41,10 +42,9 @@
     </ul>
 </div>
 
-{block name=syntax_heading}{/block}
 <div class="main_annot_syntax row" id="my_syntax">
     <div class="span7">
-        <div class="tokens" data-sentenceid="{$sentence.id}">
+        <div class="tokens" data-sentenceid="{$sentence.id}" data-userid="{$smarty.session.user_id}">
             {foreach item=token from=$sentence.tokens}<span data-tid="{$token.tf_id}" class="token">{$token.tf_text|htmlspecialchars}</span>{/foreach}
         </div>
         <div id="selection_info">

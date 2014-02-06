@@ -286,8 +286,9 @@ $(document).ready(function(){
         });
     });
 
-    $('a.show-dummy').click(function() {
-        $('.gr16').show();
+    $('a.show-dummy').click(function(e) {
+        e.preventDefault();
+        $(this).parent().find('.gr16').show();
         $(this).hide();
     });
 });

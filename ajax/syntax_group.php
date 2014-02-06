@@ -7,13 +7,6 @@ require_once('../lib/lib_syntax.php');
 
     act - что нужно делать
 
-      TODO:
-
-      = copyGroup - скопировать именную группу от одного пользователя
-      другому (модератору) !!! если она не пересекается с одной из групп модератора
-
-
-
 */
 
 header('Content-type: application/json');
@@ -31,6 +24,28 @@ switch ($_POST['act']) {
         if ($gid) {
             $res['gid'] = $gid;
             $res['error'] = 0;
+        }
+        break;
+
+    case 'copyGroup':
+        $old_groups = get_groups_by_sentence((int)$_POST['sentence_id'],
+          (int)$_SESSION['user_id']);
+
+        $new_group_id = copy_group((int)$_POST['gid'], (int)$_SESSION['user_id']);
+        if (!$new_group_id) {
+            $res['error'] = 1;
+        }
+        else {
+            $res['error'] = 0;
+            $new_groups = get_groups_by_sentence((int)$_POST['sentence_id'],
+          (int)$_SESSION['user_id']);
+
+            $res['new_groups'] = array();
+            $res['new_groups']['simple'] = arr_diff($new_groups['simple'],
+                $old_groups['simple']);
+            $res['new_groups']['complex'] = arr_diff($new_groups['complex'],
+                $old_groups['complex']);
+
         }
         break;
 

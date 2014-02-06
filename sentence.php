@@ -4,6 +4,7 @@ require_once('lib/lib_xml.php');
 require_once('lib/lib_annot.php');
 require_once('lib/lib_syntax.php');
 require_once('lib/lib_dict.php');
+require_once('lib/lib_users.php');
 if (isset($_GET['id'])) {
     $id = (int)$_GET['id'];
 } else {
@@ -41,7 +42,13 @@ switch ($action) {
                 && $_SESSION['user_id'] == $sentence['syntax_moder_id']) {
                 $smarty->assign('group_types', get_syntax_group_types());
                 $smarty->assign('groups', get_groups_by_sentence($id, $_SESSION['user_id']));
-                $smarty->assign('all_groups', get_all_groups_by_sentence($id));
+                $smarty->assign('all_groups', $all = get_all_groups_by_sentence($id));
+
+                $users = array();
+                foreach (array_keys($all) as $uid) {
+                    $users[$uid] = get_user_info($uid);
+                }
+                $smarty->assign('group_owners', $users);
                 $smarty->display('sentence_syntax_moderator.tpl');
 
             } else {

@@ -143,7 +143,7 @@ function show_error($text = "Произошла ошибка.") {
 function create_revset($comment = '') {
     if (!isset($_SESSION['user_id']) || !$_SESSION['user_id'])
         return 0;
-    
+
     $now = time();
     global $config;
     // check if there is a recent set by the same user with the same comment
@@ -252,7 +252,7 @@ function get_top100_info($what, $type) {
             default:
                 return $stats;
         }
-        
+
         if (isset($config['ngram_suffixes'][$ltype]))
             $filename .= $config['ngram_suffixes'][$ltype];
         else
@@ -272,7 +272,7 @@ function get_top100_info($what, $type) {
             $stats[] = array('token' => $token, 'abs' => $abs, 'ipm' => $ipm);
         }
     }
-    
+
     return $stats;
 }
 function set_readonly_on() {
@@ -360,4 +360,23 @@ function alert_getall() {
     unset($_SESSION['alert']);
     return $alert;
 }
-?>
+
+// substitutes array_diff, this returns real difference
+function arr_diff($a1, $a2) {
+    foreach ($a1 as $k => $v) {
+        unset($dv);
+        if (is_int($k)) {
+            // Compare values
+            if (array_search($v,$a2) === false) $dv = $v;
+            else if (is_array($v)) $dv = arr_diff($v, $a2[$k]);
+            if ($dv) $diff[] = $dv;
+        }
+        else {
+        // Compare noninteger keys
+            if (!$a2[$k]) $dv = $v;
+            else if (is_array($v)) $dv = arr_diff($v, $a2[$k]);
+            if ($dv) $diff[$k] = $dv;
+        }
+    }
+    return $diff;
+}

@@ -185,14 +185,16 @@ function get_groups_by_sentence($sent_id, $user_id) {
 function get_all_groups_by_sentence($sent_id) {
     $res = sql_query_pdo("
         SELECT DISTINCT user_id
-        FROM syntax_groups_simple sg
-        JOIN text_forms tf ON (sg.token_id = tf.tf_id)
+        FROM syntax_groups_simple sgs
+        JOIN syntax_groups sg USING (group_id)
+        JOIN text_forms tf ON (sgs.token_id = tf.tf_id)
         WHERE sent_id = $sent_id
     ");
     $out = array();
 
-    while ($r = sql_fetch_array($res))
+    while ($r = sql_fetch_array($res)) {
         $out[$r['user_id']] = get_groups_by_sentence($sent_id, $r['user_id']);
+    }
 
     return $out;
 }
@@ -486,7 +488,7 @@ function add_anaphora($anaphor_id, $antecedent_id) {
 
     // TODO check that the group belongs to the moderator
     // TODO check that both token and group are within one book
-    
+
     $revset_id = create_revset();
     if (!$revset_id)
         return false;

@@ -5,6 +5,11 @@
 .btn {
     background-image: none;
 }
+
+.btn-success .badge-inverse {
+    background-color: #363;
+}
+
 .alert-info {
     background-color:#ecf0f9;
     color:#5979b3;
@@ -423,6 +428,10 @@ div.main_annot_syntax .tokens span.token {
     margin-left: 5px;
 }
 
+div.main_annot_syntax .tokens > :first-child {
+    margin-left: 0px !important;
+}
+
 div.main_annot_syntax .tokens span.group {
     border-bottom: solid 1px navy;
     margin-left: 5px;
@@ -440,7 +449,12 @@ div.main_annot_syntax .tokens span.group span.token:first-child {
     margin-left: 0px;
 }
 
-.remove_group {
+.row_other_user {
+    background-color: whitesmoke;
+    border-radius: 4px;
+}
+
+.remove_group, .copy_group {
     cursor: pointer;
 }
 
