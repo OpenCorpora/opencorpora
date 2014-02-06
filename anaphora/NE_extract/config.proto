@@ -1,0 +1,50 @@
+encoding "utf8"; // указываем кодировку, в которой написан конфигурационный файл
+
+TTextMinerConfig {
+  Dictionary = "maindic.gzt"; // путь к корневому словарю
+  
+  PrettyOutput = "NE.html";
+
+//  Input = {
+//      Dir = "data"; // путь к входным файлам
+   // File = "data/1238.txt"; // путь к входным файлам
+//  }
+
+  Articles = [
+    { Name = "именные_группы" } // название статьи в корневом словаре,
+                                 // которая содержит запускаемую грамматику
+  ]
+  
+  Facts = [
+    { 
+     Name = "NamedEntity";
+    }
+    { 
+     Name = "ComplexNE";
+    }
+    { 
+     Name = "ComplexNE1";
+    }
+    { 
+     Name = "ComplexNE2";
+    }
+    { 
+     Name = "ComplexNE3";
+    }
+    { 
+     Name = "ComplexNE4";
+    }
+    { 
+     Name = "ComplexNE5";
+    }
+  ]
+  
+  Output = {
+//	File = "named_ent.xml";
+	Format = xml;
+        Mode = append;
+  }   
+
+  PrintRules = "rules.txt";
+  PrintTree = "tree.txt";
+}

@@ -1,0 +1,38 @@
+encoding "utf8";               // указываем кодировку, в которой написан этот файл
+
+import "base.proto";           // подключаем описания protobuf-типов (TAuxDicArticle и прочих)
+import "articles_base.proto";  // Файлы base.proto и articles_base.proto встроены в компилятор.
+                               // Их необходимо включать в начало любого gzt-словаря.
+
+import "facttypes.proto";
+import "kwtypes.proto";
+							   
+TAuxDicArticle "именные_группы"
+{
+    key = { "tomita:ne_base.cxx" type=CUSTOM }
+}
+
+//fio "_фио"
+//{
+//    key = {"alg:fio" type=CUSTOM}
+//}
+
+complex_prep "сложный_предлог"
+{
+    key = { "complex_prep.txt" type=FILE }; 	
+}
+
+complex_adv "наречное_выражение"
+{
+    key = { "complex_adv.txt" type=FILE }; 	
+}
+
+complex_prep "сложный_союз"
+{
+    key = { "complex_conj.txt" type=FILE }; 	
+}
+
+introduct "вводный_оборот"
+{
+    key = { "vvodny_oborot.txt" type=FILE }; 	
+}

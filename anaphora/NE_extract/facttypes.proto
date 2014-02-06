@@ -1,0 +1,49 @@
+import "base.proto";           // описание protobuf-типов
+import "facttypes_base.proto"; // описание protobuf-типа NFactType.TFact
+
+message NamedEntity : NFactType.TFact 
+{
+  required string Self = 1;
+  optional string Type = 2;
+  optional string Main = 3;
+}
+
+message ComplexNE : NFactType.TFact 
+{
+  required string Self = 1;
+  optional string Type = 2;
+  optional string Main = 3;
+}
+
+message ComplexNE1 : NFactType.TFact 
+{
+  required string Self = 1;
+  optional string Type = 2;
+  optional string Main = 3;
+}
+
+message ComplexNE2 : NFactType.TFact 
+{
+  required string Self = 1;
+  optional string Type = 2;
+  optional string Main = 3;
+}
+message ComplexNE3 : NFactType.TFact 
+{
+  required string Self = 1;
+  optional string Type = 2;
+  optional string Main = 3;
+}
+
+message ComplexNE4 : NFactType.TFact 
+{
+  required string Self = 1;
+  optional string Type = 2;
+  optional string Main = 3;
+}
+message ComplexNE5 : NFactType.TFact 
+{
+  required string Self = 1;
+  optional string Type = 2;
+  optional string Main = 3;
+}

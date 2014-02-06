@@ -1,0 +1,7 @@
+import "base.proto";           // подключаем описания protobuf-типов (TAuxDicArticle и прочих)
+import "articles_base.proto";  // Файлы base.proto и articles_base.proto встроены в компилятор.
+
+message complex_prep: TAuxDicArticle { };
+message complex_adv: TAuxDicArticle { };
+message complex_conj: TAuxDicArticle { };
+message introduct: TAuxDicArticle { };
