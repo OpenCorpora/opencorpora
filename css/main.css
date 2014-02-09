@@ -678,12 +678,13 @@ button.ma_next_pack {
 }
 
 .anaph-head.anaph-active {
-    background-color: #ECF;
+    background-color: #FEC;
     padding: 2px 5px;
     border-radius: 2px;
     cursor: pointer;
 }
 
 .anaph-prop.anaph-active {
-    font-weight: bold;
+    background-color: #0074D9;
+    color: white;
 }

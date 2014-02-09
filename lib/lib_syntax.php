@@ -110,10 +110,12 @@ function get_simple_groups_by_sentence($sent_id, $user_id) {
     return $out;
 }
 function get_complex_groups_by_simple($simple_groups, $user_id) {
+
     $groups = array();
     $possible_children = array();
     $groups_pos = array();
     $groups_text = array();
+
     foreach ($simple_groups as $g) {
         $possible_children[] = $g['id'];
         $groups_pos[$g['id']] = $g['start_pos'];
@@ -166,10 +168,11 @@ function get_complex_groups_by_simple($simple_groups, $user_id) {
             return 0;
         });
         $groups_text[$id] = join(' ', array_map(function($ar) {return $ar[1];}, $atext));
+
         $out[] = array_merge($g, array(
             'id' => $id,
             'text' => $groups_text[$id],
-            'children_texts' => $atext
+            'children_texts' => $atext,
         ));
     }
     return $out;
@@ -179,6 +182,34 @@ function get_groups_by_sentence($sent_id, $user_id) {
     return array(
         'simple' => $simple,
         'complex' => get_complex_groups_by_simple($simple, $user_id)
+    );
+}
+
+function get_moderated_groups_by_token($token_id, $in_head = FALSE) {
+    $res = sql_query_pdo("
+        SELECT sent_id, tf_text
+        FROM text_forms
+        WHERE tf_id = $token_id
+    ");
+
+    $r = sql_fetch_array($res);
+    $sent_id = $r['sent_id'];
+    $token = $r['tf_text'];
+
+    $simple_groups = get_simple_groups_by_sentence($sent_id,
+        $mid = get_sentence_moderator($sent_id));
+
+    foreach ($simple_groups as $k => $group) {
+        if (!in_array($token_id, $group['tokens'])) {
+            unset($simple_groups[$k]);
+        }
+    }
+    $simple_groups = array_values($simple_groups);
+
+    $complex_groups = get_complex_groups_by_simple($simple_groups, $mid);
+    return array(
+        'simple' => $simple_groups,
+        'complex' => $complex_groups
     );
 }
 
@@ -199,21 +230,6 @@ function get_all_groups_by_sentence($sent_id) {
     return $out;
 }
 
-function get_groups_by_sentence_assoc($sent_id, $user_id) {
-    $out = array();
-    $gr = get_groups_by_sentence($sent_id, $user_id);
-    foreach ($gr['simple'] as $simple) {
-        if (empty($out[$simple['head_id']])) $out[$simple['head_id']] = array();
-        array_push($out[$simple['head_id']], $simple);
-    }
-
-    foreach ($gr['complex'] as $complex) {
-        if (empty($out[$complex['head_id']])) $out[$complex['head_id']] = array();
-        array_push($out[$complex['head_id']], $complex);
-    }
-
-    return $out;
-}
 
 function get_pronouns_by_sentence($sent_id) {
     $token_ids = array();
@@ -459,7 +475,7 @@ function copy_simple_group($source_group_id, $dest_group_id) {
     ");
 }
 
-function get_moderated_groups_by_sentence($sent_id) {
+function get_sentence_moderator($sent_id) {
     $r = sql_fetch_array(sql_query("
         SELECT syntax_moder_id AS mid
         FROM sentences
@@ -468,7 +484,11 @@ function get_moderated_groups_by_sentence($sent_id) {
         WHERE sent_id=$sent_id
         LIMIT 1
     "));
-    return get_groups_by_sentence($sent_id, $r['mid']);
+    return $r['mid'];
+}
+
+function get_moderated_groups_by_sentence($sent_id) {
+    return get_groups_by_sentence($sent_id, get_sentence_moderator($sent_id));
 }
 
 // ANAPHORA

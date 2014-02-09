@@ -20,23 +20,27 @@ elseif (is_admin() && $action == 'del_sentence') {
         header("Location:books.php?book_id=".(int)$_GET['book_id'].'&full');
     }
 }
-// elseif (user_has_permission('perm_syntax')) {
-elseif (TRUE) {
+elseif (user_has_permission('perm_syntax')) {
     switch ($action) {
         case 'anaphora':
             if (isset($_GET['book_id']) && $book_id = (int)$_GET['book_id']) {
                 $book = get_book_page($book_id, TRUE);
+                $groups = array();
+                $smarty->assign('group_types', get_syntax_group_types());
+
                 foreach ($book['paragraphs'] as &$paragraph) {
 
                     foreach ($paragraph as &$sentence) {
                         $sentence['props'] = get_pronouns_by_sentence($sentence['id']);
-                        $sentence['groups'] = get_groups_by_sentence_assoc($sentence['id'],
-                            $_SESSION['user_id']);
-
+                        foreach ($sentence['tokens'] as &$token) {
+                            $groups[$token['id']] = $token['groups']
+                                = get_moderated_groups_by_token($token['id']);
+                        }
                     }
                 }
 
                 $smarty->assign('book', $book);
+                $smarty->assign('token_groups', $groups);
                 $smarty->display('syntax/book.tpl');
             } else {
                 show_error();

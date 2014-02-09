@@ -13,7 +13,8 @@
             <p class="anaph-paragraph">
             {foreach name=s item=sentence from=$paragraph}
                 {foreach name=t item=token from=$sentence.tokens}
-                    <span id="t{$token.id}" class="{if in_array($token.id, $sentence.props)}anaph-prop {/if}">{$token.text|htmlspecialchars}</span>
+
+                    <span id="t{$token.id}" data-tid="{$token.id}" class="{if in_array($token.id, $sentence.props)}anaph-prop {elseif $token.groups.simple or $token.groups.complex}anaph-head{/if}">{$token.text|htmlspecialchars}</span>
                 {/foreach}
             {/foreach}
             </p>
@@ -26,4 +27,14 @@
         <h4>Анафоры в тексте</h4>
         <p>Пока не выделено ни одной анафоры.</p>
     </div>
+{/block}
+
+{block name="javascripts"}
+{literal}
+    <script src="/js/anaphora.js"></script>
+    <script>
+    var syntax_groups_json = JSON.parse('{/literal}{$token_groups|@json_encode|replace:"\"":"\\\""}{literal}');
+    var group_types = JSON.parse('{/literal}{$group_types|@json_encode|replace:"\"":"\\\""}{literal}');
+    </script>
+{/literal}
 {/block}
