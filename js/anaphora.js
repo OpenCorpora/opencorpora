@@ -10,10 +10,27 @@ $(document).ready(function() {
 			'title': 'Выберите именную группу',
 			'content': compile_content($(this).attr('data-tid')),
 			'placement': 'top',
-			'trigger': 'manual'
+			'trigger': 'manual',
+			'template': '<div class="popover popover-wide"> \
+				<div class="arrow"></div><div class="popover-inner"> \
+					<h3 class="popover-title"></h3> \
+					<div class="popover-content"><p></p></div> \
+					</div></div>'
 		});
 	});
 
+
+	// Уведомление в уголке
+	function notify(text) {
+	    $('.notifications').notify({
+	        message: {
+	            text: text
+	        },
+	        type: 'info'
+	    }).show();
+	}
+
+	// Создает HTML всплывающего окна над токеном
 	function compile_content(token_id) {
 		content = $('<ol>');
 		if (token_id in syntax_groups_json) {
@@ -63,13 +80,100 @@ $(document).ready(function() {
 
 	$(document).on('click', '.link-anaphora', function(e) {
 		e.preventDefault();
+
 		if (window.confirm('Создать связь между «' +
 			$('.anaph-prop.anaph-active').text() +
 			'» и именной группой «' +
 			$(this).text() +
 			' (тип ' + group_types[$(this).attr('data-gtype')] + ')» ?'
 			)) {
-			console.log('whoopie');
+
+			gr = $(this);
+
+			$.post('ajax/anaphora.php', {
+				'act': 'new',
+				'anph_id': $('.anaph-prop.anaph-active').attr('data-tid'),
+				'group_id': gr.attr('data-gid')
+			}, function(response) {
+				$('.anaph-head').popover('hide');
+
+				if (response.error) {
+					notify('Произошла ошибка.');
+				} else {
+					notify('Связь сохранена.');
+
+					$('.anaph-table').find('.tr-stub').hide();
+
+					tr = $('.anaph-table .tr-tpl').clone();
+					tr.find('.remove-anaphora').attr('data-aid', response.aid);
+					tr.find('.anaph-text')
+						.text($('.anaph-prop.anaph-active').text())
+						.attr('data-tid', $('.anaph-prop.anaph-active').attr('data-tid'));
+
+					tr.find('.group-text').text(gr.text())
+						.attr('data-gid', gr.attr('data-gid'))
+						.attr('data-tokens', response.token_ids);
+
+					tr.removeClass('tr-tpl');
+					$('.anaph-active').removeClass('anaph-active');
+					$('.anaph-table tr:last').after(tr);
+				}
+			}, 'json');
 		}
-	})
+	});
+
+	$(document).on('click', '.remove-anaphora', function(e) {
+		tr = $(this).parents('tr');
+		anaph = tr.find('td.anaph-text');
+		group = tr.find('td.group-text');
+
+		if (window.confirm('Вы хотите удалить связь «' + anaph.text() + '» -> «' +
+			group.text() + '» ?')) {
+
+			$.post('ajax/anaphora.php', {
+				'act': 'delete',
+				'aid': $(this).attr('data-aid')
+			}, function(response) {
+				if (response.error)
+					return notify('Произошла ошибка.');
+
+				tr.remove();
+				notify('Анафора удалена.');
+
+				if ($('.anaph-table > tr').length <= 2) $('.tr-stub').show();
+			});
+		}
+
+	});
+
+	var animation_lock = false;
+	$(document).on('click', '.anaph-table td:not(.actions)', function() {
+		if (animation_lock) return;
+		animation_lock = true;
+		tr = $(this).parent();
+
+		anaph_id = tr.find('td.anaph-text').attr('data-tid');
+		group_id = tr.find('td.group-text').attr('data-gid');
+		$('html, body').animate({scrollTop:$('#t' + anaph_id).position().top - 50}, 'slow');
+
+		group_tokens = JSON.parse(tr.find('td.group-text').attr('data-tokens'));
+		$.merge(group_tokens, [anaph_id]);
+		group_tokens.forEach(function(id) {
+
+			el = $('#t' + id);
+			color = el.css('color');
+			bg = el.css('background-color');
+
+			$('#t' + id).animate({
+				'color': 'white',
+				'background-color': '#2ECC40'
+			}, 500).delay(3000).animate({
+				'color': color,
+				'background-color': bg
+			}, 500, function() {
+				animation_lock = false;
+			});
+		});
+
+	});
 });

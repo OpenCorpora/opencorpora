@@ -670,21 +670,39 @@ button.ma_next_pack {
     line-height: 24px;
 }
 
+.anaph-token {
+    padding: 2px 3px;
+    border-radius: 2px;
+}
+
 .anaph-prop {
     background-color: #FCE;
-    padding: 2px 5px;
-    border-radius: 2px;
     cursor: pointer;
 }
 
 .anaph-head.anaph-active {
     background-color: #FEC;
-    padding: 2px 5px;
-    border-radius: 2px;
     cursor: pointer;
 }
 
 .anaph-prop.anaph-active {
     background-color: #0074D9;
     color: white;
+}
+
+.popover-wide {
+    min-width: 400px;
+}
+
+.tr-tpl {
+    display: none;
+}
+
+.anaph-table tr:hover {
+    cursor: pointer;
+    background: #fec;
+}
+
+.anaph-table tr.tr-tpl:hover, .anaph-table tr.tr-stub:hover {
+    cursor: default;
 }

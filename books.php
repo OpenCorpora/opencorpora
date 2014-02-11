@@ -39,6 +39,7 @@ elseif (user_has_permission('perm_syntax')) {
                     }
                 }
 
+                $smarty->assign('anaphora', get_anaphora_by_book($book_id));
                 $smarty->assign('book', $book);
                 $smarty->assign('token_groups', $groups);
                 $smarty->display('syntax/book.tpl');

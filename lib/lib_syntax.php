@@ -59,6 +59,79 @@ function group_type_exists($type) {
     $res = sql_query_pdo("SELECT type_id FROM syntax_group_types WHERE type_id=$type LIMIT 1");
     return sql_num_rows($res) > 0;
 }
+
+function get_group_text($group_id) {
+    $texts = array();
+    $res = sql_query_pdo("SELECT * FROM syntax_groups_simple WHERE group_id = $group_id");
+    $r = sql_fetchall($res);
+    if (!empty($r)) {
+        $token_ids = array_reduce($r, function($ids, $el) {
+            if ($ids) return $ids.','.$el['token_id'];
+            return $el['token_id'];
+        });
+
+        $tokens_res = sql_query_pdo("SELECT tf_text FROM text_forms WHERE tf_id IN ($token_ids)");
+        while ($r = sql_fetch_array($tokens_res)) {
+            $texts[] = $r['tf_text'];
+        }
+        return join(" ", $texts);
+    }
+
+    $res = sql_query_pdo("SELECT * FROM syntax_groups_complex WHERE parent_gid = $group_id");
+    $r = sql_fetch_array($res);
+
+    if (!empty($r)) {
+        $token_ids = get_group_tokens($group_id);
+        $token_ids = join(',', $token_ids);
+        $tokens_res = sql_query_pdo("SELECT tf_text FROM text_forms WHERE tf_id IN ($token_ids)");
+        while ($r = sql_fetch_array($tokens_res)) {
+            $texts[] = $r['tf_text'];
+        }
+        return join(" ", $texts);
+    }
+}
+
+function get_group_tokens($group_id) {
+    $tokens = array();
+    $simple_groups = get_simple_groups_by_complex($group_id);
+    $gr_ids = join(',', $simple_groups);
+    $tokens_res = sql_query_pdo($gr_ids ?
+        "SELECT token_id FROM syntax_groups_simple WHERE group_id IN ($gr_ids)" :
+        "SELECT token_id FROM syntax_groups_simple WHERE group_id = $group_id");
+    while ($r = sql_fetch_array($tokens_res)) {
+        $tokens[] = $r['token_id'];
+    }
+    return $tokens;
+}
+
+
+function get_simple_groups_by_complex($group_id) {
+    $simple = array();
+    $frontier = array();
+    $get_children = "SELECT child_gid FROM syntax_groups_complex WHERE parent_gid = ";
+    $res = sql_query_pdo($get_children . $group_id);
+
+    $frontier = array_map(function($row) {
+        return $row['child_gid'];
+    }, sql_fetchall($res));
+
+    while (!empty($frontier)) {
+        $gid = array_pop($frontier);
+        $res = sql_query_pdo($get_children . $gid);
+        $r = sql_fetchall($res);
+
+        if ($r) {
+            foreach ($r as $row) {
+                $frontier[] = $row['child_gid'];
+            }
+        } else {
+            $simple[] = $gid;
+        }
+    }
+
+    return $simple;
+}
+
 function get_simple_groups_by_sentence($sent_id, $user_id) {
     $out = array();
     $res = sql_query_pdo("
@@ -196,17 +269,25 @@ function get_moderated_groups_by_token($token_id, $in_head = FALSE) {
     $sent_id = $r['sent_id'];
     $token = $r['tf_text'];
 
-    $simple_groups = get_simple_groups_by_sentence($sent_id,
-        $mid = get_sentence_moderator($sent_id));
+    $groups = get_moderated_groups_by_sentence($sent_id);
+    $simple_groups = array();
+    $complex_groups = array();
 
-    foreach ($simple_groups as $k => $group) {
-        if (!in_array($token_id, $group['tokens'])) {
-            unset($simple_groups[$k]);
+    foreach ($groups['simple'] as $k => $group) {
+        if (in_array($token_id, $group['tokens'])) {
+            $simple_groups[] = $group;
         }
     }
-    $simple_groups = array_values($simple_groups);
 
-    $complex_groups = get_complex_groups_by_simple($simple_groups, $mid);
+    foreach ($groups['complex'] as $k => $group) {
+        // костыль
+        $text = ' '. $group['text']. ' ';
+        $t = ' '. $token. ' ';
+        if (mb_strpos($text, $t) !== FALSE) {
+            $complex_groups[] = $group;
+        }
+    }
+
     return array(
         'simple' => $simple_groups,
         'complex' => $complex_groups
@@ -496,25 +577,31 @@ function get_moderated_groups_by_sentence($sent_id) {
 function add_anaphora($anaphor_id, $antecedent_id) {
     // check that anaphor exists and has Anph grammeme
     $res = sql_query_pdo("SELECT rev_text FROM tf_revisions WHERE tf_id=$anaphor_id AND is_last=1 LIMIT 1");
-    if (sql_num_rows($res) == 0)
+    if (sql_num_rows($res) == 0) {
         return false;
+    }
     $r = sql_fetch_array($res);
-    if (strpos('<g v="Anph"/>', $r['rev_text']) === false)
+
+    if (strpos($r['rev_text'], '<g v="Anph"/>') === false) {
         return false;
+    }
     // check that antecedent exists
     $res = sql_query_pdo("SELECT * FROM syntax_groups WHERE group_id=$antecedent_id LIMIT 1");
-    if (sql_num_rows($res) == 0)
+    if (sql_num_rows($res) == 0) {
         return false;
+    }
 
     // TODO check that the group belongs to the moderator
     // TODO check that both token and group are within one book
 
     $revset_id = create_revset();
-    if (!$revset_id)
+    if (!$revset_id) {
         return false;
+    }
 
-    if (!sql_query("INSERT INTO anaphora VALUES (NULL, $anaphor_id, $antecedent_id, $revset_id, ".$_SESSION['user_id'].")"))
+    if (!sql_query("INSERT INTO anaphora VALUES (NULL, $anaphor_id, $antecedent_id, $revset_id, ".$_SESSION['user_id'].")")) {
         return false;
+    }
     return sql_insert_id();
 }
 
@@ -524,7 +611,7 @@ function delete_anaphora($ref_id) {
 
 function get_anaphora_by_book($book_id) {
     $res = sql_query("
-        SELECT token_id, group_id
+        SELECT token_id, group_id, ref_id, tf.tf_text as token
         FROM anaphora a
             JOIN text_forms tf ON (a.token_id = tf.tf_id)
             JOIN sentences USING (sent_id)
@@ -533,8 +620,9 @@ function get_anaphora_by_book($book_id) {
     ");
     $out = array();
     while ($r = sql_fetch_array($res)) {
-        $out[$r['token_id']] = $r['group_id'];
+        $out[$r['ref_id']] = $r;
+        $out[$r['ref_id']]['group_text'] = get_group_text($r['group_id']);
+        $out[$r['ref_id']]['group_tokens'] = get_group_tokens($r['group_id']);
     }
     return $out;
 }
-?>
