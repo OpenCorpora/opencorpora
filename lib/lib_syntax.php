@@ -99,7 +99,7 @@ function get_group_tokens($group_id) {
         "SELECT token_id FROM syntax_groups_simple WHERE group_id IN ($gr_ids)" :
         "SELECT token_id FROM syntax_groups_simple WHERE group_id = $group_id");
     while ($r = sql_fetch_array($tokens_res)) {
-        $tokens[] = $r['token_id'];
+        $tokens[] = (int)$r['token_id'];
     }
     return $tokens;
 }
