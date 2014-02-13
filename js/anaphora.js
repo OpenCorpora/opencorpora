@@ -9,7 +9,14 @@ $(document).ready(function() {
 			'html': true,
 			'title': 'Выберите именную группу',
 			'content': compile_content($(this).attr('data-tid')),
-			'placement': 'top',
+			'placement': function (tip, element) {
+				  var offset = $(element).offset();
+				  height = $(document).outerHeight();
+				  width = $(document).outerWidth();
+				  if (offset.left < 200) placement = 'right';
+				  else placement = 'top';
+				  return placement;
+		   },
 			'trigger': 'manual',
 			'template': '<div class="popover popover-wide"> \
 				<div class="arrow"></div><div class="popover-inner"> \
