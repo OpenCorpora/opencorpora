@@ -249,17 +249,17 @@ $(document).ready(function(){
     });
 
     // Выбираем только непосредственно токены, исключая токены в группах
-    $('#my_syntax .tokens > .token').live('click', function() {
+    $('#my_syntax .tokens').on('click', '.token', function() {
         clck_handler($(this));
     });
-    $('#my_syntax .tokens > .group').live('click', function() {
+    $('#my_syntax .tokens').on('click', '.group', function() {
         clck_handler($(this));
     });
 
     // Таблица с именными группами:
 
     // По клику на крестик - "Удалить группу"
-    $('.syntax_groups').find('.remove_group').live('click', function() {
+    $('.syntax_groups').on('click', '.remove_group', function() {
 
         // Если пользователь действительно этого хочет,
         if (window.confirm("Вы уверены, что хотите удалить именную группу «" +
@@ -270,7 +270,7 @@ $(document).ready(function(){
 
     });
 
-    $('.group_type_select').live('change', function() {
+    $(document).on('change', '.group_type_select', function() {
         that = $(this);
         set_group_type($(this).parents('tr').attr('data-gid'), $(this).val(), function() {
             refresh_table();
@@ -278,7 +278,7 @@ $(document).ready(function(){
         });
     });
 
-    $('.group_head_select').live('change', function() {
+    $(document).on('change', '.group_head_select', function() {
         that = $(this);
         set_group_head($(this).parents('tr').attr('data-gid'), $(this).val(), function() {
             refresh_table();
