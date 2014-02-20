@@ -24,7 +24,7 @@
     <a href="?id={$sentence.id}&mode=morph" class="btn {if !isset($smarty.get.mode) || $smarty.get.mode == 'morph'}btn-success{/if}">Морфология</a>
     <a href="?id={$sentence.id}&mode=syntax" class="btn {if isset($smarty.get.mode) && $smarty.get.mode == 'syntax'}btn-success active{/if}">Синтаксис {block name=button_caption}{/block}</a>
 <a href="/books.php?book_id={$sentence.book_id}" class="btn">Вернуться к списку предложений</a>
-                <a href="/syntax.php" class="btn">Вернуться к текстам</a>
+                <a href="{$web_prefix}/syntax.php" class="btn">Вернуться к текстам</a>
 
 </div>
 {block name=syntax_heading}{/block}
@@ -36,9 +36,12 @@
         </li>
         <li class="disabled"><span>Перейти к предложению</span></li>
         <li>
-            {if $sentence.next_id}<a href="?id={$sentence.next_id}&amp;mode=syntax" >&gt;&gt;</a>
+            {if $sentence.next_id}<a href="?id={$sentence.next_id}&amp;mode=syntax">&gt;&gt;</a>
             {else}<span>&gt;&gt;</span>{/if}
         </li>
+        {if !$sentence.next_id}
+        <li><a href="{$web_prefix}/syntax.php?act=finish_moder&amp;book_id={$sentence.book_id}" class="btn-success" onclick="return confirm('Закончить модерацию?')">Закончить модерацию</a></li>
+        {/if}
     </ul>
 </div>
 

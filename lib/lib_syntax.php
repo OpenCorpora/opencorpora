@@ -12,7 +12,7 @@ function get_books_with_syntax() {
     }
 
     $res = sql_query_pdo("
-        SELECT book_id, book_name, syntax_moder_id, COUNT(tf_id) AS token_count
+        SELECT book_id, book_name, syntax_moder_id, COUNT(tf_id) AS token_count, syntax_on
         FROM books
             JOIN paragraphs
                 USING (book_id)
@@ -20,7 +20,7 @@ function get_books_with_syntax() {
                 USING (par_id)
             JOIN text_forms
                 USING (sent_id)
-        WHERE syntax_on=1
+        WHERE syntax_on > 0
         GROUP BY book_id
         ORDER BY book_id
     ");
@@ -37,7 +37,8 @@ function get_books_with_syntax() {
             'status' => array(
                 'syntax' => array(
                     'self' => isset($syntax[$r['book_id']]['self']) ? $syntax[$r['book_id']]['self'] : 0,
-                    'total' => isset($syntax[$r['book_id']]) ? $syntax[$r['book_id']] : array(1 => 0, 2 => 0)
+                    'total' => isset($syntax[$r['book_id']]) ? $syntax[$r['book_id']] : array(1 => 0, 2 => 0),
+                    'moderated' => $r['syntax_on'] > 1 ? true : false
                 ),
                 'anaphor' => 0
             )
@@ -488,6 +489,27 @@ function become_syntax_moderator($book_id) {
     return (bool)sql_query("
         UPDATE books
         SET syntax_moder_id = ".$_SESSION['user_id']."
+        WHERE book_id = $book_id
+        LIMIT 1
+    ");
+}
+
+function finish_syntax_moderation($book_id) {
+    if (!$book_id || !user_has_permission('perm_syntax'))
+        return false;
+
+    $r = sql_fetch_array(sql_query("
+        SELECT syntax_moder_id AS mid
+        FROM books
+        WHERE book_id = $book_id
+        LIMIT 1
+    "));
+    if ($r['mid'] != $_SESSION['user_id'])
+        return false;
+    
+    return (bool)sql_query("
+        UPDATE books
+        SET syntax_on = 2
         WHERE book_id = $book_id
         LIMIT 1
     ");
