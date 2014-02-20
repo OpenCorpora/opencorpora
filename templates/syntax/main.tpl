@@ -30,7 +30,7 @@
     </td>
     <td>
         <a href="{$web_prefix}/sentence.php?mode=syntax&amp;id={$book.first_sentence_id}" class="btn btn-mini">К 1-ому предложению&nbsp;&raquo;</a>
-    <td><a href="{$web_prefix}/books.php?book_id={$book.id}&amp;act=anaphora" class="btn btn-mini">Размечать</a></td>
+    <td><a href="{$web_prefix}/books.php?book_id={$book.id}&amp;act=anaphora" class="btn btn-mini" disabled="disabled">Размечать</a></td>
 </tr>
 {/foreach}
 </table>
