@@ -49,7 +49,7 @@ for i in range(len(token_num)):
         positions[token_num[i]] = i
  
 
-        
+print 'par_dist' 
 for i in range(len(first_num)):                
     first_top = tops[first_num[i]]              # определение вершины ИГ
     second_top = tops[second_num[i]]            
@@ -63,5 +63,5 @@ for i in range(len(first_num)):
             break
         if positions['/p'][j] > f_p :
             count += 1
-    sys.stdout.write(first_num[i] + '_' + second_num[i] + "  " + str(count) + '\n')
+    sys.stdout.write(first_num[i] + '_' + second_num[i] + "\t" + str(count) + '\n')
 

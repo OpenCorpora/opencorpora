@@ -6,6 +6,29 @@ import sys
 from utils import read_corpus
 
 
+_pos_codes = {'NOUN': 1,
+         'NPRO': 2,
+         'ADJF': 3,
+         'PRTF': 4,
+         'UNKN': 20}
+_gen_codes = {'masc': 1,
+              'femn': 2,
+              'neut': 3,
+              'GNdr': 0}
+
+_num_codes = {'sing': 0, 'plur': 1}
+_case_codes = {'nomn': 1,
+               'gent': 2,
+               'datv': 3,
+               'accs': 4,
+               'ablt': 5,
+               'loct': 6,
+               'gen2': 7,
+               'loc2': 8,
+               'acc2': 9,
+               'CAse': 0}
+
+
 def parse_pairs(lines):
     # TODO: может быть неоднозначное соответствие
     """Returns NP pairs"""
@@ -61,7 +84,7 @@ def isNomn(token):
 
 
 def agreement(anph, antc, f='case'):  # anph, antc - признаки
-    return anph == antc
+    return int(set(anph) & set(antc) != ())
 
 
 def numOfPOS(pos, token, n=0):
@@ -93,8 +116,9 @@ def numOfNouns(token, n=0):
 
 def gnc(token):
     if token.getPOStags() != 'UNKN':
-        return ' '.join(['_'.join(t) for t in zip(token.getGender(),
-                        token.getNUMBtag(), token.getCase())])
+        return [_gen_codes[x] for x in token.getGender()], \
+            [_num_codes[x] for x in token.getNUMBtag()], \
+            [_case_codes[x] for x in token.getCase()]
 
 
 def isNpro(token):
@@ -131,10 +155,10 @@ def main():
                 hf['isNomn'], hf['isNpro'], hf['gnc'] = [hhf(token) for hhf in _funcs]
                 hf['text'] = token.orig_text.encode('utf-8')
                 hf['id'] = token.id
-                hf['POS'] = token.getPOStags()[0]
+                hf['POS'] = '_'.join([str(_pos_codes[x]) for x in set(token.getPOStags())])
                 # может быть несколько разборов, это плохой вариант
-                hf['gnc'] = gnc(token).split()[0]
-                hf['gender'], hf['number'], hf['case'] = hf['gnc'].split('_')
+                hf['gnc'] = gnc(token)
+                hf['gender'], hf['number'], hf['case'] = hf['gnc']
                 head_funcs[token.id] = hf
                 if in_pair[0]:
                     antc = np_head[in_pair[1]]
@@ -146,7 +170,7 @@ def main():
                     hf['gn_agr'] = hf['g_agr'] and hf['n_agr']
                     hf['match'] = head_funcs[antc]['text'] == head_funcs[anph]['text']
                     head_funcs[token.id] = hf
-    func = 'POS number gender case isNomn isNpro g_agr n_agr c_agr agreement verbs oids conjs nouns'.split()
+    func = 'POS isNomn isNpro g_agr n_agr c_agr agreement verbs oids conjs nouns'.split()
     for i, f in enumerate(pairs[0].keys()):
         hhf = head_funcs[np_head[f]]
         for a in pairs[0][f]:

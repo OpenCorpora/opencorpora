@@ -2,7 +2,7 @@
 use strict;
 use utf8;
 
-open (F, "ana_test.tab"); # хеш вида номер токена -> токен
+open (F, "../ana_test.tab"); # хеш вида номер токена -> токен
 @s=<F>;
 my @a, %hash;
 foreach $line (@s){
@@ -13,7 +13,7 @@ foreach $line (@s){
 }
 
 
-open(FIL, 'ana_test.groups'); #хеш вида номер токена ИГ -> номер ИГ
+open(FIL, '../ana_test.groups'); #хеш вида номер токена ИГ -> номер ИГ
 foreach $line (@g=<FIL>){
 	chomp ($line);
 	@evth = split (/\t/, $line);
