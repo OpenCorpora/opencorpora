@@ -42,7 +42,7 @@
         </div>
         <div class="control-group">
             <div class="controls">
-                <label class="checkbox"><input type='checkbox' name='agree' onclick="$('#reg_button').attr('disabled', !$(this).attr('checked'))"> Я согласен на неотзывную публикацию всех вносимых мной изменений в соответствии с лицензией <a href="http://creativecommons.org/licenses/by-sa/3.0/deed.ru">Creative Commons Attribution/Share-Alike 3.0</a></label>
+                <label class="checkbox"><input type='checkbox' name='agree' onclick="$('#reg_button').attr('disabled', !$(this).is(':checked'))"> Я согласен на неотзывную публикацию всех вносимых мной изменений в соответствии с лицензией <a href="http://creativecommons.org/licenses/by-sa/3.0/deed.ru">Creative Commons Attribution/Share-Alike 3.0</a></label>
                 <label class="checkbox"><input type='checkbox' id='chb_subscribe' name='subscribe' disabled='disabled'> Подписаться на рассылку новостей проекта</label>
                 <br>
                 <input type='button' id='reg_button' class="btn btn-primary btn-large" disabled='disabled' value='Зарегистрироваться'>
