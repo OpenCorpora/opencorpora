@@ -73,7 +73,7 @@ function copy_group(table_row) {
 }
 
 $(document).ready(function() {
-    $('.syntax_groups').on('click', '.copy_group', function() {
+    $(document).on('click', '.copy_group', function() {
 
         // Если пользователь действительно этого хочет,
         if (window.confirm("Вы уверены, что хотите скопировать себе именную группу «" +
