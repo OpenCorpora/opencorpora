@@ -353,7 +353,7 @@ function add_group($parts, $type, $revset_id=0) {
     if (!group_type_exists($type))
         return false;
 
-    if (!sql_query("INSERT INTO syntax_groups VALUES (NULL, $type, $revset_id, 0, ".$_SESSION['user_id'].")"))
+    if (!sql_query("INSERT INTO syntax_groups VALUES (NULL, $type, $revset_id, 0, ".$_SESSION['user_id'].", '')"))
         return false;
     $group_id = sql_insert_id();
 
@@ -506,7 +506,7 @@ function copy_group($source_group_id, $dest_user, $revset_id=0) {
     if (!sql_query("
         INSERT INTO syntax_groups
         (
-            SELECT NULL, group_type, $revset_id, head_id, $dest_user
+            SELECT NULL, group_type, $revset_id, head_id, $dest_user, marks
             FROM syntax_groups
             WHERE group_id = $source_group_id
             LIMIT 1
