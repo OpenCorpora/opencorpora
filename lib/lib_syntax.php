@@ -216,20 +216,28 @@ function get_complex_groups_by_simple($simple_groups, $user_id) {
             else {
                 // new group
                 $new_added = true;
-                $possible_children[] = $r['parent_gid'];
-                $groups[$r['parent_gid']] = array(
-                    'type' => $r['group_type'],
-                    'children' => array($r['child_gid']),
-                    'head_id' => $r['head_id'],
-                    'start_pos' => $groups_pos[$r['child_gid']]
-                );
+                // make sure that all the children are already added before their parent is added
+                $res1 = sql_query_pdo("
+                    SELECT child_gid
+                    FROM syntax_groups_complex
+                    WHERE parent_gid = ".$r['parent_gid']."
+                    AND child_gid NOT IN (".join(',', $possible_children).")
+                ");
+                if (sql_num_rows($res1) == 0) {
+                    $possible_children[] = $r['parent_gid'];
+                    $groups[$r['parent_gid']] = array(
+                        'type' => $r['group_type'],
+                        'children' => array($r['child_gid']),
+                        'head_id' => $r['head_id'],
+                        'start_pos' => $groups_pos[$r['child_gid']]
+                    );
+                }
             }
             $groups_pos[$r['parent_gid']] = $groups[$r['parent_gid']]['start_pos'];
         }
     }
 
     $out = array();
-    ksort($groups);
     foreach ($groups as $id => $g) {
         $atext = array();
         foreach ($g['children'] as $ch)
