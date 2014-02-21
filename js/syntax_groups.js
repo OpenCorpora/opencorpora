@@ -272,7 +272,7 @@ $(document).ready(function(){
 
     });
 
-    $('.syntax_groups').on('change', '.group_type_select', function() {
+    $(document).on('change', '.group_type_select', function() {
         that = $(this);
         set_group_type($(this).parents('tr').attr('data-gid'), $(this).val(), function() {
             refresh_table();
@@ -280,7 +280,7 @@ $(document).ready(function(){
         });
     });
 
-    $('.syntax_groups').on('change', '.group_head_select', function() {
+    $(document).on('change', '.group_head_select', function() {
         that = $(this);
         set_group_head($(this).parents('tr').attr('data-gid'), $(this).val(), function() {
             refresh_table();
@@ -288,7 +288,7 @@ $(document).ready(function(){
         });
     });
 
-    $('a.show-dummy').click(function(e) {
+    $(document).on('click', 'a.show-dummy', function(e) {
         e.preventDefault();
         $(this).parent().find('.gr16').show();
         $(this).hide();
