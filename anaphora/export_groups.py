@@ -13,7 +13,7 @@ def choose_annotators(dbh, only_moderated):
         dbh.execute("""
             SELECT book_id, syntax_moder_id
             FROM books
-            WHERE syntax_on = 1
+            WHERE syntax_on > 0
         """)
         res = dbh.fetchall()
         for row in res:
