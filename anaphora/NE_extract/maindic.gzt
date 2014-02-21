@@ -27,7 +27,7 @@ complex_adv "наречное_выражение"
     key = { "complex_adv.txt" type=FILE }; 	
 }
 
-complex_prep "сложный_союз"
+complex_conj "сложный_союз"
 {
     key = { "complex_conj.txt" type=FILE }; 	
 }

@@ -5,10 +5,10 @@ TTextMinerConfig {
   
   PrettyOutput = "NE.html";
 
-//  Input = {
-//      Dir = "data"; // путь к входным файлам
-   // File = "data/1238.txt"; // путь к входным файлам
-//  }
+  Input = {
+      Dir = "data"; // путь к входным файлам
+  // File = "data/1238.txt"; // путь к входным файлам
+  }
 
   Articles = [
     { Name = "именные_группы" } // название статьи в корневом словаре,
@@ -37,12 +37,19 @@ TTextMinerConfig {
     { 
      Name = "ComplexNE5";
     }
+    { 
+     Name = "ComplexNE6";
+    }
+    { 
+     Name = "ComplexNE7";
+    }
   ]
   
   Output = {
-//	File = "named_ent.xml";
+	File = "named_ent.xml";
 	Format = xml;
-        Mode = append;
+//	Format = text;
+//        Mode = append;
   }   
 
   PrintRules = "rules.txt";

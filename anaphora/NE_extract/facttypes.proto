@@ -47,3 +47,15 @@ message ComplexNE5 : NFactType.TFact
   optional string Type = 2;
   optional string Main = 3;
 }
+message ComplexNE6 : NFactType.TFact 
+{
+  required string Self = 1;
+  optional string Type = 2;
+  optional string Main = 3;
+}
+message ComplexNE7 : NFactType.TFact 
+{
+  required string Self = 1;
+  optional string Type = 2;
+  optional string Main = 3;
+}
