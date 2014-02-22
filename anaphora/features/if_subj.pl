@@ -3,7 +3,7 @@ use strict;
 use utf8;
 use open ':std', ':encoding(UTF-8)';
 
-#на вход три аргумента -файл с  морф. разметкой, файл с id ИГ и распарсеный MaltParser'ом текст 
+#на вход три аргумента -файл с  морф. разметкой, файл с id ИГ, файл с парами антецедент-анафора и распарсеный MaltParser'ом текст 
 
 my @s, my $arg, my @np, my @evth,my @g, my $key;
 open (F, @ARGV[0]); # хеш вида номер токена -> токен
@@ -69,9 +69,19 @@ foreach $line (@s=<FILE>){
 	}
 }
 
-foreach $key(sort{$a <=> $b} keys %result){
-	print "$key\t$result{$key}\n"
+open(FL, @ARGV[2]);  
+my @p, my @d;
+foreach $line (@p=<FL>){
+        chomp ($line);
+        @d = split(/\t|_/, $line);
+        print "$d[0]_$d[1]\t$result{$d[0]}\t$result{$d[1]}\n"
+
 }
+
+
+#foreach $key(sort{$a <=> $b} keys %result){
+#	print "$key\t$result{$key}\n"
+#}
 
 
 
