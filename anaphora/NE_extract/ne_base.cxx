@@ -9,12 +9,12 @@
 
 BefAdj -> 'очень' | 'не';
 Base_num -> AnyWord<wff="[0-9]+-[а-яx]{1,3}">; //5-го, 60-x
-N -> Noun<~fw,l-reg>; //base
-N -> Noun<~fw, h-reg1, l-quoted>; //base
-N -> Noun<fw,h-reg1,wfm="[^А-Я]">;
-N -> QuoteDbl Noun<l-reg> QuoteDbl; //base
+N -> Noun<~fw,l-reg,kwtype=~[bad_noun]>; //base
+N -> Noun<~fw, h-reg1, l-quoted,kwtype=~[bad_noun]>; //base
+N -> Noun<fw,h-reg1,wfm="[^А-Я]",kwtype=~[bad_noun]>;
+N -> QuoteDbl Noun<rt,l-reg,kwtype=~[bad_noun]> QuoteDbl; //base
 N -> 'гран-при'<h-reg1> | 'главред'<h-reg1>;
-N -> Word<gram="SPRO">;
+N -> Word<gram="SPRO",kwtype=~[bad_noun]>;
 ANP -> (BefAdj+) Word<gram="A",rt>+; // base
 ANP -> ANP<gnc-agr[1]> 'и' ANP<gnc-agr[1]>; // base
 ANP -> Word<gram="ANUM",gc-agr[1]>+ ('и') (Word<gram="ANUM", gc-agr[1]>); // base
@@ -64,38 +64,38 @@ Sobst_simpl -> UnknownPOS<h-reg1> interp (NamedEntity.Self::not_norm; NamedEntit
 Sobst -> Sobst_simpl (Roman_Num); //сюда может входить Пётр I
 
 Sobst -> Word<h-reg1, quoted> interp (NamedEntity.Main::not_norm); //имя собств
-Sobst -> Word<h-reg1,lat> interp (NamedEntity.Main::not_norm); //имя собств
-Sobst -> Word<h-reg1,lat> Word<h-reg1,lat>+ interp (NamedEntity.Main="ALL"); //имя собств
+Sobst_lat -> Word<h-reg1,lat> interp (NamedEntity.Main::not_norm); //имя собств
+Sobst_lat -> Word<h-reg1,lat> Word<h-reg1,lat>+ interp (NamedEntity.Main="ALL"); //имя собств
+Sobst -> Sobst_lat;
 
 Sobst -> AnyWord<wff="([a-z]{3,10}://)?(www|ввв)?\\.?([A-Za-zА-Яа-я0-9-_]+\\.?){1,4}\\.[a-zа-я]{2,6}"> interp (NamedEntity.Main); //сайт
 Sobst_site -> AnyWord<wff="([a-z]{3,10}://)?(www|ввв)?\\.?([А-Яа-я0-9-_]+\\.?){1,4}"> Punct 'рф'; //сайт
 Sobst -> Sobst_site interp (NamedEntity.Main);
 
 Quote -> QuoteDbl | QuoteSng;
-Sobst -> Quote Sobst Quote;
+Sobst -> Quote Sobst<rt> Quote;
 Sobst_fw -> Word<gram="persn"> | Word<gram="famn"> | Word<gram="patrn"> | Word<gram="geo">; //имя собств
 Sobst -> Sobst_fw<h-reg1> interp (NamedEntity.Main::not_norm) (Roman_Num);
 
 
-Sobst -> Quote Word<gram="A", gnc-agr[1], h-reg1> Word<gram="A">* Noun<gnc-agr[1]> interp (NamedEntity.Main::not_norm) Quote; //"Новая газета"
-Sobst -> Word<gram="A", gnc-agr[1], ~fw, h-reg1> Noun<gnc-agr[1]> interp (NamedEntity.Main::not_norm); //Невский проспект
-Sobst -> Word<gram="A,~brev", gnc-agr[1]>+ Sobst<gnc-agr[1]> interp (NamedEntity.Main::not_norm); //израильский Тель-Авив
+Sobst -> Quote Word<gram="A", gnc-agr[1], h-reg1> Word<gram="A">* Noun<rt,gnc-agr[1]> interp (NamedEntity.Main::not_norm) Quote; //"Новая газета"
+Sobst -> Word<gram="A", gnc-agr[1], ~fw, h-reg1> Noun<rt,gnc-agr[1]> interp (NamedEntity.Main::not_norm); //Невский проспект
+Sobst -> Word<gram="A,~brev", gnc-agr[1]>+ Sobst<rt,gnc-agr[1]> interp (NamedEntity.Main::not_norm); //израильский Тель-Авив
 //Sobst -> Sobst_fw<gnc-agr[1], ~fw, h-reg1> Noun<gnc-agr[1]> interp (NamedEntity.Main::not_norm); //Карловы вары
 
 Sobst_init -> AnyWord<wff="[А-Я]\\."> interp (NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное"; NamedEntity.Main::not_norm);
 
 //сложная - собственное наименование
-Sobst_name -> (Sobst_fw<gnc-agr[1]>) (Sobst_simpl<gnc-agr[1]>) Sobst<gram="persn", gnc-agr[1]> interp (ComplexNE2.Main::not_norm; NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное"; NamedEntity.Main::not_norm) (Sobst<gram="persn">) Sobst_simpl<gnc-agr[1]>+ {weight=1.3};
-Sobst_name -> Sobst_simpl<gnc-agr[1]> Sobst<gram="persn", gnc-agr[1]> interp (ComplexNE2.Main::not_norm; NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное"; NamedEntity.Main::not_norm) (Sobst<gram="persn">) (Sobst_simpl<gnc-agr[1]>) {weight=1.3};
-Sobst_name -> Sobst_fw<gnc-agr[1]> Sobst<gram="persn", gnc-agr[1]> interp (ComplexNE2.Main::not_norm; NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное"; NamedEntity.Main::not_norm) (Sobst<gram="persn">) (Sobst_simpl<gnc-agr[1]>+) {weight=1.3};
+Sobst_name -> (Sobst_fw<gnc-agr[1]>) (Sobst_simpl<gnc-agr[1]>) Sobst<rt,gram="persn", gnc-agr[1]> interp (ComplexNE2.Main::not_norm; NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное"; NamedEntity.Main::not_norm) (Sobst<gram="persn">) Sobst_simpl<gnc-agr[1]>+ {weight=1.3};
+Sobst_name -> Sobst_simpl<gnc-agr[1]> Sobst<rt,gram="persn", gnc-agr[1]> interp (ComplexNE2.Main::not_norm; NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное"; NamedEntity.Main::not_norm) (Sobst<gram="persn">) (Sobst_simpl<gnc-agr[1]>) {weight=1.3};
+Sobst_name -> Sobst_fw<gnc-agr[1]> Sobst<rt,gram="persn", gnc-agr[1]> interp (ComplexNE2.Main::not_norm; NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное"; NamedEntity.Main::not_norm) (Sobst<gram="persn">) (Sobst_simpl<gnc-agr[1]>+) {weight=1.3};
 //Sobst_name -> Sobst<gram="persn",gnc-agr[1]> interp (ComplexNE2.Main::not_norm; NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное"; NamedEntity.Main::not_norm) Sobst_simpl<gnc-agr[1]>; //канонический вариант
 Sobst_name -> Sobst_simpl<gnc-agr[1]> interp (ComplexNE2.Main::not_norm; NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное"; NamedEntity.Main::not_norm) Sobst_simpl<gnc-agr[1]>; //Кими Р. (не можем определить Кими как persn, Райкконена вообще не знаем
 //с инициалами
-Sobst_name -> Sobst_init interp (ComplexNE2.Main::not_norm; NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное"; NamedEntity.Main::not_norm) (Sobst_init) Sobst_simpl; //К. Райконнен
+Sobst_name -> Sobst_init interp (ComplexNE2.Main::not_norm; NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное"; NamedEntity.Main::not_norm) (Sobst_init) Sobst_simpl<rt>; //К. Райконнен
 Sobst_name -> Sobst_simpl Sobst_init interp (ComplexNE2.Main::not_norm; NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное"; NamedEntity.Main::not_norm) (Sobst_init); // Райконнен К.
-Sobst_name -> QuoteDbl Sobst_name QuoteDbl; //"Евгений Онегин"
-Sobst_name -> QuoteSng Sobst_name QuoteSng; //"Евгений Онегин"
-Sobst_name -> Word<gram="A", gnc-agr[1]>+ Sobst_name<gnc-agr[1]>;
+Sobst_name -> Quote Sobst_name<rt> Quote; //"Евгений Онегин"
+Sobst_name -> Word<gram="A", gnc-agr[1]>+ Sobst_name<rt,gnc-agr[1]>;
 
 
 //сложная - несобственное наименование
@@ -104,6 +104,7 @@ NeSobst_name -> NP<rt,c-agr[1]> interp (ComplexNE1.Main::not_norm; NamedEntity.S
 NeSobst_name -> NP<rt,c-agr[1]> interp (ComplexNE1.Main::not_norm; NamedEntity.Self::not_norm; NamedEntity.Type="базовая именная") Att_NE<c-agr[1], GU=~[gen]> interp (ComplexNE2.Self::not_norm; ComplexNE2.Type="приложение"); 
 
 NeSobst_name -> Abbr interp (ComplexNE1.Main::not_norm; NamedEntity.Self::not_norm; NamedEntity.Type="базовая именная") Sobst interp (NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное");
+NeSobst_name -> NP<rt> interp (ComplexNE1.Main::not_norm; NamedEntity.Self::not_norm; NamedEntity.Type="базовая именная") Sobst_lat interp (NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное"); 
 
 //сложная - предложная (без предл. ИГ + предл. ИГ)
 Pr -> Prep | Compl_PR;
@@ -163,9 +164,10 @@ Compl_NE7 -> NE_part_pr7 interp (ComplexNE7.Self::not_norm; ComplexNE7.Type="с�
 Compl_PR -> Word<kwtype="complex_prep">;
 Compl_ADV -> Word<kwtype="complex_adv">;
 Compl_ADV -> Word<wff="[Вв]"> 'прошлое'<gram="abl"> {weight=1.5};
-Compl_CONJ -> Word<kwtype="complex_conj">;
+Compl_CONJ -> Word<kwtype="complex_conj"> {weight=1.5};
 Introduct -> Word<kwtype="introduct">;
 IntroStop -> Comma | EOSent;
+
 
 Abbr -> AnyWord<wff="[А-Я][А-Я]+">;
 Abbr -> AnyWord<wff="[А-Я]+[а-я][А-Я]+">;

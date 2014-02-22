@@ -36,3 +36,8 @@ introduct "вводный_оборот"
 {
     key = { "vvodny_oborot.txt" type=FILE }; 	
 }
+
+bad_noun "плохие_сущ"
+{
+    key = { "bad_noun.txt" type=FILE }; 	
+}

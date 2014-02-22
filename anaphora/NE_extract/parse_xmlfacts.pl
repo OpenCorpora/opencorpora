@@ -3,22 +3,33 @@ use strict;
 use utf8;
 use XML::Parser;
 use Scalar::Util;
+use Getopt::Std;
 
-#binmode(STDIN, ':encoding(utf-8)');
-binmode(STDOUT, ':encoding(utf-8)');
+my $start = time();
 
-my $file = $ARGV[0] || die "$! \n usage: program XMLFile";
+binmode (STDOUT,"encoding(utf8)");
+
+my %opts;
+getopts('x:o:m:',\%opts);
+
+#usage
+if (!$opts{'x'} || !$opts{'m'} || !$opts{'o'}){
+    print "\n\nUsage:\n
+    $0 -m MORPH_DIR  
+    \t\t  -o OUTPUT_FILE 
+    \t\t  -x XML_FILE \n\n";
+   exit;
+}
+
 my $debug = 'debug.txt';
-my $file_output = 'groups.txt';
-binmode($file, ':encoding(utf-8)');
+#my $file_output = $opts{'o'};
 
-open (GROUPS, ">$file_output") or die "Error: $!";
+open (GROUPS, ">$opts{'o'}") or die "No output file: $!";
 binmode(GROUPS, ':encoding(utf-8)');
 open (OUT, ">$debug") or die "Error: $!";
 binmode(OUT, ':encoding(utf-8)');
-print OUT "NE\t\tType\t\tMain\n"; 
 
-#hash with types
+#hash with group-types
 my %types = (
    'базовая именная' => 1,
    'имя собственное' => 2,
@@ -39,42 +50,38 @@ my %types = (
 );
 
 #xml с фактами
-my $parser = XML::Parser->new(Handlers=>{Start => \&tag_start, End => \&tag_end, Char =>\&tag_text});
-$parser->parsefile($file);
+my $parser = XML::Parser->new(Handlers=>{Start => \&tag_start, End => \&tag_end});
+$parser->parsefile($opts{'x'});
 my %facts; #DocID - FactId - { {k=>v} ...}
 
-#NB! Нужно попробовать меня саму группу на то, что в Лидах
-
 #файлы с морфологией
-my $morph_dir = 'morph_files';
-my %morph; #fileID - SentNum - id => token
-readDir($morph_dir);
+my %morph = readDir("$opts{'m'}"); #fileID - SentNum - id => token
 
 #для групп
-my %groups; #neID - gr.tokens => main id
+my %groups; #neID - token_ids => [main id,type]
 
 my $neID = 1;
 #сопоставление
 while (my ($doc,$fact) = each(%facts)) {
-    L:foreach my $f(keys %$fact) {
+    foreach my $f(keys %$fact) {
        my $sn = $facts{$doc}{$f}{'sn'};
-       my $tmpNE = lc($facts{$doc}{$f}{'Self'});
+       my $tmpNE = $facts{$doc}{$f}{'Self'};
        my $cur_type = lc($facts{$doc}{$f}{'Type'});
-       my $cur_main = lc($facts{$doc}{$f}{'Main'});
+       my $cur_main = $facts{$doc}{$f}{'Main'};
       M: while (my ($ID,$token) = each(%{$morph{$doc}{$sn}})) {
           #print $tmpNE."\t$token\n";
-          my $tk = lc($token);
-          if ($tmpNE =~ /\Q$tk\E/) {
+         #my $tk = lc($token);
+          if ($tmpNE =~ /\Q$token\E/) {
              #для однословных
-             if (lc($tmpNE) eq lc($token)) {
+             if ($tmpNE eq $token) {
                my $Mid;
                if ($cur_main eq "") { $Mid = 0; }
                elsif (uc($cur_main) eq "NONE" || uc($cur_main) eq "ALL") { $Mid = uc($cur_main); }
                else { $Mid = $ID; }
                if (exists $types{$cur_type}) { 
-                  print GROUPS "$neID\t$ID\t$Mid\t".$types{$cur_type}."\n";
+                  $groups{$neID}{$ID} = [$Mid,$types{$cur_type}];
                } else { 
-                  print GROUPS "$neID\t$ID\t$Mid\t".$cur_type."\n";
+                  $groups{$neID}{$ID} = [$Mid,$cur_type];
                }
              #  print GROUPS "$neID\t$tmpNE\t$cur_main\t".$cur_type."\n";
                $neID++;  
@@ -83,7 +90,7 @@ while (my ($doc,$fact) = each(%facts)) {
 		my @nes = split/ /, $tmpNE; 
                 my ($ind, $ids, $mid);
                 for my $i (0..$#nes){
-                    if ($nes[$i] eq lc($token)) {
+                    if ($nes[$i] eq $token) {
                        $ind = $i; last;
                     }
                 }
@@ -91,23 +98,21 @@ while (my ($doc,$fact) = each(%facts)) {
                     next M;	
 		}                
                 elsif ($ind == 0){
-#                print "in complex, ind is $ind\n";
                   $ids = $ID;
                   for my $k (1..$#nes){
-		    if (lc($nes[$k]) eq lc($morph{$doc}{$sn}{($ID+$k)})) { #safe check 	
+		    if ($nes[$k] eq $morph{$doc}{$sn}{($ID+$k)}) { #safe check 	
                        $ids .= ",".($ID + $k);
-#		       print GROUPS $nes[$k]."\t".lc($morph{$doc}{$sn}{($ID+$k)})."\t id: $ids\n"; 	
                     } else { next M; }  
                   }     
                 } else {
                    $ids = $ID - $ind;
                    for (my $k=($ind-1);$k>=0;$k--) {  #если попали в середину ИГ
-		       if ($nes[$k] eq lc($morph{$doc}{$sn}{($ID-$k)})) { #safe check 	
+		       if ($nes[$k] eq $morph{$doc}{$sn}{($ID-$k)}) { #safe check 	
                            $ids .= ",".($ID - $k);
                        } else { next M; }
                    }  
                    for my $k (1..($#nes-$ind)) {  
-		       if ($nes[$k] eq lc($morph{$doc}{$sn}{($ID+$k)})) { #safe check 	
+		       if ($nes[$k] eq $morph{$doc}{$sn}{($ID+$k)}) { #safe check 	
                           $ids .= ",".($ID + $k);
                        } else { next M; }
 		    }  
@@ -115,17 +120,54 @@ while (my ($doc,$fact) = each(%facts)) {
                 my @IDS = split/,/, $ids;    
                 if ($cur_main eq lc($token)) { $mid = $ID; }
                 elsif (uc($cur_main) eq "NONE" || uc($cur_main) eq "ALL") {
- #                     print "We are in ALL\n";
                       $mid = uc($cur_main);
                 } 
-                elsif ($cur_main !~ / / && $cur_main ne "") { 
-                    # print GROUPS "We are in findings\n";
-                    # my @mids = split/,/, $ids;
-                     for my $i (0..$#IDS){
-                         if (lc($morph{$doc}{$sn}{$IDS[$i]}) eq $cur_main){
-                            $mid = $IDS[$i]; 
+                elsif ($cur_main ne "") { 
+                     my @mains = split/ /, $cur_main; 
+                     K:for my $i (0..$#IDS){
+                         if (lc($morph{$doc}{$sn}{$IDS[$i]}) eq $mains[0]){
+                            $mid = $IDS[$i];
+                            for my $j (1..$#mains){
+		                if ($mains[$j] eq lc($morph{$doc}{$sn}{($IDS[$i]+$j)})) { #safe check 	
+                                   $mid .= ",".($IDS[$i] + $j);
+                                } else { next K; }    
+                            }
+                            last K;  
                          }    
                      }
+                } else { $mid = 0; }  
+               # print STDERR "$mid\n";
+                if (exists $types{$cur_type}) { 
+                    $groups{$neID}{$ids} = [$mid,$types{$cur_type}];
+                   # print GROUPS "$neID\t$ids\t$mid\t".$types{$cur_type}."\n";
+                } else { 
+                    $groups{$neID}{$ids} = [$mid,$cur_type];
+                   # print GROUPS "$neID\t$ids\t$mid\t".$cur_type."\n";
+                }
+               # print GROUPS "$neID\t$tmpNE\t$cur_main\t".$cur_type."\n";
+                $neID++;  
+             #   next L; 
+             }
+          }
+
+       }    
+   }
+}
+
+my $size = keys %groups;
+while (my($key,$value) = each(%groups)){
+      while (my ($f,$val) = each(%$value)){
+        if ($val->[0] =~ /,/){
+           for my $j (0..$size){
+               if (exists $groups{$j}{$val->[0]}){
+                  print GROUPS "$key\t$f\t$groups{$j}{$val->[0]}->[0]\t$val->[1]\n";
+               }
+           }
+        } else {  
+          print GROUPS "$key\t$f\t$val->[0]\t$val->[1]\n";
+        }
+      }
+}
 =comm
                 }
                 elsif ($cur_main =~ / / && $cur_main ne "") { 
@@ -146,25 +188,6 @@ while (my ($doc,$fact) = each(%facts)) {
                         }
                      }                         
 =cut
-                } else { $mid = 0; }  
-                if (exists $types{$cur_type}) { 
-                    print GROUPS "$neID\t$ids\t$mid\t".$types{$cur_type}."\n";
-                } else { 
-                    print GROUPS "$neID\t$ids\t$mid\t".$cur_type."\n";
-                }
-                $groups{$doc}{$ids} = $mid;
-               # print GROUPS "$neID\t$tmpNE\t$cur_main\t".$cur_type."\n";
-                $neID++;  
-                next L; 
-             }
-          }
-
-       }    
-   }
-}
-
-
-=comm
 #тестовая печать
 while (my($key,$value) = each(%facts)){
       while (my ($f,$val) = each(%$value)){
@@ -175,7 +198,7 @@ while (my($key,$value) = each(%facts)){
          print OUT "\n";
       }
 }
-=cut
+print STDERR time() - $start."\n";   
 
 #-subs-------------------------------------------------------------
 
@@ -183,6 +206,8 @@ my $id;
 my $dID;
 #read and search xml file
 my ($fact,$NE,$type,$main);
+my %tmplead; #n => text
+my ($tmpN,$stag);
 
 sub tag_start{
   my ($expat, $tag_name, %attr) = @_;
@@ -211,7 +236,7 @@ sub tag_start{
       	 $NE =~ s/"//g;
       }
       $NE = trim($NE);
-      #$NE =~ s/  / /g;
+      $NE =~ s/\s+/ /g;
       $facts{$dID}{$id}{'Self'} = $NE;
   } 
   
@@ -224,16 +249,23 @@ sub tag_start{
       $main = $attr{'val'};
       $main =~ s/"//g;
       $main = trim($main);
-      #$main =~ s/  / /g;
-      $facts{$dID}{$id}{'Main'} = $main;
+      $main =~ s/\s+/ /g;
+      $facts{$dID}{$id}{'Main'} = lc($main);
      # print OUT "$NE\t$type\t$main\n";
       ($NE,$type,$main) = "";
   }
-
-  #if ($tag_name eq 'Lead'){
-    #  if ($atrr{'id'} eq 
-  #}
-
+  if ($tag_name eq 'Lead'){
+      my $tmpfId;
+      while (my ($k,$v) = (each %{$facts{$dID}})){
+         if ($attr{'id'} eq $v->{'LeadID'}){
+           my $inparser = XML::Parser->new(Handlers=>{Start => \&tag_st1, End => \&tag_e1, Char =>\&tag_text});
+           $inparser->parse($attr{'text'});
+           my $n = $facts{$dID}{$k}->{'FieldsInfo'}; 
+           $n =~ s/;//;
+           $facts{$dID}{$k}->{'Self'} = $tmplead{$n};
+         } 
+      }
+  }
 }
 
 sub trim {
@@ -242,12 +274,39 @@ sub trim {
      $str =~ s/\s+$//g;
   return $str;
 }
+sub tag_st1{
+  my ($expat, $tag_name, %attr) = @_;
+  if ($tag_name eq "S"){
+     $stag = $tag_name;
+     my @k = keys %attr;
+     if ($k[0] eq "lemma"){
+         $tmpN = $k[1];
+     } else { $tmpN = $k[0]; }
+  }
 
+}
+
+sub tag_e1{
+  my ($expat, $tag_name) = @_;
+  if ($tag_name eq "S"){
+     $tmpN = "";
+     $stag = "";
+  } 
+}
 
 sub tag_text{
    my ($expat, $string) = @_;
+   if ($stag eq "S"){
+      my $s = $string;
+      if ($s =~ /^"/ && $s =~ /"$/){
+      	 $s =~ s/"//g;
+      }
+      $s =~ s/"/ " /g;
+      $s = trim($s);
+      $s =~ s/\s+/ /g;
+      $tmplead{$tmpN} = $s;
+   }
 }
-
 sub tag_end{
   my ($expat, $tag_name) = @_;
   
@@ -261,7 +320,8 @@ sub tag_end{
   if ($tag_name eq 'facts'){
   }
 
-  if ($tag_name eq 'Leads'){
+  if ($tag_name eq 'Lead'){
+     %tmplead = ();	
   }
 
 }
@@ -270,7 +330,7 @@ close GROUPS;
 
 #чтение файлов морфологии и запись хеша morph
 sub readDir {
-
+  my %m;
   opendir MD, $_[0] or die "cannot open dir: $!";
   while (defined(my $file = readdir(MD))) {
      if ($file eq "." || $file eq ".."){next;} #omit these files
@@ -279,7 +339,7 @@ sub readDir {
      
      my $sn = 0;
      my $fileID = $file;
-     $fileID =~ s/\.txt//;     
+     $fileID =~ s/\..+$//;     
 
      while (my $str = <IN>) {    
      
@@ -288,11 +348,13 @@ sub readDir {
            next;
      	}
      	if ($str =~ /^\d+/){
-           my @tokens = split/\t/,$str;
-           $morph{$fileID}{$sn}{$tokens[0]} = $tokens[1];         
+           $str =~ s/\«|\»/\"/;
+           my @tokens = split/\t/,$str; 
+           $m{$fileID}{$sn}{$tokens[0]} = $tokens[1];
      	} 
      }
      close IN; 
   }
   closedir MD;
+  return %m;
 }
