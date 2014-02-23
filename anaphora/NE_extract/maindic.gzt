@@ -41,3 +41,7 @@ bad_noun "плохие_сущ"
 {
     key = { "bad_noun.txt" type=FILE }; 	
 }
+pronoun "анаф_мест"
+{
+    key = { "pronouns.txt" type=FILE }; 	
+}

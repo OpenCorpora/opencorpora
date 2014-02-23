@@ -14,7 +14,7 @@ N -> Noun<~fw, h-reg1, l-quoted,kwtype=~[bad_noun]>; //base
 N -> Noun<fw,h-reg1,wfm="[^А-Я]",kwtype=~[bad_noun]>;
 N -> QuoteDbl Noun<rt,l-reg,kwtype=~[bad_noun]> QuoteDbl; //base
 N -> 'гран-при'<h-reg1> | 'главред'<h-reg1>;
-N -> Word<gram="SPRO",kwtype=~[bad_noun]>;
+N -> Word<gram="SPRO",kwtype=~[pronoun]>;
 ANP -> (BefAdj+) Word<gram="A",rt>+; // base
 ANP -> ANP<gnc-agr[1]> 'и' ANP<gnc-agr[1]>; // base
 ANP -> Word<gram="ANUM",gc-agr[1]>+ ('и') (Word<gram="ANUM", gc-agr[1]>); // base
@@ -183,6 +183,12 @@ NE -> Base_NP interp (NamedEntity.Self::not_norm; NamedEntity.Type="базова
 NE -> Sobst interp (NamedEntity.Self::not_norm; NamedEntity.Type="имя собственное");
 NE -> Spec_NP interp (NamedEntity.Self::not_norm; NamedEntity.Type="специальная");
 
+
+Ana_pron -> Word<kwtype="pronoun"> interp (NamedEntity.Main::not_norm) {weight=1.8};
+Ana_pron_spec -> 'тот' | 'этот'; 
+Ana_pron -> Ana_pron_spec<~gnc-agr[1]> interp (NamedEntity.Main::not_norm) NP<~gnc-agr[1]>;
+
+S -> Ana_pron interp (NamedEntity.Self::not_norm; NamedEntity.Type="анафорическое местоимение"); 
 //Снимаем омонимию для "что" и "чему"
 NotSPRO -> 'что' | 'чем' | 'то'; 
 S -> Comma NotSPRO interp (NamedEntity.Main="NONE";NamedEntity.Self::not_norm; NamedEntity.Type="составной союз") {weight=1.3}; 

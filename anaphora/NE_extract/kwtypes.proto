@@ -6,3 +6,4 @@ message complex_adv: TAuxDicArticle { };
 message complex_conj: TAuxDicArticle { };
 message introduct: TAuxDicArticle { };
 message bad_noun: TAuxDicArticle { };
+message pronoun: TAuxDicArticle { };
