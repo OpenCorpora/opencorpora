@@ -30,12 +30,12 @@ if (!$opts{'m'} || !$opts{'g'} || !$opts{'p'}){
    exit;
 }
 
-my %pairs_TSV = read_pairs("<$opts{'p'}");
+my @pairs_TSV = read_pairs("<$opts{'p'}");
 my ($groups_TSV, $tokens) = read_groups("<$opts{'g'}");
    
 
 #печатает результаты в STDOUT 
-count_dist("<$opts{'m'}", $groups_TSV, $tokens, \%pairs_TSV, $opts{'h'});
+count_dist("<$opts{'m'}", $groups_TSV, $tokens, \@pairs_TSV, $opts{'h'});
 
 #print STDERR time() - $start."\n";   
 
@@ -47,8 +47,8 @@ sub read_groups{
    my %t;
    while (<$f>){
        chomp;
-       my ($group_id,$token,$main) = split/\t/, $_ ;
-       my @tokens = split/,/, $token;
+       my ($group_id,$token,$main) = split /\t/, $_ ;
+       my @tokens = split /,/, $token;
        if ($main =~ /ALL/){ $main = $tokens[0]; } #допущение для групп типа ФИО (мб от последнего надо)
        $gr{$group_id} = $main;
        $t{$group_id} = \@tokens; 
@@ -60,17 +60,17 @@ sub read_groups{
 sub read_pairs{
    open my $file,$_[0] or die "cannot open file: $!";
    binmode ($file, ":encoding(utf8)");
-   #my @ar;
-   my %hash;
+   my @ar;
+   #my %hash;
    while (<$file>){
        chomp;
        my ($pair, $type) = split /\s+/, $_ ;
-      # push @ar, $pair;
-       $hash{$pair} = $type; 
+       push @ar, $pair;
+      # $hash{$pair} = $type; 
    }
    close $file; 
-   #return @ar;
-   return %hash;
+   return @ar;
+   #return %hash;
 }
 
 sub count_dist{
@@ -78,8 +78,8 @@ sub count_dist{
    my ($morph, $gr, $tok, $pr, $opt) = @_; 
    my %res = ();
    #my %g = %gr;
-  # my @p = @$pr;
-   my @p = sort {$a  <=> $b} keys %$pr;
+   my @p = @$pr;
+  # my @p = sort {$a  <=> $b} keys %$pr;
    #my %t = %tok; 
 
    #while (my ($key, $val) = each $gr){
@@ -96,7 +96,7 @@ sub count_dist{
    }
 
    for my $i(0..$#p){
-      my ($ant,$ana) = split /_/, $p[$i];
+      my ($ant,$ana) = split /__/, $p[$i];
       if ($ant > $ana){ ($ana,$ant) = ($ant,$ana); }
    #   my ($count,$count_ana,$count_ant,$count_N,$count_Sobst,$count_Sent,$count_NPRO,$count_NNPRO) = (0);
       my $count = 0;
@@ -110,7 +110,7 @@ sub count_dist{
       my $start = 0;
 
       for my $j(0..$#p){
-          my ($ant2,$ana2) = split /_/, $p[$j]; 
+          my ($ant2,$ana2) = split /__/, $p[$j]; 
           if ($ant2 > $ana2){ ($ana2,$ant2) = ($ant2,$ana2); }
           if ($ant2 == $ant && $ana2 < $ana){
              $count_ana++;
@@ -121,18 +121,27 @@ sub count_dist{
          # } 
           
       }
-     $count_ant = $ana - $ant - 1;
-      
+     my $an1 = $ana; 
+     $an1 =~ s/[0-9]+\_//; 
+     my $ant1 = $ant; 
+     $ant1 =~ s/[0-9]+\_//; 
+     
+      $count_ant = $an1 - $ant1 - 1;
       my ($anaId, $antId); 
       if ($opt) { $antId = ${$gr}{$ant}; $anaId = ${$gr}{$ana}; } #print "AntId: $antId, AnaId: $anaId\n"; }     
       else { $antId = ${$tok}{$ant}->[-1]; $anaId = ${$tok}{$ana}->[0]; }
+      $anaId =~ s/\r$//g;
+      $anaId =~ s/^\s//g;
       
       seek(MORPH,0,0);
       M:while (my $s = <MORPH>){
           chomp;
-          my @cur = split /\t/, $s;      
-          if ($cur[0] == $antId){ $start = 1; next; }
-          if ($cur[0] == $anaId){ 
+          my @cur = split /\t/, $s;
+          if ($cur[0] eq $antId){ 
+            $start = 1;
+            next; 
+          }
+          if ($cur[0] eq $anaId){
              $count_NNPRO = $count_N + $count_NPRO;
              print "$p[$i]\t$count_Sobst\t$count_Sent\t$count_ana\t$count_N\t$count_NPRO\t$count_NNPRO\t$count_ant\n";
              last M;
