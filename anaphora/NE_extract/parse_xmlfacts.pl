@@ -47,6 +47,7 @@ my %types = (
    'сложная количественная' => 14,
    'сложное местоимение' => 15,
    'специальная' => 16,
+   'анафорическое местоимение' => 17,
 );
 
 #xml с фактами
@@ -78,13 +79,9 @@ while (my ($doc,$fact) = each(%facts)) {
                if ($cur_main eq "") { $Mid = 0; }
                elsif (uc($cur_main) eq "NONE" || uc($cur_main) eq "ALL") { $Mid = uc($cur_main); }
                else { $Mid = $ID; }
-             #  if (exists $types{$cur_type}) { 
-                  $groups{$neID}{$ID} = [$Mid,$types{$cur_type}];
-             #  } else { 
-             #     $groups{$neID}{$ID} = [$Mid,$cur_type];
-             #  }
+               $groups{$neID}{$ID} = [$Mid,$types{$cur_type}];
              #  print GROUPS "$neID\t$tmpNE\t$cur_main\t".$cur_type."\n";
-             #  print "$tmpNE\n";
+      #         print "$tmpNE\n";
                $neID++;  
              } #для многословных
              elsif ($tmpNE =~ / /) {
@@ -137,20 +134,13 @@ while (my ($doc,$fact) = each(%facts)) {
                          }    
                      }
                 } else { $mid = 0; }  
-               # print STDERR "$mid\n";
-              #  if (exists $types{$cur_type}) { 
-                    $groups{$neID}{$ids} = [$mid,$types{$cur_type}];
-                   # print GROUPS "$neID\t$ids\t$mid\t".$types{$cur_type}."\n";
-               # } else { 
-               #     $groups{$neID}{$ids} = [$mid,$cur_type];
-                   # print GROUPS "$neID\t$ids\t$mid\t".$cur_type."\n";
-               # }
+                $groups{$neID}{$ids} = [$mid,$types{$cur_type}];
                # print GROUPS "$neID\t$tmpNE\t$cur_main\t".$cur_type."\n";
-              #  print "$tmpNE\n";
+               # print "$tmpNE\n";
                 $neID++;  
              #   next L; 
              }
-          }
+          } #else { print STDERR "$tmpNE\t$token\n"; }
 
        }    
    }
@@ -189,7 +179,6 @@ while (my($key,$value) = each(%groups)){
                            last;
                         }
                      }                         
-
 #тестовая печать
 while (my($key,$value) = each(%facts)){
       while (my ($f,$val) = each(%$value)){
@@ -345,21 +334,27 @@ sub readDir {
      open(IN, "<$_[0]/$file")or die "$!"; #open each file
      binmode(IN, ":encoding(utf8)");	      
      
-     my $sn = 0;
+     my $sn = 1;
+     my $is_first = 0;
      my $fileID = $file;
      $fileID =~ s/\..+$//;     
 
      while (my $str = <IN>) {    
      
-     	if ($str =~ /^sent/) {
+     	if ($str =~ /^\/sent/ && $is_first == 0) {
            $sn++;
+           $is_first = 1;  
            next;
      	}
      	if ($str =~ /^\d+/){
            $str =~ s/\«|\»/\"/;
            $str =~ s/\&quot\;/\"/;
-           my @tokens = split/\t/,$str; 
-           $m{$fileID}{$sn}{$tokens[0]} = $tokens[1];
+           my @tokens = split/\t/,$str;
+           if ($tokens[1] eq "\."){
+              $sn++;
+              $is_first = 1;  
+           }
+           $m{$fileID}{$sn}{$tokens[0]} = trim($tokens[1]);
      	} 
      }
      close IN; 
