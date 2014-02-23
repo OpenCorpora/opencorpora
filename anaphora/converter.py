@@ -11,7 +11,7 @@ def group_head(tok_ids):
     ncount = ['NOUN' in '\t'.join(x) for x in annots].count(True)
     group = [x[1][0] for x in tok_ids]
     if len(tok_ids) == 1:
-        return tok_ids[0][1][0]
+        return tok_ids[0][0]
     elif ncount == 1:
         for x in tok_ids:
             if 'NOUN' in '\t'.join(x[1][1]):
@@ -100,10 +100,10 @@ def to_np_list(docid, docf, a, rexp):
             #pos, length, ' '.join((tokens[x] for x in sorted(set(j)))).encode('utf-8')
         j = sorted(set(j))
         h = group_head([(x, tokens[x]) for x in j])
-        print group_id(docid, i) + '\t' + ','.join(j) + '\t' + h
+        print group_id(docid, i) + '\t' + ','.join(j).encode('utf-8') + '\t' + h.encode('utf-8')
         groups[pos] = group_id(docid, i)
         if pos in a.keys():
-            print >> sys.stderr, groups[a[pos]] + '\t' + group_id(docid, i)
+            print >> sys.stderr, groups[a[pos]] + '__' + group_id(docid, i)
 
 
 def split_files(k):
@@ -169,9 +169,9 @@ def to_xml(docid):
 
 if __name__ == '__main__':
     docs = {}
-    #for i, j, m, k in iter_parse_anaph(docs):
-    #    to_np_list(i, j, m, k)
-    to_xml('ana_test')
+    for i, j, m, k in iter_parse_anaph(docs):
+        to_np_list(i, j, m, k)
+    #to_xml('ana_test')
     #for i in iter_parse_anaph(docs):
     #    pass
     #split_files('pairs')

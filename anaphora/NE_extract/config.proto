@@ -7,7 +7,7 @@ TTextMinerConfig {
 
   Input = {
     //  Dir = "learn_data/learn_plaintext/AnaphFiles/OFC_1"; // путь к входным файлам
-      Dir = "data"; // путь к входным файлам
+      Dir = "AnaphFiles/newsru"; // путь к входным файлам
   // File = "data/1238.txt"; // путь к входным файлам
   }
 
@@ -48,7 +48,7 @@ TTextMinerConfig {
   
   Output = {
 //	File = "named_ent.xml";
-//	File = "OFC_1.xml";
+	File = "newsru.xml";
 	Format = xml;
 //	Format = text;
 //        Mode = append;
