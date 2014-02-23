@@ -78,12 +78,13 @@ while (my ($doc,$fact) = each(%facts)) {
                if ($cur_main eq "") { $Mid = 0; }
                elsif (uc($cur_main) eq "NONE" || uc($cur_main) eq "ALL") { $Mid = uc($cur_main); }
                else { $Mid = $ID; }
-               if (exists $types{$cur_type}) { 
+             #  if (exists $types{$cur_type}) { 
                   $groups{$neID}{$ID} = [$Mid,$types{$cur_type}];
-               } else { 
-                  $groups{$neID}{$ID} = [$Mid,$cur_type];
-               }
+             #  } else { 
+             #     $groups{$neID}{$ID} = [$Mid,$cur_type];
+             #  }
              #  print GROUPS "$neID\t$tmpNE\t$cur_main\t".$cur_type."\n";
+             #  print "$tmpNE\n";
                $neID++;  
              } #для многословных
              elsif ($tmpNE =~ / /) {
@@ -137,14 +138,15 @@ while (my ($doc,$fact) = each(%facts)) {
                      }
                 } else { $mid = 0; }  
                # print STDERR "$mid\n";
-                if (exists $types{$cur_type}) { 
+              #  if (exists $types{$cur_type}) { 
                     $groups{$neID}{$ids} = [$mid,$types{$cur_type}];
                    # print GROUPS "$neID\t$ids\t$mid\t".$types{$cur_type}."\n";
-                } else { 
-                    $groups{$neID}{$ids} = [$mid,$cur_type];
+               # } else { 
+               #     $groups{$neID}{$ids} = [$mid,$cur_type];
                    # print GROUPS "$neID\t$ids\t$mid\t".$cur_type."\n";
-                }
+               # }
                # print GROUPS "$neID\t$tmpNE\t$cur_main\t".$cur_type."\n";
+              #  print "$tmpNE\n";
                 $neID++;  
              #   next L; 
              }
@@ -187,17 +189,19 @@ while (my($key,$value) = each(%groups)){
                            last;
                         }
                      }                         
-=cut
+
 #тестовая печать
 while (my($key,$value) = each(%facts)){
       while (my ($f,$val) = each(%$value)){
-         print OUT "$key\t$f\t";
-         while (my ($k,$v) = each (%$val)){
-           print OUT "$k,$v\t";
-         }
-         print OUT "\n";
+       #  print OUT "$key\t$f\t";
+         print OUT "$val->{'Self'}\n";
+        # while (my ($k,$v) = each (%$val)){
+        #   print OUT "$k,$v\t";
+        # }
+        # print OUT "\n";
       }
 }
+=cut
 print STDERR time() - $start."\n";   
 
 #-subs-------------------------------------------------------------
@@ -301,7 +305,11 @@ sub tag_text{
       if ($s =~ /^"/ && $s =~ /"$/){
       	 $s =~ s/"//g;
       }
+      if ($s =~ /"$/ && $s !~ /.+".+"$/){
+          $s =~ s/"//g;
+      }
       $s =~ s/"/ " /g;
+      $s =~ s/\. /\./g;
       $s = trim($s);
       $s =~ s/\s+/ /g;
       $tmplead{$tmpN} = $s;
@@ -349,6 +357,7 @@ sub readDir {
      	}
      	if ($str =~ /^\d+/){
            $str =~ s/\«|\»/\"/;
+           $str =~ s/\&quot\;/\"/;
            my @tokens = split/\t/,$str; 
            $m{$fileID}{$sn}{$tokens[0]} = $tokens[1];
      	} 
