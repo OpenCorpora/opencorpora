@@ -51,4 +51,4 @@ def load_pairs(r):
 
 if __name__ == '__main__':
     print "Precision on class 1 is {:.2%}".format(score(load_pred(sys.stdin),
-                                                        sys.argv[1], sys.argv[2]))
+                                                        groups=sys.argv[1], ref=sys.argv[2]))
