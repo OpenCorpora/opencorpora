@@ -99,6 +99,9 @@ def get_complex_groups(dbh, annotators):
         else:
             groups[row['parent_gid']]['children'].append(row['child_gid'])
             groups[row['parent_gid']]['tokens'].extend(get_tokens_by_group(row['child_gid'], simple, groups))
+
+    for gid in groups:
+        groups[gid]['head'] = get_head_token_id(groups[gid]['head'], simple, groups)
     return groups
 
 def get_tokens_by_group(gid, simple_groups, complex_groups):
@@ -107,6 +110,17 @@ def get_tokens_by_group(gid, simple_groups, complex_groups):
     if gid in complex_groups:
         return complex_groups[gid]['tokens']
     raise KeyError("group #{0} not found".format(gid))
+
+def get_head_token_id(old_id, simple_groups, complex_groups):
+    if old_id == 0:
+        return 0
+    elif old_id in complex_groups:
+        return get_head_token_id(complex_groups[old_id]['head'], simple_groups, complex_groups)
+    elif old_id in simple_groups:
+        return simple_groups[old_id]['head']
+    else:
+        # suppose that it is the token id then
+        return old_id
 
 def do_export(dbh, gtype, only_moderated):
     annotators = choose_annotators(dbh, only_moderated)
