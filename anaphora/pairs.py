@@ -14,6 +14,10 @@ args = parser.parse_args()
 def getid(fullid):
     return int(fullid.split('_')[1])
 
+
+def gettextid(fullid):
+    return int(fullid.split('_')[0])
+
 groups = {}
 pron = {}
 
@@ -40,7 +44,9 @@ result = itertools.product(group_keys, pronoun_keys)
 prev = 0
 for i in result:
     g = getid(groups[i[0]])
-    if g < getid(pron[i[1]]) \
+    tg = gettextid(groups[i[0]])
+    tp = gettextid(pron[i[1]])
+    if tg == tp and g < getid(pron[i[1]]) \
         and g > prev:
         sys.stdout.write('{0}__{1}'.format(str(i[0]), str(i[1]) + '\n'))
         prev = getid(pron[i[1]])

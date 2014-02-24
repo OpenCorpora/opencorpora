@@ -7,7 +7,7 @@ TTextMinerConfig {
 
   Input = {
     //  Dir = "learn_data/learn_plaintext/AnaphFiles/OFC_1"; // путь к входным файлам
-      Dir = "AnaphFiles/newsru"; // путь к входным файлам
+      Dir = "../AnaphFiles/newsru"; // путь к входным файлам
   // File = "data/1238.txt"; // путь к входным файлам
   }
 
