@@ -178,15 +178,16 @@ class AnnotatedToken(object):
 
 class Lexeme(object):
     
-    def __init__(self, lemma, id_, xml, editor=None):
-        self._id = id_
+    def __init__(self, lemma, id_=0, xml=None, editor=None):
         self.lemma = {
             'text': lemma,
             'gram': []
         }
         self.forms = []
         self.updated_forms = set()
-        self._parse_rev_xml(xml, lemma)
+        self._id = id_
+        if xml:
+            self._parse_rev_xml(xml, lemma)
         self._editor = editor
 
     def _parse_rev_xml(self, xml, lemma):
@@ -259,6 +260,13 @@ class Lexeme(object):
             """.format(form, rev_id))
 
     def save(self, comment=""):
+        # if the word is totally new (= has no id), add it
+        if not self._id:
+            self._editor.sql("""
+                INSERT INTO dict_lemmata VALUES(NULL, '{0}')
+            """.format(self.lemma['text']))
+            self._id = self._editor.get_insert_id()
+
         self._editor.sql("""
             INSERT INTO dict_revisions VALUES(NULL, {0}, {1}, '{2}', 0, 0)
         """.format(self._editor.get_revset_id(comment), self._id, self.to_xml()))
