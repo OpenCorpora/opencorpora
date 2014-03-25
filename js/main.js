@@ -370,7 +370,7 @@ function post_sentence_comment($el, sent_id, username) {
                 $newcomment.append('<div class="comment_top">'+username+', '+$res.attr('ts')+'</div><div class="comment_text">'+txt+'</div>');
                 var $reply_link = $(document.createElement('a')).addClass('small').attr('href':'#').data('replyTo':$res.attr('id')).html('ответить').click(function(){
                     $(this).closest('div').after($("#comment_form"));
-                    $("#comment_form").show().data('replyTo', $(this).attr('reply-to'));
+                    $("#comment_form").show().data('replyTo', $(this).data('replyTo'));
                     $("#comment_form").find('textarea').focus();
                     event.preventDefault();
                 });
