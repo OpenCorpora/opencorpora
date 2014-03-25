@@ -23,20 +23,20 @@
             $('table.samples_tbl tr:not(.notagreed)').each(function(i, el) {
                 $el = $(el);
                 if ($el.find('select.sel_var').val() == 0)
-                    submit($el.attr('rel'), $el.attr('rev'), $el.find('a.agree'), manual);
+                    submit($el.data('sampleId'), $el.data('answerNum'), $el.find('a.agree'), manual);
             });
         }
     }
     $(document).ready(function(){
         $('select.sel_var').bind('change', function(event) {
             var $tgt = $(event.target);
-            submit($tgt.closest('tr').attr('rel'), $tgt.val(), $tgt, 1);
+            submit($tgt.closest('tr').data('sampleId'), $tgt.val(), $tgt, 1);
         });
         $('select.sel_status').bind('change', function(event) {
             var $tgt = $(event.target);
             $tgt.closest('td').removeClass('bggreen');
             $('select').attr('disabled', 'disabled');
-            $.get('ajax/annot.php', {'id':$tgt.closest('tr').attr('rel'), 'status': $tgt.val(), 'moder':1, 'manual':1}, function(res) {
+            $.get('ajax/annot.php', {'id':$tgt.closest('tr').data('sampleId'), 'status': $tgt.val(), 'moder':1, 'manual':1}, function(res) {
                 var $r = $(res).find('result');
                 if ($r.attr('ok') > 0) {
                     $tgt.closest('td').addClass('bggreen');
@@ -56,18 +56,18 @@
         });
         $('a.agree').click(function(event) {
             var $tgt = $(event.target);
-            var answer = $tgt.closest('tr').attr('rev');
-            submit($tgt.closest('tr').attr('rel'), answer, $tgt, 1);
+            var answer = $tgt.closest('tr').data('answerNum');
+            submit($tgt.closest('tr').data('sampleId'), answer, $tgt, 1);
             event.preventDefault();
         });
         $('a.expand').click(function(event) {
             var $btn = $(event.target);
-            $.get('ajax/get_context.php', {'tf_id':$(this).attr('rel'), 'dir':$(this).attr('rev')}, function(res) {
+            $.get('ajax/get_context.php', {'tf_id':$(this).data('context'), 'dir':$(this).data('dir')}, function(res) {
                 var s = '';
                 $(res).find('w').each(function(i, el) {
                     s += ' ' + $(el).text();
                 });
-                if ($btn.attr('rev') == -1)
+                if ($btn.data('dir') == -1)
                     $btn.closest('span').prepend(s);
                 else
                     $btn.closest('span').append(s);
@@ -78,7 +78,7 @@
         $('a.comment').click(function(event) {
             if ($(event.target).closest('td').find('textarea').length == 0) {
                 $(event.target).closest('td').append('<div><textarea placeholder="Ваш комментарий"></textarea><br/><button class="send_comment">Отправить комментарий</button></div>').find('button.send_comment').click(function() {
-                    $.post('ajax/post_comment.php', {'type': 'morph_annot', 'id': $(event.target).attr('rel'), 'text': $(this).closest('div').find('textarea').val()}, function(res) {
+                    $.post('ajax/post_comment.php', {'type': 'morph_annot', 'id': $(event.target).data('sampleId'), 'text': $(this).closest('div').find('textarea').val()}, function(res) {
                         var $r = $(res).find('response');
                         if ($r.attr('ok') == 1) {
                             $(event.target).closest('td').find('div').replaceWith('<p>Спасибо, ваш комментарий добавлен!</p>');
@@ -159,16 +159,16 @@
 </tr>
 {foreach from=$pool.samples item=sample}
 {if isset($smarty.get.ext)}
-    <tr rel='{$sample.id}'{if $sample.disagreed > 0} class='notagreed {if $sample.disagreed == 1}bgpink{else}bgorange{/if}'{else} rev='{$sample.instances[0].answer_num}'{/if}>
+    <tr data-sample-id='{$sample.id}'{if $sample.disagreed > 0} class='notagreed {if $sample.disagreed == 1}bgpink{else}bgorange{/if}'{else} data-answer-num='{$sample.instances[0].answer_num}'{/if}>
 {else}
-    <tr rel='{$sample.id}'>
+    <tr data-sample-id='{$sample.id}'>
 {/if}
     <td>{$sample.id}</td>
     <td>
         <a href="{$web_prefix}/books.php?book_id={$sample.book_id}&amp;full#sen{$sample.sentence_id}" target="_blank">контекст</a>
-        <span>{if $sample.has_left_context}<a class='expand' href="#" rel='{$sample.has_left_context}' rev='-1'>...</a>{/if}
+        <span>{if $sample.has_left_context}<a class='expand' href="#" data-context='{$sample.has_left_context}' data-dir='-1'>...</a>{/if}
         {foreach from=$sample.context item=word name=x}{if $smarty.foreach.x.index == $sample.mainword}<b class='bggreen'>{$word|htmlspecialchars}</b>{else}{$word|htmlspecialchars}{/if} {/foreach}
-        {if $sample.has_right_context}<a class='expand' href="#" rel='{$sample.has_right_context}' rev='1'>...</a>{/if}</span>
+        {if $sample.has_right_context}<a class='expand' href="#" data-context='{$sample.has_right_context}' data-dir='1'>...</a>{/if}</span>
         {if isset($smarty.get.ext)}
             <br/><ul>
             {foreach from=$sample.parses item=parse}
@@ -185,7 +185,7 @@
                 <li>{$comment.text|htmlspecialchars} ({$comment.author}, {$comment.timestamp|date_format:"%d.%m.%Y, %H:%M"})</li>
             {/foreach}
             </ol>
-            <a rel='{$sample.id}' class='hint comment' href='#'>Прокомментировать</a>
+            <a data-sample-id='{$sample.id}' class='hint comment' href='#'>Прокомментировать</a>
         {/if}
     </td>
     {if isset($smarty.get.ext)}

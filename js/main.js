@@ -358,7 +358,7 @@ function download_url(event) {
 }
 function post_sentence_comment($el, sent_id, username) {
     var txt = $el.closest('form').find('textarea').val();
-    var reply_to = $el.closest('form').attr('rel');
+    var reply_to = $el.closest('form').data('replyTo');
     $.post('ajax/post_comment.php', {'type':'sentence', 'text':txt, 'id':sent_id, 'reply_to':reply_to},
         function(res) {
             var $res = $(res).find('response');
@@ -368,9 +368,9 @@ function post_sentence_comment($el, sent_id, username) {
                 $newcomment.attr({'id':'comm_'+$res.attr('id')});
                 $newcomment.addClass('comment_main');
                 $newcomment.append('<div class="comment_top">'+username+', '+$res.attr('ts')+'</div><div class="comment_text">'+txt+'</div>');
-                var $reply_link = $(document.createElement('a')).addClass('small').attr({'rel':$res.attr('id'), 'href':'#'}).html('ответить').click(function(){
+                var $reply_link = $(document.createElement('a')).addClass('small').attr('href':'#').data('replyTo':$res.attr('id')).html('ответить').click(function(){
                     $(this).closest('div').after($("#comment_form"));
-                    $("#comment_form").show().attr('rel', $(this).attr('rel'));
+                    $("#comment_form").show().data('replyTo', $(this).attr('reply-to'));
                     $("#comment_form").find('textarea').focus();
                     event.preventDefault();
                 });
@@ -398,7 +398,7 @@ function load_sentence_comments(sent_id, is_logged, need_scroll) {
             $comm.each(function(i, el) {
                 var $el = $(el);
                 var t = '<div id="comm_'+$el.attr('id')+'" class="comment_main"><div class="comment_top">'+$el.attr('author')+', '+$el.attr('ts')+'</div><div class="comment_text">'+$el.text()+'</div>';
-                if (is_logged) t += '<a href="#" class="small reply" rel="'+$el.attr('id')+'">ответить</a>';
+                if (is_logged) t += '<a href="#" class="small reply" data-reply-to="'+$el.attr('id')+'">ответить</a>';
                 t += ' <a href="#comm_'+$el.attr('id')+'" class="small">пост. ссылка</a>';
                 t += '</div>';
                 if ($el.attr('reply') == 0) {
@@ -416,7 +416,7 @@ function load_sentence_comments(sent_id, is_logged, need_scroll) {
             });
             $("a.reply").click(function(event){
                 $(this).closest('div').after($("#comment_form"));
-                $("#comment_form").show().attr('rel', $(this).attr('rel'));
+                $("#comment_form").show().data('replyTo', $(this).data('replyTo'));
                 $("#comment_form").find('textarea').focus();
                 event.preventDefault();
             });
