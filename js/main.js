@@ -268,7 +268,7 @@ function dict_add_exc_prepare($btn) {
 }
 function save_check_tokens($el) {
     $el.attr('disabled', 'disabled');
-    $.get('ajax/save_check.php', {'type':'token', 'id':$el.attr('id').substr(1), 'value':$el.attr('checked')},
+    $.get('ajax/save_check.php', {'type':'token', 'id':$el.attr('id').substr(1), 'value':$el.is(':checked')},
         function(res) {
             var ok = $(res).find('result').attr('ok');
             if (ok != 1) {
@@ -303,7 +303,7 @@ function show_edit_token($el) {
 }
 function check_merge($chbox) {
     var tid = $chbox.closest('div').find('div.tid').html().substr(1);
-    if ($chbox.attr('checked')) {
+    if ($chbox.is(':checked')) {
         $("span#t"+tid).addClass('bgblue').data('checked', 1);
     } else {
         $("span#t"+tid).removeClass().removeData('checked');
