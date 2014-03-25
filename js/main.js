@@ -201,7 +201,7 @@ function edit_gram(event) {
         if(names[i]) {
             var $el = $(el)
             if(names[i] == 'submit') {
-                $el.html($el.html()+'<input type="hidden" name="id" value="'+$a.attr('rel')+'"/><input type="submit" value="Сохранить"/>&nbsp;<input type="button" value="Отменить" onClick="location.reload()"/>')
+                $el.html($el.html()+'<input type="hidden" name="id" value="'+$a.data('gramid')+'"/><input type="submit" value="Сохранить"/>&nbsp;<input type="button" value="Отменить" onClick="location.reload()"/>')
             }
             else {
                 $el.html('<input name="'+names[i]+'" '+(names[i] == 'descr' ? 'size="35"' : 'size="10" maxlength="20"')+' value="'+$el.html()+'"/>')
@@ -337,7 +337,7 @@ function merge_tokens() {
 function download_url(event) {
     var $el = $(event.target).closest('a');
     var force = $el.hasClass('redo') ? 1 : 0;
-    var url = $el.attr('rel');
+    var url = $el.data('url');
     $el.text('скачивается...');
     $.get('ajax/download_url.php', {'url': url, 'force': force},
         function(res) {
@@ -426,13 +426,13 @@ function load_sentence_comments(sent_id, is_logged, need_scroll) {
     );
 }
 function change_source_status(event) {
-    $.get('ajax/save_check.php', {'id':$(event.target).attr('rel'), 'type':'source', 'value':$(event.target).attr('rev')}, function(res) {
+    $.get('ajax/save_check.php', {'id':$(event.target).data('srcid'), 'type':'source', 'value':$(event.target).data('status')}, function(res) {
         var $b = $(event.target);
         if ($(res).find('result').attr('ok') == 1) {
-            if($b.attr('rev') == 1) {
-                $b.attr('rev', '0').html('Не готово').closest('tr').removeClass().addClass('bggreen');
+            if ($b.data('status') == 1) {
+                $b.data('status', '0').html('Не готово').closest('tr').removeClass().addClass('bggreen');
             } else {
-                $b.attr('rev', '1').html('Готово').closest('tr').removeClass().addClass('bgyellow');
+                $b.data('status', '1').html('Готово').closest('tr').removeClass().addClass('bgyellow');
             }
         } else {
             alert('Query failed');
@@ -441,6 +441,7 @@ function change_source_status(event) {
 }
 function get_wikinews_info($link) {
     var ttl = $link.closest('p').find('span').html();
+    var book_id = $link.data('bookid');
     $.getJSON(
         'http://ru.wikinews.org/w/api.php?callback=?',
         {'format':'json', 'action':'query', 'titles':ttl, 'prop':'revisions|categories', 'rvdir':'newer'},
@@ -452,15 +453,15 @@ function get_wikinews_info($link) {
                 $.each(item.categories, function(j, catitem){
                     categ.push(catitem.title);
                 });
-                add_field_for_tag($link.attr('rel'), 'Автор:http://ru.wikinews.org/wiki/Участник:' + author);
+                add_field_for_tag(book_id, 'Автор:http://ru.wikinews.org/wiki/Участник:' + author);
                 $.get('ajax/guess_wiki_categ.php', {'cat':categ.join('|')}, function(res1){
-                    add_field_for_tag($link.attr('rel'), 'Дата:' + $(res1).find("date").attr('v'));
-                    add_field_for_tag($link.attr('rel'), 'Год:' + $(res1).find("year").attr('v'));
+                    add_field_for_tag(book_id, 'Дата:' + $(res1).find("date").attr('v'));
+                    add_field_for_tag(book_id, 'Год:' + $(res1).find("year").attr('v'));
                     $.each($(res1).find("topic"), function(j, catitem){
-                        add_field_for_tag($link.attr('rel'), 'Тема:ВикиКатегория:' + $(catitem).attr('v'));
+                        add_field_for_tag(book_id, 'Тема:ВикиКатегория:' + $(catitem).attr('v'));
                     });
                     $.each($(res1).find("geo"), function(j, catitem){
-                        add_field_for_tag($link.attr('rel'), 'Гео:ВикиКатегория:' + $(catitem).attr('v'));
+                        add_field_for_tag(book_id, 'Гео:ВикиКатегория:' + $(catitem).attr('v'));
                     });
                 });
                 $.getJSON(
@@ -471,7 +472,7 @@ function get_wikinews_info($link) {
                         $.each(rdata.query.pages, function(i, item){
                             lastrevid = item.revisions[0].revid;
                         });
-                        add_field_for_tag($link.attr('rel'), 'url:http://ru.wikinews.org/w/index.php?title=' +ttl.replace(/ /g, '_') + '&oldid=' + lastrevid);
+                        add_field_for_tag(book_id, 'url:http://ru.wikinews.org/w/index.php?title=' +ttl.replace(/ /g, '_') + '&oldid=' + lastrevid);
                     }
                 );
             });
@@ -481,12 +482,13 @@ function get_wikinews_info($link) {
 }
 function get_chaskor_info($link) {
     var ttl = $link.closest('div').find('span').html();
+    var book_id = $link.data('bookid');
     $.get('python/chaskor.py', {'url':'news/'+ttl}, function(res){
         var $res = $(res);
-        add_field_for_tag($link.attr('rel'), $res.find('year').text());
-        add_field_for_tag($link.attr('rel'), $res.find('date').text());
-        add_field_for_tag($link.attr('rel'), $res.find('mainSubject').text());
-        add_field_for_tag($link.attr('rel'), $res.find('subSubject').text());
+        add_field_for_tag(book_id, $res.find('year').text());
+        add_field_for_tag(book_id, $res.find('date').text());
+        add_field_for_tag(book_id, $res.find('mainSubject').text());
+        add_field_for_tag(book_id, $res.find('subSubject').text());
         $link.hide();
     });
 }

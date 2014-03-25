@@ -15,7 +15,7 @@ $(document).ready(function(){
             action = 'forget';
 
         var tr = $(this).closest('tr');
-        $.get('ajax/dict_pending.php', {'act':action, 'token_id':tr.attr('rel'), 'rev_id':tr.attr('rev')}, function(res) {
+        $.get('ajax/dict_pending.php', {'act':action, 'token_id':tr.data('tokenid'), 'rev_id':tr.data('revision')}, function(res) {
             var $r = $(res).find('result');
             if ($r.attr('ok') == 1) {
                 $(event.target).closest('tr').css('backgroundColor', '#999').find('button').hide();
@@ -60,7 +60,7 @@ $(document).ready(function(){
 {/foreach}</pre></td>
 </tr>
 {foreach from=$revision.tokens item=token}
-<tr rel="{$token.id}" rev="{$revision.id}" {if $token.is_unkn}class='bggreen'{elseif !$token.human_edits}class='bgblue'{else}class='bgpink'{/if}><td colspan='3'>
+<tr data-tokenid="{$token.id}" data-revision="{$revision.id}" {if $token.is_unkn}class='bggreen'{elseif !$token.human_edits}class='bgblue'{else}class='bgpink'{/if}><td colspan='3'>
     <a href="sentence.php?id={$token.sentence_id}">{$token.context}</a>
         <div class='pull-right'>
             <button class='btn btn-small btn-success upd_token'>Обновить</button>

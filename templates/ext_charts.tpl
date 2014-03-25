@@ -56,9 +56,9 @@ $(document).ready(function() {
 
     $("#toggle_chart").click(function(event) {
         var $this = $(this);
-        $this.attr('rel', 1 - $this.attr('rel'));
+        $this.data('status', 1 - $this.data('status'));
 
-        if ($this.attr('rel') == 1) {
+        if ($this.data('status') == 1) {
             this.innerHTML = 'вернуть';
             $.plot($("#words_chart"), data2, stack_opts);
         }
@@ -77,10 +77,10 @@ $(document).ready(function() {
     <li><a href="?page=genre_stats">Состав корпуса</a></li>
     <li><a href="?page=tag_stats">По тегам</a></li>
     <li><a href="?page=charts">Графики</a></li>
-    <li class="active"><a href="?page=ext_charts">Спецграфики</a></li>
+    <li class="active"><a href="?page=pool_charts">Спецграфики</a></li>
 </ul>
 <h2>Распределение пулов</h2>
-<p><a href="#" id="toggle_chart" class="pseudo" rel="0">привести все к 100%</a></p>
+<p><a href="#" id="toggle_chart" class="pseudo" data-status="0">привести все к 100%</a></p>
 <div id="words_chart" style="width:100%; height: 1000px"></div>
 <h3>Всего</h3>
 <div id="totals_chart" style="width:700px; height: 400px"></div>

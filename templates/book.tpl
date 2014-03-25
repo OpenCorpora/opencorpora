@@ -95,9 +95,9 @@
     <h3>Теги</h3>
     {if $user_permission_adder}
     {if $book.is_wikinews}
-    <p><span class="hidden-block">{$book.wikinews_title}</span><a href="#" class="pseudo" id="wikinews_addtag_link" rel="{$book.id}">попробовать заполнить автоматически</a></p>
+    <p><span class="hidden-block">{$book.wikinews_title}</span><a href="#" class="pseudo" id="wikinews_addtag_link" data-bookid="{$book.id}">попробовать заполнить автоматически</a></p>
     {elseif $book.is_chaskor_news}
-    <div><span class="hidden-block">{$book.chaskor_news_title}</span><a href="#" class="hint" id="chaskor_addtag_link" rel="{$book.id}">попробовать заполнить автоматически</a></div>
+    <div><span class="hidden-block">{$book.chaskor_news_title}</span><a href="#" class="hint" id="chaskor_addtag_link" data-bookid="{$book.id}">попробовать заполнить автоматически</a></div>
     {/if}
     {/if}
     {if isset($book.tags[0])}
@@ -109,9 +109,9 @@
                 {if $tag.prefix == 'url'}
                     url:<a href="{$tag.body}" target="_blank">{$tag.body}</a>
                     {if isset($tag.filename)}
-                    , <a class='small' href="{$web_prefix}/files/saved/{$tag.filename}.html">сохранённая копия</a> (<a class='small download_url redo' href="#" rel='{$tag.body}'>перезакачать</a>)
+                    , <a class='small' href="{$web_prefix}/files/saved/{$tag.filename}.html">сохранённая копия</a> (<a class='small download_url redo' href="#" data-url='{$tag.body}'>перезакачать</a>)
                     {elseif $user_permission_adder}
-                    , <a class='small download_url' href="#" rel='{$tag.body}'>скачать</a>
+                    , <a class='small download_url' href="#" data-url='{$tag.body}'>скачать</a>
                     {/if}
                 {else}
                     {$tag.full|htmlspecialchars}

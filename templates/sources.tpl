@@ -5,7 +5,7 @@
 <script type="text/javascript">
     $(document).ready(function(){
         $("a.ab").click(function(event){
-            var sid = $(this).attr('rel');
+            var sid = $(this).data('srcid');
             $(this).hide();
             var $a1 = $(document.createElement('a')).html('уже есть').addClass('pseudo').attr('href', '#').click(function(event){
                 $(this).next().hide();
@@ -51,15 +51,15 @@
             event.preventDefault();
         });
         $("a.ya").click(function(event){
-            $.get('ajax/own_book.php', {'sid':$(this).attr('rel'), 'status':$(this).attr('rev')}, function(res) {
+            $.get('ajax/own_book.php', {'sid':$(this).data('srcid'), 'status':$(this).data('status')}, function(res) {
                 var $t = $(event.target);
                 if ($(res).find('result').attr('ok') == 1) {
-                    if ($t.attr('rev') == 1) {
-                        $t.attr('rev', '0').html('не хочу');
-                        var $b = $(document.createElement('button')).addClass('bgo').attr({'rel':$t.attr('rel'), 'rev':'1'}).html('Готово').click(function(event){change_source_status(event)});
+                    if ($t.data('status') == 1) {
+                        $t.data('status', '0').html('не хочу');
+                        var $b = $(document.createElement('button')).addClass('bgo').data({'srcid':$t.data('srcid'), 'status':'1'}).html('Готово').click(function(event){change_source_status(event)});
                         $t.closest('tr').addClass('bgyellow').children().last().append($b);
                     } else {
-                        $t.attr('rev', '1').html('хочу').closest('tr').removeClass().children().last().empty();
+                        $t.data('status', '1').html('хочу').closest('tr').removeClass().children().last().empty();
                     }
                 }
                 else {
@@ -70,10 +70,10 @@
         });
         $("a.ac").click(function(event){
             var $i = $(document.createElement('textarea')).attr('rows', 2);
-            var $b = $(document.createElement('button')).html('Добавить').attr('rel', $(event.target).attr('rel')).click(function(event){
+            var $b = $(document.createElement('button')).html('Добавить').data('srcid', $(event.target).data('srcid')).click(function(event){
                 var $t = $(event.target);
                 $t.attr('disabled', 'disabled');
-                $.post('ajax/post_comment.php', {'type':'source', 'id':$t.attr('rel'), 'text':$t.closest('td').find('textarea').val()}, function(res) {
+                $.post('ajax/post_comment.php', {'type':'source', 'id':$t.data('srcid'), 'text':$t.closest('td').find('textarea').val()}, function(res) {
                     if ($(res).find('response').attr('ok') == 1) {
                         $t.replaceWith('я: ' + $i.val());
                         $i.hide();
@@ -122,19 +122,19 @@
     <td>
         {if $s.user_id}
             {if $s.user_id == $smarty.session.user_id}
-            я <a href="#" class="pseudo ya" rel="{$s.id}" rev="0">не хочу</a>
+            я <a href="#" class="pseudo ya" data-srcid="{$s.id}" data-status="0">не хочу</a>
             {else}
             {$s.user_name}
             {/if}
         {else}
-            <a href="#" class="pseudo ya" rel="{$s.id}" rev="1">я хочу</a>
+            <a href="#" class="pseudo ya" data-srcid="{$s.id}" data-status="1">я хочу</a>
         {/if}
     </td>
     <td>
         {if $s.book_id}
         <a href="{$web_prefix}/books.php?book_id={$s.book_id}" class="small">{$s.book_title|htmlspecialchars}</a>
         {elseif !$s.user_id || $s.user_id == $smarty.session.user_id}
-        <a href="#" class="pseudo ab" rel="{$s.id}">добавить</a>
+        <a href="#" class="pseudo ab" data-srcid="{$s.id}">добавить</a>
         {else}
         &nbsp;
         {/if}
@@ -143,14 +143,14 @@
         {foreach item=comment from=$s.comments}
         {$comment.username}: {$comment.text|htmlspecialchars}<br/>
         {/foreach}
-        <a href="#" rel="{$s.id}" class="ac small pseudo">добавить</a>
+        <a href="#" data-srcid="{$s.id}" class="ac small pseudo">добавить</a>
     </td>
     <td>
         {if $s.user_id && $s.user_id == $smarty.session.user_id}
         {if !$s.status}
-        <button class="bgo btn" rel="{$s.id}" rev="1">Готово</button>
+        <button class="bgo btn" data-srcid="{$s.id}" data-status="1">Готово</button>
         {else}
-        <button class="bgo btn" rel="{$s.id}" rev="0">Не готово</button>
+        <button class="bgo btn" data-srcid="{$s.id}" data-status="0">Не готово</button>
         {/if}
         {elseif $s.status}
         <span class='small'>{$s.status_ts|date_format:"%d.%m.%Y, %H:%M"}</span>

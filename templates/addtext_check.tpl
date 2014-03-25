@@ -5,7 +5,7 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $("#select_book_form").find('select').change(function(event){
-                var n = parseInt($(event.target).closest('select').attr('rel'))
+                var n = parseInt($(event.target).closest('select').data('selectid'))
                 changeSelectBook(n)
                 })
             {if isset($check.selected1)}changeSelectBook(1);
@@ -48,11 +48,11 @@
     {/foreach}
     </ol>
         Добавляем в
-        <select id="book0" name="book[]" rel="0">
+        <select id="book0" name="book[]" data-selectid="0">
             <option value="0">-- Не выбрано --</option>
             {html_options options=$check.select0 selected=$check.selected0}
         </select>
-        <select id="book1" name="book[]"{if !isset($check.select1)} disabled="disabled"{/if} rel="1">
+        <select id="book1" name="book[]"{if !isset($check.select1)} disabled="disabled"{/if} data-selectid="1">
             <option value="0">-- Не выбрано --</option>
             {if isset($check.select1)}
             {html_options options=$check.select1 selected=$check.selected1}

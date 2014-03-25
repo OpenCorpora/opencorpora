@@ -32,7 +32,7 @@
             {if $user_permission_dict}<th>&nbsp;</th>{/if}
         </tr>
         {foreach key=id item=grammem from=$grammems}
-            <tr class='{$grammem.css_class}'><td><a name='g{$grammem.id}'></a>{$grammem.order}<td>{$grammem.name}</td><td>{$grammem.outer_id|default:'&nbsp;'}</td><td>{$grammem.description}</td><td>{$grammem.parent_name|default:'&mdash;'}</td>{if $user_permission_dict}<td>[<a href='?act=move_gram&amp;dir=up&amp;id={$grammem.id}'>вверх</a>] [<a href='?act=move_gram&amp;dir=down&amp;id={$grammem.id}'>вниз</a>] [<a href='#' class="edit_gram_link" rel="{$grammem.id}">ред.</a>] [<a href='?act=del_gram&amp;id={$grammem.id}' onClick="return confirm('Вы уверены, что хотите удалить граммему?');">x</a>]</td>{/if}</tr>
+            <tr class='{$grammem.css_class}'><td><a name='g{$grammem.id}'></a>{$grammem.order}<td>{$grammem.name}</td><td>{$grammem.outer_id|default:'&nbsp;'}</td><td>{$grammem.description}</td><td>{$grammem.parent_name|default:'&mdash;'}</td>{if $user_permission_dict}<td>[<a href='?act=move_gram&amp;dir=up&amp;id={$grammem.id}'>вверх</a>] [<a href='?act=move_gram&amp;dir=down&amp;id={$grammem.id}'>вниз</a>] [<a href='#' class="edit_gram_link" data-gramid="{$grammem.id}">ред.</a>] [<a href='?act=del_gram&amp;id={$grammem.id}' onClick="return confirm('Вы уверены, что хотите удалить граммему?');">x</a>]</td>{/if}</tr>
         {/foreach}
     </table>
     </form>
