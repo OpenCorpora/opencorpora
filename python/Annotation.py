@@ -159,9 +159,12 @@ class AnnotatedToken(object):
         for parse in self.parses:
             parse.replace_gramset(search_gram, replace_gram)
 
-    def replace_lemma(self, search, replace):
+    def replace_lemma(self, search, replace, gram_restriction=None):
+        if gram_restriction and isinstance(gram_restriction, str):
+            gram_restriction = gram_restriction,
         for parse in self.parses:
-            parse.replace_lemma(search, replace)
+            if not gram_restriction or parse.has_all_grams(gram_restriction):
+                parse.replace_lemma(search, replace)
 
     def save(self, comment=""):
         self._editor.sql("""
