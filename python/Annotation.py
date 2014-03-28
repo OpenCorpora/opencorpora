@@ -105,7 +105,7 @@ class ParsingVariant(object):
 
         self.xml = self.xml.replace(''.join(search_seq), ''.join(replace_seq))
 
-    def replace_lemma(self, find, search, replace):
+    def replace_lemma(self, search, replace):
         assert isinstance(search, str)
         assert isinstance(replace, str)
 
