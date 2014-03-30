@@ -8,15 +8,15 @@ use Getopt::Std;
 my $start = time();
 
 binmode (STDOUT,"encoding(utf8)");
+binmode (STDERR,"encoding(utf8)");
 
 my %opts;
-getopts('x:o:m:',\%opts);
+getopts('x:m:',\%opts);
 
 #usage
-if (!$opts{'x'} || !$opts{'m'} || !$opts{'o'}){
+if (!$opts{'x'} || !$opts{'m'}){
     print "\n\nUsage:\n
     $0 -m MORPH_DIR  
-    \t\t  -o OUTPUT_FILE 
     \t\t  -x XML_FILE \n\n";
    exit;
 }
@@ -24,8 +24,8 @@ if (!$opts{'x'} || !$opts{'m'} || !$opts{'o'}){
 my $debug = 'debug.txt';
 #my $file_output = $opts{'o'};
 
-open (GROUPS, ">$opts{'o'}") or die "No output file: $!";
-binmode(GROUPS, ':encoding(utf-8)');
+#open (GROUPS, ">$opts{'o'}") or die "No output file: $!";
+#binmode(GROUPS, ':encoding(utf-8)');
 open (OUT, ">$debug") or die "Error: $!";
 binmode(OUT, ':encoding(utf-8)');
 
@@ -70,7 +70,8 @@ while (my ($doc,$fact) = each(%facts)) {
        my $cur_type = lc($facts{$doc}{$f}{'Type'});
        my $cur_main = $facts{$doc}{$f}{'Main'};
       M: while (my ($ID,$token) = each(%{$morph{$doc}{$sn}})) {
-          #print $tmpNE."\t$token\n";
+         my ($fp,$sp) = split/_/,$ID; 
+         #print $tmpNE."\t$token\n";
          #my $tk = lc($token);
           if ($tmpNE =~ /\Q$token\E/) {
              #для однословных
@@ -79,39 +80,42 @@ while (my ($doc,$fact) = each(%facts)) {
                if ($cur_main eq "") { $Mid = 0; }
                elsif (uc($cur_main) eq "NONE" || uc($cur_main) eq "ALL") { $Mid = uc($cur_main); }
                else { $Mid = $ID; }
-               $groups{$neID}{$ID} = [$Mid,$types{$cur_type}];
+               my $ne_ID = $fp."_".sprintf("%04d",$neID);
+               $groups{$ne_ID}{$ID} = [$Mid,$types{$cur_type}];  #ЗДЕСЬ НУЖНА ПРОВЕРКА НА ОКРУЖЕНИЕ (БЛИЖАЙШИЙ КОНТЕКСТ)!
              #  print GROUPS "$neID\t$tmpNE\t$cur_main\t".$cur_type."\n";
-      #         print "$tmpNE\n";
+             #  print "$tmpNE\n";
                $neID++;  
              } #для многословных
              elsif ($tmpNE =~ / /) {
 		my @nes = split/ /, $tmpNE; 
                 my ($ind, $ids, $mid);
                 for my $i (0..$#nes){
-                    if ($nes[$i] eq $token) {
+                    if (lc($nes[$i]) eq lc($token)) {
                        $ind = $i; last;
                     }
                 }
 		if ($ind eq "") {
                     next M;	
-		}                
+		}
                 elsif ($ind == 0){
                   $ids = $ID;
                   for my $k (1..$#nes){
-		    if ($nes[$k] eq $morph{$doc}{$sn}{($ID+$k)}) { #safe check 	
-                       $ids .= ",".($ID + $k);
+                    my $tmpI = $fp."_".sprintf("%04d",$sp+$k);
+              #      print STDERR "$nes[$k] \t $morph{$doc}{$sn}{$tmpI}\n";
+		    if ($nes[$k] eq $morph{$doc}{$sn}{$tmpI}) { #safe check 	
+                       $ids .= ",".$tmpI;
                     } else { next M; }  
                   }     
                 } else {
-                   $ids = $ID - $ind;
+                   $ids = $fp."_".($sp - $ind);
                    for (my $k=($ind-1);$k>=0;$k--) {  #если попали в середину ИГ
-		       if ($nes[$k] eq $morph{$doc}{$sn}{($ID-$k)}) { #safe check 	
-                           $ids .= ",".($ID - $k);
+		       if ($nes[$k] eq $morph{$doc}{$sn}{$fp."_".($sp-$k)}) { #safe check 	
+                           $ids .= ",".$fp."_".sprintf("%04d",($sp - $k));
                        } else { next M; }
                    }  
                    for my $k (1..($#nes-$ind)) {  
-		       if ($nes[$k] eq $morph{$doc}{$sn}{($ID+$k)}) { #safe check 	
-                          $ids .= ",".($ID + $k);
+		       if ($nes[$k] eq $morph{$doc}{$sn}{$fp."_".($sp+$k)}) { #safe check 	
+                          $ids .= ",".$fp."_".sprintf("%04d",($sp + $k));
                        } else { next M; }
 		    }  
                 }
@@ -125,18 +129,21 @@ while (my ($doc,$fact) = each(%facts)) {
                      K:for my $i (0..$#IDS){
                          if (lc($morph{$doc}{$sn}{$IDS[$i]}) eq $mains[0]){
                             $mid = $IDS[$i];
+                            my ($tmpf,$tmps) = split/_/,$IDS[$i]; 
                             for my $j (1..$#mains){
-		                if ($mains[$j] eq lc($morph{$doc}{$sn}{($IDS[$i]+$j)})) { #safe check 	
-                                   $mid .= ",".($IDS[$i] + $j);
+                                my $tmpI = $tmpf."_".sprintf("%04d",($tmps+$j)); 
+		                if ($mains[$j] eq lc($morph{$doc}{$sn}{$tmpI})) { #safe check 	
+                                   $mid .= ",".$tmpI;
                                 } else { next K; }    
                             }
                             last K;  
                          }    
                      }
-                } else { $mid = 0; }  
-                $groups{$neID}{$ids} = [$mid,$types{$cur_type}];
+                } else { $mid = 0; }
+                my $ne_ID = $fp."_".sprintf("%04d",$neID);
+                $groups{$ne_ID}{$ids} = [$mid,$types{$cur_type}];
                # print GROUPS "$neID\t$tmpNE\t$cur_main\t".$cur_type."\n";
-               # print "$tmpNE\n";
+              #  print "$tmpNE\n";
                 $neID++;  
              #   next L; 
              }
@@ -152,11 +159,11 @@ while (my($key,$value) = each(%groups)){
         if ($val->[0] =~ /,/){
            for my $j (0..$size){
                if (exists $groups{$j}{$val->[0]}){
-                  print GROUPS "$key\t$f\t$groups{$j}{$val->[0]}->[0]\t$val->[1]\n";
+                  print "$key\t$f\t$groups{$j}{$val->[0]}->[0]\t$val->[1]\n";
                }
            }
         } else {  
-          print GROUPS "$key\t$f\t$val->[0]\t$val->[1]\n";
+          print "$key\t$f\t$val->[0]\t$val->[1]\n";
         }
       }
 }
@@ -337,25 +344,35 @@ sub readDir {
      my $sn = 1;
      my $is_first = 0;
      my $fileID = $file;
-     $fileID =~ s/\..+$//;     
+     $fileID =~ s/\.txt\.new\.tab$//;     
 
      while (my $str = <IN>) {    
+     	
      
-     	if ($str =~ /^\/sent/ && $is_first == 0) {
-           $sn++;
-           $is_first = 1;  
-           next;
-     	}
      	if ($str =~ /^\d+/){
            $str =~ s/\«|\»/\"/;
            $str =~ s/\&quot\;/\"/;
-           my @tokens = split/\t/,$str;
-           if ($tokens[1] eq "\."){
+           my @tokens = split/\s+/,$str;
+           my $t = $tokens[1];
+           my ($tmpf,$tmps) = split/_/,$tokens[0]; 
+           my $prev_id = $tmpf."_".sprintf("%04d",($tmps-1)); 
+           if ($t eq "\." || $t eq "\!" || $t eq "\?"){
               $sn++;
               $is_first = 1;  
            }
-           $m{$fileID}{$sn}{$tokens[0]} = trim($tokens[1]);
+           if (($t eq "com" || $t eq "ру" || $t eq "что" || $t eq "см") && $m{$fileID}{$sn}{$prev_id} eq "\."){
+              $sn--;
+           }
+           if (length($t) > 1 && $t =~ /(\"$|\:$|^\"|\/$)/){
+              $t =~ s/$1//;
+           }
+           $m{$fileID}{$sn}{$tokens[0]} = trim($t);
      	} 
+	if ($str =~ /^\/sent/ && $is_first == 0) {
+           $sn++;
+           $is_first = 1;
+           next;
+     	}
      }
      close IN; 
   }
