@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <!-- root element -->
+    <xs:element name="annotation" type="Annotation">
+        <xs:unique name="uniqueTextId">
+            <xs:selector xpath="text" />
+            <xs:field xpath="@id" />
+        </xs:unique>
+        <xs:unique name="uniqueParagraphId">
+            <xs:selector xpath="text/paragraphs/paragraph" />
+            <xs:field xpath="@id" />
+        </xs:unique>
+        <xs:unique name="uniqueSentenceId">
+            <xs:selector xpath="text/paragraphs/paragraph/sentence" />
+            <xs:field xpath="@id" />
+        </xs:unique>
+        <xs:unique name="uniqueTokenId">
+            <xs:selector xpath="text/paragraphs/paragraph/sentence/tokens/token" />
+            <xs:field xpath="@id" />
+        </xs:unique>
+    </xs:element>  
+      
+    <!-- **************
+           Subclasses 
+         **************  -->
+      
+    <xs:complexType name="Annotation">    
+        <xs:sequence>
+            <xs:element name="text" type="Text" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="version" type="xs:decimal" use="required" />
+        <xs:attribute name="revision" type="xs:decimal" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="Text">
+        <xs:sequence>
+            <xs:element name="tags" type="Tags" />
+            <xs:element name="paragraphs" type="Paragraphs" />
+        </xs:sequence>
+        <xs:attribute ref="id" use="required" />
+        <xs:attribute name="parent" type="xs:decimal" use="required" />
+        <xs:attribute name="name" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="Tags">
+        <xs:sequence>
+            <xs:element name="tag" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Paragraphs">
+        <xs:sequence>
+            <xs:element name="paragraph" type="Paragraph" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Paragraph">
+        <xs:sequence>
+            <xs:element name="sentence" type="Sentence" minOccurs="1" maxOccurs="unbounded"  />
+        </xs:sequence>
+        <xs:attribute ref="id" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="Sentence">
+        <xs:sequence>
+            <xs:element name="source" type="xs:string" />
+            <xs:element name="tokens" type="Tokens" />
+        </xs:sequence>
+        <xs:attribute ref="id" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="Tokens">
+        <xs:sequence>
+            <xs:element name="token" type="Token" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Token">
+        <xs:sequence>
+            <xs:element name="tfr" type="Tfr" />
+        </xs:sequence>
+        <xs:attribute ref="id" use="required" />
+        <xs:attribute name="text" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="Tfr">
+        <xs:sequence>
+            <xs:element name="v" type="V" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="t" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="V">
+        <xs:sequence>
+            <xs:element name="l" type="L" minOccurs="1" maxOccurs="1" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="L">
+        <xs:sequence>
+            <xs:element name="g" type="G" minOccurs="1" maxOccurs="unbounded"  />
+        </xs:sequence>
+        <xs:attribute ref="id" use="required" />
+        <xs:attribute name="t" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="G">
+        <xs:attribute name="v" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <!-- ********************
+          Popular attributes
+          ********************  -->
+          
+    <xs:attribute name="id" type="xs:decimal"/>
+</xs:schema>
