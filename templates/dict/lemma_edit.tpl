@@ -104,6 +104,7 @@
     </form>
     {/strip}
     <p><b>Связи</b></p>
+    {if $user_permission_dict}
     <p><a href="#" class="pseudo" onclick="$('#add_link').show(); return false">Добавить связь</a></p>
     <form id="add_link" method='post' class='hidden-block' action='?act=add_link'>
         <input type='hidden' name='from_id' value='{$editor.lemma.id}'/>
@@ -114,6 +115,7 @@
         с леммой
         <input id="find_lemma"/> <input type='button' value='Найти' onclick='get_lemma_search()'/>
     </form>
+    {/if}
     <ul>
     {foreach item=link from=$editor.links}
     <li>
@@ -122,9 +124,13 @@
         {else}
             {$editor.lemma.text} -&gt; <a href="?act=edit&amp;id={$link.lemma_id}">{$link.lemma_text}</a> ({$link.name})
         {/if}
+        {if $user_permission_dict}
         [<a href="?act=change_link_dir&amp;id={$link.id}&amp;lemma_id={$editor.lemma.id}" title="Изменить направление" onclick="return confirm('Изменить направление связи?')">&#8644;</a>]
         [<a href="?act=del_link&amp;id={$link.id}&amp;lemma_id={$editor.lemma.id}" onclick="return confirm('Вы уверены?')">удалить</a>]
+        {/if}
     </li>
+    {foreachelse}
+    <p>Нет ни одной связи.</p>
     {/foreach}
     </ul>
 {/block}
