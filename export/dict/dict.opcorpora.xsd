@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="dictionary" type="Dictionary">
+        <xs:unique name="uniqueLemmaId">
+            <xs:selector xpath="lemmata/lemma" />
+            <xs:field xpath="@id" />
+        </xs:unique>
+        <xs:unique name="uniqueLinkTypeId">
+            <xs:selector xpath="link_types/type" />
+            <xs:field xpath="@id" />
+        </xs:unique>
+        <xs:unique name="uniqueLinkId">
+            <xs:selector xpath="links/link" />
+            <xs:field xpath="@id" />
+        </xs:unique>
+        
+        <xs:key name="linkTypeId">
+            <xs:selector xpath="link_types/type" />
+            <xs:field xpath="@id" />
+        </xs:key>
+        <xs:keyref name="link_type" refer="linkTypeId">
+            <xs:selector xpath="links/link" />
+            <xs:field xpath="@type" />
+        </xs:keyref>
+    </xs:element>
+    
+    <xs:complexType name="Dictionary">
+        <xs:sequence>
+            <xs:element name="grammemes" type="Grammemes" />
+            <xs:element name="restrictions" type="Restrictions" />
+            <xs:element name="lemmata" type="Lemmata" />
+            <xs:element name="link_types" type="LinkTypes" />
+            <xs:element name="links" type="Links" />
+        </xs:sequence>
+        <xs:attribute name="version" type="xs:decimal" use="required" />
+        <xs:attribute name="revision" type="xs:int" use="required" />
+    </xs:complexType>
+    
+    <xs:complexType name="Grammemes">
+        <xs:sequence>
+            <xs:element name="grammeme" type="Grammeme" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="Grammeme">
+        <xs:sequence>
+            <xs:element name="name" type="String4" />
+            <xs:element name="alias" type="xs:string" />
+            <xs:element name="description" type="xs:string" />
+        </xs:sequence>
+        <xs:attribute name="parent" type="String4" use="required" />
+    </xs:complexType>
+
+    <xs:simpleType name="String4">
+        <xs:restriction base="xs:string">
+            <xs:length value="4" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="Restrictions">
+        <xs:sequence>
+            <xs:element name="restr" type="Restriction" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Restriction">
+        <xs:sequence>
+            <xs:element name="left" type="Restr" />
+            <xs:element name="right" type="Restr" />
+        </xs:sequence>
+        <xs:attribute name="type" type="RestrType" use="required" />
+        <xs:attribute name="auto" type="Binary" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="Restr">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="type" type="FormOrLemma" use="required" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="RestrType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="obligatory" />
+            <xs:enumeration value="maybe" />
+            <xs:enumeration value="forbidden" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="Binary">
+        <xs:restriction base="xs:int">
+            <xs:enumeration value="0" />
+            <xs:enumeration value="1" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="FormOrLemma">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="form" />
+            <xs:enumeration value="lemma" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="Lemmata">
+        <xs:sequence>
+            <xs:element name="lemma" type="Lemma" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="Lemma">
+        <xs:sequence>
+            <xs:element name="l" type="L" />
+            <xs:element name="f" type="F" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:int" use="required" />
+        <xs:attribute name="rev" type="xs:int" use="required" />
+    </xs:complexType>
+    
+    <xs:complexType name="L">
+        <xs:sequence>
+            <xs:element name="g" type="G" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="t" type="xs:string" use="required" />
+    </xs:complexType>
+    
+    <xs:complexType name="G">
+        <xs:attribute name="v" type="xs:string" use="required" />
+    </xs:complexType>
+    
+    <xs:complexType name="F">
+        <xs:sequence>
+            <xs:element name="g" type="G" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="t" type="xs:string" use="required" />
+    </xs:complexType>
+    
+    <xs:complexType name="LinkTypes">
+        <xs:sequence>
+            <xs:element name="type" type="Type" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="Type">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="id" type="xs:int" use="required" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    
+    <xs:complexType name="Links">
+        <xs:sequence>
+            <xs:element name="link" type="Link" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="Link">
+        <xs:attribute name="id" type="xs:int" use="required" />
+        <xs:attribute name="from" type="xs:int" use="required" />
+        <xs:attribute name="to" type="xs:int" use="required" />
+        <xs:attribute name="type" type="xs:int" use="required" />
+    </xs:complexType>
+</xs:schema>

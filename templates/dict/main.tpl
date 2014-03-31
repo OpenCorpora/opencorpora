@@ -40,7 +40,7 @@
         <a href="?act=errata">Ошибки в словаре</a> ({$stats.cnt_v} ревизий не проверено)</p>
     {/if}
     <h2>Версия для скачивания</h2>
-    <p>XML, обновлён {$dl.dict.xml.updated}, см. <a href="{$web_prefix}/?page=export">описание формата</a></p>
+    <p>XML (<i class="icon-info-sign"></i> <a href="{$web_prefix}/export/dict/dict.opcorpora.xsd">XML Schema</a>), обновлён {$dl.dict.xml.updated}, см. <a href="{$web_prefix}/?page=export">описание формата</a></p>
     <ul>
     <li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.xml.bz2">архив .bz2</a> ({$dl.dict.xml.bz2.size} Мб)</li>
     <li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.xml.zip">архив .zip</a> ({$dl.dict.xml.zip.size} Мб)</li>
