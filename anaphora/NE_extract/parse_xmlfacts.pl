@@ -22,10 +22,6 @@ if (!$opts{'x'} || !$opts{'m'}){
 }
 
 my $debug = 'debug.txt';
-#my $file_output = $opts{'o'};
-
-#open (GROUPS, ">$opts{'o'}") or die "No output file: $!";
-#binmode(GROUPS, ':encoding(utf-8)');
 open (OUT, ">$debug") or die "Error: $!";
 binmode(OUT, ':encoding(utf-8)');
 
@@ -61,96 +57,74 @@ my %morph = readDir("$opts{'m'}"); #fileID - SentNum - id => token
 #для групп
 my %groups; #neID - token_ids => [main id,type]
 
+
 my $neID = 1;
 #сопоставление
 while (my ($doc,$fact) = each(%facts)) {
-    foreach my $f(keys %$fact) {
+    M:foreach my $f(keys %$fact) {
        my $sn = $facts{$doc}{$f}{'sn'};
        my $tmpNE = $facts{$doc}{$f}{'Self'};
        my $cur_type = lc($facts{$doc}{$f}{'Type'});
-       my $cur_main = $facts{$doc}{$f}{'Main'};
-      M: while (my ($ID,$token) = each(%{$morph{$doc}{$sn}})) {
-         my ($fp,$sp) = split/_/,$ID; 
-         #print $tmpNE."\t$token\n";
-         #my $tk = lc($token);
-          if ($tmpNE =~ /\Q$token\E/) {
-             #для однословных
-             if ($tmpNE eq $token) {
+       my $cur_main = $facts{$doc}{$f}{'Main'}[0];
+       my $mpos = $facts{$doc}{$f}{'Main'}[1];
+       my $pos = $facts{$doc}{$f}{'pos'};
+              
+       if (exists $morph{$doc}{$pos}){
+          my ($ID,$token) = ($morph{$doc}{$pos}[0],$morph{$doc}{$pos}[1]); 
+          print OUT "$doc\t$pos\t$tmpNE\t$token\t$ID\n";
+          my ($fp,$sp) = split/_/,$ID; 
+          #для однословных
+          if ($tmpNE eq $token) {
                my $Mid;
                if ($cur_main eq "") { $Mid = 0; }
                elsif (uc($cur_main) eq "NONE" || uc($cur_main) eq "ALL") { $Mid = uc($cur_main); }
                else { $Mid = $ID; }
                my $ne_ID = $fp."_".sprintf("%04d",$neID);
-               $groups{$ne_ID}{$ID} = [$Mid,$types{$cur_type}];  #ЗДЕСЬ НУЖНА ПРОВЕРКА НА ОКРУЖЕНИЕ (БЛИЖАЙШИЙ КОНТЕКСТ)!
-             #  print GROUPS "$neID\t$tmpNE\t$cur_main\t".$cur_type."\n";
-             #  print "$tmpNE\n";
-               $neID++;  
-             } #для многословных
-             elsif ($tmpNE =~ / /) {
-		my @nes = split/ /, $tmpNE; 
-                my ($ind, $ids, $mid);
-                for my $i (0..$#nes){
-                    if (lc($nes[$i]) eq lc($token)) {
-                       $ind = $i; last;
-                    }
-                }
-		if ($ind eq "") {
-                    next M;	
-		}
-                elsif ($ind == 0){
-                  $ids = $ID;
-                  for my $k (1..$#nes){
-                    my $tmpI = $fp."_".sprintf("%04d",$sp+$k);
-              #      print STDERR "$nes[$k] \t $morph{$doc}{$sn}{$tmpI}\n";
-		    if ($nes[$k] eq $morph{$doc}{$sn}{$tmpI}) { #safe check 	
-                       $ids .= ",".$tmpI;
-                    } else { next M; }  
-                  }     
-                } else {
-                   $ids = $fp."_".($sp - $ind);
-                   for (my $k=($ind-1);$k>=0;$k--) {  #если попали в середину ИГ
-		       if ($nes[$k] eq $morph{$doc}{$sn}{$fp."_".($sp-$k)}) { #safe check 	
-                           $ids .= ",".$fp."_".sprintf("%04d",($sp - $k));
-                       } else { next M; }
+               $groups{$ne_ID}{$ID} = [$Mid,$types{$cur_type}];
+               $neID++;
+          } #для многословных
+          elsif ($tmpNE =~ / /){
+		my @nes = split/ /, $tmpNE;
+                my ($mid,$ids);
+                my $newpos = $pos+length($nes[0])+1;
+		if ($nes[0] eq $morph{$doc}{$pos}[1]){
+                   $ids = $ID;
+                } else { next M; }
+                for my $k (1..$#nes){
+                   my $tmpI = $fp."_".sprintf("%04d",$sp+$k);
+		   if (exists $morph{$doc}{$newpos}){
+                      if ($nes[$k] eq $morph{$doc}{$newpos}[1]) { #safe check 	
+                         $ids .= ",".$tmpI;
+                      }
                    }  
-                   for my $k (1..($#nes-$ind)) {  
-		       if ($nes[$k] eq $morph{$doc}{$sn}{$fp."_".($sp+$k)}) { #safe check 	
-                          $ids .= ",".$fp."_".sprintf("%04d",($sp + $k));
-                       } else { next M; }
-		    }  
+                   $newpos += length($nes[$k])+1;
                 }
-                my @IDS = split/,/, $ids;    
+                my @IDS = split/,/, $ids;
                 if ($cur_main eq lc($token)) { $mid = $ID; }
                 elsif (uc($cur_main) eq "NONE" || uc($cur_main) eq "ALL") {
                       $mid = uc($cur_main);
                 } 
                 elsif ($cur_main ne "") { 
                      my @mains = split/ /, $cur_main; 
-                     K:for my $i (0..$#IDS){
-                         if (lc($morph{$doc}{$sn}{$IDS[$i]}) eq $mains[0]){
-                            $mid = $IDS[$i];
-                            my ($tmpf,$tmps) = split/_/,$IDS[$i]; 
-                            for my $j (1..$#mains){
-                                my $tmpI = $tmpf."_".sprintf("%04d",($tmps+$j)); 
-		                if ($mains[$j] eq lc($morph{$doc}{$sn}{$tmpI})) { #safe check 	
-                                   $mid .= ",".$tmpI;
-                                } else { next K; }    
-                            }
-                            last K;  
-                         }    
-                     }
+                     my $tmppos = $mpos;    
+                     if (exists $morph{$doc}{$tmppos} && lc($morph{$doc}{$tmppos}[1]) eq $mains[0]){ 
+                        $mid = $morph{$doc}{$tmppos}[0];
+                        my ($tmpf,$tmps) = split/_/,$morph{$doc}{$tmppos}[0]; 
+                        for my $j (1..$#mains){
+                            my $tmpI = $tmpf."_".sprintf("%04d",($tmps+$j)); 
+		            $tmppos += length($mains[$j-1])+1;
+                            if (exists $morph{$doc}{$tmppos} && $mains[$j] eq lc($morph{$doc}{$tmppos}[1])) { #safe check 	
+                               $mid .= ",".$tmpI;
+                            }   
+                        }
+                     }    
                 } else { $mid = 0; }
                 my $ne_ID = $fp."_".sprintf("%04d",$neID);
                 $groups{$ne_ID}{$ids} = [$mid,$types{$cur_type}];
-               # print GROUPS "$neID\t$tmpNE\t$cur_main\t".$cur_type."\n";
-              #  print "$tmpNE\n";
                 $neID++;  
-             #   next L; 
-             }
-          } #else { print STDERR "$tmpNE\t$token\n"; }
-
-       }    
-   }
+          } 
+       }
+    }
 }
 
 my $size = keys %groups;
@@ -168,29 +142,11 @@ while (my($key,$value) = each(%groups)){
       }
 }
 =comm
-                }
-                elsif ($cur_main =~ / / && $cur_main ne "") { 
-                     my $mids;
-                     
-                     for my $i (0..$#IDS){
-                         if (lc($morph{$doc}{$sn}{$IDS[$i]}) eq $cur_main){
-                            $mids .= ",".$IDS[$i]; 
-                         }    
-                     }
-                     $mids =~ s/^,//;
-                     my @keys = keys %groups;
-                     for my $j (0..$#keys){
-                        print "Trying to find group\n";
-                     	if (exists $groups{$j}{$mids}){
-                           $mid = $groups{$j}{$mids};
-                           last;
-                        }
-                     }                         
 #тестовая печать
-while (my($key,$value) = each(%facts)){
+while (my($key,$value) = each(%morph)){
       while (my ($f,$val) = each(%$value)){
-       #  print OUT "$key\t$f\t";
-         print OUT "$val->{'Self'}\n";
+         print STDERR "$key\t$f\t$val->[0],$val->[1]\n";
+        # print OUT "$key\t$f\t";
         # while (my ($k,$v) = each (%$val)){
         #   print OUT "$k,$v\t";
         # }
@@ -250,7 +206,7 @@ sub tag_start{
       $main =~ s/"//g;
       $main = trim($main);
       $main =~ s/\s+/ /g;
-      $facts{$dID}{$id}{'Main'} = lc($main);
+      $facts{$dID}{$id}{'Main'} = [lc($main),$attr{'pos'},$attr{'len'}];
      # print OUT "$NE\t$type\t$main\n";
       ($NE,$type,$main) = "";
   }
@@ -304,10 +260,12 @@ sub tag_text{
       if ($s =~ /"$/ && $s !~ /.+".+"$/){
           $s =~ s/"//g;
       }
+      if ($s =~ /^"/ && $s !~ /.+".+$/){
+          $s =~ s/"//g;
+      }
       $s =~ s/"/ " /g;
       $s =~ s/\. /\./g;
       $s = trim($s);
-      $s =~ s/\s+/ /g;
       $tmplead{$tmpN} = $s;
    }
 }
@@ -341,38 +299,57 @@ sub readDir {
      open(IN, "<$_[0]/$file")or die "$!"; #open each file
      binmode(IN, ":encoding(utf8)");	      
      
-     my $sn = 1;
-     my $is_first = 0;
+    # my $sn = 1;
+     #my $is_first = 0;
      my $fileID = $file;
+     my $pos = 0;
      $fileID =~ s/\.txt\.new\.tab$//;     
 
      while (my $str = <IN>) {    
      	
+	if ($str =~ /^\/sent/) {
+        #   $sn++;
+           $pos += 2;
+           next;
+     	}
      
      	if ($str =~ /^\d+/){
-           $str =~ s/\«|\»/\"/;
+           my $quot = 0;
+	  # my @tmp;
+           if ($str =~ /\«|\»/){  
+              $str =~ s/\«|\»/\"/;
+              $quot = 1;
+           } 
            $str =~ s/\&quot\;/\"/;
            my @tokens = split/\s+/,$str;
            my $t = $tokens[1];
            my ($tmpf,$tmps) = split/_/,$tokens[0]; 
-           my $prev_id = $tmpf."_".sprintf("%04d",($tmps-1)); 
-           if ($t eq "\." || $t eq "\!" || $t eq "\?"){
-              $sn++;
-              $is_first = 1;  
-           }
-           if (($t eq "com" || $t eq "ру" || $t eq "что" || $t eq "см") && $m{$fileID}{$sn}{$prev_id} eq "\."){
-              $sn--;
-           }
-           if (length($t) > 1 && $t =~ /(\"$|\:$|^\"|\/$)/){
+          # my $prev_id = $tmpf."_".sprintf("%04d",($tmps-1)); 
+          # if ($t eq "\." || $t eq "\!" || $t eq "\?"){
+          #    $sn++;
+          #    $is_first = 1;  
+          # }
+          # if (($t eq "com" || $t eq "ру" || $t eq "что" || $t eq "см") && $m{$fileID}{$sn}{$prev_id} eq "\."){
+          #    $sn--;
+          # }
+
+          #В морфологии иногда след. за словом двоеточие прилепляется к токену,
+	  #томита его отрывает, поэтому берём токен без этой пунктуации. 
+           if (length(trim($t)) > 1 && $t =~ /(\"$|\:$|^\"|\/$|\-$)/){
               $t =~ s/$1//;
+              if ($t !~ /\/$/){
+                 $quot = 2;
+              }
            }
-           $m{$fileID}{$sn}{$tokens[0]} = trim($t);
+           #$m{$fileID}{$sn}{$tokens[0]} = [trim($t), $pos];
+           if ($tokens[0]) {
+              $m{$fileID}{$pos} = [$tokens[0],trim($t)];
+	      if ($t eq "(" || $t eq ")" || $t eq "," || $t eq "." || $t eq ":" || $quot == 1 || $t eq "...") {
+                 $pos += length($tokens[1]); 
+              } elsif ($quot == 2) { $pos += length($tokens[1])+2; } 
+              else { $pos += length($tokens[1])+1; }
+           }  
      	} 
-	if ($str =~ /^\/sent/ && $is_first == 0) {
-           $sn++;
-           $is_first = 1;
-           next;
-     	}
      }
      close IN; 
   }
