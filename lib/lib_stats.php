@@ -106,7 +106,8 @@ function get_ambiguity_stats_for_chart() {
 
     foreach ($t as $day => $ar) {
         $tchart['disamb_sentences'][] = '['.($day * 24*60*60*1000).','.$ar[41].']';
-        $tchart['disamb_sent_length'][] = '['.($day * 24*60*60*1000).','.sprintf("%.3f", $ar[45] / $ar[41]).']';
+        if ($ar[45])
+            $tchart['disamb_sent_length'][] = '['.($day * 24*60*60*1000).','.sprintf("%.3f", $ar[45] / $ar[41]).']';
         if ($ar[35] == 0)
             continue;
         $tchart['avg_parses'][] = '['.($day * 24*60*60*1000).','.sprintf("%.3f", $ar[35] / $ar[5]).']';
