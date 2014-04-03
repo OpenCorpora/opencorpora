@@ -20,7 +20,7 @@ def choose_annotators(dbh, only_moderated):
             moderators[row['book_id']] = row['syntax_moder_id']
     dbh.execute("""
         SELECT user_id, book_id
-        FROM syntax_annotators
+        FROM anaphora_syntax_annotators
         WHERE status = 2
         ORDER BY book_id, user_id
     """)
@@ -42,8 +42,8 @@ def get_simple_groups(dbh, annotators, include_dummy=False):
     groups = {}
     q = """
         SELECT group_id, group_type, user_id, head_id, book_id, token_id
-        FROM syntax_groups g
-            JOIN syntax_groups_simple gs
+        FROM anaphora_syntax_groups g
+            JOIN anaphora_syntax_groups_simple gs
                 USING (group_id)
             LEFT JOIN text_forms tf
                 ON (gs.token_id = tf.tf_id)
@@ -82,8 +82,8 @@ def get_complex_groups(dbh, annotators):
     groups = {}
     dbh.execute("""
         SELECT parent_gid, child_gid, group_type, head_id
-        FROM syntax_groups_complex gc
-            LEFT JOIN syntax_groups g ON (gc.parent_gid = g.group_id)
+        FROM anaphora_syntax_groups_complex gc
+            LEFT JOIN anaphora_syntax_groups g ON (gc.parent_gid = g.group_id)
         ORDER BY parent_gid, child_gid
     """)
     for row in dbh.fetchall():
