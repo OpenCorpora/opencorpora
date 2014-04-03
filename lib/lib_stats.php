@@ -275,7 +275,7 @@ function get_user_stats($weekly=false, $team=0) {
             continue;
         }
         if ($v['moderated'])
-            $teams[$i]['error_rate'] = 100 * (1 - $v['correct'] / $v['moderated']);
+            $teams[$i]['error_rate'] = get_error_rate($v['moderated'], $v['correct']);
         else
             $teams[$i]['error_rate'] = 0;
     }
@@ -289,9 +289,10 @@ function get_user_stats($weekly=false, $team=0) {
             'divergence' => $divergence[$r['user_id']] / $r['param_value'] * 100,
             'last_active' => isset($last_click[$r['user_id']]) ? $last_click[$r['user_id']] : 0,
             'moderated' => isset($moderated[$r['user_id']]) ? $moderated[$r['user_id']] : 0,
-            'error_rate' => (!isset($moderated[$r['user_id']]) || !$moderated[$r['user_id']]) ? 0 : (1 - $correct[$r['user_id']] / $moderated[$r['user_id']]) * 100
+            'error_rate' => isset($correct[$r['user_id']]) ? get_error_rate($moderated[$r['user_id']], $correct[$r['user_id']]) : 0
         );
-        $annotators[$uid2sid[$r['user_id']]]['fin'] = $t;
+        if (isset($uid2sid[$r['user_id']]))
+            $annotators[$uid2sid[$r['user_id']]]['fin'] = $t;
     }
 
     foreach ($annotators as $k => $v) {
@@ -300,7 +301,7 @@ function get_user_stats($weekly=false, $team=0) {
             $annotators[$k]['fin']['user_name'] = get_user_shown_name($v['user_id']);
             $annotators[$k]['fin']['last_active'] = isset($last_click[$v['user_id']]) ? $last_click[$v['user_id']] : 0;
             $annotators[$k]['fin']['moderated'] = isset($moderated[$v['user_id']]) ? $moderated[$v['user_id']] : 0;
-            $annotators[$k]['fin']['error_rate'] = (!isset($moderated[$v['user_id']]) || !$moderated[$v['user_id']]) ? 0 : (1 - $correct[$v['user_id']] / $moderated[$v['user_id']]) * 100;
+            $annotators[$k]['fin']['error_rate'] = isset($moderated[$v['user_id']]) ? get_error_rate($moderated[$v['user_id']], $correct[$v['user_id']]) : 0;
         }
     }
 
@@ -313,6 +314,9 @@ function get_user_stats($weekly=false, $team=0) {
         'timestamp_yesterday' => $timestamp_yesterday,
         'added_sentences' => get_sentence_adders_stats($weekly, $team)
     );
+}
+function get_error_rate($num_moderated, $num_correct) {
+    return $num_moderated == 0 ? 0 : (1 - $num_correct / $num_moderated) * 100;
 }
 function get_extended_pools_stats() {
     $status_text = array(
