@@ -27,7 +27,7 @@ NP -> ANP<c-agr[1]> N<rt,c-agr[1], gram="pl"> interp (NamedEntity.Main::not_norm
 
 NP -> N interp (NamedEntity.Main::not_norm);
 NP -> Base_num<gnc-agr[1]> N<rt,gnc-agr[1]> interp (NamedEntity.Main::not_norm); 
-NP -> 'прошлый'<gram="abl"> N {weight=1.5}; 
+NP -> 'прошлый'<gram="abl"> N interp (NamedEntity.Main::not_norm){weight=1.5}; 
 
 //особенное "друг друга"
 //ComplPron -> 'друг' interp (ComplexNE3.Main::not_norm) 'дружка'<gram="~nom">;

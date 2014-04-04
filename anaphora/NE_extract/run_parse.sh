@@ -11,13 +11,13 @@ if [ -z "$1" ] || [ -z "$2" ]
   for d in $1/*
      do
        XML=$(basename $d)
-       perl parse_xmlfacts.pl -m $d -x $2/$XML.xml > $3/$XML.tsv 
-       sort -u -k2,2 -k3,3 -k4,4 $3/$XML.tsv | sort -n > $3/$XML_sorted.tsv
+       perl parse_xmlfacts.pl -m $d -x $2/$XML.xml > $3/$XML.tsv 2>>lost 
+       sort -u -k2,2 $3/$XML.tsv | sort -n > $3/$XML_sorted.tsv
        mv $3/$XML_sorted.tsv $3/$XML.tsv
        cat $3/$XML.tsv >> $3/groups.tsv
      done
 
-  sort -u -k2,2 -k3,3 -k4,4 $3/groups.tsv | sort -n > $3/groups_sorted.tsv
+  sort -u -k2,2 $3/groups.tsv | sort -n > $3/groups_sorted.tsv
   mv $3/groups_sorted.tsv $3/groups.tsv
   grep -P "\t17" $3/groups.tsv > $3/pronouns.tsv
 fi
