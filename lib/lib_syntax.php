@@ -491,7 +491,7 @@ function finish_syntax_moderation($book_id) {
     if (!$book_id)
         throw new UnexpectedValueException();
     if (!user_has_permission('perm_syntax'))
-        throw new Exception("Недостаточно прав")
+        throw new Exception("Недостаточно прав");
 
     $r = sql_fetch_array(sql_query("
         SELECT syntax_moder_id AS mid
