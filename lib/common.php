@@ -6,7 +6,7 @@ function sql_query($q, $debug=1, $override_readonly=0) {
     global $total_time;
     global $total_queries;
     if (file_exists('/var/lock/oc_readonly.lock') && stripos(trim($q), 'select') !== 0 && !$override_readonly)
-        return false;
+        throw new Exception("Database in readonly mode");
     $debug = isset($_SESSION['debug_mode']) && $debug;
     if ($debug) {
         $time_start = microtime(true);
@@ -22,22 +22,21 @@ function sql_query($q, $debug=1, $override_readonly=0) {
             print "<table class='debug_error' width='100%'><tr><td colspan='3'>".htmlspecialchars($err)."</td></tr></table>\n";
         }
     }
+    if (!$res)
+        throw new Exception("DB Error");
     return $res;
 }
 function sql_fetch_array($q) {
-    if (!$q) return false;
     if (is_a($q, 'PDOStatement'))
         return $q->fetch();
     return mysql_fetch_array($q);
 }
 function sql_fetch_assoc($q) {
-    if (!$q) return false;
     if (is_a($q, 'PDOStatement'))
         return $q->fetch(PDO::FETCH_ASSOC);
     return mysql_fetch_assoc($q);
 }
 function sql_num_rows($q) {
-    if (!$q) return false;
     if (is_a($q, 'PDOStatement'))
         return $q->rowCount();
     return mysql_num_rows($q);
@@ -70,7 +69,7 @@ function sql_query_pdo($q, $debug=1, $override_readonly=0) {
     global $total_time;
     global $total_queries;
     if (file_exists('/var/lock/oc_readonly.lock') && stripos(trim($q), 'select') !== 0 && !$override_readonly)
-        return false;
+        throw new Exception("Database in readonly mode");
     $debug = isset($_SESSION['debug_mode']) && $debug;
     if ($debug) {
         $time_start = microtime(true);
@@ -87,6 +86,8 @@ function sql_query_pdo($q, $debug=1, $override_readonly=0) {
             print "<table class='debug_error' width='100%'><tr><td colspan='3'>".htmlspecialchars($err[2])."</td></tr></table>\n";
         }
     }
+    if (!$res)
+        throw new Exception("DB Error");
     return $res;
 }
 function sql_fetchall($res) {
@@ -140,9 +141,12 @@ function show_error($text = "Произошла ошибка.") {
     $smarty->assign('error_text', $text);
     $smarty->display('error.tpl');
 }
+function oc_exception_handler($exception) {
+    show_error("Произошла ошибка.<br/><br/>" . $exception->getMessage());
+}
 function create_revset($comment = '') {
     if (!isset($_SESSION['user_id']) || !$_SESSION['user_id'])
-        return 0;
+        throw new Exception();
 
     $now = time();
     global $config;
@@ -159,15 +163,12 @@ function create_revset($comment = '') {
     ");
     if (sql_num_rows($res)) {
         $r = sql_fetch_array($res);
-        if (!sql_query("UPDATE rev_sets SET timestamp=$now WHERE set_id=".$r['set_id']." LIMIT 1"))
-            return 0;
+        sql_query("UPDATE rev_sets SET timestamp=$now WHERE set_id=".$r['set_id']." LIMIT 1");
         return $r['set_id'];
     }
 
-    if (sql_query("INSERT INTO `rev_sets` VALUES(NULL, $now, '".(int)$_SESSION['user_id']."', '".mysql_real_escape_string($comment)."')")) {
-        return sql_insert_id();
-    }
-    return 0;
+    sql_query("INSERT INTO `rev_sets` VALUES(NULL, $now, '".(int)$_SESSION['user_id']."', '".mysql_real_escape_string($comment)."')");
+    return sql_insert_id();
 }
 function typo_spaces($str, $with_tags = 0) {
     if (!$with_tags) {

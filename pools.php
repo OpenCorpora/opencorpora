@@ -12,18 +12,12 @@ if ($action && !in_array($action, array('samples', 'candidates')) && !user_has_p
 
 switch ($action) {
     case 'add':
-        if (add_morph_pool()) {
-            header("Location:pools.php?added&type=0");
-        } else {
-            show_error();
-        }
+        add_morph_pool();
+        header("Location:pools.php?added&type=0");
         break;
     case 'delete':
-        if (delete_morph_pool((int)$_GET['pool_id'])) {
-            header("Location:pools.php");
-        } else {
-            show_error("Ошибка. Возможно, пул содержит пользовательские ответы.");
-        }
+        delete_morph_pool((int)$_GET['pool_id']);
+        header("Location:pools.php");
         break;
     case 'candidates':
         $smarty->assign('pool', get_pool_candidates_page((int)$_GET['pool_id']));
@@ -58,50 +52,32 @@ switch ($action) {
         }
         break;
     case 'promote':
-        if (promote_samples((int)$_GET['pool_id'], $_POST['type'])) {
-            header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
-        } else {
-            show_error();
-        }
+        promote_samples((int)$_GET['pool_id'], $_POST['type']);
+        header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
         break;
     case 'publish':
-        if (publish_pool((int)$_GET['pool_id'])) {
-            header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
-        } else {
-            show_error();
-        }
+        publish_pool((int)$_GET['pool_id']);
+        header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
         break;
     case 'unpublish':
-        if (unpublish_pool((int)$_GET['pool_id'])) {
-            header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
-        } else {
-            show_error();
-        }
+        unpublish_pool((int)$_GET['pool_id']);
+        header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
         break;
     case 'begin_moder':
-        if (moderate_pool((int)$_GET['pool_id'])) {
-            header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
-        } else {
-            show_error("Ошибка. Возможно, пул не полностью заполнен.");
-        }
+        moderate_pool((int)$_GET['pool_id']);
+        header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
         break;
     case 'agree':
-        if (moder_agree_with_all((int)$_GET['pool_id']))
-            header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
-        else
-            show_error();
+        moder_agree_with_all((int)$_GET['pool_id']);
+        header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
         break;
     case 'finish_moder':
-        if (finish_moderate_pool((int)$_GET['pool_id']))
-            header("Location:index.php?page=pool_charts");
-        else
-            show_error("Ошибка. Убедитесь, что все примеры отмодерированы и что вы являетесь модератором пула.");
+        finish_moderate_pool((int)$_GET['pool_id']);
+        header("Location:index.php?page=pool_charts");
         break;
     case 'begin_merge':
-        if (begin_pool_merge((int)$_GET['pool_id']))
-            header("Location:index.php?page=pool_charts");
-        else
-            show_error();
+        begin_pool_merge((int)$_GET['pool_id']);
+        header("Location:index.php?page=pool_charts");
         break;
     default:
         $smarty->assign('statuses', array(

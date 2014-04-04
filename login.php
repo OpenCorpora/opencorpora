@@ -38,17 +38,11 @@ switch($action) {
         }
         exit();
     case 'login_openid2':
-        if (user_login_openid_agree(isset($_POST['agree'])))
-            header('Location:index.php');
-        else
-            show_error();
+        user_login_openid_agree(isset($_POST['agree']));
+        header('Location:index.php');
         exit();
     case 'logout':
-        if (!user_logout()) {
-            show_error();
-            exit();
-        }
-
+        user_logout();
         if (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'login.php') === false) {
             header('Location:'.$_SERVER['HTTP_REFERER']);
         } else {

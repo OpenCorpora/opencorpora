@@ -8,12 +8,9 @@ if (user_has_permission('perm_adder')) {
     switch ($action) {
         case 'add':
             $book_id = array_pop($_POST['book']);
-            if (!addtext_add($_POST['source_text'], $_POST['sentence'], (int)$book_id, (int)$_POST['newpar'])) {
-                show_error("Text adding failed");
-            } else {
-                header("Location:books.php?book_id=$book_id");
-            }
-            return;
+            addtext_add($_POST['source_text'], $_POST['sentence'], (int)$book_id, (int)$_POST['newpar']);
+            header("Location:books.php?book_id=$book_id");
+            break;
         case 'check':
             $smarty->assign('check', addtext_check($_POST));
             $smarty->display('addtext_check.tpl');

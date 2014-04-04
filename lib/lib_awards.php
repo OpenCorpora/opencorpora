@@ -4,14 +4,10 @@ function game_is_on() {
     return $_SESSION['show_game'] > 0;
 }
 function turn_game_on($user_id) {
-    if (sql_query("UPDATE users SET show_game=1 WHERE user_id=$user_id LIMIT 1"))
-        return true;
-    return false;
+    sql_query("UPDATE users SET show_game=1 WHERE user_id=$user_id LIMIT 1");
 }
 function turn_game_off($user_id) {
-    if (sql_query("UPDATE users SET show_game=0 WHERE user_id=$user_id LIMIT 1"))
-        return true;
-    return false;
+    sql_query("UPDATE users SET show_game=0 WHERE user_id=$user_id LIMIT 1");
 }
 
 // rating and level
@@ -35,18 +31,15 @@ function update_user_rating($user_id, $pool_id, $is_skip, $previous_answer) {
     $weight = $r['rating_weight'];
     
     if ($is_skip)
-        return add_user_rating($user_id, $pool_id, -$weight);
-    return add_user_rating($user_id, $pool_id, $weight);
+        add_user_rating($user_id, $pool_id, -$weight);
+    add_user_rating($user_id, $pool_id, $weight);
 }
 function add_user_rating($user_id, $pool_id, $weight) {
     sql_begin();
 
-    if (sql_query("UPDATE users SET user_rating10 = user_rating10 + $weight WHERE user_id=$user_id LIMIT 1") &&
-        sql_query("INSERT INTO user_rating_log VALUES($user_id, $weight, $pool_id, ".time().")")) {
-        sql_commit();
-        return true;
-    }
-    return false;
+    sql_query("UPDATE users SET user_rating10 = user_rating10 + $weight WHERE user_id=$user_id LIMIT 1");
+    sql_query("INSERT INTO user_rating_log VALUES($user_id, $weight, $pool_id, ".time().")");
+    sql_commit();
 }
 function get_user_rating($user_id) {
     $r = sql_fetch_array(sql_query("SELECT user_level, user_rating10 FROM users WHERE user_id=$user_id LIMIT 1"));
@@ -64,24 +57,22 @@ function get_user_rating($user_id) {
 }
 function update_user_level($new_level) {
     if (!$new_level)
-        return false;
-    if (sql_query("UPDATE users SET user_level = $new_level WHERE user_id=".$_SESSION['user_id']." LIMIT 1")) {
-        $_SESSION['user_level'] = $new_level;
-        return true;
-    }
-    return false;
+        throw new Exception();
+    sql_query("UPDATE users SET user_level = $new_level WHERE user_id=".$_SESSION['user_id']." LIMIT 1");
+    $_SESSION['user_level'] = $new_level;
 }
 function mark_shown_user_level($user_id, $level) {
+    if (!$user_id || $level < 0)
+        throw new UnexpectedValueException();
+
     $r = sql_fetch_array(sql_query("SELECT user_level, user_shown_level FROM users WHERE user_id=$user_id LIMIT 1"));
     if (
         $r['user_level'] == $r['user_shown_level'] ||
         $level <= $r['user_shown_level'] ||
         $level > $r['user_level']
     )
-        return false;
-    if (sql_query("UPDATE users SET user_shown_level = $level WHERE user_id = $user_id LIMIT 1"))
-        return true;
-    return false;
+        throw new Exception();
+    sql_query("UPDATE users SET user_shown_level = $level WHERE user_id = $user_id LIMIT 1");
 }
 function get_rating4level($level) {
     if ($level < 2)
@@ -101,11 +92,11 @@ function get_user_level($user_id) {
 }
 function check_user_level($user_id) {
     if (!$user_id)
-        return 0;
+        throw new UnexpectedValueException();
     $r = sql_fetch_array(sql_query("SELECT user_rating10, user_level, user_shown_level FROM users WHERE user_id=$user_id LIMIT 1"));
     $next_level = $r['user_level'];
     if (!$next_level)
-        return 0;
+        throw new Exception();
     $last_shown_level = $r['user_shown_level'];
 
     if ($next_level > $last_shown_level)
@@ -161,9 +152,9 @@ function check_badges4level($user_id, $level) {
     return true;
 }
 function mark_shown_badge($user_id, $badge_id) {
-    if (sql_query("UPDATE user_badges SET shown=".time()." WHERE user_id=$user_id AND badge_id=$badge_id LIMIT 1"))
-        return true;
-    return false;
+    if (!$user_id || !$badge_id)
+        throw new UnexpectedValueException();
+    sql_query("UPDATE user_badges SET shown=".time()." WHERE user_id=$user_id AND badge_id=$badge_id LIMIT 1");
 }
 function check_user_badges($user_id) {
     $res = sql_query("SELECT badge_id FROM user_badges WHERE user_id=$user_id AND shown=0 ORDER BY badge_id LIMIT 1");
@@ -221,9 +212,8 @@ function check_user_simple_badges($user_id) {
             break;
         // user should get a badge!
         $badge_level = $i + 1;
-        if (give_badge($user_id, 1, $badge_level))
-            return get_badge_by_group(1, $badge_level);
-        return false;
+        give_badge($user_id, 1, $badge_level);
+        return get_badge_by_group(1, $badge_level);
     }
 }
 function check_user_diversity_badges($user_id) {
@@ -257,9 +247,8 @@ function check_user_diversity_badges($user_id) {
             break;
         // user should get a badge
         $badge_level = $i + 1;
-        if (give_badge($user_id, 2, $badge_level))
-            return get_badge_by_group(2, $badge_level);
-        return false;
+        give_badge($user_id, 2, $badge_level);
+        return get_badge_by_group(2, $badge_level);
     }
 }
 function check_user_sticking_badges($user_id) {
@@ -325,7 +314,7 @@ function check_user_sticking_badges($user_id) {
         if ($max_badge > $i)
             continue;
         if ($thr[1] != 'd' && $thr[1] != 'w')
-            return false;
+            throw new Exception();
         if (
             ($thr[1] == 'd' && $max_days < $thr[0]) ||
             ($thr[1] == 'w' && $max_weeks < $thr[0])
@@ -333,20 +322,19 @@ function check_user_sticking_badges($user_id) {
             break;
         // user should get a badge
         $badge_level = $i + 1;
-        if (give_badge($user_id, 3, $badge_level))
-            return get_badge_by_group(3, $badge_level);
-        return false;
+        give_badge($user_id, 3, $badge_level);
+        return get_badge_by_group(3, $badge_level);
     }
 }
 function check_user_date_badges($user_id) {
     // at least N samples with error rate at most E on day(s) X
 }
 function give_badge($user_id, $group_id, $badge_level) {
-    return (bool)sql_query("INSERT INTO user_badges VALUES($user_id, (SELECT badge_id FROM user_badges_types WHERE badge_group=$group_id LIMIT ".($badge_level-1).", 1), 0)");
+    sql_query("INSERT INTO user_badges VALUES($user_id, (SELECT badge_id FROM user_badges_types WHERE badge_group=$group_id LIMIT ".($badge_level-1).", 1), 0)");
 }
 function get_badge($badge_id) {
     if (!$badge_id)
-        return false;
+        throw new UnexpectedValueException();
 
     $r = sql_fetch_array(sql_query("SELECT badge_name, badge_descr, badge_image FROM user_badges_types WHERE badge_id=$badge_id LIMIT 1"));
     return array (
@@ -387,7 +375,6 @@ function get_badges_info() {
     return $out;
 }
 function save_badges_info($post) {
-    sql_begin();
     foreach ($post['badge_name'] as $id => $name) {
         $id = (int)$id;
         $name = mysql_real_escape_string(trim($name));
@@ -396,13 +383,13 @@ function save_badges_info($post) {
         $group = (int)trim($post['badge_group'][$id]);
         if ($id == -1 && $name) {
             $r = sql_fetch_array(sql_query("SELECT MAX(badge_id) FROM user_badges_types"));
-            if (!sql_query("
+            sql_query("
                 INSERT INTO user_badges_types
                 VALUES ($r[0]+1, '$name', '$descr', '$image', $group)
-            "))
-                return false;
+            ");
         }
-        elseif ($id > 0 && !sql_query("
+        elseif ($id > 0)
+            sql_query("
                 UPDATE user_badges_types
                 SET badge_name='".mysql_real_escape_string($name)."',
                 badge_image='".mysql_real_escape_string($image)."',
@@ -410,10 +397,9 @@ function save_badges_info($post) {
                 badge_group=$group
                 WHERE badge_id=$id
                 LIMIT 1
-            "))
-            return false;
+            ");
+        else
+            throw new UnexpectedValueException();
     }
-    sql_commit();
-    return true;
 }
 ?>

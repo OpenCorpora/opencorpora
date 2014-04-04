@@ -5,10 +5,8 @@ if (is_admin()) {
     $action = isset($_GET['act']) ? $_GET['act'] : '';
     switch ($action) {
         case 'save':
-            if (save_users($_POST))
-                header("Location:users.php");
-            else
-                show_error();
+            save_users($_POST);
+            header("Location:users.php");
             break;
         default:
             $smarty->assign('users', get_users_page());

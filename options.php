@@ -7,20 +7,14 @@ if (is_logged()) {
         $action = '';
     switch ($action) {
         case 'save':
-            if (save_user_options($_POST)) {
-                alert_set('success','Настройки сохранены');
-                header('Location:options.php');
-                return;
-            } else
-                show_error();
+            save_user_options($_POST);
+            alert_set('success','Настройки сохранены');
+            header('Location:options.php');
             break;
         case 'save_team':
-            if (save_user_team((int)$_POST['team_id'], $_POST['new_team_name'])!==false) {
-                alert_set('success','Настройки сохранены');
-                header('Location:options.php');
-                return;
-            } else
-                show_error();
+            save_user_team((int)$_POST['team_id'], $_POST['new_team_name']);
+            alert_set('success','Настройки сохранены');
+            header('Location:options.php');
             break;
         case 'readonly_on':
             if (is_admin()) {

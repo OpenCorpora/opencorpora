@@ -20,94 +20,66 @@ switch ($action) {
         $group = (int)$_POST['parent_gram'];
         $outer_id = mysql_real_escape_string($_POST['outer_id']);
         $descr = mysql_real_escape_string($_POST['descr']);
-        if (add_grammem($name, $group, $outer_id, $descr))
-            header("Location:dict.php?act=gram");
-        else
-            show_error();
+        add_grammem($name, $group, $outer_id, $descr);
+        header("Location:dict.php?act=gram");
         break;
     case 'move_gram':
         $grm = (int)$_GET['id'];
         $dir = $_GET['dir'];
-        if (move_grammem($grm, $dir))
-            header('Location:dict.php?act=gram#g'.$grm_id);
-        else
-            show_error();
+        move_grammem($grm, $dir);
+        header('Location:dict.php?act=gram#g'.$grm_id);
         break;
     case 'del_gram':
-        if (del_grammem((int)$_GET['id']))
-            header("Location:dict.php?act=gram");
-        else
-            show_error();
+        del_grammem((int)$_GET['id']);
+        header("Location:dict.php?act=gram");
         break;
     case 'edit_gram':
         $id = (int)$_POST['id'];
         $inner_id = mysql_real_escape_string($_POST['inner_id']);
         $outer_id = mysql_real_escape_string($_POST['outer_id']);
         $descr = mysql_real_escape_string($_POST['descr']);
-        if (edit_grammem($id, $inner_id, $outer_id, $descr))
-            header('Location:dict.php?act=gram');
-        else
-            show_error();
+        edit_grammem($id, $inner_id, $outer_id, $descr);
+        header('Location:dict.php?act=gram');
         break;
     case 'clear_errata':
-        if (clear_dict_errata(isset($_GET['old'])))
-            header("Location:dict.php?act=errata");
-        else
-            show_error();
+        clear_dict_errata(isset($_GET['old']));
+        header("Location:dict.php?act=errata");
         break;
     case 'not_error':
-        if (mark_dict_error_ok((int)$_GET['error_id'], $_POST['comm']))
-            header("Location:dict.php?act=errata");
-        else
-            show_error();
+        mark_dict_error_ok((int)$_GET['error_id'], $_POST['comm']);
+        header("Location:dict.php?act=errata");
         break;
     case 'add_restr':
-        if (add_dict_restriction($_POST))
-            header("Location:dict.php?act=gram_restr");
-        else
-            show_error();
+        add_dict_restriction($_POST);
+        header("Location:dict.php?act=gram_restr");
         break;
     case 'del_restr':
-        if (del_dict_restriction((int)$_GET['id']))
-            header("Location:dict.php?act=gram_restr");
-        else
-            show_error();
+        del_dict_restriction((int)$_GET['id']);
+        header("Location:dict.php?act=gram_restr");
         break;
     case 'update_restr':
-        if (calculate_gram_restrictions())
-            header("Location:dict.php?act=gram_restr");
-        else
-            show_error();
+        calculate_gram_restrictions();
+        header("Location:dict.php?act=gram_restr");
         break;
     case 'save':
-        if ($lemma_id = dict_save($_POST))
-            header("Location:dict.php?act=edit&saved&id=$lemma_id");
-        else
-            show_error();
+        $lemma_id = dict_save($_POST);
+        header("Location:dict.php?act=edit&saved&id=$lemma_id");
         break;
     case 'add_link':
-        if (add_link((int)$_POST['from_id'], (int)$_POST['lemma_id'], (int)$_POST['link_type'])) {
-            header("Location:dict.php?act=edit&id=".(int)$_POST['from_id']);
-        } else
-            show_error();
+        add_link((int)$_POST['from_id'], (int)$_POST['lemma_id'], (int)$_POST['link_type']);
+        header("Location:dict.php?act=edit&id=".(int)$_POST['from_id']);
         break;
     case 'del_link':
-        if (del_link((int)$_GET['id'])) {
-            header("Location:dict.php?act=edit&id=".(int)$_GET['lemma_id']);
-        } else
-            show_error();
+        del_link((int)$_GET['id']);
+        header("Location:dict.php?act=edit&id=".(int)$_GET['lemma_id']);
         break;
     case 'change_link_dir':
-        if (change_link_direction((int)$_GET['id']))
-            header("Location:dict.php?act=edit&id=".(int)$_GET['lemma_id']);
-        else
-            show_error();
+        change_link_direction((int)$_GET['id']);
+        header("Location:dict.php?act=edit&id=".(int)$_GET['lemma_id']);
         break;
     case 'del_lemma':
-        if (del_lemma((int)$_GET['lemma_id']))
-            header("Location:dict.php");
-        else
-            show_error();
+        del_lemma((int)$_GET['lemma_id']);
+        header("Location:dict.php");
         break;
     case 'lemmata':
         $smarty->assign('search', get_dict_search_results($_POST));
@@ -140,10 +112,8 @@ switch ($action) {
         $smarty->display('dict/pending.tpl');
         break;
     case 'reannot':
-        if (update_pending_tokens((int)$_POST['rev_id']))
-            header("Location:dict.php?act=pending");
-        else
-            show_error();
+        update_pending_tokens((int)$_POST['rev_id']);
+        header("Location:dict.php?act=pending");
         break;
     case 'absent':
         $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);

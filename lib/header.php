@@ -36,6 +36,8 @@ $nested_transaction_counter = 0;
 $total_time = 0;
 $total_queries = 0;
 
+set_exception_handler('oc_exception_handler');
+
 //cookie check
 if (!is_logged() && !isset($_SESSION['user_pending']) && isset($_COOKIE['auth'])) {
     if ($user_id = check_auth_cookie()) {
@@ -95,8 +97,7 @@ if (is_logged()) {
 
         if ($new_badge) {
             $smarty->assign('new_badge', $new_badge);
-            if (!mark_shown_badge($_SESSION['user_id'], $new_badge['id']))
-                show_error("Badge error");
+            mark_shown_badge($_SESSION['user_id'], $new_badge['id']);
         }
         //if ($new_level)
         //    update_user_level($new_level);

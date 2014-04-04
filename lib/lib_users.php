@@ -19,11 +19,8 @@ function user_generate_password($email) {
     //send email
     if (send_email($email, 'Восстановление пароля на opencorpora.org', "Добрый день,\n\nВаш новый пароль для входа на opencorpora.org:\n\n$pwd\n\nРекомендуем как можно быстрее изменить его через интерфейс сайта.\n\nOpenCorpora")) {
         $md5 = md5(md5($pwd).substr($r['user_name'], 0, 2));
-        if (sql_query("UPDATE `users` SET `user_passwd`='$md5' WHERE user_id=".$r['user_id']." LIMIT 1")) {
-            return 1;
-        } else {
-            return 0;
-        }
+        sql_query("UPDATE `users` SET `user_passwd`='$md5' WHERE user_id=".$r['user_id']." LIMIT 1");
+        return 1;
     } else {
         return 3;
     }
@@ -68,12 +65,9 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
             $user_id = $alias_uid;
         sql_begin();
         $token = remember_user($user_id, $auth_token);
-        if (!$token)
-            return false;
         $r = sql_fetch_array(sql_query("SELECT user_shown_name, user_level, show_game FROM users WHERE user_id = $user_id LIMIT 1"));
-        if (!init_session($user_id, $r['user_shown_name'], get_user_options($user_id), get_user_permissions($user_id),
-                          $token, $r['user_level'], $r['show_game']))
-            return false;
+        init_session($user_id, $r['user_shown_name'], get_user_options($user_id), get_user_permissions($user_id),
+                     $token, $r['user_level'], $r['show_game']);
         sql_commit();
         return true;
     }
@@ -81,7 +75,7 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
 }
 function init_session($user_id, $user_name, $options, $permissions, $token, $level, $show_game) {
     if (!$options || !$permissions)
-        return false;
+        throw new Exception();
     $_SESSION['user_id'] = $user_id;
     $_SESSION['user_name'] = $user_name;
     $_SESSION['options'] = $options;
@@ -89,7 +83,6 @@ function init_session($user_id, $user_name, $options, $permissions, $token, $lev
     $_SESSION['token'] = $token;
     $_SESSION['user_level'] = $level;
     $_SESSION['show_game'] = $show_game;
-    return true;
 }
 function check_for_user_alias($user_id) {
     // if a user tries to log in as alias_uid, he'll actually log in as primary_uid
@@ -107,8 +100,7 @@ function remember_user($user_id, $auth_token=false) {
     }
     //adding a new token
     $token = mt_rand();
-    if (!sql_query("INSERT INTO user_tokens VALUES('$user_id','$token', '".time()."')", 1, 1))
-        return false;
+    sql_query("INSERT INTO user_tokens VALUES('$user_id','$token', '".time()."')", 1, 1);
 
     setcookie('auth', $user_id.'@'.$token, time()+60*60*24*7, '/');
     return $token;
@@ -125,14 +117,12 @@ function user_login_openid($token) {
 
     $id =  trim($arr['identity']);
     if (!$id)
-        return false;
+        throw new Exception();
     //check if the user exists
     $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
     //if he doesn't
     if (sql_num_rows($res) == 0) {
-        if (!sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0, 1, 1, 0, 0)")) {
-            return 0;
-        }
+        sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0, 1, 1, 0, 0)");
         $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
     }
     $row = sql_fetch_array($res);
@@ -141,12 +131,9 @@ function user_login_openid($token) {
     if ($alias_uid)
         $user_id = $alias_uid;
     $token = remember_user($user_id, false);
-    if (!$token)
-        return false;
     $row = sql_fetch_array(sql_query("SELECT user_shown_name, user_passwd, user_level, show_game FROM users WHERE user_id = $user_id LIMIT 1"));
-    if (!init_session($user_id, $row['user_shown_name'], get_user_options($user_id),
-                      get_user_permissions($user_id), $token, $row['user_level'], $row['show_game']))
-        return false;
+    init_session($user_id, $row['user_shown_name'], get_user_options($user_id),
+                  get_user_permissions($user_id), $token, $row['user_level'], $row['show_game']);
     if ($row['user_passwd'] == 'notagreed') {
         $_SESSION['user_pending'] = 1;
         return 2;
@@ -155,14 +142,13 @@ function user_login_openid($token) {
 }
 function user_login_openid_agree($agree) {
     if (!$agree)
-        return false;
+        throw new Exception("Вы не согласились с лицензией");
+    sql_query("UPDATE users SET user_passwd='' WHERE user_id=".$_SESSION['user_id']." LIMIT 1");
     unset($_SESSION['user_pending']);
-    return (bool)sql_query("UPDATE users SET user_passwd='' WHERE user_id=".$_SESSION['user_id']." LIMIT 1");
 }
 function user_logout() {
     setcookie('auth', '', time()-1);
-    if (!sql_query("DELETE FROM user_tokens WHERE user_id=".$_SESSION['user_id']." AND token='".$_SESSION['token']."'"))
-        return false;
+    sql_query("DELETE FROM user_tokens WHERE user_id=".$_SESSION['user_id']." AND token='".$_SESSION['token']."'");
     unset($_SESSION['user_id']);
     unset($_SESSION['user_name']);
     unset($_SESSION['user_level']);
@@ -172,7 +158,6 @@ function user_logout() {
     unset($_SESSION['token']);
     unset($_SESSION['show_game']);
     unset($_SESSION['user_pending']);
-    return true;
 }
 function user_register($post) {
     $post['login'] = trim($post['login']);
@@ -199,24 +184,22 @@ function user_register($post) {
         return 4;
     }
     sql_begin();
-    if (sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name', 0, 1, 1, 0, 0)")) {
-        $user_id = sql_insert_id();
-        if (!sql_query("INSERT INTO `user_permissions` VALUES ('$user_id', '0', '0', '0', '0', '0', '0', '0', 0, 0)")) return 0;
-        if (isset($post['subscribe']) && $email) {
-            //perhaps we should subscribe the user
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_URL, "http://groups.google.com/group/opencorpora/boxsubscribe?email=$email");
-            curl_exec($ch);
-            curl_close($ch);
-        }
-
-        sql_commit();
-        if (!user_login($name, $post['passwd']))
-            return 0;
-        return 1;
+    sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name', 0, 1, 1, 0, 0)");
+    $user_id = sql_insert_id();
+    sql_query("INSERT INTO `user_permissions` VALUES ('$user_id', '0', '0', '0', '0', '0', '0', '0', 0, 0)");
+    if (isset($post['subscribe']) && $email) {
+        //perhaps we should subscribe the user
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_URL, "http://groups.google.com/group/opencorpora/boxsubscribe?email=$email");
+        curl_exec($ch);
+        curl_close($ch);
     }
-    return 0;
+
+    sql_commit();
+    if (!user_login($name, $post['passwd']))
+        return 0;
+    return 1;
 }
 function user_change_password($post) {
     //testing if the old password is correct
@@ -229,9 +212,8 @@ function user_change_password($post) {
         if (!preg_match('/^[a-z0-9_-]+$/i', $post['new_pw']))
             return 4;
         $passwd = md5(md5($post['new_pw']).substr($login, 0, 2));
-        if (sql_query("UPDATE `users` SET `user_passwd`='$passwd' WHERE `user_id`=".$_SESSION['user_id']." LIMIT 1"))
-            return 1;
-        return 0;
+        sql_query("UPDATE `users` SET `user_passwd`='$passwd' WHERE `user_id`=".$_SESSION['user_id']." LIMIT 1");
+        return 1;
     }
     else
         return 2;
@@ -246,9 +228,8 @@ function user_change_email($post) {
             if (sql_num_rows($res) > 0) {
                 return 4;
             }
-            if (sql_query("UPDATE `users` SET `user_email`='".mysql_real_escape_string($email)."' WHERE `user_id`=".$_SESSION['user_id']." LIMIT 1"))
-                return 1;
-            return 0;
+            sql_query("UPDATE `users` SET `user_email`='".mysql_real_escape_string($email)."' WHERE `user_id`=".$_SESSION['user_id']." LIMIT 1");
+            return 1;
         } else
             return 3;
     }
@@ -259,11 +240,9 @@ function user_change_shown_name($new_name) {
     $new_name = trim($new_name);
     if (!preg_match('/^[a-zа-я0-9ё_\-\s\.]{2,}$/ui', $new_name))
         return 2;
-    if (sql_query("UPDATE users SET user_shown_name = '".mysql_real_escape_string($new_name)."' WHERE user_id = ".$_SESSION['user_id']." LIMIT 1")) {
-        $_SESSION['user_name'] = $new_name;
-        return 1;
-    }
-    return 0;
+    sql_query("UPDATE users SET user_shown_name = '".mysql_real_escape_string($new_name)."' WHERE user_id = ".$_SESSION['user_id']." LIMIT 1");
+    $_SESSION['user_name'] = $new_name;
+    return 1;
 }
 function get_user_info($user_id) {
     $res = sql_query("SELECT user_name, user_shown_name, user_reg FROM users WHERE user_id=$user_id LIMIT 1");
@@ -359,11 +338,8 @@ function get_user_options($user_id) {
     //autovivify
     $res = sql_query("SELECT option_id, default_value FROM user_options WHERE option_id NOT IN (SELECT option_id FROM user_options_values WHERE user_id=$user_id)");
     sql_begin();
-    while ($r = sql_fetch_array($res)) {
-        if (!sql_query("INSERT INTO user_options_values VALUES('$user_id', '".$r['option_id']."', '".$r['default_value']."')")) {
-            return false;
-        }
-    }
+    while ($r = sql_fetch_array($res))
+        sql_query("INSERT INTO user_options_values VALUES('$user_id', '".$r['option_id']."', '".$r['default_value']."')");
     sql_commit();
 
     $res = sql_query("SELECT option_id id, option_value value FROM user_options_values WHERE user_id=$user_id");
@@ -379,9 +355,7 @@ function get_user_permissions($user_id) {
 
     if (sql_num_rows($res) == 0) {
         //autovivify
-        if (!sql_query("INSERT INTO user_permissions VALUES ('$user_id', '0', '0', '0', '0', '0', '0', '0', 0, 0)")) {
-            return false;
-        }
+        sql_query("INSERT INTO user_permissions VALUES ('$user_id', '0', '0', '0', '0', '0', '0', '0', 0, 0)");
         $res = sql_query("SELECT * FROM user_permissions WHERE user_id = $user_id LIMIT 1");
     }
 
@@ -411,20 +385,16 @@ function get_meta_options() {
     return $out;
 }
 function save_user_options($post) {
-    if (!isset($post['options'])) {
-        return false;
-    }
+    if (!isset($post['options']))
+        throw new UnexpectedValueException();
     sql_begin();
     foreach ($post['options'] as $id=>$value) {
         if ($_SESSION['options'][$id]['value'] != $value) {
-            if (!sql_query("UPDATE user_options_values SET option_value='".mysql_real_escape_string($value)."' WHERE option_id=".mysql_real_escape_string($id)." AND user_id=".$_SESSION['user_id']." LIMIT 1")) {
-                return false;
-            }
+            sql_query("UPDATE user_options_values SET option_value='".mysql_real_escape_string($value)."' WHERE option_id=".mysql_real_escape_string($id)." AND user_id=".$_SESSION['user_id']." LIMIT 1");
             $_SESSION['options'][$id] = mysql_real_escape_string($value);
         }
     }
     sql_commit();
-    return true;
 }
 function is_admin() {
     return (
@@ -478,20 +448,15 @@ function save_users($post) {
             else $qa[] = "perm_merge='0'";
 
         $q = "UPDATE user_permissions SET ".implode(', ', $qa)." WHERE user_id=$id LIMIT 1";
-        if (!sql_query($q) || !sql_query("DELETE FROM user_tokens WHERE user_id=$id")) {
-            return false;
-        }
+        sql_query($q);
+        sql_query("DELETE FROM user_tokens WHERE user_id=$id");
         // game part
-        if (isset($game[$id])) {
-            if (!turn_game_on($id))
-                return false;
-        } else {
-            if (!turn_game_off($id))
-                return false;
-        }
+        if (isset($game[$id]))
+            turn_game_on($id);
+        else
+            turn_game_off($id);
     }
     sql_commit();
-    return true;
 }
 function get_team_list() {
     $out = array();
@@ -506,20 +471,18 @@ function get_team_list() {
 }
 function save_user_team($team_id, $new_team_name=false) {
     if (!$_SESSION['user_id'])
-        return false;
-    // create new team if necessary
+        throw new Exception();
+
     sql_begin();
+    // create new team if necessary
     if ($new_team_name) {
-        if (!sql_query("INSERT INTO user_teams VALUES(NULL, '".mysql_real_escape_string($new_team_name)."', ".$_SESSION['user_id'].")"))
-            return false;
+        sql_query("INSERT INTO user_teams VALUES(NULL, '".mysql_real_escape_string($new_team_name)."', ".$_SESSION['user_id'].")");
         $team_id = sql_insert_id();
     }
 
-    if (sql_query("UPDATE users SET user_team=$team_id WHERE user_id=".$_SESSION['user_id']." LIMIT 1")) {
-        sql_commit();
-        return $team_id;
-    }
-    return false;
+    sql_query("UPDATE users SET user_team=$team_id WHERE user_id=".$_SESSION['user_id']." LIMIT 1");
+    sql_commit();
+    return $team_id;
 }
 function get_user_team($user_id) {
     $res = sql_query("SELECT user_team, team_id, team_name FROM users LEFT JOIN user_teams ON (user_team=team_id) WHERE user_id=$user_id LIMIT 1");

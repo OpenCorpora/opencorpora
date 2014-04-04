@@ -17,10 +17,8 @@ if (game_is_on())
 
 switch ($action) {
     case 'annot':
-        if (!isset($_GET['pool_id']) || !$_GET['pool_id']) {
-            show_error('Wrong pool_id');
-            break;
-        }
+        if (!isset($_GET['pool_id']) || !$_GET['pool_id'])
+            throw new UnexpectedValueException('Wrong pool_id');
 
         $pool_size = 5;
         if (isset($_SESSION['options'][3])) {
@@ -40,16 +38,15 @@ switch ($action) {
             $smarty->assign('packet', $t);
             $smarty->display('qa/morph_annot.tpl');
         } else {
-            $smarty->assign('next_pool_id', (int)get_next_pool($_SESSION['user_id'], (int)$_GET['pool_id']));
+            $smarty->assign('next_pool_id', get_next_pool($_SESSION['user_id'], (int)$_GET['pool_id']));
             $smarty->assign('final', true);
             $smarty->display('qa/morph_annot_thanks.tpl');
         }
         break;
     case 'my':
-        if (!isset($_GET['pool_id']) || !$_GET['pool_id']) {
-            show_error('Wrong pool_id');
-            break;
-        }
+        if (!isset($_GET['pool_id']) || !$_GET['pool_id'])
+            throw new UnexpectedValueException('Wrong pool_id');
+
         if ($t = get_my_answers((int)$_GET['pool_id'], 0)) {
             $smarty->assign('packet', $t);
             $smarty->display('qa/morph_annot.tpl');
@@ -58,7 +55,7 @@ switch ($action) {
         }
         break;
     case 'pause':
-        $smarty->assign('next_pool_id', (int)get_next_pool($_SESSION['user_id'], (int)$_GET['pool_id']));
+        $smarty->assign('next_pool_id', get_next_pool($_SESSION['user_id'], (int)$_GET['pool_id']));
         $smarty->display('qa/morph_annot_thanks.tpl');
         break;
     default:

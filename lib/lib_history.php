@@ -94,7 +94,7 @@ function dict_history($lemma_id, $skip = 0) {
 function main_diff($sentence_id, $set_id, $rev_id) {
     if (!$sentence_id || !$set_id) {
         if (!$rev_id)
-            return false;
+            throw new UnexpectedValueException();
         $r = sql_fetch_array(sql_query("
             SELECT sent_id, set_id
             FROM tf_revisions
@@ -187,7 +187,8 @@ function dict_diff($lemma_id, $set_id) {
     return $out;
 }
 function revert_changeset($set_id, $comment) {
-    if (!$set_id) return false;
+    if (!$set_id)
+        throw new UnexpectedValueException();
 
     sql_begin();
     $new_set_id = create_revset($comment);
@@ -196,16 +197,13 @@ function revert_changeset($set_id, $comment) {
     $res = sql_query("SELECT tf_id FROM tf_revisions WHERE set_id=$set_id");
     while ($r = sql_fetch_array($res)) {
         $arr = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=$r[0] AND set_id<$set_id ORDER BY rev_id DESC LIMIT 1"));
-        if (!create_tf_revision($new_set_id, $r[0], $arr[0]))
-            return false;
+        create_tf_revision($new_set_id, $r[0], $arr[0]);
     }
 
     $res = sql_query("SELECT lemma_id FROM dict_revisions WHERE set_id=$set_id");
     while ($r = sql_fetch_array($res)) {
         $arr = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$r[0] AND set_id<$set_id ORDER BY rev_id DESC LIMIT 1"));
-        if (!sql_query("INSERT INTO `dict_revisions` VALUES(NULL, '$new_set_id', '$r[0]', '$arr[0]')")) {
-            return false;
-        }
+        sql_query("INSERT INTO `dict_revisions` VALUES(NULL, '$new_set_id', '$r[0]', '$arr[0]')");
         $dict_flag = 1;
     }
     sql_commit();
@@ -215,30 +213,26 @@ function revert_changeset($set_id, $comment) {
     return 'history.php';
 }
 function revert_token($rev_id) {
-    if (!$rev_id) return false;
+    if (!$rev_id)
+        throw new UnexpectedValueException();
 
     $r = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE rev_id=$rev_id LIMIT 1"));
     sql_begin();
     $new_set_id = create_revset("Отмена правки, возврат к версии t$rev_id");
 
-    if (create_tf_revision($new_set_id, $r[0], $r[1])) {
-        sql_commit();
-        return true;
-    }
-    return false;
+    create_tf_revision($new_set_id, $r[0], $r[1]);
+    sql_commit();
 }
 function revert_dict($rev_id) {
-    if (!$rev_id) return false;
+    if (!$rev_id)
+        throw new UnexpectedValueException();
 
     $r = sql_fetch_array(sql_query("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=$rev_id LIMIT 1"));
     sql_begin();
     $new_set_id = create_revset("Отмена правки, возврат к версии d$rev_id");
 
-    if (sql_query("INSERT INTO dict_revisions VALUES(NULL, '$new_set_id', '$r[0]', '$r[1]', '0', '0')")) {
-        sql_commit();
-        return true;
-    }
-    return false;
+    sql_query("INSERT INTO dict_revisions VALUES(NULL, '$new_set_id', '$r[0]', '$r[1]', '0', '0')");
+    sql_commit();
 }
 function get_latest_comments($skip = 0) {
     $out = array();

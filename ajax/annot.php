@@ -10,20 +10,25 @@ if (isset($_GET['moder']) && !user_has_permission('perm_check_morph')) {
     return;
 }
 
-if (!isset($_GET['id']) || (!isset($_GET['answer']) && !isset($_GET['status']))) {
-    echo '<result ok="0"/>';
-    return;
-}
+$result = 1;
+try {
+    if (!isset($_GET['id']) || (!isset($_GET['answer']) && !isset($_GET['status'])))
+        throw new UnexpectedValueException();
 
-$id = (int)$_GET['id'];
-$answer = isset($_GET['answer']) ? (int)$_GET['answer'] : (int)$_GET['status'];
+    $id = (int)$_GET['id'];
+    $answer = isset($_GET['answer']) ? (int)$_GET['answer'] : (int)$_GET['status'];
 
-if (isset($_GET['moder'])) {
-    if (isset($_GET['status']))
-        echo '<result ok="'.(int)save_moderated_status($id, $answer).'"/>';
-    else
-        echo '<result ok="'.(int)save_moderated_answer($id, $answer, (int)$_GET['manual']).'"/>';
-} else {
-    echo '<result ok="'.(int)update_annot_instance($id, $answer).'"/>';
+    if (isset($_GET['moder'])) {
+        if (isset($_GET['status']))
+            $result = save_moderated_status($id, $answer);
+        else
+            $result = save_moderated_answer($id, $answer, (int)$_GET['manual']);
+    } else {
+        update_annot_instance($id, $answer);
+    }
 }
+catch (Exception $e) {
+    $result = 0;
+}
+echo '<result ok="'.$result.'"/>';
 ?>

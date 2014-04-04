@@ -13,29 +13,32 @@ header('Content-type: application/json');
 
 $res = array('error' => 1);
 
-// TODO: проверка на модератора книги
-if (!user_has_permission('perm_disamb') && !user_has_permission('perm_syntax')) {
-    die(json_encode($res));
-}
+try {
+    // TODO: проверка на модератора книги
+    if (!user_has_permission('perm_disamb') && !user_has_permission('perm_syntax')) {
+        throw new Exception("недостаточно прав");
+    }
 
-switch ($_POST['act']) {
-    case 'new':
-        $aid = add_anaphora((int)$_POST['anph_id'], (int)$_POST['group_id']);
-        if ($aid) {
-            $res['aid'] = $aid;
+    switch ($_POST['act']) {
+        case 'new':
+            $res['aid'] = add_anaphora((int)$_POST['anph_id'], (int)$_POST['group_id']);
             $res['error'] = 0;
             $res['token_ids'] = json_encode(get_group_tokens((int)$_POST['group_id']));
-        }
-        break;
+            break;
 
-    case 'delete':
-        $res['error'] = (int)!delete_anaphora((int)$_POST['aid']);
-        break;
+        case 'delete':
+            delete_anaphora((int)$_POST['aid']);
+            $res['error'] = 0;
+            break;
 
-    default:
-        $res['message'] = "Action not implemented: {$_POST['act']}";
-        break;
+        default:
+            $res['message'] = "Action not implemented: {$_POST['act']}";
+            break;
 
+    }
+}
+catch (Exception $e) {
+    $res['error'] = 1;
 }
 
 die(json_encode($res));

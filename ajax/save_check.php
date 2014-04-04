@@ -5,32 +5,30 @@ $id = (int)$_GET['id'];
 $value = $_GET['value'];
 echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?><response>';
 
-switch($type) {
-    case 'token':
-        if (user_has_permission('perm_check_tokens')) {
+$result = 1;
+try {
+    switch($type) {
+        case 'token':
+            if (!user_has_permission('perm_check_tokens'))
+                throw new Exception();
             sql_begin();
-            if (sql_query("DELETE FROM sentence_check WHERE sent_id=$id AND user_id=".$_SESSION['user_id']." AND `status`=1 LIMIT 1")) {
-                if ($value === 'true') {
-                    if (sql_query("INSERT INTO sentence_check VALUES('$id', '".$_SESSION['user_id']."', '1', '".time()."')")) {
-                        sql_commit();
-                        echo '<result ok="1"/></response>';
-                        return;
-                    }
-                } else {
-                    echo '<result ok="1"/></response>';
-                    return;
-                }
+            sql_query("DELETE FROM sentence_check WHERE sent_id=$id AND user_id=".$_SESSION['user_id']." AND `status`=1 LIMIT 1");
+            if ($value === 'true') {
+                sql_query("INSERT INTO sentence_check VALUES('$id', '".$_SESSION['user_id']."', '1', '".time()."')");
+                sql_commit();
             }
-        }
-    case 'source':
-        if (user_has_permission('perm_adder')) {
-            if ($value === '0' || $value === '1') {
-                if (sql_query("INSERT INTO sources_status VALUES('$id', '".$_SESSION['user_id']."', '$value', '".time()."')")) {
-                    echo '<result ok="1"/></response>';
-                    return;
-                }
-            }
-        }
+            break;
+        case 'source':
+            if (!user_has_permission('perm_adder'))
+                throw new Exception();
+            if ($value === '0' || $value === '1')
+                sql_query("INSERT INTO sources_status VALUES('$id', '".$_SESSION['user_id']."', '$value', '".time()."')");
+        default:
+            throw new Exception();
+    }
 }
-echo '<result ok="0"/></response>';
+catch (Exception $e) {
+    $result = 0;
+}
+echo '<result ok="'.$result.'"/></response>';
 ?>

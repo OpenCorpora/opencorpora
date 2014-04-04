@@ -18,21 +18,18 @@ $mode = isset($_GET['mode']) ? $_GET['mode'] : 'morph';
 switch ($action) {
     case 'save':
         if (user_has_permission('perm_disamb')) {
-            if (sentence_save($id)) {
-                header("Location:sentence.php?id=$id");
-            } else {
-                show_error();
-            }
-            break;
+            sentence_save($id);
+            header("Location:sentence.php?id=$id");
         } else {
             show_error($config['msg']['notlogged']);
         }
         break;
     case 'save_src':
-        if (is_admin() && sentence_save_source($id, $_POST['src_text'])) {
+        if (is_admin()) {
+            sentence_save_source($id, $_POST['src_text']);
             header("Location:sentence.php?id=$id");
         } else
-            show_error();
+            show_error($config['msg']['notadmin']);
         break;
     default:
         $smarty->assign('sentence', $sentence = get_sentence($id));

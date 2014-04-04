@@ -11,11 +11,8 @@ $action = isset($_GET['act']) ? $_GET['act'] : '';
 
 switch ($action) {
     case 'add':
-        if (source_add($_POST['url'], $_POST['title'], (int)$_POST['parent'])) {
-            header("Location:sources.php");
-        } else {
-            show_error();
-        }
+        source_add($_POST['url'], $_POST['title'], (int)$_POST['parent']);
+        header("Location:sources.php");
         break;
     default:
         $what = isset($_GET['what']) ? $_GET['what'] : '';
