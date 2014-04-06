@@ -52,17 +52,21 @@ function get_sentence($sent_id) {
         }
     }
     $tf_text = array();
-    // TODO can do the following in 1 query
     // TODO we'd better preload all grammemes info to save queries
-    $res = sql_query_pdo("SELECT tf_id, tf_text FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
+    $res = sql_query_pdo("
+        SELECT tf_id, tf_text, rev_text
+        FROM text_forms
+        LEFT JOIN tf_revisions
+            USING (tf_id)
+        WHERE sent_id=$sent_id
+        AND is_last = 1
+        ORDER BY `pos`
+    ");
     $j = 0; //token position, for further highlighting
     $gram_descr = array();  //associative array to keep info about grammemes
-    $res_revtext = sql_prepare("SELECT rev_text FROM tf_revisions WHERE tf_id=? AND is_last=1 LIMIT 1");
     while ($r = sql_fetch_array($res)) {
         array_push($tf_text, '<span id="src_token_'.($j++).'">'.htmlspecialchars($r['tf_text']).'</span>');
-        sql_execute($res_revtext, array($r['tf_id']));
-        $rev = sql_fetch_array($res_revtext);
-        $arr = xml2ary($rev['rev_text']);
+        $arr = xml2ary($r['rev_text']);
 
         $out['tokens'][] = array(
             'tf_id'        => $r['tf_id'],
@@ -70,7 +74,6 @@ function get_sentence($sent_id) {
             'variants'     => get_morph_vars($arr['tfr']['_c']['v'], $gram_descr)
         );
     }
-    $res_revtext->closeCursor();
     $out['fulltext'] = typo_spaces(implode(' ', $tf_text), 1);
     return $out;
 }
@@ -198,11 +201,18 @@ function sentence_save($sent_id) {
         throw new UnexpectedValueException();
     $flag = $_POST['var_flag'];  //what morphovariants are checked as possible (array of arrays)
     $dict = $_POST['dict_flag']; //whether this token has been reloaded from the dictionary (array)
-    // TODO can do the following in 1 query
-    $res = sql_query("SELECT tf_id, tf_text, `pos` FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
+
+    $res = sql_query_pdo("
+        SELECT tf_id, tf_text, rev_text
+        FROM text_forms
+        LEFT JOIN tf_revisions
+            USING (tf_id)
+        WHERE sent_id=$sent_id
+        AND is_last = 1
+        ORDER BY `pos`
+    ");
     while ($r = sql_fetch_array($res)) {
-        $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." AND is_last=1 LIMIT 1"));
-        $tokens[$r['tf_id']] = array($r['tf_text'], $rev['rev_text']);
+        $tokens[$r['tf_id']] = array($r['tf_text'], $r['rev_text']);
     }
     $matches = array();
     $all_changes = array();
