@@ -187,12 +187,12 @@ function dict_diff($lemma_id, $set_id) {
         'next_set'      => 0
     );
     $res = sql_query_pdo("SELECT set_id FROM dict_revisions WHERE lemma_id=$lemma_id AND set_id<$set_id ORDER BY set_id DESC LIMIT 1");
-    if ($res) {
+    if (sql_num_rows($res) > 0) {
         $r = sql_fetch_array($res);
         $out['prev_set'] = $r[0];
     }
     $res = sql_query_pdo("SELECT set_id FROM dict_revisions WHERE lemma_id=$lemma_id AND set_id>$set_id ORDER BY set_id ASC LIMIT 1");
-    if ($res) {
+    if (sql_num_rows($res) > 0) {
         $r = sql_fetch_array($res);
         $out['next_set'] = $r[0];
     }

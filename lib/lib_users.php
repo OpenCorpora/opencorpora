@@ -314,25 +314,22 @@ function get_user_info($user_id) {
     return $user;
 }
 function get_user_email($user_id) {
-    if (!$user_id) return;
+    if (!$user_id)
+        throw new UnexpectedValueException();
     $res = sql_query("SELECT user_email FROM `users` WHERE user_id=$user_id LIMIT 1");
-    if ($res) {
-        $r = sql_fetch_array($res);
-        return $r['user_email'];
-    }
-    return false;
+    $r = sql_fetch_array($res);
+    return $r['user_email'];
 }
 function get_user_shown_name($user_id) {
-    if (!$user_id) return;
+    if (!$user_id)
+        throw new UnexpectedValueException();
     $res = sql_query("SELECT user_shown_name FROM `users` WHERE user_id=$user_id LIMIT 1");
-    if ($res) {
-        $r = sql_fetch_array($res);
-        return $r['user_shown_name'];
-    }
-    return false;
+    $r = sql_fetch_array($res);
+    return $r['user_shown_name'];
 }
 function get_user_options($user_id) {
-    if (!$user_id) return;
+    if (!$user_id)
+        throw new UnexpectedValueException();
     $out = array();
 
     //autovivify
@@ -348,7 +345,8 @@ function get_user_options($user_id) {
     return $out;
 }
 function get_user_permissions($user_id) {
-    if (!$user_id) return;
+    if (!$user_id)
+        throw new UnexpectedValueException();
     $out = array();
     
     $res = sql_query("SELECT * FROM user_permissions WHERE user_id = $user_id LIMIT 1");
