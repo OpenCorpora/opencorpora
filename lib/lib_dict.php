@@ -599,8 +599,11 @@ function del_lemma($id) {
     //update `updated_forms`
     $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$id ORDER BY `rev_id` DESC LIMIT 1, 1"));
     $pdr = parse_dict_rev($r['rev_text']);
+    $updated_forms = array();
     foreach ($pdr['forms'] as $form)
-        sql_query("INSERT INTO `updated_forms` VALUES('".$form['text']."', $rev_id)");
+        $updated_forms[] = $form['text'];
+    foreach (array_unique($updated_forms) as $form)
+        sql_query("INSERT INTO `updated_forms` VALUES('$form', $rev_id)");
     //delete forms from form2lemma
     sql_query("DELETE FROM `form2lemma` WHERE lemma_id=$id");
     //delete lemma
