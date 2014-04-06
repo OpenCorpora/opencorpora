@@ -1,6 +1,6 @@
 <?php
 function get_sentence($sent_id) {
-    $r = sql_fetch_array(sql_query("SELECT `check_status`, source FROM sentences WHERE sent_id=$sent_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT `check_status`, source FROM sentences WHERE sent_id=$sent_id LIMIT 1"));
     $out = array(
         'id' => $sent_id,
         'next_id' => get_next_sentence_id($sent_id),
@@ -9,10 +9,10 @@ function get_sentence($sent_id) {
         'source' => $r['source']
     );
     //counting comments
-    $r = sql_fetch_array(sql_query("SELECT COUNT(comment_id) comm_cnt FROM sentence_comments WHERE sent_id=$sent_id"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT COUNT(comment_id) comm_cnt FROM sentence_comments WHERE sent_id=$sent_id"));
     $out['comment_count'] = $r['comm_cnt'];
     //looking for source name
-    $r = sql_fetch_array(sql_query("
+    $r = sql_fetch_array(sql_query_pdo("
         SELECT book_id, syntax_moder_id
         FROM books
         WHERE book_id = (
@@ -28,7 +28,7 @@ function get_sentence($sent_id) {
     "));
     $out['book_id'] = $book_id = $r['book_id'];
     $out['syntax_moder_id'] = $r['syntax_moder_id'];
-    $r = sql_fetch_array(sql_query("
+    $r = sql_fetch_array(sql_query_pdo("
         SELECT book_name
         FROM books
         WHERE book_id = (
@@ -40,7 +40,7 @@ function get_sentence($sent_id) {
     "));
     $out['book_name'] = $r['book_name'];
     //looking for url
-    $res = sql_query("
+    $res = sql_query_pdo("
         SELECT tag_name
         FROM book_tags
         WHERE book_id = ".$book_id
@@ -52,12 +52,16 @@ function get_sentence($sent_id) {
         }
     }
     $tf_text = array();
-    $res = sql_query("SELECT tf_id, tf_text FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
+    // TODO can do the following in 1 query
+    // TODO we'd better preload all grammemes info to save queries
+    $res = sql_query_pdo("SELECT tf_id, tf_text FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
     $j = 0; //token position, for further highlighting
     $gram_descr = array();  //associative array to keep info about grammemes
+    $res_revtext = sql_prepare("SELECT rev_text FROM tf_revisions WHERE tf_id=? AND is_last=1 LIMIT 1");
     while ($r = sql_fetch_array($res)) {
         array_push($tf_text, '<span id="src_token_'.($j++).'">'.htmlspecialchars($r['tf_text']).'</span>');
-        $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." AND is_last=1 LIMIT 1"));
+        sql_execute($res_revtext, array($r['tf_id']));
+        $rev = sql_fetch_array($res_revtext);
         $arr = xml2ary($rev['rev_text']);
 
         $out['tokens'][] = array(
@@ -66,6 +70,7 @@ function get_sentence($sent_id) {
             'variants'     => get_morph_vars($arr['tfr']['_c']['v'], $gram_descr)
         );
     }
+    $res_revtext->closeCursor();
     $out['fulltext'] = typo_spaces(implode(' ', $tf_text), 1);
     return $out;
 }
@@ -175,13 +180,9 @@ function get_morph_vars_inner($xml_arr, $num) {
     $lemma_grm = $xml_arr['_c']['l']['_c']['g'];
     $grm_arr = array();
     if (isset ($lemma_grm['_a']) && is_array($lemma_grm['_a'])) {
-        //$r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='$inner_id' LIMIT 1"));
-        //array_push($grm_arr, array('inner' => $inner_id, 'outer' => $r[0], 'descr' => $r[1]));
         $grm_arr[] = array('inner' => $lemma_grm['_a']['v']);
     } elseif (is_array($lemma_grm)) {
         foreach ($lemma_grm as $t) {
-            //$r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='$inner_id' LIMIT 1"));
-            //array_push($grm_arr, array('inner' => $inner_id, 'outer' => $r[0], 'descr' => $r[1]));
             $grm_arr[] = array('inner' => $t['_a']['v']);
         }
     }
@@ -197,6 +198,7 @@ function sentence_save($sent_id) {
         throw new UnexpectedValueException();
     $flag = $_POST['var_flag'];  //what morphovariants are checked as possible (array of arrays)
     $dict = $_POST['dict_flag']; //whether this token has been reloaded from the dictionary (array)
+    // TODO can do the following in 1 query
     $res = sql_query("SELECT tf_id, tf_text, `pos` FROM text_forms WHERE sent_id=$sent_id ORDER BY `pos`");
     while ($r = sql_fetch_array($res)) {
         $rev = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=".$r['tf_id']." AND is_last=1 LIMIT 1"));
@@ -255,7 +257,7 @@ function sentence_save_source($sent_id, $text) {
     sql_query("UPDATE sentences SET source = '".mysql_real_escape_string(trim($text))."' WHERE sent_id=$sent_id LIMIT 1");
 }
 function create_tf_revision($revset_id, $token_id, $rev_xml) {
-    $r = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=$token_id ORDER BY rev_id DESC LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT rev_text FROM tf_revisions WHERE tf_id=$token_id ORDER BY rev_id DESC LIMIT 1"));
     if ($r && $r['rev_text'] === $rev_xml)
         // revisions are identical, do nothing
         return true;
@@ -272,17 +274,17 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
 
     // possible pool types for addition form
     $types = array(0 => 'Новый');
-    $res = sql_query("SELECT type_id, grammemes FROM morph_annot_pool_types order by grammemes");
+    $res = sql_query_pdo("SELECT type_id, grammemes FROM morph_annot_pool_types order by grammemes");
     while ($r = sql_fetch_array($res))
         $types[$r['type_id']] = $r['grammemes'];
 
     // possible moderators for filter
-    $res = sql_query("SELECT DISTINCT moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN users u ON (p.moderator_id = u.user_id) WHERE moderator_id > 0 ORDER BY user_shown_name");
+    $res = sql_query_pdo("SELECT DISTINCT moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN users u ON (p.moderator_id = u.user_id) WHERE moderator_id > 0 ORDER BY user_shown_name");
     while ($r = sql_fetch_array($res))
         $moderators[$r['moderator_id']] = $r['user_name'];
 
     // count instances in one query and preserve
-    $res = sql_query("SELECT answer, count(instance_id) cnt, pool_id FROM morph_annot_instances LEFT JOIN morph_annot_samples s USING(sample_id) WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status = $type) GROUP BY (answer > 0), pool_id ORDER BY pool_id");
+    $res = sql_query_pdo("SELECT answer, count(instance_id) cnt, pool_id FROM morph_annot_instances LEFT JOIN morph_annot_samples s USING(sample_id) WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status = $type) GROUP BY (answer > 0), pool_id ORDER BY pool_id");
     while ($r = sql_fetch_array($res)) {
         if (!isset($instance_count[$r['pool_id']]))
             $instance_count[$r['pool_id']] = array(0, 0, 0);
@@ -293,7 +295,7 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     }
     // and moderated answers if needed
     if ($type == 5) {
-        $res = sql_query("SELECT pool_id, COUNT(*) cnt FROM morph_annot_moderated_samples LEFT JOIN morph_annot_samples USING(sample_id) WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status=5)) AND answer > 0 GROUP BY pool_id");
+        $res = sql_query_pdo("SELECT pool_id, COUNT(*) cnt FROM morph_annot_moderated_samples LEFT JOIN morph_annot_samples USING(sample_id) WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status=5)) AND answer > 0 GROUP BY pool_id");
         while ($r = sql_fetch_array($res)) {
             $instance_count[$r['pool_id']][2] = $r['cnt'];
         }
@@ -325,7 +327,7 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     return array('pools' => $pools, 'types' => $types, 'moderators' => $moderators);
 }
 function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $skip=0, $filter=false, $samples_by_page=0) {
-    $res = sql_query("
+    $res = sql_query_pdo("
         SELECT pool_name, pool_type, status, t.grammemes, t.has_focus, t.doc_link,
             users_needed, moderator_id, user_shown_name AS user_name
         FROM morph_annot_pools p
@@ -352,7 +354,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         'has_focus' => $r['has_focus'],
         'samples' => array()
     );
-    $res = sql_query("
+    $res = sql_query_pdo("
         SELECT sample_id, s.tf_id
         FROM morph_annot_samples s
         LEFT JOIN text_forms f ON (s.tf_id = f.tf_id)
@@ -571,7 +573,7 @@ function filter_sample_for_moderation($pool_type, $sample, $has_focus) {
 }
 function get_pool_candidates_page($pool_id) {
     $pool = array('id' => $pool_id);
-    $r = sql_fetch_array(sql_query("SELECT pool_name FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT pool_name FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
     $pool['name'] = $r['pool_name'];
     $matches = array();
     if (preg_match('/^(.+?)\s+#(\d+)/', $pool['name'], $matches))
@@ -582,7 +584,7 @@ function get_pool_candidates_page($pool_id) {
     return $pool;
 }
 function get_pool_candidates($pool_id) {
-    $res = sql_query("SELECT tf_id FROM morph_annot_candidate_samples WHERE pool_id=$pool_id ORDER BY RAND() LIMIT 200");
+    $res = sql_query_pdo("SELECT tf_id FROM morph_annot_candidate_samples WHERE pool_id=$pool_id ORDER BY RAND() LIMIT 200");
     $out = array();
     while ($r = sql_fetch_array($res)) {
         $out[] = get_context_for_word($r[0], 2);
@@ -598,7 +600,7 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
     $right_c = 0;  //same for right context
     $mw_pos = 0;
 
-    $r = sql_fetch_array(sql_query("SELECT MAX(pos) AS maxpos, sent_id FROM text_forms WHERE sent_id=(SELECT sent_id FROM text_forms WHERE tf_id=$tf_id LIMIT 1)"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT MAX(pos) AS maxpos, sent_id FROM text_forms WHERE sent_id=(SELECT sent_id FROM text_forms WHERE tf_id=$tf_id LIMIT 1)"));
     $sent_id = $r['sent_id'];
     $maxpos = $r['maxpos'];
     $q = "SELECT tf_id, tf_text, pos FROM text_forms WHERE sent_id = $sent_id";
@@ -610,7 +612,7 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
 
     $q .= " ORDER BY pos";
 
-    $res = sql_query($q);
+    $res = sql_query_pdo($q);
 
     while ($r = sql_fetch_array($res)) {
         if ($delta > 0) {
