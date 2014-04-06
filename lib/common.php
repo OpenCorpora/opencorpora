@@ -75,19 +75,21 @@ function sql_query_pdo($q, $debug=1, $override_readonly=0) {
         $time_start = microtime(true);
         $q = str_ireplace('select ', 'SELECT SQL_NO_CACHE ', $q);
     }
-    $res = $pdo_db->query($q);
-    if ($debug) {
-        $time = microtime(true)-$time_start;
-        $total_time += $time;
-        $total_queries++;
-        printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>%d<td>SQL: %s</td><td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", $total_queries, htmlspecialchars($q), $time, $total_time);
-        $err = $pdo_db->errorInfo();
-        if ($err[2]) {
-            print "<table class='debug_error' width='100%'><tr><td colspan='3'>".htmlspecialchars($err[2])."</td></tr></table>\n";
+
+    try {
+        $res = $pdo_db->query($q);
+        if ($debug) {
+            $time = microtime(true)-$time_start;
+            $total_time += $time;
+            $total_queries++;
+            printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>%d<td>SQL: %s</td><td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", $total_queries, htmlspecialchars($q), $time, $total_time);
         }
     }
-    if (!$res)
+    catch (PDOException $e) {
+        if ($debug)
+            print "<table class='debug_error' width='100%'><tr><td colspan='3'>".htmlspecialchars($e->getMessage())."</td></tr></table>\n";
         throw new Exception("DB Error");
+    }
     return $res;
 }
 function sql_fetchall($res) {
@@ -104,16 +106,20 @@ function sql_execute($res, $params) {
     $debug = isset($_SESSION['debug_mode']);
     if ($debug)
         $time_start = microtime(true);
-    $res->execute($params);
-    if ($debug) {
-        $time = microtime(true)-$time_start;
-        $total_time += $time;
-        $total_queries++;
-        printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>%d<td>SQL: %s</td><td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", $total_queries, "(prepared statement)", $time, $total_time);
-        $err = $res->errorInfo();
-        if ($err[2]) {
-            print "<table class='debug_error' width='100%'><tr><td colspan='3'>".htmlspecialchars($err[2])."</td></tr></table>\n";
+
+    try {
+        $res->execute($params);
+        if ($debug) {
+            $time = microtime(true)-$time_start;
+            $total_time += $time;
+            $total_queries++;
+            printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>%d<td>SQL: %s</td><td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", $total_queries, "(prepared statement)", $time, $total_time);
         }
+    }
+    catch (PDOException $e) {
+        if ($debug)
+            print "<table class='debug_error' width='100%'><tr><td colspan='3'>".htmlspecialchars($e->getMessage())."</td></tr></table>\n";
+        throw new Exception("DB Error");
     }
 }
 //sql checks
