@@ -6,34 +6,41 @@ function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0) {
     $out = array();
     if (!$sentence_id) {
         if (!$set_id)
-            $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT tfr.set_id) FROM tf_revisions tfr".($maa ? " LEFT JOIN rev_sets s ON (tfr.set_id=s.set_id) WHERE s.comment LIKE '% merged %' or s.comment LIKE '% split %'" : '')));
+            $res = sql_fetch_array(sql_query_pdo("SELECT COUNT(DISTINCT tfr.set_id) FROM tf_revisions tfr".($maa ? " LEFT JOIN rev_sets s ON (tfr.set_id=s.set_id) WHERE s.comment LIKE '% merged %' or s.comment LIKE '% split %'" : '')));
         else {
             $tf_ids = array(0);
-            $res = sql_query("SELECT tf_id FROM tf_revisions WHERE set_id = $set_id".($maa ? " AND set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %')" : ''));
+            $res = sql_query_pdo("SELECT tf_id FROM tf_revisions WHERE set_id = $set_id".($maa ? " AND set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %')" : ''));
             while ($r = sql_fetch_array($res))
                 $tf_ids[] = $r['tf_id'];
-            $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT sent_id) FROM text_forms WHERE tf_id IN (".join(',', $tf_ids).")"));
+            $res = sql_fetch_array(sql_query_pdo("SELECT COUNT(DISTINCT sent_id) FROM text_forms WHERE tf_id IN (".join(',', $tf_ids).")"));
         }
 
         $out['total'] = $res[0];
     }
 
     if (!$set_id && !$sentence_id) {
-        $res = sql_query("SELECT DISTINCT tfr.set_id FROM tf_revisions tfr".($maa ? " LEFT JOIN rev_sets s ON (tfr.set_id=s.set_id) WHERE s.comment LIKE '% merged %' or s.comment LIKE '% split %'" : ''). " ORDER BY tfr.set_id DESC LIMIT $skip,20");
+        $res = sql_query_pdo("SELECT DISTINCT tfr.set_id FROM tf_revisions tfr".($maa ? " LEFT JOIN rev_sets s ON (tfr.set_id=s.set_id) WHERE s.comment LIKE '% merged %' or s.comment LIKE '% split %'" : ''). " ORDER BY tfr.set_id DESC LIMIT $skip,20");
+        $res_revset = sql_prepare("SELECT s.comment, s.timestamp, u.user_shown_name AS user_name FROM rev_sets s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE s.set_id=? LIMIT 1");
         while ($r = sql_fetch_array($res)) {
-            $r1 = sql_fetch_array(sql_query("SELECT s.comment, s.timestamp, u.user_shown_name AS user_name FROM rev_sets s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE s.set_id=".$r['set_id']." LIMIT 1"));
-            $r2 = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT f.sent_id) FROM tf_revisions tfr LEFT JOIN text_forms f ON (tfr.tf_id=f.tf_id) WHERE tfr.set_id=".$r['set_id']));
+            sql_execute($res_revset, array($r['set_id']));
+            $r1 = sql_fetch_array($res_revset);
             $out['sets'][] = array(
                 'set_id'    => $r['set_id'],
                 'user_name' => $r1['user_name'],
                 'timestamp' => $r1['timestamp'],
-                'sent_cnt'  => $r2[0],
                 'comment'   => $r1['comment']
             );
         }
-        //$res = sql_query("SELECT set_id, COUNT(sent_id) cnt FROM (SELECT set_id, f.sent_id FROM tf_revisions r RIGHT JOIN text_forms f ON (r.tf_id=f.tf_id) RIGHT JOIN sentences s ON (f.sent_id=s.sent_id) GROUP BY set_id, f.sent_id ORDER BY set_id DESC) T ".($maa ? "WHERE set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %')" : '')." GROUP BY set_id ORDER BY set_id DESC LIMIT $skip,20");
+        $res_revset->closeCursor();
+        $res_sent_cnt = sql_prepare("SELECT COUNT(DISTINCT f.sent_id) FROM tf_revisions tfr LEFT JOIN text_forms f ON (tfr.tf_id=f.tf_id) WHERE tfr.set_id=?");
+        foreach ($out['sets'] as &$set) {
+            sql_execute($res_sent_cnt, array($set['set_id']));
+            $r2 = sql_fetch_array($res_sent_cnt);
+            $set['sent_cnt'] = $r2[0];
+        }
+        $res_sent_cnt->closeCursor();
     } else {
-        $res = sql_query("SELECT tr.set_id, st.sent_id, s.timestamp, s.comment, u.user_shown_name AS user_name FROM tf_revisions tr LEFT JOIN rev_sets s ON (tr.set_id=s.set_id) LEFT JOIN users u ON (s.user_id=u.user_id) RIGHT JOIN text_forms tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id) ".($maa ? "WHERE tr.set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %') AND " : 'WHERE ').($set_id?"tr.set_id=$set_id GROUP BY st.sent_id":"st.sent_id=$sentence_id GROUP BY tr.set_id")." ORDER BY tr.rev_id DESC LIMIT $skip,20");
+        $res = sql_query_pdo("SELECT tr.set_id, st.sent_id, s.timestamp, s.comment, u.user_shown_name AS user_name FROM tf_revisions tr LEFT JOIN rev_sets s ON (tr.set_id=s.set_id) LEFT JOIN users u ON (s.user_id=u.user_id) RIGHT JOIN text_forms tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id) ".($maa ? "WHERE tr.set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %') AND " : 'WHERE ').($set_id?"tr.set_id=$set_id GROUP BY st.sent_id":"st.sent_id=$sentence_id GROUP BY tr.set_id")." ORDER BY tr.rev_id DESC LIMIT $skip,20");
         while ($r = sql_fetch_array($res)) {
             $out['sets'][] = array(
                 'set_id'    => $r['set_id'],
@@ -95,7 +102,7 @@ function main_diff($sentence_id, $set_id, $rev_id) {
     if (!$sentence_id || !$set_id) {
         if (!$rev_id)
             throw new UnexpectedValueException();
-        $r = sql_fetch_array(sql_query("
+        $r = sql_fetch_array(sql_query_pdo("
             SELECT sent_id, set_id
             FROM tf_revisions
             LEFT JOIN text_forms USING (tf_id)
@@ -106,7 +113,7 @@ function main_diff($sentence_id, $set_id, $rev_id) {
         $sentence_id = $r['sent_id'];
         $set_id = $r['set_id'];
     }
-    $r = sql_fetch_array(sql_query("SELECT DISTINCT s.*, u.user_shown_name AS user_name FROM rev_sets s LEFT JOIN `users` u ON (s.user_id = u.user_id) WHERE s.set_id=$set_id"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT DISTINCT s.*, u.user_shown_name AS user_name FROM rev_sets s LEFT JOIN `users` u ON (s.user_id = u.user_id) WHERE s.set_id=$set_id"));
     $out = array(
         'set_id'    => $set_id,
         'sent_id'   => $sentence_id,
@@ -117,14 +124,15 @@ function main_diff($sentence_id, $set_id, $rev_id) {
         'next_set'  => 0,
         'tokens'    => array()
     );
-    $res = sql_query("SELECT tf_id, `pos` FROM text_forms WHERE sent_id=$sentence_id ORDER BY `pos`");
+    $res = sql_query_pdo("SELECT tf_id, `pos` FROM text_forms WHERE sent_id=$sentence_id ORDER BY `pos`");
     $token_ids = array();
+    $res_rev = sql_prepare("SELECT tr.*, rs.*, `users`.user_shown_name AS user_name FROM tf_revisions tr LEFT JOIN rev_sets rs ON (tr.set_id = rs.set_id) LEFT JOIN `users` ON (rs.user_id = `users`.user_id) WHERE tr.tf_id=? AND tr.set_id<=? ORDER BY tr.rev_id DESC LIMIT 2");
     while ($r = sql_fetch_array($res)) {
         $token_ids[] = $r['tf_id'];
         $token = array();
-        $res1 = sql_query("SELECT tr.*, rs.*, `users`.user_shown_name AS user_name FROM tf_revisions tr LEFT JOIN rev_sets rs ON (tr.set_id = rs.set_id) LEFT JOIN `users` ON (rs.user_id = `users`.user_id) WHERE tr.tf_id=".$r['tf_id']." AND tr.set_id<=$set_id ORDER BY tr.rev_id DESC LIMIT 2");
-        $r1 = sql_fetch_array($res1);
-        $r2 = sql_fetch_array($res1);
+        sql_execute($res_rev, array($r['tf_id'], $set_id));
+        $r1 = sql_fetch_array($res_rev);
+        $r2 = sql_fetch_array($res_rev);
         if ($r1['set_id'] != $set_id)
             continue;
         $old_rev = format_xml($r2['rev_text']);
@@ -142,16 +150,20 @@ function main_diff($sentence_id, $set_id, $rev_id) {
         );
         $out['tokens'][] = $token;
     }
-    $res = sql_query("SELECT set_id FROM tf_revisions WHERE tf_id IN (".join(',', $token_ids).") AND set_id<$set_id ORDER BY set_id DESC LIMIT 1");
-    if ($res) {
-        $r = sql_fetch_array($res);
+    $res_rev->closeCursor();
+
+    // previous set
+    $res = sql_query_pdo("SELECT set_id FROM tf_revisions WHERE tf_id IN (".join(',', $token_ids).") AND set_id<$set_id ORDER BY set_id DESC LIMIT 1");
+    $r = sql_fetch_array($res);
+    if ($r)
         $out['prev_set'] = $r[0];
-    }
-    $res = sql_query("SELECT set_id FROM tf_revisions WHERE tf_id IN (".join(',', $token_ids).") AND set_id>$set_id ORDER BY set_id ASC LIMIT 1");
-    if ($res) {
-        $r = sql_fetch_array($res);
+
+    // next set
+    $res = sql_query_pdo("SELECT set_id FROM tf_revisions WHERE tf_id IN (".join(',', $token_ids).") AND set_id>$set_id ORDER BY set_id ASC LIMIT 1");
+    $r = sql_fetch_array($res);
+    if ($r)
         $out['next_set'] = $r[0];
-    }
+
     return $out;
 }
 function dict_diff($lemma_id, $set_id) {
@@ -194,18 +206,24 @@ function revert_changeset($set_id, $comment) {
     $new_set_id = create_revset($comment);
     $dict_flag = 0;
 
-    $res = sql_query("SELECT tf_id FROM tf_revisions WHERE set_id=$set_id");
+    $res = sql_query_pdo("SELECT tf_id FROM tf_revisions WHERE set_id=$set_id");
+    $res_revtext = sql_prepare("SELECT rev_text FROM tf_revisions WHERE tf_id=? AND set_id<? ORDER BY rev_id DESC LIMIT 1");
     while ($r = sql_fetch_array($res)) {
-        $arr = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=$r[0] AND set_id<$set_id ORDER BY rev_id DESC LIMIT 1"));
+        sql_execute($res_revtext, array($r[0], $set_id));
+        $arr = sql_fetch_array($res_revtext);
         create_tf_revision($new_set_id, $r[0], $arr[0]);
     }
+    $res_revtext->closeCursor();
 
-    $res = sql_query("SELECT lemma_id FROM dict_revisions WHERE set_id=$set_id");
+    $res = sql_query_pdo("SELECT lemma_id FROM dict_revisions WHERE set_id=$set_id");
+    $res_revtext = sql_prepare("SELECT rev_text FROM dict_revisions WHERE lemma_id=? AND set_id<? ORDER BY rev_id DESC LIMIT 1");
     while ($r = sql_fetch_array($res)) {
-        $arr = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$r[0] AND set_id<$set_id ORDER BY rev_id DESC LIMIT 1"));
+        sql_execute($res_revtext, array($r[0], $set_id));
+        $arr = sql_fetch_array($res_revtext);
         sql_query("INSERT INTO `dict_revisions` VALUES(NULL, '$new_set_id', '$r[0]', '$arr[0]')");
         $dict_flag = 1;
     }
+    $res_revtext->closeCursor();
     sql_commit();
 
     if ($dict_flag)
@@ -216,7 +234,7 @@ function revert_token($rev_id) {
     if (!$rev_id)
         throw new UnexpectedValueException();
 
-    $r = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE rev_id=$rev_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT tf_id, rev_text FROM tf_revisions WHERE rev_id=$rev_id LIMIT 1"));
     sql_begin();
     $new_set_id = create_revset("Отмена правки, возврат к версии t$rev_id");
 
@@ -227,7 +245,7 @@ function revert_dict($rev_id) {
     if (!$rev_id)
         throw new UnexpectedValueException();
 
-    $r = sql_fetch_array(sql_query("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=$rev_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=$rev_id LIMIT 1"));
     sql_begin();
     $new_set_id = create_revset("Отмена правки, возврат к версии d$rev_id");
 
