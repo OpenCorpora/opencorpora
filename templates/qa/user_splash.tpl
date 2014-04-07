@@ -1,4 +1,4 @@
-{if $new_badge}
+{if isset($new_badge)}
     <div class="alert alert-block clearfix" id="badge-alert">
         <button type="button" class="close" data-dismiss="alert">×</button>
         <div class="pull-left" style="margin-right: 15px;"><img src="img/{if $new_badge.image}badges/{$new_badge.image}-100x100.png{else}icon_target.png{/if}"></div>
@@ -11,7 +11,7 @@
         })
     </script>
 {/if}
-{if $new_level > 0}
+{if isset($new_level) && $new_level > 0}
     <div class="alert alert-block alert-success clearfix" id="level-alert">
         <button type="button" class="close" data-dismiss="alert">×</button>
         <div class="pull-left" style="margin-right: 15px;"><img src="img/icon_trophy_black.png"></div>
