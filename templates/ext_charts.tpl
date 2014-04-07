@@ -110,7 +110,7 @@ $(document).ready(function() {
         {/if}
         </div></td>
         <td class='small'>
-            {if $moder.data[0].$typenum[4][0] > 0}
+            {if isset($moder.data[0].$typenum) && $moder.data[0].$typenum[4][0] > 0}
                 <span class='badge badge-important'>{$moder.data[0].$typenum[4][0]}</span>
             {/if}
             <a href="{$web_prefix}/pools.php?type=4&amp;filter={$type[0]|urlencode}">{$type[0]|htmlspecialchars}</a>
