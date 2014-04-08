@@ -97,7 +97,14 @@ function sql_fetchall($res) {
 }
 function sql_prepare($q) {
     global $pdo_db;
-    return $pdo_db->prepare($q);
+    try {
+        return $pdo_db->prepare($q);
+    }
+    catch (PDOException $e) {
+        if ($debug)
+            print "<table class='debug_error' width='100%'><tr><td colspan='3'>".htmlspecialchars($e->getMessage())."</td></tr></table>\n";
+        throw new Exception("DB Error");
+    }
 }
 function sql_execute($res, $params) {
     global $pdo_db;
