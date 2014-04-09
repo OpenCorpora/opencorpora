@@ -314,7 +314,6 @@ function delete_sentence($sid) {
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt FROM sentences WHERE par_id=$par_id"));
     if ($r['cnt'] == 0)
         sql_query("DELETE FROM paragraphs WHERE par_id=$par_id LIMIT 1");
-    var_dump($r['cnt']);
     sql_commit();
 }
 function delete_token($tf_id, $delete_history=true) {
