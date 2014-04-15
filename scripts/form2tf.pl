@@ -21,7 +21,7 @@ if ($dbh->{'AutoCommit'}) {
 
 my $max1 = $dbh->prepare("SELECT MAX(tf_id) AS max1 FROM text_forms");
 my $max2 = $dbh->prepare("SELECT MAX(tf_id) AS max2 FROM form2tf");
-my $scan = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE tf_id NOT IN (SELECT tf_id FROM form2tf) LIMIT ?");
+my $scan = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE tf_id NOT IN (SELECT tf_id FROM form2tf) ORDER BY tf_id LIMIT ?");
 my $ins = $dbh->prepare("INSERT INTO form2tf VALUES(?, ?)");
 
 $max1->execute();
