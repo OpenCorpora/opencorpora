@@ -17,33 +17,29 @@ elseif (is_admin() && $action == 'del_sentence') {
     delete_sentence($sid);
     header("Location:books.php?book_id=".(int)$_GET['book_id'].'&full');
 }
-elseif (user_has_permission('perm_syntax')) {
-    switch ($action) {
-        case 'anaphora':
-            if (isset($_GET['book_id']) && $book_id = (int)$_GET['book_id']) {
-                $book = get_book_page($book_id, TRUE);
-                $groups = array();
-                $smarty->assign('group_types', get_syntax_group_types());
+elseif (user_has_permission('perm_syntax') && $action == 'anaphora') {
+    if (isset($_GET['book_id']) && $book_id = (int)$_GET['book_id']) {
+        $book = get_book_page($book_id, TRUE);
+        $groups = array();
+        $smarty->assign('group_types', get_syntax_group_types());
 
-                foreach ($book['paragraphs'] as &$paragraph) {
+        foreach ($book['paragraphs'] as &$paragraph) {
 
-                    foreach ($paragraph as &$sentence) {
-                        $sentence['props'] = get_pronouns_by_sentence($sentence['id']);
-                        foreach ($sentence['tokens'] as &$token) {
-                            $groups[$token['id']] = $token['groups']
-                                = get_moderated_groups_by_token($token['id']);
-                        }
-                    }
+            foreach ($paragraph as &$sentence) {
+                $sentence['props'] = get_pronouns_by_sentence($sentence['id']);
+                foreach ($sentence['tokens'] as &$token) {
+                    $groups[$token['id']] = $token['groups']
+                        = get_moderated_groups_by_token($token['id']);
                 }
-
-                $smarty->assign('anaphora', get_anaphora_by_book($book_id));
-                $smarty->assign('book', $book);
-                $smarty->assign('token_groups', $groups);
-                $smarty->display('syntax/book.tpl');
-            } else {
-                throw new UnexpectedValueException();
             }
-            break;
+        }
+
+        $smarty->assign('anaphora', get_anaphora_by_book($book_id));
+        $smarty->assign('book', $book);
+        $smarty->assign('token_groups', $groups);
+        $smarty->display('syntax/book.tpl');
+    } else {
+        throw new UnexpectedValueException();
     }
 }
 elseif (user_has_permission('perm_adder')) {
