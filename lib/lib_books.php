@@ -406,6 +406,7 @@ function split_token($token_id, $num) {
     sql_query("INSERT INTO text_forms VALUES(NULL, '".$r['sent_id']."', '".($r['pos'] + 1)."', '".mysql_real_escape_string($text2)."')");
     sql_query("INSERT INTO tf_revisions VALUES(NULL, '$revset_id', '".sql_insert_id()."', '".mysql_real_escape_string(generate_tf_rev($text2))."', 1)");
     //update old token and parse
+    sql_query("DELETE FROM form2tf WHERE tf_id=$token_id");
     sql_query("UPDATE text_forms SET tf_text='".mysql_real_escape_string($text1)."' WHERE tf_id=$token_id LIMIT 1");
     sql_query("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $token_id)");
     create_tf_revision($revset_id, $token_id, generate_tf_rev($text1));
