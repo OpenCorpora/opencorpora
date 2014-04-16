@@ -36,6 +36,7 @@ get_gram_info();
 my @revisions = @{get_new_revisions()};
 while(my $ref = shift @revisions) {
     $clear->execute($ref->{'lemma_id'});
+    next if ($ref->{'text'} eq '');   # an empty revision is created when a lemma is deleted
     check($ref);
     $update->execute($ref->{'id'});
 }
