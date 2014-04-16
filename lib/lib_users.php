@@ -2,7 +2,7 @@
 require_once('lib_mail.php');
 function user_check_password($login, $password) {
     $password = md5(md5($password).substr($login, 0, 2));
-    $r = sql_fetch_array(sql_query("SELECT `user_id` FROM `users` WHERE `user_name`='$login' AND `user_passwd`='$password' LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT `user_id` FROM `users` WHERE `user_name`='$login' AND `user_passwd`='$password' LIMIT 1"));
     if (!$r) return false;
     return $r['user_id'];
 }
@@ -10,7 +10,7 @@ function is_valid_password($string) {
     return preg_match('/^[a-z0-9_-]+$/i', $string);
 }
 function user_generate_password($email) {
-    $res = sql_query("SELECT user_id, user_name, user_passwd FROM `users` WHERE user_email='".mysql_real_escape_string($email)."' LIMIT 1");
+    $res = sql_query_pdo("SELECT user_id, user_name, user_passwd FROM `users` WHERE user_email='".mysql_real_escape_string($email)."' LIMIT 1");
     if (sql_num_rows($res) == 0) return 2;
     $r = sql_fetch_array($res);
     if ($r['user_passwd'] == '' || $r['user_passwd'] == 'notagreed')

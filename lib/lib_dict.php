@@ -228,15 +228,15 @@ function form_exists($f) {
 function get_pending_updates($skip=0, $limit=500) {
     $out = array('revisions' => array(), 'header' => array());
 
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) cnt FROM updated_tokens"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT COUNT(*) cnt FROM updated_tokens"));
     $out['cnt_tokens'] = $r['cnt'];
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) cnt FROM updated_forms"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT COUNT(*) cnt FROM updated_forms"));
     $out['cnt_forms'] = $r['cnt'];
-    $res = sql_query("SELECT rev_id FROM dict_revisions WHERE f2l_check=0 LIMIT 1");
+    $res = sql_query_pdo("SELECT rev_id FROM dict_revisions WHERE f2l_check=0 LIMIT 1");
     $out['outdated_f2l'] = sql_num_rows($res);
 
     // header
-    $res = sql_query("
+    $res = sql_query_pdo("
         SELECT dict_revision, lemma_id, lemma_text, COUNT(token_id) AS cnt
         FROM updated_tokens ut
         LEFT JOIN dict_revisions dr ON (ut.dict_revision = dr.rev_id)
@@ -257,7 +257,7 @@ function get_pending_updates($skip=0, $limit=500) {
     }
 
     // main table
-    $res = sql_query("
+    $res = sql_query_pdo("
         SELECT token_id, tf_text, sent_id, dict_revision, lemma_id, dr.set_id,
             tfr.rev_text AS token_rev_text
         FROM updated_tokens ut
@@ -309,7 +309,7 @@ function get_pending_updates($skip=0, $limit=500) {
     return $out;
 }
 function check_for_human_edits($token_id) {
-    $res = sql_query("
+    $res = sql_query_pdo("
         SELECT rev_id
         FROM tf_revisions
         LEFT JOIN rev_sets USING (set_id)
@@ -324,7 +324,7 @@ function forget_pending_token($token_id, $rev_id) {
     sql_query("DELETE FROM updated_tokens WHERE token_id=$token_id AND dict_revision=$rev_id");
 }
 function update_pending_tokens($rev_id) {
-    $res = sql_query("SELECT token_id FROM updated_tokens WHERE dict_revision=$rev_id");
+    $res = sql_query_pdo("SELECT token_id FROM updated_tokens WHERE dict_revision=$rev_id");
     sql_begin();
     $revset_id = create_revset("Update tokens from dictionary");
     while ($r = sql_fetch_array($res))
@@ -393,7 +393,7 @@ function get_top_absent_words() {
 function get_lemma_editor($id) {
     $out = array('lemma' => array('id' => $id), 'errata' => array());
     if ($id == -1) return $out;
-    $r = sql_fetch_array(sql_query("SELECT l.`lemma_text`, d.`rev_id`, d.`rev_text` FROM `dict_lemmata` l LEFT JOIN `dict_revisions` d ON (l.lemma_id = d.lemma_id) WHERE l.`lemma_id`=$id ORDER BY d.rev_id DESC LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT l.`lemma_text`, d.`rev_id`, d.`rev_text` FROM `dict_lemmata` l LEFT JOIN `dict_revisions` d ON (l.lemma_id = d.lemma_id) WHERE l.`lemma_id`=$id ORDER BY d.rev_id DESC LIMIT 1"));
     $arr = parse_dict_rev($r['rev_text']);
     $out['lemma']['text'] = $arr['lemma']['text'];
     $out['lemma']['grms'] = implode(', ', $arr['lemma']['grm']);
@@ -486,7 +486,7 @@ function dict_save($array) {
     $lgram = $array['form_gram'];
     $lemma_gram_new = $array['lemma_gram'];
     //let's construct the old paradigm
-    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=".$array['lemma_id']." ORDER BY `rev_id` DESC LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT rev_text FROM dict_revisions WHERE lemma_id=".$array['lemma_id']." ORDER BY `rev_id` DESC LIMIT 1"));
     $pdr = parse_dict_rev($old_xml = $r['rev_text']);
     $old_lemma_text = $pdr['lemma']['text'];
     $lemma_gram_old = implode(', ', $pdr['lemma']['grm']);
@@ -586,7 +586,7 @@ function paradigm_diff($array1, $array2) {
 }
 function del_lemma($id) {
     //delete links (but preserve history)
-    $res = sql_query("SELECT link_id FROM dict_links WHERE lemma1_id=$id OR lemma2_id=$id");
+    $res = sql_query_pdo("SELECT link_id FROM dict_links WHERE lemma1_id=$id OR lemma2_id=$id");
     sql_begin();
     $revset_id = create_revset("Delete lemma $id");
     while ($r = sql_fetch_array($res))
