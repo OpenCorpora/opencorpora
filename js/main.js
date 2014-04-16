@@ -223,11 +223,6 @@ function submit_with_readonly_check(f) {
 }
 function get_lemma_search() {
     var q = $('#find_lemma').val();
-    if (q.length < 3) {
-        alert('Слишком короткий запрос');
-        return false;
-    }
-
     var lid;
 
     $.get('ajax/lemma_search.php', {'q':q},
