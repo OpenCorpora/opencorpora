@@ -222,6 +222,9 @@ function submit_with_readonly_check(f) {
         })
 }
 function get_lemma_search() {
+    $("input[type='radio']").closest('label').remove();
+    $("#add_link_submitter").remove();
+
     var q = $('#find_lemma').val();
     var lid;
 
