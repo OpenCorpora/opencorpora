@@ -262,7 +262,7 @@ function get_pending_updates($skip=0, $limit=500) {
             tfr.rev_text AS token_rev_text
         FROM updated_tokens ut
         LEFT JOIN dict_revisions dr ON (ut.dict_revision = dr.rev_id)
-        LEFT JOIN text_forms tf ON (ut.token_id = tf.tf_id)
+        LEFT JOIN tokens tf ON (ut.token_id = tf.tf_id)
         LEFT JOIN tf_revisions tfr USING (tf_id)
         WHERE is_last = 1
         ORDER BY dict_revision, tf_id
@@ -349,7 +349,7 @@ function update_pending_token($token_id, $rev_id, $revset_id=0) {
         throw new Exception();
     
     // ok, now we can safely update
-    $r = sql_fetch_array(sql_query("SELECT tf_text FROM text_forms WHERE tf_id=$token_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query("SELECT tf_text FROM tokens WHERE tf_id=$token_id LIMIT 1"));
     $token_text = $r['tf_text'];
     $r = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=$token_id AND is_last=1 LIMIT 1"));
     $previous_rev = $r['rev_text'];
@@ -373,7 +373,7 @@ function get_top_absent_words() {
     $out = array();
     $res = sql_query_pdo("
         SELECT LOWER(tf_text) AS word, COUNT(tf_id) AS cnt
-        FROM text_forms
+        FROM tokens
         LEFT JOIN tf_revisions USING (tf_id)
         WHERE is_last = 1
             AND LENGTH(tf_text) > 2

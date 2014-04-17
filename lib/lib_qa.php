@@ -9,7 +9,7 @@ function get_page_tok_strange($newest = false) {
         'items' => array()
     );
     $res = sql_fetchall(sql_query_pdo("SELECT param_value FROM stats_values WHERE param_id=28 ORDER BY param_value"));
-    $res1 = sql_prepare("SELECT tf_text, sent_id FROM text_forms WHERE tf_id=? LIMIT 1");
+    $res1 = sql_prepare("SELECT tf_text, sent_id FROM tokens WHERE tf_id=? LIMIT 1");
     foreach ($res as $r) {
         sql_execute($res1, array($r['param_value']));
         $r1 = sql_fetch_array($res1);
@@ -167,11 +167,11 @@ function get_most_useful_pools() {
                 USING (pool_id)
             LEFT JOIN users
                 ON (p.moderator_id = users.user_id)
-            LEFT JOIN text_forms tf
+            LEFT JOIN tokens tf
                 USING (tf_id)
             RIGHT JOIN good_sentences
                 USING (sent_id)
-            LEFT JOIN text_forms tf2
+            LEFT JOIN tokens tf2
                 USING (sent_id)
         WHERE p.status >= 4
             AND p.status <=6

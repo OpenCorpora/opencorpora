@@ -55,7 +55,7 @@ function get_sentence($sent_id) {
     // TODO we'd better preload all grammemes info to save queries
     $res = sql_query_pdo("
         SELECT tf_id, tf_text, rev_text
-        FROM text_forms
+        FROM tokens
         LEFT JOIN tf_revisions
             USING (tf_id)
         WHERE sent_id=$sent_id
@@ -204,7 +204,7 @@ function sentence_save($sent_id) {
 
     $res = sql_query_pdo("
         SELECT tf_id, tf_text, rev_text
-        FROM text_forms
+        FROM tokens
         LEFT JOIN tf_revisions
             USING (tf_id)
         WHERE sent_id=$sent_id
@@ -367,7 +367,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     $res = sql_query_pdo("
         SELECT sample_id, s.tf_id
         FROM morph_annot_samples s
-        LEFT JOIN text_forms f ON (s.tf_id = f.tf_id)
+        LEFT JOIN tokens f ON (s.tf_id = f.tf_id)
         WHERE pool_id=$pool_id
         ORDER BY tf_text, sample_id
     ");
@@ -610,13 +610,13 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
     $right_c = 0;  //same for right context
     $mw_pos = 0;
 
-    $r = sql_fetch_array(sql_query_pdo("SELECT MAX(pos) AS maxpos, sent_id FROM text_forms WHERE sent_id=(SELECT sent_id FROM text_forms WHERE tf_id=$tf_id LIMIT 1)"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT MAX(pos) AS maxpos, sent_id FROM tokens WHERE sent_id=(SELECT sent_id FROM tokens WHERE tf_id=$tf_id LIMIT 1)"));
     $sent_id = $r['sent_id'];
     $maxpos = $r['maxpos'];
-    $q = "SELECT tf_id, tf_text, pos FROM text_forms WHERE sent_id = $sent_id";
+    $q = "SELECT tf_id, tf_text, pos FROM tokens WHERE sent_id = $sent_id";
     if ($dir != 0 || $delta > 0) {
-        $q_left = $dir <= 0 ? ($delta > 0 ? "(SELECT GREATEST(0, pos-$delta) FROM text_forms WHERE tf_id=$tf_id LIMIT 1)" : "0") : "(SELECT pos FROM text_forms WHERE tf_id=$tf_id LIMIT 1)";
-        $q_right = $dir >= 0 ? ($delta > 0 ? "(SELECT pos+$delta FROM text_forms WHERE tf_id=$tf_id LIMIT 1)" : "1000") : "(SELECT pos FROM text_forms WHERE tf_id=$tf_id LIMIT 1)";
+        $q_left = $dir <= 0 ? ($delta > 0 ? "(SELECT GREATEST(0, pos-$delta) FROM tokens WHERE tf_id=$tf_id LIMIT 1)" : "0") : "(SELECT pos FROM tokens WHERE tf_id=$tf_id LIMIT 1)";
+        $q_right = $dir >= 0 ? ($delta > 0 ? "(SELECT pos+$delta FROM tokens WHERE tf_id=$tf_id LIMIT 1)" : "1000") : "(SELECT pos FROM tokens WHERE tf_id=$tf_id LIMIT 1)";
         $q .= " AND pos BETWEEN $q_left AND $q_right";
     }
 

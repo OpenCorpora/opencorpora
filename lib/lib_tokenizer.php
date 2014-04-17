@@ -300,7 +300,7 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
             foreach ($tokens as $token) {
                 if (trim($token) === '') continue;
                 //adding a textform
-                sql_query("INSERT INTO `text_forms` VALUES(NULL, '$sent_id', '".($token_num++)."', '".mysql_real_escape_string(trim($token))."')");
+                sql_query("INSERT INTO `tokens` VALUES(NULL, '$sent_id', '".($token_num++)."', '".mysql_real_escape_string(trim($token))."')");
                 $tf_id = sql_insert_id();
                 //adding a revision
                 sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$tf_id', '".mysql_real_escape_string(generate_tf_rev(trim($token)))."', 1)");

@@ -17,7 +17,7 @@ if ($dbh->{'AutoCommit'}) {
 }
 
 #if there are any words still not checked by form2tf, we should do nothing
-my $max1 = $dbh->prepare("SELECT MAX(tf_id) AS max1 FROM text_forms");
+my $max1 = $dbh->prepare("SELECT MAX(tf_id) AS max1 FROM tokens");
 my $max2 = $dbh->prepare("SELECT MAX(tf_id) AS max2 FROM form2tf");
 $max1->execute();
 $max2->execute();

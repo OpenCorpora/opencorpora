@@ -17,7 +17,7 @@ def find_sentences(dbh):
         i += PACKET_SIZE
 
 def find_sentences_next(dbh, start):
-    dbh.execute("""SELECT sent_id, rev_text FROM tf_revisions LEFT JOIN text_forms USING(tf_id) LEFT JOIN sentences USING(sent_id) WHERE sent_id >= {0} AND sent_id < {1} AND is_last = 1 AND rev_text NOT LIKE '%"UNKN"%' AND rev_text NOT LIKE '%"PNCT"%' ORDER BY sent_id""".format(start, start + PACKET_SIZE))
+    dbh.execute("""SELECT sent_id, rev_text FROM tf_revisions LEFT JOIN tokens USING(tf_id) LEFT JOIN sentences USING(sent_id) WHERE sent_id >= {0} AND sent_id < {1} AND is_last = 1 AND rev_text NOT LIKE '%"UNKN"%' AND rev_text NOT LIKE '%"PNCT"%' ORDER BY sent_id""".format(start, start + PACKET_SIZE))
     
     last_sent_id = 0
     count_total = 0

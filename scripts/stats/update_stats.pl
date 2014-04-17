@@ -71,14 +71,14 @@ sub sentences_by_source {
 
 sub tokens_by_source {
     my $pid = shift;
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (".join(',', books_by_source($pid)).")))");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM tokens WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (".join(',', books_by_source($pid)).")))");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 }
 
 sub words_by_source {
     my $pid = shift;
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (".join(',', books_by_source($pid))."))) AND $cyr_match");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM tokens WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (".join(',', books_by_source($pid))."))) AND $cyr_match");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 }
@@ -100,7 +100,7 @@ sub get_sentence_adder {
             FROM tf_revisions
             WHERE tf_id IN (
                 SELECT tf_id
-                FROM text_forms
+                FROM tokens
                 WHERE sent_id=?
             )
             ORDER BY rev_id
@@ -133,7 +133,7 @@ $func->{'total_sentences'} = sub {
     return $sc->fetchrow_hashref()->{'cnt'};
 };
 $func->{'total_tokens'} = sub {
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM tokens");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };
@@ -143,7 +143,7 @@ $func->{'total_lemmata'} = sub {
     return $sc->fetchrow_hashref()->{'cnt'};
 };
 $func->{'total_words'} = sub {
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM text_forms WHERE $cyr_match");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM tokens WHERE $cyr_match");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };
@@ -156,7 +156,7 @@ for my $source(keys %source2id) {
 }
 
 $func->{'total_parses'} = sub {
-    my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions LEFT JOIN text_forms USING(tf_id) WHERE is_last = 1 AND $cyr_match");
+    my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions LEFT JOIN tokens USING(tf_id) WHERE is_last = 1 AND $cyr_match");
     $scan->execute();
     my $total = 0;
     while (my $r = $scan->fetchrow_hashref()) {
@@ -172,7 +172,7 @@ $func->{'unknown_words'} = sub {
     return $scan->fetchrow_hashref()->{'cnt'};
 };
 $func->{'unambiguous_parses'} = sub {
-    my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions LEFT JOIN text_forms USING(tf_id) WHERE is_last = 1 AND rev_text NOT LIKE '%g v=\"UNKN\"%' AND $cyr_match");
+    my $scan = $dbh->prepare("SELECT rev_text FROM tf_revisions LEFT JOIN tokens USING(tf_id) WHERE is_last = 1 AND rev_text NOT LIKE '%g v=\"UNKN\"%' AND $cyr_match");
     $scan->execute();
     my $parses = 0;
     my $total = 0;

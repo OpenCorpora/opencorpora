@@ -102,7 +102,7 @@ sub get_tokens {
         select
             tf_text
         from
-            text_forms
+            tokens
         WHERE
             sent_id = ?
         order by

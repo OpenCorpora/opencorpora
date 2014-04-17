@@ -45,7 +45,7 @@ def get_simple_groups(dbh, annotators, include_dummy=False):
         FROM anaphora_syntax_groups g
             JOIN anaphora_syntax_groups_simple gs
                 USING (group_id)
-            LEFT JOIN text_forms tf
+            LEFT JOIN tokens tf
                 ON (gs.token_id = tf.tf_id)
             JOIN sentences USING (sent_id)
             JOIN paragraphs USING (par_id)

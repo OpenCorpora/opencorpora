@@ -22,7 +22,7 @@ my $dry_run = $ARGV[1] && $ARGV[1] eq '--dry-run';
 my $dbh = DBI->connect('DBI:mysql:'.$mysql->{'dbname'}.':'.$mysql->{'host'}, $mysql->{'user'}, $mysql->{'passwd'}) or die $DBI::errstr;
 $dbh->do("SET NAMES utf8");
 my $sent = $dbh->prepare("SELECT `sent_id`, `source` FROM sentences");
-my $tok = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE sent_id=? ORDER BY `pos`");
+my $tok = $dbh->prepare("SELECT tf_id, tf_text FROM tokens WHERE sent_id=? ORDER BY `pos`");
 my $drop = $dbh->prepare("TRUNCATE TABLE `tokenizer_coeff`");
 my $drop2 = $dbh->prepare("TRUNCATE TABLE `tokenizer_strange`");
 my $insert = $dbh->prepare("INSERT INTO `tokenizer_coeff` VALUES(?,?)");

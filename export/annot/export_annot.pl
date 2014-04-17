@@ -23,7 +23,7 @@ my $books = $dbh->prepare("SELECT * FROM books");
 my $tags = $dbh->prepare("SELECT tag_name FROM book_tags WHERE book_id=?");
 my $par = $dbh->prepare("SELECT par_id FROM paragraphs WHERE book_id=? ORDER BY pos");
 my $sent = $dbh->prepare("SELECT sent_id, source FROM sentences WHERE par_id=? ORDER BY pos");
-my $tf = $dbh->prepare("SELECT tf_id, tf_text FROM text_forms WHERE sent_id=? ORDER BY pos");
+my $tf = $dbh->prepare("SELECT tf_id, tf_text FROM tokens WHERE sent_id=? ORDER BY pos");
 my $tfrev = $dbh->prepare("SELECT rev_id, rev_text FROM tf_revisions WHERE tf_id=? AND is_last=1");
 my $r;
 

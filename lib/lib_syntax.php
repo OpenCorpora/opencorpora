@@ -18,7 +18,7 @@ function get_books_with_syntax() {
                 USING (book_id)
             JOIN sentences
                 USING (par_id)
-            JOIN text_forms
+            JOIN tokens
                 USING (sent_id)
         WHERE syntax_on > 0
         GROUP BY book_id
@@ -71,7 +71,7 @@ function get_group_text($group_id) {
             return $el['token_id'];
         });
 
-        $tokens_res = sql_query_pdo("SELECT tf_text FROM text_forms WHERE tf_id IN ($token_ids)");
+        $tokens_res = sql_query_pdo("SELECT tf_text FROM tokens WHERE tf_id IN ($token_ids)");
         while ($r = sql_fetch_array($tokens_res)) {
             $texts[] = $r['tf_text'];
         }
@@ -84,7 +84,7 @@ function get_group_text($group_id) {
     if (!empty($r)) {
         $token_ids = get_group_tokens($group_id);
         $token_ids = join(',', $token_ids);
-        $tokens_res = sql_query_pdo("SELECT tf_text FROM text_forms WHERE tf_id IN ($token_ids)");
+        $tokens_res = sql_query_pdo("SELECT tf_text FROM tokens WHERE tf_id IN ($token_ids)");
         while ($r = sql_fetch_array($tokens_res)) {
             $texts[] = $r['tf_text'];
         }
@@ -139,7 +139,7 @@ function get_simple_groups_by_sentence($sent_id, $user_id) {
         SELECT group_id, group_type, token_id, tf_text, head_id, tf.pos
         FROM anaphora_syntax_groups_simple sg
         JOIN anaphora_syntax_groups g USING (group_id)
-        JOIN text_forms tf ON (sg.token_id = tf.tf_id)
+        JOIN tokens tf ON (sg.token_id = tf.tf_id)
         WHERE sent_id = $sent_id
         AND user_id = $user_id
         ORDER BY group_id, tf.pos
@@ -270,7 +270,7 @@ function get_groups_by_sentence($sent_id, $user_id) {
 function get_moderated_groups_by_token($token_id, $in_head = FALSE) {
     $res = sql_query_pdo("
         SELECT sent_id, tf_text
-        FROM text_forms
+        FROM tokens
         WHERE tf_id = $token_id
     ");
 
@@ -308,7 +308,7 @@ function get_all_groups_by_sentence($sent_id) {
         SELECT DISTINCT user_id
         FROM anaphora_syntax_groups_simple sgs
         JOIN anaphora_syntax_groups sg USING (group_id)
-        JOIN text_forms tf ON (sgs.token_id = tf.tf_id)
+        JOIN tokens tf ON (sgs.token_id = tf.tf_id)
         WHERE sent_id = $sent_id
     ");
     $out = array();
@@ -325,7 +325,7 @@ function get_pronouns_by_sentence($sent_id) {
     $token_ids = array();
     $res = sql_query_pdo("
         SELECT tf_id
-        FROM text_forms
+        FROM tokens
         LEFT JOIN tf_revisions
             USING (tf_id)
         WHERE
@@ -375,7 +375,7 @@ function add_group($parts, $type, $revset_id=0) {
 function check_for_same_sentence($token_ids) {
     $res = sql_query_pdo("
         SELECT DISTINCT sent_id
-        FROM text_forms
+        FROM tokens
         WHERE tf_id IN (".join(',', $token_ids).")
     ");
     return (sql_num_rows($res) == 1);
@@ -618,7 +618,7 @@ function get_anaphora_by_book($book_id) {
     $res = sql_query("
         SELECT token_id, group_id, ref_id, tf.tf_text as token
         FROM anaphora a
-            JOIN text_forms tf ON (a.token_id = tf.tf_id)
+            JOIN tokens tf ON (a.token_id = tf.tf_id)
             JOIN sentences USING (sent_id)
             JOIN paragraphs USING (par_id)
         WHERE book_id = $book_id
