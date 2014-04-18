@@ -13,7 +13,7 @@ function get_sentence($sent_id) {
     $out['comment_count'] = $r['comm_cnt'];
     //looking for source name
     $r = sql_fetch_array(sql_query_pdo("
-        SELECT book_id, syntax_moder_id
+        SELECT book_id, old_syntax_moder_id
         FROM books
         WHERE book_id = (
             SELECT book_id
@@ -27,7 +27,7 @@ function get_sentence($sent_id) {
         )
     "));
     $out['book_id'] = $book_id = $r['book_id'];
-    $out['syntax_moder_id'] = $r['syntax_moder_id'];
+    $out['syntax_moder_id'] = $r['old_syntax_moder_id'];
     $r = sql_fetch_array(sql_query_pdo("
         SELECT book_name
         FROM books

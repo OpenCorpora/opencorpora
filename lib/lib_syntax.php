@@ -12,7 +12,7 @@ function get_books_with_syntax() {
     }
 
     $res = sql_query_pdo("
-        SELECT book_id, book_name, syntax_moder_id, COUNT(tf_id) AS token_count, syntax_on
+        SELECT book_id, book_name, old_syntax_moder_id, COUNT(tf_id) AS token_count, syntax_on
         FROM books
             JOIN paragraphs
                 USING (book_id)
@@ -33,7 +33,7 @@ function get_books_with_syntax() {
             'id' => $r['book_id'],
             'name' => $r['book_name'],
             'first_sentence_id' => get_book_first_sentence_id($r['book_id']),
-            'syntax_moder_id' => $r['syntax_moder_id'],
+            'syntax_moder_id' => $r['old_syntax_moder_id'],
             'status' => array(
                 'syntax' => array(
                     'self' => isset($syntax[$r['book_id']]['self']) ? $syntax[$r['book_id']]['self'] : 0,
@@ -471,7 +471,7 @@ function become_syntax_moderator($book_id) {
         throw new Exception("Недостаточно прав");
 
     $r = sql_fetch_array(sql_query("
-        SELECT syntax_moder_id AS mid
+        SELECT old_syntax_moder_id AS mid
         FROM books
         WHERE book_id=$book_id
         LIMIT 1
@@ -481,7 +481,7 @@ function become_syntax_moderator($book_id) {
 
     sql_query("
         UPDATE books
-        SET syntax_moder_id = ".$_SESSION['user_id']."
+        SET old_syntax_moder_id = ".$_SESSION['user_id']."
         WHERE book_id = $book_id
         LIMIT 1
     ");
@@ -494,7 +494,7 @@ function finish_syntax_moderation($book_id) {
         throw new Exception("Недостаточно прав");
 
     $r = sql_fetch_array(sql_query("
-        SELECT syntax_moder_id AS mid
+        SELECT old_syntax_moder_id AS mid
         FROM books
         WHERE book_id = $book_id
         LIMIT 1
@@ -571,7 +571,7 @@ function copy_simple_group($source_group_id, $dest_group_id) {
 
 function get_sentence_moderator($sent_id) {
     $r = sql_fetch_array(sql_query("
-        SELECT syntax_moder_id AS mid
+        SELECT old_syntax_moder_id AS mid
         FROM sentences
             JOIN paragraphs USING (par_id)
             JOIN books USING (book_id)
