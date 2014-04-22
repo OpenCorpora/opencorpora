@@ -8,7 +8,7 @@ use Config::INI::Reader;
 binmode(STDOUT, ':utf8');
 binmode(STDERR, ':utf8');
 
-my @exc = ("им", "мин", "тыс", "англ", "нем", "фр", "рус", "(англ", "(нем");
+my @exc = ("им", "мин", "тыс", "англ", "нем", "фр", "рус", "(англ", "(нем", "напр", "св", "см", "утв", "Пер", "лат", "ред", "рис", "vs", "ул", "ст");
 my %exc = map {$_ => 1} @exc;
 #reading config
 my $conf = Config::INI::Reader->read_file($ARGV[0]);
