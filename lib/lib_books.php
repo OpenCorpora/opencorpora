@@ -316,6 +316,21 @@ function delete_sentence($sid) {
         sql_query("DELETE FROM paragraphs WHERE par_id=$par_id LIMIT 1");
     sql_commit();
 }
+function save_token_text($tf_id, $tf_text) {
+    $tf_text = trim($tf_text);
+    if (!$tf_id || !$tf_text)
+        throw new UnexpectedValueException();
+
+    sql_begin();
+    $revset_id = create_revset("Change token #$tf_id text to <$tf_text>");
+    $token_for_form2tf = str_replace('ё', 'е', mb_strtolower($tf_text));
+    sql_query("UPDATE tokens SET tf_text = '".mysql_real_escape_string($tf_text)."' WHERE tf_id=$tf_id LIMIT 1");
+    sql_query("DELETE FROM form2tf WHERE tf_id=$tf_id");
+    sql_query("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $tf_id)");
+    create_tf_revision($revset_id, $tf_id, generate_tf_rev($tf_text));
+
+    sql_commit();
+}
 function delete_token($tf_id, $delete_history=true) {
     $sample_ids = array(0);
     $res = sql_query("SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id");
