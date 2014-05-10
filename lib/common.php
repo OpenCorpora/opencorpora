@@ -44,23 +44,31 @@ function sql_num_rows($q) {
 function sql_insert_id() {
     return mysql_insert_id();
 }
-function sql_begin() {
+function sql_begin($pdo=false) {
     global $transaction_counter;
     global $nested_transaction_counter;
+    global $pdo_db;
     if (!$transaction_counter) {
-        sql_query("START TRANSACTION", 1, 1);
+        if ($pdo)
+            $pdo_db->beginTransaction();
+        else
+            sql_query("START TRANSACTION", 1, 1);
         ++$transaction_counter;
     } else {
         ++$nested_transaction_counter;
     }
 }
-function sql_commit() {
+function sql_commit($pdo=false) {
     global $transaction_counter;
     global $nested_transaction_counter;
+    global $pdo_db;
     if ($nested_transaction_counter) {
         --$nested_transaction_counter;
     } else {
-        sql_query("COMMIT", 1, 1);
+        if ($pdo)
+            $pdo_db->commit();
+        else
+            sql_query("COMMIT", 1, 1);
         --$transaction_counter;
     }
 }
@@ -94,6 +102,12 @@ function sql_query_pdo($q, $debug=1, $override_readonly=0) {
 }
 function sql_fetchall($res) {
     return $res->fetchAll();
+}
+function sql_insert_id_pdo() {
+    // MUST BE CALLED BEFORE TRANSACTION COMMIT!
+    // otherwise returns 0
+    global $pdo_db;
+    return $pdo_db->lastInsertId();
 }
 function sql_prepare($q) {
     global $pdo_db;
