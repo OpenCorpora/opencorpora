@@ -137,14 +137,12 @@ function books_move($book_id, $to_id) {
     if ($r['parent_id'] == $book_id)
         throw new UnexpectedValueException();
 
-    $res = sql_prepare("UPDATE `books` SET parent_id=? WHERE book_id=? LIMIT 1");
-    sql_execute($res, array($to_id, $book_id));
+    sql_pe("UPDATE `books` SET parent_id=? WHERE book_id=? LIMIT 1", array($to_id, $book_id));
 }
 function books_rename($book_id, $name) {
     if ($name === '')
         throw new UnexpectedValueException();
-    $res = sql_prepare("UPDATE `books` SET book_name=? WHERE book_id=? LIMIT 1");
-    sql_execute($res, array($name, $book_id));
+    sql_pe("UPDATE `books` SET book_name=? WHERE book_id=? LIMIT 1", array($name, $book_id));
 }
 function get_books_for_select($parent = -1) {
     $out = array();
@@ -206,27 +204,22 @@ function split_paragraph($sentence_id) {
     if (!$sentence_id)
         throw new UnexpectedValueException();
     //get pos
-    $res = sql_prepare("SELECT pos FROM sentences WHERE sent_id=? LIMIT 1");
-    sql_execute($res, array($sentence_id));
-    $r = sql_fetch_array($res);
-    $res->closeCursor();
-    $spos = $r['pos'];
+    $res = sql_pe("SELECT pos FROM sentences WHERE sent_id=? LIMIT 1", array($sentence_id));
+    $spos = $res[0]['pos'];
     //get the paragraph info
-    $res = sql_prepare("SELECT par_id, book_id, pos FROM paragraphs WHERE par_id=(SELECT par_id FROM sentences WHERE sent_id=? LIMIT 1) LIMIT 1");
-    sql_execute($res, array($sentence_id));
-    $r = sql_fetch_array($res);
-    $res->closeCursor();
+    $res = sql_pe("SELECT par_id, book_id, pos FROM paragraphs WHERE par_id=(SELECT par_id FROM sentences WHERE sent_id=? LIMIT 1) LIMIT 1", array($sentence_id));
+    $r = $res[0];
     sql_begin(true);
     //move the following paragraphs
-    $res = sql_prepare("UPDATE paragraphs SET pos=pos+1 WHERE book_id=? AND pos > ?");
-    sql_execute($res, array($r['book_id'], $r['pos']));
+    sql_pe("UPDATE paragraphs SET pos=pos+1 WHERE book_id=? AND pos > ?", array($r['book_id'], $r['pos']));
     //make a new paragraph
-    $res = sql_prepare("INSERT INTO paragraphs VALUES (NULL, ?, ?)");
-    sql_execute($res, array($r['book_id'], $r['pos'] + 1));
+    sql_pe("INSERT INTO paragraphs VALUES (NULL, ?, ?)", array($r['book_id'], $r['pos'] + 1));
     $new_par_id = sql_insert_id_pdo();
     //move the following sentences to the new paragraph
-    $res = sql_prepare("UPDATE sentences SET par_id=?, pos=pos-$spos WHERE par_id=? AND pos > ?");
-    sql_execute($res, array($new_par_id, $r['par_id'], $spos));
+    sql_pe(
+        "UPDATE sentences SET par_id=?, pos=pos-$spos WHERE par_id=? AND pos > ?",
+        array($new_par_id, $r['par_id'], $spos)
+    );
     sql_commit(true);
     return $r['book_id'];
 }
@@ -234,10 +227,8 @@ function split_sentence($token_id) {
     //note: comments will stay with the first sentence
 
     //find which sentence the token is in
-    $res = sql_prepare("SELECT sent_id, pos FROM tokens WHERE tf_id=? LIMIT 1");
-    sql_execute($res, array($token_id));
-    $r = sql_fetch_array($res);
-    $res->closeCursor();
+    $res = sql_pe("SELECT sent_id, pos FROM tokens WHERE tf_id=? LIMIT 1", array($token_id));
+    $r = $res[0];
     $sent_id = $r['sent_id'];
     $tpos = $r['pos'];
     //check that it is not the last token
@@ -265,14 +256,12 @@ function split_sentence($token_id) {
     //shift the following sentences
     sql_query_pdo("UPDATE sentences SET pos=pos+1 WHERE par_id=$par_id AND pos > $spos");
     //create new sentence
-    $res = sql_prepare("INSERT INTO sentences VALUES(NULL, ?, ?, ?, 0)");
-    sql_execute($res, array($par_id, $spos+1, $source_right));
+    sql_pe("INSERT INTO sentences VALUES(NULL, ?, ?, ?, 0)", array($par_id, $spos+1, $source_right));
     $new_sent_id = sql_insert_id_pdo();
     //move tokens
     sql_query_pdo("UPDATE tokens SET sent_id=$new_sent_id, pos=pos-$tpos WHERE sent_id=$sent_id AND pos>$tpos");
     //change source in the original sentence
-    $res = sql_query("UPDATE sentences SET check_status=0, source=? WHERE sent_id=? LIMIT 1");
-    sql_execute($res, array($source_left, $sent_id));
+    sql_pe("UPDATE sentences SET check_status=0, source=? WHERE sent_id=? LIMIT 1", array($source_left, $sent_id));
     //drop status
     sql_query_pdo("DELETE FROM sentence_check WHERE sent_id=$sent_id");
     //delete from strange splitting
@@ -286,11 +275,9 @@ function merge_sentences($id1, $id2) {
     if ($id1 < 1 || $id2 < 1)
         throw new UnexpectedValueException();
     // check same paragraph and adjacency
-    $res = sql_prepare("SELECT pos, par_id FROM sentences WHERE sent_id IN (?, ?) ORDER BY pos LIMIT 2");
-    sql_execute($res, array($id1, $id2));
-    $r1 = sql_fetch_array($res);
-    $r2 = sql_fetch_array($res);
-    $res->closeCursor();
+    $res = sql_pe("SELECT pos, par_id FROM sentences WHERE sent_id IN (?, ?) ORDER BY pos LIMIT 2", array($id1, $id2));
+    $r1 = $res[0];
+    $r2 = $res[1];
     $res = sql_query_pdo("SELECT pos FROM sentences WHERE par_id = ".$r1['par_id']." AND pos > ".$r1['pos']." AND pos < ".$r2['pos']." LIMIT 1");
     if ($r1['par_id'] != $r2['par_id'] || sql_num_rows($res) > 0) {
         throw new Exception();

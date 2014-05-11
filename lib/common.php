@@ -143,6 +143,13 @@ function sql_execute($res, $params) {
         throw new Exception("DB Error");
     }
 }
+function sql_pe($query, $params) {
+    // prepares and executes query, closes cursor
+    // returns all the rows
+    $res = sql_prepare($query);
+    sql_execute($res, $params);
+    return sql_fetchall($res);
+}
 //sql checks
 function sql_get_schema() {
     $res = sql_query("SHOW TABLES");

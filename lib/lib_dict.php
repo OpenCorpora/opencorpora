@@ -22,26 +22,24 @@ function get_dict_search_results($post) {
     $out = array();
     $find_pos = sql_prepare("SELECT SUBSTR(grammems, 7, 4) AS gr FROM form2lemma WHERE lemma_id = ? LIMIT 1");
     if (isset($post['search_lemma'])) {
-        $res = sql_prepare("SELECT lemma_id FROM `dict_lemmata` WHERE `lemma_text`= ?");
-        sql_execute($res, array($post['search_lemma']));
-        $count = sql_num_rows($res);
+        $res = sql_pe("SELECT lemma_id FROM `dict_lemmata` WHERE `lemma_text`= ?", array($post['search_lemma']));
+        $count = sizeof($res);
         $out['lemma']['count'] = $count;
         if ($count == 0)
             return $out;
-        while ($r = sql_fetch_array($res)) {
+        foreach ($res as $r) {
             sql_execute($find_pos, array($r['lemma_id']));
             $r1 = sql_fetch_array($find_pos);
             $out['lemma']['found'][] = array('id' => $r['lemma_id'], 'text' => $post['search_lemma'], 'pos' => $r1['gr']);
         }
     }
     elseif (isset($post['search_form'])) {
-        $res = sql_prepare("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE fl.`form_text`= ?");
-        sql_execute($res, array($post['search_form']));
-        $count = sql_num_rows($res);
+        $res = sql_pe("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE fl.`form_text`= ?", array($post['search_form']));
+        $count = sizeof($res);
         $out['form']['count'] = $count;
         if ($count == 0)
             return $out;
-        while ($r = sql_fetch_array($res)) {
+        foreach ($res as $r) {
             sql_execute($find_pos, array($r['lemma_id']));
             $r1 = sql_fetch_array($find_pos);
             $out['form']['found'][] = array('id' => $r['lemma_id'], 'text' => $r['lemma_text'], 'pos' => $r1['gr']);
@@ -171,11 +169,10 @@ function parse_dict_rev($text) {
     return $parsed;
 }
 function get_word_paradigm($lemma) {
-    $res = sql_prepare("SELECT rev_text FROM dict_revisions LEFT JOIN dict_lemmata USING (lemma_id) WHERE lemma_text=? ORDER BY rev_id DESC LIMIT 1");
-    sql_execute($res, array($lemma));
-    $r = sql_fetch_array($res);
-    if (!$r)
+    $res = sql_pe("SELECT rev_text FROM dict_revisions LEFT JOIN dict_lemmata USING (lemma_id) WHERE lemma_text=? ORDER BY rev_id DESC LIMIT 1", array($lemma));
+    if (sizeof($res) == 0)
         return false;
+    $r = $res[0];
     $arr = parse_dict_rev($r['rev_text']);
     $out = array(
         'lemma_gram' => $arr['lemma']['grm'],
@@ -221,9 +218,8 @@ function form_exists($f) {
     if (!preg_match('/^[а-яё]/u', $f)) {
         return -1;
     }
-    $res = sql_prepare("SELECT lemma_id FROM form2lemma WHERE form_text=? LIMIT 1");
-    sql_execute($res, array($f));
-    return sql_num_rows($res);
+    $res = sql_pe("SELECT lemma_id FROM form2lemma WHERE form_text=? LIMIT 1", array($f));
+    return sizeof($res);
 }
 function get_pending_updates($skip=0, $limit=500) {
     $out = array('revisions' => array(), 'header' => array());
