@@ -27,7 +27,7 @@ try {
             break;
 
         case 'delete':
-            delete_anaphora((int)$_POST['aid']);
+            delete_anaphora($_POST['aid']);
             $res['error'] = 0;
             break;
 

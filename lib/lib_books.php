@@ -283,21 +283,30 @@ function merge_sentences($id1, $id2) {
         throw new Exception();
     }
     //moving tokens
-    sql_begin();
-    $r = sql_fetch_array(sql_query("SELECT MAX(pos) FROM tokens WHERE sent_id=$id1"));
-    sql_query("UPDATE tokens SET sent_id='$id1', pos=pos+".$r[0]." WHERE sent_id=$id2");
+    sql_begin(true);
+    $res = sql_pe("SELECT MAX(pos) AS maxpos FROM tokens WHERE sent_id=?", array($id1));
+    sql_pe(
+        "UPDATE tokens SET sent_id=?, pos=pos+? WHERE sent_id=$id2",
+        array($id1, $res[0]['maxpos'], $id2)
+    );
     //merging source text
-    $r1 = sql_fetch_array(sql_query("SELECT `source` FROM sentences WHERE sent_id=$id1 LIMIT 1"));
-    $r2 = sql_fetch_array(sql_query("SELECT `source` FROM sentences WHERE sent_id=$id2 LIMIT 1"));
-    sql_query("UPDATE sentences SET `source`='".mysql_real_escape_string($r1['source'].' '.$r2['source'])."' WHERE sent_id=$id1 LIMIT 1");
+    $res_src = sql_prepare("SELECT `source` FROM sentences WHERE sent_id=? LIMIT 1");
+    sql_execute($res_src, array($id1));
+    $r1 = sql_fetchall($res_src);
+    sql_execute($res_src, array($id2));
+    $r2 = sql_fetchall($res_src);
+    sql_pe(
+        "UPDATE sentences SET source=? WHERE sent_id=? LIMIT 1",
+        array($r1[0]['source'] . ' ' . $r2[0]['source'], $id1)
+    );
     //dropping status, moving comments
-    sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$id1 LIMIT 1");
-    sql_query("UPDATE sentence_comments SET sent_id=$id1 WHERE sent_id=$id2");
-    sql_query("DELETE FROM sentence_check WHERE sent_id=$id1 OR sent_id=$id2");
+    sql_pe("UPDATE sentences SET check_status=0 WHERE sent_id=? LIMIT 1", array($id1));
+    sql_pe("UPDATE sentence_comments SET sent_id=? WHERE sent_id=?", array($id1, $id2));
+    sql_pe("DELETE FROM sentence_check WHERE sent_id=? OR sent_id=?", array($id1, $id2));
     //deleting sentence
-    sql_query("DELETE FROM sentence_authors WHERE sent_id=$id2 LIMIT 1");
-    sql_query("DELETE FROM sentences WHERE sent_id=$id2 LIMIT 1");
-    sql_commit();
+    sql_pe("DELETE FROM sentence_authors WHERE sent_id=? LIMIT 1", array($id2));
+    sql_pe("DELETE FROM sentences WHERE sent_id=? LIMIT 1", array($id2));
+    sql_commit(true);
 }
 function delete_sentence($sid) {
     sql_begin();
@@ -489,7 +498,7 @@ function source_add($url, $title, $parent_id) {
     if (!$url)
         throw new UnexpectedValueException();
     
-    sql_query("INSERT INTO sources VALUES(NULL, '$parent_id', '".mysql_real_escape_string($url)."', '".mysql_real_escape_string($title)."', '0', '0')");
+    sql_pe("INSERT INTO sources VALUES(NULL, ?, ?, ?, 0, 0)", array($parent_id, $url, $title));
 }
 
 ?>

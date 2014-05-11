@@ -40,15 +40,15 @@ try {
             break;
 
         case 'deleteGroup':
-            delete_group((int)$_POST['gid']);
+            delete_group($_POST['gid']);
             break;
 
         case 'setGroupHead':
-            set_group_head((int)$_POST['gid'], (int)$_POST['head_id']);
+            set_group_head($_POST['gid'], $_POST['head_id']);
             break;
 
         case 'setGroupType':
-            set_group_type((int)$_POST['gid'], (int)$_POST['type']);
+            set_group_type($_POST['gid'], $_POST['type']);
             break;
 
         case 'getGroupsTable':
