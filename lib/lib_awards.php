@@ -4,10 +4,10 @@ function game_is_on() {
     return $_SESSION['show_game'] > 0;
 }
 function turn_game_on($user_id) {
-    sql_query("UPDATE users SET show_game=1 WHERE user_id=$user_id LIMIT 1");
+    sql_query_pdo("UPDATE users SET show_game=1 WHERE user_id=$user_id LIMIT 1");
 }
 function turn_game_off($user_id) {
-    sql_query("UPDATE users SET show_game=0 WHERE user_id=$user_id LIMIT 1");
+    sql_query_pdo("UPDATE users SET show_game=0 WHERE user_id=$user_id LIMIT 1");
 }
 
 // rating and level
