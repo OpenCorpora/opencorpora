@@ -94,6 +94,7 @@ function check_for_user_alias($user_id) {
     return false;
 }
 function remember_user($user_id, $auth_token=false) {
+    sql_begin();
     //deleting the old token
     if ($auth_token) {
         sql_query("DELETE from user_tokens WHERE user_id=$user_id AND token='".mysql_real_escape_string(substr(strstr($auth_token, '@'), 1))."'");
@@ -103,6 +104,7 @@ function remember_user($user_id, $auth_token=false) {
     sql_query("INSERT INTO user_tokens VALUES('$user_id','$token', '".time()."')", 1, 1);
 
     setcookie('auth', $user_id.'@'.$token, time()+60*60*24*7, '/');
+    sql_commit();
     return $token;
 }
 function user_login_openid($token) {
@@ -120,6 +122,7 @@ function user_login_openid($token) {
         throw new Exception();
     //check if the user exists
     $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
+    sql_begin();
     //if he doesn't
     if (sql_num_rows($res) == 0) {
         sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0, 1, 1, 0, 0)");
@@ -134,6 +137,7 @@ function user_login_openid($token) {
     $row = sql_fetch_array(sql_query("SELECT user_shown_name, user_passwd, user_level, show_game FROM users WHERE user_id = $user_id LIMIT 1"));
     init_session($user_id, $row['user_shown_name'], get_user_options($user_id),
                   get_user_permissions($user_id), $token, $row['user_level'], $row['show_game']);
+    sql_commit();
     if ($row['user_passwd'] == 'notagreed') {
         $_SESSION['user_pending'] = 1;
         return 2;
