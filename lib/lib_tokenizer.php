@@ -18,7 +18,7 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
 
     $txt = Normalizer::normalize($txt, Normalizer::FORM_C);
 
-    $res = sql_query("SELECT * FROM tokenizer_coeff");
+    $res = sql_query_pdo("SELECT * FROM tokenizer_coeff");
     while ($r = sql_fetch_array($res)) {
         $coeff[$r[0]] = $r[1];
     }
@@ -261,7 +261,7 @@ function addtext_check($array) {
     //book
     if (isset($array['book_id'])) {
         $book_id = (int)$array['book_id'];
-        $r = sql_fetch_array(sql_query("SELECT parent_id FROM books WHERE book_id=$book_id LIMIT 1"));
+        $r = sql_fetch_array(sql_query_pdo("SELECT parent_id FROM books WHERE book_id=$book_id LIMIT 1"));
         if ($r['parent_id'] > 0) {
             $out['selected0'] = $r['parent_id'];
             $out['select1'] = get_books_for_select($r['parent_id']);
@@ -329,7 +329,7 @@ function get_monitor_data($from, $until) {
         'recall' => array(),
         'F1' => array()
     );
-    $q = sql_query($query);
+    $q = sql_query_pdo($query);
     while ($res = sql_fetch_assoc($q)) {
         $run_date = strtotime($res['run']) * 1000;
         $thrshld  = $res['threshold'];

@@ -19,7 +19,7 @@ function update_user_rating($user_id, $pool_id, $is_skip, $previous_answer) {
         (!$previous_answer && $is_skip))
         return true;
 
-    $r = sql_fetch_array(sql_query("
+    $r = sql_fetch_array(sql_query_pdo("
         SELECT rating_weight
         FROM morph_annot_pools p
         JOIN morph_annot_pool_types t
@@ -42,7 +42,7 @@ function add_user_rating($user_id, $pool_id, $weight) {
     sql_commit();
 }
 function get_user_rating($user_id) {
-    $r = sql_fetch_array(sql_query("SELECT user_level, user_rating10 FROM users WHERE user_id=$user_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT user_level, user_rating10 FROM users WHERE user_id=$user_id LIMIT 1"));
 
     $cur_points = floor($r['user_rating10'] / 10);
     $cur_level = $r['user_level'];
@@ -58,21 +58,21 @@ function get_user_rating($user_id) {
 function update_user_level($new_level) {
     if (!$new_level)
         throw new Exception();
-    sql_query("UPDATE users SET user_level = $new_level WHERE user_id=".$_SESSION['user_id']." LIMIT 1");
+    sql_query_pdo("UPDATE users SET user_level = $new_level WHERE user_id=".$_SESSION['user_id']." LIMIT 1");
     $_SESSION['user_level'] = $new_level;
 }
 function mark_shown_user_level($user_id, $level) {
     if (!$user_id || $level < 0)
         throw new UnexpectedValueException();
 
-    $r = sql_fetch_array(sql_query("SELECT user_level, user_shown_level FROM users WHERE user_id=$user_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT user_level, user_shown_level FROM users WHERE user_id=$user_id LIMIT 1"));
     if (
         $r['user_level'] == $r['user_shown_level'] ||
         $level <= $r['user_shown_level'] ||
         $level > $r['user_level']
     )
         throw new Exception();
-    sql_query("UPDATE users SET user_shown_level = $level WHERE user_id = $user_id LIMIT 1");
+    sql_query_pdo("UPDATE users SET user_shown_level = $level WHERE user_id = $user_id LIMIT 1");
 }
 function get_rating4level($level) {
     if ($level < 2)
@@ -87,13 +87,13 @@ function get_rating4level_aux($level) {
     return get_rating4level_aux($level - 1) + 50 * ($level - 1);
 }
 function get_user_level($user_id) {
-    $r = sql_fetch_array(sql_query("SELECT user_level FROM users WHERE user_id=$user_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT user_level FROM users WHERE user_id=$user_id LIMIT 1"));
     return $r['user_level'];
 }
 function check_user_level($user_id) {
     if (!$user_id)
         throw new UnexpectedValueException();
-    $r = sql_fetch_array(sql_query("SELECT user_rating10, user_level, user_shown_level FROM users WHERE user_id=$user_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT user_rating10, user_level, user_shown_level FROM users WHERE user_id=$user_id LIMIT 1"));
     $next_level = $r['user_level'];
     if (!$next_level)
         throw new Exception();
@@ -124,7 +124,7 @@ function check_user_level($user_id) {
 function get_user_badges($user_id, $only_shown=true) {
     $only_shown_str = $only_shown ? "AND shown > 0" : '';
     $out = array();
-    $res = sql_query("
+    $res = sql_query_pdo("
         SELECT t.badge_id, t.badge_name, t.badge_descr, t.badge_image, b.shown
         FROM user_badges b
         LEFT JOIN user_badges_types t USING (badge_id)
@@ -154,10 +154,10 @@ function check_badges4level($user_id, $level) {
 function mark_shown_badge($user_id, $badge_id) {
     if (!$user_id || !$badge_id)
         throw new UnexpectedValueException();
-    sql_query("UPDATE user_badges SET shown=".time()." WHERE user_id=$user_id AND badge_id=$badge_id LIMIT 1");
+    sql_query_pdo("UPDATE user_badges SET shown=".time()." WHERE user_id=$user_id AND badge_id=$badge_id LIMIT 1");
 }
 function check_user_badges($user_id) {
-    $res = sql_query("SELECT badge_id FROM user_badges WHERE user_id=$user_id AND shown=0 ORDER BY badge_id LIMIT 1");
+    $res = sql_query_pdo("SELECT badge_id FROM user_badges WHERE user_id=$user_id AND shown=0 ORDER BY badge_id LIMIT 1");
     if (sql_num_rows($res) > 0) {
         $r = sql_fetch_array($res);
         return get_badge($r['badge_id']);
@@ -171,7 +171,7 @@ function check_user_badges($user_id) {
     return check_user_sticking_badges($user_id);
 }
 function get_user_max_badge_level($user_id, $group_id) {
-    $res = sql_query("
+    $res = sql_query_pdo("
         SELECT MAX(badge_id)
         FROM user_badges
         LEFT JOIN user_badges_types USING (badge_id)
@@ -183,7 +183,7 @@ function get_user_max_badge_level($user_id, $group_id) {
     if ($max == 0)
         return 0;
 
-    $res = sql_query("
+    $res = sql_query_pdo("
         SELECT badge_id
         FROM user_badges_types
         WHERE badge_group=$group_id
@@ -200,7 +200,7 @@ function get_user_max_badge_level($user_id, $group_id) {
 function check_user_simple_badges($user_id) {
     global $config;
 
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt FROM morph_annot_instances WHERE user_id = $user_id AND answer > 0"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT COUNT(*) AS cnt FROM morph_annot_instances WHERE user_id = $user_id AND answer > 0"));
     $count = $r['cnt'];
     $max_badge = get_user_max_badge_level($user_id, 1);
 
@@ -330,13 +330,13 @@ function check_user_date_badges($user_id) {
     // at least N samples with error rate at most E on day(s) X
 }
 function give_badge($user_id, $group_id, $badge_level) {
-    sql_query("INSERT INTO user_badges VALUES($user_id, (SELECT badge_id FROM user_badges_types WHERE badge_group=$group_id LIMIT ".($badge_level-1).", 1), 0)");
+    sql_query_pdo("INSERT INTO user_badges VALUES($user_id, (SELECT badge_id FROM user_badges_types WHERE badge_group=$group_id LIMIT ".($badge_level-1).", 1), 0)");
 }
 function get_badge($badge_id) {
     if (!$badge_id)
         throw new UnexpectedValueException();
 
-    $r = sql_fetch_array(sql_query("SELECT badge_name, badge_descr, badge_image FROM user_badges_types WHERE badge_id=$badge_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT badge_name, badge_descr, badge_image FROM user_badges_types WHERE badge_id=$badge_id LIMIT 1"));
     return array (
         'id' => $badge_id,
         'name' => $r['badge_name'],
@@ -345,7 +345,7 @@ function get_badge($badge_id) {
     );
 }
 function get_badge_by_group($group_id, $level) {
-    $r = sql_fetch_array(sql_query("
+    $r = sql_fetch_array(sql_query_pdo("
         SELECT badge_id
         FROM user_badges_types
         WHERE badge_group = $group_id
@@ -375,6 +375,7 @@ function get_badges_info() {
     return $out;
 }
 function save_badges_info($post) {
+    sql_begin(true);
     foreach ($post['badge_name'] as $id => $name) {
         $id = (int)$id;
         $name = mysql_real_escape_string(trim($name));
@@ -382,14 +383,14 @@ function save_badges_info($post) {
         $descr = mysql_real_escape_string(trim($post['badge_descr'][$id]));
         $group = (int)trim($post['badge_group'][$id]);
         if ($id == -1 && $name) {
-            $r = sql_fetch_array(sql_query("SELECT MAX(badge_id) FROM user_badges_types"));
-            sql_query("
+            $r = sql_fetch_array(sql_query_pdo("SELECT MAX(badge_id) FROM user_badges_types"));
+            sql_query_pdo("
                 INSERT INTO user_badges_types
                 VALUES ($r[0]+1, '$name', '$descr', '$image', $group)
             ");
         }
         elseif ($id > 0)
-            sql_query("
+            sql_query_pdo("
                 UPDATE user_badges_types
                 SET badge_name='".mysql_real_escape_string($name)."',
                 badge_image='".mysql_real_escape_string($image)."',
@@ -401,5 +402,6 @@ function save_badges_info($post) {
         else
             throw new UnexpectedValueException();
     }
+    sql_commit(true);
 }
 ?>
