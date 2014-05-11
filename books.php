@@ -87,11 +87,11 @@ elseif (user_has_permission('perm_adder')) {
             header("Location:books.php?book_id=".$val[0]."&full#sen".$val[1]);
             break;
         case 'split_sentence':
-            $a = split_sentence((int)$_POST['tid']);
+            $a = split_sentence($_POST['tid']);
             header("Location:books.php?book_id=".$a[0]."&full#sen".$a[1]);
             break;
         case 'split_paragraph':
-            $sent_id = (int)$_GET['sid'];
+            $sent_id = $_GET['sid'];
             $book_id = split_paragraph($sent_id);
             header("Location:books.php?book_id=$book_id&full#sen$sent_id");
             break;

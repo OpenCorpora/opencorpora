@@ -109,7 +109,7 @@ function get_book_page($book_id, $full = false) {
     return $out;
 }
 function get_book_first_sentence_id($book_id) {
-    $res = sql_query("
+    $res = sql_query_pdo("
         SELECT sent_id
         FROM sentences s
             JOIN paragraphs p USING (par_id)
@@ -133,21 +133,23 @@ function books_move($book_id, $to_id) {
         throw new UnexpectedValueException();
 
     //to avoid loops
-    $r = sql_fetch_array(sql_query("SELECT parent_id FROM books WHERE book_id=$to_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT parent_id FROM books WHERE book_id=$to_id LIMIT 1"));
     if ($r['parent_id'] == $book_id)
         throw new UnexpectedValueException();
 
-    sql_query("UPDATE `books` SET `parent_id`='$to_id' WHERE `book_id`=$book_id LIMIT 1");
+    $res = sql_prepare("UPDATE `books` SET parent_id=? WHERE book_id=? LIMIT 1");
+    sql_execute($res, array($to_id, $book_id));
 }
 function books_rename($book_id, $name) {
     if ($name === '')
         throw new UnexpectedValueException();
-    sql_query("UPDATE `books` SET `book_name`='$name' WHERE `book_id`=$book_id LIMIT 1");
+    $res = sql_prepare("UPDATE `books` SET book_name=? WHERE book_id=? LIMIT 1");
+    sql_execute($res, array($name, $book_id));
 }
 function get_books_for_select($parent = -1) {
     $out = array();
     $pg = $parent > -1 ? "WHERE `parent_id`=$parent " : '';
-    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` ".$pg."ORDER BY `book_name`", 0);
+    $res = sql_query_pdo("SELECT `book_id`, `book_name` FROM `books` ".$pg."ORDER BY `book_name`", 0);
     while ($r = sql_fetch_array($res)) {
         $out["$r[book_id]"] = $r['book_name'];
     }
@@ -155,10 +157,8 @@ function get_books_for_select($parent = -1) {
 }
 function books_add_tag($book_id, $tag_name) {
     $tag_name = preg_replace('/\:\s+/', ':', trim($tag_name), 1);
-    if (!$book_id || !$tag_name)
-        throw new UnexpectedValueException();
     sql_begin();
-    sql_query("DELETE FROM `book_tags` WHERE book_id=$book_id AND tag_name='$tag_name'");
+    books_del_tag($book_id, $tag_name);
     sql_query("INSERT INTO `book_tags` VALUES('$book_id', '$tag_name')");
     sql_commit();
 }
@@ -206,38 +206,50 @@ function split_paragraph($sentence_id) {
     if (!$sentence_id)
         throw new UnexpectedValueException();
     //get pos
-    $r = sql_fetch_array(sql_query("SELECT pos FROM sentences WHERE sent_id=$sentence_id LIMIT 1"));
+    $res = sql_prepare("SELECT pos FROM sentences WHERE sent_id=? LIMIT 1");
+    sql_execute($res, array($sentence_id));
+    $r = sql_fetch_array($res);
+    $res->closeCursor();
     $spos = $r['pos'];
     //get the paragraph info
-    $r = sql_fetch_array(sql_query("SELECT par_id, book_id, pos FROM paragraphs WHERE par_id=(SELECT par_id FROM sentences WHERE sent_id=$sentence_id LIMIT 1) LIMIT 1"));
-    sql_begin();
+    $res = sql_prepare("SELECT par_id, book_id, pos FROM paragraphs WHERE par_id=(SELECT par_id FROM sentences WHERE sent_id=? LIMIT 1) LIMIT 1");
+    sql_execute($res, array($sentence_id));
+    $r = sql_fetch_array($res);
+    $res->closeCursor();
+    sql_begin(true);
     //move the following paragraphs
-    sql_query("UPDATE paragraphs SET pos=pos+1 WHERE book_id=".$r['book_id']." AND pos > ".$r['pos']);
+    $res = sql_prepare("UPDATE paragraphs SET pos=pos+1 WHERE book_id=? AND pos > ?");
+    sql_execute($res, array($r['book_id'], $r['pos']));
     //make a new paragraph
-    sql_query("INSERT INTO paragraphs VALUES(NULL, '".$r['book_id']."', '".($r['pos']+1)."')");
-    $new_par_id = sql_insert_id();
+    $res = sql_prepare("INSERT INTO paragraphs VALUES (NULL, ?, ?)");
+    sql_execute($res, array($r['book_id'], $r['pos'] + 1));
+    $new_par_id = sql_insert_id_pdo();
     //move the following sentences to the new paragraph
-    sql_query("UPDATE sentences SET par_id=$new_par_id, pos=pos-$spos WHERE par_id=".$r['par_id']." AND pos > $spos");
-    sql_commit();
+    $res = sql_prepare("UPDATE sentences SET par_id=?, pos=pos-$spos WHERE par_id=? AND pos > ?");
+    sql_execute($res, array($new_par_id, $r['par_id'], $spos));
+    sql_commit(true);
     return $r['book_id'];
 }
 function split_sentence($token_id) {
     //note: comments will stay with the first sentence
 
     //find which sentence the token is in
-    $r = sql_fetch_array(sql_query("SELECT sent_id, pos FROM tokens WHERE tf_id=$token_id LIMIT 1"));
+    $res = sql_prepare("SELECT sent_id, pos FROM tokens WHERE tf_id=? LIMIT 1");
+    sql_execute($res, array($token_id));
+    $r = sql_fetch_array($res);
+    $res->closeCursor();
     $sent_id = $r['sent_id'];
     $tpos = $r['pos'];
     //check that it is not the last token
-    $r = sql_fetch_array(sql_query("SELECT MAX(pos) mpos FROM tokens WHERE sent_id=$sent_id"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT MAX(pos) mpos FROM tokens WHERE sent_id=$sent_id"));
     if ($r['mpos'] == $tpos)
         throw new Exception();
     //split the source field
-    $r = sql_fetch_array(sql_query("SELECT source, pos, par_id FROM sentences WHERE sent_id=$sent_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT source, pos, par_id FROM sentences WHERE sent_id=$sent_id LIMIT 1"));
     $source = $r['source'];
     $spos = $r['pos'];
     $par_id = $r['par_id'];
-    $res = sql_query("SELECT tf_text FROM tokens WHERE sent_id=$sent_id AND pos<=$tpos ORDER BY pos");
+    $res = sql_query_pdo("SELECT tf_text FROM tokens WHERE sent_id=$sent_id AND pos<=$tpos ORDER BY pos");
     $t = 0;
     while ($r = sql_fetch_array($res)) {
        while (mb_substr($source, $t, mb_strlen($r['tf_text'], 'UTF-8'), 'UTF-8') !== $r['tf_text']) {
@@ -249,32 +261,37 @@ function split_sentence($token_id) {
     }
     $source_left = trim(mb_substr($source, 0, $t, 'UTF-8'));
     $source_right = trim(mb_substr($source, $t, mb_strlen($source, 'UTF-8')-1, 'UTF-8'));
-    sql_begin();
+    sql_begin(true);
     //shift the following sentences
-    sql_query("UPDATE sentences SET pos=pos+1 WHERE par_id=$par_id AND pos > $spos");
+    sql_query_pdo("UPDATE sentences SET pos=pos+1 WHERE par_id=$par_id AND pos > $spos");
     //create new sentence
-    sql_query("INSERT INTO sentences VALUES(NULL, '$par_id', '".($spos+1)."', '".mysql_real_escape_string($source_right)."', '0')");
-    $new_sent_id = sql_insert_id();
+    $res = sql_prepare("INSERT INTO sentences VALUES(NULL, ?, ?, ?, 0)");
+    sql_execute($res, array($par_id, $spos+1, $source_right));
+    $new_sent_id = sql_insert_id_pdo();
     //move tokens
-    sql_query("UPDATE tokens SET sent_id=$new_sent_id, pos=pos-$tpos WHERE sent_id=$sent_id AND pos>$tpos");
+    sql_query_pdo("UPDATE tokens SET sent_id=$new_sent_id, pos=pos-$tpos WHERE sent_id=$sent_id AND pos>$tpos");
     //change source in the original sentence
-    sql_query("UPDATE sentences SET check_status='0', source='".mysql_real_escape_string($source_left)."' WHERE sent_id=$sent_id LIMIT 1");
+    $res = sql_query("UPDATE sentences SET check_status=0, source=? WHERE sent_id=? LIMIT 1");
+    sql_execute($res, array($source_left, $sent_id));
     //drop status
-    sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id");
+    sql_query_pdo("DELETE FROM sentence_check WHERE sent_id=$sent_id");
     //delete from strange splitting
-    sql_query("DELETE FROM sentences_strange WHERE sent_id=$sent_id LIMIT 1");
+    sql_query_pdo("DELETE FROM sentences_strange WHERE sent_id=$sent_id LIMIT 1");
 
-    sql_commit();
-    $r = sql_fetch_array(sql_query("SELECT book_id FROM paragraphs WHERE par_id=$par_id LIMIT 1"));
+    sql_commit(true);
+    $r = sql_fetch_array(sql_query_pdo("SELECT book_id FROM paragraphs WHERE par_id=$par_id LIMIT 1"));
     return array($r['book_id'], $sent_id);
 }
 function merge_sentences($id1, $id2) {
     if ($id1 < 1 || $id2 < 1)
         throw new UnexpectedValueException();
-    $res = sql_query("SELECT pos, par_id FROM sentences WHERE sent_id IN ($id1, $id2) ORDER BY pos LIMIT 2");
+    // check same paragraph and adjacency
+    $res = sql_prepare("SELECT pos, par_id FROM sentences WHERE sent_id IN (?, ?) ORDER BY pos LIMIT 2");
+    sql_execute($res, array($id1, $id2));
     $r1 = sql_fetch_array($res);
     $r2 = sql_fetch_array($res);
-    $res = sql_query("SELECT pos FROM sentences WHERE par_id = ".$r1['par_id']." AND pos > ".$r1['pos']." AND pos < ".$r2['pos']." LIMIT 1");
+    $res->closeCursor();
+    $res = sql_query_pdo("SELECT pos FROM sentences WHERE par_id = ".$r1['par_id']." AND pos > ".$r1['pos']." AND pos < ".$r2['pos']." LIMIT 1");
     if ($r1['par_id'] != $r2['par_id'] || sql_num_rows($res) > 0) {
         throw new Exception();
     }
