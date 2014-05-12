@@ -266,15 +266,23 @@ function sentence_save($sent_id) {
 function sentence_save_source($sent_id, $text) {
     sql_query_pdo("UPDATE sentences SET source = '".mysql_real_escape_string(trim($text))."' WHERE sent_id=$sent_id LIMIT 1");
 }
-function create_tf_revision($revset_id, $token_id, $rev_xml) {
+function create_tf_revision($revset_id, $token_id, $rev_xml, $use_pdo=false) {
     $r = sql_fetch_array(sql_query_pdo("SELECT rev_text FROM tf_revisions WHERE tf_id=$token_id ORDER BY rev_id DESC LIMIT 1"));
     if ($r && $r['rev_text'] === $rev_xml)
         // revisions are identical, do nothing
         return true;
-    sql_begin();
-    sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$token_id");
-    sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$token_id', '".mysql_real_escape_string($rev_xml)."', 1)");
-    sql_commit();
+    if ($use_pdo) {
+        sql_begin(true);
+        sql_query_pdo("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$token_id");
+        sql_query_pdo("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$token_id', '".mysql_real_escape_string($rev_xml)."', 1)");
+        sql_commit(true);
+    }
+    else {
+        sql_begin();
+        sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$token_id");
+        sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$token_id', '".mysql_real_escape_string($rev_xml)."', 1)");
+        sql_commit();
+    }
 }
 // annotation pools
 function get_morph_pools_page($type, $moder_id=0, $filter=false) {

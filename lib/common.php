@@ -178,7 +178,7 @@ function show_error($text = "Произошла ошибка.") {
 function oc_exception_handler($exception) {
     show_error("Произошла ошибка.<br/><br/>" . $exception->getMessage());
 }
-function create_revset($comment = '') {
+function create_revset($comment = '', $use_pdo=false) {
     if (!isset($_SESSION['user_id']) || !$_SESSION['user_id'])
         throw new Exception();
 
@@ -186,7 +186,7 @@ function create_revset($comment = '') {
     global $config;
     // check if there is a recent set by the same user with the same comment
     $timeout = $now - $config['misc']['changeset_timeout'];
-    $res = sql_query("
+    $res = sql_query_pdo("
         SELECT set_id
         FROM rev_sets
         WHERE user_id = ".$_SESSION['user_id']."
@@ -197,12 +197,23 @@ function create_revset($comment = '') {
     ");
     if (sql_num_rows($res)) {
         $r = sql_fetch_array($res);
-        sql_query("UPDATE rev_sets SET timestamp=$now WHERE set_id=".$r['set_id']." LIMIT 1");
+        $q = "UPDATE rev_sets SET timestamp=$now WHERE set_id=".$r['set_id']." LIMIT 1";
+        if ($use_pdo)
+            sql_query_pdo($q);
+        else
+            sql_query($q);
         return $r['set_id'];
     }
 
-    sql_query("INSERT INTO `rev_sets` VALUES(NULL, $now, '".(int)$_SESSION['user_id']."', '".mysql_real_escape_string($comment)."')");
-    return sql_insert_id();
+    $q = "INSERT INTO `rev_sets` VALUES(NULL, $now, '".(int)$_SESSION['user_id']."', '".mysql_real_escape_string($comment)."')";
+    if ($use_pdo) {
+        sql_query_pdo($q);
+        return sql_insert_id_pdo();
+    }
+    else {
+        sql_query($q);
+        return sql_insert_id();
+    }
 }
 function typo_spaces($str, $with_tags = 0) {
     if (!$with_tags) {
