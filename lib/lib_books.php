@@ -125,8 +125,8 @@ function get_book_first_sentence_id($book_id) {
 function books_add($name, $parent_id=0) {
     if ($name === '')
         throw new UnexpectedValueException();
-    sql_query("INSERT INTO `books` VALUES(NULL, '$name', '$parent_id', 0, 0)");
-    return sql_insert_id();
+    sql_query_pdo("INSERT INTO `books` VALUES(NULL, '$name', '$parent_id', 0, 0)");
+    return sql_insert_id_pdo();
 }
 function books_move($book_id, $to_id) {
     if ($book_id == $to_id)
@@ -155,15 +155,15 @@ function get_books_for_select($parent = -1) {
 }
 function books_add_tag($book_id, $tag_name) {
     $tag_name = preg_replace('/\:\s+/', ':', trim($tag_name), 1);
-    sql_begin();
+    sql_begin(true);
     books_del_tag($book_id, $tag_name);
-    sql_query("INSERT INTO `book_tags` VALUES('$book_id', '$tag_name')");
-    sql_commit();
+    sql_query_pdo("INSERT INTO `book_tags` VALUES('$book_id', '$tag_name')");
+    sql_commit(true);
 }
 function books_del_tag($book_id, $tag_name) {
     if (!$book_id || !$tag_name)
         throw new UnexpectedValueException();
-    sql_query("DELETE FROM `book_tags` WHERE book_id=$book_id AND tag_name='$tag_name'");
+    sql_query_pdo("DELETE FROM `book_tags` WHERE book_id=$book_id AND tag_name='$tag_name'");
 }
 function download_url($url, $force=false) {
     global $config;
@@ -173,11 +173,11 @@ function download_url($url, $force=false) {
     $escaped_url = mysql_real_escape_string($url);
     
     //check if it has been already downloaded
-    sql_begin();
-    $res = sql_query("SELECT url FROM downloaded_urls WHERE url='$escaped_url' LIMIT 1");
+    sql_begin(true);
+    $res = sql_query_pdo("SELECT url FROM downloaded_urls WHERE url='$escaped_url' LIMIT 1");
     if (sql_num_rows($res) > 0) {
         if ($force)
-            sql_query("DELETE FROM downloaded_urls WHERE url='$escaped_url'");
+            sql_query_pdo("DELETE FROM downloaded_urls WHERE url='$escaped_url'");
         else
             throw new Exception();
     }
@@ -196,8 +196,8 @@ function download_url($url, $force=false) {
     if (!$res)
         throw new Exception();
 
-    sql_query("INSERT INTO downloaded_urls VALUES('$escaped_url', '$filename')");
-    sql_commit();
+    sql_query_pdo("INSERT INTO downloaded_urls VALUES('$escaped_url', '$filename')");
+    sql_commit(true);
     return $filename;
 }
 function split_paragraph($sentence_id) {
@@ -376,20 +376,20 @@ function merge_tokens_ii($id_array) {
     $joined = join(',', $id_array);
 
     //check if they are all in the same sentence
-    $res = sql_query("SELECT distinct sent_id FROM tokens WHERE tf_id IN($joined)");
+    $res = sql_query_pdo("SELECT distinct sent_id FROM tokens WHERE tf_id IN($joined)");
     if (sql_num_rows($res) > 1)
         throw new Exception();
 
     $r = sql_fetch_array($res);
     $sent_id = $r['sent_id'];
     //check if they all stand in a row
-    $r = sql_fetch_array(sql_query("SELECT MIN(pos) AS minpos, MAX(pos) AS maxpos FROM tokens WHERE tf_id IN($joined)"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT MIN(pos) AS minpos, MAX(pos) AS maxpos FROM tokens WHERE tf_id IN($joined)"));
     $res = sql_query("SELECT tf_id FROM tokens WHERE sent_id=$sent_id AND pos > ".$r['minpos']." AND pos < ".$r['maxpos']." AND tf_id NOT IN ($joined) LIMIT 1");
     if (sql_num_rows($res) > 0)
         throw new Exception();
 
     //assemble new token, delete others from form2tf and tokens, update tf_id in their revisions
-    $res = sql_query("SELECT tf_id, tf_text FROM tokens WHERE tf_id IN ($joined) ORDER BY pos");
+    $res = sql_query_pdo("SELECT tf_id, tf_text FROM tokens WHERE tf_id IN ($joined) ORDER BY pos");
     $r = sql_fetch_array($res);
     $new_id = $r['tf_id'];
     $new_text = $r['tf_text'];
@@ -414,7 +414,7 @@ function split_token($token_id, $num) {
     //$num is the number of characters (in the beginning) that should become a separate token
     if (!$token_id || !$num)
         throw new UnexpectedValueException();
-    $res = sql_query("SELECT tf_text, sent_id, pos FROM tokens WHERE tf_id=$token_id LIMIT 1");
+    $res = sql_query_pdo("SELECT tf_text, sent_id, pos FROM tokens WHERE tf_id=$token_id LIMIT 1");
     if (sql_num_rows($res) == 0) {
         throw new Exception();
     }
@@ -432,7 +432,7 @@ function split_token($token_id, $num) {
     sql_query("UPDATE tokens SET pos=pos+1 WHERE sent_id = ".$r['sent_id']." AND pos > ".$r['pos']);
     //create new token and parse
     sql_query("INSERT INTO tokens VALUES(NULL, '".$r['sent_id']."', '".($r['pos'] + 1)."', '".mysql_real_escape_string($text2)."')");
-    sql_query("INSERT INTO tf_revisions VALUES(NULL, '$revset_id', '".sql_insert_id()."', '".mysql_real_escape_string(generate_tf_rev($text2))."', 1)");
+    create_tf_revision($revset_id, sql_insert_id(), generate_tf_rev($text2));
     //update old token and parse
     sql_query("DELETE FROM form2tf WHERE tf_id=$token_id");
     sql_query("UPDATE tokens SET tf_text='".mysql_real_escape_string($text1)."' WHERE tf_id=$token_id LIMIT 1");
@@ -440,7 +440,7 @@ function split_token($token_id, $num) {
     create_tf_revision($revset_id, $token_id, generate_tf_rev($text1));
 
     //dropping sentence status
-    $r = sql_fetch_array(sql_query("SELECT sent_id FROM tokens WHERE tf_id=$token_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT sent_id FROM tokens WHERE tf_id=$token_id LIMIT 1"));
     $sent_id = $r['sent_id'];
 
     sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$sent_id LIMIT 1");
@@ -448,7 +448,7 @@ function split_token($token_id, $num) {
 
     sql_commit();
     
-    $res = sql_query("SELECT book_id FROM paragraphs WHERE par_id = (SELECT par_id FROM sentences WHERE sent_id=$sent_id LIMIT 1)");
+    $res = sql_query_pdo("SELECT book_id FROM paragraphs WHERE par_id = (SELECT par_id FROM sentences WHERE sent_id=$sent_id LIMIT 1)");
     $r = sql_fetch_array($res);
 
     return array($r['book_id'], $sent_id);
@@ -468,13 +468,13 @@ function get_sources_page($skip = 0, $show_type = '', $src = 0) {
     elseif ($show_type == 'free')
         $q_tail = "WHERE (s.parent_id=$src OR s.parent_id IN (SELECT source_id FROM sources WHERE parent_id=$src)) AND s.user_id = 0";
     $q_tail2 = $show_type == 'free' ? " ORDER BY RAND() LIMIT 200" : " ORDER BY s.book_id DESC, s.source_id LIMIT $skip,200";
-    $r = sql_fetch_array(sql_query($q_cnt.$q_tail));
+    $r = sql_fetch_array(sql_query_pdo($q_cnt.$q_tail));
     $out['total'] = $r['cnt'];
-    $res = sql_query($q_main.$q_tail.$q_tail2);
+    $res = sql_query_pdo($q_main.$q_tail.$q_tail2);
     while ($r = sql_fetch_array($res)) {
-        $r1 = sql_fetch_array(sql_query("SELECT `user_id`, `status`, `timestamp` FROM sources_status WHERE source_id=".$r['source_id']." ORDER BY `timestamp` DESC LIMIT 1"));
+        $r1 = sql_fetch_array(sql_query_pdo("SELECT `user_id`, `status`, `timestamp` FROM sources_status WHERE source_id=".$r['source_id']." ORDER BY `timestamp` DESC LIMIT 1"));
         $comments = array();
-        $res1 = sql_query("SELECT user_shown_name AS user_name, text, timestamp FROM sources_comments sc LEFT JOIN users u ON (sc.user_id=u.user_id) WHERE sc.source_id=".$r['source_id']." ORDER BY comment_id");
+        $res1 = sql_query_pdo("SELECT user_shown_name AS user_name, text, timestamp FROM sources_comments sc LEFT JOIN users u ON (sc.user_id=u.user_id) WHERE sc.source_id=".$r['source_id']." ORDER BY comment_id");
         while ($r2 = sql_fetch_array($res1)) {
             $comments[] = array('username' => $r2['user_name'], 'timestamp' => $r2['timestamp'], 'text' => $r2['text']);
         }
