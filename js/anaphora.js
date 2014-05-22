@@ -74,10 +74,7 @@ $(document).ready(function() {
 		$('.anaph-prop').removeClass('anaph-active');
 		$(this).addClass('anaph-active');
 
-		$('.anaph-head').removeClass('anaph-active');
-
-		$(this).parent().prevAll().find('.anaph-head').addClass('anaph-active');
-		$(this).prevAll('.anaph-head').addClass('anaph-active');
+		$('.anaph-head').addClass('anaph-active');
 	});
 
 	$(document).on('click', '.anaph-head.anaph-active', function(e) {
