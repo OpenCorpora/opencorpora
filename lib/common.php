@@ -148,7 +148,12 @@ function sql_pe($query, $params) {
     // returns all the rows
     $res = sql_prepare($query);
     sql_execute($res, $params);
-    return sql_fetchall($res);
+    try {
+        return sql_fetchall($res);
+    }
+    catch (PDOException $e) {
+        return array();
+    }
 }
 //sql checks
 function sql_get_schema() {
