@@ -186,7 +186,7 @@ function get_simple_groups_by_sentence($sent_id, $user_id) {
 function get_complex_groups_by_simple($simple_groups, $user_id) {
 
     $groups = array();
-    $possible_children = array();
+    $possible_children = array(0);
     $groups_pos = array();
     $groups_text = array();
 
