@@ -11,13 +11,13 @@ def choose_annotators(dbh, only_moderated):
     moderators = {}
     if only_moderated:
         dbh.execute("""
-            SELECT book_id, syntax_moder_id
+            SELECT book_id, old_syntax_moder_id
             FROM books
             WHERE syntax_on > 0
         """)
         res = dbh.fetchall()
         for row in res:
-            moderators[row['book_id']] = row['syntax_moder_id']
+            moderators[row['book_id']] = row['old_syntax_moder_id']
     dbh.execute("""
         SELECT user_id, book_id
         FROM anaphora_syntax_annotators
@@ -29,7 +29,7 @@ def choose_annotators(dbh, only_moderated):
         if row['book_id'] not in annotators:
             if row['book_id'] in moderators:
                 annotators[row['book_id']] = moderators[row['book_id']]
-            else:
+            elif not only_moderated:
                 annotators[row['book_id']] = row['user_id']
     return annotators
 
@@ -74,35 +74,65 @@ def export_complex_groups(dbh, annotators):
         print("{0}\t{1}\t{2}\t{3}".format(gid, ','.join(map(str, sorted(group['tokens']))), group['head'], group['type']))
 
 def get_complex_groups(dbh, annotators):
-    valid_children = set()
     simple = get_simple_groups(dbh, annotators, include_dummy=True)
-    for gid in simple:
-        valid_children.add(gid)
 
     groups = {}
     dbh.execute("""
-        SELECT parent_gid, child_gid, group_type, head_id
+        SELECT parent_gid, child_gid, group_type, head_id, user_id
         FROM anaphora_syntax_groups_complex gc
             LEFT JOIN anaphora_syntax_groups g ON (gc.parent_gid = g.group_id)
         ORDER BY parent_gid, child_gid
     """)
     for row in dbh.fetchall():
-        if row['child_gid'] not in valid_children:
-            continue
         if row['parent_gid'] not in groups:
             groups[row['parent_gid']] = {
                 'head': row['head_id'],
                 'type': row['group_type'],
                 'children': [row['child_gid']],
-                'tokens': get_tokens_by_group(row['child_gid'], simple, groups)
+                'user_id' : row['user_id'],
+                'tokens': set()
+                #'tokens': get_tokens_by_group(row['child_gid'], simple, groups)
             }
         else:
             groups[row['parent_gid']]['children'].append(row['child_gid'])
-            groups[row['parent_gid']]['tokens'].extend(get_tokens_by_group(row['child_gid'], simple, groups))
+            #groups[row['parent_gid']]['tokens'].extend(get_tokens_by_group(row['child_gid'], simple, groups))
 
+    # remove groups by other annotators
+    gids = groups.keys()
+    for gid in gids:
+        if not check_subgroups(gid, simple, groups):
+            del groups[gid]
+    # add list of tokens
+    for gid in groups:
+        update_token_list(groups[gid], simple, groups)
+    # add head token id
     for gid in groups:
         groups[gid]['head'] = get_head_token_id(groups[gid]['head'], simple, groups)
+
     return groups
+
+def check_subgroups(gid, simple_groups, complex_groups):
+    if gid in complex_groups:
+        for child_id in complex_groups[gid]['children']:
+            if not check_subgroups(child_id, simple_groups, complex_groups):
+                return False
+        return True
+    elif gid in simple_groups:
+        return True
+    else:
+        return False
+
+def update_token_list(group, simple_groups, complex_groups):
+    if len(group['tokens']) > 0:
+        return
+    for child_gid in group['children']:
+        if child_gid in simple_groups:
+            group['tokens'].update(simple_groups[child_gid]['tokens'])
+        elif child_gid in complex_groups:
+            update_token_list(complex_groups[child_gid], simple_groups, complex_groups)
+            group['tokens'].update(complex_groups[child_gid]['tokens'])
+        else:  
+            raise KeyError("group #{0} not found".format(child_gid))
 
 def get_tokens_by_group(gid, simple_groups, complex_groups):
     if gid in simple_groups:
@@ -119,8 +149,8 @@ def get_head_token_id(old_id, simple_groups, complex_groups):
     elif old_id in simple_groups:
         return simple_groups[old_id]['head']
     else:
-        # suppose that it is the token id then
-        return old_id
+        #raise KeyError("No head #{0} found".format(old_id))
+        pass   # sometimes head groups get deleted
 
 def do_export(dbh, gtype, only_moderated):
     annotators = choose_annotators(dbh, only_moderated)
