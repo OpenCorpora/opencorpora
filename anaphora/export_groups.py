@@ -36,7 +36,9 @@ def choose_annotators(dbh, only_moderated):
 def export_simple_groups(dbh, annotators):
     groups = get_simple_groups(dbh, annotators, include_dummy=True)
     for gid, group in sorted(groups.items()):
-        print("{0}\t{1}\t{2}\t{3}".format(gid, ','.join(map(str, group['tokens'])), group['head'], group['type']))
+        print("{4}\t{0}\t{1}\t{2}\t{3}".format(
+            gid, ','.join(map(str, group['tokens'])), group['head'], group['type'], group['book_id'])
+        )
 
 def get_simple_groups(dbh, annotators, include_dummy=False):
     groups = {}
@@ -63,7 +65,8 @@ def get_simple_groups(dbh, annotators, include_dummy=False):
             groups[row['group_id']] = {
                 'head': row['head_id'],
                 'type': row['group_type'],
-                'tokens': [row['token_id']]
+                'tokens': [row['token_id']],
+                'book_id': row['book_id']   # we expect they are all the same
             }
     return groups
 
@@ -71,7 +74,9 @@ def export_complex_groups(dbh, annotators):
     print("COMPLEX")
     groups = get_complex_groups(dbh, annotators)
     for gid, group in sorted(groups.items()):
-        print("{0}\t{1}\t{2}\t{3}".format(gid, ','.join(map(str, sorted(group['tokens']))), group['head'], group['type']))
+        print("{4}\t{0}\t{1}\t{2}\t{3}".format(
+            gid, ','.join(map(str, sorted(group['tokens']))), group['head'], group['type'], group['book_id']
+        ))
 
 def get_complex_groups(dbh, annotators):
     simple = get_simple_groups(dbh, annotators, include_dummy=True)
@@ -90,21 +95,21 @@ def get_complex_groups(dbh, annotators):
                 'type': row['group_type'],
                 'children': [row['child_gid']],
                 'user_id' : row['user_id'],
-                'tokens': set()
-                #'tokens': get_tokens_by_group(row['child_gid'], simple, groups)
+                'tokens': set(),
+                'book_id': 0
             }
         else:
             groups[row['parent_gid']]['children'].append(row['child_gid'])
-            #groups[row['parent_gid']]['tokens'].extend(get_tokens_by_group(row['child_gid'], simple, groups))
 
     # remove groups by other annotators
     gids = groups.keys()
     for gid in gids:
         if not check_subgroups(gid, simple, groups):
             del groups[gid]
-    # add list of tokens
+    # add list of tokens and book id
     for gid in groups:
         update_token_list(groups[gid], simple, groups)
+        assign_book_id(groups[gid], simple, groups)
     # add head token id
     for gid in groups:
         groups[gid]['head'] = get_head_token_id(groups[gid]['head'], simple, groups)
@@ -122,6 +127,19 @@ def check_subgroups(gid, simple_groups, complex_groups):
     else:
         return False
 
+def assign_book_id(group, simple_groups, complex_groups):
+    if group['book_id']:
+        return
+    for child_gid in group['children']:
+        if child_gid in simple_groups:
+            group['book_id'] = simple_groups[child_gid]['book_id']
+            return
+        elif child_gid in complex_groups:
+            assign_book_id(complex_groups[child_gid], simple_groups, complex_groups)
+            group['book_id'] = complex_groups[child_gid]['book_id']
+        else:  
+            raise KeyError("group #{0} not found".format(child_gid))
+
 def update_token_list(group, simple_groups, complex_groups):
     if len(group['tokens']) > 0:
         return
@@ -134,13 +152,6 @@ def update_token_list(group, simple_groups, complex_groups):
         else:  
             raise KeyError("group #{0} not found".format(child_gid))
 
-def get_tokens_by_group(gid, simple_groups, complex_groups):
-    if gid in simple_groups:
-        return simple_groups[gid]['tokens']
-    if gid in complex_groups:
-        return complex_groups[gid]['tokens']
-    raise KeyError("group #{0} not found".format(gid))
-
 def get_head_token_id(old_id, simple_groups, complex_groups):
     if old_id == 0:
         return 0
@@ -149,7 +160,6 @@ def get_head_token_id(old_id, simple_groups, complex_groups):
     elif old_id in simple_groups:
         return simple_groups[old_id]['head']
     else:
-        #raise KeyError("No head #{0} found".format(old_id))
         pass   # sometimes head groups get deleted
 
 def do_export(dbh, gtype, only_moderated):

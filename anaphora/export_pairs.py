@@ -8,13 +8,16 @@ CONFIG_PATH = "/corpus/config.ini"
 
 def do_export(dbh):
     dbh.execute("""
-        SELECT token_id, group_id
+        SELECT token_id, group_id, book_id
         FROM anaphora
-        ORDER BY group_id, token_id
+            LEFT JOIN tokens ON (anaphora.token_id = tokens.tf_id)
+            JOIN sentences USING (sent_id)
+            JOIN paragraphs USING (par_id)
+        ORDER BY book_id, group_id, token_id
     """)
     
     for row in dbh.fetchall():
-        print("{0}_{1}".format(row['token_id'], row['group_id']))
+        print("{2}\t{0}\t{1}".format(row['token_id'], row['group_id'], row['book_id']))
 
 def main():
     editor = AnnotationEditor(CONFIG_PATH)
