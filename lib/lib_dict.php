@@ -47,6 +47,21 @@ function get_dict_search_results($post) {
     }
     return $out;
 }
+function get_all_forms_by_lemma_id($lid) {
+    $res = sql_pe("SELECT rev_text FROM dict_revisions WHERE lemma_id=? ORDER BY rev_id DESC LIMIT 1", array($lid));
+    $parsed = parse_dict_rev($res[0]['rev_text']);
+    $forms = array();
+    foreach ($parsed['forms'] as $form)
+        $forms[] = $form['text'];
+    return array_unique($forms);
+}
+function get_all_forms_by_lemma_text($lemma) {
+    $lemmata = get_dict_search_results(array('search_lemma' => $lemma));
+    $forms = array();
+    foreach ($lemmata['lemma']['found'] as $l)
+        $forms = array_merge($forms, get_all_forms_by_lemma_id($l['id']));
+    return $forms;
+}
 function generate_tf_rev($token) {
     $out = '<tfr t="'.htmlspecialchars($token).'">';
     if (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {

@@ -618,8 +618,14 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
     $right_c = 0;  //same for right context
     $mw_pos = 0;
 
-    $r = sql_fetch_array(sql_query_pdo("SELECT MAX(pos) AS maxpos, sent_id FROM tokens WHERE sent_id=(SELECT sent_id FROM tokens WHERE tf_id=$tf_id LIMIT 1)"));
+    $r = sql_fetch_array(sql_query_pdo("
+        SELECT MAX(tokens.pos) AS maxpos, sent_id, source
+        FROM tokens
+            JOIN sentences USING (sent_id)
+        WHERE tf_id=$tf_id LIMIT 1
+    "));
     $sent_id = $r['sent_id'];
+    $sentence_text = $r['source'];
     $maxpos = $r['maxpos'];
     $q = "SELECT tf_id, tf_text, pos FROM tokens WHERE sent_id = $sent_id";
     if ($dir != 0 || $delta > 0) {
@@ -650,7 +656,14 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
             $mw_pos = $r['pos'];
         }
     }
-    return array('context' => $t, 'mainword' => $tw, 'has_left_context' => $left_c, 'has_right_context' => $right_c, 'sentence_id' => $sent_id);
+    return array(
+        'context' => $t,
+        'mainword' => $tw,
+        'has_left_context' => $left_c,
+        'has_right_context' => $right_c,
+        'sentence_id' => $sent_id,
+        'sentence_text' => $sentence_text
+    );
 }
 function add_morph_pool_type($post_gram, $post_descr) {
     $gram_sets = array();
@@ -1307,18 +1320,23 @@ function get_pool_manual_page($type_id) {
     $r = sql_fetch_array(sql_query_pdo("SELECT doc_link FROM morph_annot_pool_types WHERE type_id=$type_id LIMIT 1"));
     return $r['doc_link'];
 }
-function get_search_results($query) {
-    $r = sql_fetch_array(sql_query_pdo(
-        "SELECT COUNT(*)
+function get_search_results($query, $exact_form=true) {
+    $forms = array($query);
+    if (!$exact_form) {
+        include_once('lib_dict.php');
+        $forms = get_all_forms_by_lemma_text($query);
+    }
+    $r = sql_fetch_array(sql_query_pdo("
+        SELECT COUNT(*)
         FROM form2tf
-        WHERE form_text = '".mysql_real_escape_string($query)."'
+        WHERE form_text IN ('".join("','", array_map('mysql_real_escape_string', $forms))."')
     "));
 
     $out = array('total' => $r[0], 'results' => array());
     $res = sql_query_pdo("
         SELECT tf_id
         FROM form2tf
-        WHERE form_text = '".mysql_real_escape_string($query)."'
+        WHERE form_text IN ('".join("','", array_map('mysql_real_escape_string', $forms))."')
         LIMIT 100
     ");
     while ($r = sql_fetch_array($res))
