@@ -5,6 +5,8 @@ sys.path.append('/corpus/python')
 from Annotation import AnnotationEditor
 
 CONFIG_PATH = "/corpus/config.ini"
+STR_NONE = 'NONE'
+STR_ALL = 'ALL'
 
 
 def choose_annotators(dbh, only_moderated):
@@ -36,14 +38,21 @@ def choose_annotators(dbh, only_moderated):
 def export_simple_groups(dbh, annotators):
     groups = get_simple_groups(dbh, annotators, include_dummy=True)
     for gid, group in sorted(groups.items()):
+        head_str = group['head']
+        if group['marks'] == 'bad':
+            continue
+        elif group['marks'] == 'no head':
+            head_str = STR_NONE
+        elif group['marks'] == 'all':
+            head_str = STR_ALL
         print("{4}\t{0}\t{1}\t{2}\t{3}".format(
-            gid, ','.join(map(str, group['tokens'])), group['head'], group['type'], group['book_id'])
+            gid, ','.join(map(str, group['tokens'])), head_str, group['type'], group['book_id'])
         )
 
 def get_simple_groups(dbh, annotators, include_dummy=False):
     groups = {}
     q = """
-        SELECT group_id, group_type, user_id, head_id, book_id, token_id
+        SELECT group_id, group_type, user_id, head_id, book_id, token_id, marks
         FROM anaphora_syntax_groups g
             JOIN anaphora_syntax_groups_simple gs
                 USING (group_id)
@@ -66,6 +75,7 @@ def get_simple_groups(dbh, annotators, include_dummy=False):
                 'head': row['head_id'],
                 'type': row['group_type'],
                 'tokens': [row['token_id']],
+                'marks': row['marks'],
                 'book_id': row['book_id']   # we expect they are all the same
             }
     return groups
@@ -74,8 +84,15 @@ def export_complex_groups(dbh, annotators):
     print("COMPLEX")
     groups = get_complex_groups(dbh, annotators)
     for gid, group in sorted(groups.items()):
+        head_str = group['head']
+        if group['marks'] == 'bad':
+            continue
+        elif group['marks'] == 'no head':
+            head_str = STR_NONE
+        elif group['marks'] == 'all':
+            head_str = STR_ALL
         print("{4}\t{0}\t{1}\t{2}\t{3}".format(
-            gid, ','.join(map(str, sorted(group['tokens']))), group['head'], group['type'], group['book_id']
+            gid, ','.join(map(str, sorted(group['tokens']))), head_str, group['type'], group['book_id']
         ))
 
 def get_complex_groups(dbh, annotators):
@@ -83,7 +100,7 @@ def get_complex_groups(dbh, annotators):
 
     groups = {}
     dbh.execute("""
-        SELECT parent_gid, child_gid, group_type, head_id, user_id
+        SELECT parent_gid, child_gid, group_type, head_id, user_id, marks
         FROM anaphora_syntax_groups_complex gc
             LEFT JOIN anaphora_syntax_groups g ON (gc.parent_gid = g.group_id)
         ORDER BY parent_gid, child_gid
@@ -96,7 +113,8 @@ def get_complex_groups(dbh, annotators):
                 'children': [row['child_gid']],
                 'user_id' : row['user_id'],
                 'tokens': set(),
-                'book_id': 0
+                'book_id': 0,
+                'marks': row['marks']
             }
         else:
             groups[row['parent_gid']]['children'].append(row['child_gid'])
@@ -160,7 +178,7 @@ def get_head_token_id(old_id, simple_groups, complex_groups):
     elif old_id in simple_groups:
         return simple_groups[old_id]['head']
     else:
-        pass   # sometimes head groups get deleted
+        return 0   # sometimes head groups get deleted
 
 def do_export(dbh, gtype, only_moderated):
     annotators = choose_annotators(dbh, only_moderated)
