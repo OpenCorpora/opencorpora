@@ -10,6 +10,26 @@ function get_books_list() {
     }
     return $out;
 }
+function get_book_parents($book_id, $include_self=false) {
+    // returned array starts with the closest ancestor
+    $parents = array();
+    if ($include_self) {
+        $res = sql_pe("SELECT book_id, book_name FROM books WHERE book_id=? LIMIT 1", array($book_id));
+        $parents[] = array('id' => $res[0]['book_id'], 'title' => $res[0]['book_name']);
+    }
+    $tid = $book_id;
+    $res = sql_prepare("SELECT book_id, book_name FROM books WHERE book_id=(SELECT parent_id FROM books WHERE book_id=? LIMIT 1) AND book_id>0 LIMIT 1");
+    while ($tid) {
+        sql_execute($res, array($tid));
+        $r = sql_fetch_array($res);
+        if ($r) {
+            $parents[] = array('id' => $r['book_id'], 'title' => $r['book_name']);
+            $tid = $r['book_id'];
+        } else
+            break;
+    }
+    return $parents;
+}
 function get_book_page($book_id, $full = false) {
     $r = sql_fetch_array(sql_query_pdo("SELECT * FROM `books` WHERE `book_id`=$book_id LIMIT 1"));
     $out = array (
@@ -48,18 +68,7 @@ function get_book_page($book_id, $full = false) {
         $out['children'][] = array('id' => $r['book_id'], 'title' => $r['book_name']);
     }
     //parents
-    $out['parents'] = array();
-    $tid = $book_id;
-    $res = sql_prepare("SELECT book_id, book_name FROM books WHERE book_id=(SELECT parent_id FROM books WHERE book_id=? LIMIT 1) AND book_id>0 LIMIT 1");
-    while ($tid) {
-        sql_execute($res, array($tid));
-        $r = sql_fetch_array($res);
-        if ($r) {
-            array_unshift($out['parents'], array('id' => $r['book_id'], 'title' => $r['book_name']));
-            $tid = $r['book_id'];
-        } else
-            break;
-    }
+    $out['parents'] = array_reverse(get_book_parents($book_id));
     //sentences
     if ($full) {
         $q = "SELECT p.`pos` ppos, s.sent_id, s.`pos` spos";

@@ -1,9 +1,10 @@
 <?php
 require_once('lib/header_ajax.php');
 require_once('lib/lib_annot.php');
+require_once('lib/lib_books.php');
 header('Content-type: application/json');
 
-define(API_VERSION, '0.21');
+define(API_VERSION, '0.22');
 $action = $_GET['action'];
 
 $answer = array(
@@ -27,6 +28,13 @@ switch ($action) {
             $all_forms = false;
 
         $answer['answer'] = get_search_results($_GET['query'], !$all_forms);
+        foreach ($answer['answer']['results'] as &$res) {
+            $parts = array();
+            foreach (get_book_parents($res['book_id'], true) as $p) {
+                $parts[] = $p['title'];
+            }
+            $res['text_fullname'] = join(': ', array_reverse($parts));
+        }
         break;
     default:
         $answer['error'] = 'Unknown action';

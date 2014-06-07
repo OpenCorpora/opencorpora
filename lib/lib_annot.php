@@ -619,13 +619,15 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
     $mw_pos = 0;
 
     $r = sql_fetch_array(sql_query_pdo("
-        SELECT MAX(tokens.pos) AS maxpos, sent_id, source
+        SELECT MAX(tokens.pos) AS maxpos, sent_id, source, book_id
         FROM tokens
             JOIN sentences USING (sent_id)
+            JOIN paragraphs USING (par_id)
         WHERE tf_id=$tf_id LIMIT 1
     "));
     $sent_id = $r['sent_id'];
     $sentence_text = $r['source'];
+    $book_id = $r['book_id'];
     $maxpos = $r['maxpos'];
     $q = "SELECT tf_id, tf_text, pos FROM tokens WHERE sent_id = $sent_id";
     if ($dir != 0 || $delta > 0) {
@@ -662,7 +664,8 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
         'has_left_context' => $left_c,
         'has_right_context' => $right_c,
         'sentence_id' => $sent_id,
-        'sentence_text' => $sentence_text
+        'sentence_text' => $sentence_text,
+        'book_id' => $book_id
     );
 }
 function add_morph_pool_type($post_gram, $post_descr) {
