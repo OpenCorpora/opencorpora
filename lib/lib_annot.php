@@ -623,7 +623,11 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
         FROM tokens
             JOIN sentences USING (sent_id)
             JOIN paragraphs USING (par_id)
-        WHERE tf_id=$tf_id LIMIT 1
+        WHERE sent_id = (
+            SELECT sent_id
+            FROM tokens
+            WHERE tf_id=$tf_id LIMIT 1
+        )
     "));
     $sent_id = $r['sent_id'];
     $sentence_text = $r['source'];
