@@ -1,6 +1,6 @@
 <?php
 function get_page_tok_strange($newest = false) {
-    $res = sql_query_pdo("SELECT timestamp, param_value FROM stats_values WHERE param_id=7 ORDER BY timestamp DESC LIMIT 1");
+    $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE param_id=7 ORDER BY timestamp DESC LIMIT 1");
     $r = sql_fetch_array($res);
     $out = array(
         'timestamp' => $r['timestamp'],
@@ -8,7 +8,7 @@ function get_page_tok_strange($newest = false) {
         'broken' => array(),
         'items' => array()
     );
-    $res = sql_fetchall(sql_query_pdo("SELECT param_value FROM stats_values WHERE param_id=28 ORDER BY param_value"));
+    $res = sql_fetchall(sql_query("SELECT param_value FROM stats_values WHERE param_id=28 ORDER BY param_value"));
     $res1 = sql_prepare("SELECT tf_text, sent_id FROM tokens WHERE tf_id=? LIMIT 1");
     foreach ($res as $r) {
         sql_execute($res1, array($r['param_value']));
@@ -20,7 +20,7 @@ function get_page_tok_strange($newest = false) {
     }
     $res1->closeCursor();
     $comments = array();
-    $res = sql_query_pdo("SELECT ts.sent_id, ts.pos, ts.border, ts.coeff, s.source, p.book_id FROM tokenizer_strange ts LEFT JOIN sentences s ON (ts.sent_id=s.sent_id) LEFT JOIN paragraphs p ON (s.par_id=p.par_id) ORDER BY ".($newest ? "ts.sent_id DESC" : "ts.coeff DESC"));
+    $res = sql_query("SELECT ts.sent_id, ts.pos, ts.border, ts.coeff, s.source, p.book_id FROM tokenizer_strange ts LEFT JOIN sentences s ON (ts.sent_id=s.sent_id) LEFT JOIN paragraphs p ON (s.par_id=p.par_id) ORDER BY ".($newest ? "ts.sent_id DESC" : "ts.coeff DESC"));
     $res1 = sql_prepare("SELECT comment_id FROM sentence_comments WHERE sent_id=? LIMIT 1");
     foreach (sql_fetchall($res) as $r) {
         if (!isset($comments[$r['sent_id']])) {
@@ -42,7 +42,7 @@ function get_page_tok_strange($newest = false) {
 }
 function get_page_sent_strange() {
     $out = array();
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT DISTINCT sent_id, source, book_id
         FROM sentences_strange
         LEFT JOIN sentences USING (sent_id)
@@ -54,7 +54,7 @@ function get_page_sent_strange() {
     return $out;
 }
 function get_empty_books() {
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT book_id, book_name
         FROM books
         WHERE book_id NOT IN (SELECT DISTINCT book_id FROM paragraphs)
@@ -67,7 +67,7 @@ function get_empty_books() {
     return $out;
 }
 function get_downloaded_urls() {
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT b.book_id, b.book_name, SUBSTR(t.tag_name, 5) url, u.filename
         FROM book_tags t
         LEFT JOIN books b
@@ -90,7 +90,7 @@ function get_downloaded_urls() {
     return $out;
 }
 function get_tag_errors() {
-    $res = sql_query_pdo("SELECT * FROM tag_errors ORDER BY book_id DESC");
+    $res = sql_query("SELECT * FROM tag_errors ORDER BY book_id DESC");
     $out = array();
     while ($r = sql_fetch_array($res)) {
         $out[] = array(
@@ -104,13 +104,13 @@ function get_tag_errors() {
 function get_good_sentences($no_zero = false) {
     $where = $no_zero ? "WHERE num_homonymous > 0" : "";
     $out = array();
-    $res = sql_query_pdo("SELECT sent_id, num_words, num_homonymous FROM good_sentences $where ORDER BY (num_homonymous / num_words), num_words desc LIMIT 1000");
+    $res = sql_query("SELECT sent_id, num_words, num_homonymous FROM good_sentences $where ORDER BY (num_homonymous / num_words), num_words desc LIMIT 1000");
     while ($r = sql_fetch_array($res))
         $out[] = array('id' => $r['sent_id'], 'total' => $r['num_words'], 'homonymous' => $r['num_homonymous']);
     return $out;
 }
 function get_merge_fails() {
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT sample_id, p.pool_name, p.revision AS pool_revision, ms.status, s.tf_id
         FROM morph_annot_moderated_samples ms
         LEFT JOIN morph_annot_samples s USING (sample_id)
@@ -159,7 +159,7 @@ function get_merge_fails() {
     return $data;
 }
 function get_most_useful_pools($type=0) {
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT pool_id, pool_name, p.status, user_name,
             COUNT(sent_id) cnt
         FROM morph_annot_samples

@@ -33,8 +33,8 @@ try {
             throw new UnexpectedValueException();
     }
 
-    sql_query_pdo($q);
-    echo '<response ok="1" ts="'.date("d.m.y, H:i", $time).'" id="'.sql_insert_id_pdo().'"/>';
+    sql_query($q);
+    echo '<response ok="1" ts="'.date("d.m.y, H:i", $time).'" id="'.sql_insert_id().'"/>';
 }
 catch (Exception $e) {
     echo '<response ok="0"/>';

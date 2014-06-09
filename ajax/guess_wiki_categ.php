@@ -25,7 +25,7 @@ if (isset($_GET['cat'])) {
 echo '</root>';
 
 function check_for_geo($s) {
-    $res = sql_query_pdo("SELECT tag_name FROM book_tags WHERE tag_name = 'Гео:ВикиКатегория:".mysql_real_escape_string($s)."' LIMIT 1");
+    $res = sql_query("SELECT tag_name FROM book_tags WHERE tag_name = 'Гео:ВикиКатегория:".mysql_real_escape_string($s)."' LIMIT 1");
     return sql_num_rows($res);
 }
 function month_to_number($s) {

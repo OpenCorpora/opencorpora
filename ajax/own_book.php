@@ -13,14 +13,14 @@ try {
     $status = (int)$_GET['status'];
 
     if ($status == 0) {
-        $r = sql_fetch_array(sql_query_pdo("SELECT user_id FROM sources WHERE source_id=$sid LIMIT 1"));
+        $r = sql_fetch_array(sql_query("SELECT user_id FROM sources WHERE source_id=$sid LIMIT 1"));
         if ($r['user_id'] != $_SESSION['user_id'])
             throw new Exception("Book is already owned");
     }
 
     $user_id = $status > 0 ? $_SESSION['user_id'] : 0;
 
-    sql_query_pdo("UPDATE sources SET user_id='$user_id' WHERE source_id=$sid LIMIT 1");
+    sql_query("UPDATE sources SET user_id='$user_id' WHERE source_id=$sid LIMIT 1");
     echo '<result ok="1"/>';
 }
 catch (Exception $e) {

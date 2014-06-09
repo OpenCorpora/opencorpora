@@ -33,7 +33,7 @@ function sql_commit() {
         --$transaction_counter;
     }
 }
-function sql_query_pdo($q, $debug=1, $override_readonly=0) {
+function sql_query($q, $debug=1, $override_readonly=0) {
     global $pdo_db;
     global $total_time;
     global $total_queries;
@@ -64,7 +64,7 @@ function sql_query_pdo($q, $debug=1, $override_readonly=0) {
 function sql_fetchall($res) {
     return $res->fetchAll();
 }
-function sql_insert_id_pdo() {
+function sql_insert_id() {
     // MUST BE CALLED BEFORE TRANSACTION COMMIT!
     // otherwise returns 0
     global $pdo_db;
@@ -118,11 +118,11 @@ function sql_pe($query, $params) {
 }
 //sql checks
 function sql_get_schema() {
-    $res = sql_query_pdo("SHOW TABLES");
+    $res = sql_query("SHOW TABLES");
     $out = array();
     while ($r = sql_fetch_array($res)) {
         $out[$r[0]] = array();
-        $res1 = sql_query_pdo("EXPLAIN `$r[0]`");
+        $res1 = sql_query("EXPLAIN `$r[0]`");
         while ($r1 = sql_fetch_array($res1)) {
             $out[$r[0]][] = strtolower($r1[0]);
         }
@@ -152,7 +152,7 @@ function create_revset($comment = '') {
     global $config;
     // check if there is a recent set by the same user with the same comment
     $timeout = $now - $config['misc']['changeset_timeout'];
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT set_id
         FROM rev_sets
         WHERE user_id = ".$_SESSION['user_id']."
@@ -164,13 +164,13 @@ function create_revset($comment = '') {
     if (sql_num_rows($res)) {
         $r = sql_fetch_array($res);
         $q = "UPDATE rev_sets SET timestamp=$now WHERE set_id=".$r['set_id']." LIMIT 1";
-        sql_query_pdo($q);
+        sql_query($q);
         return $r['set_id'];
     }
 
     $q = "INSERT INTO `rev_sets` VALUES(NULL, $now, '".(int)$_SESSION['user_id']."', '".mysql_real_escape_string($comment)."')";
-    sql_query_pdo($q);
-    return sql_insert_id_pdo();
+    sql_query($q);
+    return sql_insert_id();
 }
 function typo_spaces($str, $with_tags = 0) {
     if (!$with_tags) {

@@ -1,7 +1,7 @@
 <?php
 require_once('lib_books.php');
 function get_books_with_syntax() {
-    $res = sql_query_pdo("SELECT book_id, status, user_id FROM anaphora_syntax_annotators");
+    $res = sql_query("SELECT book_id, status, user_id FROM anaphora_syntax_annotators");
     $syntax = array();
     while ($r = sql_fetch_array($res)) {
         if (!isset($syntax[$r['book_id']]))
@@ -11,7 +11,7 @@ function get_books_with_syntax() {
         $syntax[$r['book_id']][$r['status']] += 1;
     }
 
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT book_id, book_name, old_syntax_moder_id, COUNT(tf_id) AS token_count, syntax_on
         FROM books
             JOIN paragraphs
@@ -48,7 +48,7 @@ function get_books_with_syntax() {
     return $out;
 }
 function get_syntax_group_types() {
-    $res = sql_query_pdo("SELECT type_id, type_name FROM anaphora_syntax_group_types ORDER BY type_name");
+    $res = sql_query("SELECT type_id, type_name FROM anaphora_syntax_group_types ORDER BY type_name");
     $out = array();
     while ($r = sql_fetch_array($res))
         $out[$r['type_id']] = $r['type_name'];
@@ -63,7 +63,7 @@ function group_type_exists($type) {
 
 function get_group_text($group_id) {
     $texts = array();
-    $res = sql_query_pdo("SELECT * FROM anaphora_syntax_groups_simple WHERE group_id = $group_id");
+    $res = sql_query("SELECT * FROM anaphora_syntax_groups_simple WHERE group_id = $group_id");
     $r = sql_fetchall($res);
     if (!empty($r)) {
         $token_ids = array_reduce($r, function($ids, $el) {
@@ -71,20 +71,20 @@ function get_group_text($group_id) {
             return $el['token_id'];
         });
 
-        $tokens_res = sql_query_pdo("SELECT tf_text FROM tokens WHERE tf_id IN ($token_ids)");
+        $tokens_res = sql_query("SELECT tf_text FROM tokens WHERE tf_id IN ($token_ids)");
         while ($r = sql_fetch_array($tokens_res)) {
             $texts[] = $r['tf_text'];
         }
         return join(" ", $texts);
     }
 
-    $res = sql_query_pdo("SELECT * FROM anaphora_syntax_groups_complex WHERE parent_gid = $group_id");
+    $res = sql_query("SELECT * FROM anaphora_syntax_groups_complex WHERE parent_gid = $group_id");
     $r = sql_fetch_array($res);
 
     if (!empty($r)) {
         $token_ids = get_group_tokens($group_id);
         $token_ids = join(',', $token_ids);
-        $tokens_res = sql_query_pdo("SELECT tf_text FROM tokens WHERE tf_id IN ($token_ids)");
+        $tokens_res = sql_query("SELECT tf_text FROM tokens WHERE tf_id IN ($token_ids)");
         while ($r = sql_fetch_array($tokens_res)) {
             $texts[] = $r['tf_text'];
         }
@@ -96,7 +96,7 @@ function get_group_tokens($group_id) {
     $tokens = array();
     $simple_groups = get_simple_groups_by_complex($group_id);
     $gr_ids = join(',', $simple_groups);
-    $tokens_res = sql_query_pdo($gr_ids ?
+    $tokens_res = sql_query($gr_ids ?
         "SELECT token_id FROM anaphora_syntax_groups_simple WHERE group_id IN ($gr_ids)" :
         "SELECT token_id FROM anaphora_syntax_groups_simple WHERE group_id = $group_id");
     while ($r = sql_fetch_array($tokens_res)) {
@@ -110,7 +110,7 @@ function get_simple_groups_by_complex($group_id) {
     $simple = array();
     $frontier = array();
     $get_children = "SELECT child_gid FROM anaphora_syntax_groups_complex WHERE parent_gid = ";
-    $res = sql_query_pdo($get_children . $group_id);
+    $res = sql_query($get_children . $group_id);
 
     $frontier = array_map(function($row) {
         return $row['child_gid'];
@@ -118,7 +118,7 @@ function get_simple_groups_by_complex($group_id) {
 
     while (!empty($frontier)) {
         $gid = array_pop($frontier);
-        $res = sql_query_pdo($get_children . $gid);
+        $res = sql_query($get_children . $gid);
         $r = sql_fetchall($res);
 
         if ($r) {
@@ -135,7 +135,7 @@ function get_simple_groups_by_complex($group_id) {
 
 function get_simple_groups_by_sentence($sent_id, $user_id) {
     $out = array();
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT group_id, group_type, token_id, tf_text, head_id, tf.pos
         FROM anaphora_syntax_groups_simple sg
         JOIN anaphora_syntax_groups g USING (group_id)
@@ -198,7 +198,7 @@ function get_complex_groups_by_simple($simple_groups, $user_id) {
     $new_added = true;
     while ($new_added) {
         $new_added = false;
-        $res = sql_query_pdo("
+        $res = sql_query("
             SELECT parent_gid, child_gid, group_type, head_id
             FROM anaphora_syntax_groups g
             JOIN anaphora_syntax_groups_complex gc
@@ -217,7 +217,7 @@ function get_complex_groups_by_simple($simple_groups, $user_id) {
                 // new group
                 $new_added = true;
                 // make sure that all the children are already added before their parent is added
-                $res1 = sql_query_pdo("
+                $res1 = sql_query("
                     SELECT child_gid
                     FROM anaphora_syntax_groups_complex
                     WHERE parent_gid = ".$r['parent_gid']."
@@ -268,7 +268,7 @@ function get_groups_by_sentence($sent_id, $user_id) {
 }
 
 function get_moderated_groups_by_token($token_id, $in_head = FALSE) {
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT sent_id, tf_text
         FROM tokens
         WHERE tf_id = $token_id
@@ -304,7 +304,7 @@ function get_moderated_groups_by_token($token_id, $in_head = FALSE) {
 }
 
 function get_all_groups_by_sentence($sent_id) {
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT DISTINCT user_id
         FROM anaphora_syntax_groups_simple sgs
         JOIN anaphora_syntax_groups sg USING (group_id)
@@ -323,7 +323,7 @@ function get_all_groups_by_sentence($sent_id) {
 
 function get_pronouns_by_sentence($sent_id) {
     $token_ids = array();
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT tf_id
         FROM tokens
         LEFT JOIN tf_revisions
@@ -360,20 +360,20 @@ function add_group($parts, $type, $revset_id=0) {
     if (!group_type_exists($type))
         throw new Exception();
 
-    sql_query_pdo("INSERT INTO anaphora_syntax_groups VALUES (NULL, $type, $revset_id, 0, ".$_SESSION['user_id'].", '')");
-    $group_id = sql_insert_id_pdo();
+    sql_query("INSERT INTO anaphora_syntax_groups VALUES (NULL, $type, $revset_id, 0, ".$_SESSION['user_id'].", '')");
+    $group_id = sql_insert_id();
 
     foreach ($parts as $el) {
         $token_id = $el['id'];
         if ($is_complex && !$el['is_group'])
             $token_id = get_dummy_group_for_token($token_id, true, $revset_id);
-        sql_query_pdo("INSERT INTO anaphora_syntax_groups_".($is_complex ? "complex" : "simple")." VALUES ($group_id, $token_id)");
+        sql_query("INSERT INTO anaphora_syntax_groups_".($is_complex ? "complex" : "simple")." VALUES ($group_id, $token_id)");
     }
     sql_commit();
     return $group_id;
 }
 function check_for_same_sentence($token_ids) {
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT DISTINCT sent_id
         FROM tokens
         WHERE tf_id IN (".join(',', $token_ids).")
@@ -389,7 +389,7 @@ function add_dummy_group($token_id, $revset_id=0) {
     return $gid;
 }
 function get_dummy_group_for_token($token_id, $create_if_absent=true, $revset_id=0) {
-    $res = sql_query_pdo("SELECT group_id FROM anaphora_syntax_groups_simple WHERE group_type=16 AND token_id=$token_id");
+    $res = sql_query("SELECT group_id FROM anaphora_syntax_groups_simple WHERE group_type=16 AND token_id=$token_id");
     if (sql_num_rows($res) > 1)
         throw new Exception();
     if (sql_num_rows($res) == 1) {
@@ -532,7 +532,7 @@ function copy_group($source_group_id, $dest_user, $revset_id=0) {
     if (!$revset_id)
         $revset_id = create_revset();
 
-    sql_query_pdo("
+    sql_query("
         INSERT INTO anaphora_syntax_groups
         (
             SELECT NULL, group_type, $revset_id, head_id, $dest_user, marks
@@ -541,17 +541,17 @@ function copy_group($source_group_id, $dest_user, $revset_id=0) {
             LIMIT 1
         )
     ");
-    $copy_id = sql_insert_id_pdo();
+    $copy_id = sql_insert_id();
 
     // save head
-    $r = sql_fetch_array(sql_query_pdo("SELECT head_id FROM anaphora_syntax_groups WHERE group_id = $copy_id LIMIT 1"));
+    $r = sql_fetch_array(sql_query("SELECT head_id FROM anaphora_syntax_groups WHERE group_id = $copy_id LIMIT 1"));
     $head_id = $r['head_id'];
 
     // simple group
     copy_simple_group($source_group_id, $copy_id);
 
     // complex group (recursive)
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT child_gid
         FROM anaphora_syntax_groups_complex
         WHERE parent_gid = $source_group_id
@@ -559,19 +559,19 @@ function copy_group($source_group_id, $dest_user, $revset_id=0) {
 
     while ($r = sql_fetch_array($res)) {
         $gid = copy_group($r['child_gid'], $dest_user, $revset_id);
-        sql_query_pdo("INSERT INTO anaphora_syntax_groups_complex VALUES ($copy_id, $gid)");
+        sql_query("INSERT INTO anaphora_syntax_groups_complex VALUES ($copy_id, $gid)");
         if ($r['child_gid'] == $head_id)
             $head_id = $gid;
     }
 
     // update head
-    sql_query_pdo("UPDATE anaphora_syntax_groups SET head_id=$head_id WHERE group_id=$copy_id LIMIT 1");
+    sql_query("UPDATE anaphora_syntax_groups SET head_id=$head_id WHERE group_id=$copy_id LIMIT 1");
 
     sql_commit();
     return $copy_id;
 }
 function copy_simple_group($source_group_id, $dest_group_id) {
-    sql_query_pdo("
+    sql_query("
         INSERT INTO anaphora_syntax_groups_simple
         (
             SELECT $dest_group_id, token_id
@@ -601,7 +601,7 @@ function get_moderated_groups_by_sentence($sent_id) {
 
 function add_anaphora($anaphor_id, $antecedent_id) {
     // check that anaphor exists and has Anph grammeme
-    $res = sql_query_pdo("SELECT rev_text FROM tf_revisions WHERE tf_id=$anaphor_id AND is_last=1 LIMIT 1");
+    $res = sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=$anaphor_id AND is_last=1 LIMIT 1");
     if (sql_num_rows($res) == 0)
         throw new Exception();
     $r = sql_fetch_array($res);
@@ -609,7 +609,7 @@ function add_anaphora($anaphor_id, $antecedent_id) {
     if (strpos($r['rev_text'], '<g v="Anph"/>') === false)
         throw new Exception();
     // check that antecedent exists
-    $res = sql_query_pdo("SELECT * FROM anaphora_syntax_groups WHERE group_id=$antecedent_id LIMIT 1");
+    $res = sql_query("SELECT * FROM anaphora_syntax_groups WHERE group_id=$antecedent_id LIMIT 1");
     if (sql_num_rows($res) == 0)
         throw new Exception();
 
@@ -618,8 +618,8 @@ function add_anaphora($anaphor_id, $antecedent_id) {
 
     $revset_id = create_revset();
 
-    sql_query_pdo("INSERT INTO anaphora VALUES (NULL, $anaphor_id, $antecedent_id, $revset_id, ".$_SESSION['user_id'].")");
-    return sql_insert_id_pdo();
+    sql_query("INSERT INTO anaphora VALUES (NULL, $anaphor_id, $antecedent_id, $revset_id, ".$_SESSION['user_id'].")");
+    return sql_insert_id();
 }
 
 function delete_anaphora($ref_id) {

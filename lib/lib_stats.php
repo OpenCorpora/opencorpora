@@ -3,7 +3,7 @@ function get_common_stats() {
     global $config;
     $stats = array();
 
-    $res = sql_query_pdo("SELECT * FROM stats_param WHERE is_active=1 AND param_id NOT IN(SELECT DISTINCT param_id FROM user_stats)");
+    $res = sql_query("SELECT * FROM stats_param WHERE is_active=1 AND param_id NOT IN(SELECT DISTINCT param_id FROM user_stats)");
     $res1 = sql_prepare("SELECT param_value FROM stats_values WHERE param_id=? ORDER BY `timestamp` DESC LIMIT 1");
     while ($r = sql_fetch_array($res)) {
         sql_execute($res1, array($r['param_id']));
@@ -31,7 +31,7 @@ function get_sentence_adders_stats($last_week=false, $team=0) {
         $param = 6;
 
     $out = array();
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT user_shown_name AS user_name, param_value
         FROM user_stats
         LEFT JOIN users USING (user_id)
@@ -127,7 +127,7 @@ function get_pools_stats() {
     $total = 0;
     $plan = 1333000;
 
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT COUNT(sample_id) cnt, status
         FROM morph_annot_samples
         LEFT JOIN morph_annot_pools p
@@ -148,7 +148,7 @@ function get_annot_stats_for_chart() {
     $stats = array();
     $day = 60 * 60 * 24;
 
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT
             FLOOR(timestamp / $day) * $day AS day,
             COUNT(DISTINCT user_id) AS users,
@@ -171,7 +171,7 @@ function get_annot_stats_for_chart() {
 }
 function get_tag_stats() {
     $out = array();
-    $res = sql_query_pdo("SELECT prefix, value, texts, words FROM tag_stats ORDER BY prefix, texts DESC, words DESC");
+    $res = sql_query("SELECT prefix, value, texts, words FROM tag_stats ORDER BY prefix, texts DESC, words DESC");
     
     while ($r = sql_fetch_array($res)) {
         $out[$r['prefix']][] = array('value' => $r['value'], 'texts' => $r['texts'], 'words' => $r['words']);
@@ -192,7 +192,7 @@ function get_user_stats($weekly=false, $team=0) {
     $annotators = array();
     // team info
     $uid2team = array();
-    $res = sql_query_pdo("SELECT user_id, user_team FROM users WHERE user_team > 0");
+    $res = sql_query("SELECT user_id, user_team FROM users WHERE user_team > 0");
     while ($r = sql_fetch_array($res))
         $uid2team[$r['user_id']] = $r['user_team'];
     $teams = get_team_list();
@@ -205,7 +205,7 @@ function get_user_stats($weekly=false, $team=0) {
     }
 
     $uid2sid = array();
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT user_id, COUNT(*) AS cnt, FLOOR(user_rating10 / 10) AS rating
         FROM morph_annot_instances
         LEFT JOIN users USING(user_id)
@@ -238,7 +238,7 @@ function get_user_stats($weekly=false, $team=0) {
 
     // last activity info
     $last_click = array();
-    $res = sql_query_pdo("SELECT user_id, MAX(timestamp) AS last_time FROM morph_annot_click_log GROUP BY user_id");
+    $res = sql_query("SELECT user_id, MAX(timestamp) AS last_time FROM morph_annot_click_log GROUP BY user_id");
     while ($r = sql_fetch_array($res)) {
         $last_click[$r['user_id']] = $r['last_time'];
     }
@@ -248,7 +248,7 @@ function get_user_stats($weekly=false, $team=0) {
     $moderated = array();
     $correct = array();
 
-    $res = sql_query_pdo("SELECT user_id, param_id, param_value FROM user_stats WHERE param_id IN (".join(', ', $params).")");
+    $res = sql_query("SELECT user_id, param_id, param_value FROM user_stats WHERE param_id IN (".join(', ', $params).")");
     while ($r = sql_fetch_array($res)) {
         switch ($r['param_id']) {
             case 34:
@@ -280,7 +280,7 @@ function get_user_stats($weekly=false, $team=0) {
             $teams[$i]['error_rate'] = 0;
     }
 
-    $res = sql_query_pdo("SELECT u.user_id, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=$counter_param ORDER BY param_value DESC");
+    $res = sql_query("SELECT u.user_id, u.user_shown_name AS user_name, param_value FROM user_stats s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE param_id=$counter_param ORDER BY param_value DESC");
     while ($r = sql_fetch_array($res)) {
         $t = array(
             'user_id' => $r['user_id'],
@@ -329,7 +329,7 @@ function get_extended_pools_stats() {
 
     $total = array();
     $total_by_status = array();
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT status, pool_type, COUNT(s.sample_id) AS cnt
         FROM morph_annot_samples s
         LEFT JOIN morph_annot_pools USING (pool_id)
@@ -357,7 +357,7 @@ function get_extended_pools_stats() {
     $new_order = array_flip(array_keys($total));
 
     $ticks = array();
-    $res = sql_query_pdo("SELECT type_id, grammemes FROM morph_annot_pool_types ORDER BY type_id");
+    $res = sql_query("SELECT type_id, grammemes FROM morph_annot_pool_types ORDER BY type_id");
     $max_type_id = 0;
     while ($r = sql_fetch_array($res)) {
         if (isset($new_order[$r['type_id']]))
@@ -398,7 +398,7 @@ function get_extended_pools_stats() {
     );
 }
 function get_moderation_stats() {
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT moderator_id, pool_type, grammemes, status, has_focus, COUNT(pool_id) AS cnt, u.user_shown_name AS username
         FROM morph_annot_pools p
         LEFT JOIN morph_annot_pool_types t

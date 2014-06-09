@@ -3,7 +3,7 @@
 
 function get_all_simple_groups() {
     $out = array();
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT group_id, group_type, user_id, p.book_id as book_id, token_id, tf_text, head_id, tf.pos
         FROM anaphora_syntax_groups_simple sg
         JOIN anaphora_syntax_groups g USING (group_id)
@@ -58,7 +58,7 @@ function get_all_simple_groups() {
 
 function get_all_simple_groups_by_book($book_id) {
     $out = array();
-    $res = sql_query_pdo("
+    $res = sql_query("
         SELECT group_id, group_type, user_id, token_id, tf_text, head_id, tf.pos
         FROM anaphora_syntax_groups_simple sg
         JOIN anaphora_syntax_groups g USING (group_id)

@@ -18,7 +18,7 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
 
     $txt = Normalizer::normalize($txt, Normalizer::FORM_C);
 
-    $res = sql_query_pdo("SELECT * FROM tokenizer_coeff");
+    $res = sql_query("SELECT * FROM tokenizer_coeff");
     while ($r = sql_fetch_array($res)) {
         $coeff[$r[0]] = $r[1];
     }
@@ -261,7 +261,7 @@ function addtext_check($array) {
     //book
     if (isset($array['book_id'])) {
         $book_id = (int)$array['book_id'];
-        $r = sql_fetch_array(sql_query_pdo("SELECT parent_id FROM books WHERE book_id=$book_id LIMIT 1"));
+        $r = sql_fetch_array(sql_query("SELECT parent_id FROM books WHERE book_id=$book_id LIMIT 1"));
         if ($r['parent_id'] > 0) {
             $out['selected0'] = $r['parent_id'];
             $out['select1'] = get_books_for_select($r['parent_id']);
@@ -281,27 +281,27 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
     $pars = split2paragraphs($text);
 
     // move the following paragraphs
-    sql_query_pdo("UPDATE paragraphs SET pos=pos+".sizeof($pars)." WHERE book_id = $book_id AND pos >= $par_num");
+    sql_query("UPDATE paragraphs SET pos=pos+".sizeof($pars)." WHERE book_id = $book_id AND pos >= $par_num");
 
     foreach ($pars as $par) {
         //adding a paragraph
-        sql_query_pdo("INSERT INTO `paragraphs` VALUES(NULL, '$book_id', '".($par_num++)."')");
-        $par_id = sql_insert_id_pdo();
+        sql_query("INSERT INTO `paragraphs` VALUES(NULL, '$book_id', '".($par_num++)."')");
+        $par_id = sql_insert_id();
         $sent_num = 1;
         $sents = split2sentences($par);
         foreach ($sents as $sent) {
             if (!preg_match('/\S/', $sent)) continue;
             //adding a sentence
-            sql_query_pdo("INSERT INTO `sentences` VALUES(NULL, '$par_id', '".($sent_num++)."', '".mysql_real_escape_string(trim($sent))."', '0')");
-            $sent_id = sql_insert_id_pdo();
-            sql_query_pdo("INSERT INTO sentence_authors VALUES($sent_id, ".$_SESSION['user_id'].", ".time().")");
+            sql_query("INSERT INTO `sentences` VALUES(NULL, '$par_id', '".($sent_num++)."', '".mysql_real_escape_string(trim($sent))."', '0')");
+            $sent_id = sql_insert_id();
+            sql_query("INSERT INTO sentence_authors VALUES($sent_id, ".$_SESSION['user_id'].", ".time().")");
             $token_num = 1;
             $tokens = explode('^^', $sentences[$sent_count++]);
             foreach ($tokens as $token) {
                 if (trim($token) === '') continue;
                 //adding a textform
-                sql_query_pdo("INSERT INTO `tokens` VALUES(NULL, '$sent_id', '".($token_num++)."', '".mysql_real_escape_string(trim($token))."')");
-                $tf_id = sql_insert_id_pdo();
+                sql_query("INSERT INTO `tokens` VALUES(NULL, '$sent_id', '".($token_num++)."', '".mysql_real_escape_string(trim($token))."')");
+                $tf_id = sql_insert_id();
                 //adding a revision
                 create_tf_revision($revset_id, $tf_id, generate_tf_rev(trim($token)));
             }
@@ -329,7 +329,7 @@ function get_monitor_data($from, $until) {
         'recall' => array(),
         'F1' => array()
     );
-    $q = sql_query_pdo($query);
+    $q = sql_query($query);
     while ($res = sql_fetch_assoc($q)) {
         $run_date = strtotime($res['run']) * 1000;
         $thrshld  = $res['threshold'];
