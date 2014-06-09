@@ -285,16 +285,21 @@ function create_tf_revision($revset_id, $token_id, $rev_xml, $use_pdo=false) {
     }
 }
 // annotation pools
+function get_morph_pool_types() {
+    $res = sql_query_pdo("SELECT type_id, grammemes FROM morph_annot_pool_types order by grammemes");
+    $types = array();
+    while ($r = sql_fetch_array($res))
+        $types[$r['type_id']] = $r['grammemes'];
+    return $types;
+}
 function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     $pools = array();
     $instance_count = array();
     $moderators = array(0 => '-- Модератор --');
 
     // possible pool types for addition form
-    $types = array(0 => 'Новый');
-    $res = sql_query_pdo("SELECT type_id, grammemes FROM morph_annot_pool_types order by grammemes");
-    while ($r = sql_fetch_array($res))
-        $types[$r['type_id']] = $r['grammemes'];
+    $types = get_morph_pool_types();
+    $types[0] = 'Новый';
 
     // possible moderators for filter
     $res = sql_query_pdo("SELECT DISTINCT moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN users u ON (p.moderator_id = u.user_id) WHERE moderator_id > 0 ORDER BY user_shown_name");

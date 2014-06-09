@@ -158,7 +158,7 @@ function get_merge_fails() {
     }
     return $data;
 }
-function get_most_useful_pools() {
+function get_most_useful_pools($type=0) {
     $res = sql_query_pdo("
         SELECT pool_id, pool_name, p.status, user_name,
             COUNT(sent_id) cnt
@@ -175,8 +175,9 @@ function get_most_useful_pools() {
                 USING (sent_id)
         WHERE p.status >= 4
             AND p.status <=6
-            AND num_homonymous = 1
-        GROUP BY pool_id
+            AND num_homonymous = 1 ".
+            ($type > 0 ? " AND p.pool_type = $type" : "")
+            ." GROUP BY pool_id
         ORDER BY COUNT(sent_id) DESC
         LIMIT 50
     ");
