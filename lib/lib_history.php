@@ -202,8 +202,8 @@ function revert_changeset($set_id, $comment) {
     if (!$set_id)
         throw new UnexpectedValueException();
 
-    sql_begin(true);
-    $new_set_id = create_revset($comment, true);
+    sql_begin();
+    $new_set_id = create_revset($comment);
     $dict_flag = 0;
 
     $res = sql_query_pdo("SELECT tf_id FROM tf_revisions WHERE set_id=$set_id");
@@ -211,7 +211,7 @@ function revert_changeset($set_id, $comment) {
     while ($r = sql_fetch_array($res)) {
         sql_execute($res_revtext, array($r[0], $set_id));
         $arr = sql_fetch_array($res_revtext);
-        create_tf_revision($new_set_id, $r[0], $arr[0], true);
+        create_tf_revision($new_set_id, $r[0], $arr[0]);
     }
     $res_revtext->closeCursor();
 
@@ -224,7 +224,7 @@ function revert_changeset($set_id, $comment) {
         $dict_flag = 1;
     }
     $res_revtext->closeCursor();
-    sql_commit(true);
+    sql_commit();
 
     if ($dict_flag)
         return 'dict_history.php';
@@ -235,22 +235,22 @@ function revert_token($rev_id) {
         throw new UnexpectedValueException();
 
     $r = sql_fetch_array(sql_query_pdo("SELECT tf_id, rev_text FROM tf_revisions WHERE rev_id=$rev_id LIMIT 1"));
-    sql_begin(true);
-    $new_set_id = create_revset("Отмена правки, возврат к версии t$rev_id", true);
+    sql_begin();
+    $new_set_id = create_revset("Отмена правки, возврат к версии t$rev_id");
 
-    create_tf_revision($new_set_id, $r[0], $r[1], true);
-    sql_commit(true);
+    create_tf_revision($new_set_id, $r[0], $r[1]);
+    sql_commit();
 }
 function revert_dict($rev_id) {
     if (!$rev_id)
         throw new UnexpectedValueException();
 
     $r = sql_fetch_array(sql_query_pdo("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=$rev_id LIMIT 1"));
-    sql_begin(true);
-    $new_set_id = create_revset("Отмена правки, возврат к версии d$rev_id", true);
+    sql_begin();
+    $new_set_id = create_revset("Отмена правки, возврат к версии d$rev_id");
 
     sql_query_pdo("INSERT INTO dict_revisions VALUES(NULL, '$new_set_id', '$r[0]', '$r[1]', '0', '0')");
-    sql_commit(true);
+    sql_commit();
 }
 function get_latest_comments($skip = 0) {
     $out = array();

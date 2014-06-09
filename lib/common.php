@@ -2,73 +2,34 @@
 require_once('lib_users.php');
 
 //sql wrappers
-function sql_query($q, $debug=1, $override_readonly=0) {
-    global $total_time;
-    global $total_queries;
-    if (file_exists('/var/lock/oc_readonly.lock') && stripos(trim($q), 'select') !== 0 && !$override_readonly)
-        throw new Exception("Database in readonly mode");
-    $debug = isset($_SESSION['debug_mode']) && $debug;
-    if ($debug) {
-        $time_start = microtime(true);
-        $q = str_ireplace('select ', 'SELECT SQL_NO_CACHE ', $q);
-    }
-    $res = mysql_query($q);
-    if ($debug) {
-        $time = microtime(true)-$time_start;
-        $total_time += $time;
-        $total_queries++;
-        printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>%d<td>SQL: %s</td><td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", $total_queries, htmlspecialchars($q), $time, $total_time);
-        if ($err = mysql_error()) {
-            print "<table class='debug_error' width='100%'><tr><td colspan='3'>".htmlspecialchars($err)."</td></tr></table>\n";
-        }
-    }
-    if (!$res)
-        throw new Exception("DB Error");
-    return $res;
-}
 function sql_fetch_array($q) {
-    if (is_a($q, 'PDOStatement'))
-        return $q->fetch();
-    return mysql_fetch_array($q);
+    return $q->fetch();
 }
 function sql_fetch_assoc($q) {
-    if (is_a($q, 'PDOStatement'))
-        return $q->fetch(PDO::FETCH_ASSOC);
-    return mysql_fetch_assoc($q);
+    return $q->fetch(PDO::FETCH_ASSOC);
 }
 function sql_num_rows($q) {
-    if (is_a($q, 'PDOStatement'))
-        return $q->rowCount();
-    return mysql_num_rows($q);
+    return $q->rowCount();
 }
-function sql_insert_id() {
-    return mysql_insert_id();
-}
-function sql_begin($pdo=false) {
+function sql_begin() {
     global $transaction_counter;
     global $nested_transaction_counter;
     global $pdo_db;
     if (!$transaction_counter) {
-        if ($pdo)
-            $pdo_db->beginTransaction();
-        else
-            sql_query("START TRANSACTION", 1, 1);
+        $pdo_db->beginTransaction();
         ++$transaction_counter;
     } else {
         ++$nested_transaction_counter;
     }
 }
-function sql_commit($pdo=false) {
+function sql_commit() {
     global $transaction_counter;
     global $nested_transaction_counter;
     global $pdo_db;
     if ($nested_transaction_counter) {
         --$nested_transaction_counter;
     } else {
-        if ($pdo)
-            $pdo_db->commit();
-        else
-            sql_query("COMMIT", 1, 1);
+        $pdo_db->commit();
         --$transaction_counter;
     }
 }
@@ -183,7 +144,7 @@ function show_error($text = "Произошла ошибка.") {
 function oc_exception_handler($exception) {
     show_error("Произошла ошибка.<br/><br/>" . $exception->getMessage());
 }
-function create_revset($comment = '', $use_pdo=false) {
+function create_revset($comment = '') {
     if (!isset($_SESSION['user_id']) || !$_SESSION['user_id'])
         throw new Exception();
 
@@ -203,22 +164,13 @@ function create_revset($comment = '', $use_pdo=false) {
     if (sql_num_rows($res)) {
         $r = sql_fetch_array($res);
         $q = "UPDATE rev_sets SET timestamp=$now WHERE set_id=".$r['set_id']." LIMIT 1";
-        if ($use_pdo)
-            sql_query_pdo($q);
-        else
-            sql_query($q);
+        sql_query_pdo($q);
         return $r['set_id'];
     }
 
     $q = "INSERT INTO `rev_sets` VALUES(NULL, $now, '".(int)$_SESSION['user_id']."', '".mysql_real_escape_string($comment)."')";
-    if ($use_pdo) {
-        sql_query_pdo($q);
-        return sql_insert_id_pdo();
-    }
-    else {
-        sql_query($q);
-        return sql_insert_id();
-    }
+    sql_query_pdo($q);
+    return sql_insert_id_pdo();
 }
 function typo_spaces($str, $with_tags = 0) {
     if (!$with_tags) {

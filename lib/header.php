@@ -19,13 +19,6 @@ $smarty->config_dir   = $config['smarty']['config_dir'];
 $smarty->cache_dir    = $config['smarty']['cache_dir'];
 
 //database connect
-$db = mysql_connect($config['mysql']['host'], $config['mysql']['user'], $config['mysql']['passwd']) or die ("Unable to connect to mysql server");
-if (!sql_query("USE ".$config['mysql']['dbname'], 0, 1)) {
-    die ("Unable to open mysql database");
-}
-sql_query("SET names utf8", 0, 1);
-
-// another connect (temporary) for PDO
 $pdo_db = new PDO(sprintf('mysql:host=%s;dbname=%s;charset=utf8', $config['mysql']['host'], $config['mysql']['dbname']), $config['mysql']['user'], $config['mysql']['passwd']);
 $pdo_db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 $pdo_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

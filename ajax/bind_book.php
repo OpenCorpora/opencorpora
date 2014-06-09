@@ -13,7 +13,7 @@ try {
     $sid = (int)$_GET['sid'];
     $book_id = (int)$_GET['book_id'];
 
-    sql_begin(true);
+    sql_begin();
     //creating book if necessary
     if ($book_id == -1) {
         //find the parent id
@@ -31,7 +31,7 @@ try {
 
     //bind
     sql_query_pdo("UPDATE sources SET book_id='$book_id' WHERE source_id=$sid LIMIT 1");
-    sql_commit(true);
+    sql_commit();
     $r = sql_fetch_array(sql_query_pdo("SELECT book_name FROM books WHERE book_id=$book_id LIMIT 1"));
     echo '<result ok="1" title="'.htmlspecialchars($r['book_name']).'" book_id="'.$book_id.'"/>';
 }

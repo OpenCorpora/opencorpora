@@ -275,8 +275,8 @@ function addtext_check($array) {
 function addtext_add($text, $sentences, $book_id, $par_num) {
     if (!$text || !$book_id || !$par_num)
         throw new UnexpectedValueException();
-    sql_begin(true);
-    $revset_id = create_revset('', true);
+    sql_begin();
+    $revset_id = create_revset();
     $sent_count = 0;
     $pars = split2paragraphs($text);
 
@@ -303,11 +303,11 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
                 sql_query_pdo("INSERT INTO `tokens` VALUES(NULL, '$sent_id', '".($token_num++)."', '".mysql_real_escape_string(trim($token))."')");
                 $tf_id = sql_insert_id_pdo();
                 //adding a revision
-                create_tf_revision($revset_id, $tf_id, generate_tf_rev(trim($token)), true);
+                create_tf_revision($revset_id, $tf_id, generate_tf_rev(trim($token)));
             }
         }
     }
-    sql_commit(true);
+    sql_commit();
 }
 function get_monitor_data($from, $until) {
     $query = "

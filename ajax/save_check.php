@@ -11,11 +11,11 @@ try {
         case 'token':
             if (!user_has_permission('perm_check_tokens'))
                 throw new Exception();
-            sql_begin(true);
+            sql_begin();
             sql_query_pdo("DELETE FROM sentence_check WHERE sent_id=$id AND user_id=".$_SESSION['user_id']." AND `status`=1 LIMIT 1");
             if ($value === 'true') {
                 sql_query_pdo("INSERT INTO sentence_check VALUES('$id', '".$_SESSION['user_id']."', '1', '".time()."')");
-                sql_commit(true);
+                sql_commit();
             }
             break;
         case 'source':

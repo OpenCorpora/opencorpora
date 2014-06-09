@@ -353,9 +353,9 @@ function add_group($parts, $type, $revset_id=0) {
     if (!$is_complex && !check_for_same_sentence($ids))
         throw new Exception();
 
-    sql_begin(true);
+    sql_begin();
     if (!$revset_id)
-        $revset_id = create_revset('', true);
+        $revset_id = create_revset();
 
     if (!group_type_exists($type))
         throw new Exception();
@@ -369,7 +369,7 @@ function add_group($parts, $type, $revset_id=0) {
             $token_id = get_dummy_group_for_token($token_id, true, $revset_id);
         sql_query_pdo("INSERT INTO anaphora_syntax_groups_".($is_complex ? "complex" : "simple")." VALUES ($group_id, $token_id)");
     }
-    sql_commit(true);
+    sql_commit();
     return $group_id;
 }
 function check_for_same_sentence($token_ids) {
@@ -381,11 +381,11 @@ function check_for_same_sentence($token_ids) {
     return (sql_num_rows($res) == 1);
 }
 function add_dummy_group($token_id, $revset_id=0) {
-    sql_begin(true);
+    sql_begin();
     if (!$revset_id)
-        $revset_id = create_revset('', true);
+        $revset_id = create_revset();
     $gid = add_group(array(array('id' => $token_id, 'is_group' => false)), 16, $revset_id);
-    sql_commit(true);
+    sql_commit();
     return $gid;
 }
 function get_dummy_group_for_token($token_id, $create_if_absent=true, $revset_id=0) {
@@ -412,11 +412,11 @@ function delete_group($group_id) {
     if (sizeof($res) > 0)
         throw new Exception();
 
-    sql_begin(true);
+    sql_begin();
     sql_pe("DELETE FROM anaphora_syntax_groups_simple WHERE group_id=?", array($group_id));
     sql_pe("DELETE FROM anaphora_syntax_groups_complex WHERE parent_gid=?", array($group_id));
     sql_pe("DELETE FROM anaphora_syntax_groups WHERE group_id=? LIMIT 1", array($group_id));
-    sql_commit(true);
+    sql_commit();
 }
 function set_group_head($group_id, $head_id) {
     // assume that the head of a complex group is also a group
@@ -467,11 +467,11 @@ function set_syntax_annot_status($book_id, $status) {
     if (!user_has_permission('perm_syntax'))
         throw new Exception("Недостаточно прав");
     $user_id = $_SESSION['user_id'];
-    sql_begin(true);
+    sql_begin();
     sql_pe("DELETE FROM anaphora_syntax_annotators WHERE user_id=? AND book_id=?", array($user_id, $book_id));
     if ($status > 0)
         sql_pe("INSERT INTO anaphora_syntax_annotators VALUES (?, ?, ?)", array($user_id, $book_id, $status));
-    sql_commit(true);
+    sql_commit();
 }
 
 // SYNTAX MODERATION
@@ -527,10 +527,10 @@ function copy_group($source_group_id, $dest_user, $revset_id=0) {
         throw new Exception();
     if (!$source_group_id || !$dest_user)
         throw new UnexpectedValueException();
-    sql_begin(true);
+    sql_begin();
 
     if (!$revset_id)
-        $revset_id = create_revset('', true);
+        $revset_id = create_revset();
 
     sql_query_pdo("
         INSERT INTO anaphora_syntax_groups
@@ -567,7 +567,7 @@ function copy_group($source_group_id, $dest_user, $revset_id=0) {
     // update head
     sql_query_pdo("UPDATE anaphora_syntax_groups SET head_id=$head_id WHERE group_id=$copy_id LIMIT 1");
 
-    sql_commit(true);
+    sql_commit();
     return $copy_id;
 }
 function copy_simple_group($source_group_id, $dest_group_id) {
@@ -616,7 +616,7 @@ function add_anaphora($anaphor_id, $antecedent_id) {
     // TODO check that the group belongs to the moderator
     // TODO check that both token and group are within one book
 
-    $revset_id = create_revset('', true);
+    $revset_id = create_revset();
 
     sql_query_pdo("INSERT INTO anaphora VALUES (NULL, $anaphor_id, $antecedent_id, $revset_id, ".$_SESSION['user_id'].")");
     return sql_insert_id_pdo();

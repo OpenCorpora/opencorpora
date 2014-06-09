@@ -91,7 +91,7 @@ function check_for_user_alias($user_id) {
     return false;
 }
 function remember_user($user_id, $auth_token=false) {
-    sql_begin(true);
+    sql_begin();
     //deleting the old token
     if ($auth_token) {
         sql_query_pdo("DELETE from user_tokens WHERE user_id=$user_id AND token='".mysql_real_escape_string(substr(strstr($auth_token, '@'), 1))."'");
@@ -101,7 +101,7 @@ function remember_user($user_id, $auth_token=false) {
     sql_query_pdo("INSERT INTO user_tokens VALUES('$user_id','$token', '".time()."')", 1, 1);
 
     setcookie('auth', $user_id.'@'.$token, time()+60*60*24*7, '/');
-    sql_commit(true);
+    sql_commit();
     return $token;
 }
 function user_login_openid($token) {
@@ -119,7 +119,7 @@ function user_login_openid($token) {
         throw new Exception();
     //check if the user exists
     $res = sql_query_pdo("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
-    sql_begin(true);
+    sql_begin();
     //if he doesn't
     if (sql_num_rows($res) == 0) {
         sql_query_pdo("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0, 1, 1, 0, 0)");
@@ -134,7 +134,7 @@ function user_login_openid($token) {
     $row = sql_fetch_array(sql_query_pdo("SELECT user_shown_name, user_passwd, user_level, show_game FROM users WHERE user_id = $user_id LIMIT 1"));
     init_session($user_id, $row['user_shown_name'], get_user_options($user_id),
                   get_user_permissions($user_id), $token, $row['user_level'], $row['show_game']);
-    sql_commit(true);
+    sql_commit();
     if ($row['user_passwd'] == 'notagreed') {
         $_SESSION['user_pending'] = 1;
         return 2;
@@ -184,7 +184,7 @@ function user_register($post) {
     if ($email && sql_num_rows(sql_query_pdo("SELECT user_id FROM `users` WHERE user_email='$email' LIMIT 1")) > 0) {
         return 4;
     }
-    sql_begin(true);
+    sql_begin();
     sql_query_pdo("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name', 0, 1, 1, 0, 0)");
     $user_id = sql_insert_id_pdo();
     sql_query_pdo("INSERT INTO `user_permissions` VALUES ('$user_id', '0', '0', '0', '0', '0', '0', '0', 0, 0)");
@@ -197,7 +197,7 @@ function user_register($post) {
         curl_close($ch);
     }
 
-    sql_commit(true);
+    sql_commit();
     if (!user_login($name, $post['passwd']))
         return 0;
     return 1;
@@ -335,10 +335,10 @@ function get_user_options($user_id) {
 
     //autovivify
     $res = sql_query_pdo("SELECT option_id, default_value FROM user_options WHERE option_id NOT IN (SELECT option_id FROM user_options_values WHERE user_id=$user_id)");
-    sql_begin(true);
+    sql_begin();
     while ($r = sql_fetch_array($res))
         sql_query_pdo("INSERT INTO user_options_values VALUES('$user_id', '".$r['option_id']."', '".$r['default_value']."')");
-    sql_commit(true);
+    sql_commit();
 
     $res = sql_query_pdo("SELECT option_id id, option_value value FROM user_options_values WHERE user_id=$user_id");
     while ($r = sql_fetch_array($res))
@@ -386,14 +386,14 @@ function get_meta_options() {
 function save_user_options($post) {
     if (!isset($post['options']))
         throw new UnexpectedValueException();
-    sql_begin(true);
+    sql_begin();
     foreach ($post['options'] as $id=>$value) {
         if ($_SESSION['options'][$id]['value'] != $value) {
             sql_query_pdo("UPDATE user_options_values SET option_value='".mysql_real_escape_string($value)."' WHERE option_id=".mysql_real_escape_string($id)." AND user_id=".$_SESSION['user_id']." LIMIT 1");
             $_SESSION['options'][$id] = mysql_real_escape_string($value);
         }
     }
-    sql_commit(true);
+    sql_commit();
 }
 function is_admin() {
     return (
@@ -426,7 +426,7 @@ function get_users_page() {
 }
 function save_users($post) {
     include_once('lib_awards.php');
-    sql_begin(true);
+    sql_begin();
     $game = $post['game'];
     foreach ($post['changed'] as $id => $val) {
         if (!$val) continue;
@@ -455,7 +455,7 @@ function save_users($post) {
         else
             turn_game_off($id);
     }
-    sql_commit(true);
+    sql_commit();
 }
 function get_team_list() {
     $out = array();
@@ -472,7 +472,7 @@ function save_user_team($team_id, $new_team_name=false) {
     if (!$_SESSION['user_id'])
         throw new Exception();
 
-    sql_begin(true);
+    sql_begin();
     // create new team if necessary
     if ($new_team_name) {
         sql_query_pdo("INSERT INTO user_teams VALUES(NULL, '".mysql_real_escape_string($new_team_name)."', ".$_SESSION['user_id'].")");
@@ -480,7 +480,7 @@ function save_user_team($team_id, $new_team_name=false) {
     }
 
     sql_query_pdo("UPDATE users SET user_team=$team_id WHERE user_id=".$_SESSION['user_id']." LIMIT 1");
-    sql_commit(true);
+    sql_commit();
     return $team_id;
 }
 function get_user_team($user_id) {
