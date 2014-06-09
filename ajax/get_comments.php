@@ -8,7 +8,7 @@ if (!isset($_GET['sent_id']))
 $sent_id = (int)$_GET['sent_id'];
 
 $comm = array();
-$res = sql_query("SELECT sc.*, u.user_name FROM sentence_comments sc LEFT JOIN users u ON (sc.user_id=u.user_id) WHERE sent_id=$sent_id ORDER BY timestamp");
+$res = sql_query_pdo("SELECT sc.*, u.user_name FROM sentence_comments sc LEFT JOIN users u ON (sc.user_id=u.user_id) WHERE sent_id=$sent_id ORDER BY timestamp");
 while($r = sql_fetch_array($res)) {
     $comm[$r['comment_id']] = array(
         'ts' => date("d.m.y, H:i", $r['timestamp']),

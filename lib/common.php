@@ -157,11 +157,11 @@ function sql_pe($query, $params) {
 }
 //sql checks
 function sql_get_schema() {
-    $res = sql_query("SHOW TABLES");
+    $res = sql_query_pdo("SHOW TABLES");
     $out = array();
     while ($r = sql_fetch_array($res)) {
         $out[$r[0]] = array();
-        $res1 = sql_query("EXPLAIN `$r[0]`");
+        $res1 = sql_query_pdo("EXPLAIN `$r[0]`");
         while ($r1 = sql_fetch_array($res1)) {
             $out[$r[0]][] = strtolower($r1[0]);
         }

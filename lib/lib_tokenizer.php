@@ -275,39 +275,39 @@ function addtext_check($array) {
 function addtext_add($text, $sentences, $book_id, $par_num) {
     if (!$text || !$book_id || !$par_num)
         throw new UnexpectedValueException();
-    sql_begin();
-    $revset_id = create_revset();
+    sql_begin(true);
+    $revset_id = create_revset('', true);
     $sent_count = 0;
     $pars = split2paragraphs($text);
 
     // move the following paragraphs
-    sql_query("UPDATE paragraphs SET pos=pos+".sizeof($pars)." WHERE book_id = $book_id AND pos >= $par_num");
+    sql_query_pdo("UPDATE paragraphs SET pos=pos+".sizeof($pars)." WHERE book_id = $book_id AND pos >= $par_num");
 
     foreach ($pars as $par) {
         //adding a paragraph
-        sql_query("INSERT INTO `paragraphs` VALUES(NULL, '$book_id', '".($par_num++)."')");
-        $par_id = sql_insert_id();
+        sql_query_pdo("INSERT INTO `paragraphs` VALUES(NULL, '$book_id', '".($par_num++)."')");
+        $par_id = sql_insert_id_pdo();
         $sent_num = 1;
         $sents = split2sentences($par);
         foreach ($sents as $sent) {
             if (!preg_match('/\S/', $sent)) continue;
             //adding a sentence
-            sql_query("INSERT INTO `sentences` VALUES(NULL, '$par_id', '".($sent_num++)."', '".mysql_real_escape_string(trim($sent))."', '0')");
-            $sent_id = sql_insert_id();
-            sql_query("INSERT INTO sentence_authors VALUES($sent_id, ".$_SESSION['user_id'].", ".time().")");
+            sql_query_pdo("INSERT INTO `sentences` VALUES(NULL, '$par_id', '".($sent_num++)."', '".mysql_real_escape_string(trim($sent))."', '0')");
+            $sent_id = sql_insert_id_pdo();
+            sql_query_pdo("INSERT INTO sentence_authors VALUES($sent_id, ".$_SESSION['user_id'].", ".time().")");
             $token_num = 1;
             $tokens = explode('^^', $sentences[$sent_count++]);
             foreach ($tokens as $token) {
                 if (trim($token) === '') continue;
                 //adding a textform
-                sql_query("INSERT INTO `tokens` VALUES(NULL, '$sent_id', '".($token_num++)."', '".mysql_real_escape_string(trim($token))."')");
-                $tf_id = sql_insert_id();
+                sql_query_pdo("INSERT INTO `tokens` VALUES(NULL, '$sent_id', '".($token_num++)."', '".mysql_real_escape_string(trim($token))."')");
+                $tf_id = sql_insert_id_pdo();
                 //adding a revision
-                create_tf_revision($revset_id, $tf_id, generate_tf_rev(trim($token)));
+                create_tf_revision($revset_id, $tf_id, generate_tf_rev(trim($token)), true);
             }
         }
     }
-    sql_commit();
+    sql_commit(true);
 }
 function get_monitor_data($from, $until) {
     $query = "

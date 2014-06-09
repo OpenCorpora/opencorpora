@@ -96,7 +96,7 @@ function get_book_page($book_id, $full = false) {
     } else {
         $res = sql_query_pdo("SELECT p.`pos` ppos, s.sent_id, s.`pos` spos FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = $book_id ORDER BY p.`pos`, s.`pos`");
         while ($r = sql_fetch_array($res)) {
-            $r1 = sql_fetch_array(sql_query("SELECT source, SUBSTRING_INDEX(source, ' ', 6) AS `cnt` FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
+            $r1 = sql_fetch_array(sql_query_pdo("SELECT source, SUBSTRING_INDEX(source, ' ', 6) AS `cnt` FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
             if ($r1['source'] === $r1['cnt']) {
                 $out['paragraphs'][$r['ppos']][] = array('pos' => $r['spos'], 'id' => $r['sent_id'], 'snippet' => $r1['source']);
                 continue;
@@ -104,12 +104,12 @@ function get_book_page($book_id, $full = false) {
 
             $snippet = '';
 
-            $r1 = sql_fetch_array(sql_query("SELECT SUBSTRING_INDEX(source, ' ', 3) AS `start` FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
+            $r1 = sql_fetch_array(sql_query_pdo("SELECT SUBSTRING_INDEX(source, ' ', 3) AS `start` FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
             $snippet = $r1['start'];
 
             if ($snippet) $snippet .= '... ';
 
-            $r1 = sql_fetch_array(sql_query("SELECT SUBSTRING_INDEX(source, ' ', -3) AS `end` FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
+            $r1 = sql_fetch_array(sql_query_pdo("SELECT SUBSTRING_INDEX(source, ' ', -3) AS `end` FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
             $snippet .= $r1['end'];
 
             $out['paragraphs'][$r['ppos']][] = array('pos' => $r['spos'], 'id' => $r['sent_id'], 'snippet' => $snippet);
@@ -318,63 +318,63 @@ function merge_sentences($id1, $id2) {
     sql_commit(true);
 }
 function delete_sentence($sid) {
-    sql_begin();
-    sql_query("DELETE FROM sentence_authors WHERE sent_id=$sid LIMIT 1");
-    sql_query("DELETE FROM sentence_check WHERE sent_id=$sid");
-    sql_query("DELETE FROM sentence_comments WHERE sent_id=$sid");
+    sql_begin(true);
+    sql_query_pdo("DELETE FROM sentence_authors WHERE sent_id=$sid LIMIT 1");
+    sql_query_pdo("DELETE FROM sentence_check WHERE sent_id=$sid");
+    sql_query_pdo("DELETE FROM sentence_comments WHERE sent_id=$sid");
 
-    $res = sql_query("SELECT tf_id FROM tokens WHERE sent_id=$sid");
+    $res = sql_query_pdo("SELECT tf_id FROM tokens WHERE sent_id=$sid");
     while ($r = sql_fetch_array($res))
         delete_token($r['tf_id']);
 
-    $r = sql_fetch_array(sql_query("SELECT par_id FROM sentences WHERE sent_id=$sid LIMIT 1"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT par_id FROM sentences WHERE sent_id=$sid LIMIT 1"));
     $par_id = $r['par_id'];
 
-    sql_query("DELETE FROM sentences WHERE sent_id=$sid LIMIT 1");
+    sql_query_pdo("DELETE FROM sentences WHERE sent_id=$sid LIMIT 1");
     
     // delete paragraph if it was the last sentence
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt FROM sentences WHERE par_id=$par_id"));
+    $r = sql_fetch_array(sql_query_pdo("SELECT COUNT(*) AS cnt FROM sentences WHERE par_id=$par_id"));
     if ($r['cnt'] == 0)
-        sql_query("DELETE FROM paragraphs WHERE par_id=$par_id LIMIT 1");
-    sql_commit();
+        sql_query_pdo("DELETE FROM paragraphs WHERE par_id=$par_id LIMIT 1");
+    sql_commit(true);
 }
 function save_token_text($tf_id, $tf_text) {
     $tf_text = trim($tf_text);
     if (!$tf_id || !$tf_text)
         throw new UnexpectedValueException();
 
-    sql_begin();
-    $revset_id = create_revset("Change token #$tf_id text to <$tf_text>");
+    sql_begin(true);
+    $revset_id = create_revset("Change token #$tf_id text to <$tf_text>", true);
     $token_for_form2tf = str_replace('ё', 'е', mb_strtolower($tf_text));
-    sql_query("UPDATE tokens SET tf_text = '".mysql_real_escape_string($tf_text)."' WHERE tf_id=$tf_id LIMIT 1");
-    sql_query("DELETE FROM form2tf WHERE tf_id=$tf_id");
-    sql_query("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $tf_id)");
-    create_tf_revision($revset_id, $tf_id, generate_tf_rev($tf_text));
+    sql_query_pdo("UPDATE tokens SET tf_text = '".mysql_real_escape_string($tf_text)."' WHERE tf_id=$tf_id LIMIT 1");
+    sql_query_pdo("DELETE FROM form2tf WHERE tf_id=$tf_id");
+    sql_query_pdo("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $tf_id)");
+    create_tf_revision($revset_id, $tf_id, generate_tf_rev($tf_text), true);
 
-    sql_commit();
+    sql_commit(true);
 }
 function delete_token($tf_id, $delete_history=true) {
     $sample_ids = array(0);
-    $res = sql_query("SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id");
+    $res = sql_query_pdo("SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id");
     while ($r = sql_fetch_array($res))
         $sample_ids[] = $r['sample_id'];
     $sids = join(',', $sample_ids);
-    sql_begin();
+    sql_begin(true);
 
-    sql_query("DELETE FROM form2tf WHERE tf_id = $tf_id");
+    sql_query_pdo("DELETE FROM form2tf WHERE tf_id = $tf_id");
     if ($delete_history)
-        sql_query("DELETE FROM tf_revisions WHERE tf_id = $tf_id");
-    sql_query("DELETE FROM morph_annot_candidate_samples WHERE tf_id = $tf_id");
-    sql_query("DELETE FROM morph_annot_moderated_samples WHERE sample_id IN ($sids)");
-    sql_query("DELETE FROM morph_annot_instances WHERE sample_id IN ($sids)");
-    sql_query("DELETE FROM morph_annot_rejected_samples WHERE sample_id IN ($sids)");
-    sql_query("DELETE FROM morph_annot_comments WHERE sample_id IN ($sids)");
-    sql_query("DELETE FROM morph_annot_click_log WHERE sample_id IN ($sids)");
-    sql_query("DELETE FROM morph_annot_samples WHERE tf_id = $tf_id");
-    sql_query("DELETE FROM updated_tokens WHERE token_id = $tf_id");
-    sql_query("DELETE FROM tokens WHERE tf_id = $tf_id LIMIT 1");
+        sql_query_pdo("DELETE FROM tf_revisions WHERE tf_id = $tf_id");
+    sql_query_pdo("DELETE FROM morph_annot_candidate_samples WHERE tf_id = $tf_id");
+    sql_query_pdo("DELETE FROM morph_annot_moderated_samples WHERE sample_id IN ($sids)");
+    sql_query_pdo("DELETE FROM morph_annot_instances WHERE sample_id IN ($sids)");
+    sql_query_pdo("DELETE FROM morph_annot_rejected_samples WHERE sample_id IN ($sids)");
+    sql_query_pdo("DELETE FROM morph_annot_comments WHERE sample_id IN ($sids)");
+    sql_query_pdo("DELETE FROM morph_annot_click_log WHERE sample_id IN ($sids)");
+    sql_query_pdo("DELETE FROM morph_annot_samples WHERE tf_id = $tf_id");
+    sql_query_pdo("DELETE FROM updated_tokens WHERE token_id = $tf_id");
+    sql_query_pdo("DELETE FROM tokens WHERE tf_id = $tf_id LIMIT 1");
 
-    sql_commit();
+    sql_commit(true);
 }
 function merge_tokens_ii($id_array) {
     //ii stands for "id insensitive"
@@ -393,7 +393,7 @@ function merge_tokens_ii($id_array) {
     $sent_id = $r['sent_id'];
     //check if they all stand in a row
     $r = sql_fetch_array(sql_query_pdo("SELECT MIN(pos) AS minpos, MAX(pos) AS maxpos FROM tokens WHERE tf_id IN($joined)"));
-    $res = sql_query("SELECT tf_id FROM tokens WHERE sent_id=$sent_id AND pos > ".$r['minpos']." AND pos < ".$r['maxpos']." AND tf_id NOT IN ($joined) LIMIT 1");
+    $res = sql_query_pdo("SELECT tf_id FROM tokens WHERE sent_id=$sent_id AND pos > ".$r['minpos']." AND pos < ".$r['maxpos']." AND tf_id NOT IN ($joined) LIMIT 1");
     if (sql_num_rows($res) > 0)
         throw new Exception();
 
@@ -402,22 +402,22 @@ function merge_tokens_ii($id_array) {
     $r = sql_fetch_array($res);
     $new_id = $r['tf_id'];
     $new_text = $r['tf_text'];
-    sql_begin();
+    sql_begin(true);
     while ($r = sql_fetch_array($res)) {
         $new_text .= $r['tf_text'];
-        sql_query("UPDATE tf_revisions SET tf_id=$new_id WHERE tf_id=".$r['tf_id']);
+        sql_query_pdo("UPDATE tf_revisions SET tf_id=$new_id WHERE tf_id=".$r['tf_id']);
         delete_token($r['tf_id'], false);
     }
     //update tf_text, add new revision
-    $revset_id = create_revset("Tokens $joined merged to <$new_text>");
+    $revset_id = create_revset("Tokens $joined merged to <$new_text>", true);
     $token_for_form2tf = str_replace('ё', 'е', mb_strtolower($new_text));
-    sql_query("UPDATE tokens SET tf_text = '".mysql_real_escape_string($new_text)."' WHERE tf_id=$new_id LIMIT 1");
-    sql_query("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $new_id)");
-    create_tf_revision($revset_id, $new_id, generate_tf_rev($new_text));
+    sql_query_pdo("UPDATE tokens SET tf_text = '".mysql_real_escape_string($new_text)."' WHERE tf_id=$new_id LIMIT 1");
+    sql_query_pdo("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $new_id)");
+    create_tf_revision($revset_id, $new_id, generate_tf_rev($new_text), true);
     //drop sentence status
-    sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$sent_id LIMIT 1");
-    sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id");
-    sql_commit();
+    sql_query_pdo("UPDATE sentences SET check_status='0' WHERE sent_id=$sent_id LIMIT 1");
+    sql_query_pdo("DELETE FROM sentence_check WHERE sent_id=$sent_id");
+    sql_commit(true);
 }
 function split_token($token_id, $num) {
     //$num is the number of characters (in the beginning) that should become a separate token
@@ -433,29 +433,29 @@ function split_token($token_id, $num) {
     if (!$text1 || !$text2) {
         throw new Exception();
     }
-    sql_begin();
+    sql_begin(true);
     //create revset
-    $revset_id = create_revset("Token $token_id (<".$r['tf_text'].">) split to <$text1> and <$text2>");
+    $revset_id = create_revset("Token $token_id (<".$r['tf_text'].">) split to <$text1> and <$text2>", true);
     $token_for_form2tf = str_replace('ё', 'е', mb_strtolower($text1));
     //update other tokens in the sentence
-    sql_query("UPDATE tokens SET pos=pos+1 WHERE sent_id = ".$r['sent_id']." AND pos > ".$r['pos']);
+    sql_query_pdo("UPDATE tokens SET pos=pos+1 WHERE sent_id = ".$r['sent_id']." AND pos > ".$r['pos']);
     //create new token and parse
-    sql_query("INSERT INTO tokens VALUES(NULL, '".$r['sent_id']."', '".($r['pos'] + 1)."', '".mysql_real_escape_string($text2)."')");
-    create_tf_revision($revset_id, sql_insert_id(), generate_tf_rev($text2));
+    sql_query_pdo("INSERT INTO tokens VALUES(NULL, '".$r['sent_id']."', '".($r['pos'] + 1)."', '".mysql_real_escape_string($text2)."')");
+    create_tf_revision($revset_id, sql_insert_id_pdo(), generate_tf_rev($text2), true);
     //update old token and parse
-    sql_query("DELETE FROM form2tf WHERE tf_id=$token_id");
-    sql_query("UPDATE tokens SET tf_text='".mysql_real_escape_string($text1)."' WHERE tf_id=$token_id LIMIT 1");
-    sql_query("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $token_id)");
-    create_tf_revision($revset_id, $token_id, generate_tf_rev($text1));
+    sql_query_pdo("DELETE FROM form2tf WHERE tf_id=$token_id");
+    sql_query_pdo("UPDATE tokens SET tf_text='".mysql_real_escape_string($text1)."' WHERE tf_id=$token_id LIMIT 1");
+    sql_query_pdo("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $token_id)");
+    create_tf_revision($revset_id, $token_id, generate_tf_rev($text1), true);
 
     //dropping sentence status
     $r = sql_fetch_array(sql_query_pdo("SELECT sent_id FROM tokens WHERE tf_id=$token_id LIMIT 1"));
     $sent_id = $r['sent_id'];
 
-    sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$sent_id LIMIT 1");
-    sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id");
+    sql_query_pdo("UPDATE sentences SET check_status='0' WHERE sent_id=$sent_id LIMIT 1");
+    sql_query_pdo("DELETE FROM sentence_check WHERE sent_id=$sent_id");
 
-    sql_commit();
+    sql_commit(true);
     
     $res = sql_query_pdo("SELECT book_id FROM paragraphs WHERE par_id = (SELECT par_id FROM sentences WHERE sent_id=$sent_id LIMIT 1)");
     $r = sql_fetch_array($res);
