@@ -4,7 +4,7 @@ require_once('lib/lib_annot.php');
 require_once('lib/lib_books.php');
 header('Content-type: application/json');
 
-define(API_VERSION, '0.22');
+define('API_VERSION', '0.22');
 $action = $_GET['action'];
 
 $answer = array(
