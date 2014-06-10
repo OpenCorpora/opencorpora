@@ -267,13 +267,13 @@ function sentence_save_source($sent_id, $text) {
     sql_query("UPDATE sentences SET source = '".mysql_real_escape_string(trim($text))."' WHERE sent_id=$sent_id LIMIT 1");
 }
 function create_tf_revision($revset_id, $token_id, $rev_xml) {
-    $r = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=$token_id ORDER BY rev_id DESC LIMIT 1"));
-    if ($r && $r['rev_text'] === $rev_xml)
+    $res = sql_pe("SELECT rev_text FROM tf_revisions WHERE tf_id=? ORDER BY rev_id DESC LIMIT 1", array($token_id));
+    if (sizeof($res) > 0 && $res[0]['rev_text'] === $rev_xml)
         // revisions are identical, do nothing
         return true;
     sql_begin();
-    sql_query("UPDATE tf_revisions SET is_last=0 WHERE tf_id=$token_id");
-    sql_query("INSERT INTO `tf_revisions` VALUES(NULL, '$revset_id', '$token_id', '".mysql_real_escape_string($rev_xml)."', 1)");
+    sql_pe("UPDATE tf_revisions SET is_last=0 WHERE tf_id=?", array($token_id));
+    sql_pe("INSERT INTO `tf_revisions` VALUES(NULL, ?, ?, ?, 1)", array($revset_id, $token_id, $rev_xml));
     sql_commit();
 }
 // annotation pools
@@ -743,17 +743,17 @@ function promote_samples_aux($tf_ids, $orig_pool_id, $lastrev, $new_pool_name, &
     sql_commit();
 }
 function delete_samples_by_token_id($token_id) {
-    $res = sql_query("
+    $res = sql_pe("
         SELECT sample_id, answer
         FROM morph_annot_samples
         LEFT JOIN morph_annot_instances USING (sample_id)
-        WHERE tf_id=$token_id
+        WHERE tf_id=?
         ORDER BY sample_id
-    ");
+    ", array($token_id));
     $last_sid = 0;
     $has_answer = false;
     sql_begin();
-    while ($r = sql_fetch_array($res)) {
+    foreach ($res as $r) {
         if ($last_sid != $r['sample_id']) {
             if ($last_sid && !$has_answer)
                 delete_sample($last_sid);
@@ -771,9 +771,9 @@ function delete_samples_by_token_id($token_id) {
 }
 function delete_sample($sample_id) {
     sql_begin();
-    sql_query("DELETE FROM morph_annot_instances WHERE sample_id=$sample_id");
-    sql_query("DELETE FROM morph_annot_moderated_samples WHERE sample_id=$sample_id LIMIT 1");
-    sql_query("DELETE FROM morph_annot_samples WHERE sample_id=$sample_id LIMIT 1");
+    sql_pe("DELETE FROM morph_annot_instances WHERE sample_id=?", array($sample_id));
+    sql_pe("DELETE FROM morph_annot_moderated_samples WHERE sample_id=? LIMIT 1", array($sample_id));
+    sql_pe("DELETE FROM morph_annot_samples WHERE sample_id=? LIMIT 1", array($sample_id));
     sql_commit();
 }
 function promote_samples($pool_id, $type) {

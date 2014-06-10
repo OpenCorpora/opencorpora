@@ -124,20 +124,20 @@ function check_user_level($user_id) {
 function get_user_badges($user_id, $only_shown=true) {
     $only_shown_str = $only_shown ? "AND shown > 0" : '';
     $out = array();
-    $res = sql_query("
+    $res = sql_pe("
         SELECT t.badge_id, t.badge_name, t.badge_descr, t.badge_image, b.shown
         FROM user_badges b
         LEFT JOIN user_badges_types t USING (badge_id)
-        WHERE user_id=$user_id $only_shown_str
+        WHERE user_id=? $only_shown_str
         AND badge_id IN (
             SELECT MAX(badge_id)
             FROM user_badges
             LEFT JOIN user_badges_types USING (badge_id)
-            WHERE user_id=$user_id $only_shown_str
+            WHERE user_id=? $only_shown_str
             GROUP BY badge_group
         )
-    ");
-    while ($r = sql_fetch_array($res)) {
+    ", array($user_id, $user_id));
+    foreach ($res as $r) {
         $out[] = array(
             'id' => $r['badge_id'],
             'name' => $r['badge_name'],
@@ -376,29 +376,31 @@ function get_badges_info() {
 }
 function save_badges_info($post) {
     sql_begin();
+    $new_badge = sql_prepare("
+        INSERT INTO user_badges_types
+        VALUES (?, ?, ?, ?, ?)
+    ");
+    $update_badge = sql_prepare("
+        UPDATE user_badges_types
+        SET badge_name=?,
+        badge_image=?,
+        badge_descr=?,
+        badge_group=?
+        WHERE badge_id=?
+        LIMIT 1
+    ");
     foreach ($post['badge_name'] as $id => $name) {
-        $id = (int)$id;
-        $name = mysql_real_escape_string(trim($name));
-        $image = mysql_real_escape_string(trim($post['badge_image'][$id]));
-        $descr = mysql_real_escape_string(trim($post['badge_descr'][$id]));
-        $group = (int)trim($post['badge_group'][$id]);
+        $id = $id;
+        $name = trim($name);
+        $image = trim($post['badge_image'][$id]);
+        $descr = trim($post['badge_descr'][$id]);
+        $group = trim($post['badge_group'][$id]);
         if ($id == -1 && $name) {
             $r = sql_fetch_array(sql_query("SELECT MAX(badge_id) FROM user_badges_types"));
-            sql_query("
-                INSERT INTO user_badges_types
-                VALUES ($r[0]+1, '$name', '$descr', '$image', $group)
-            ");
+            sql_execute($new_badge, array($r[0]+1, $name, $descr, $image, $group));
         }
         elseif ($id > 0)
-            sql_query("
-                UPDATE user_badges_types
-                SET badge_name='".mysql_real_escape_string($name)."',
-                badge_image='".mysql_real_escape_string($image)."',
-                badge_descr='".mysql_real_escape_string($descr)."',
-                badge_group=$group
-                WHERE badge_id=$id
-                LIMIT 1
-            ");
+            sql_execute($update_badge, array($name, $image, $descr, $group, $id));
         else
             throw new UnexpectedValueException();
     }

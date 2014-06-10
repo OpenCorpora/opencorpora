@@ -2,9 +2,9 @@
 require_once('lib_mail.php');
 function user_check_password($login, $password) {
     $password = md5(md5($password).substr($login, 0, 2));
-    $r = sql_fetch_array(sql_query("SELECT `user_id` FROM `users` WHERE `user_name`='$login' AND `user_passwd`='$password' LIMIT 1"));
-    if (!$r) return false;
-    return $r['user_id'];
+    $res = sql_pe("SELECT `user_id` FROM `users` WHERE `user_name`=? AND `user_passwd`=? LIMIT 1", array($login, $password));
+    if (!sizeof($res)) return false;
+    return $res[0]['user_id'];
 }
 function is_valid_password($string) {
     return preg_match('/^[a-z0-9_-]+$/i', $string);
@@ -57,7 +57,6 @@ function check_auth_cookie() {
     return false;
 }
 function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
-    $login = mysql_real_escape_string($login);
     if (($user_id=$auth_user_id) || $user_id = user_check_password($login, $passwd)) {
         $alias_uid = check_for_user_alias($user_id);
         if ($alias_uid)
@@ -246,8 +245,8 @@ function user_change_shown_name($new_name) {
     return 1;
 }
 function get_user_info($user_id) {
-    $res = sql_query("SELECT user_name, user_shown_name, user_reg FROM users WHERE user_id=$user_id LIMIT 1");
-    $r = sql_fetch_array($res);
+    $res = sql_pe("SELECT user_name, user_shown_name, user_reg FROM users WHERE user_id=? LIMIT 1", array($user_id));
+    $r = $res[0];
     $user = array(
         'name' => $r['user_name'],
         'shown_name' => $r['user_shown_name'],
@@ -260,7 +259,7 @@ function get_user_info($user_id) {
     // annotation stats
     $annot = array();
     $last_type = '';
-    $res = sql_query("
+    $res = sql_pe("
         SELECT pool_id, pool_name, p.status, type_id, t.grammemes, t.complexity, COUNT(instance_id) AS total, SUM(ms.answer != 0) AS checked,
             SUM(CASE WHEN (i.answer != ms.answer AND ms.answer > 0) THEN 1 ELSE 0 END) AS errors
         FROM morph_annot_instances i
@@ -268,13 +267,13 @@ function get_user_info($user_id) {
         LEFT JOIN morph_annot_pools p USING (pool_id)
         LEFT JOIN morph_annot_moderated_samples ms USING (sample_id)
         LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id)
-        WHERE i.user_id = $user_id AND i.answer > 0
+        WHERE i.user_id = ? AND i.answer > 0
         GROUP BY pool_id
         ORDER BY type_id, pool_id
-    ");
+    ", array($user_id));
 
     $type = array();
-    while ($r = sql_fetch_array($res)) {
+    foreach ($res as $r) {
         if ($r['type_id'] != $last_type) {
             if ($last_type)
                 $annot[] = $type;

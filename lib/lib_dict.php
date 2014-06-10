@@ -65,10 +65,10 @@ function get_all_forms_by_lemma_text($lemma) {
 function generate_tf_rev($token) {
     $out = '<tfr t="'.htmlspecialchars($token).'">';
     if (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {
-        $res = sql_query("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text='$token'");
-        if (sql_num_rows($res) > 0) {
+        $res = sql_pe("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text=?", array($token));
+        if (sizeof($res) > 0) {
             $var = array();
-            while ($r = sql_fetch_array($res)) {
+            foreach ($res as $r) {
                 $var[] = $r;
             }
             if (sizeof($var) > 1) {
@@ -101,14 +101,14 @@ function yo_filter($token, $arr) {
         return $arr;
 
     // so there is a 'ё'
-    $res = sql_query("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text COLLATE 'utf8_bin' = '$token'");
+    $res = sql_pe("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text COLLATE 'utf8_bin' = ?", array($token));
     // return if no difference
-    if (sql_num_rows($res) == sizeof($arr) || !sql_num_rows($res))
+    if (sizeof($res) == sizeof($arr) || !sizeof($res))
         return $arr;
 
     // otherwise the difference is what we need to omit
     $out = array();
-    while ($r = sql_fetch_array($res))
+    foreach ($res as $r)
         $out[] = $r;
     return $out;
 }
@@ -268,7 +268,7 @@ function get_pending_updates($skip=0, $limit=500) {
     }
 
     // main table
-    $res = sql_query("
+    $res = sql_pe("
         SELECT token_id, tf_text, sent_id, dict_revision, lemma_id, dr.set_id,
             tfr.rev_text AS token_rev_text
         FROM updated_tokens ut
@@ -277,8 +277,8 @@ function get_pending_updates($skip=0, $limit=500) {
         LEFT JOIN tf_revisions tfr USING (tf_id)
         WHERE is_last = 1
         ORDER BY dict_revision, tf_id
-        LIMIT $skip, $limit
-    ");
+        LIMIT ?, ?
+    ", array($skip, $limit));
 
     $out['pages'] = array(
         'active' => $limit ? floor($skip / $limit) : 0,
@@ -287,7 +287,7 @@ function get_pending_updates($skip=0, $limit=500) {
 
     $t = array();
     $last = NULL;
-    while ($r = sql_fetch_array($res)) {
+    foreach ($res as $r) {
         if ($last && $last['dict_revision'] != $r['dict_revision']) {
             $out['revisions'][] = array(
                 'tokens' => $t,
@@ -320,25 +320,25 @@ function get_pending_updates($skip=0, $limit=500) {
     return $out;
 }
 function check_for_human_edits($token_id) {
-    $res = sql_query("
+    $res = sql_pe("
         SELECT rev_id
         FROM tf_revisions
         LEFT JOIN rev_sets USING (set_id)
-        WHERE tf_id = $token_id
+        WHERE tf_id = ?
         AND ((user_id > 0 AND comment != 'Update tokens from dictionary')
         OR (user_id = 0 AND comment LIKE '%annotation pool #%'))
         LIMIT 2
-    ");
-    return sql_num_rows($res) > 1;
+    ", array($token_id));
+    return sizeof($res) > 1;
 }
 function forget_pending_token($token_id, $rev_id) {
-    sql_query("DELETE FROM updated_tokens WHERE token_id=$token_id AND dict_revision=$rev_id");
+    sql_pe("DELETE FROM updated_tokens WHERE token_id=? AND dict_revision=?", array($token_id, $rev_id));
 }
 function update_pending_tokens($rev_id) {
-    $res = sql_query("SELECT token_id FROM updated_tokens WHERE dict_revision=$rev_id");
+    $res = sql_pe("SELECT token_id FROM updated_tokens WHERE dict_revision=?", array($rev_id));
     sql_begin();
     $revset_id = create_revset("Update tokens from dictionary");
-    while ($r = sql_fetch_array($res))
+    foreach ($res as $r)
         update_pending_token($r['token_id'], $rev_id, $revset_id);
     sql_commit();
 }
@@ -352,18 +352,18 @@ function update_pending_token($token_id, $rev_id, $revset_id=0) {
     $res = sql_query("
         SELECT *
         FROM updated_tokens
-        WHERE token_id = $token_id
-        AND dict_revision > $rev_id
+        WHERE token_id = ?
+        AND dict_revision > ?
         LIMIT 1
-    ");
-    if (sql_num_rows($res) > 0)
+    ", array($token_id, $rev_id));
+    if (sizeof($res) > 0)
         throw new Exception();
     
     // ok, now we can safely update
-    $r = sql_fetch_array(sql_query("SELECT tf_text FROM tokens WHERE tf_id=$token_id LIMIT 1"));
-    $token_text = $r['tf_text'];
-    $r = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=$token_id AND is_last=1 LIMIT 1"));
-    $previous_rev = $r['rev_text'];
+    $res = sql_pe("SELECT tf_text FROM tokens WHERE tf_id=? LIMIT 1", array($token_id));
+    $token_text = $res[0]['tf_text'];
+    $res = sql_pe("SELECT rev_text FROM tf_revisions WHERE tf_id=? AND is_last=1 LIMIT 1", array($token_id));
+    $previous_rev = $res[0]['rev_text'];
     $new_rev = generate_tf_rev($token_text);
     // do nothing if nothing changed
     if ($previous_rev == $new_rev) {
@@ -404,39 +404,39 @@ function get_top_absent_words() {
 function get_lemma_editor($id) {
     $out = array('lemma' => array('id' => $id), 'errata' => array());
     if ($id == -1) return $out;
-    $r = sql_fetch_array(sql_query("SELECT l.`lemma_text`, d.`rev_id`, d.`rev_text` FROM `dict_lemmata` l LEFT JOIN `dict_revisions` d ON (l.lemma_id = d.lemma_id) WHERE l.`lemma_id`=$id ORDER BY d.rev_id DESC LIMIT 1"));
-    $arr = parse_dict_rev($r['rev_text']);
+    $res = sql_pe("SELECT l.`lemma_text`, d.`rev_id`, d.`rev_text` FROM `dict_lemmata` l LEFT JOIN `dict_revisions` d ON (l.lemma_id = d.lemma_id) WHERE l.`lemma_id`=? ORDER BY d.rev_id DESC LIMIT 1", array($id));
+    $arr = parse_dict_rev($res[0]['rev_text']);
     $out['lemma']['text'] = $arr['lemma']['text'];
     $out['lemma']['grms'] = implode(', ', $arr['lemma']['grm']);
     foreach ($arr['forms'] as $farr) {
         $out['forms'][] = array('text' => $farr['text'], 'grms' => implode(', ', $farr['grm']));
     }
     //links
-    $res = sql_query("
+    $res = sql_pe("
     (SELECT lemma1_id lemma_id, lemma_text, link_name, l.link_id, 1 AS target
         FROM dict_links l
         LEFT JOIN dict_links_types t ON (l.link_type=t.link_id)
         LEFT JOIN dict_lemmata lm ON (l.lemma1_id=lm.lemma_id)
-        WHERE lemma2_id=$id)
+        WHERE lemma2_id=?)
     UNION
     (SELECT lemma2_id lemma_id, lemma_text, link_name, l.link_id, 0 AS target
         FROM dict_links l
         LEFT JOIN dict_links_types t ON (l.link_type=t.link_id)
         LEFT JOIN dict_lemmata lm ON (l.lemma2_id=lm.lemma_id)
-        WHERE lemma1_id=$id)
-    ", 1, 1);
-    while ($r = sql_fetch_array($res)) {
+        WHERE lemma1_id=?)
+    ", array($id, $id));
+    foreach ($res as $r) {
         $out['links'][] = array('lemma_id' => $r['lemma_id'], 'lemma_text' => $r['lemma_text'], 'name' => $r['link_name'], 'id' => $r['link_id'], 'is_target' => (bool)$r['target']);
     }
     //errata
-    $res = sql_query("SELECT e.*, x.item_id, x.timestamp exc_time, x.comment exc_comment, u.user_shown_name AS user_name
+    $res = sql_pe("SELECT e.*, x.item_id, x.timestamp exc_time, x.comment exc_comment, u.user_shown_name AS user_name
         FROM dict_errata e
         LEFT JOIN dict_errata_exceptions x ON (e.error_type=x.error_type AND e.error_descr=x.error_descr)
         LEFT JOIN users u ON (x.author_id = u.user_id)
         WHERE e.rev_id = 
-        (SELECT rev_id FROM dict_revisions WHERE lemma_id=$id ORDER BY rev_id DESC LIMIT 1)
-    ");
-    while ($r = sql_fetch_array($res)) {
+        (SELECT rev_id FROM dict_revisions WHERE lemma_id=? ORDER BY rev_id DESC LIMIT 1)
+    ", array($id));
+    foreach ($res as $r) {
         $out['errata'][] = array(
             'id' => $r['error_id'],
             'type' => $r['error_type'],
@@ -597,37 +597,40 @@ function paradigm_diff($array1, $array2) {
 }
 function del_lemma($id) {
     //delete links (but preserve history)
-    $res = sql_query("SELECT link_id FROM dict_links WHERE lemma1_id=$id OR lemma2_id=$id");
+    $res = sql_pe("SELECT link_id FROM dict_links WHERE lemma1_id=? OR lemma2_id=?", array($id, $id));
     sql_begin();
     $revset_id = create_revset("Delete lemma $id");
-    while ($r = sql_fetch_array($res))
+    foreach ($res as $r)
         del_link($r['link_id'], $revset_id);
 
     // create empty revision
-    sql_query("INSERT INTO dict_revisions VALUES (NULL, $revset_id, $id, '', 1, 1)");
+    sql_pe("INSERT INTO dict_revisions VALUES (NULL, ?, ?, '', 1, 1)", array($revset_id, $id));
     $rev_id = sql_insert_id();
 
     //update `updated_forms`
-    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$id ORDER BY `rev_id` DESC LIMIT 1, 1"));
-    $pdr = parse_dict_rev($r['rev_text']);
+    $res = sql_pe("SELECT rev_text FROM dict_revisions WHERE lemma_id=? ORDER BY `rev_id` DESC LIMIT 1, 1", array($id));
+    $pdr = parse_dict_rev($res[0]['rev_text']);
     $updated_forms = array();
     foreach ($pdr['forms'] as $form)
         $updated_forms[] = $form['text'];
+    $ins = sql_prepare("INSERT INTO `updated_forms` VALUES(?, ?)");
     foreach (array_unique($updated_forms) as $form)
-        sql_query("INSERT INTO `updated_forms` VALUES('$form', $rev_id)");
+        sql_execute($ins, array($form, $rev_id));
     //delete forms from form2lemma
-    sql_query("DELETE FROM `form2lemma` WHERE lemma_id=$id");
+    sql_pe("DELETE FROM `form2lemma` WHERE lemma_id=?", array($id));
     //delete lemma
-    sql_query("INSERT INTO dict_lemmata_deleted (SELECT * FROM dict_lemmata WHERE lemma_id=$id LIMIT 1)");
-    sql_query("DELETE FROM dict_lemmata WHERE lemma_id=$id LIMIT 1");
+    sql_pe("INSERT INTO dict_lemmata_deleted (SELECT * FROM dict_lemmata WHERE lemma_id=? LIMIT 1)", array($id));
+    sql_pe("DELETE FROM dict_lemmata WHERE lemma_id=? LIMIT 1", array($id));
     sql_commit();
 }
 function del_link($link_id, $revset_id=0) {
-    $r = sql_fetch_array(sql_query("SELECT * FROM dict_links WHERE link_id=$link_id LIMIT 1"));
+    $res = sql_pe("SELECT * FROM dict_links WHERE link_id=? LIMIT 1", array($link_id));
+    if (!sizeof($res))
+        throw new UnexpectedValueException();
     sql_begin();
     if (!$revset_id) $revset_id = create_revset();
-    sql_query("INSERT INTO dict_links_revisions VALUES(NULL, '$revset_id', '".$r['lemma1_id']."', '".$r['lemma2_id']."', '".$r['link_type']."', '0')");
-    sql_query("DELETE FROM dict_links WHERE link_id=$link_id LIMIT 1");
+    sql_query("INSERT INTO dict_links_revisions VALUES(NULL, '$revset_id', '".$res[0]['lemma1_id']."', '".$res[0]['lemma2_id']."', '".$res[0]['link_type']."', '0')");
+    sql_pe("DELETE FROM dict_links WHERE link_id=? LIMIT 1", array($link_id));
     sql_commit();
 }
 function add_link($from_id, $to_id, $link_type, $revset_id=0) {
@@ -635,8 +638,8 @@ function add_link($from_id, $to_id, $link_type, $revset_id=0) {
         throw new UnexpectedValueException();
     sql_begin();
     if (!$revset_id) $revset_id = create_revset();
-    sql_query("INSERT INTO dict_links VALUES(NULL, '$from_id', '$to_id', '$link_type')");
-    sql_query("INSERT INTO dict_links_revisions VALUES(NULL, '$revset_id', '$from_id', '$to_id', '$link_type', '1')");
+    sql_pe("INSERT INTO dict_links VALUES(NULL, ?, ?, ?)", array($from_id, $to_id, $link_type));
+    sql_pe("INSERT INTO dict_links_revisions VALUES(NULL, ?, ?, ?, ?, 1)", array($revset_id, $from_id, $to_id, $link_type));
     sql_commit();
 }
 function change_link_direction($link_id) {
@@ -644,9 +647,9 @@ function change_link_direction($link_id) {
         throw new UnexpectedValueException();
     sql_begin();
     $revset_id = create_revset();
-    $r = sql_fetch_array(sql_query("SELECT * FROM dict_links WHERE link_id=$link_id LIMIT 1"));
+    $res = sql_pe("SELECT * FROM dict_links WHERE link_id=? LIMIT 1", array($link_id));
     del_link($link_id, $revset_id);
-    add_link($r['lemma2_id'], $r['lemma1_id'], $r['link_type'], $revset_id);
+    add_link($res[0]['lemma2_id'], $res[0]['lemma1_id'], $res[0]['link_type'], $revset_id);
     sql_commit();
 }
 
@@ -677,16 +680,16 @@ function add_grammem($inner_id, $group, $outer_id, $descr) {
     if (!$inner_id)
         throw new UnexpectedValueException();
     $r = sql_fetch_array(sql_query("SELECT MAX(`orderby`) AS `m` FROM `gram`"));
-    sql_query("INSERT INTO `gram` VALUES(NULL, '$group', '$inner_id', '$outer_id', '$descr', '".($r['m']+1)."')");
+    sql_pe("INSERT INTO `gram` VALUES(NULL, ?, ?, ?, ?, ?)", array($group, $inner_id, $outer_id, $descr, $r['m']+1));
 }
 function del_grammem($grm_id) {
-    sql_query("DELETE FROM `gram` WHERE `gram_id`=$grm_id LIMIT 1");
+    sql_pe("DELETE FROM `gram` WHERE `gram_id`=? LIMIT 1", array($grm_id));
 }
 function move_grammem($grm_id, $dir) {
     if (!$grm_id || !$dir)
         throw new UnexpectedValueException();
-    $r = sql_fetch_array(sql_query("SELECT `orderby` as `ord` FROM `gram` WHERE gram_id=$grm_id"));
-    $ord = $r['ord'];
+    $res = sql_pe("SELECT `orderby` as `ord` FROM `gram` WHERE gram_id=?", array($grm_id));
+    $ord = $res[0]['ord'];
     if ($dir == 'up') {
         $q = sql_query("SELECT MAX(`orderby`) as `ord` FROM `gram` WHERE `orderby`<$ord");
         if ($q) {
@@ -705,13 +708,16 @@ function move_grammem($grm_id, $dir) {
 
     sql_begin();
     sql_query("UPDATE `gram` SET `orderby`='$ord' WHERE `orderby`=$ord2 LIMIT 1");
-    sql_query("UPDATE `gram` SET `orderby`='$ord2' WHERE `gram_id`=$grm_id LIMIT 1");
+    sql_pe("UPDATE `gram` SET `orderby`=? WHERE `gram_id`=? LIMIT 1", array($ord2, $grm_id));
     sql_commit();
 }
 function edit_grammem($id, $inner_id, $outer_id, $descr) {
     if (!$id || !$inner_id)
         throw new UnexpectedValueException();
-    sql_query("UPDATE `gram` SET `inner_id`='$inner_id', `outer_id`='$outer_id', `gram_descr`='$descr' WHERE `gram_id`=$id LIMIT 1");
+    sql_pe(
+        "UPDATE `gram` SET `inner_id`=?, `outer_id`=?, `gram_descr`=? WHERE `gram_id`=? LIMIT 1",
+        array($inner_id, $outer_id, $descr, $id)
+    );
 }
 
 //ERRATA
@@ -759,14 +765,14 @@ function mark_dict_error_ok($id, $comment) {
     if (!$id)
         throw new UnexpectedValueException();
 
-    sql_query("INSERT INTO dict_errata_exceptions VALUES(
+    sql_pe("INSERT INTO dict_errata_exceptions VALUES(
         NULL,
-        (SELECT error_type FROM dict_errata WHERE error_id=$id LIMIT 1),
-        (SELECT error_descr FROM dict_errata WHERE error_id=$id LIMIT 1),
-        '".$_SESSION['user_id']."',
-        '".time()."',
-        '".mysql_real_escape_string($comment)."'
-    )");
+        (SELECT error_type FROM dict_errata WHERE error_id=? LIMIT 1),
+        (SELECT error_descr FROM dict_errata WHERE error_id=? LIMIT 1),
+        ?,
+        ?,
+        ?
+    )", array($id, $id, $_SESSION['user_id'], time(), $comment));
 }
 function get_gram_restrictions($hide_auto) {
     $res = sql_query("SELECT r.restr_id, r.obj_type, r.restr_type, r.auto, g1.inner_id `if`, g2.inner_id `then`
@@ -800,7 +806,7 @@ function add_dict_restriction($post) {
 }
 function del_dict_restriction($id) {
     sql_begin();
-    sql_query("DELETE FROM gram_restrictions WHERE restr_id=$id LIMIT 1");
+    sql_pe("DELETE FROM gram_restrictions WHERE restr_id=? LIMIT 1", array($id));
     calculate_gram_restrictions();
     sql_commit();
 }

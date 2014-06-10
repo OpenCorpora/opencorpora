@@ -16,28 +16,22 @@ if (!in_array($action, array('', 'gram', 'gram_restr', 'lemmata', 'errata', 'edi
 
 switch ($action) {
     case 'add_gram':
-        $name = mysql_real_escape_string($_POST['g_name']);
-        $group = (int)$_POST['parent_gram'];
-        $outer_id = mysql_real_escape_string($_POST['outer_id']);
-        $descr = mysql_real_escape_string($_POST['descr']);
-        add_grammem($name, $group, $outer_id, $descr);
+        add_grammem($_POST['g_name'], $_POST['parent_gram'], $_POST['outer_id'], $_POST['descr']);
         header("Location:dict.php?act=gram");
         break;
     case 'move_gram':
-        $grm = (int)$_GET['id'];
-        $dir = $_GET['dir'];
-        move_grammem($grm, $dir);
+        move_grammem($_GET['id'], $_GET['dir']);
         header('Location:dict.php?act=gram#g'.$grm_id);
         break;
     case 'del_gram':
-        del_grammem((int)$_GET['id']);
+        del_grammem($_GET['id']);
         header("Location:dict.php?act=gram");
         break;
     case 'edit_gram':
-        $id = (int)$_POST['id'];
-        $inner_id = mysql_real_escape_string($_POST['inner_id']);
-        $outer_id = mysql_real_escape_string($_POST['outer_id']);
-        $descr = mysql_real_escape_string($_POST['descr']);
+        $id = $_POST['id'];
+        $inner_id = $_POST['inner_id'];
+        $outer_id = $_POST['outer_id'];
+        $descr = $_POST['descr'];
         edit_grammem($id, $inner_id, $outer_id, $descr);
         header('Location:dict.php?act=gram');
         break;
@@ -46,7 +40,7 @@ switch ($action) {
         header("Location:dict.php?act=errata");
         break;
     case 'not_error':
-        mark_dict_error_ok((int)$_GET['error_id'], $_POST['comm']);
+        mark_dict_error_ok($_GET['error_id'], $_POST['comm']);
         header("Location:dict.php?act=errata");
         break;
     case 'add_restr':
@@ -54,7 +48,7 @@ switch ($action) {
         header("Location:dict.php?act=gram_restr");
         break;
     case 'del_restr':
-        del_dict_restriction((int)$_GET['id']);
+        del_dict_restriction($_GET['id']);
         header("Location:dict.php?act=gram_restr");
         break;
     case 'update_restr':
@@ -66,19 +60,19 @@ switch ($action) {
         header("Location:dict.php?act=edit&saved&id=$lemma_id");
         break;
     case 'add_link':
-        add_link((int)$_POST['from_id'], (int)$_POST['lemma_id'], (int)$_POST['link_type']);
-        header("Location:dict.php?act=edit&id=".(int)$_POST['from_id']);
+        add_link($_POST['from_id'], $_POST['lemma_id'], $_POST['link_type']);
+        header("Location:dict.php?act=edit&id=".$_POST['from_id']);
         break;
     case 'del_link':
-        del_link((int)$_GET['id']);
-        header("Location:dict.php?act=edit&id=".(int)$_GET['lemma_id']);
+        del_link($_GET['id']);
+        header("Location:dict.php?act=edit&id=".$_GET['lemma_id']);
         break;
     case 'change_link_dir':
-        change_link_direction((int)$_GET['id']);
-        header("Location:dict.php?act=edit&id=".(int)$_GET['lemma_id']);
+        change_link_direction($_GET['id']);
+        header("Location:dict.php?act=edit&id=".$_GET['lemma_id']);
         break;
     case 'del_lemma':
-        del_lemma((int)$_GET['lemma_id']);
+        del_lemma($_GET['lemma_id']);
         header("Location:dict.php");
         break;
     case 'lemmata':
@@ -97,8 +91,7 @@ switch ($action) {
         $smarty->display('dict/restrictions.tpl');
         break;
     case 'edit':
-        $lid = (int)$_GET['id'];
-        $smarty->assign('editor', get_lemma_editor($lid));
+        $smarty->assign('editor', get_lemma_editor($_GET['id']));
         $smarty->assign('link_types', get_link_types());
         $smarty->display('dict/lemma_edit.tpl');
         break;
@@ -107,12 +100,12 @@ switch ($action) {
         $smarty->display('dict/errata.tpl');
         break;
     case 'pending':
-        $skip = isset($_GET['skip']) ? (int)$_GET['skip'] : 0;
+        $skip = isset($_GET['skip']) ? $_GET['skip'] : 0;
         $smarty->assign('data', get_pending_updates($skip));
         $smarty->display('dict/pending.tpl');
         break;
     case 'reannot':
-        update_pending_tokens((int)$_POST['rev_id']);
+        update_pending_tokens($_POST['rev_id']);
         header("Location:dict.php?act=pending");
         break;
     case 'absent':

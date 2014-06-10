@@ -25,8 +25,8 @@ if (isset($_GET['cat'])) {
 echo '</root>';
 
 function check_for_geo($s) {
-    $res = sql_query("SELECT tag_name FROM book_tags WHERE tag_name = 'Гео:ВикиКатегория:".mysql_real_escape_string($s)."' LIMIT 1");
-    return sql_num_rows($res);
+    $res = sql_query("SELECT tag_name FROM book_tags WHERE tag_name = ? LIMIT 1", array('Гео:ВикиКатегория:'.$s));
+    return sizeof($res);
 }
 function month_to_number($s) {
     $months = array(

@@ -37,7 +37,7 @@ function sql_query($q, $debug=1, $override_readonly=0) {
     global $pdo_db;
     global $total_time;
     global $total_queries;
-    if (file_exists('/var/lock/oc_readonly.lock') && stripos(trim($q), 'select') !== 0 && !$override_readonly)
+    if (file_exists('/var/lock/oc_readonly.lock') && stripos(trim($q), 'select') > 1 && !$override_readonly)
         throw new Exception("Database in readonly mode");
     $debug = isset($_SESSION['debug_mode']) && $debug;
     if ($debug) {
@@ -152,24 +152,22 @@ function create_revset($comment = '') {
     global $config;
     // check if there is a recent set by the same user with the same comment
     $timeout = $now - $config['misc']['changeset_timeout'];
-    $res = sql_query("
+    $res = sql_pe("
         SELECT set_id
         FROM rev_sets
-        WHERE user_id = ".$_SESSION['user_id']."
-        AND timestamp > $timeout
-        AND comment = '".mysql_real_escape_string($comment)."'
+        WHERE user_id = ?
+        AND timestamp > ?
+        AND comment = ?
         ORDER BY set_id DESC
         LIMIT 1
-    ");
-    if (sql_num_rows($res)) {
-        $r = sql_fetch_array($res);
-        $q = "UPDATE rev_sets SET timestamp=$now WHERE set_id=".$r['set_id']." LIMIT 1";
-        sql_query($q);
-        return $r['set_id'];
+    ", array($_SESSION['user_id'], $timeout, $comment));
+    if (sizeof($res) > 0) {
+        sql_query("UPDATE rev_sets SET timestamp=$now WHERE set_id=".$res[0]['set_id']." LIMIT 1");
+        return $res[0]['set_id'];
     }
 
-    $q = "INSERT INTO `rev_sets` VALUES(NULL, $now, '".(int)$_SESSION['user_id']."', '".mysql_real_escape_string($comment)."')";
-    sql_query($q);
+    $q = "INSERT INTO `rev_sets` VALUES(NULL, ?, ?, ?)";
+    sql_pe($q, array($now, $_SESSION['user_id'], $comment));
     return sql_insert_id();
 }
 function typo_spaces($str, $with_tags = 0) {

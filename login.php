@@ -12,7 +12,7 @@ if (isset($_SESSION['user_id']) && in_array($action, array('', 'login', 'login_o
 
 switch($action) {
     case 'login':
-        if (user_login(mysql_real_escape_string($_POST['login']), $_POST['passwd'])) {
+        if (user_login($_POST['login'], $_POST['passwd'])) {
             if (isset($_SESSION['return_to']))
                 header('Location:'.$_SESSION['return_to']);
             else

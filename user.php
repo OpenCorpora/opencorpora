@@ -3,7 +3,7 @@ require('lib/header.php');
 require_once('lib/lib_users.php');
 require_once('lib/lib_awards.php');
 
-$id = (int)$_GET['id'];
+$id = $_GET['id'];
 $smarty->assign('user', get_user_info($id));
 $smarty->assign('complexity',array(
     0 => 'Сложность неизвестна',
