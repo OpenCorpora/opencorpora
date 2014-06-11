@@ -687,7 +687,7 @@ function add_morph_pool_type($post_gram, $post_descr) {
     $gram_sets_str = join('@', $gram_sets);
     $gram_descr_str = join('@', $gram_descr);
 
-    sql_pe("INSERT INTO morph_annot_pool_types VALUES (NULL, '$gram_sets_str', '$gram_descr_str', '', 0, 0, 0)", array($gram_sets_str, $gram_descr_str));
+    sql_pe("INSERT INTO morph_annot_pool_types VALUES (NULL, ?, ?, '', 0, 0, 0)", array($gram_sets_str, $gram_descr_str));
     return sql_insert_id();
 }
 function add_morph_pool() {
@@ -732,8 +732,8 @@ function promote_samples_aux($tf_ids, $orig_pool_id, $lastrev, $new_pool_name, &
     else {
         $full_name = $new_pool_name . ' #' . ($new_pool_index++);
         sql_pe(
-            "INSERT INTO morph_annot_pools (SELECT NULL, pool_type, ?, token_check, users_needed, ?, ?, author_id, 0, 2, ? FROM morph_annot_pools WHERE pool_id=? LIMIT 1)",
-            array($full_name, $time, $time, $lastrev, $orig_pool_id)
+            "INSERT INTO morph_annot_pools (SELECT NULL, pool_type, '".sql_quote($full_name)."', token_check, users_needed, $time, $time, author_id, 0, 2, $lastrev FROM morph_annot_pools WHERE pool_id=? LIMIT 1)",
+            array($orig_pool_id)
         );
         $current_pool_id = sql_insert_id();
     }
