@@ -283,16 +283,20 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
     // move the following paragraphs
     sql_query("UPDATE paragraphs SET pos=pos+".sizeof($pars)." WHERE book_id = $book_id AND pos >= $par_num");
 
+    $par_ins = sql_prepare("INSERT INTO `paragraphs` VALUES(NULL, ?, ?)");
+    $sent_ins = sql_prepare("INSERT INTO `sentences` VALUES(NULL, ?, ?, ?, 0)");
+    $token_ins = sql_prepare("INSERT INTO `tokens` VALUES(NULL, ?, ?, ?)");
+
     foreach ($pars as $par) {
         //adding a paragraph
-        sql_query("INSERT INTO `paragraphs` VALUES(NULL, '$book_id', '".($par_num++)."')");
+        sql_execute($par_ins, array($book_id, $par_num++));
         $par_id = sql_insert_id();
         $sent_num = 1;
         $sents = split2sentences($par);
         foreach ($sents as $sent) {
             if (!preg_match('/\S/', $sent)) continue;
             //adding a sentence
-            sql_query("INSERT INTO `sentences` VALUES(NULL, '$par_id', '".($sent_num++)."', '".mysql_real_escape_string(trim($sent))."', '0')");
+            sql_execute($sent_ins, array($par_id, $sent_num++, trim($sent)));
             $sent_id = sql_insert_id();
             sql_query("INSERT INTO sentence_authors VALUES($sent_id, ".$_SESSION['user_id'].", ".time().")");
             $token_num = 1;
@@ -300,7 +304,7 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
             foreach ($tokens as $token) {
                 if (trim($token) === '') continue;
                 //adding a textform
-                sql_query("INSERT INTO `tokens` VALUES(NULL, '$sent_id', '".($token_num++)."', '".mysql_real_escape_string(trim($token))."')");
+                sql_execute($token_ins, array($sent_id, $token_num++, trim($token)));
                 $tf_id = sql_insert_id();
                 //adding a revision
                 create_tf_revision($revset_id, $tf_id, generate_tf_rev(trim($token)));
@@ -320,8 +324,8 @@ function get_monitor_data($from, $until) {
         FROM
             tokenizer_qa
         WHERE
-            run >= '" . mysql_real_escape_string($from) . "'
-            AND run <= '" . mysql_real_escape_string($until) . "'
+            run >= ?
+            AND run <= ?
     ";
 
     $qa_data = array(
@@ -329,8 +333,8 @@ function get_monitor_data($from, $until) {
         'recall' => array(),
         'F1' => array()
     );
-    $q = sql_query($query);
-    while ($res = sql_fetch_assoc($q)) {
+    $q = sql_pe($query, array($from, $until));
+    foreach ($q as $res) {
         $run_date = strtotime($res['run']) * 1000;
         $thrshld  = $res['threshold'];
 

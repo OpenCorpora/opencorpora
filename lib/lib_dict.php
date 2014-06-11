@@ -473,14 +473,15 @@ function dict_add_lemma($array) {
     $upd_forms = array_unique($upd_forms);
     sql_begin();
     //new lemma in dict_lemmata
-    sql_query("INSERT INTO dict_lemmata VALUES(NULL, '".mysql_real_escape_string(mb_strtolower($lemma_text))."')");
+    sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?)", array(mb_strtolower($lemma_text)));
     $lemma_id = sql_insert_id();
     //array -> xml
     $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
     $rev_id = new_dict_rev($lemma_id, $new_xml, $array['comment']);
 
+    $ins = sql_prepare("INSERT INTO `updated_forms` VALUES (?, ?)");
     foreach ($upd_forms as $upd_form)
-        sql_query("INSERT INTO `updated_forms` VALUES('".mysql_real_escape_string($upd_form)."', $rev_id)");
+        sql_execute($ins, array($upd_form, $rev_id));
 
     sql_commit();
     return $lemma_id;
@@ -541,13 +542,12 @@ function dict_save($array) {
     if ($lemma_text != $old_lemma_text || $new_xml != $old_xml) {
         //something's really changed
         $rev_id = new_dict_rev($array['lemma_id'], $new_xml, $array['comment']);
+        $ins = sql_prepare("INSERT INTO `updated_forms` VALUES (?, ?)");
         foreach ($upd_forms as $upd_form)
-            sql_query("INSERT INTO `updated_forms` VALUES('".mysql_real_escape_string($upd_form)."', $rev_id)");
+            sql_execute($ins, array($upd_form, $rev_id));
         sql_commit();
-        return $array['lemma_id'];
-    } else {
-        return $array['lemma_id'];
     }
+    return $array['lemma_id'];
 }
 function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
     $new_xml = '<dr><l t="'.htmlspecialchars(mb_strtolower($lemma_text)).'">';
@@ -579,9 +579,10 @@ function new_dict_rev($lemma_id, $new_xml, $comment = '') {
         throw new UnexpectedValueException();
     sql_begin();
     $revset_id = create_revset($comment);
-    sql_query("INSERT INTO `dict_revisions` VALUES(NULL, '$revset_id', '$lemma_id', '".mysql_real_escape_string($new_xml)."', '0', '0')");
+    sql_pe("INSERT INTO `dict_revisions` VALUES(NULL, ?, ?, ?, 0, 0)", array($revset_id, $lemma_id, $new_xml));
+    $new_id = sql_insert_id();
     sql_commit();
-    return sql_insert_id();
+    return $new_id;
 }
 function paradigm_diff($array1, $array2) {
     $diff = array();

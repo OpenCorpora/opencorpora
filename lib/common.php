@@ -11,6 +11,10 @@ function sql_fetch_assoc($q) {
 function sql_num_rows($q) {
     return $q->rowCount();
 }
+function sql_quote($string) {
+    global $pdo_db;
+    return $pdo_db->quote($string);
+}
 function sql_begin() {
     global $transaction_counter;
     global $nested_transaction_counter;

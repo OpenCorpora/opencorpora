@@ -15,11 +15,4 @@ $pdo_db = new PDO(sprintf('mysql:host=%s;dbname=%s;charset=utf8', $config['mysql
 $pdo_db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 $pdo_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
 $pdo_db->query("SET NAMES utf8");
-
-// temporary connect needed by mysql_real_escape_string
-$db = mysql_connect($config['mysql']['host'], $config['mysql']['user'], $config['mysql']['passwd']) or die ("Unable to connect to mysql server");
-if (!mysql_query("USE ".$config['mysql']['dbname'])) {
-    die ("Unable to open mysql database");
-}
-mysql_query("SET names utf8");
 ?>

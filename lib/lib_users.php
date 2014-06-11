@@ -10,9 +10,9 @@ function is_valid_password($string) {
     return preg_match('/^[a-z0-9_-]+$/i', $string);
 }
 function user_generate_password($email) {
-    $res = sql_query("SELECT user_id, user_name, user_passwd FROM `users` WHERE user_email='".mysql_real_escape_string($email)."' LIMIT 1");
-    if (sql_num_rows($res) == 0) return 2;
-    $r = sql_fetch_array($res);
+    $res = sql_pe("SELECT user_id, user_name, user_passwd FROM `users` WHERE user_email=? LIMIT 1", array($email));
+    if (sizeof($res) == 0) return 2;
+    $r = $res[0];
     if ($r['user_passwd'] == '' || $r['user_passwd'] == 'notagreed')
         return get_openid_domain_by_username($r['user_name']);
     $pwd = gen_password();
@@ -93,7 +93,7 @@ function remember_user($user_id, $auth_token=false) {
     sql_begin();
     //deleting the old token
     if ($auth_token) {
-        sql_query("DELETE from user_tokens WHERE user_id=$user_id AND token='".mysql_real_escape_string(substr(strstr($auth_token, '@'), 1))."'");
+        sql_pe("DELETE from user_tokens WHERE user_id=? AND token=?", array($user_id, substr(strstr($auth_token, '@'), 1)));
     }
     //adding a new token
     $token = mt_rand();
@@ -160,31 +160,29 @@ function user_logout() {
     unset($_SESSION['user_pending']);
 }
 function user_register($post) {
-    $post['login'] = trim($post['login']);
-    $post['email'] = strtolower(trim($post['email']));
+    $name = trim($post['login']);
+    $email = strtolower(trim($post['email']));
     //testing if all fields are ok
     if ($post['passwd'] != $post['passwd_re']) 
         return 2;
-    if ($post['passwd'] == '' || $post['login'] == '')
+    if ($post['passwd'] == '' || $name == '')
         return 5;
-    if (!preg_match('/^[a-z0-9_-]+$/i', $post['login']))
+    if (!preg_match('/^[a-z0-9_-]+$/i', $name))
         return 6;
     if (!is_valid_password($post['passwd']))
         return 7;
-    if ($post['email'] && !is_valid_email($post['email']))
+    if ($email && !is_valid_email($email))
         return 8;
     //so far they are ok
-    $name = mysql_real_escape_string($post['login']);
     $passwd = md5(md5($post['passwd']).substr($name, 0, 2));
-    $email = mysql_real_escape_string($post['email']);
-    if (sql_num_rows(sql_query("SELECT user_id FROM `users` WHERE user_name='$name' LIMIT 1")) > 0) {
+    if (sizeof(sql_pe("SELECT user_id FROM `users` WHERE user_name=? LIMIT 1", array($name))) > 0) {
         return 3;
     }
-    if ($email && sql_num_rows(sql_query("SELECT user_id FROM `users` WHERE user_email='$email' LIMIT 1")) > 0) {
+    if ($email && sizeof(sql_pe("SELECT user_id FROM `users` WHERE user_email=? LIMIT 1", array($email))) > 0) {
         return 4;
     }
     sql_begin();
-    sql_query("INSERT INTO `users` VALUES(NULL, '$name', '$passwd', '$email', '".time()."', '$name', 0, 1, 1, 0, 0)");
+    sql_pe("INSERT INTO `users` VALUES(NULL, ?, ?, ?, ?, ?, 0, 1, 1, 0, 0)", array($name, $passwd, $email, time(), $name));
     $user_id = sql_insert_id();
     sql_query("INSERT INTO `user_permissions` VALUES ('$user_id', '0', '0', '0', '0', '0', '0', '0', 0, 0)");
     if (isset($post['subscribe']) && $email) {
@@ -224,11 +222,11 @@ function user_change_email($post) {
     $email = strtolower(trim($post['email']));
     if (is_user_openid($_SESSION['user_id']) || user_check_password($login, $post['passwd'])) {
         if (is_valid_email($email)) {
-            $res = sql_query("SELECT user_id FROM users WHERE user_email='".mysql_real_escape_string($email)."' LIMIT 1");
-            if (sql_num_rows($res) > 0) {
+            $res = sql_pe("SELECT user_id FROM users WHERE user_email=? LIMIT 1", array($email));
+            if (sizeof($res) > 0) {
                 return 4;
             }
-            sql_query("UPDATE `users` SET `user_email`='".mysql_real_escape_string($email)."' WHERE `user_id`=".$_SESSION['user_id']." LIMIT 1");
+            sql_pe("UPDATE `users` SET `user_email`=? WHERE `user_id`=? LIMIT 1", array($email, $_SESSION['user_id']));
             return 1;
         } else
             return 3;
@@ -240,7 +238,7 @@ function user_change_shown_name($new_name) {
     $new_name = trim($new_name);
     if (!preg_match('/^[a-zа-я0-9ё_\-\s\.]{2,}$/ui', $new_name))
         return 2;
-    sql_query("UPDATE users SET user_shown_name = '".mysql_real_escape_string($new_name)."' WHERE user_id = ".$_SESSION['user_id']." LIMIT 1");
+    sql_pe("UPDATE users SET user_shown_name = ? WHERE user_id = ? LIMIT 1", array($new_name, $_SESSION['user_id']));
     $_SESSION['user_name'] = $new_name;
     return 1;
 }
@@ -386,10 +384,11 @@ function save_user_options($post) {
     if (!isset($post['options']))
         throw new UnexpectedValueException();
     sql_begin();
+    $upd = sql_prepare("UPDATE user_options_values SET option_value=? WHERE option_id=? AND user_id=? LIMIT 1");
     foreach ($post['options'] as $id=>$value) {
         if ($_SESSION['options'][$id]['value'] != $value) {
-            sql_query("UPDATE user_options_values SET option_value='".mysql_real_escape_string($value)."' WHERE option_id=".mysql_real_escape_string($id)." AND user_id=".$_SESSION['user_id']." LIMIT 1");
-            $_SESSION['options'][$id] = mysql_real_escape_string($value);
+            sql_execute($upd, array($value, $id, $_SESSION['user_id']));
+            $_SESSION['options'][$id] = $value;
         }
     }
     sql_commit();
@@ -474,7 +473,7 @@ function save_user_team($team_id, $new_team_name=false) {
     sql_begin();
     // create new team if necessary
     if ($new_team_name) {
-        sql_query("INSERT INTO user_teams VALUES(NULL, '".mysql_real_escape_string($new_team_name)."', ".$_SESSION['user_id'].")");
+        sql_pe("INSERT INTO user_teams VALUES(NULL, ?, ?)", array(trim($new_team_name), $_SESSION['user_id']));
         $team_id = sql_insert_id();
     }
 

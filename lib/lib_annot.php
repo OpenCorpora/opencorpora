@@ -264,7 +264,7 @@ function sentence_save($sent_id) {
     sql_commit();
 }
 function sentence_save_source($sent_id, $text) {
-    sql_query("UPDATE sentences SET source = '".mysql_real_escape_string(trim($text))."' WHERE sent_id=$sent_id LIMIT 1");
+    sql_pe("UPDATE sentences SET source = ? WHERE sent_id=? LIMIT 1", array(trim($text), $sent_id));
 }
 function create_tf_revision($revset_id, $token_id, $rev_xml) {
     $res = sql_pe("SELECT rev_text FROM tf_revisions WHERE tf_id=? ORDER BY rev_id DESC LIMIT 1", array($token_id));
@@ -322,7 +322,7 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
 
     $q_filter = '';
     if ($filter)
-        $q_filter = "AND t.grammemes REGEXP '".mysql_real_escape_string($filter)."'";
+        $q_filter = "AND t.grammemes REGEXP ".sql_quote($filter);
 
     $res = sql_query("SELECT p.*, t.grammemes, t.gram_descr, u1.user_shown_name AS author_name, u2.user_shown_name AS moderator_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users u1 ON (p.author_id = u1.user_id) LEFT JOIN users u2 ON (p.moderator_id = u2.user_id) WHERE status = $type $q_moder $q_filter ORDER BY p.updated_ts DESC");
     while ($r = sql_fetch_assoc($res)) {
@@ -684,23 +684,26 @@ function add_morph_pool_type($post_gram, $post_descr) {
     if (sizeof($gram_sets) < 2)
         throw new UnexpectedValueException();
 
-    $gram_sets_str = mysql_real_escape_string(join('@', $gram_sets));
-    $gram_descr_str = mysql_real_escape_string(join('@', $gram_descr));
+    $gram_sets_str = join('@', $gram_sets);
+    $gram_descr_str = join('@', $gram_descr);
 
-    sql_query("INSERT INTO morph_annot_pool_types VALUES (NULL, '$gram_sets_str', '$gram_descr_str', '', 0, 0, 0)");
+    sql_pe("INSERT INTO morph_annot_pool_types VALUES (NULL, '$gram_sets_str', '$gram_descr_str', '', 0, 0, 0)", array($gram_sets_str, $gram_descr_str));
     return sql_insert_id();
 }
 function add_morph_pool() {
-    $pool_name = mysql_real_escape_string(trim($_POST['pool_name']));
-    $pool_type = (int)$_POST['pool_type'];
+    $pool_name = trim($_POST['pool_name']);
+    $pool_type = $_POST['pool_type'];
     sql_begin();
     if (!$pool_type)
         $pool_type = add_morph_pool_type($_POST['gram'], $_POST['descr']);
 
-    $users = (int)$_POST['users_needed'];
-    $token_check = (int)$_POST['token_checked'];
+    $users = $_POST['users_needed'];
+    $token_check = $_POST['token_checked'];
     $ts = time();
-    sql_query("INSERT INTO morph_annot_pools VALUES(NULL, '$pool_type', '$pool_name', '$token_check', '$users', '$ts', '$ts', '".$_SESSION['user_id']."', '0', '0', '0')");
+    sql_pe(
+        "INSERT INTO morph_annot_pools VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0)",
+        array($pool_type, $pool_name, $token_check, $users, $ts, $ts, $_SESSION['user_id'])
+    );
     sql_commit();
 }
 function delete_morph_pool($pool_id) {
@@ -728,7 +731,10 @@ function promote_samples_aux($tf_ids, $orig_pool_id, $lastrev, $new_pool_name, &
     // all except the first
     else {
         $full_name = $new_pool_name . ' #' . ($new_pool_index++);
-        sql_query("INSERT INTO morph_annot_pools (SELECT NULL, pool_type, '".mysql_real_escape_string($full_name)."', token_check, users_needed, $time, $time, author_id, 0, 2, $lastrev FROM morph_annot_pools WHERE pool_id=$orig_pool_id LIMIT 1)");
+        sql_pe(
+            "INSERT INTO morph_annot_pools (SELECT NULL, pool_type, ?, token_check, users_needed, ?, ?, author_id, 0, 2, ? FROM morph_annot_pools WHERE pool_id=? LIMIT 1)",
+            array($full_name, $time, $time, $lastrev, $orig_pool_id)
+        );
         $current_pool_id = sql_insert_id();
     }
 
@@ -838,7 +844,10 @@ function promote_samples($pool_id, $type) {
     sql_query("DELETE cs.* FROM morph_annot_candidate_samples cs LEFT JOIN morph_annot_samples s USING(tf_id) WHERE s.pool_id IN (".join(',', $promoted_pool_ids).")");
 
     if (isset($_POST['keep'])) {
-        sql_query("INSERT INTO morph_annot_pools (SELECT NULL, pool_type, '".mysql_real_escape_string($next_pool_name . ' #' . $next_pool_index)."', token_check, users_needed, $time, $time, author_id, 0, 1, $lastrev FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1)");
+        sql_pe(
+            "INSERT INTO morph_annot_pools (SELECT NULL, pool_type, ".sql_quote($next_pool_name . ' #' . $next_pool_index).", token_check, users_needed, $time, $time, author_id, 0, 1, $lastrev FROM morph_annot_pools WHERE pool_id=? LIMIT 1)",
+            array($pool_id)
+        );
         sql_query("UPDATE morph_annot_candidate_samples SET pool_id=".sql_insert_id()." WHERE pool_id=$pool_id");
     }
 
@@ -1333,14 +1342,14 @@ function get_search_results($query, $exact_form=true) {
     $r = sql_fetch_array(sql_query("
         SELECT COUNT(*)
         FROM form2tf
-        WHERE form_text IN ('".join("','", array_map('mysql_real_escape_string', $forms))."')
+        WHERE form_text IN (".join(",", array_map('sql_quote', $forms)).")
     "));
 
     $out = array('total' => $r[0], 'results' => array());
     $res = sql_query("
         SELECT tf_id
         FROM form2tf
-        WHERE form_text IN ('".join("','", array_map('mysql_real_escape_string', $forms))."')
+        WHERE form_text IN (".join(",", array_map('sql_quote', $forms)).")
         LIMIT 100
     ");
     while ($r = sql_fetch_array($res))

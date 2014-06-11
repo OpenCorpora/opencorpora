@@ -180,14 +180,13 @@ function download_url($url, $force=false) {
 
     if (!$url)
         throw new UnexpectedValueException();
-    $escaped_url = mysql_real_escape_string($url);
     
     //check if it has been already downloaded
     sql_begin();
-    $res = sql_query("SELECT url FROM downloaded_urls WHERE url='$escaped_url' LIMIT 1");
-    if (sql_num_rows($res) > 0) {
+    $res = sql_pe("SELECT url FROM downloaded_urls WHERE url=? LIMIT 1", array($url));
+    if (sizeof($res) > 0) {
         if ($force)
-            sql_query("DELETE FROM downloaded_urls WHERE url='$escaped_url'");
+            sql_pe("DELETE FROM downloaded_urls WHERE url=?", array($url));
         else
             throw new Exception();
     }
@@ -206,7 +205,7 @@ function download_url($url, $force=false) {
     if (!$res)
         throw new Exception();
 
-    sql_query("INSERT INTO downloaded_urls VALUES('$escaped_url', '$filename')");
+    sql_pe("INSERT INTO downloaded_urls VALUES(?, ?)", array($url, $filename));
     sql_commit();
     return $filename;
 }
@@ -346,9 +345,9 @@ function save_token_text($tf_id, $tf_text) {
     sql_begin();
     $revset_id = create_revset("Change token #$tf_id text to <$tf_text>");
     $token_for_form2tf = str_replace('ё', 'е', mb_strtolower($tf_text));
-    sql_query("UPDATE tokens SET tf_text = '".mysql_real_escape_string($tf_text)."' WHERE tf_id=$tf_id LIMIT 1");
-    sql_query("DELETE FROM form2tf WHERE tf_id=$tf_id");
-    sql_query("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $tf_id)");
+    sql_pe("UPDATE tokens SET tf_text = ? WHERE tf_id=? LIMIT 1", array($tf_text, $tf_id));
+    sql_pe("DELETE FROM form2tf WHERE tf_id=?", array($tf_id));
+    sql_query("INSERT INTO form2tf VALUES(?, ?)", array($token_for_form2tf, $tf_id));
     create_tf_revision($revset_id, $tf_id, generate_tf_rev($tf_text));
 
     sql_commit();
@@ -411,8 +410,8 @@ function merge_tokens_ii($id_array) {
     //update tf_text, add new revision
     $revset_id = create_revset("Tokens $joined merged to <$new_text>");
     $token_for_form2tf = str_replace('ё', 'е', mb_strtolower($new_text));
-    sql_query("UPDATE tokens SET tf_text = '".mysql_real_escape_string($new_text)."' WHERE tf_id=$new_id LIMIT 1");
-    sql_query("INSERT INTO form2tf VALUES('".mysql_real_escape_string($token_for_form2tf)."', $new_id)");
+    sql_pe("UPDATE tokens SET tf_text = ? WHERE tf_id=? LIMIT 1", array($new_text, $new_id));
+    sql_pe("INSERT INTO form2tf VALUES(?, ?)", array($token_for_form2tf, $new_id));
     create_tf_revision($revset_id, $new_id, generate_tf_rev($new_text));
     //drop sentence status
     sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$sent_id LIMIT 1");
