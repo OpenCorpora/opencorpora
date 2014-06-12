@@ -342,16 +342,15 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     return array('pools' => $pools, 'types' => $types, 'moderators' => $moderators);
 }
 function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $skip=0, $filter=false, $samples_by_page=0) {
-    $res = sql_query("
+    $res = sql_pe("
         SELECT pool_name, pool_type, status, t.grammemes, t.has_focus, t.doc_link,
             users_needed, moderator_id, user_shown_name AS user_name
         FROM morph_annot_pools p
         LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id)
         LEFT JOIN users ON (p.moderator_id = users.user_id)
-        WHERE pool_id=$pool_id
-        LIMIT 1");
-    $r = sql_fetch_array($res);
-    $pool_gram = explode('@', str_replace('&', ' & ', $r['grammemes']));
+        WHERE pool_id=?
+        LIMIT 1", array($pool_id));
+    $pool_gram = explode('@', str_replace('&', ' & ', $res[0]['grammemes']));
     $select_options = array('---');
     foreach ($pool_gram as $v) {
         $select_options[] = $v;
@@ -359,33 +358,33 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     $select_options[99] = 'Other';
     $out = array(
         'id' => $pool_id,
-        'type' => $r['pool_type'],
+        'type' => $res[0]['pool_type'],
         'variants' => $select_options,
-        'name' => $r['pool_name'],
-        'status' => $r['status'],
-        'has_manual' => (bool)$r['doc_link'],
-        'num_users' => $r['users_needed'],
-        'moderator_name' => $r['user_name'],
-        'has_focus' => $r['has_focus'],
+        'name' => $res[0]['pool_name'],
+        'status' => $res[0]['status'],
+        'has_manual' => (bool)$res[0]['doc_link'],
+        'num_users' => $res[0]['users_needed'],
+        'moderator_name' => $res[0]['user_name'],
+        'has_focus' => $res[0]['has_focus'],
         'samples' => array()
     );
-    $res = sql_query("
+    $res = sql_pe("
         SELECT sample_id, s.tf_id
         FROM morph_annot_samples s
         LEFT JOIN tokens f ON (s.tf_id = f.tf_id)
-        WHERE pool_id=$pool_id
+        WHERE pool_id=?
         ORDER BY tf_text, sample_id
-    ");
+    ", array($pool_id));
     $gram_descr = array();
     $distinct_users = array();
     $out['all_moderated'] = $extended ? true : false;  // for now we never get active button with non-extended view, just for code simplicity
-    $num_samples = sql_num_rows($res);
+    $num_samples = sizeof($res);
     $out['pages'] = array(
         'active' => $samples_by_page ? ($skip / $samples_by_page) : 0,
         'query' => preg_replace('/&skip=\d+/', '', $_SERVER['QUERY_STRING']),
         'total' => 0
     );
-    while ($r = sql_fetch_array($res)) {
+    foreach ($res as $r) {
         $t = get_context_for_word($r['tf_id'], $context_width);
         $t['id'] = $r['sample_id'];
         $t['token_id'] = $r['tf_id'];
@@ -588,8 +587,8 @@ function filter_sample_for_moderation($pool_type, $sample, $has_focus) {
 }
 function get_pool_candidates_page($pool_id) {
     $pool = array('id' => $pool_id);
-    $r = sql_fetch_array(sql_query("SELECT pool_name FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
-    $pool['name'] = $r['pool_name'];
+    $res = sql_pe("SELECT pool_name FROM morph_annot_pools WHERE pool_id=? LIMIT 1", array($pool_id));
+    $pool['name'] = $res[0]['pool_name'];
     $matches = array();
     if (preg_match('/^(.+?)\s+#(\d+)/', $pool['name'], $matches))
         $pool['next_name'] = $matches[1] . ' #';
@@ -599,9 +598,9 @@ function get_pool_candidates_page($pool_id) {
     return $pool;
 }
 function get_pool_candidates($pool_id) {
-    $res = sql_query("SELECT tf_id FROM morph_annot_candidate_samples WHERE pool_id=$pool_id ORDER BY RAND() LIMIT 200");
+    $res = sql_pe("SELECT tf_id FROM morph_annot_candidate_samples WHERE pool_id=? ORDER BY RAND() LIMIT 200", array($pool_id));
     $out = array();
-    while ($r = sql_fetch_array($res)) {
+    foreach ($res as $r) {
         $out[] = get_context_for_word($r[0], 2);
     }
     return $out;
@@ -708,16 +707,16 @@ function add_morph_pool() {
 }
 function delete_morph_pool($pool_id) {
     //NB: we mustn't delete any pools with answers
-    $res = sql_query("SELECT instance_id FROM morph_annot_instances WHERE answer > 0 AND sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id)");
-    if (sql_num_rows($res) > 0)
+    $res = sql_pe("SELECT instance_id FROM morph_annot_instances WHERE answer > 0 AND sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=?) LIMIT 1", array($pool_id));
+    if (sizeof($res) > 0)
         throw new Exception("Пул содержит пользовательские ответы");
 
     sql_begin();
-    sql_query("DELETE FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id)");
-    sql_query("DELETE FROM morph_annot_candidate_samples WHERE pool_id=$pool_id");
-    sql_query("DELETE FROM morph_annot_moderated_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id)");
-    sql_query("DELETE FROM morph_annot_samples WHERE pool_id=$pool_id");
-    sql_query("DELETE FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1");
+    sql_pe("DELETE FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=?)", array($pool_id));
+    sql_pe("DELETE FROM morph_annot_candidate_samples WHERE pool_id=?", array($pool_id));
+    sql_pe("DELETE FROM morph_annot_moderated_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=?)", array($pool_id));
+    sql_pe("DELETE FROM morph_annot_samples WHERE pool_id=?", array($pool_id));
+    sql_pe("DELETE FROM morph_annot_pools WHERE pool_id=? LIMIT 1", array($pool_id));
     sql_commit();
 }
 function promote_samples_aux($tf_ids, $orig_pool_id, $lastrev, $new_pool_name, &$new_pool_index, &$promoted_pools) {
@@ -858,66 +857,65 @@ function publish_pool($pool_id) {
     if (!$pool_id)
         throw new UnexpectedValueException();
 
-    $r = sql_fetch_array(sql_query("SELECT `status`, users_needed FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
+    $res = sql_pe("SELECT `status`, users_needed FROM morph_annot_pools WHERE pool_id=? LIMIT 1", array($pool_id));
     sql_begin();
 
-    if ($r['status'] < 3) {
+    if ($res[0]['status'] < 3) {
         //all this should be done only if the pool is published for the 1st time
-        $N = $r['users_needed'];
+        $N = $res[0]['users_needed'];
         for ($i = 0; $i < $N; ++$i)
-            sql_query("INSERT INTO morph_annot_instances(SELECT NULL, sample_id, 0, 0, 0 FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id)");
-        sql_query("INSERT INTO morph_annot_moderated_samples (SELECT sample_id, 0, 0, 0, 0, 0 FROM morph_annot_samples WHERE pool_id=$pool_id ORDER BY sample_id)");
+            sql_pe("INSERT INTO morph_annot_instances(SELECT NULL, sample_id, 0, 0, 0 FROM morph_annot_samples WHERE pool_id=? ORDER BY sample_id)", array($pool_id));
+        sql_pe("INSERT INTO morph_annot_moderated_samples (SELECT sample_id, 0, 0, 0, 0, 0 FROM morph_annot_samples WHERE pool_id=? ORDER BY sample_id)", array($pool_id));
     }
 
-    sql_query("UPDATE morph_annot_pools SET `status`='3', `updated_ts`='".time()."' WHERE pool_id=$pool_id LIMIT 1");
+    sql_pe("UPDATE morph_annot_pools SET `status`='3', `updated_ts`=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
     sql_commit();
 }
 function unpublish_pool($pool_id) {
     if (!$pool_id)
         throw new UnexpectedValueException();
 
-    sql_query("UPDATE morph_annot_pools SET `status`='4', `updated_ts`='".time()."' WHERE pool_id=$pool_id LIMIT 1");
+    sql_pe("UPDATE morph_annot_pools SET `status`='4', `updated_ts`=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
 function moderate_pool($pool_id) {
     if (!$pool_id)
         throw new UnexpectedValueException();
 
     //we should only allow to moderate pools once we have all the answers
-    $res = sql_query("SELECT instance_id FROM morph_annot_instances WHERE answer=0 AND sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id)");
-    if (sql_num_rows($res) > 0)
+    $res = sql_pe("SELECT instance_id FROM morph_annot_instances WHERE answer=0 AND sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=?) LIMIT 1", array($pool_id));
+    if (sizeof($res) > 0)
         throw new Exception("Пул заполнен не полностью");
 
-    sql_query("UPDATE morph_annot_pools SET `status`='5', `updated_ts`='".time()."' WHERE pool_id=$pool_id LIMIT 1");
+    sql_pe("UPDATE morph_annot_pools SET `status`='5', `updated_ts`=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
 function finish_moderate_pool($pool_id) {
     if (!$pool_id)
         throw new UnexpectedValueException();
 
     //only the pool moderator can finish moderation
-    $r = sql_fetch_array(sql_query("SELECT moderator_id FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
-    if ($r['moderator_id'] != $_SESSION['user_id'])
+    if (!check_moderator_right($_SESSION['user_id'], $pool_id))
         throw new Exception("Вы не модератор этого пула");
 
     //we cannot finish unless all the samples are moderated
-    $res = sql_query("SELECT sample_id FROM morph_annot_moderated_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id) AND answer = 0 LIMIT 1");
-    if (sql_num_rows($res) > 0)
+    $res = sql_pe("SELECT sample_id FROM morph_annot_moderated_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=?) AND answer = 0 LIMIT 1", array($pool_id));
+    if (sizeof($res) > 0)
         throw new Exception("Не всё отмодерировано");
 
     // check for bad moderator answers
-    $res = sql_query("
+    $res = sql_pe("
         SELECT sample_id
         FROM morph_annot_moderated_samples
         JOIN morph_annot_samples
             USING (sample_id)
-        WHERE pool_id=$pool_id
+        WHERE pool_id=?
             AND answer = 99
             AND status IN (0, 1)
         LIMIT 1
-    ");
-    if (sql_num_rows($res) > 0)
+    ", array($pool_id));
+    if (sizeof($res) > 0)
         throw new Exception("Error in sample #".$r['sample_id']);
 
-    sql_query("UPDATE morph_annot_pools SET status=6, updated_ts=".time()." WHERE pool_id=$pool_id LIMIT 1");
+    sql_pe("UPDATE morph_annot_pools SET status=6, updated_ts=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
 function begin_pool_merge($pool_id) {
     if (!user_has_permission("perm_merge"))
@@ -926,11 +924,11 @@ function begin_pool_merge($pool_id) {
         throw new UnexpectedValueException();
 
     // we can perform this only if pool has been moderated
-    $r = sql_fetch_array(sql_query("SELECT status FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
-    if ($r['status'] != 6)
+    $res = sql_pe("SELECT status FROM morph_annot_pools WHERE pool_id=? LIMIT 1", array($pool_id));
+    if ($res[0]['status'] != 6)
         throw new Exception("Пул не отмодерирован");
 
-    sql_query("UPDATE morph_annot_pools SET status=7, updated_ts=".time()." WHERE pool_id=$pool_id LIMIT 1");
+    sql_pe("UPDATE morph_annot_pools SET status=7, updated_ts=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
 function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=false) {
     $tasks = array();
@@ -1249,13 +1247,13 @@ function update_annot_instance($id, $answer) {
 }
 function check_moderator_right($user_id, $pool_id, $make_owner=false) {
     //the pool must have status=5 (under moderation) AND either have no moderator or have this user as moderator
-    $r = sql_fetch_array(sql_query("SELECT `status`, moderator_id FROM morph_annot_pools WHERE pool_id = $pool_id LIMIT 1"));
-    if ($r['status'] != 5)
+    $res = sql_pe("SELECT `status`, moderator_id FROM morph_annot_pools WHERE pool_id = ? LIMIT 1", array($pool_id));
+    if ($res[0]['status'] != 5)
         return false;
-    if ($r['moderator_id'] == 0) {
+    if ($res[0]['moderator_id'] == 0) {
         if ($make_owner)
-            sql_query("UPDATE morph_annot_pools SET moderator_id=$user_id WHERE pool_id = $pool_id LIMIT 1");
-    } elseif ($r['moderator_id'] != $user_id)
+            sql_pe("UPDATE morph_annot_pools SET moderator_id=? WHERE pool_id=? LIMIT 1", array($user_id, $pool_id));
+    } elseif ($res[0]['moderator_id'] != $user_id)
         return false;
     return true;
 }

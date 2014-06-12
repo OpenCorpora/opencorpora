@@ -16,16 +16,16 @@ switch ($action) {
         header("Location:pools.php?added&type=0");
         break;
     case 'delete':
-        delete_morph_pool((int)$_GET['pool_id']);
+        delete_morph_pool($_GET['pool_id']);
         header("Location:pools.php");
         break;
     case 'candidates':
-        $smarty->assign('pool', get_pool_candidates_page((int)$_GET['pool_id']));
+        $smarty->assign('pool', get_pool_candidates_page($_GET['pool_id']));
         $smarty->display('qa/pool_candidates.tpl');
         break;
     case 'samples':
         if (isset($_GET['tabs'])) {
-            $smarty->assign('pool', get_morph_samples_page((int)$_GET['pool_id'], true, 100));
+            $smarty->assign('pool', get_morph_samples_page($_GET['pool_id'], true, 100));
             header("Content-type: application/csv; charset=utf-8");
             header("Content-disposition: attachment; filename=pool_".(int)$_GET['pool_id'].".tab");
             $smarty->display('qa/pool_tabs.tpl');
@@ -41,10 +41,10 @@ switch ($action) {
             }
 
             $smarty->assign('pool', get_morph_samples_page(
-                (int)$_GET['pool_id'],
+                $_GET['pool_id'],
                 isset($_GET['ext']),
                 $config['misc']['morph_annot_moder_context_size'],
-                isset($_GET['skip']) ? (int)$_GET['skip'] : 0,
+                isset($_GET['skip']) ? $_GET['skip'] : 0,
                 $filter,
                 (!user_has_permission('perm_check_morph') || $_SESSION['options'][4] == 1) ? $config['misc']['morph_annot_moder_page_size'] : 0
             ));
@@ -53,30 +53,30 @@ switch ($action) {
         break;
     case 'promote':
         promote_samples((int)$_GET['pool_id'], $_POST['type']);
-        header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
+        header("Location:pools.php?act=samples&pool_id=".$_GET['pool_id']);
         break;
     case 'publish':
-        publish_pool((int)$_GET['pool_id']);
-        header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
+        publish_pool($_GET['pool_id']);
+        header("Location:pools.php?act=samples&pool_id=".$_GET['pool_id']);
         break;
     case 'unpublish':
-        unpublish_pool((int)$_GET['pool_id']);
-        header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
+        unpublish_pool($_GET['pool_id']);
+        header("Location:pools.php?act=samples&pool_id=".$_GET['pool_id']);
         break;
     case 'begin_moder':
-        moderate_pool((int)$_GET['pool_id']);
-        header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
+        moderate_pool($_GET['pool_id']);
+        header("Location:pools.php?act=samples&pool_id=".$_GET['pool_id']);
         break;
     case 'agree':
         moder_agree_with_all((int)$_GET['pool_id']);
-        header("Location:pools.php?act=samples&pool_id=".(int)$_GET['pool_id']);
+        header("Location:pools.php?act=samples&pool_id=".$_GET['pool_id']);
         break;
     case 'finish_moder':
-        finish_moderate_pool((int)$_GET['pool_id']);
+        finish_moderate_pool($_GET['pool_id']);
         header("Location:index.php?page=pool_charts");
         break;
     case 'begin_merge':
-        begin_pool_merge((int)$_GET['pool_id']);
+        begin_pool_merge($_GET['pool_id']);
         header("Location:index.php?page=pool_charts");
         break;
     default:
