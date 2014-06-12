@@ -238,7 +238,12 @@ function get_user_stats($weekly=false, $team=0) {
 
     // last activity info
     $last_click = array();
-    $res = sql_query("SELECT user_id, MAX(timestamp) AS last_time FROM morph_annot_click_log GROUP BY user_id");
+    $res = sql_query("
+        SELECT user_id, MAX(timestamp) AS last_time
+        FROM morph_annot_click_log
+        WHERE timestamp > UNIX_TIMESTAMP(NOW()) - 60*60*24 * 60
+        GROUP BY user_id
+    ");
     while ($r = sql_fetch_array($res)) {
         $last_click[$r['user_id']] = $r['last_time'];
     }

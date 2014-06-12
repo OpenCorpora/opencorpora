@@ -54,6 +54,7 @@ $(document).ready(function(){
         <td>
             {if $s.fin.last_active > $user_stats.timestamp_today}сегодня в {$s.fin.last_active|date_format:"%H:%M"}
             {elseif $s.fin.last_active > $user_stats.timestamp_yesterday}вчера в {$s.fin.last_active|date_format:"%H:%M"}
+            {elseif $s.fin.last_active == 0}давно
             {else}{$s.fin.last_active|date_format:"%d.%m.%y"}{/if}
     </tr>
 {/foreach}
