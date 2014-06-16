@@ -64,21 +64,39 @@ sub books_by_source {
 
 sub sentences_by_source {
     my $pid = shift;
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (".join(',', books_by_source($pid))."))");
+    my $sc = $dbh->prepare("
+        SELECT COUNT(*) AS cnt
+        FROM sentences
+        JOIN paragraphs USING (par_id)
+        WHERE book_id IN (".join(',', books_by_source($pid)).")
+    ");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 }
 
 sub tokens_by_source {
     my $pid = shift;
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM tokens WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (".join(',', books_by_source($pid)).")))");
+    my $sc = $dbh->prepare("
+        SELECT COUNT(*) AS cnt
+        FROM tokens
+        JOIN sentences USING (sent_id)
+        JOIN paragraphs USING (par_id)
+        WHERE book_id IN (".join(',', books_by_source($pid)).")
+    ");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 }
 
 sub words_by_source {
     my $pid = shift;
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM tokens WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id IN (".join(',', books_by_source($pid))."))) AND $cyr_match");
+    my $sc = $dbh->prepare("
+        SELECT COUNT(*) AS cnt
+        FROM tokens
+        JOIN sentences USING (sent_id)
+        JOIN paragraphs USING (par_id)
+        WHERE book_id IN (".join(',', books_by_source($pid)).")
+        AND $cyr_match
+    ");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 }
