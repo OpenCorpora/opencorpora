@@ -1,4 +1,6 @@
 <?php
+require_once('constants.php');
+
 function get_sentence($sent_id) {
     $r = sql_fetch_array(sql_query("SELECT `check_status`, source FROM sentences WHERE sent_id=$sent_id LIMIT 1"));
     $out = array(
@@ -309,8 +311,8 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
         $instance_count[$r['pool_id']][1] += $r['cnt'];
     }
     // and moderated answers if needed
-    if ($type == 5) {
-        $res = sql_query("SELECT pool_id, COUNT(*) cnt FROM morph_annot_moderated_samples LEFT JOIN morph_annot_samples USING(sample_id) WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status=5)) AND answer > 0 GROUP BY pool_id");
+    if ($type == MA_POOLS_STATUS_MODERATION) {
+        $res = sql_query("SELECT pool_id, COUNT(*) cnt FROM morph_annot_moderated_samples LEFT JOIN morph_annot_samples USING(sample_id) WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status=".MA_POOLS_STATUS_MODERATION.")) AND answer > 0 GROUP BY pool_id");
         while ($r = sql_fetch_array($res)) {
             $instance_count[$r['pool_id']][2] = $r['cnt'];
         }
@@ -326,11 +328,11 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
 
     $res = sql_query("SELECT p.*, t.grammemes, t.gram_descr, u1.user_shown_name AS author_name, u2.user_shown_name AS moderator_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users u1 ON (p.author_id = u1.user_id) LEFT JOIN users u2 ON (p.moderator_id = u2.user_id) WHERE status = $type $q_moder $q_filter ORDER BY p.updated_ts DESC");
     while ($r = sql_fetch_assoc($res)) {
-        if ($type == 1) {
+        if ($type == MA_POOLS_STATUS_FOUND_CANDIDATES) {
             $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_candidate_samples WHERE pool_id=".$r['pool_id']));
             $r['candidate_count'] = $r1[0];
         }
-        elseif ($type == 5) {
+        elseif ($type == MA_POOLS_STATUS_MODERATION) {
             $r['moderated_count'] = $instance_count[$r['pool_id']][2];
         }
 
@@ -424,7 +426,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
             $t['disagreed'] = $disagreement_flag;
             $t['comments'] = get_sample_comments($r['sample_id']);
             //for moderators
-            if ($out['status'] > 4) {
+            if ($out['status'] > MA_POOLS_STATUS_ANSWERED) {
                 $r1 = sql_fetch_array(sql_query("SELECT answer, status FROM morph_annot_moderated_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
                 $t['moder_answer_num'] = $r1['answer'];
                 $t['moder_status_num'] = $r1['status'];
@@ -462,7 +464,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         elseif (
             ($filter != 'focus' && (
             ($t['disagreed'] && $filter == 'disagreed') ||
-            ($out['status'] > 4 && $t['moder_answer_num'] == 0 && $filter == 'not_moderated') ||
+            ($out['status'] > MA_POOLS_STATUS_ANSWERED && $t['moder_answer_num'] == 0 && $filter == 'not_moderated') ||
             (sizeof($t['comments']) > 0 && $filter == 'comments') ||
             ($not_ok_flag && $filter == 'not_ok')
             ))
@@ -731,7 +733,7 @@ function promote_samples_aux($tf_ids, $orig_pool_id, $lastrev, $new_pool_name, &
     else {
         $full_name = $new_pool_name . ' #' . ($new_pool_index++);
         sql_pe(
-            "INSERT INTO morph_annot_pools (SELECT NULL, pool_type, '".sql_quote($full_name)."', token_check, users_needed, $time, $time, author_id, 0, 2, $lastrev FROM morph_annot_pools WHERE pool_id=? LIMIT 1)",
+            "INSERT INTO morph_annot_pools (SELECT NULL, pool_type, '".sql_quote($full_name)."', token_check, users_needed, $time, $time, author_id, 0, ".MA_POOLS_STATUS_NOT_STARTED.", $lastrev FROM morph_annot_pools WHERE pool_id=? LIMIT 1)",
             array($orig_pool_id)
         );
         $current_pool_id = sql_insert_id();
@@ -837,14 +839,14 @@ function promote_samples($pool_id, $type) {
         promote_samples_aux($tf_array, $pool_id, $lastrev, $next_pool_name, $next_pool_index, $promoted_pool_ids);
 
 
-    sql_query("UPDATE morph_annot_pools SET `status`='2', `revision`='$lastrev', `created_ts`='$time', `updated_ts`='$time' WHERE pool_id=$pool_id LIMIT 1");
+    sql_query("UPDATE morph_annot_pools SET `status`=".MA_POOLS_STATUS_NOT_STARTED.", `revision`='$lastrev', `created_ts`='$time', `updated_ts`='$time' WHERE pool_id=$pool_id LIMIT 1");
 
     // delete tf_ids that were added
     sql_query("DELETE cs.* FROM morph_annot_candidate_samples cs LEFT JOIN morph_annot_samples s USING(tf_id) WHERE s.pool_id IN (".join(',', $promoted_pool_ids).")");
 
     if (isset($_POST['keep'])) {
         sql_pe(
-            "INSERT INTO morph_annot_pools (SELECT NULL, pool_type, ".sql_quote($next_pool_name . ' #' . $next_pool_index).", token_check, users_needed, $time, $time, author_id, 0, 1, $lastrev FROM morph_annot_pools WHERE pool_id=? LIMIT 1)",
+            "INSERT INTO morph_annot_pools (SELECT NULL, pool_type, ".sql_quote($next_pool_name . ' #' . $next_pool_index).", token_check, users_needed, $time, $time, author_id, 0, ".MA_POOLS_STATUS_FOUND_CANDIDATES.", $lastrev FROM morph_annot_pools WHERE pool_id=? LIMIT 1)",
             array($pool_id)
         );
         sql_query("UPDATE morph_annot_candidate_samples SET pool_id=".sql_insert_id()." WHERE pool_id=$pool_id");
@@ -860,7 +862,7 @@ function publish_pool($pool_id) {
     $res = sql_pe("SELECT `status`, users_needed FROM morph_annot_pools WHERE pool_id=? LIMIT 1", array($pool_id));
     sql_begin();
 
-    if ($res[0]['status'] < 3) {
+    if ($res[0]['status'] < MA_POOLS_STATUS_IN_PROGRESS) {
         //all this should be done only if the pool is published for the 1st time
         $N = $res[0]['users_needed'];
         for ($i = 0; $i < $N; ++$i)
@@ -868,14 +870,14 @@ function publish_pool($pool_id) {
         sql_pe("INSERT INTO morph_annot_moderated_samples (SELECT sample_id, 0, 0, 0, 0, 0 FROM morph_annot_samples WHERE pool_id=? ORDER BY sample_id)", array($pool_id));
     }
 
-    sql_pe("UPDATE morph_annot_pools SET `status`='3', `updated_ts`=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
+    sql_pe("UPDATE morph_annot_pools SET `status`=".MA_POOLS_STATUS_IN_PROGRESS.", `updated_ts`=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
     sql_commit();
 }
 function unpublish_pool($pool_id) {
     if (!$pool_id)
         throw new UnexpectedValueException();
 
-    sql_pe("UPDATE morph_annot_pools SET `status`='4', `updated_ts`=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
+    sql_pe("UPDATE morph_annot_pools SET `status`=".MA_POOLS_STATUS_ANSWERED.", `updated_ts`=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
 function moderate_pool($pool_id) {
     if (!$pool_id)
@@ -886,7 +888,7 @@ function moderate_pool($pool_id) {
     if (sizeof($res) > 0)
         throw new Exception("Пул заполнен не полностью");
 
-    sql_pe("UPDATE morph_annot_pools SET `status`='5', `updated_ts`=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
+    sql_pe("UPDATE morph_annot_pools SET `status`=".MA_POOLS_STATUS_MODERATION.", `updated_ts`=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
 function finish_moderate_pool($pool_id) {
     if (!$pool_id)
@@ -915,7 +917,7 @@ function finish_moderate_pool($pool_id) {
     if (sizeof($res) > 0)
         throw new Exception("Error in sample #".$r['sample_id']);
 
-    sql_pe("UPDATE morph_annot_pools SET status=6, updated_ts=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
+    sql_pe("UPDATE morph_annot_pools SET status=".MA_POOLS_STATUS_MODERATED.", updated_ts=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
 function begin_pool_merge($pool_id) {
     if (!user_has_permission("perm_merge"))
@@ -925,10 +927,10 @@ function begin_pool_merge($pool_id) {
 
     // we can perform this only if pool has been moderated
     $res = sql_pe("SELECT status FROM morph_annot_pools WHERE pool_id=? LIMIT 1", array($pool_id));
-    if ($res[0]['status'] != 6)
+    if ($res[0]['status'] != MA_POOLS_STATUS_MODERATED)
         throw new Exception("Пул не отмодерирован");
 
-    sql_pe("UPDATE morph_annot_pools SET status=7, updated_ts=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
+    sql_pe("UPDATE morph_annot_pools SET status=".MA_POOLS_STATUS_TO_MERGE.", updated_ts=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
 function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=false) {
     $tasks = array();
@@ -957,7 +959,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
             $type2complexity[$r['type_id']] = $r['complexity'];
     }
     // get all pools by status
-    $res = sql_query("SELECT pool_id, pool_name, status, pool_type FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE status = 3 $order_string $limit_string");
+    $res = sql_query("SELECT pool_id, pool_name, status, pool_type FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE status = ".MA_POOLS_STATUS_IN_PROGRESS." $order_string $limit_string");
     while ($r = sql_fetch_array($res)) {
         $pools[$r['pool_id']] = array('id' => $r['pool_id'], 'name' => $r['pool_name'], 'status' => $r['status'], 'num_started' => 0, 'num_done' => 0, 'num' => 0, 'group' => $r['pool_type']);
     }
@@ -1061,7 +1063,7 @@ function get_my_answers($pool_id, $limit=10, $skip=0) {
     // TODO: we may certainly refactor here: this and get_annotation_packet() should share code
     $packet = array('my' => 1);
     $r = sql_fetch_array(sql_query("SELECT status, t.gram_descr FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE pool_id=$pool_id"));
-    if ($r['status'] != 3)
+    if ($r['status'] != MA_POOLS_STATUS_IN_PROGRESS)
         $packet['editable'] = 0;
     else
         $packet['editable'] = 1;
@@ -1097,7 +1099,7 @@ function get_next_pool($user_id, $prev_pool_id) {
         throw new UnexpectedValueException();
 
     $time = time();
-    $res = sql_query("SELECT pool_id FROM morph_annot_pools WHERE status = 3 AND pool_type = (SELECT pool_type FROM morph_annot_pools WHERE pool_id=$prev_pool_id LIMIT 1) ORDER BY created_ts");
+    $res = sql_query("SELECT pool_id FROM morph_annot_pools WHERE status = ".MA_POOLS_STATUS_IN_PROGRESS." AND pool_type = (SELECT pool_type FROM morph_annot_pools WHERE pool_id=$prev_pool_id LIMIT 1) ORDER BY created_ts");
     while ($r = sql_fetch_array($res)) {
         $res1 = sql_query("
             SELECT instance_id FROM morph_annot_instances LEFT JOIN morph_annot_samples USING (sample_id)
@@ -1123,7 +1125,7 @@ function get_annotation_packet($pool_id, $size) {
     global $config;
 
     $r = sql_fetch_array(sql_query("SELECT status, t.gram_descr, revision, pool_type, doc_link FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE pool_id=$pool_id"));
-    if ($r['status'] != 3)
+    if ($r['status'] != MA_POOLS_STATUS_IN_PROGRESS)
         throw new Exception();
     $packet = array(
         'my' => 0,
@@ -1206,7 +1208,7 @@ function update_annot_instance($id, $answer) {
 
     // the pool should be editable
     $r = sql_fetch_array(sql_query("SELECT pool_id, `status` FROM morph_annot_pools WHERE pool_id = (SELECT pool_id FROM morph_annot_samples WHERE sample_id=(SELECT sample_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1) LIMIT 1)"));
-    if ($r['status'] != 3)
+    if ($r['status'] != MA_POOLS_STATUS_IN_PROGRESS)
         throw new Exception("Пул недоступен для разметки");
 
     $pool_id = $r['pool_id'];
@@ -1248,7 +1250,7 @@ function update_annot_instance($id, $answer) {
 function check_moderator_right($user_id, $pool_id, $make_owner=false) {
     //the pool must have status=5 (under moderation) AND either have no moderator or have this user as moderator
     $res = sql_pe("SELECT `status`, moderator_id FROM morph_annot_pools WHERE pool_id = ? LIMIT 1", array($pool_id));
-    if ($res[0]['status'] != 5)
+    if ($res[0]['status'] != MA_POOLS_STATUS_MODERATION)
         return false;
     if ($res[0]['moderator_id'] == 0) {
         if ($make_owner)

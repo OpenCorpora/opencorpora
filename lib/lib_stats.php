@@ -1,4 +1,6 @@
 <?php
+require_once('constants.php');
+
 function get_common_stats() {
     global $config;
     $stats = array();
@@ -140,7 +142,7 @@ function get_pools_stats() {
         $total += $r['cnt'];
     }
 
-    $stats[2] += ($plan - $total);
+    $stats[MA_POOLS_STATUS_NOT_STARTED] += ($plan - $total);
     
     return $stats;
 }
@@ -325,11 +327,11 @@ function get_error_rate($num_moderated, $num_correct) {
 }
 function get_extended_pools_stats() {
     $status_text = array(
-        2 => 'Не опубликованы',
-        3 => 'Размечаются',
-        4 => 'Размечены',
-        6 => 'На модерации',
-        9 => 'Готовы'
+        MA_POOLS_STATUS_NOT_STARTED => 'Не опубликованы',
+        MA_POOLS_STATUS_IN_PROGRESS => 'Размечаются',
+        MA_POOLS_STATUS_ANSWERED => 'Размечены',
+        MA_POOLS_STATUS_MODERATED => 'На модерации',
+        MA_POOLS_STATUS_ARCHIVED => 'Готовы'
     );
 
     $total = array();
@@ -343,8 +345,8 @@ function get_extended_pools_stats() {
     ");
     $t = array();
     while ($r = sql_fetch_array($res)) {
-        if (in_array($r['status'], array(5, 7, 8)))
-            $r['status'] = 6;
+        if (in_array($r['status'], array(MA_POOLS_STATUS_MODERATION, MA_POOLS_STATUS_TO_MERGE, MA_POOLS_STATUS_MERGING)))
+            $r['status'] = MA_POOLS_STATUS_MODERATED;
         if (!isset($t[$r['status']][$r['pool_type']]))
             $t[$r['status']][$r['pool_type']] = 0;
         $t[$r['status']][$r['pool_type']] += $r['cnt'];
@@ -410,7 +412,7 @@ function get_moderation_stats() {
         ON (p.pool_type = t.type_id)
         LEFT JOIN users u
         ON (p.moderator_id = u.user_id)
-        WHERE status >= 4
+        WHERE status >= ".MA_POOLS_STATUS_ANSWERED."
         GROUP BY pool_type, moderator_id, status
         ORDER BY moderator_id, pool_type, status
     ");
@@ -464,7 +466,7 @@ function get_moderation_stats() {
                         $share = 0;
                     $t[$mod]['total'][$st][1] += $share * 100;
                 }
-                if ($mod == 0 && $st == 4)
+                if ($mod == 0 && $st == MA_POOLS_STATUS_ANSWERED)
                     $type2name[$type][1] = $sdata;
             }
         }

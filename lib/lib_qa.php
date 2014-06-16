@@ -1,4 +1,6 @@
 <?php
+require_once('constants.php');
+
 function get_page_tok_strange($newest = false) {
     $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE param_id=7 ORDER BY timestamp DESC LIMIT 1");
     $r = sql_fetch_array($res);
@@ -115,7 +117,7 @@ function get_merge_fails() {
         FROM morph_annot_moderated_samples ms
         LEFT JOIN morph_annot_samples s USING (sample_id)
         LEFT JOIN morph_annot_pools p USING (pool_id)
-        WHERE p.status = 9
+        WHERE p.status = ".MA_POOLS_STATUS_ARCHIVED."
         AND merge_status = 0
         ORDER BY sample_id
     ");
@@ -173,8 +175,8 @@ function get_most_useful_pools($type=0) {
                 USING (sent_id)
             LEFT JOIN tokens tf2
                 USING (sent_id)
-        WHERE p.status >= 4
-            AND p.status <=6
+        WHERE p.status >= ".MA_POOLS_STATUS_ANSWERED."
+            AND p.status <= ".MA_POOLS_STATUS_MODERATED."
             AND num_homonymous = 1 ".
             ($type > 0 ? " AND p.pool_type = $type" : "")
             ." GROUP BY pool_id
