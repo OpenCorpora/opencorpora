@@ -10,21 +10,25 @@
 </ul>
 <h2>Участники проекта</h2>
 <table>
-    <tr class='muted'><td width='200px'>Василий Алексеев</td><td>2010&ndash;2011</td></tr>
-    <tr><td>Светлана Алексеева</td><td>{mailto address="bichineva@opencorpora.org" encode="javascript"}</td></tr>
+    <tr><td width='200px'>Светлана Алексеева</td><td>{mailto address="bichineva@opencorpora.org" encode="javascript"}</td></tr>
+    <tr><td>Анастасия Бодрова</td></tr>
     <tr><td>Виктор Бочаров</td><td>{mailto address="bocharov@opencorpora.org" encode="javascript"}</td></tr>
     <tr><td>Дмитрий Грановский</td><td>{mailto address="granovsky@opencorpora.org" encode="javascript"}</td></tr>
+    <tr><td>Ирина Крылова</td></tr>
     <tr><td>Мария Николаева</td></tr>
-    <tr class='muted'><td>Наталья Остапук</td><td>2010&ndash;2011</td></tr>
     <tr><td>Екатерина Протопопова</td></tr>
-    <tr class='muted'><td>Мария Степанова</td><td>2010&ndash;2012</td></tr>
     <tr><td>Алексей Суриков</td></tr>
     <tr><td>Александр Чучунков</td></tr>
+</table>
+<h4>Бывшие участники</h4>
+<table>
+    <tr><td width='200px'>Василий Алексеев</td></tr>
+    <tr><td>Наталья Остапук</td></tr>
+    <tr><td>Мария Степанова</td></tr>
 </table>
 <h2>Мы благодарны:</h2>
     <p>И.В.&nbsp;Азаровой,
     К.М.&nbsp;Аксарину,
-    Анастасии Бодровой,
     Н.В.&nbsp;Борисову,
     Светлане Вольской,
     Дмитрию Гайворонскому,
@@ -35,7 +39,6 @@
     Эдуарду Клышинскому,
     Михаилу Коробову,
     Андрею Крижановскому,
-    Ирине Крыловой,
     Ольге Ксендзовской,
     Татьяне Ландо,
     Артёму Луканину,
