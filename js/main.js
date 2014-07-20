@@ -178,15 +178,15 @@ function highlight_source() {
         //if outer edge is visible + lighter if inner edge is visible
         ol = this.offsetLeft;
         if (ol >= l && ol + $(this).width() < l + wd)
-            $('#src_token_' + i).removeClass().addClass('src_token_hlt');
+            $('#src_token_' + i).removeClass('src_token_hlt src_token_hlt_light').addClass('src_token_hlt');
         else if (ol + $(this).width() > l && ol < l + wd)
-            $('#src_token_' + i).removeClass().addClass('src_token_hlt_light');
+            $('#src_token_' + i).removeClass('src_token_hlt src_token_hlt_light').addClass('src_token_hlt_light');
     });
 }
 function dehighlight_source() {
     var i;
     for (i=0; $('#src_token_' + i).length; i++) {
-        $("#src_token_"+i).removeClass();
+        $("#src_token_"+i).removeClass('src_token_hlt src_token_hlt_light');
     }
 }
 function dict_add_form(event) {
