@@ -477,7 +477,7 @@ function save_user_team($team_id, $new_team_name=false) {
         $team_id = sql_insert_id();
     }
 
-    sql_query("UPDATE users SET user_team=$team_id WHERE user_id=".$_SESSION['user_id']." LIMIT 1");
+    sql_pe("UPDATE users SET user_team=? WHERE user_id=? LIMIT 1", array($team_id, $_SESSION['user_id']));
     sql_commit();
     return $team_id;
 }

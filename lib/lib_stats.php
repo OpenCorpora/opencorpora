@@ -298,6 +298,10 @@ function get_user_stats($weekly=false, $team=0) {
             'moderated' => isset($moderated[$r['user_id']]) ? $moderated[$r['user_id']] : 0,
             'error_rate' => isset($correct[$r['user_id']]) ? get_error_rate($moderated[$r['user_id']], $correct[$r['user_id']]) : 0
         );
+        if (isset($uid2team[$r['user_id']])) {
+            $t['team_id'] = $uid2team[$r['user_id']];
+            $t['team_name'] = $teams[$t['team_id']]['name'];
+        }
         if (isset($uid2sid[$r['user_id']]))
             $annotators[$uid2sid[$r['user_id']]]['fin'] = $t;
     }

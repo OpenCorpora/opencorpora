@@ -135,22 +135,22 @@ function get_simple_groups_by_complex($group_id) {
 
 function get_simple_groups_by_sentence($sent_id, $user_id) {
     $out = array();
-    $res = sql_query("
+    $res = sql_pe("
         SELECT group_id, group_type, token_id, tf_text, head_id, tf.pos
         FROM anaphora_syntax_groups_simple sg
         JOIN anaphora_syntax_groups g USING (group_id)
         JOIN tokens tf ON (sg.token_id = tf.tf_id)
-        WHERE sent_id = $sent_id
-        AND user_id = $user_id
+        WHERE sent_id = ?
+        AND user_id = ?
         ORDER BY group_id, tf.pos
-    ");
+    ", array($sent_id, $user_id));
 
     $last_r = NULL;
     $token_ids = array();
     $token_texts = array();
     $token_pos = array();
 
-    while ($r = sql_fetch_array($res)) {
+    foreach ($res as $r) {
         if ($last_r && $r['group_id'] != $last_r['group_id']) {
             $out[] = array(
                 'id' => $last_r['group_id'],
@@ -601,25 +601,28 @@ function get_moderated_groups_by_sentence($sent_id) {
 
 function add_anaphora($anaphor_id, $antecedent_id) {
     // check that anaphor exists and has Anph grammeme
-    $res = sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id=$anaphor_id AND is_last=1 LIMIT 1");
-    if (sql_num_rows($res) == 0)
+    $res = sql_pe("SELECT rev_text FROM tf_revisions WHERE tf_id=? AND is_last=1 LIMIT 1", array($anaphor_id));
+    if (sizeof($res) == 0)
         throw new Exception();
-    $r = sql_fetch_array($res);
+    $r = $res[0];
 
     if (strpos($r['rev_text'], '<g v="Anph"/>') === false)
         throw new Exception();
     // check that antecedent exists
-    $res = sql_query("SELECT * FROM anaphora_syntax_groups WHERE group_id=$antecedent_id LIMIT 1");
-    if (sql_num_rows($res) == 0)
+    $res = sql_pe("SELECT * FROM anaphora_syntax_groups WHERE group_id=? LIMIT 1", array($antecedent_id));
+    if (sizeof($res) == 0)
         throw new Exception();
 
     // TODO check that the group belongs to the moderator
     // TODO check that both token and group are within one book
 
+    sql_begin();
     $revset_id = create_revset();
 
-    sql_query("INSERT INTO anaphora VALUES (NULL, $anaphor_id, $antecedent_id, $revset_id, ".$_SESSION['user_id'].")");
-    return sql_insert_id();
+    sql_pe("INSERT INTO anaphora VALUES (NULL, ?, ?, ?, ?)", array($anaphor_id, $antecedent_id, $revset_id, $_SESSION['user_id']));
+    $id = sql_insert_id();
+    sql_commit();
+    return $id;
 }
 
 function delete_anaphora($ref_id) {

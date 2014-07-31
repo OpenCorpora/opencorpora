@@ -9,10 +9,10 @@ $res = true;
 try {
     switch ($_GET['act']) {
         case 'forget':
-            forget_pending_token((int)$_GET['token_id'], (int)$_GET['rev_id']);
+            forget_pending_token($_GET['token_id'], $_GET['rev_id']);
             break;
         case 'update':
-            update_pending_token((int)$_GET['token_id'], (int)$_GET['rev_id']);
+            update_pending_token($_GET['token_id'], $_GET['rev_id']);
             break;
         default:
             $res = false;

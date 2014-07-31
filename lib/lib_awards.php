@@ -65,14 +65,15 @@ function mark_shown_user_level($user_id, $level) {
     if (!$user_id || $level < 0)
         throw new UnexpectedValueException();
 
-    $r = sql_fetch_array(sql_query("SELECT user_level, user_shown_level FROM users WHERE user_id=$user_id LIMIT 1"));
+    $res = sql_pe("SELECT user_level, user_shown_level FROM users WHERE user_id=? LIMIT 1", array($user_id));
+    $r = $res[0];
     if (
         $r['user_level'] == $r['user_shown_level'] ||
         $level <= $r['user_shown_level'] ||
         $level > $r['user_level']
     )
         throw new Exception();
-    sql_query("UPDATE users SET user_shown_level = $level WHERE user_id = $user_id LIMIT 1");
+    sql_pe("UPDATE users SET user_shown_level = ? WHERE user_id = ? LIMIT 1", array($level, $user_id));
 }
 function get_rating4level($level) {
     if ($level < 2)
@@ -154,7 +155,10 @@ function check_badges4level($user_id, $level) {
 function mark_shown_badge($user_id, $badge_id) {
     if (!$user_id || !$badge_id)
         throw new UnexpectedValueException();
-    sql_query("UPDATE user_badges SET shown=".time()." WHERE user_id=$user_id AND badge_id=$badge_id LIMIT 1");
+    sql_pe(
+        "UPDATE user_badges SET shown=? WHERE user_id=? AND badge_id=? LIMIT 1",
+        array(time(), $user_id, $badge_id)
+    );
 }
 function check_user_badges($user_id) {
     $res = sql_query("SELECT badge_id FROM user_badges WHERE user_id=$user_id AND shown=0 ORDER BY badge_id LIMIT 1");

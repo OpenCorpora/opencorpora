@@ -12,7 +12,7 @@ if (is_logged()) {
             header('Location:options.php');
             break;
         case 'save_team':
-            save_user_team((int)$_POST['team_id'], $_POST['new_team_name']);
+            save_user_team($_POST['team_id'], $_POST['new_team_name']);
             alert_set('success','Настройки сохранены');
             header('Location:options.php');
             break;

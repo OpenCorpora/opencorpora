@@ -55,7 +55,7 @@ switch ($action) {
         $smarty->display('qa/good_sentences.tpl');
         break;
     case 'useful_pools':
-        $smarty->assign('pools', get_most_useful_pools(isset($_GET['type']) ? (int)$_GET['type'] : 0));
+        $smarty->assign('pools', get_most_useful_pools(isset($_GET['type']) ? $_GET['type'] : 0));
         $smarty->assign('types', get_morph_pool_types());
         $smarty->display('qa/useful_pools.tpl');
         break;

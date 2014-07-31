@@ -161,7 +161,7 @@ function get_merge_fails() {
     return $data;
 }
 function get_most_useful_pools($type=0) {
-    $res = sql_query("
+    $res = sql_pe("
         SELECT pool_id, pool_name, p.status, user_name,
             COUNT(sent_id) cnt
         FROM morph_annot_samples
@@ -177,14 +177,15 @@ function get_most_useful_pools($type=0) {
                 USING (sent_id)
         WHERE p.status >= ".MA_POOLS_STATUS_ANSWERED."
             AND p.status <= ".MA_POOLS_STATUS_MODERATED."
-            AND num_homonymous = 1 ".
-            ($type > 0 ? " AND p.pool_type = $type" : "")
-            ." GROUP BY pool_id
+            AND num_homonymous = 1
+            AND (p.pool_type = ?
+            ".($type == 0 ? "OR TRUE)" : ")")."
+        GROUP BY pool_id
         ORDER BY COUNT(sent_id) DESC
         LIMIT 50
-    ");
+    ", array($type));
     $out = array();
-    while ($r = sql_fetch_array($res))
+    foreach ($res as $r)
         $out[] = array(
             'id' => $r['pool_id'],
             'name' => $r['pool_name'],

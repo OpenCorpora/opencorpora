@@ -349,7 +349,7 @@ function update_pending_token($token_id, $rev_id, $revset_id=0) {
         throw new Exception();
 
     // forbid updating if revision of the CURRENT TOKEN'S FORM is not latest
-    $res = sql_query("
+    $res = sql_pe("
         SELECT *
         FROM updated_tokens
         WHERE token_id = ?

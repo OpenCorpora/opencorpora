@@ -1322,7 +1322,7 @@ function log_click($sample_id, $type) {
     if ($type == -1) $type = 77;
 
     $ts = time();
-    sql_query("INSERT INTO morph_annot_click_log VALUES('$sample_id', '$user_id', '$ts', '$type')");
+    sql_pe("INSERT INTO morph_annot_click_log VALUES(?, ?, ?, ?)", array($sample_id, $user_id, $ts, $type));
 }
 function count_all_answers() {
     $res = sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE answer > 0");
@@ -1330,8 +1330,8 @@ function count_all_answers() {
     return $r[0];
 }
 function get_pool_manual_page($type_id) {
-    $r = sql_fetch_array(sql_query("SELECT doc_link FROM morph_annot_pool_types WHERE type_id=$type_id LIMIT 1"));
-    return $r['doc_link'];
+    $res = sql_pe("SELECT doc_link FROM morph_annot_pool_types WHERE type_id=? LIMIT 1", array($type_id));
+    return $res[0]['doc_link'];
 }
 function get_search_results($query, $exact_form=true) {
     $forms = array($query);

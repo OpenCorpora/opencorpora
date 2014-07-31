@@ -6,7 +6,7 @@ $result = 1;
 try {
     if (!isset($_GET['id']) || !isset($_GET['type']))
         throw new UnexpectedValueException();
-    log_click((int)$_GET['id'], (int)$_GET['type']);
+    log_click($_GET['id'], $_GET['type']);
 }
 catch (Exception $e) {
     $result = 0;

@@ -206,18 +206,18 @@ function revert_changeset($set_id, $comment) {
     $new_set_id = create_revset($comment);
     $dict_flag = 0;
 
-    $res = sql_query("SELECT tf_id FROM tf_revisions WHERE set_id=$set_id");
+    $res = sql_pe("SELECT tf_id FROM tf_revisions WHERE set_id=?", array($set_id));
     $res_revtext = sql_prepare("SELECT rev_text FROM tf_revisions WHERE tf_id=? AND set_id<? ORDER BY rev_id DESC LIMIT 1");
-    while ($r = sql_fetch_array($res)) {
+    foreach ($res as $r) {
         sql_execute($res_revtext, array($r[0], $set_id));
         $arr = sql_fetch_array($res_revtext);
         create_tf_revision($new_set_id, $r[0], $arr[0]);
     }
     $res_revtext->closeCursor();
 
-    $res = sql_query("SELECT lemma_id FROM dict_revisions WHERE set_id=$set_id");
+    $res = sql_pe("SELECT lemma_id FROM dict_revisions WHERE set_id=?", array($set_id));
     $res_revtext = sql_prepare("SELECT rev_text FROM dict_revisions WHERE lemma_id=? AND set_id<? ORDER BY rev_id DESC LIMIT 1");
-    while ($r = sql_fetch_array($res)) {
+    foreach ($res as $r) {
         sql_execute($res_revtext, array($r[0], $set_id));
         $arr = sql_fetch_array($res_revtext);
         sql_query("INSERT INTO `dict_revisions` VALUES(NULL, '$new_set_id', '$r[0]', '$arr[0]')");
@@ -234,22 +234,22 @@ function revert_token($rev_id) {
     if (!$rev_id)
         throw new UnexpectedValueException();
 
-    $r = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE rev_id=$rev_id LIMIT 1"));
+    $res = sql_pe("SELECT tf_id, rev_text FROM tf_revisions WHERE rev_id=? LIMIT 1", array($rev_id));
     sql_begin();
     $new_set_id = create_revset("Отмена правки, возврат к версии t$rev_id");
 
-    create_tf_revision($new_set_id, $r[0], $r[1]);
+    create_tf_revision($new_set_id, $res[0]['tf_id'], $res[0]['rev_text']);
     sql_commit();
 }
 function revert_dict($rev_id) {
     if (!$rev_id)
         throw new UnexpectedValueException();
 
-    $r = sql_fetch_array(sql_query("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=$rev_id LIMIT 1"));
+    $res = sql_pe("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=? LIMIT 1", array($rev_id));
     sql_begin();
     $new_set_id = create_revset("Отмена правки, возврат к версии d$rev_id");
 
-    sql_query("INSERT INTO dict_revisions VALUES(NULL, '$new_set_id', '$r[0]', '$r[1]', '0', '0')");
+    sql_pe("INSERT INTO dict_revisions VALUES(NULL, ?, ?, ?, 0, 0)", array($new_set_id, $res[0]['lemma_id'], $res[0]['rev_text']));
     sql_commit();
 }
 function get_latest_comments($skip = 0) {

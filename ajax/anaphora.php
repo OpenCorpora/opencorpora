@@ -21,7 +21,7 @@ try {
 
     switch ($_POST['act']) {
         case 'new':
-            $res['aid'] = add_anaphora((int)$_POST['anph_id'], (int)$_POST['group_id']);
+            $res['aid'] = add_anaphora($_POST['anph_id'], $_POST['group_id']);
             $res['error'] = 0;
             $res['token_ids'] = json_encode(get_group_tokens((int)$_POST['group_id']));
             break;

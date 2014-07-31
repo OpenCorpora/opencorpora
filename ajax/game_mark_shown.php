@@ -11,11 +11,11 @@ try {
         throw new UnexpectedValueException();
     switch ($action) {
         case "badge":
-            $badge_id = (int)$_GET['badge_id'];
+            $badge_id = $_GET['badge_id'];
             mark_shown_badge($user_id, $badge_id);
             break;
         case "level":
-            $level = (int)$_GET['level'];
+            $level = $_GET['level'];
             mark_shown_user_level($user_id, $level);
             break;
     }

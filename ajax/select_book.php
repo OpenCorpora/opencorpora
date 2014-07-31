@@ -4,7 +4,7 @@ require_once('../lib/lib_books.php');
 $id = (int)$_GET['id'];
 $t = get_books_for_select($id);
 $out = '';
-foreach($t as $id=>$title) {
+foreach ($t as $id => $title) {
     $out .= "<option value='$id'>$title</option>";
 }
 
