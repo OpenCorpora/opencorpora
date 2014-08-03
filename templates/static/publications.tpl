@@ -20,6 +20,17 @@
 <h2>Публикации</h2>
 <table class="table">
 <tr>
+    <td colspan="3"><h4>2014</h4></td>
+</tr>
+<tr>
+    <td>
+        <p>Опыт анафорической разметки корпуса и разрешения анафоры с использованием машинного обучения<br/>(доклад на конференции &laquo;Диалог&raquo;)</p>
+        <a href='#' class='pseudo tog'>выходные данные</a>
+        <div class='hidden-block'><i>Protopopova E.V., Bodrova A.A., Volskaya S.A., Krylova I.V., Chuchunkov A.S., Alexeeva S.V., Bocharov V.V., Granovsky D.V.</i> Anaphoric annotation and corpus-based anaphora resolution: an experiment // Компьютерная лингвистика и интеллектуальные технологии: По материалам ежегодной Международной конференции «Диалог» (Бекасово, 4–8&nbsp;июня 2014 г.). Вып. 13 (20). — М.: РГГУ, 2014.</div>
+    </td>
+    <td colspan='2'><a href='http://www.dialog-21.ru/digests/dialog2014/materials/pdf/ProtopopovaEV.pdf'>pdf</a></td>
+</tr>
+<tr>
     <td colspan="3"><h4>2013</h4></td>
 </tr>
 <tr>
