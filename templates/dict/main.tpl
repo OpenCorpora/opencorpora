@@ -21,8 +21,9 @@
     <h1>Словарь</h1>
     <p>Всего {$stats.cnt_g} граммем, {$stats.cnt_l} лемм, {$stats.cnt_f} форм в индексе ({$stats.cnt_r} ревизий не проверено).</p>
     <b>Поиск по словарю</b>
-    <form action="{$web_prefix}/dict.php?act=lemmata" method="post">
+    <form action="{$web_prefix}/dict.php" method="get">
     <input name="search_form" type="text" class="span3" id="form_search_input" placeholder="Введите слово...">
+    <input type="hidden" name="act" value="lemmata" />
 </form>
     <p><a href="{$web_prefix}/dict_history.php">Свежие правки</a></p>
     {if $user_permission_dict}

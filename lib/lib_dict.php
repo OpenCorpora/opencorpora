@@ -18,11 +18,11 @@ function get_dict_stats() {
     $out['cnt_v'] = $r['cnt_v'];
     return $out;
 }
-function get_dict_search_results($post) {
+function get_dict_search_results($get) {
     $out = array();
     $find_pos = sql_prepare("SELECT SUBSTR(grammems, 7, 4) AS gr FROM form2lemma WHERE lemma_id = ? LIMIT 1");
-    if (isset($post['search_lemma'])) {
-        $res = sql_pe("SELECT lemma_id FROM `dict_lemmata` WHERE `lemma_text`= ?", array($post['search_lemma']));
+    if (isset($get['search_lemma'])) {
+        $res = sql_pe("SELECT lemma_id FROM `dict_lemmata` WHERE `lemma_text`= ?", array($get['search_lemma']));
         $count = sizeof($res);
         $out['lemma']['count'] = $count;
         if ($count == 0)
@@ -30,11 +30,11 @@ function get_dict_search_results($post) {
         foreach ($res as $r) {
             sql_execute($find_pos, array($r['lemma_id']));
             $r1 = sql_fetch_array($find_pos);
-            $out['lemma']['found'][] = array('id' => $r['lemma_id'], 'text' => $post['search_lemma'], 'pos' => $r1['gr']);
+            $out['lemma']['found'][] = array('id' => $r['lemma_id'], 'text' => $get['search_lemma'], 'pos' => $r1['gr']);
         }
     }
-    elseif (isset($post['search_form'])) {
-        $res = sql_pe("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE fl.`form_text`= ?", array($post['search_form']));
+    elseif (isset($get['search_form'])) {
+        $res = sql_pe("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE fl.`form_text`= ?", array($get['search_form']));
         $count = sizeof($res);
         $out['form']['count'] = $count;
         if ($count == 0)
@@ -358,7 +358,7 @@ function update_pending_token($token_id, $rev_id, $revset_id=0) {
     ", array($token_id, $rev_id));
     if (sizeof($res) > 0)
         throw new Exception();
-    
+
     // ok, now we can safely update
     $res = sql_pe("SELECT tf_text FROM tokens WHERE tf_id=? LIMIT 1", array($token_id));
     $token_text = $res[0]['tf_text'];
@@ -433,7 +433,7 @@ function get_lemma_editor($id) {
         FROM dict_errata e
         LEFT JOIN dict_errata_exceptions x ON (e.error_type=x.error_type AND e.error_descr=x.error_descr)
         LEFT JOIN users u ON (x.author_id = u.user_id)
-        WHERE e.rev_id = 
+        WHERE e.rev_id =
         (SELECT rev_id FROM dict_revisions WHERE lemma_id=? ORDER BY rev_id DESC LIMIT 1)
     ", array($id));
     foreach ($res as $r) {

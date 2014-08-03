@@ -76,7 +76,7 @@ switch ($action) {
         header("Location:dict.php");
         break;
     case 'lemmata':
-        $smarty->assign('search', get_dict_search_results($_POST));
+        $smarty->assign('search', get_dict_search_results($_GET));
         $smarty->display('dict/lemmata.tpl');
         break;
     case 'gram':
@@ -116,6 +116,7 @@ switch ($action) {
         $smarty->display('dict/absent.tpl');
         break;
     default:
+
         $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
         $smarty->setCacheLifetime(600);
         if (!is_cached('dict/main.tpl', (int)user_has_permission('perm_dict'))) {
