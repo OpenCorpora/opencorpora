@@ -173,7 +173,7 @@
                 <li value="{$num}">
                 <ol>
             {/if}
-            {foreach name=s item=sentence from=$paragraph}
+            {foreach name=s item=sentence from=$paragraph.sentences}
                 {if isset($smarty.get.full)}
                     {strip}
                     <tr><td></td><td valign='top'><a name="sen{$sentence.id}" href="{$web_prefix}/sentence.php?id={$sentence.id}">{$sentence.id}</a>.</td><td valign="top">

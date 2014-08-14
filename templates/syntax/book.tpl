@@ -11,7 +11,7 @@
     {if isset($book.paragraphs)}
         {foreach key=num item=paragraph from=$book.paragraphs}
             <p class="anaph-paragraph">
-            {foreach name=s item=sentence from=$paragraph}
+            {foreach name=s item=sentence from=$paragraph.sentences}
                 {foreach name=t item=token from=$sentence.tokens}
 
                     <span id="t{$token.id}" data-tid="{$token.id}" class="anaph-token {if in_array($token.id, $sentence.props)}anaph-prop {elseif $token.groups.simple or $token.groups.complex}anaph-head{/if}">{$token.text|htmlspecialchars}</span>

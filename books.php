@@ -24,7 +24,7 @@ elseif (user_has_permission('perm_syntax') && $action == 'anaphora') {
 
         foreach ($book['paragraphs'] as &$paragraph) {
 
-            foreach ($paragraph as &$sentence) {
+            foreach ($paragraph['sentences'] as &$sentence) {
                 $sentence['props'] = get_pronouns_by_sentence($sentence['id']);
                 foreach ($sentence['tokens'] as &$token) {
                     $groups[$token['id']] = $token['groups']

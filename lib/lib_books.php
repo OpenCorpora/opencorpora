@@ -41,29 +41,7 @@ function get_book_page($book_id, $full = false) {
         'is_wikinews' => $res[0]['parent_id'] == 56,
         'is_chaskor_news' => $res[0]['parent_id'] == 226
     );
-    //tags
-    $res = sql_pe("SELECT tag_name FROM book_tags WHERE book_id=?", array($book_id));
-    $url_res = sql_prepare("SELECT filename FROM downloaded_urls WHERE url=? LIMIT 1");
-    foreach ($res as $r) {
-        if (preg_match('/^(.+?)\:(.+)$/', $r['tag_name'], $matches)) {
-            $ar = array('prefix' => $matches[1], 'body' => $matches[2], 'full' => $r['tag_name']);
-            if ($matches[1] == 'url') {
-                sql_execute($url_res, array(htmlspecialchars_decode($matches[2])));
-                if ($r1 = sql_fetch_array($url_res)) {
-                    $ar['filename'] = $r1['filename'];
-                }
-                if (preg_match('/^http:\/\/ru.wikinews.org\/wiki\/(.+)$/', $matches[2], $wn_matches)) {
-                    $out['wikinews_title'] = str_replace('_', ' ', $wn_matches[1]);
-                }
-                elseif (preg_match('/^http:\/\/(?:www\.)?chaskor\.ru\/news\/(.+)$/', $matches[2], $wn_matches)) {
-                    $out['chaskor_news_title'] = $wn_matches[1];
-                }
-            }
-            $out['tags'][] = $ar;
-        } else
-            $out['tags'][] = array('prefix' => '', 'body' => $r['tag_name'], 'full' => $r['tag_name']);
-    }
-    $url_res->closeCursor();
+    get_book_tags($book_id, $out);
     //sub-books
     foreach (sql_pe("SELECT book_id, book_name FROM books WHERE parent_id=? ORDER BY book_name", array($book_id)) as $r) {
         $out['children'][] = array('id' => $r['book_id'], 'title' => $r['book_name']);
@@ -72,11 +50,11 @@ function get_book_page($book_id, $full = false) {
     $out['parents'] = array_reverse(get_book_parents($book_id));
     //sentences
     if ($full) {
-        $q = "SELECT p.`pos` ppos, s.sent_id, s.`pos` spos";
+        $q = "SELECT p.`pos` ppos, par_id, s.sent_id, s.`pos` spos";
         if (user_has_permission('perm_adder')) $q .= ", ss.status";
         $q .= "\nFROM paragraphs p
             LEFT JOIN sentences s
-            ON (p.par_id = s.par_id)\n";
+            USING (par_id)\n";
 
         if (user_has_permission('perm_adder')) $q .= "LEFT JOIN sentence_check ss ON (s.sent_id = ss.sent_id AND ss.status=1 AND ss.user_id=".$_SESSION['user_id'].")\n";
         $q .= "WHERE p.book_id = ?
@@ -92,14 +70,15 @@ function get_book_page($book_id, $full = false) {
             $new_a = array('id' => $r['sent_id'], 'pos' => $r['spos'], 'tokens' => $tokens);
             if (user_has_permission('perm_adder'))
                 $new_a['checked'] = $r['status'];
-            $out['paragraphs'][$r['ppos']][] = $new_a;
+            $out['paragraphs'][$r['ppos']]['sentences'][] = $new_a;
+            $out['paragraphs'][$r['ppos']]['id'] = $r['par_id'];
         }
     } else {
         $res = sql_pe("SELECT p.`pos` ppos, s.sent_id, s.`pos` spos FROM paragraphs p LEFT JOIN sentences s ON (p.par_id = s.par_id) WHERE p.book_id = ? ORDER BY p.`pos`, s.`pos`", array($book_id));
         foreach ($res as $r) {
             $r1 = sql_fetch_array(sql_query("SELECT source, SUBSTRING_INDEX(source, ' ', 6) AS `cnt` FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
             if ($r1['source'] === $r1['cnt']) {
-                $out['paragraphs'][$r['ppos']][] = array('pos' => $r['spos'], 'id' => $r['sent_id'], 'snippet' => $r1['source']);
+                $out['paragraphs'][$r['ppos']]['sentences'][] = array('pos' => $r['spos'], 'id' => $r['sent_id'], 'snippet' => $r1['source']);
                 continue;
             }
 
@@ -113,7 +92,7 @@ function get_book_page($book_id, $full = false) {
             $r1 = sql_fetch_array(sql_query("SELECT SUBSTRING_INDEX(source, ' ', -3) AS `end` FROM sentences WHERE sent_id=".$r['sent_id']." LIMIT 1"));
             $snippet .= $r1['end'];
 
-            $out['paragraphs'][$r['ppos']][] = array('pos' => $r['spos'], 'id' => $r['sent_id'], 'snippet' => $snippet);
+            $out['paragraphs'][$r['ppos']]['sentences'][] = array('pos' => $r['spos'], 'id' => $r['sent_id'], 'snippet' => $snippet);
         }
     }
     return $out;
@@ -162,6 +141,32 @@ function get_books_for_select($parent = -1) {
         $out["$r[book_id]"] = $r['book_name'];
     }
     return $out;
+}
+function get_book_tags($book_id, &$out) {
+    $res = sql_pe("SELECT tag_name FROM book_tags WHERE book_id=?", array($book_id));
+    $url_res = sql_prepare("SELECT filename FROM downloaded_urls WHERE url=? LIMIT 1");
+    $tags = array();
+    foreach ($res as $r) {
+        if (preg_match('/^(.+?)\:(.+)$/', $r['tag_name'], $matches)) {
+            $ar = array('prefix' => $matches[1], 'body' => $matches[2], 'full' => $r['tag_name']);
+            if ($matches[1] == 'url') {
+                sql_execute($url_res, array(htmlspecialchars_decode($matches[2])));
+                if ($r1 = sql_fetch_array($url_res)) {
+                    $ar['filename'] = $r1['filename'];
+                }
+                if (preg_match('/^http:\/\/ru.wikinews.org\/wiki\/(.+)$/', $matches[2], $wn_matches)) {
+                    $out['wikinews_title'] = str_replace('_', ' ', $wn_matches[1]);
+                }
+                elseif (preg_match('/^http:\/\/(?:www\.)?chaskor\.ru\/news\/(.+)$/', $matches[2], $wn_matches)) {
+                    $out['chaskor_news_title'] = $wn_matches[1];
+                }
+            }
+            $tags[] = $ar;
+        } else
+            $tags[] = array('prefix' => '', 'body' => $r['tag_name'], 'full' => $r['tag_name']);
+    }
+    $url_res->closeCursor();
+    $out['tags'] = $tags;
 }
 function books_add_tag($book_id, $tag_name) {
     $tag_name = preg_replace('/\:\s+/', ':', trim($tag_name), 1);
