@@ -215,6 +215,9 @@ function download_url($url, $force=false) {
     return $filename;
 }
 function split_paragraph($sentence_id) {
+    // temporarily disabled to secure NE
+    throw new Exception("Function disabled");
+
     if (!$sentence_id)
         throw new UnexpectedValueException();
     //get pos
@@ -239,6 +242,9 @@ function split_paragraph($sentence_id) {
 }
 function split_sentence($token_id) {
     //note: comments will stay with the first sentence
+
+    // temporarily disabled to secure NE
+    throw new Exception("Function disabled");
 
     //find which sentence the token is in
     $res = sql_pe("SELECT sent_id, pos FROM tokens WHERE tf_id=? LIMIT 1", array($token_id));
@@ -286,6 +292,9 @@ function split_sentence($token_id) {
     return array($r['book_id'], $sent_id);
 }
 function merge_sentences($id1, $id2) {
+    // temporarily disabled to secure NE
+    throw new Exception("Function disabled");
+
     if ($id1 < 1 || $id2 < 1)
         throw new UnexpectedValueException();
     // check same paragraph and adjacency
@@ -323,6 +332,9 @@ function merge_sentences($id1, $id2) {
     sql_commit();
 }
 function delete_sentence($sid) {
+    // temporarily disabled to secure NE
+    throw new Exception("Function disabled");
+
     sql_begin();
     sql_pe("DELETE FROM sentence_authors WHERE sent_id=? LIMIT 1", array($sid));
     sql_pe("DELETE FROM sentence_check WHERE sent_id=?", array($sid));
@@ -358,6 +370,9 @@ function save_token_text($tf_id, $tf_text) {
     sql_commit();
 }
 function delete_token($tf_id, $delete_history=true) {
+    // temporarily disabled to secure NE
+    throw new Exception("Function disabled");
+
     $sample_ids = array(0);
     $res = sql_query("SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id");
     while ($r = sql_fetch_array($res))
@@ -381,6 +396,9 @@ function delete_token($tf_id, $delete_history=true) {
     sql_commit();
 }
 function merge_tokens_ii($id_array) {
+    // temporarily disabled to secure NE
+    throw new Exception("Function disabled");
+
     //ii stands for "id insensitive"
     if (sizeof($id_array) < 2)
         throw new UnexpectedValueException();
@@ -425,6 +443,10 @@ function merge_tokens_ii($id_array) {
 }
 function split_token($token_id, $num) {
     //$num is the number of characters (in the beginning) that should become a separate token
+
+    // temporarily disabled to secure NE
+    throw new Exception("Function disabled");
+
     if (!$token_id || !$num)
         throw new UnexpectedValueException();
     $res = sql_pe("SELECT tf_text, sent_id, pos FROM tokens WHERE tf_id=? LIMIT 1", array($token_id));
