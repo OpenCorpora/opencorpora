@@ -8,4 +8,11 @@ define('MA_POOLS_STATUS_MODERATED', 6);
 define('MA_POOLS_STATUS_TO_MERGE', 7);
 define('MA_POOLS_STATUS_MERGING', 8);
 define('MA_POOLS_STATUS_ARCHIVED', 9);
+
+define('NE_STATUS_NOT_STARTED', 0);
+define('NE_STATUS_IN_PROGRESS', 1);
+define('NE_STATUS_FINISHED', 2);
+define('NE_STATUS_MODERATED', 3);
+
+define('NE_ANNOT_TIMEOUT', 24 * 60 * 60);  // 24 hours
 ?>
