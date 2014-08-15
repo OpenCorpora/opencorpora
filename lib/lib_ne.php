@@ -1,5 +1,21 @@
 <?php
 
+function get_books_with_ne() {
+    $res = sql_query("
+        SELECT book_id, book_name
+        FROM books
+        WHERE ne_on = 1
+        ORDER BY book_id
+    ");
+    $out = array();
+    while ($r = sql_fetch_array($res))
+        $out[] = array(
+            'id' => $r['book_id'],
+            'name' => $r['book_name']
+        );
+    return $out;
+}
+
 function get_ne_types() {
     $res = sql_query("SELECT tag_id, tag_name FROM ne_tags ORDER BY tag_id");
     $out = array();
