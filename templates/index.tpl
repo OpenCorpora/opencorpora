@@ -84,7 +84,7 @@
                 {/if}
                 {if $user_permission_syntax}
                     <li class="nav-header">Синтаксис</li>
-                    <li><a href='{$web_prefix}/syntax.php'><span class="small bggreen">new!</span> Тексты</a></li>
+                    <li><a href='{$web_prefix}/syntax.php'>Тексты</a></li>
                 {/if}
                 {if $user_permission_adder}
                     <li class="nav-header">Контроль качества</li>
