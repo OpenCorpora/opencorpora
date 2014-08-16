@@ -217,7 +217,7 @@ function add_ne_annotation($par_id, $token_ids, $tags) {
     ", array($par_id, $token_ids[0], sizeof($token_ids), time()));
 
     $entity_id = sql_insert_id();
-    set_ne_tags($entity_id, $tags);
+    set_ne_tags($entity_id, $tags, $par_id);
     sql_commit();
     return $entity_id;
 }
@@ -237,10 +237,15 @@ function delete_ne_annotation($entity_id) {
     sql_commit();
 }
 
-function set_ne_tags($entity_id, $tags) {
+function set_ne_tags($entity_id, $tags, $par_id=0) {
     // overwrites old set of tags
     if (!check_ne_paragraph_status($par_id, $_SESSION['user_id']))
         throw new Exception();
+
+    if (!$par_id) {
+        $res = sql_pe("SELECT par_id FROM ne_entities WHERE entity_id = ?", array($entity_id));
+        $par_id = $res[0];
+    }
 
     sql_begin();
     sql_pe("DELETE FROM ne_entity_tags WHERE entity_id = ?", array($entity_id));
