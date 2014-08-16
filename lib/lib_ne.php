@@ -156,6 +156,16 @@ function get_ne_paragraph_status($book_id, $user_id) {
         $cur_pid = $r['par_id'];
     }
 
+    // last row
+    if ($cur_pid) {
+        if ($occupied_num >= 3 && !$done)
+            $out['unavailable'][] = $cur_pid;
+        elseif ($started)
+            $out['started_by_user'][] = $cur_pid;
+        elseif ($done)
+            $out['done_by_user'][] = $cur_pid;
+    }
+
     return $out;
 }
 
