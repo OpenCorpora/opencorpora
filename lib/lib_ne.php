@@ -39,8 +39,9 @@ function get_ne_by_paragraph($par_id, $user_id) {
         AND user_id=?
     ", array($par_id, $user_id));
     $tag_res = sql_prepare("
-        SELECT tag_id
+        SELECT tag_id, tag_name
         FROM ne_entity_tags
+        JOIN ne_tags USING (tag_id)
         WHERE entity_id = ?
     ");
     $out = array();
@@ -56,7 +57,7 @@ function get_ne_by_paragraph($par_id, $user_id) {
 
         sql_execute($tag_res, array($r['entity_id']));
         while ($r1 = sql_fetch_array($tag_res))
-            $entity['tags'][] = $r1['tag_id'];
+            $entity['tags'][] = array($r1['tag_id'], $r1['tag_name']);
 
         $out[] = $entity;
     }
@@ -64,7 +65,7 @@ function get_ne_by_paragraph($par_id, $user_id) {
 
     // add token info
     $token_res = sql_prepare("
-        SELECT tf_id
+        SELECT tf_id, tf_text
         FROM tokens
         WHERE sent_id = (
             SELECT sent_id FROM tokens WHERE tf_id = ?
@@ -77,9 +78,10 @@ function get_ne_by_paragraph($par_id, $user_id) {
     ");
 
     foreach ($out as &$entity) {
-        sql_execute($token_res, array($r['start_token'], $r['start_token'], $r['length']));
+        sql_execute($token_res, array($entity['start_token'], $entity['start_token'], $entity['length']));
         while ($r = sql_fetch_array($token_res))
-            $entity['tokens'][] = $r['tf_id'];
+            $entity['tokens'][] = array($r['tf_id'], $r['tf_text']);
+
         if (sizeof($entity['tokens']) != $entity['length'])
             throw new Exception();
     }
@@ -121,7 +123,7 @@ function get_ne_paragraph_status($book_id, $user_id) {
         WHERE book_id = ?
         ORDER BY par_id
     ", array($book_id));
-    
+
     $cur_pid = 0;
     $occupied_num = 0;
     $started = false;
@@ -154,6 +156,16 @@ function get_ne_paragraph_status($book_id, $user_id) {
                 ++$occupied_num;
         }
         $cur_pid = $r['par_id'];
+    }
+
+    // last row
+    if ($cur_pid) {
+        if ($occupied_num >= 3 && !$done)
+            $out['unavailable'][] = $cur_pid;
+        elseif ($started)
+            $out['started_by_user'][] = $cur_pid;
+        elseif ($done)
+            $out['done_by_user'][] = $cur_pid;
     }
 
     // last row
