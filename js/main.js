@@ -1,9 +1,9 @@
 $(document).ready(function(){
-    
+
     $(".submit_link").click(function(event){
         $(this).closest('form').submit()
         })
-    
+
     })
 
 function makeRequest() {
@@ -35,7 +35,7 @@ function changeSelectBook(n) {
     var m, $el;
     var $s_old = $('#book'+n);
     var $s_new = $('#book'+(n+1));
-    
+
     // если следующего нет - обновляем блок с абзацем
     if (!$s_new.length) {
         updateLastParInfo($s_old.val());
@@ -55,14 +55,14 @@ function changeSelectBook(n) {
     }
     // чистим блок с абзацем
     updateLastParInfo(0);
-    
+
     if ($s_old.val() == 0) {
         // если ничего не выбрано, закончили на этом
         return;
     }
     // очищаем и временно блокируем следующий селект
     $s_new.empty().html("<option value='0'>Загрузка...</option>")
-        
+
     $.get('ajax/select_book.php',{'id':$s_old.val()},
         function(res){
             $s_new.empty().html("<option value='0'>-- Не выбрано --</option>")
@@ -81,10 +81,10 @@ function changeSelectBook(n) {
 
 // обновление блока с абзацем
 function updateLastParInfo(book_id) {
-    
+
     var $p = $('#lastpar_info');
     var $sub = $('#submitter');
-    
+
     // сброс
     if (book_id == 0) {
         $sub.attr('disabled','disabled');
@@ -92,9 +92,9 @@ function updateLastParInfo(book_id) {
         return;
     }
     var $np = $('#newpar');
-    
+
     $p.html('<i>Загрузка...</i>');
-    
+
     $.get('ajax/lastpar.php',{'book_id':book_id},
         function(res) {
             $par = $(res).children().eq(0)
@@ -142,7 +142,7 @@ function prepareScroll() {
     $('#scrollbar div').width($('#main_annot table').width());
     $('#scrollbar').scroll(syncScroll);
 }
-        
+
 function checkKeyDown(evt) {
     var code = evt.keyCode ? evt.keyCode : evt.charCode;
     if (code == 37)
@@ -342,7 +342,7 @@ function download_url(event) {
             var ok = $(res).find('response').attr('ok');
             if (ok == 1) {
                 var fname = $(res).find('response').attr('filename');
-                $el.attr('href', '../files/saved/'+fname+'.html');               
+                $el.attr('href', '../files/saved/'+fname+'.html');
                 if (force)
                     $el.html('новая сохранённая копия');
                 else
@@ -549,5 +549,16 @@ function toggle_rightmenu(el) {
 }
 function show_bootalert(type,msg) {
     $("#alert_wrap").html('<div class="alert alert-' + type + '">' + msg + '</div>');
-    setTimeout('$("#alert_wrap .alert").fadeOut()',3000);
+    setTimeout('$("#alert_wrap .alert").fadeOut()', 3000);
+}
+
+
+function getQueryVariable(variable) {
+   var query = window.location.search.substring(1);
+   var vars = query.split("&");
+   for (var i=0; i < vars.length; i++) {
+           var pair = vars[i].split("=");
+           if (pair[0] == variable) return pair[1];
+   }
+   return false;
 }

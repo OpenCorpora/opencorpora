@@ -13,9 +13,13 @@
 
         <!-- Bootstrap -->
         <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="bootstrap/css/btn-palette.css" rel="stylesheet">
 
         <link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css?4'/>
         <link rel='stylesheet' type='text/css' href='http://yandex.st/jquery-ui/1.9.0/themes/smoothness/jquery-ui.min.css'/>
+
+        <!-- Open Sans for headers -->
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,800,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
         {block name=styles}{/block}
 

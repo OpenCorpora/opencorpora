@@ -1,4 +1,5 @@
 <?php
+require_once('constants.php');
 
 function get_books_with_ne() {
     $res = sql_query("
@@ -103,10 +104,13 @@ function get_ne_tokens_by_paragraph($par_id, $user_id) {
     foreach ($res as $r)
         $tokens[$r['tf_id']] = array();
 
-    foreach ($entities as $e)
-        foreach ($e['tokens'] as $token_id)
-            $tokens[$token_id][] = $e['tags'];
-
+    foreach ($entities as $e) {
+        foreach ($e['tokens'] as $token) {
+            // one token can belong to only one entity, thus [] was omitted
+            $tokens[$token[0]]['tags'] = $e['tags'];
+            $tokens[$token[0]]['entity_id'] = $e['id'];
+        }
+    }
     return $tokens;
 }
 
@@ -244,12 +248,18 @@ function add_ne_annotation($par_id, $token_ids, $tags) {
     return $entity_id;
 }
 
-function delete_ne_annotation($entity_id) {
+function delete_ne_annotation($entity_id, $par_id=0) {
     $res = sql_pe("
         SELECT par_id
         FROM ne_entities
         WHERE entity_id = ?
     ", array($entity_id));
+
+    if (!$par_id) {
+        $res = sql_pe("SELECT par_id FROM ne_entities WHERE entity_id = ?", array($entity_id));
+        $par_id = $res[0]['par_id'];
+    }
+
     if (!check_ne_paragraph_status($par_id, $_SESSION['user_id']))
         throw new Exception();
 
@@ -261,13 +271,13 @@ function delete_ne_annotation($entity_id) {
 
 function set_ne_tags($entity_id, $tags, $par_id=0) {
     // overwrites old set of tags
-    if (!check_ne_paragraph_status($par_id, $_SESSION['user_id']))
-        throw new Exception();
-
     if (!$par_id) {
         $res = sql_pe("SELECT par_id FROM ne_entities WHERE entity_id = ?", array($entity_id));
-        $par_id = $res[0];
+        $par_id = $res[0]['par_id'];
     }
+
+    if (!check_ne_paragraph_status($par_id, $_SESSION['user_id']))
+        throw new Exception();
 
     sql_begin();
     sql_pe("DELETE FROM ne_entity_tags WHERE entity_id = ?", array($entity_id));
@@ -277,4 +287,3 @@ function set_ne_tags($entity_id, $tags, $par_id=0) {
 
     sql_commit();
 }
-?>

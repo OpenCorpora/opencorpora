@@ -21,6 +21,11 @@
 a {
     text-decoration: underline;
 }
+
+.dropdown-menu a {
+    text-decoration: none;
+}
+
 a.close {
     text-decoration: none;
 }
@@ -36,7 +41,14 @@ a.btn, .nav-tabs a, .pager a {
 }
 h1 {
     margin-bottom: 25px;
+    font-weight: 800;
 }
+
+/*h1, h2, h3, h4 {
+    font-family: "Open Sans", sans-serif;
+}*/
+
+
 table.borderless, td.borderless, tr.borderless td, th.borderless, tr.borderless th {
     border: none;
 }
@@ -57,7 +69,12 @@ body {
     padding: 0px;
     height: 100%;
     background: #FDFDFD;
+    font-family: Helvetica, Arial, sans-serif;
 }
+input, button, select, textarea {
+    font-family: Helvetica, Arial, sans-serif;
+}
+
 #wrap {
     min-height: 100%;
     height: auto !important;
@@ -81,9 +98,9 @@ body {
     background-image: none;
 }
 #header .brand {
-    font-family: test,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: test, "Helvetica Neue",Helvetica,Arial,sans-serif;
     color: #2653a6;
-    font-size: 26px;
+    font-size: 20px;
     padding: 12px 20px 8px;
     text-decoration: none;
 }
@@ -705,4 +722,120 @@ button.ma_next_pack {
 
 .anaph-table tr.tr-tpl:hover, .anaph-table tr.tr-stub:hover {
     cursor: default;
+}
+
+/* NER module */
+.ner-paragraph {
+    font-size: 16px;
+    line-height: 24px;
+}
+
+/* абзац можно размечать - по умолчанию */
+.ner-paragraph-wrap {
+    padding: 7px;
+    border-radius: 4px;
+}
+
+.ner-row {
+    margin-bottom: 30px;
+}
+.ner-paragraph-wrap .ner-btn-finish {
+    display: none;
+}
+
+/* абзац уже размечен нужное количество раз */
+.ner-paragraph-wrap.ner-disabled {
+    background: whitesmoke;
+    opacity: 0.8;
+}
+
+.ner-paragraph-wrap.ner-disabled .ner-paragraph-controls {
+    display: none;
+}
+
+/* текущий пользователь уже брал на разметку этот абзац и не закончил */
+.ner-paragraph-wrap.ner-mine {
+    background: #fcf8e3;
+}
+
+.ner-paragraph-wrap.ner-mine .ner-btn-start {
+    display: none;
+}
+.ner-paragraph-wrap.ner-mine .ner-btn-finish {
+    display: inline-block;
+}
+
+.ner-paragraph-controls {
+    margin-top: 10px;
+}
+
+.ner-token {
+    padding: 2px 3px;
+    display: inline-block;
+}
+
+
+.ner-token.ner-token-selected {
+    background-color: rgb(217, 237, 247);
+    color: #3a87ad;
+}
+
+.ner-entity {
+    border-bottom-width: 3px;
+    border-bottom-style: solid;
+    padding-bottom: 0px;
+}
+
+.ner-entity.ner-multiple-types {
+    border-bottom-color: darkgray;
+}
+
+.floating-block {
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 80px;
+    background-color: rgba(217, 237, 247, 0.9);
+    border-top: solid 3px #3a87ad;
+    display: none;
+}
+
+.floating-block.visible {
+    display: block;
+}
+
+.type-selector {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.type-selector .btn.active {
+    border-bottom-color: white;
+    padding-bottom: 2px;
+    border-bottom-width: 2px;
+}
+
+.ner-table-wrap table {
+    font-size: 12px;
+}
+
+.ner-table-wrap.ner-disabled table tr td:nth-child(1) {
+    display: none;
+}
+
+.ner-table-wrap.ner-disabled table tr td.ner-entity-type {
+    text-align: right;
+}
+
+.bootstrap-select.btn-group:not(.input-group-btn),
+.bootstrap-select.btn-group[class*=span],
+.bootstrap-select.btn-group[class*=col-] {
+    margin-bottom: 0px !important;
+}
+
+
+.templates {
+    display: none;
 }
