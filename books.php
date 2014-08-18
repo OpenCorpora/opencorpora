@@ -52,7 +52,9 @@ elseif  (/*user_has_permission('perm_syntax') && */is_logged() && $action == 'ne
         $paragraphs_status = get_ne_paragraph_status($book_id, $_SESSION['user_id']);
 
         foreach ($book['paragraphs'] as &$paragraph) {
-            $paragraph['named_entities'] = get_ne_by_paragraph($paragraph['id'], $_SESSION['user_id']);
+            $ne = get_ne_by_paragraph($paragraph['id'], $_SESSION['user_id']);
+            $paragraph['named_entities'] = $ne['entities'];
+            $paragraph['annotation_id'] = $ne['annot_id'];
             $paragraph['ne_by_token'] = get_ne_tokens_by_paragraph($paragraph['id'], $_SESSION['user_id']);
 
             if (in_array($paragraph['id'], $paragraphs_status['unavailable']) or

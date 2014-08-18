@@ -33,21 +33,34 @@ function get_ne_by_paragraph($par_id, $user_id) {
         throw new UnexpectedValueException();
 
     $res = sql_pe("
+        SELECT annot_id
+        FROM ne_paragraphs
+        WHERE par_id = ?
+        AND user_id = ?
+        LIMIT 1
+    ", array($par_id, $user_id));
+    
+    if (!sizeof($res))
+        return array();
+
+    $out = array(
+        'annot_id' => $res[0]['annot_id'],
+        'entities' => array()
+    );
+
+    $res = sql_query("
         SELECT entity_id, start_token, length
         FROM ne_entities
-        JOIN ne_paragraphs USING (annot_id)
-        WHERE par_id=?
-        AND user_id=?
-    ", array($par_id, $user_id));
+        WHERE annot_id=".$out['annot_id']
+    );
     $tag_res = sql_prepare("
         SELECT tag_id, tag_name
         FROM ne_entity_tags
         JOIN ne_tags USING (tag_id)
         WHERE entity_id = ?
     ");
-    $out = array();
 
-    foreach ($res as $r) {
+    while ($r = sql_fetch_array($res)) {
         $entity = array(
             'id' => $r['entity_id'],
             'start_token' => $r['start_token'],
@@ -60,7 +73,7 @@ function get_ne_by_paragraph($par_id, $user_id) {
         while ($r1 = sql_fetch_array($tag_res))
             $entity['tags'][] = array($r1['tag_id'], $r1['tag_name']);
 
-        $out[] = $entity;
+        $out['entities'][] = $entity;
     }
     $tag_res->closeCursor();
 
@@ -78,7 +91,7 @@ function get_ne_by_paragraph($par_id, $user_id) {
         LIMIT ?
     ");
 
-    foreach ($out as &$entity) {
+    foreach ($out['entities'] as &$entity) {
         sql_execute($token_res, array($entity['start_token'], $entity['start_token'], $entity['length']));
         while ($r = sql_fetch_array($token_res))
             $entity['tokens'][] = array($r['tf_id'], $r['tf_text']);
@@ -91,7 +104,7 @@ function get_ne_by_paragraph($par_id, $user_id) {
 }
 
 function get_ne_tokens_by_paragraph($par_id, $user_id) {
-    $entities = get_ne_by_paragraph($par_id, $user_id);
+    $annot = get_ne_by_paragraph($par_id, $user_id);
     $tokens = array();
 
     $res = sql_pe("
@@ -104,7 +117,7 @@ function get_ne_tokens_by_paragraph($par_id, $user_id) {
     foreach ($res as $r)
         $tokens[$r['tf_id']] = array();
 
-    foreach ($entities as $e) {
+    foreach ($annot['entities'] as $e) {
         foreach ($e['tokens'] as $token) {
             // one token can belong to only one entity, thus [] was omitted
             $tokens[$token[0]]['tags'] = $e['tags'];
@@ -229,7 +242,7 @@ function check_ne_paragraph_status($annot_id, $user_id) {
         AND user_id = ?
         AND `status` = ".NE_STATUS_IN_PROGRESS."
         LIMIT 1
-    ", array($par_id, $user_id));
+    ", array($annot_id, $user_id));
     return sizeof($res) > 0;
 }
 

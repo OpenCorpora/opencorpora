@@ -11,7 +11,7 @@
         {foreach name=b key=num item=paragraph from=$book.paragraphs}
             <div class="row ner-row">
                 <div class="span8">
-                    <div class="ner-paragraph-wrap {if $paragraph.disabled }ner-disabled{elseif $paragraph.mine}ner-mine{/if}">
+                    <div class="ner-paragraph-wrap {if $paragraph.disabled }ner-disabled{elseif $paragraph.mine}ner-mine{/if}" {if isset($paragraph.annotation_id)}data-annotation-id="{$paragraph.annotation_id}"{/if}>
                         <p class="ner-paragraph" data-par-id="{$paragraph.id}">
                         {foreach name=s item=sentence from=$paragraph.sentences}
                             {foreach name=t item=token from=$sentence.tokens}{capture name="token"}<span

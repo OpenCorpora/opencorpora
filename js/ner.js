@@ -152,8 +152,7 @@ $(document).ready(function() {
 			act: 'newAnnotation',
 			paragraph: btn.attr('data-par-id')
 		}, function(response) {
-			btn.parents('.ner-paragraph-wrap').addClass('ner-mine');
-			btn.parents('.ner-paragraph').attr('data-annotation-id', response.id);
+			btn.parents('.ner-paragraph-wrap').addClass('ner-mine').attr('data-annotation-id', response.id);
 		});
 
 	});
@@ -163,7 +162,7 @@ $(document).ready(function() {
 		e.preventDefault();
 		$.post('/ajax/ner.php', {
 			act: 'finishAnnotation',
-			paragraph: btn.parents('.ner-paragraph').attr('data-annotation-id')
+			paragraph: btn.parents('.ner-paragraph-wrap').attr('data-annotation-id')
 		}, function(response) {
 			btn.parents('.ner-paragraph-wrap').removeClass('ner-mine').addClass('ner-disabled');
 			btn.parents('.ner-row').find('td.ner-entity-type').each(function(index, td) {
@@ -239,7 +238,7 @@ $(document).ready(function() {
 			act: 'newEntity',
 			tokens: selectedIds,
 			types: typesIds,
-			paragraph: paragraph.attr('data-annotation-id')
+			paragraph: paragraph.parents('.ner-paragraph-wrap').attr('data-annotation-id')
 		}, function(response) {
 			t = $('table').filterByAttr('data-par-id', paragraph.attr('data-par-id'));
 
