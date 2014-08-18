@@ -18,13 +18,14 @@ try {
         case 'newAnnotation':
 
             if (empty($_POST['paragraph'])) throw new Exception();
-            start_ne_annotation((int)$_POST['paragraph']);
+            $id = start_ne_annotation($_POST['paragraph']);
+            $res['id'] = $id;
             break;
 
         case 'finishAnnotation':
 
             if (empty($_POST['paragraph'])) throw new Exception();
-            finish_ne_annotation((int)$_POST['paragraph']);
+            finish_ne_annotation($_POST['paragraph']);
             break;
 
         case 'newEntity':
@@ -32,7 +33,7 @@ try {
              or empty($_POST['tokens'])
              or empty($_POST['types'])) throw new Exception();
 
-            list($par_id, $token_ids, $tags) = array((int)$_POST['paragraph'], $_POST['tokens'],
+            list($par_id, $token_ids, $tags) = array($_POST['paragraph'], $_POST['tokens'],
                                                      $_POST['types']);
 
             $id = add_ne_entity($par_id, $token_ids, $tags);
@@ -41,14 +42,14 @@ try {
 
         case 'deleteEntity':
             if (empty($_POST['entity'])) throw new Exception();
-            delete_ne_entity((int)$_POST['entity']);
+            delete_ne_entity($_POST['entity']);
             break;
 
         case 'setTypes':
             if (empty($_POST['entity'])
              or empty($_POST['types'])) throw new Exception();
 
-            list($entity_id, $tags) = array((int)$_POST['entity'], $_POST['types']);
+            list($entity_id, $tags) = array($_POST['entity'], $_POST['types']);
             set_ne_tags($entity_id, $tags);
             break;
 
