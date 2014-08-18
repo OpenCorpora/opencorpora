@@ -26,7 +26,7 @@
                                             {if count($paragraph.ne_by_token[$token.id]['tags']) > 1}
                                                 ner-multiple-types
                                             {else}
-                                                border-bottom-palette-{$paragraph.ne_by_token[$token.id]['tags'][0][0] * 2}
+                                                border-bottom-palette-{$paragraph.ne_by_token[$token.id]['tags'][0][0] * 3}
                                             {/if}
                                         {/if}"
 
@@ -53,12 +53,12 @@
                                 {if $paragraph.mine}
                                     <select class="selectpicker show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-entity-id="{$ne.id}" multiple>
                                     {foreach $types as $type}
-                                        <option data-content="<span class='label label-palette-{$type.id * 2}'>{$type.name}</span>" {if in_array(array_values($type), $ne.tags)}selected{/if}>{$type.id}</option>
+                                        <option data-content="<span class='label label-palette-{$type.id * 3}'>{$type.name}</span>" {if in_array(array_values($type), $ne.tags)}selected{/if}>{$type.id}</option>
                                     {/foreach}
                                     </select>
                                 {else}
                                     {foreach $ne.tags as $tag}
-                                        <span class="label label-palette-{$tag[0] * 2}">{$tag[1]}</span>
+                                        <span class="label label-palette-{$tag[0] * 3}">{$tag[1]}</span>
                                     {/foreach}
                                 {/if}
                                 </td>
@@ -93,7 +93,7 @@
         <td class="ner-entity-type span3">
             <select class="selectpicker-tpl show-menu-arrow pull-right" data-width="140px" data-style="btn-small" multiple>
             {foreach $types as $type}
-                <option data-content="<span class='label label-palette-{$type.id * 2}'>{$type.name}</span>">{$type.id}</option>
+                <option data-content="<span class='label label-palette-{$type.id * 3}'>{$type.name}</span>">{$type.id}</option>
             {/foreach}
             </select>
         </td>

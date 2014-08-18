@@ -197,7 +197,7 @@ $(document).ready(function() {
 		else {
 			$('.ner-entity').filterByAttr('data-entity-id', entityId)
 				.removeClass('border-bottom-palette-* ner-multiple-types')
-				.addClass('border-bottom-palette-' + $(this).val()[0] * 2);
+				.addClass('border-bottom-palette-' + $(this).val()[0] * 3);
 		}
 
 		$.post('/ajax/ner.php', {
@@ -249,7 +249,7 @@ $(document).ready(function() {
 			selected.addClass('ner-entity').attr('data-entity-id', response.id);
 
 			if (typesIds.length == 1) {
-				selected.addClass('border-bottom-palette-' + typesIds[0] * 2);
+				selected.addClass('border-bottom-palette-' + typesIds[0] * 3);
 			} else {
 				selected.addClass('ner-multiple-types');
 			}
