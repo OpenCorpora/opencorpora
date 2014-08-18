@@ -183,6 +183,18 @@ function start_ne_annotation($par_id) {
 
     // TODO make something with another user's deserted annotation if it exists
 
+    // check that the paragraph doesn't yet exist
+    $res = sql_pe("
+        SELECT par_id
+        FROM ne_paragraphs
+        WHERE user_id = ?
+        AND par_id = ?
+        LIMIT 1
+    ", array($user_id, $par_id));
+
+    if (sizeof($res) > 0)
+        throw new Exception();
+
     sql_pe("
         INSERT INTO ne_paragraphs
         VALUES (?, ?, ?, ?)
