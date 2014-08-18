@@ -229,16 +229,11 @@ $(document).ready(function() {
 		}
 	});
 
-	$('.ner-btn-save').click(function() {
+	$('.type-selector > .btn').click(function() {
 		selected = $('.ner-token-selected');
 		paragraph = selected.parents('.ner-paragraph');
-		typesIds = $('.type-selector').find('.btn.active').mapGetter('data-type-id');
+		typesIds = [$(this).attr('data-type-id')];
 		selectedIds = selected.mapGetter('data-tid');
-
-		if (typesIds.length == 0) {
-			notify('Выберите хотя бы один тип (например, misc)!', 'error');
-			return false;
-		}
 
 		$.post('/ajax/ner.php', {
 			act: 'newEntity',
