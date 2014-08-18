@@ -814,7 +814,7 @@ button.ma_next_pack {
 
 .type-selector .btn.active {
     border-bottom-color: white;
-    padding-bottom: 2px;
+    padding-bottom: 3px;
     border-bottom-width: 2px;
 }
 
