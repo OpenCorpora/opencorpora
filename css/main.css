@@ -772,6 +772,7 @@ button.ma_next_pack {
 .ner-token {
     padding: 2px 3px;
     display: inline-block;
+    cursor: pointer;
 }
 
 
