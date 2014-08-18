@@ -30,6 +30,7 @@ function click_handler($target) {
 // end from syntax_groups.js
 
 var miscTypeId = 6;
+var colorStep = 2;
 
 var clearHighlight = function() {
 	$(document).find('.ner-token-selected').removeClass('ner-token-selected');
@@ -197,7 +198,7 @@ $(document).ready(function() {
 		else {
 			$('.ner-entity').filterByAttr('data-entity-id', entityId)
 				.removeClass('border-bottom-palette-* ner-multiple-types')
-				.addClass('border-bottom-palette-' + $(this).val()[0] * 3);
+				.addClass('border-bottom-palette-' + $(this).val()[0] * colorStep);
 		}
 
 		$.post('/ajax/ner.php', {
@@ -249,14 +250,13 @@ $(document).ready(function() {
 			selected.addClass('ner-entity').attr('data-entity-id', response.id);
 
 			if (typesIds.length == 1) {
-				selected.addClass('border-bottom-palette-' + typesIds[0] * 3);
+				selected.addClass('border-bottom-palette-' + typesIds[0] * colorStep);
 			} else {
 				selected.addClass('ner-multiple-types');
 			}
 
          tr = $('.templates').find('.tr-template').clone().removeClass('tr-template');
          tr.add(tr.find('.remove-entity')).add(tr.find('.selectpicker-tpl')).attr('data-entity-id', response.id);
-
          tr.find('.selectpicker-tpl').find('option').each(function(i, o) {
             if (typesIds.indexOf($(o).text()) != -1) $(o).attr('selected', true);
          });
