@@ -35,7 +35,7 @@ function get_ne_by_paragraph($par_id, $user_id) {
     $res = sql_pe("
         SELECT entity_id, start_token, length
         FROM ne_entities
-        JOIN ne_paragraphs USING (par_id)
+        JOIN ne_paragraphs USING (annot_id)
         WHERE par_id=?
         AND user_id=?
     ", array($par_id, $user_id));
@@ -185,7 +185,7 @@ function start_ne_annotation($par_id) {
 
     // check that the paragraph doesn't yet exist
     $res = sql_pe("
-        SELECT par_id
+        SELECT annot_id
         FROM ne_paragraphs
         WHERE user_id = ?
         AND par_id = ?
@@ -197,34 +197,35 @@ function start_ne_annotation($par_id) {
 
     sql_pe("
         INSERT INTO ne_paragraphs
-        VALUES (?, ?, ?, ?)
+        VALUES (NULL, ?, ?, ?, ?)
     ", array($par_id, $user_id, NE_STATUS_IN_PROGRESS, time() + NE_ANNOT_TIMEOUT));
+
+    return sql_insert_id();
 }
 
-function finish_ne_annotation($par_id) {
-    if (!$par_id)
+function finish_ne_annotation($annot_id) {
+    if (!$annot_id)
         throw new UnexpectedValueException();
 
     $user_id = $_SESSION['user_id'];
 
-    if (!check_ne_paragraph_status($par_id, $user_id))
+    if (!check_ne_paragraph_status($annot_id, $user_id))
         throw new Exception();
 
     sql_pe("
         UPDATE ne_paragraphs
         SET status = ?
-        WHERE par_id = ?
-        AND user_id = ?
+        WHERE annot_id = ?
         LIMIT 1
-    ", array(NE_STATUS_FINISHED, $par_id, $user_id));
+    ", array(NE_STATUS_FINISHED, $annot_id));
 }
 
-function check_ne_paragraph_status($par_id, $user_id) {
+function check_ne_paragraph_status($annot_id, $user_id) {
     // returns true iff user can modify the annotation
     $res = sql_pe("
         SELECT par_id
         FROM ne_paragraphs
-        WHERE par_id = ?
+        WHERE annot_id = ?
         AND user_id = ?
         AND `status` = ".NE_STATUS_IN_PROGRESS."
         LIMIT 1
@@ -232,37 +233,31 @@ function check_ne_paragraph_status($par_id, $user_id) {
     return sizeof($res) > 0;
 }
 
-function add_ne_annotation($par_id, $token_ids, $tags) {
+function add_ne_entity($annot_id, $token_ids, $tags) {
     // TODO check that tokens follow each other within the same sentence
     // for now presume that $token_ids[0] is the starting token
-    if (!check_ne_paragraph_status($par_id, $_SESSION['user_id']))
+    if (!check_ne_paragraph_status($annot_id, $_SESSION['user_id']))
         throw new Exception();
 
     sql_begin();
     sql_pe("
         INSERT INTO ne_entities
         VALUES (NULL, ?, ?, ?, ?)
-    ", array($par_id, $token_ids[0], sizeof($token_ids), time()));
+    ", array($annot_id, $token_ids[0], sizeof($token_ids), time()));
 
     $entity_id = sql_insert_id();
-    set_ne_tags($entity_id, $tags, $par_id);
+    set_ne_tags($entity_id, $tags, $annot_id);
     sql_commit();
     return $entity_id;
 }
 
-function delete_ne_annotation($entity_id, $par_id=0) {
-    $res = sql_pe("
-        SELECT par_id
-        FROM ne_entities
-        WHERE entity_id = ?
-    ", array($entity_id));
-
-    if (!$par_id) {
-        $res = sql_pe("SELECT par_id FROM ne_entities WHERE entity_id = ?", array($entity_id));
-        $par_id = $res[0]['par_id'];
+function delete_ne_entity($entity_id, $annot_id=0) {
+    if (!$annot_id) {
+        $res = sql_pe("SELECT annot_id FROM ne_entities WHERE entity_id = ?", array($entity_id));
+        $annot_id = $res[0]['annot_id'];
     }
 
-    if (!check_ne_paragraph_status($par_id, $_SESSION['user_id']))
+    if (!check_ne_paragraph_status($annot_id, $_SESSION['user_id']))
         throw new Exception();
 
     sql_begin();
@@ -271,14 +266,14 @@ function delete_ne_annotation($entity_id, $par_id=0) {
     sql_commit();
 }
 
-function set_ne_tags($entity_id, $tags, $par_id=0) {
+function set_ne_tags($entity_id, $tags, $annot_id=0) {
     // overwrites old set of tags
-    if (!$par_id) {
-        $res = sql_pe("SELECT par_id FROM ne_entities WHERE entity_id = ?", array($entity_id));
-        $par_id = $res[0]['par_id'];
+    if (!$annot_id) {
+        $res = sql_pe("SELECT annot_id FROM ne_entities WHERE entity_id = ?", array($entity_id));
+        $annot_id = $res[0]['annot_id'];
     }
 
-    if (!check_ne_paragraph_status($par_id, $_SESSION['user_id']))
+    if (!check_ne_paragraph_status($annot_id, $_SESSION['user_id']))
         throw new Exception();
 
     sql_begin();

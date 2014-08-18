@@ -35,13 +35,13 @@ try {
             list($par_id, $token_ids, $tags) = array((int)$_POST['paragraph'], $_POST['tokens'],
                                                      $_POST['types']);
 
-            $id = add_ne_annotation($par_id, $token_ids, $tags);
+            $id = add_ne_entity($par_id, $token_ids, $tags);
             $res['id'] = $id;
             break;
 
         case 'deleteEntity':
             if (empty($_POST['entity'])) throw new Exception();
-            delete_ne_annotation((int)$_POST['entity']);
+            delete_ne_entity((int)$_POST['entity']);
             break;
 
         case 'setTypes':
