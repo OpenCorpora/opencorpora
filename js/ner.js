@@ -163,7 +163,7 @@ $(document).ready(function() {
 		e.preventDefault();
 		$.post('/ajax/ner.php', {
 			act: 'finishAnnotation',
-			paragraph: btn.attr('data-annotation-id')
+			paragraph: btn.parents('.ner-paragraph').attr('data-annotation-id')
 		}, function(response) {
 			btn.parents('.ner-paragraph-wrap').removeClass('ner-mine').addClass('ner-disabled');
 			btn.parents('.ner-row').find('td.ner-entity-type').each(function(index, td) {
