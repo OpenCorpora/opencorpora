@@ -83,7 +83,6 @@
                 <button class="btn btn-palette-{$type.id * $colorStep}" data-type-id="{$type.id}">{$type.name}</button>
             {/foreach}
         </div>
-        <button class="btn ner-btn-save">Сохранить</button>
     </div>
 </div>
 <div class="templates">
