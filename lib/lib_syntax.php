@@ -513,7 +513,7 @@ function finish_syntax_moderation($book_id) {
     ", array($book_id));
     if ($res[0]['mid'] != $_SESSION['user_id'])
         throw new Exception("Вы не модератор");
-    
+
     sql_pe("
         UPDATE books
         SET syntax_on = 2

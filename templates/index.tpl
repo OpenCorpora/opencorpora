@@ -86,6 +86,9 @@
                     <li class="nav-header">Синтаксис</li>
                     <li><a href='{$web_prefix}/syntax.php'>Тексты</a></li>
                 {/if}
+                {* TODO: special permission? *}
+                    <li class="nav-header">Именованные сущности</li>
+                    <li><a href='{$web_prefix}/ner.php'><span class="label label-small label-success">new!</span> Тексты</a></li>
                 {if $user_permission_adder}
                     <li class="nav-header">Контроль качества</li>
                     <li><a href='{$web_prefix}/sources.php'>Координация заливки</a></li>
