@@ -840,3 +840,12 @@ button.ma_next_pack {
 .templates {
     display: none;
 }
+
+.buttons-container {
+    margin: 10px 0px;
+}
+
+.buttons-container .btn-group {
+    display: inline-block;
+    vertical-align: top;
+}
