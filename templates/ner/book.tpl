@@ -1,7 +1,7 @@
 {* Smarty *}
 {extends file='common.tpl'}
-{assign var=colorStep value=2}
 {block name=content}
+    {assign var=colorStep value=2}
     <h3>{$book.title} (id={$book.id})</h3>
     <p>
         <a href="/books.php?book_id={$book.id}" class="btn btn-small">К описанию текста</a>
