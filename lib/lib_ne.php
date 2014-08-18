@@ -121,7 +121,7 @@ function get_ne_paragraph_status($book_id, $user_id) {
         'done_by_user' => array()
     );
     $res = sql_pe("
-        SELECT par_id, status, user_id, ts_finish
+        SELECT par_id, status, user_id, started_ts
         FROM ne_paragraphs
         JOIN paragraphs USING (par_id)
         WHERE book_id = ?
@@ -155,7 +155,7 @@ function get_ne_paragraph_status($book_id, $user_id) {
         else {
             if (
                 $r['status'] == NE_STATUS_FINISHED ||
-                ($r['status'] == NE_STATUS_IN_PROGRESS && $r['ts_finish'] < $now)
+                ($r['status'] == NE_STATUS_IN_PROGRESS && $r['started_ts'] < ($now + NE_ANNOT_TIMEOUT))
             )
                 ++$occupied_num;
         }
@@ -197,8 +197,8 @@ function start_ne_annotation($par_id) {
 
     sql_pe("
         INSERT INTO ne_paragraphs
-        VALUES (NULL, ?, ?, ?, ?)
-    ", array($par_id, $user_id, NE_STATUS_IN_PROGRESS, time() + NE_ANNOT_TIMEOUT));
+        VALUES (NULL, ?, ?, ?, ?, ?)
+    ", array($par_id, $user_id, NE_STATUS_IN_PROGRESS, time(), 0));
 
     return sql_insert_id();
 }
@@ -214,10 +214,10 @@ function finish_ne_annotation($annot_id) {
 
     sql_pe("
         UPDATE ne_paragraphs
-        SET status = ?
+        SET status = ?, finished_ts = ?
         WHERE annot_id = ?
         LIMIT 1
-    ", array(NE_STATUS_FINISHED, $annot_id));
+    ", array(NE_STATUS_FINISHED, time(), $annot_id));
 }
 
 function check_ne_paragraph_status($annot_id, $user_id) {
