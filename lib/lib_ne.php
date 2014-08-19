@@ -3,17 +3,59 @@ require_once('constants.php');
 
 function get_books_with_ne() {
     $res = sql_query("
-        SELECT book_id, book_name
+        SELECT book_id, book_name, par_id, status, user_id
         FROM books
+        LEFT JOIN paragraphs
+            USING (book_id)
+        LEFT JOIN ne_paragraphs
+            USING (par_id)
         WHERE ne_on = 1
-        ORDER BY book_id
+        ORDER BY book_id, par_id
     ");
     $out = array();
-    while ($r = sql_fetch_array($res))
-        $out[] = array(
-            'id' => $r['book_id'],
-            'name' => $r['book_name']
-        );
+    $book = array(
+        'num_par' => 0,
+        'ready_annot' => 0,
+        'available' => 1
+    );
+    $last_book_id = 0;
+    $last_par_id = 0;
+    $finished_annot = 0;
+    $finished_by_me = 0;
+    while ($r = sql_fetch_array($res)) {
+        if ($r['par_id'] != $last_par_id) {
+            $book['num_par'] += 1;
+            if ($last_par_id)
+                $book['ready_annot'] += min($finished_annot, NE_ANNOTATORS_PER_TEXT);
+            $finished_annot = 0;
+        }
+        if ($r['book_id'] != $last_book_id && $last_book_id) {
+            if ($finished_by_me == $book['num_par'])
+                $book['available'] = 0;
+            $out[] = $book;
+            $book = array(
+                'num_par' => 0,
+                'ready_annot' => 0,
+                'available' => 1
+            );
+            $finished_by_me = 0;
+        }
+
+        if ($r['status'] == NE_STATUS_FINISHED) {
+            $finished_annot += 1;
+            if (is_logged() && $r['user_id'] == $_SESSION['user_id'])
+                $finished_by_me += 1;
+        }
+        
+        $book['id'] = $r['book_id'];
+        $book['name'] = $r['book_name'];
+        $last_book_id = $r['book_id'];
+        $last_par_id = $r['par_id'];
+    }
+    $book['ready_annot'] += max($finished_annot, NE_ANNOTATORS_PER_TEXT);
+    if ($finished_by_me == $book['num_par'])
+        $book['available'] = 0;
+    $out[] = $book;
     return $out;
 }
 

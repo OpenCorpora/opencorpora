@@ -8,11 +8,26 @@
 </div>
 <h3>Разметка именованных сущностей</h3>
 <table class='table'>
+<tr class='small'>
+    <th></th>
+    <th></th>
+    <th>Абзацев</th>
+    <th>Готовность</th>
+    <th></th>
+</tr>
 {foreach from=$page item=book}
 <tr>
     <td><a href="{$web_prefix}/books.php?book_id={$book.id}">{$book.id}</a></td>
     <td>{$book.name|htmlspecialchars}</td>
-    <td><a href="{$web_prefix}/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small">Размечать</a></td>
+    <td>{$book.num_par}</td>
+    <td>{(100 * $book.ready_annot / ($book.num_par * $smarty.const.NE_ANNOTATORS_PER_TEXT))|string_format:"%d"} %</td>
+    <td>
+        {if $book.available}
+            <a href="{$web_prefix}/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small">Размечать</a>
+        {else}
+            <a href="{$web_prefix}/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small"><i class="icon-ok"></i> Просмотреть</a>
+        {/if}
+    </td>
 </tr>
 {/foreach}
 </table>
