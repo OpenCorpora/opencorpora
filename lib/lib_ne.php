@@ -30,7 +30,10 @@ function get_books_with_ne() {
             $finished_annot = 0;
         }
         if ($r['book_id'] != $last_book_id && $last_book_id) {
-            if ($finished_by_me == $book['num_par'])
+            if (
+                $finished_by_me == $book['num_par'] ||
+                $book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']
+            )
                 $book['available'] = 0;
             $out[] = $book;
             $book = array(
@@ -53,7 +56,10 @@ function get_books_with_ne() {
         $last_par_id = $r['par_id'];
     }
     $book['ready_annot'] += max($finished_annot, NE_ANNOTATORS_PER_TEXT);
-    if ($finished_by_me == $book['num_par'])
+    if (
+        $finished_by_me == $book['num_par'] ||
+        $book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']
+    )
         $book['available'] = 0;
     $out[] = $book;
     return $out;
