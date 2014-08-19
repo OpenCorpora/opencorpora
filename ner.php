@@ -12,6 +12,11 @@ $action = isset($_GET['act']) ? $_GET['act'] : '';
 
 switch ($action) {
 
+    case 'manual':
+        $smarty->assign('content', get_wiki_page("Инструкция по определению именованных сущностей"));
+        $smarty->display('static/doc/annotation.tpl');
+        break;
+
     default:
 
         $smarty->assign('page', get_books_with_NE());

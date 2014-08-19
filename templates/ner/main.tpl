@@ -1,8 +1,12 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
+<div class="clearfix">
+    <div class="pull-right">
+        <a class="btn btn-primary" href="?act=manual" target="_blank"><i class="icon-info-sign icon-white"></i> Инструкция</a>
+    </div>
+</div>
 <h3>Разметка именованных сущностей</h3>
-<!-- Всего токенов &mdash; <b>{$page.token_count}</b> -->
 <table class='table'>
 {foreach from=$page item=book}
 <tr>
