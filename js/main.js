@@ -520,33 +520,6 @@ function check_for_whitespace() {
     if (!flag) alert('Bad symbols (whitespace or line break) detected');
     return flag;
 }
-function toggle_rightmenu(el) {
-    $el = $(el);
-    if(!$el.hasClass('active')) {
-        $el.addClass('active');
-        if($el.hasClass('hide-menu')){
-            $('#rightcol').animate({width:15},150,function(){
-                $('#content').addClass('content-wide');
-                $('#rightcol-inner').hide();
-                $el.removeClass('hide-menu').addClass('show-menu').text('←').attr('title','показать меню');
-                $.get('ajax/set_option.php',{'var':'hidemenu','value':1},function(){
-                    $el.removeClass('active');
-                })
-            });
-        }
-        else {
-            $('#rightcol-inner').show();
-            $('#rightcol').animate({width:200},150,function(){
-                $('#content').removeClass('content-wide');
-                $('#rightcol').removeClass('rightcol-narrow');
-                $el.removeClass('show-menu').addClass('hide-menu').text('→').attr('title','скрыть меню');
-                $.get('ajax/set_option.php',{'var':'hidemenu','value':0},function(){
-                    $el.removeClass('active');
-                })
-            });
-        }
-    }
-}
 function show_bootalert(type,msg) {
     $("#alert_wrap").html('<div class="alert alert-' + type + '">' + msg + '</div>');
     setTimeout('$("#alert_wrap .alert").fadeOut()', 3000);
