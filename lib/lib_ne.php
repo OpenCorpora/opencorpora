@@ -149,7 +149,7 @@ function get_ne_paragraph_status($book_id, $user_id) {
 
     foreach ($res as $r) {
         if ($cur_pid && $cur_pid != $r['par_id']) {
-            if ($occupied_num >= 3 && !$done)
+            if ($occupied_num >= NE_ANNOTATORS_PER_TEXT && !$done)
                 $out['unavailable'][] = $cur_pid;
             elseif ($started)
                 $out['started_by_user'][] = $cur_pid;
@@ -177,7 +177,7 @@ function get_ne_paragraph_status($book_id, $user_id) {
 
     // last row
     if ($cur_pid) {
-        if ($occupied_num >= 3 && !$done)
+        if ($occupied_num >= NE_ANNOTATORS_PER_TEXT && !$done)
             $out['unavailable'][] = $cur_pid;
         elseif ($started)
             $out['started_by_user'][] = $cur_pid;
