@@ -86,7 +86,7 @@
 <div class="notifications top-right"></div>
 <div class="floating-block">
     <div class="container">
-        <h5>Выберите один или несколько типов:</h5>
+        <h5>Выберите один из типов:</h5>
         <div class="btn-group type-selector" data-toggle="buttons-checkbox">
             {foreach $types as $type}
                 <button class="btn btn-palette-{$type.id * $colorStep}" data-type-id="{$type.id}">{$type.name}</button>
@@ -117,10 +117,6 @@
     <script src="{/literal}{$web_prefix}{literal}/bootstrap/js/bootstrap.select.min.js"></script>
     <script src='{/literal}{$web_prefix}{literal}/js/rangy-core.js'></script>
     <script src="{/literal}{$web_prefix}{literal}/js/ner.js"></script>
-    <script>
-    // var syntax_groups_json = JSON.parse('{/literal}{$token_groups|@json_encode|replace:"\"":"\\\""}{literal}');
-    // var group_types = JSON.parse('{/literal}{$group_types|@json_encode|replace:"\"":"\\\""}{literal}');
-    </script>
 {/literal}
 {/block}
 
