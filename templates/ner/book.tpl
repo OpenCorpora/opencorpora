@@ -79,6 +79,14 @@
             <p>В тексте нет ни одного предложения.</p>
         </div>
     {/if}
+<div class="row">
+    <div class="span8">
+        <div class="buttons-container">
+            <a href="/books.php?book_id={$book.id}" class="btn btn-small btn-link">К описанию текста</a>
+            <a href="/ner.php" class="btn btn-link btn-small">Вернуться к текстам</a>
+        </div>
+    </div>
+</div>
 <div class="notifications top-right"></div>
 <div class="floating-block">
     <div class="container">
