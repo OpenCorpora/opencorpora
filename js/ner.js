@@ -126,6 +126,14 @@ $(document).ready(function() {
     	});
     };
 
+    $.fn.removeClassRegex = function(regex) {
+      return $(this).removeClass(function(index, classes) {
+        return classes.split(/\s+/).filter(function(c) {
+          return regex.test(c);
+        }).join(' ');
+      });
+    };
+
     $.fn.selectpicker.defaults = {
       noneSelectedText: '',
       noneResultsText: 'Не найдено совпадений',
@@ -200,12 +208,13 @@ $(document).ready(function() {
 
 		if ($(this).val().length > 1) {
 			$('.ner-entity').filterByAttr('data-entity-id', entityId)
-				.removeClass('border-bottom-palette-* ')
+				.removeClassRegex(/border-bottom-palette-\d/)
 				.addClass('ner-multiple-types');
 		}
 		else {
 			$('.ner-entity').filterByAttr('data-entity-id', entityId)
-				.removeClass('border-bottom-palette-* ner-multiple-types')
+				.removeClass('ner-multiple-types')
+            .removeClassRegex(/border-bottom-palette-\d/)
 				.addClass('border-bottom-palette-' + $(this).val()[0] * colorStep);
 		}
 
