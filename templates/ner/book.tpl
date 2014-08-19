@@ -3,11 +3,6 @@
 {block name=content}
     {assign var=colorStep value=2}
     <h3>{$book.title} (id={$book.id})</h3>
-    <div class="clearfix">
-        <div class="pull-right">
-            <a class="btn btn-primary" href="/ner.php?act=manual" target="_blank"><i class="icon-info-sign icon-white"></i> Инструкция</a>
-        </div>
-    </div>
     <div class="buttons-container">
         <a href="/books.php?book_id={$book.id}" class="btn btn-small btn-link">К описанию текста</a>
         <a href="/ner.php" class="btn btn-link btn-small">Вернуться к текстам</a>
@@ -15,6 +10,7 @@
             <button class="ner-mode-basic btn btn-small active">Разметка кликом</button>
             <button class="ner-mode-fast btn btn-small">Разметка выделением</button>
         </div>
+        <a class="btn btn-primary btn-small" href="/ner.php?act=manual" target="_blank"><i class="icon-info-sign icon-white"></i> Инструкция</a>
     </div>
     {if isset($book.paragraphs)}
         {foreach name=b key=num item=paragraph from=$book.paragraphs}
