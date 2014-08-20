@@ -27,10 +27,6 @@ function click_handler($target) {
     }
 }
 
-function showTypeSelector(x, y) {
-
-}
-
 // end from syntax_groups.js
 
 var miscTypeId = 6;
