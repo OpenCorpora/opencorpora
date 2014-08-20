@@ -97,7 +97,8 @@
     <div class="popover-content">
         <div class="btn-group type-selector" data-toggle="buttons-checkbox">
             {foreach $types as $type}
-                <button class="btn btn-palette-{$type.id * $colorStep}" data-type-id="{$type.id}">{$type.name}</button>
+                {if $type.name !== 'phrase'}
+                <button class="btn btn-palette-{$type.id * $colorStep}" data-type-id="{$type.id}" data-hotkey="{$type.name|substr:0:1}">{$type.name}</button>{/if}
             {/foreach}
         </div>
     </div>
@@ -124,7 +125,8 @@
 {literal}
     <script src="{/literal}{$web_prefix}{literal}/bootstrap/js/bootstrap-notify.js"></script>
     <script src="{/literal}{$web_prefix}{literal}/bootstrap/js/bootstrap.select.min.js"></script>
-    <script src='{/literal}{$web_prefix}{literal}/js/rangy-core.js'></script>
+    <script src="{/literal}{$web_prefix}{literal}/js/rangy-core.js"></script>
+    <script src="{/literal}{$web_prefix}{literal}/js/mousetrap.min.js"></script>
     <script src="{/literal}{$web_prefix}{literal}/js/ner.js"></script>
 {/literal}
 {/block}

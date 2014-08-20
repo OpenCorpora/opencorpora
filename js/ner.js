@@ -1,30 +1,30 @@
 // from syntax_groups.js
 function check_adjacency($token) {
-    var $p = $token.prev();
-    if ($p.length && $p.hasClass('ner-token-selected'))
-            return true;
-    $p = $token.next();
-    if ($p.length && $p.hasClass('ner-token-selected'))
-        return true;
-    return false;
+   var $p = $token.prev();
+   if ($p.length && $p.hasClass('ner-token-selected'))
+      return true;
+   $p = $token.next();
+   if ($p.length && $p.hasClass('ner-token-selected'))
+      return true;
+   return false;
 }
 
 function is_uttermost($target) {
-    var selected = $target.parent().find('.ner-token-selected');
-    var i = selected.index($target);
-    return (i == 0 || i == (selected.length-1));
+   var selected = $target.parent().find('.ner-token-selected');
+   var i = selected.index($target);
+   return (i == 0 || i == (selected.length-1));
 }
 
 function click_handler($target) {
-    if (!$target.hasClass('ner-token-selected')) {
-        if (!check_adjacency($target)) {
-            $target.parent().find('.ner-token-selected').removeClass('ner-token-selected');
-        }
-        $target.addClass('ner-token-selected');
-    }
-    else {
-        if (is_uttermost($target)) $target.removeClass('ner-token-selected');
-    }
+   if (!$target.hasClass('ner-token-selected')) {
+     if (!check_adjacency($target)) {
+         $target.parent().find('.ner-token-selected').removeClass('ner-token-selected');
+     }
+     $target.addClass('ner-token-selected');
+   }
+   else {
+     if (is_uttermost($target)) $target.removeClass('ner-token-selected');
+   }
 }
 
 // end from syntax_groups.js
@@ -34,15 +34,15 @@ var colorStep = 2;
 
 var clearHighlight = function() {
 	$(document).find('.ner-token-selected').removeClass('ner-token-selected');
-}
+};
 
 var clearSelectedTypes = function() {
 	$('.type-selector').find('.btn').removeClass('active');
-}
+};
 
 var hideTypeSelector = function() {
-   $('.floating-block').fadeOut(200);
-}
+   $('.floating-block').fadeOut(100, deactivateHotKeys);
+};
 
 var showTypeSelector = function(x, y) {
    l = x - $('.floating-block').width() / 2;
@@ -50,8 +50,26 @@ var showTypeSelector = function(x, y) {
    if (l < 0) l = 3;
    $('.floating-block').css('left', l)
                        .css('top', t);
-   $('.floating-block').fadeIn(200);
-}
+
+   $('.floating-block').fadeIn(100, activateHotKeys);
+};
+
+var activateHotKeys = function() {
+   $('.type-selector > .btn').each(function(i, btn) {
+      btn = $(btn);
+      Mousetrap.bind(btn.attr('data-hotkey'), function() {
+         console.log(btn, btn.attr('data-hotkey'));
+         btn.click();
+      });
+   });
+};
+
+var deactivateHotKeys = function() {
+   $('.type-selector > .btn').each(function(i, btn) {
+      btn = $(btn);
+      Mousetrap.unbind(btn.attr('data-hotkey'));
+   });
+};
 
 var notify = function(text, t) {
     $('.notifications').notify({
@@ -60,7 +78,7 @@ var notify = function(text, t) {
         },
         type: typeof t == 'undefined' ? 'info' : t,
     }).show();
-}
+};
 
 var paragraph__textSelectionHandler = function(e) {
 	clearHighlight();
@@ -83,7 +101,7 @@ var paragraph__textSelectionHandler = function(e) {
 		showTypeSelector(X, Y);
 	}
 	sel.removeAllRanges();
-}
+};
 
 var token__clickHandler = function(e) {
 	in_other = $('.ner-paragraph').not($(this).parent()).find('.ner-token-selected');
@@ -103,7 +121,7 @@ var token__clickHandler = function(e) {
       Y = offset.top;
 		showTypeSelector(X, Y);
 	}
-}
+};
 
 $(document).ready(function() {
 	$.fn.mapGetter = function(prop) {
