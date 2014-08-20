@@ -76,6 +76,9 @@ function sql_insert_id() {
 }
 function sql_prepare($q) {
     global $pdo_db;
+    $debug = isset($_SESSION['debug_mode']);
+    if ($debug)
+        printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>*</td><td colspan='3'>PREPARE: %s</td></tr></table>\n", htmlspecialchars($q));
     try {
         return $pdo_db->prepare($q);
     }
