@@ -595,7 +595,7 @@ function get_pool_candidates_page($pool_id) {
     if (preg_match('/^(.+?)\s+#(\d+)/', $pool['name'], $matches))
         $pool['next_name'] = $matches[1] . ' #';
     else
-        $pool['next_name'] = $pool_name . ' #';
+        $pool['next_name'] = $pool['name'] . ' #';
     $pool['samples'] = get_pool_candidates($pool_id);
     return $pool;
 }
@@ -733,7 +733,7 @@ function promote_samples_aux($tf_ids, $orig_pool_id, $lastrev, $new_pool_name, &
     else {
         $full_name = $new_pool_name . ' #' . ($new_pool_index++);
         sql_pe(
-            "INSERT INTO morph_annot_pools (SELECT NULL, pool_type, '".sql_quote($full_name)."', token_check, users_needed, $time, $time, author_id, 0, ".MA_POOLS_STATUS_NOT_STARTED.", $lastrev FROM morph_annot_pools WHERE pool_id=? LIMIT 1)",
+            "INSERT INTO morph_annot_pools (SELECT NULL, pool_type, ".sql_quote($full_name).", token_check, users_needed, $time, $time, author_id, 0, ".MA_POOLS_STATUS_NOT_STARTED.", $lastrev FROM morph_annot_pools WHERE pool_id=? LIMIT 1)",
             array($orig_pool_id)
         );
         $current_pool_id = sql_insert_id();
