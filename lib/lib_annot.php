@@ -602,12 +602,13 @@ function get_pool_candidates_page($pool_id) {
 function get_pool_candidates($pool_id) {
     $res = sql_pe("SELECT tf_id FROM morph_annot_candidate_samples WHERE pool_id=? ORDER BY RAND() LIMIT 200", array($pool_id));
     $out = array();
+    $prep_query = NULL;
     foreach ($res as $r) {
-        $out[] = get_context_for_word($r[0], 2);
+        $out[] = get_context_for_word($r[0], 2, 0, 1, $prep_query);
     }
     return $out;
 }
-function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
+function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepared_queries=NULL) {
     // dir stands for direction (-1 => left, 1 => right, 0 => both)
     // delta <= 0 stands for infinity
     $t = array();
@@ -615,34 +616,55 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
     $left_c = -1;  //if there is left context to be added
     $right_c = 0;  //same for right context
     $mw_pos = 0;
-
-    $r = sql_fetch_array(sql_query("
-        SELECT MAX(tokens.pos) AS maxpos, sent_id, source, book_id
-        FROM tokens
-            JOIN sentences USING (sent_id)
-            JOIN paragraphs USING (par_id)
-        WHERE sent_id = (
-            SELECT sent_id
+    
+    // prepare the 1st query
+    if ($prepared_queries === NULL)
+        $prepared_queries = array(sql_prepare("
+            SELECT MAX(tokens.pos) AS maxpos, sent_id, source, book_id
             FROM tokens
-            WHERE tf_id=$tf_id LIMIT 1
-        )
-    "));
+                JOIN sentences USING (sent_id)
+                JOIN paragraphs USING (par_id)
+            WHERE sent_id = (
+                SELECT sent_id
+                FROM tokens
+                WHERE tf_id=? LIMIT 1
+            )
+        "));
+
+    sql_execute($prepared_queries[0], array($tf_id));
+    $res = sql_fetchall($prepared_queries[0]);
+    $r = $res[0];
     $sent_id = $r['sent_id'];
     $sentence_text = $r['source'];
     $book_id = $r['book_id'];
     $maxpos = $r['maxpos'];
-    $q = "SELECT tf_id, tf_text, pos FROM tokens WHERE sent_id = $sent_id";
-    if ($dir != 0 || $delta > 0) {
-        $q_left = $dir <= 0 ? ($delta > 0 ? "(SELECT GREATEST(0, pos-$delta) FROM tokens WHERE tf_id=$tf_id LIMIT 1)" : "0") : "(SELECT pos FROM tokens WHERE tf_id=$tf_id LIMIT 1)";
-        $q_right = $dir >= 0 ? ($delta > 0 ? "(SELECT pos+$delta FROM tokens WHERE tf_id=$tf_id LIMIT 1)" : "1000") : "(SELECT pos FROM tokens WHERE tf_id=$tf_id LIMIT 1)";
-        $q .= " AND pos BETWEEN $q_left AND $q_right";
+
+    // prepare the 2nd query
+    // this is really bad unreadable code, sorry
+    if (sizeof($prepared_queries) == 1) {
+        $q = "SELECT tf_id, tf_text, pos FROM tokens WHERE sent_id = ?";
+        if ($dir != 0 || $delta > 0) {
+            $q_left = $dir <= 0 ? ($delta > 0 ? "(SELECT GREATEST(0, pos-$delta) FROM tokens WHERE tf_id=? LIMIT 1)" : "0") : "(SELECT pos FROM tokens WHERE tf_id=? LIMIT 1)";
+            $q_right = $dir >= 0 ? ($delta > 0 ? "(SELECT pos+$delta FROM tokens WHERE tf_id=? LIMIT 1)" : "1000") : "(SELECT pos FROM tokens WHERE tf_id=? LIMIT 1)";
+            $q .= " AND pos BETWEEN $q_left AND $q_right";
+        }
+
+        $q .= " ORDER BY pos";
+        $prepared_queries[] = sql_prepare($q);
     }
 
-    $q .= " ORDER BY pos";
+    // how many values should we provide?
+    $bound = array($tf_id, $tf_id);
+    if ($delta == 0) {
+        if ($dir == 0)
+            $bound = array();
+        else
+            $bound = array($tf_id);
+    }
 
-    $res = sql_query($q);
+    sql_execute($prepared_queries[1], array_merge(array($sent_id), $bound));
 
-    while ($r = sql_fetch_array($res)) {
+    foreach ($prepared_queries[1] as $r) {
         if ($delta > 0) {
             if ($left_c == -1) {
                 $left_c = ($r['pos'] == 1) ? 0 : $r['tf_id'];
