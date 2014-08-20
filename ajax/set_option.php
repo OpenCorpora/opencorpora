@@ -9,7 +9,7 @@ $res = array('error' => 0);
 try {
     if (!is_logged())
         throw new Exception();
-    save_user_option($_GET['option'], $_GET['value']);
+    save_user_option($_POST['option'], $_POST['value']);
 }
 catch (Exception $e) {
     $res['error'] = 1;

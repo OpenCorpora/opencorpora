@@ -770,7 +770,7 @@ button.ma_next_pack {
 }
 
 .ner-token {
-    padding: 2px 3px;
+    padding: 3px;
     display: inline-block;
     cursor: pointer;
 }
@@ -791,20 +791,22 @@ button.ma_next_pack {
     border-bottom-color: darkgray;
 }
 
-.floating-block {
-    position: fixed;
-    z-index: 100;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 80px;
-    background-color: rgba(217, 237, 247, 0.9);
-    border-top: solid 3px #3a87ad;
-    display: none;
-}
-
 .floating-block.visible {
     display: block;
+}
+
+.popover.floating-block .popover-content {
+    padding: 7px;
+}
+
+.types-popover {
+    width: auto;
+    max-width: 600px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4);
+}
+
+.types-popover .type-selector {
+    margin-right: 0px;
 }
 
 .type-selector {

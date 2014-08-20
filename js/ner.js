@@ -27,6 +27,10 @@ function click_handler($target) {
     }
 }
 
+function showTypeSelector(x, y) {
+
+}
+
 // end from syntax_groups.js
 
 var miscTypeId = 6;
@@ -40,6 +44,19 @@ var clearSelectedTypes = function() {
 	$('.type-selector').find('.btn').removeClass('active');
 }
 
+var hideTypeSelector = function() {
+   $('.floating-block').fadeOut(200);
+}
+
+var showTypeSelector = function(x, y) {
+   l = x - $('.floating-block').width() / 2;
+   t = y - $('.floating-block').height() - 10;
+   if (l < 0) l = 3;
+   $('.floating-block').css('left', l)
+                       .css('top', t);
+   $('.floating-block').fadeIn(200);
+}
+
 var notify = function(text, t) {
     $('.notifications').notify({
         message: {
@@ -51,12 +68,12 @@ var notify = function(text, t) {
 
 var paragraph__textSelectionHandler = function(e) {
 	clearHighlight();
-	$('.floating-block').find('.btn').removeClass('active');
+	clearSelectedTypes();
 
 	sel = rangy.getSelection();
 	range = sel.getRangeAt(0);
 	if (range.collapsed) {
-		$('.floating-block').removeClass('visible');
+		hideTypeSelector();
 		return;
 	}
 
@@ -64,7 +81,10 @@ var paragraph__textSelectionHandler = function(e) {
 	spans = (nodes.length == 1) ? $(nodes[0].parentElement) : $(nodes).filter('span');
 	if (!spans.hasClass('ner-entity')) {
 		spans.addClass('ner-token-selected');
-		$('.floating-block').addClass('visible');
+      offset = spans.last().offset();
+      X = offset.left + $(spans.last()).width() / 2;
+      Y = offset.top;
+		showTypeSelector(X, Y);
 	}
 	sel.removeAllRanges();
 }
@@ -79,10 +99,13 @@ var token__clickHandler = function(e) {
 	click_handler($(this));
 
 	if ($('.ner-token-selected').length == 0) {
-		$('.floating-block').removeClass('visible');
-		$('.floating-block .btn.active').removeClass('active');
+		hideTypeSelector();
+		clearSelectedTypes();
 	} else {
-		$('.floating-block').addClass('visible');
+      offset = $(e.target).offset();
+      X = offset.left + $(e.target).width() / 2;
+      Y = offset.top;
+		showTypeSelector(X, Y);
 	}
 }
 
@@ -152,24 +175,26 @@ $(document).ready(function() {
 		$(this).find('.ner-paragraph-wrap').syncByClass($(this).find('.ner-table-wrap'));
 	});
 
+   $('.ner-paragraph-wrap').not('.ner-mine').not('.ner-disabled').click(function(e) {
 
-	$('button.ner-btn-start').click(function(e) {
-		btn = $(this);
-		e.preventDefault();
-		$.post('/ajax/ner.php', {
-			act: 'newAnnotation',
-			paragraph: btn.attr('data-par-id')
-		}, function(response) {
-			btn.parents('.ner-paragraph-wrap').addClass('ner-mine').attr('data-annotation-id', response.id);
-		});
+      parwrap = $(this);
+      par = parwrap.find('.ner-paragraph');
 
-	});
+      $.post('/ajax/ner.php', {
+         act: 'newAnnotation',
+         paragraph: par.attr('data-par-id')
+      }, function(response) {
+         parwrap.addClass('ner-mine').attr('data-annotation-id', response.id);
+      });
+
+   });
 
 	$('button.ner-btn-finish').click(function(e) {
 		btn = $(this);
 		e.preventDefault();
+      e.stopPropagation();
 
-      if ($('.floating-block').hasClass('visible')) {
+      if ($('.floating-block').is(':visible')) {
          notify("У вас есть несохраненная сущность.", 'error');
          return false;
       }
@@ -188,21 +213,51 @@ $(document).ready(function() {
 
 	});
 
+   $('button.ner-btn-finish-all').click(function(e) {
+
+      if ($('.floating-block').is(':visible')) {
+         notify("У вас есть несохраненная сущность.", 'error');
+         return false;
+      }
+
+      $('.ner-paragraph-wrap.ner-mine').each(function() {
+         parwrap = $(this);
+
+         // this block of code suddenly throws errors when put inside $.post callback
+         // so we clean up everything here and send the request afterwards
+         parwrap.removeClass('ner-mine').addClass('ner-disabled');
+         parwrap.parents('.ner-row').find('td.ner-entity-type').each(function(index, td) {
+            td = $(td);
+            // this is bad
+            td.html(td.find('.bootstrap-select').find('.filter-option').html().replace(',', ''));
+         });
+
+         $.post('/ajax/ner.php', {
+            act: 'finishAnnotation',
+            paragraph: parwrap.attr('data-annotation-id')
+         });
+
+      });
+
+   });
+
 
 	if ($('.ner-mode-fast').hasClass('active'))
-		$(document).on('mouseup', '.ner-paragraph-wrap.ner-mine > .ner-paragraph', paragraph__textSelectionHandler);
+		$(document).on('mouseup', '.ner-paragraph-wrap:not(.ner-disabled) > .ner-paragraph', paragraph__textSelectionHandler);
 	else
-		$(document).on('click', '.ner-paragraph-wrap.ner-mine .ner-token:not(.ner-entity)', token__clickHandler)
+		$(document).on('click', '.ner-paragraph-wrap:not(.ner-disabled) .ner-token:not(.ner-entity)', token__clickHandler)
 
 
    $('.ner-mode-basic').click(function() {
-      $(document).on('click', '.ner-paragraph-wrap.ner-mine .ner-token:not(.ner-entity)', token__clickHandler);
-      $(document).off('mouseup', '.ner-paragraph-wrap.ner-mine > .ner-paragraph');
+      $(document).on('click', '.ner-paragraph-wrap:not(.ner-disabled) .ner-token:not(.ner-entity)', token__clickHandler);
+      $(document).off('mouseup', '.ner-paragraph-wrap:not(.ner-disabled) > .ner-paragraph');
+      $.post('/ajax/set_option.php', {option: 5, value: 0});
    });
 
    $('.ner-mode-fast').click(function() {
-      $(document).on('mouseup', '.ner-paragraph-wrap.ner-mine > .ner-paragraph', paragraph__textSelectionHandler);
-      $(document).off('click', '.ner-paragraph-wrap.ner-mine .ner-token:not(.ner-entity)');
+      $(document).on('mouseup', '.ner-paragraph-wrap:not(.ner-disabled) > .ner-paragraph', paragraph__textSelectionHandler);
+      $(document).off('click', '.ner-paragraph-wrap:not(.ner-disabled) .ner-token:not(.ner-entity)');
+      $.post('/ajax/set_option.php', {option: 5, value: 1});
    });
 
 	$('.ner-table-wrap').on('change', '.selectpicker', function(e) {
@@ -285,7 +340,7 @@ $(document).ready(function() {
 
 			clearHighlight();
 			clearSelectedTypes();
-			$('.floating-block').removeClass('visible');
+			hideTypeSelector();
 		});
 
 	});

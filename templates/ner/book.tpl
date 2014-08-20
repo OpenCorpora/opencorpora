@@ -7,8 +7,8 @@
         <a href="/books.php?book_id={$book.id}" class="btn btn-small btn-link">К описанию текста</a>
         <a href="/ner.php" class="btn btn-link btn-small">Вернуться к текстам</a>
         <div class="btn-group" data-toggle="buttons-radio">
-            <button class="ner-mode-basic btn btn-small active">Разметка кликом</button>
-            <button class="ner-mode-fast btn btn-small">Разметка выделением</button>
+            <button class="ner-mode-basic btn btn-small {if not $use_fast_mode}active{/if}">Разметка кликом</button>
+            <button class="ner-mode-fast btn btn-small {if $use_fast_mode}active{/if}">Разметка выделением</button>
         </div>
         <a class="btn btn-primary btn-small" href="/ner.php?act=manual" target="_blank"><i class="icon-info-sign icon-white"></i> Инструкция</a>
     </div>
@@ -41,15 +41,15 @@
                         {/foreach}
                         </p>
                         <div class="ner-paragraph-controls">
-                            <button class="btn btn-primary ner-btn-start" data-par-id="{$paragraph.id}">Я буду размечать</button>
-                            <button class="btn btn-success ner-btn-finish pull-right" data-par-id="{$paragraph.id}">Сохранить абзац</button>
+                            <!--button class="btn btn-primary ner-btn-start" data-par-id="{$paragraph.id}">Я буду размечать</button-->
+                            <button class="btn btn-success ner-btn-finish pull-right" data-par-id="{$paragraph.id}">Сохранить</button>
                         </div>
                         <div class="clearfix"></div>
                     </div>
                 </div>
                 <div class="span4 ner-table-wrap {if $paragraph.disabled }ner-disabled{elseif $paragraph.mine}ner-mine{/if}">
 
-                    <table class="table ner-table" data-par-id="{$paragraph.id}">
+                    <table class="table ner-table table-condensed" data-par-id="{$paragraph.id}">
                         {foreach $paragraph.named_entities as $ne}
                             <tr data-entity-id="{$ne.id}">
                                 <td class="ner-entity-actions"><i class="icon icon-remove ner-remove" data-entity-id={$ne.id}></i></td>
@@ -85,13 +85,16 @@
         <div class="buttons-container">
             <a href="/books.php?book_id={$book.id}" class="btn btn-small btn-link">К описанию текста</a>
             <a href="/ner.php" class="btn btn-link btn-small">Вернуться к текстам</a>
+            <button class="btn btn-small btn-success ner-btn-finish-all">Сохранить всё</button>
         </div>
     </div>
 </div>
 <div class="notifications top-right"></div>
-<div class="floating-block">
-    <div class="container">
-        <h5>Выберите один из типов:</h5>
+
+<div class="popover types-popover top floating-block">
+    <div class="arrow"></div>
+    <h3 class="popover-title">Выберите один из типов:</h3>
+    <div class="popover-content">
         <div class="btn-group type-selector" data-toggle="buttons-checkbox">
             {foreach $types as $type}
                 <button class="btn btn-palette-{$type.id * $colorStep}" data-type-id="{$type.id}">{$type.name}</button>
@@ -99,6 +102,7 @@
         </div>
     </div>
 </div>
+
 <div class="templates">
     <table class="table-stub">
     <tr class="tr-template">
