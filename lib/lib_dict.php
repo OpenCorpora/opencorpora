@@ -276,7 +276,7 @@ function get_pending_updates($skip=0, $limit=500) {
         LEFT JOIN tokens tf ON (ut.token_id = tf.tf_id)
         LEFT JOIN tf_revisions tfr USING (tf_id)
         WHERE is_last = 1
-        ORDER BY dict_revision, tf_id
+        ORDER BY dict_revision, token_id
         LIMIT ?, ?
     ", array($skip, $limit));
 
