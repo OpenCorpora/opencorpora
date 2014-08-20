@@ -380,6 +380,19 @@ function get_meta_options() {
     }
     return $out;
 }
+function save_user_option($option_id, $value) {
+    if (!$option_id)
+        throw new UnexpectedValueException();
+
+    sql_pe("
+        UPDATE user_options_values
+        SET option_value = ?
+        WHERE option_id = ?
+        AND user_id = ?
+        LIMIT 1
+    ", array($value, $option_id, $_SESSION['user_id']));
+    $_SESSION['options'][$option_id] = $value;
+}
 function save_user_options($post) {
     if (!isset($post['options']))
         throw new UnexpectedValueException();

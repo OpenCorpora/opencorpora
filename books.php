@@ -66,6 +66,7 @@ elseif  (/*user_has_permission('perm_syntax') && */is_logged() && $action == 'ne
 
         $smarty->assign('book', $book);
         $smarty->assign('types', get_ne_types());
+        $smarty->assign('use_fast_mode', $_SESSION['options'][5]);
         $smarty->display('ner/book.tpl');
     } else {
         throw new UnexpectedValueException();
