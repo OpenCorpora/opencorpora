@@ -42,8 +42,9 @@
                         </p>
                         <div class="ner-paragraph-controls">
                             <button class="btn btn-primary ner-btn-start" data-par-id="{$paragraph.id}">Я буду размечать</button>
-                            <button class="btn btn-success ner-btn-finish" data-par-id="{$paragraph.id}">Я хочу закончить</button>
+                            <button class="btn btn-success ner-btn-finish pull-right" data-par-id="{$paragraph.id}">Сохранить абзац</button>
                         </div>
+                        <div class="clearfix"></div>
                     </div>
                 </div>
                 <div class="span4 ner-table-wrap {if $paragraph.disabled }ner-disabled{elseif $paragraph.mine}ner-mine{/if}">

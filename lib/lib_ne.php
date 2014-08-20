@@ -49,7 +49,7 @@ function get_books_with_ne() {
             if (is_logged() && $r['user_id'] == $_SESSION['user_id'])
                 $finished_by_me += 1;
         }
-        
+
         $book['id'] = $r['book_id'];
         $book['name'] = $r['book_name'];
         $last_book_id = $r['book_id'];
@@ -87,7 +87,7 @@ function get_ne_by_paragraph($par_id, $user_id) {
         AND user_id = ?
         LIMIT 1
     ", array($par_id, $user_id));
-    
+
     if (!sizeof($res))
         return array();
 
@@ -164,6 +164,8 @@ function get_ne_tokens_by_paragraph($par_id, $user_id) {
 
     foreach ($res as $r)
         $tokens[$r['tf_id']] = array();
+
+    if (empty($annot['entities'])) return $tokens;
 
     foreach ($annot['entities'] as $e) {
         foreach ($e['tokens'] as $token) {

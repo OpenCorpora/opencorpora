@@ -168,6 +168,12 @@ $(document).ready(function() {
 	$('button.ner-btn-finish').click(function(e) {
 		btn = $(this);
 		e.preventDefault();
+
+      if ($('.floating-block').hasClass('visible')) {
+         notify("У вас есть несохраненная сущность.", 'error');
+         return false;
+      }
+
 		$.post('/ajax/ner.php', {
 			act: 'finishAnnotation',
 			paragraph: btn.parents('.ner-paragraph-wrap').attr('data-annotation-id')
