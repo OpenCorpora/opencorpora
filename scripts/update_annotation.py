@@ -7,18 +7,20 @@ from Annotation import AnnotationEditor
 CONFIG_PATH = "/corpus/config.ini"
 CHANGESET_COMMENT = "Update tokens from dictionary"
 
-DICT_REVISION = 389979
+DICT_REVISION = 390730
 FILTER_OUT = None
 CHANGE_LEMMA = None
 GRAM_CHANGE = None
+DELETE_LEMMA = None
 
-#FILTER_OUT = ("masc", )
-GRAM_CHANGE = (("indc", "Infr"), ("indc", ))
-#CHANGE_LEMMA = ("Википедия", "википедия")
+#FILTER_OUT = ("neut", )
+#GRAM_CHANGE = (("PRTF", "impf", "tran", "past", "pssv"), ("ADJF", "Subx"))
+#CHANGE_LEMMA = ("королева", "королёва", "Surn")
+DELETE_LEMMA = 78304
 
 def get_tokens(dbh, revision):
     dbh.execute("""
-        SELECT token_id
+        SELECT DISTINCT token_id
         FROM updated_tokens t
         WHERE dict_revision = {0}
     """.format(revision))
@@ -42,7 +44,9 @@ def update_annotation(editor):
         if GRAM_CHANGE:
             ann.replace_gramset(GRAM_CHANGE[0], GRAM_CHANGE[1])
         if CHANGE_LEMMA:
-            ann.replace_lemma(CHANGE_LEMMA[0], CHANGE_LEMMA[1])
+            ann.replace_lemma(CHANGE_LEMMA[0], CHANGE_LEMMA[1], CHANGE_LEMMA[2])
+        if DELETE_LEMMA:
+            ann.delete_parses_with_lemma_id(DELETE_LEMMA)
         new_rev_text = ann.to_xml()
         if 'debug' in sys.argv:
             print("after:")

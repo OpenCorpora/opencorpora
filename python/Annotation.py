@@ -81,6 +81,7 @@ class ParsingVariant(object):
     def __init__(self, xml):
         assert isinstance(xml, str)
         self.xml = xml
+        self.lemma_id = int(re.search('<l id="([0-9]+)"', self.xml).group(1))
 
     def to_xml(self):
         return self.xml
@@ -135,6 +136,14 @@ class AnnotatedToken(object):
             out.append('</v>')
         out.append('</tfr>')
         return ''.join(out)
+
+    def delete_parses_with_lemma_id(self, lemma_id):
+        assert isinstance(lemma_id, int)
+        new_parses = []
+        for parse in self.parses:
+            if parse.lemma_id != lemma_id:
+                new_parses.append(parse)
+        self.parses = new_parses
 
     def delete_parses_with_gramset(self, grams):
         if len(self.parses) == 0:
