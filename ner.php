@@ -7,6 +7,10 @@ require_once('lib/lib_ne.php');
     show_error($config['msg']['notadmin']);
     return;
 }*/
+if (!is_logged()) {
+    show_error($config['msg']['notlogged']);
+    return;
+}
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 
