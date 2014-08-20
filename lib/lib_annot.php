@@ -301,8 +301,8 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
         $moderators[$r['moderator_id']] = $r['user_name'];
 
     // count instances in one query and preserve
-    $res = sql_query("SELECT answer, count(instance_id) cnt, pool_id FROM morph_annot_instances LEFT JOIN morph_annot_samples s USING(sample_id) WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status = $type) GROUP BY (answer > 0), pool_id ORDER BY pool_id");
-    while ($r = sql_fetch_array($res)) {
+    $res = sql_pe("SELECT answer, count(instance_id) cnt, pool_id FROM morph_annot_instances LEFT JOIN morph_annot_samples s USING(sample_id) WHERE pool_id IN (SELECT pool_id FROM morph_annot_pools WHERE status = ?) GROUP BY (answer > 0), pool_id ORDER BY pool_id", array($type));
+    foreach ($res as $r) {
         if (!isset($instance_count[$r['pool_id']]))
             $instance_count[$r['pool_id']] = array(0, 0, 0);
 
@@ -326,8 +326,8 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     if ($filter)
         $q_filter = "AND t.grammemes REGEXP ".sql_quote($filter);
 
-    $res = sql_query("SELECT p.*, t.grammemes, t.gram_descr, u1.user_shown_name AS author_name, u2.user_shown_name AS moderator_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users u1 ON (p.author_id = u1.user_id) LEFT JOIN users u2 ON (p.moderator_id = u2.user_id) WHERE status = $type $q_moder $q_filter ORDER BY p.updated_ts DESC");
-    while ($r = sql_fetch_assoc($res)) {
+    $res = sql_pe("SELECT p.*, t.grammemes, t.gram_descr, u1.user_shown_name AS author_name, u2.user_shown_name AS moderator_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users u1 ON (p.author_id = u1.user_id) LEFT JOIN users u2 ON (p.moderator_id = u2.user_id) WHERE status = ? $q_moder $q_filter ORDER BY p.updated_ts DESC", array($type));
+    foreach ($res as $r) {
         if ($type == MA_POOLS_STATUS_FOUND_CANDIDATES) {
             $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_candidate_samples WHERE pool_id=".$r['pool_id']));
             $r['candidate_count'] = $r1[0];
@@ -788,7 +788,7 @@ function promote_samples($pool_id, $type) {
     if (!$pool_id || !$type || !$pools_num)
         throw new UnexpectedValueException();
 
-    $cond = "WHERE pool_id=$pool_id";
+    $cond = "WHERE pool_id=?";
 
     switch ($type) {
         case 'first':
@@ -803,8 +803,9 @@ function promote_samples($pool_id, $type) {
             throw new Exception();
     }
 
-    $r = sql_fetch_array(sql_query("SELECT pool_name, revision FROM morph_annot_pools WHERE pool_id=$pool_id LIMIT 1"));
-    $lastrev = $r['revision'];
+    $res = sql_pe("SELECT pool_name, revision FROM morph_annot_pools WHERE pool_id=? LIMIT 1", array($pool_id));
+    $pool_info = $res[0];
+    $lastrev = $pool_info['revision'];
     if (!$lastrev) {
         $r1 = sql_fetch_array(sql_query("SELECT MAX(rev_id) FROM tf_revisions"));
         $lastrev = $r1[0];
@@ -813,22 +814,22 @@ function promote_samples($pool_id, $type) {
     $matches = array();
     $next_pool_name = '';
     $next_pool_index = '';
-    if (preg_match('/^(.+?)\s+#(\d+)/', $r['pool_name'], $matches)) {
+    if (preg_match('/^(.+?)\s+#(\d+)/', $pool_info['pool_name'], $matches)) {
         $next_pool_name = $matches[1];
         $next_pool_index = $matches[2] + 1;
     } else {
-        $next_pool_name = $r['pool_name'];
+        $next_pool_name = $pool_info['pool_name'];
         $next_pool_index = 2;
     }
 
     $time = time();
 
     sql_begin();
-    $res = sql_query("SELECT tf_id FROM morph_annot_candidate_samples $cond");
+    $res = sql_pe("SELECT tf_id FROM morph_annot_candidate_samples $cond", array($pool_id));
     $i = 0;
     $tf_array = array();
     $promoted_pool_ids = array();
-    while ($r = sql_fetch_array($res)) {
+    foreach ($res as $r) {
         $tf_array[] = $r['tf_id'];
         if (++$i % $n == 0) {
             promote_samples_aux($tf_array, $pool_id, $lastrev, $next_pool_name, $next_pool_index, $promoted_pool_ids);
@@ -852,7 +853,7 @@ function promote_samples($pool_id, $type) {
         sql_query("UPDATE morph_annot_candidate_samples SET pool_id=".sql_insert_id()." WHERE pool_id=$pool_id");
     }
 
-    sql_query("DELETE FROM morph_annot_candidate_samples WHERE pool_id=$pool_id");
+    sql_pe("DELETE FROM morph_annot_candidate_samples WHERE pool_id=?", array($pool_id));
     sql_commit();
 }
 function publish_pool($pool_id) {

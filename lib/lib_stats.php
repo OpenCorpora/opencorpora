@@ -33,15 +33,15 @@ function get_sentence_adders_stats($last_week=false, $team=0) {
         $param = 6;
 
     $out = array();
-    $res = sql_query("
+    $res = sql_pe("
         SELECT user_shown_name AS user_name, param_value
         FROM user_stats
         LEFT JOIN users USING (user_id)
         WHERE param_id=$param
-        ".($team ? "AND user_team = $team" : "")."
+        ".($team ? "AND user_team = ?" : "")."
         ORDER BY param_value DESC
-    ");
-    while ($r = sql_fetch_array($res)) {
+    ", $team ? array($team) : array());
+    foreach ($res as $r) {
         $out[] = array('user_name' => $r['user_name'], 'value' => $r['param_value']);
     }
     return $out;
@@ -207,17 +207,17 @@ function get_user_stats($weekly=false, $team=0) {
     }
 
     $uid2sid = array();
-    $res = sql_query("
+    $res = sql_pe("
         SELECT user_id, COUNT(*) AS cnt, FLOOR(user_rating10 / 10) AS rating
         FROM morph_annot_instances
         LEFT JOIN users USING(user_id)
         WHERE answer > 0
-            AND ts_finish > $start_time
-            ".($team ? "AND user_team = $team" : "")."
+            AND ts_finish > ?
+            ".($team ? "AND user_team = ?" : "")."
         GROUP BY user_id
         ORDER BY ".($weekly ? 'cnt' : 'rating')." DESC
-    ");
-    while ($r = sql_fetch_array($res)) {
+    ", $team ? array($start_time, $team) : array($start_time));
+    foreach ($res as $r) {
         $annotators[] = array(
             'total' => number_format($r['cnt'], 0, '', ' '),
             'user_id' => $r['user_id'],

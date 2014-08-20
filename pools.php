@@ -68,7 +68,7 @@ switch ($action) {
         header("Location:pools.php?act=samples&pool_id=".$_GET['pool_id']);
         break;
     case 'agree':
-        moder_agree_with_all((int)$_GET['pool_id']);
+        moder_agree_with_all($_GET['pool_id']);
         header("Location:pools.php?act=samples&pool_id=".$_GET['pool_id']);
         break;
     case 'finish_moder':

@@ -39,7 +39,7 @@ if (isset($_GET['page'])) {
             $smarty->setCacheLifetime(300);
             $cache_key = $uid.'@'.(int)$weekly.(isset($_GET['team']) ? (int)$_GET['team'] : 0);
             if (!is_cached('stats.tpl', $cache_key)) {
-                $smarty->assign('user_stats', get_user_stats($weekly, isset($_GET['team']) ? (int)$_GET['team'] : 0));
+                $smarty->assign('user_stats', get_user_stats($weekly, isset($_GET['team']) ? $_GET['team'] : 0));
                 $smarty->assign('ma_count', count_all_answers());
             }
             $smarty->display('stats.tpl', $cache_key);
