@@ -56,6 +56,7 @@ function get_books_with_ne() {
         $last_book_id = $r['book_id'];
         $last_par_id = $r['par_id'];
     }
+    $book['num_par'] += 1;
     $book['ready_annot'] += max($finished_annot, NE_ANNOTATORS_PER_TEXT);
     if (
         $finished_by_me == $book['num_par'] ||
