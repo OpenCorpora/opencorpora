@@ -44,9 +44,9 @@ h1 {
     font-weight: 800;
 }
 
-/*h1, h2, h3, h4 {
+h1, h2, h3, h4 {
     font-family: "Open Sans", sans-serif;
-}*/
+}
 
 
 table.borderless, td.borderless, tr.borderless td, th.borderless, tr.borderless th {
@@ -69,10 +69,10 @@ body {
     padding: 0px;
     height: 100%;
     background: #FDFDFD;
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: 'Lucida Grande', Helvetica, Arial, sans-serif;
 }
 input, button, select, textarea {
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: 'Lucida Grande', Helvetica, Arial, sans-serif;
 }
 
 #wrap {
