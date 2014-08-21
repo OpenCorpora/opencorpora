@@ -57,8 +57,8 @@ var showTypeSelector = function(x, y) {
 var activateHotKeys = function() {
    $('.type-selector > .btn').each(function(i, btn) {
       btn = $(btn);
-      Mousetrap.bind(btn.attr('data-hotkey'), function() {
-         console.log(btn, btn.attr('data-hotkey'));
+      Mousetrap.bind([btn.attr('data-hotkey') + ' ' + btn.attr('data-hotkey'),
+                      'alt+' + btn.attr('data-hotkey')], function() {
          btn.click();
       });
    });
@@ -67,7 +67,8 @@ var activateHotKeys = function() {
 var deactivateHotKeys = function() {
    $('.type-selector > .btn').each(function(i, btn) {
       btn = $(btn);
-      Mousetrap.unbind(btn.attr('data-hotkey'));
+      Mousetrap.unbind(btn.attr('data-hotkey') + ' ' + btn.attr('data-hotkey'));
+      Mousetrap.unbind('alt+' + btn.attr('data-hotkey'));
    });
 };
 
