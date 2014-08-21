@@ -24,9 +24,10 @@ function get_books_with_ne() {
     $finished_by_me = 0;
     while ($r = sql_fetch_array($res)) {
         if ($r['par_id'] != $last_par_id) {
-            $book['num_par'] += 1;
-            if ($last_par_id)
+            if ($last_par_id) {
+                $book['num_par'] += 1;
                 $book['ready_annot'] += min($finished_annot, NE_ANNOTATORS_PER_TEXT);
+            }
             $finished_annot = 0;
         }
         if ($r['book_id'] != $last_book_id && $last_book_id) {
