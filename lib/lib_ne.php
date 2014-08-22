@@ -16,7 +16,8 @@ function get_books_with_ne() {
     $book = array(
         'num_par' => 0,
         'ready_annot' => 0,
-        'available' => 1
+        'available' => 1,
+        'started' => 0
     );
     $last_book_id = 0;
     $last_par_id = 0;
@@ -40,15 +41,18 @@ function get_books_with_ne() {
             $book = array(
                 'num_par' => 0,
                 'ready_annot' => 0,
-                'available' => 1
+                'available' => 1,
+                'started' => 0
             );
             $finished_by_me = 0;
         }
 
         if ($r['status'] == NE_STATUS_FINISHED) {
             $finished_annot += 1;
-            if (is_logged() && $r['user_id'] == $_SESSION['user_id'])
+            if (is_logged() && $r['user_id'] == $_SESSION['user_id']) {
                 $finished_by_me += 1;
+                $book['started'] = 1;
+            }
         }
 
         $book['id'] = $r['book_id'];
@@ -64,6 +68,13 @@ function get_books_with_ne() {
     )
         $book['available'] = 0;
     $out[] = $book;
+
+    // sort so that unavailable texts go last
+    uasort($out, function($a, $b) {
+        if ($a['available'] == $b['available'])
+            return $a['started'] < $b['started'] ? 1: -1;
+        return $a['available'] < $b['available'] ? 1 : -1;
+    });
     return $out;
 }
 

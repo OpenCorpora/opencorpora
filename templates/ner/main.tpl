@@ -16,7 +16,7 @@
     <th></th>
 </tr>
 {foreach from=$page item=book}
-<tr>
+<tr {if $book.started}class='bggreen'{/if}>
     <td><a href="{$web_prefix}/books.php?book_id={$book.id}">{$book.id}</a></td>
     <td>{$book.name|htmlspecialchars}</td>
     <td>{$book.num_par}</td>
