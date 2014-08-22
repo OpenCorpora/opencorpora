@@ -79,6 +79,10 @@ input, button, select, textarea {
     background-color: #fdfdfd;
 }
 
+.table tbody tr.warning > td {
+  background-color: #fcf8e3;
+}
+
 #wrap {
     min-height: 100%;
     height: auto !important;
