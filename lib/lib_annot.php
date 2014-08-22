@@ -655,7 +655,7 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
 
     // how many values should we provide?
     $bound = array($tf_id, $tf_id);
-    if ($delta == 0) {
+    if ($delta <= 0) {
         if ($dir == 0)
             $bound = array();
         else
@@ -664,7 +664,7 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
 
     sql_execute($prepared_queries[1], array_merge(array($sent_id), $bound));
 
-    foreach ($prepared_queries[1] as $r) {
+    foreach (sql_fetchall($prepared_queries[1]) as $r) {
         if ($delta > 0) {
             if ($left_c == -1) {
                 $left_c = ($r['pos'] == 1) ? 0 : $r['tf_id'];
