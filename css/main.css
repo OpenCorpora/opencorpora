@@ -851,3 +851,23 @@ button.ma_next_pack {
     display: inline-block;
     vertical-align: top;
 }
+
+.kbd-visual {
+    display: block;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-top: -80px;
+    margin-left: -80px;
+    background: rgba(0, 0, 0, 0.6);
+    width: 120px;
+    height: 70px;
+    padding: 0px 20px;
+    border-radius: 10px;
+    color: white;
+    font-size: 30px;
+    text-align: center;
+    line-height: 70px;
+    font-family: monospace;
+    display: none;
+}

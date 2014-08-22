@@ -59,6 +59,9 @@ var activateHotKeys = function() {
       btn = $(btn);
       Mousetrap.bind([btn.attr('data-hotkey') + ' ' + btn.attr('data-hotkey'),
                       'alt+' + btn.attr('data-hotkey')], function() {
+
+         $('body').append(d = $("<div>").addClass("kbd-visual").text(btn.text()));
+         d.fadeIn(100).delay(1000).fadeOut(100, function() { d.remove(); });
          btn.click();
       });
    });
