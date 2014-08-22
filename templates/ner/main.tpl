@@ -29,6 +29,8 @@
             <a href="{$web_prefix}/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small btn-primary">Продолжить</a>
         {elseif $book.available and !$book.started}
             <a href="{$web_prefix}/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small">Размечать</a>
+        {elseif !$book.available and !$book.started}
+            <a href="{$web_prefix}/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small" disabled>Размечать</a>
         {else}
             <a href="{$web_prefix}/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small"><i class="icon-ok"></i> Просмотреть</a>
         {/if}
