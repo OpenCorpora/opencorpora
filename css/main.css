@@ -75,6 +75,10 @@ input, button, select, textarea {
     font-family: 'Lucida Grande', Helvetica, Arial, sans-serif;
 }
 
+.nav-tabs>.active>a, .nav-tabs>.active>a:hover {
+    background-color: #fdfdfd;
+}
+
 #wrap {
     min-height: 100%;
     height: auto !important;
