@@ -1,0 +1,7 @@
+{
+    "require": {
+        "robmorgan/phinx": "*",
+        "smarty/smarty": "@stable",
+        "swiftmailer/swiftmailer": "@stable"
+    }
+}
