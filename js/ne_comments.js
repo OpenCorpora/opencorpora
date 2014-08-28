@@ -6,7 +6,7 @@ $(document).ready(function() {
         title: 'Комментарии к абзацу',
         trigger: 'manual',
         content: function() {
-            stub = $('.templates > .comment-add-stub').clone();
+            var stub = $('.templates > .comment-add-stub').clone();
             stub.find('button').attr('data-paragraph-id',
             $(this).attr('data-paragraph-id'));
 
@@ -23,9 +23,9 @@ $(document).ready(function() {
 
     $(document).on('click', 'button.btn-comment-add', function(e) {
         e.preventDefault();
-        btn = $(this),
-        textarea = $(this).siblings('textarea');
-        comment = textarea.val();
+        var btn = $(this);
+        var textarea = $(this).siblings('textarea');
+        var comment = textarea.val();
         if (!comment) return;
 
         $.post('/ajax/ner.php', {
@@ -36,10 +36,10 @@ $(document).ready(function() {
         function(response) {
             if (response.error) return notify('Произошла ошибка при сохранении.', 'error');
             notify('Комментарий сохранен.');
-            cm = $('.comment-marker')
+            var cm = $('.comment-marker')
                 .filterByAttr('data-paragraph-id', btn.attr('data-paragraph-id'));
             cm.popover('hide');
-            inc_count = cm.text() == '+' ? '1' : parseInt(cm.text()) + 1;
+            var inc_count = cm.text() == '+' ? '1' : parseInt(cm.text()) + 1;
             cm.find('span').text(inc_count);
 
             $('.comment-list-stub').filterByAttr('data-paragraph-id',
@@ -53,6 +53,7 @@ $(document).ready(function() {
     });
 
     $('.comment-marker').click(function(e) {
+        e.stopPropagation();
         $('.comment-marker').not($(this)).popover('hide');
         $(this).popover('show');
     });
