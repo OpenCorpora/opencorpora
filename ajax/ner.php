@@ -53,6 +53,15 @@ try {
             set_ne_tags($entity_id, $tags);
             break;
 
+        case 'addComment':
+            if (empty($_POST['paragraph'])
+             or empty($_POST['comment'])) throw new Exception();
+
+            $id = add_comment_to_paragraph($_POST['paragraph'], $_SESSION['user_id'], $_POST['comment']);
+            $res['id'] = $id;
+            $res['time'] = date("M j, G:i");
+            break;
+
         default:
             $res['message'] = "Action not implemented: {$_POST['act']}";
             $res['error'] = 1;

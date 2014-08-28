@@ -190,6 +190,35 @@ function get_ne_tokens_by_paragraph($par_id, $user_id) {
     return $tokens;
 }
 
+function get_comments_by_paragraph($par_id, $user_id) {
+    $res = sql_pe("
+        SELECT *
+        FROM ne_paragraph_comments
+        WHERE par_id = ?
+        AND user_id = ?",
+        array($par_id, $user_id));
+    return $res;
+}
+
+// for moderator
+function get_all_comments_by_paragraph($par_id) {
+    $res = sql_pe("
+        SELECT *
+        FROM ne_paragraph_comments
+        WHERE par_id = ?",
+        array($par_id));
+    return $res;
+}
+
+function add_comment_to_paragraph($par_id, $user_id, $comment) {
+    $res = sql_pe("
+        INSERT INTO ne_paragraph_comments
+        (par_id, user_id, comment)
+        VALUES (?, ?, ?)",
+        array($par_id, $user_id, $comment));
+    return sql_insert_id();
+}
+
 function get_ne_paragraph_status($book_id, $user_id) {
     $out = array(
         'unavailable' => array(),
