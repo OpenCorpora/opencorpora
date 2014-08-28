@@ -292,7 +292,7 @@ function set_readonly_off() {
     unlink('/var/lock/oc_readonly.lock');
 }
 function touch_file($path) {
-    exec("touch {$path}");
+    exec("touch ".escapeshellarg($path));
 }
 
 function safe_read($file, $length) {
