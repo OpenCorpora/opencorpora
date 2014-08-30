@@ -22,11 +22,12 @@ class NamedEntitiesComments extends AbstractMigration
      */
     public function up()
     {
-        $users = $this->table('ne_paragraph_comments', array('id' => 'comment_id'));
+        $users = $this->table('ne_paragraph_comments', array('id' => 'comment_id', 'engine' => 'InnoDB'));
         $users->addColumn('user_id', 'integer')
             ->addColumn('par_id', 'integer')
             ->addColumn('comment', 'text')
             ->addColumn('created', 'timestamp', array('default' => 'CURRENT_TIMESTAMP'))
+            ->addIndex('par_id')
             ->save();
     }
 
