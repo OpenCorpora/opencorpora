@@ -55,7 +55,7 @@ $(document).ready(function() {
     $('.comment-marker').click(function(e) {
         e.stopPropagation();
         $('.comment-marker').not($(this)).popover('hide');
-        $(this).popover('show');
+        $(this).popover('toggle');
     });
 
     $('body').on('click', function(e) {
