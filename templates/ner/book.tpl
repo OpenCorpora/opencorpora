@@ -109,8 +109,9 @@
         <div class="btn-group type-selector" data-toggle="buttons-checkbox">
             {foreach $types as $type}
                 {if $type.name !== 'phrase'}
-                <button class="btn btn-palette-{$type.id * $colorStep}" data-type-id="{$type.id}" data-hotkey="{$type.name|substr:0:1}">{$type.name}</button>{/if}
+                <button class="btn btn-small btn-palette-{$type.id * $colorStep}" data-type-id="{$type.id}" data-hotkey="{$type.name|substr:0:1}">{$type.name}</button>{/if}
             {/foreach}
+                <button class="btn btn-small btn-palette-5 composite-type" data-type-ids="2,3" data-hotkey="i">loc-org</button>
         </div>
     </div>
 </div>

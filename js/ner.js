@@ -346,7 +346,8 @@ $(document).ready(function() {
     $('.type-selector > .btn').click(function() {
         var selected = $('.ner-token-selected');
         var paragraph = selected.parents('.ner-paragraph');
-        var typesIds = [$(this).attr('data-type-id')];
+        var typesIds = ($(this).hasClass('composite-type') ?
+            $(this).attr('data-type-ids').split(',') : [$(this).attr('data-type-id')]);
         var selectedIds = selected.mapGetter('data-tid');
 
         $.post('/ajax/ner.php', {

@@ -80,11 +80,11 @@ body {
     padding: 0px;
     height: 100%;
     background: #FDFDFD;
-    font-family: 'Lucida Grande', Helvetica, Arial, sans-serif;
+    font-family: Helvetica, Arial, sans-serif;
 }
 
 input, button, select, textarea {
-    font-family: 'Lucida Grande', Helvetica, Arial, sans-serif;
+    font-family: Helvetica, Arial, sans-serif;
 }
 
 .nav-tabs>.active>a, .nav-tabs>.active>a:hover {
@@ -1056,7 +1056,7 @@ button.ma_next_pack {
     margin-top: -80px;
     margin-left: -80px;
     background: rgba(0, 0, 0, 0.6);
-    width: 120px;
+    min-width: 120px;
     height: 70px;
     padding: 0px 20px;
     border-radius: 10px;
@@ -1066,6 +1066,7 @@ button.ma_next_pack {
     line-height: 70px;
     font-family: monospace;
     display: none;
+    z-index: 100;
 }
 
 /* comment module */
