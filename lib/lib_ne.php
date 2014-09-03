@@ -389,3 +389,8 @@ function set_ne_tags($entity_id, $tags, $annot_id=0) {
 
     sql_commit();
 }
+
+function log_event($message) {
+    return sql_pe("INSERT INTO ne_event_log (user_id, message)
+            VALUES (?, ?)", array($_SESSION['user_id'], $message));
+}

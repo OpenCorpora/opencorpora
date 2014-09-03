@@ -62,6 +62,20 @@ try {
             $res['time'] = date("M j, G:i");
             break;
 
+        case 'logEvent':
+            if (empty($_POST['id'])) throw new Exception();
+            switch ($_POST['type']) {
+                case 'selection':
+                    log_event("{$_POST['event']} / par_id: {$_POST['id']} / data: {$_POST['data']}");
+                    break;
+                case 'entity':
+                    log_event("{$_POST['event']} / entity_id: {$_POST['id']} / data: {$_POST['data']}");
+                    break;
+                default:
+                    break;
+            }
+            break;
+
         default:
             $res['message'] = "Action not implemented: {$_POST['act']}";
             $res['error'] = 1;

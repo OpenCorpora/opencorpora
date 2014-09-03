@@ -84,6 +84,16 @@ var notify = function(text, t) {
     }).show();
 };
 
+var log_event = function(type, message, id, extra_data_as_string) {
+    $.post('/ajax/ner.php', {
+        act: 'logEvent',
+        type: type,
+        id: id,
+        event: message,
+        data: extra_data_as_string
+    });
+}
+
 var paragraph__textSelectionHandler = function(e) {
     clearHighlight();
     clearSelectedTypes();
@@ -91,6 +101,7 @@ var paragraph__textSelectionHandler = function(e) {
     var sel = rangy.getSelection();
     var range = sel.getRangeAt(0);
     if (range.collapsed) {
+        log_event("selection", "text selection in paragraph removed", $(e.target).parents('.ner-paragraph').attr('data-par-id'));
         hideTypeSelector();
         return;
     }
@@ -99,10 +110,11 @@ var paragraph__textSelectionHandler = function(e) {
     var spans = (nodes.length == 1) ? $(nodes[0].parentElement) : $(nodes).filter('span');
     if (!spans.hasClass('ner-entity')) {
         spans.addClass('ner-token-selected');
-      var offset = spans.last().offset();
-      var X = offset.left + $(spans.last()).width() / 2;
-      var Y = offset.top;
+        var offset = spans.last().offset();
+        var X = offset.left + $(spans.last()).width() / 2;
+        var Y = offset.top;
         showTypeSelector(X, Y);
+        log_event("selection", "text selection in paragraph", $(e.target).parents('.ner-paragraph').attr('data-par-id'), spans.text());
     }
     sel.removeAllRanges();
 };
@@ -110,6 +122,7 @@ var paragraph__textSelectionHandler = function(e) {
 var token__clickHandler = function(e) {
     var in_other = $('.ner-paragraph').not($(this).parent()).find('.ner-token-selected');
     if (in_other.length > 0) {
+        log_event("selection", "removed selection by clicking in another paragraph", $(e.target).parents('.ner-paragraph').attr('data-par-id'));
         in_other.removeClass('ner-token-selected');
         clearSelectedTypes();
     }
@@ -117,12 +130,15 @@ var token__clickHandler = function(e) {
     click_handler($(this));
 
     if ($('.ner-token-selected').length == 0) {
+        log_event("selection", "removed selection", $(e.target).parents('.ner-paragraph').attr('data-par-id'));
         hideTypeSelector();
         clearSelectedTypes();
     } else {
-      var offset = $(e.target).offset();
-      var X = offset.left + $(e.target).width() / 2;
-      var Y = offset.top;
+        log_event("selection", "selection updated by clicking", $(e.target).parents('.ner-paragraph').attr('data-par-id'),
+            $('.ner-token-selected').text());
+        var offset = $(e.target).offset();
+        var X = offset.left + $(e.target).width() / 2;
+        var Y = offset.top;
         showTypeSelector(X, Y);
     }
 };
@@ -297,6 +313,7 @@ $(document).ready(function() {
                 .addClass('border-bottom-palette-' + $(this).val()[0] * colorStep);
         }
 
+        log_event("entity", "updated types", entityId, $(this).val().toString());
         $.post('/ajax/ner.php', {
             act: 'setTypes',
             entity: entityId,
@@ -310,6 +327,7 @@ $(document).ready(function() {
         if (window.confirm("Вы действительно хотите удалить эту сущность?")) {
             var tr = $(this).parents('tr');
             var entityId = tr.attr('data-entity-id');
+            log_event("entity", "deleting entity", entityId, tr.find('td.ner-entity-text').text().trim());
 
             $.post('/ajax/ner.php', {
                     act: 'deleteEntity',
