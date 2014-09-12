@@ -13,11 +13,12 @@ function user_generate_password($email) {
     $res = sql_pe("SELECT user_id, user_name, user_passwd FROM `users` WHERE user_email=? LIMIT 1", array($email));
     if (sizeof($res) == 0) return 2;
     $r = $res[0];
+    $username = $r['user_name'];
     if ($r['user_passwd'] == '' || $r['user_passwd'] == 'notagreed')
         return get_openid_domain_by_username($r['user_name']);
     $pwd = gen_password();
     //send email
-    if (send_email($email, 'Восстановление пароля на opencorpora.org', "Добрый день,\n\nВаш новый пароль для входа на opencorpora.org:\n\n$pwd\n\nРекомендуем как можно быстрее изменить его через интерфейс сайта.\n\nOpenCorpora")) {
+    if (send_email($email, 'Восстановление пароля на opencorpora.org', "Добрый день,\n\nВаш новый пароль для входа на opencorpora.org:\n\n$pwd\n\nРекомендуем как можно быстрее изменить его через интерфейс сайта.\n\nНапоминаем, ваш логин - $username\n\nOpenCorpora")) {
         $md5 = md5(md5($pwd).substr($r['user_name'], 0, 2));
         sql_query("UPDATE `users` SET `user_passwd`='$md5' WHERE user_id=".$r['user_id']." LIMIT 1");
         return 1;
