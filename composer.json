@@ -1,6 +1,10 @@
 {
     "require": {
         "robmorgan/phinx": "*",
+        "symfony/class-loader": "2.0.24",
+        "symfony/config": "2.0.24",
+        "symfony/console": "2.0.24",
+        "symfony/yaml": "2.0.24",
         "smarty/smarty": "@stable",
         "swiftmailer/swiftmailer": "@stable"
     }
