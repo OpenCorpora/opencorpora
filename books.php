@@ -47,7 +47,6 @@ elseif (user_has_permission('perm_syntax') && $action == 'anaphora') {
 elseif  (/*user_has_permission('perm_syntax') && */is_logged() && $action == 'ner') {
     if (isset($_GET['book_id']) && $book_id = $_GET['book_id']) {
 
-
         $book = get_book_page($book_id, TRUE);
         $paragraphs_status = get_ne_paragraph_status($book_id, $_SESSION['user_id']);
 
@@ -56,6 +55,7 @@ elseif  (/*user_has_permission('perm_syntax') && */is_logged() && $action == 'ne
             $paragraph['named_entities'] = $ne['entities'];
             $paragraph['annotation_id'] = $ne['annot_id'];
             $paragraph['ne_by_token'] = get_ne_tokens_by_paragraph($paragraph['id'], $_SESSION['user_id']);
+            $paragraph['comments'] = get_comments_by_paragraph($paragraph['id'], $_SESSION['user_id']);
 
             if (in_array($paragraph['id'], $paragraphs_status['unavailable']) or
                 in_array($paragraph['id'], $paragraphs_status['done_by_user']))

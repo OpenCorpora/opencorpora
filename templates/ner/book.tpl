@@ -15,6 +15,8 @@
     {if isset($book.paragraphs)}
         {foreach name=b key=num item=paragraph from=$book.paragraphs}
             <div class="row ner-row">
+                <div class="span4 my-comments">
+                </div>
                 <div class="span8">
                     <div class="ner-paragraph-wrap {if $paragraph.disabled }ner-disabled{elseif $paragraph.mine}ner-mine{/if}" {if isset($paragraph.annotation_id)}data-annotation-id="{$paragraph.annotation_id}"{/if}>
                         <p class="ner-paragraph" data-par-id="{$paragraph.id}">
@@ -45,6 +47,15 @@
                             <button class="btn btn-success ner-btn-finish pull-right" data-par-id="{$paragraph.id}">Сохранить</button>
                         </div>
                         <div class="clearfix"></div>
+                        <div class="comment-marker" data-paragraph-id="{$paragraph.id}"><span>{if $paragraph.comments|@count>0}{$paragraph.comments|@count}{else}+{/if}</span></div>
+                        <div class="comment-list-stub" data-paragraph-id="{$paragraph.id}">
+                            {foreach $paragraph.comments as $comment}
+                                <div class="comment-wrap">
+                                    <div class="comment-text">{$comment.comment}</div>
+                                    <div class="comment-date">{$comment.created|date_format:"%e %b, %k:%M"}</div>
+                                </div>
+                            {/foreach}
+                        </div>
                     </div>
                 </div>
                 <div class="span4 ner-table-wrap {if $paragraph.disabled }ner-disabled{elseif $paragraph.mine}ner-mine{/if}">
@@ -98,8 +109,9 @@
         <div class="btn-group type-selector" data-toggle="buttons-checkbox">
             {foreach $types as $type}
                 {if $type.name !== 'phrase'}
-                <button class="btn btn-palette-{$type.id * $colorStep}" data-type-id="{$type.id}" data-hotkey="{$type.name|substr:0:1}">{$type.name}</button>{/if}
+                <button class="btn btn-small btn-palette-{$type.id * $colorStep}" data-type-id="{$type.id}" data-hotkey="{$type.name|substr:0:1}">{$type.name}</button>{/if}
             {/foreach}
+                <button class="btn btn-small btn-palette-5 composite-type" data-type-ids="2,3" data-hotkey="i">loc-org</button>
         </div>
     </div>
 </div>
@@ -118,6 +130,12 @@
         </td>
     </tr>
     </table>
+    <div class="comment-add-stub">
+        <div class="comment-add">
+            <textarea rows="2"></textarea>
+            <button class="btn btn-primary btn-block btn-small btn-comment-add">Отправить</button>
+        </div>
+    </div>
 </div>
 {/block}
 
@@ -128,6 +146,7 @@
     <script src="{/literal}{$web_prefix}{literal}/js/rangy-core.js"></script>
     <script src="{/literal}{$web_prefix}{literal}/js/mousetrap.min.js"></script>
     <script src="{/literal}{$web_prefix}{literal}/js/ner.js"></script>
+    <script src="{/literal}{$web_prefix}{literal}/js/ne_comments.js"></script>
 {/literal}
 {/block}
 

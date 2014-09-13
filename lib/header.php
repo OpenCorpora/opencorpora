@@ -5,14 +5,11 @@ if (!headers_sent()) {
 }
 
 $config = parse_ini_file(dirname(__FILE__) . '/../config.ini', true);
-
+require_once('vendor/autoload.php'); // Smarty, something else which was installed via Composer
 require_once('common.php');
 require_once('lib_awards.php');
 
-//init Smarty
-require_once('Smarty.class.php');
-
-$smarty = new Smarty();
+$smarty = new Smarty(); // no need to require the Smarty.php, it was autoloaded
 $smarty->template_dir = $config['smarty']['template_dir'];
 $smarty->compile_dir  = $config['smarty']['compile_dir'];
 $smarty->config_dir   = $config['smarty']['config_dir'];

@@ -33,11 +33,11 @@ var miscTypeId = 6;
 var colorStep = 2;
 
 var clearHighlight = function() {
-	$(document).find('.ner-token-selected').removeClass('ner-token-selected');
+    $(document).find('.ner-token-selected').removeClass('ner-token-selected');
 };
 
 var clearSelectedTypes = function() {
-	$('.type-selector').find('.btn').removeClass('active');
+    $('.type-selector').find('.btn').removeClass('active');
 };
 
 var hideTypeSelector = function() {
@@ -45,8 +45,8 @@ var hideTypeSelector = function() {
 };
 
 var showTypeSelector = function(x, y) {
-   l = x - $('.floating-block').width() / 2;
-   t = y - $('.floating-block').height() - 10;
+   var l = x - $('.floating-block').width() / 2;
+   var t = y - $('.floating-block').height() - 10;
    if (l < 0) l = 3;
    $('.floating-block').css('left', l)
                        .css('top', t);
@@ -56,7 +56,7 @@ var showTypeSelector = function(x, y) {
 
 var activateHotKeys = function() {
    $('.type-selector > .btn').each(function(i, btn) {
-      btn = $(btn);
+      var btn = $(btn);
       Mousetrap.bind([btn.attr('data-hotkey') + ' ' + btn.attr('data-hotkey'),
                       'alt+' + btn.attr('data-hotkey')], function() {
 
@@ -69,7 +69,7 @@ var activateHotKeys = function() {
 
 var deactivateHotKeys = function() {
    $('.type-selector > .btn').each(function(i, btn) {
-      btn = $(btn);
+      var btn = $(btn);
       Mousetrap.unbind(btn.attr('data-hotkey') + ' ' + btn.attr('data-hotkey'));
       Mousetrap.unbind('alt+' + btn.attr('data-hotkey'));
    });
@@ -84,66 +84,82 @@ var notify = function(text, t) {
     }).show();
 };
 
+var log_event = function(type, message, id, extra_data_as_string) {
+    $.post('/ajax/ner.php', {
+        act: 'logEvent',
+        type: type,
+        id: id,
+        event: message,
+        data: extra_data_as_string
+    });
+}
+
 var paragraph__textSelectionHandler = function(e) {
-	clearHighlight();
-	clearSelectedTypes();
+    clearHighlight();
+    clearSelectedTypes();
 
-	sel = rangy.getSelection();
-	range = sel.getRangeAt(0);
-	if (range.collapsed) {
-		hideTypeSelector();
-		return;
-	}
+    var sel = rangy.getSelection();
+    var range = sel.getRangeAt(0);
+    if (range.collapsed) {
+        log_event("selection", "text selection in paragraph removed", $(e.target).parents('.ner-paragraph').attr('data-par-id'));
+        hideTypeSelector();
+        return;
+    }
 
-	nodes = range.getNodes();
-	spans = (nodes.length == 1) ? $(nodes[0].parentElement) : $(nodes).filter('span');
-	if (!spans.hasClass('ner-entity')) {
-		spans.addClass('ner-token-selected');
-      offset = spans.last().offset();
-      X = offset.left + $(spans.last()).width() / 2;
-      Y = offset.top;
-		showTypeSelector(X, Y);
-	}
-	sel.removeAllRanges();
+    var nodes = range.getNodes();
+    var spans = (nodes.length == 1) ? $(nodes[0].parentElement) : $(nodes).filter('span');
+    if (!spans.hasClass('ner-entity')) {
+        spans.addClass('ner-token-selected');
+        var offset = spans.last().offset();
+        var X = offset.left + $(spans.last()).width() / 2;
+        var Y = offset.top;
+        showTypeSelector(X, Y);
+        log_event("selection", "text selection in paragraph", $(e.target).parents('.ner-paragraph').attr('data-par-id'), spans.text());
+    }
+    sel.removeAllRanges();
 };
 
 var token__clickHandler = function(e) {
-	in_other = $('.ner-paragraph').not($(this).parent()).find('.ner-token-selected');
-	if (in_other.length > 0) {
-		in_other.removeClass('ner-token-selected');
-		clearSelectedTypes();
-	}
+    var in_other = $('.ner-paragraph').not($(this).parent()).find('.ner-token-selected');
+    if (in_other.length > 0) {
+        log_event("selection", "removed selection by clicking in another paragraph", $(e.target).parents('.ner-paragraph').attr('data-par-id'));
+        in_other.removeClass('ner-token-selected');
+        clearSelectedTypes();
+    }
 
-	click_handler($(this));
+    click_handler($(this));
 
-	if ($('.ner-token-selected').length == 0) {
-		hideTypeSelector();
-		clearSelectedTypes();
-	} else {
-      offset = $(e.target).offset();
-      X = offset.left + $(e.target).width() / 2;
-      Y = offset.top;
-		showTypeSelector(X, Y);
-	}
+    if ($('.ner-token-selected').length == 0) {
+        log_event("selection", "removed selection", $(e.target).parents('.ner-paragraph').attr('data-par-id'));
+        hideTypeSelector();
+        clearSelectedTypes();
+    } else {
+        log_event("selection", "selection updated by clicking", $(e.target).parents('.ner-paragraph').attr('data-par-id'),
+            $('.ner-token-selected').text());
+        var offset = $(e.target).offset();
+        var X = offset.left + $(e.target).width() / 2;
+        var Y = offset.top;
+        showTypeSelector(X, Y);
+    }
 };
 
 $(document).ready(function() {
-	$.fn.mapGetter = function(prop) {
-		return $(this).map(function(i, e) {
-			return $(e).attr(prop);
-		}).get();
-	};
+    $.fn.mapGetter = function(prop) {
+        return $(this).map(function(i, e) {
+            return $(e).attr(prop);
+        }).get();
+    };
 
-	$.fn.filterByAttr = function(attr, val) {
-		return $(this).filter(function(i, e) {
-			return $(e).attr(attr) == val;
-		});
-	};
+    $.fn.filterByAttr = function(attr, val) {
+        return $(this).filter(function(i, e) {
+            return $(e).attr(attr) == val;
+        });
+    };
 
-	var originalAddClassMethod = $.fn.addClass;
-	var originalRemoveClassMethod = $.fn.removeClass;
+    var originalAddClassMethod = $.fn.addClass;
+    var originalRemoveClassMethod = $.fn.removeClass;
 
-	$.fn.addClass = function() {
+    $.fn.addClass = function() {
         var result = originalAddClassMethod.apply(this, arguments);
         $(this).trigger('cssClassAdded', arguments);
         return result;
@@ -158,13 +174,13 @@ $(document).ready(function() {
     // $(el).syncByClass(other-el)
     // when el gets new classes, other-el gets them too
     $.fn.syncByClass = function(that) {
-    	$(this).on('cssClassAdded', function(e, className) {
-    		if ($(e.target).is(this)) $(that).addClass(className);
+        $(this).on('cssClassAdded', function(e, className) {
+            if ($(e.target).is(this)) $(that).addClass(className);
 
-    	});
-    	$(this).on('cssClassRemoved', function(e, className) {
-    		if ($(e.target).is(this)) $(that).removeClass(className);
-    	});
+        });
+        $(this).on('cssClassRemoved', function(e, className) {
+            if ($(e.target).is(this)) $(that).removeClass(className);
+        });
     };
 
     $.fn.removeClassRegex = function(regex) {
@@ -187,16 +203,16 @@ $(document).ready(function() {
 
 $(document).ready(function() {
 
-	$('.selectpicker').selectpicker();
+    $('.selectpicker').selectpicker();
 
-	$('.ner-row').each(function() {
-		$(this).find('.ner-paragraph-wrap').syncByClass($(this).find('.ner-table-wrap'));
-	});
+    $('.ner-row').each(function() {
+        $(this).find('.ner-paragraph-wrap').syncByClass($(this).find('.ner-table-wrap'));
+    });
 
    $('.ner-paragraph-wrap').not('.ner-mine').not('.ner-disabled').click(function(e) {
 
-      parwrap = $(this);
-      par = parwrap.find('.ner-paragraph');
+      var parwrap = $(this);
+      var par = parwrap.find('.ner-paragraph');
 
       $.post('/ajax/ner.php', {
          act: 'newAnnotation',
@@ -207,9 +223,9 @@ $(document).ready(function() {
 
    });
 
-	$('button.ner-btn-finish').click(function(e) {
-		btn = $(this);
-		e.preventDefault();
+    $('button.ner-btn-finish').click(function(e) {
+        var btn = $(this);
+        e.preventDefault();
       e.stopPropagation();
 
       if ($('.floating-block').is(':visible')) {
@@ -217,19 +233,19 @@ $(document).ready(function() {
          return false;
       }
 
-		$.post('/ajax/ner.php', {
-			act: 'finishAnnotation',
-			paragraph: btn.parents('.ner-paragraph-wrap').attr('data-annotation-id')
-		}, function(response) {
-			btn.parents('.ner-paragraph-wrap').removeClass('ner-mine').addClass('ner-disabled');
-			btn.parents('.ner-row').find('td.ner-entity-type').each(function(index, td) {
-				td = $(td);
-				// this is bad
-				td.html(td.find('.bootstrap-select').find('.filter-option').html().replace(',', ''));
-			});
-		});
+        $.post('/ajax/ner.php', {
+            act: 'finishAnnotation',
+            paragraph: btn.parents('.ner-paragraph-wrap').attr('data-annotation-id')
+        }, function(response) {
+            btn.parents('.ner-paragraph-wrap').removeClass('ner-mine').addClass('ner-disabled');
+            btn.parents('.ner-row').find('td.ner-entity-type').each(function(index, td) {
+                var td = $(td);
+                // this is bad
+                td.html(td.find('.bootstrap-select').find('.filter-option').html().replace(',', ''));
+            });
+        });
 
-	});
+    });
 
    $('button.ner-btn-finish-all').click(function(e) {
 
@@ -239,13 +255,13 @@ $(document).ready(function() {
       }
 
       $('.ner-paragraph-wrap.ner-mine').each(function() {
-         parwrap = $(this);
+         var parwrap = $(this);
 
          // this block of code suddenly throws errors when put inside $.post callback
          // so we clean up everything here and send the request afterwards
          parwrap.removeClass('ner-mine').addClass('ner-disabled');
          parwrap.parents('.ner-row').find('td.ner-entity-type').each(function(index, td) {
-            td = $(td);
+            var td = $(td);
             // this is bad
             td.html(td.find('.bootstrap-select').find('.filter-option').html().replace(',', ''));
          });
@@ -260,10 +276,10 @@ $(document).ready(function() {
    });
 
 
-	if ($('.ner-mode-fast').hasClass('active'))
-		$(document).on('mouseup', '.ner-paragraph-wrap:not(.ner-disabled) > .ner-paragraph', paragraph__textSelectionHandler);
-	else
-		$(document).on('click', '.ner-paragraph-wrap:not(.ner-disabled) .ner-token:not(.ner-entity)', token__clickHandler)
+    if ($('.ner-mode-fast').hasClass('active'))
+        $(document).on('mouseup', '.ner-paragraph-wrap:not(.ner-disabled) > .ner-paragraph', paragraph__textSelectionHandler);
+    else
+        $(document).on('click', '.ner-paragraph-wrap:not(.ner-disabled) .ner-token:not(.ner-entity)', token__clickHandler)
 
 
    $('.ner-mode-basic').click(function() {
@@ -278,89 +294,94 @@ $(document).ready(function() {
       $.post('/ajax/set_option.php', {option: 5, value: 1});
    });
 
-	$('.ner-table-wrap').on('change', '.selectpicker', function(e) {
-		if ($(this).val() == null) {
-			$(this).selectpicker('val', miscTypeId);
-		}
+    $('.ner-table-wrap').on('change', '.selectpicker', function(e) {
+        if ($(this).val() == null) {
+            $(this).selectpicker('val', miscTypeId);
+        }
 
-		entityId = $(this).parents('tr').attr('data-entity-id');
+        var entityId = $(this).parents('tr').attr('data-entity-id');
 
-		if ($(this).val().length > 1) {
-			$('.ner-entity').filterByAttr('data-entity-id', entityId)
-				.removeClassRegex(/border-bottom-palette-\d/)
-				.addClass('ner-multiple-types');
-		}
-		else {
-			$('.ner-entity').filterByAttr('data-entity-id', entityId)
-				.removeClass('ner-multiple-types')
-            .removeClassRegex(/border-bottom-palette-\d/)
-				.addClass('border-bottom-palette-' + $(this).val()[0] * colorStep);
-		}
-
-		$.post('/ajax/ner.php', {
-			act: 'setTypes',
-			entity: entityId,
-			types: $(this).val()
-		}, function(response) {
-			notify("Типы сущности сохранены.");
-		});
-	});
-
-	$('.ner-table-wrap').on('click', '.ner-remove', function(e) {
-		if (window.confirm("Вы действительно хотите удалить эту сущность?")) {
-			tr = $(this).parents('tr');
-         entityId = tr.attr('data-entity-id');
-
-         $.post('/ajax/ner.php', {
-            act: 'deleteEntity',
-            entity: entityId
-         }, function(response) {
-            notify("Сущность удалена.");
+        if ($(this).val().length > 1) {
             $('.ner-entity').filterByAttr('data-entity-id', entityId)
-               .removeAttr('data-entity-id')
-               .removeClass('ner-entity ner-multiple-types border-bottom-palette-*');
-               tr.remove();
-         });
-		}
-	});
+                .removeClassRegex(/border-bottom-palette-\d/)
+                .addClass('ner-multiple-types');
+        }
+        else {
+            $('.ner-entity').filterByAttr('data-entity-id', entityId)
+                .removeClass('ner-multiple-types')
+            .removeClassRegex(/border-bottom-palette-\d/)
+                .addClass('border-bottom-palette-' + $(this).val()[0] * colorStep);
+        }
 
-	$('.type-selector > .btn').click(function() {
-		selected = $('.ner-token-selected');
-		paragraph = selected.parents('.ner-paragraph');
-		typesIds = [$(this).attr('data-type-id')];
-		selectedIds = selected.mapGetter('data-tid');
+        log_event("entity", "updated types", entityId, $(this).val().toString());
+        $.post('/ajax/ner.php', {
+            act: 'setTypes',
+            entity: entityId,
+            types: $(this).val()
+        }, function(response) {
+            notify("Типы сущности сохранены.");
+        });
+    });
 
-		$.post('/ajax/ner.php', {
-			act: 'newEntity',
-			tokens: selectedIds,
-			types: typesIds,
-			paragraph: paragraph.parents('.ner-paragraph-wrap').attr('data-annotation-id')
-		}, function(response) {
-			t = $('table').filterByAttr('data-par-id', paragraph.attr('data-par-id'));
+    $('.ner-table-wrap').on('click', '.ner-remove', function(e) {
+        if (window.confirm("Вы действительно хотите удалить эту сущность?")) {
+            var tr = $(this).parents('tr');
+            var entityId = tr.attr('data-entity-id');
+            log_event("entity", "deleting entity", entityId, tr.find('td.ner-entity-text').text().trim());
 
-			selected.addClass('ner-entity').attr('data-entity-id', response.id);
+            $.post('/ajax/ner.php', {
+                    act: 'deleteEntity',
+                    entity: entityId
+                },
+                function(response) {
+                    notify("Сущность удалена.");
+                    $('.ner-entity').filterByAttr('data-entity-id', entityId)
+                        .removeAttr('data-entity-id')
+                        .removeClass('ner-entity ner-multiple-types border-bottom-palette-*');
+                    tr.remove();
+            });
+        }
+    });
 
-			if (typesIds.length == 1) {
-				selected.addClass('border-bottom-palette-' + typesIds[0] * colorStep);
-			} else {
-				selected.addClass('ner-multiple-types');
-			}
+    $('.type-selector > .btn').click(function() {
+        var selected = $('.ner-token-selected');
+        var paragraph = selected.parents('.ner-paragraph');
+        var typesIds = ($(this).hasClass('composite-type') ?
+            $(this).attr('data-type-ids').split(',') : [$(this).attr('data-type-id')]);
+        var selectedIds = selected.mapGetter('data-tid');
 
-         tr = $('.templates').find('.tr-template').clone().removeClass('tr-template');
-         tr.add(tr.find('.remove-entity')).add(tr.find('.selectpicker-tpl')).attr('data-entity-id', response.id);
-         tr.find('.selectpicker-tpl').find('option').each(function(i, o) {
-            if (typesIds.indexOf($(o).text()) != -1) $(o).attr('selected', true);
-         });
+        $.post('/ajax/ner.php', {
+            act: 'newEntity',
+            tokens: selectedIds,
+            types: typesIds,
+            paragraph: paragraph.parents('.ner-paragraph-wrap').attr('data-annotation-id')
+        }, function(response) {
+            var t = $('table').filterByAttr('data-par-id', paragraph.attr('data-par-id'));
 
-         tr.find('.selectpicker-tpl').removeClass('selectpicker-tpl').addClass('selectpicker').selectpicker();
-         tr.find('td.ner-entity-text').text(selected.text());
-         t.append(tr);
+            selected.addClass('ner-entity').attr('data-entity-id', response.id);
 
-			clearHighlight();
-			clearSelectedTypes();
-			hideTypeSelector();
-		});
+            if (typesIds.length == 1) {
+                selected.addClass('border-bottom-palette-' + typesIds[0] * colorStep);
+            } else {
+                selected.addClass('ner-multiple-types');
+            }
 
-	});
+            var tr = $('.templates').find('.tr-template').clone().removeClass('tr-template');
+            tr.add(tr.find('.remove-entity')).add(tr.find('.selectpicker-tpl')).attr('data-entity-id', response.id);
+            tr.find('.selectpicker-tpl').find('option').each(function(i, o) {
+                if (typesIds.indexOf($(o).text()) != -1) $(o).attr('selected', true);
+            });
 
-});
+            tr.find('.selectpicker-tpl').removeClass('selectpicker-tpl').addClass('selectpicker').selectpicker();
+            tr.find('td.ner-entity-text').text(selected.text());
+            t.append(tr);
+
+            clearHighlight();
+            clearSelectedTypes();
+            hideTypeSelector();
+        });
+
+    });
+
+
+}); // document.ready
