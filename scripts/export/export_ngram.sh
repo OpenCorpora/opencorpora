@@ -18,7 +18,7 @@ function process() {
     cat $1 | head -100 >$1.top100
     bzip2 -c9 $1 > $1.bz2.new
     mv $1.bz2.new $1.bz2
-    zip -q9 $1.zip.new $1
+    zip -jq9 $1.zip.new $1
     mv $1.zip.new $1.zip
     if [ -z "$2" ]; then
         rm -f $1

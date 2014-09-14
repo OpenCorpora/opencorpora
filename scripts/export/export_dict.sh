@@ -9,7 +9,7 @@ rm /var/lock/oc_readonly.lock
 if [ `ls -l $newpath.xml | awk '{print $5}'` -gt 100 ]; then
     bzip2 -cq9 $newpath.xml >$newpath.xml.bz2.new
     mv $newpath.xml.bz2.new $newpath.xml.bz2
-    zip -q9 $newpath.xml.zip.new $newpath.xml
+    zip -jq9 $newpath.xml.zip.new $newpath.xml
     mv $newpath.xml.zip.new $newpath.xml.zip
     rm $newpath.xml
 
@@ -18,7 +18,7 @@ if [ `ls -l $newpath.xml | awk '{print $5}'` -gt 100 ]; then
     rm /var/lock/oc_readonly.lock
     bzip2 -cq9 $newpath.txt >$newpath.txt.bz2.new
     mv $newpath.txt.bz2.new $newpath.txt.bz2
-    zip -q9 $newpath.txt.zip.new $newpath.txt
+    zip -jq9 $newpath.txt.zip.new $newpath.txt
     mv $newpath.txt.zip.new $newpath.txt.zip
     rm $newpath.txt
 fi
