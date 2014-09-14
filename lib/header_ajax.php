@@ -4,7 +4,7 @@ if (!headers_sent()) {
     header("Content-type: text/xml; charset=utf-8");
 }
 
-$config = parse_ini_file(dirname(__FILE__) . '/../config.ini', true);
+$config = parse_ini_file(__DIR__ . '/../config.ini', true);
 
 require_once('common.php');
 

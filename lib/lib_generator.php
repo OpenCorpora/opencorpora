@@ -58,9 +58,9 @@ function run_generator() {
     $pieces = array(
         $config['project']['perl'],
         $config['generator']['gen_script'],
-        '--config=' . dirname(__FILE__) . '/../config.ini',
+        '--config=' . __DIR__ . '/../config.ini',
         '--output_dir=' . $config['generator']['tmp_dir'],
-        '--data_dir=' . dirname(__FILE__) . '/../scripts/tokenizer',
+        '--data_dir=' . __DIR__ . '/../scripts/tokenizer',
         '2>&1'
     );
     $cmd = implode(' ', $pieces);
@@ -82,7 +82,7 @@ function run_test() {
         $config['project']['perl'],
         '-I' . $config['generator']['perl_lib'],
         $config['generator']['test_script'],
-        '--config=' . dirname(__FILE__) . '/../config.ini',
+        '--config=' . __DIR__ . '/../config.ini',
         '--data_dir=' . $config['generator']['tmp_dir'],
         '--threshold=0.878', # graph_metrics.pl @ 2011-11-12
         '2>&1'
