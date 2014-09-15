@@ -47,7 +47,7 @@ while ($r = $books->fetchrow_hashref()) {
     print "  <paragraphs>\n";
     $par->execute($r->{'book_id'});
     while (my $r1 = $par->fetchrow_hashref()) {
-        print_paragraph($r1->{'par_id'}, $ARGV[1] eq 'no_ambig');
+        print_paragraph($r1->{'par_id'}, $ARGV[1] eq 'no_ambig', $ARGV[2] eq 'no_unkn');
     }
     print "  </paragraphs>\n";
     print "</text>\n";
@@ -68,6 +68,8 @@ sub tidy_xml {
 sub print_paragraph {
     my $id = shift;
     my $only_unambiguous = shift;
+    my $drop_unkn = shift;
+
     my $out = '';
     my $should_print = 0;
 
@@ -75,7 +77,7 @@ sub print_paragraph {
     $sent->execute($id);
     while (my $r = $sent->fetchrow_hashref()) {
         my $s = get_sentence($r->{'sent_id'}, $r->{'source'});
-        if (!$only_unambiguous || !$s->[1]) {
+        if ((!$only_unambiguous || !$s->[1]) && (!$drop_unkn || !$s->[2])) {
             $should_print = 1;
             $out .= $s->[0];
         }
@@ -88,6 +90,7 @@ sub get_sentence {
     my $source = shift;
     my $out_text = '';
     my $has_ambiguity = 0;
+    my $has_unkn = 0;
 
     $out_text .= "      <sentence id=\"$id\">\n";
     $out_text .= "        <source>".tidy_xml(decode('utf8', $source))."</source>\n        <tokens>\n";
@@ -98,15 +101,19 @@ sub get_sentence {
         if ($t->[1]) {
             $has_ambiguity = 1;
         }
+        if ($t->[2]) {
+            $has_unkn = 1;
+        }
     }
     $out_text .= "        </tokens>\n      </sentence>\n";
-    return [$out_text, $has_ambiguity];
+    return [$out_text, $has_ambiguity, $has_unkn];
 }
 sub get_token {
     my $id = shift;
     my $text = shift;
     my $out_text = '';
     my $is_ambiguous = 0;
+    my $is_unkn = 0;
 
     $out_text .= "          <token id=\"$id\" text=\"".tidy_xml(decode('utf8', $text))."\">";
     $tfrev->execute($id);
@@ -123,7 +130,11 @@ sub get_token {
         }
     }
 
+    if ($rev_text =~ /g v="UNKN"/) {
+        $is_unkn = 1;
+    }
+
     $out_text .= decode('utf8', $rev_text);
     $out_text .= "</token>\n";
-    return [$out_text, $is_ambiguous];
+    return [$out_text, $is_ambiguous, $is_unkn];
 }
