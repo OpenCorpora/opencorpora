@@ -28,6 +28,13 @@ my %source2id = (
     'misc' => 1651,
     'law' => 1675,
 );
+
+use constant {
+    FULL_DUMP_PATH          => '/files/export/annot/annot.opcorpora.xml.bz2',
+    DISAMB_DUMP_PATH        => '/files/export/annot/annot.opcorpora.no_ambig.xml.bz2',
+    STRICT_DISAMB_DUMP_PATH => '/files/export/annot/annot.opcorpora.no_ambig_strict.xml.bz2'
+};
+
 my $cyr_cp1251 = encode('cp1251', '[а-яё]');
 my $cyr_match = "CONVERT(tf_text USING cp1251) COLLATE 'cp1251_general_ci' REGEXP '$cyr_cp1251' COLLATE 'cp1251_general_ci'";
 
@@ -238,22 +245,31 @@ $func->{'added_sentences'} = sub {
     return -1;
 };
 $func->{'dump_full_sentences'} = sub {
-    return sentences_in_file($conf->{'project'}->{'root'}.'/files/export/annot/annot.opcorpora.xml.bz2');
+    return sentences_in_file($conf->{'project'}->{'root'}.FULL_DUMP_PATH);
 };
 $func->{'dump_disamb_sentences'} = sub {
-    return sentences_in_file($conf->{'project'}->{'root'}.'/files/export/annot/annot.opcorpora.no_ambig.xml.bz2');
+    return sentences_in_file($conf->{'project'}->{'root'}.DISAMB_DUMP_PATH);
+};
+$func->{'dump_strict_disamb_sentences'} = sub {
+    return sentences_in_file($conf->{'project'}->{'root'}.STRICT_DISAMB_DUMP_PATH);
 };
 $func->{'dump_full_tokens'} = sub {
-    return tokens_in_file($conf->{'project'}->{'root'}.'/files/export/annot/annot.opcorpora.xml.bz2');
+    return tokens_in_file($conf->{'project'}->{'root'}.FULL_DUMP_PATH);
 };
 $func->{'dump_disamb_tokens'} = sub {
-    return tokens_in_file($conf->{'project'}->{'root'}.'/files/export/annot/annot.opcorpora.no_ambig.xml.bz2');
+    return tokens_in_file($conf->{'project'}->{'root'}.DISAMB_DUMP_PATH);
+};
+$func->{'dump_strict_disamb_tokens'} = sub {
+    return tokens_in_file($conf->{'project'}->{'root'}.STRICT_DISAMB_DUMP_PATH);
 };
 $func->{'dump_full_words'} = sub {
-    return words_in_file($conf->{'project'}->{'root'}.'/files/export/annot/annot.opcorpora.xml.bz2');
+    return words_in_file($conf->{'project'}->{'root'}.FULL_DUMP_PATH);
 };
 $func->{'dump_disamb_words'} = sub {
-    return words_in_file($conf->{'project'}->{'root'}.'/files/export/annot/annot.opcorpora.no_ambig.xml.bz2');
+    return words_in_file($conf->{'project'}->{'root'}.DISAMB_DUMP_PATH);
+};
+$func->{'dump_strict_disamb_words'} = sub {
+    return words_in_file($conf->{'project'}->{'root'}.STRICT_DISAMB_DUMP_PATH);
 };
 
 # /SUBROUTINES

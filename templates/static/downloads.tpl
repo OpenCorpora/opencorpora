@@ -49,7 +49,7 @@
 </ul>
 <p class='small'><sup>*</sup> В подкорпус включены целые предложения, не имеющие в своём составе ни одного неоднозначно разобранного слова &mdash; как изначально однозначные предложения, так и те, в которых неоднозначность была снята вручную.</p>
 <p><b>Подкорпус со снятой омонимией без UNKN</b>, XML <span class="small muted">обновлён {$dl.annot.disamb_xml_strict.updated}</span><br/>
-<!-- <span class='small'>предложений: {$stats.dump_disamb_sentences.value}, токенов: {$stats.dump_disamb_tokens.value}, слов: {$stats.dump_disamb_words.value}</span></p> -->
+<span class='small'>предложений: {$stats.dump_strict_disamb_sentences.value}, токенов: {$stats.dump_strict_disamb_tokens.value}, слов: {$stats.dump_strict_disamb_words.value}</span></p>
 <ul>
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.no_ambig_strict.xml.bz2">архив .bz2</a> ({$dl.annot.disamb_xml_strict.bz2.size} Мб)</li>
 <li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.no_ambig_strict.xml.zip">архив .zip</a> ({$dl.annot.disamb_xml_strict.zip.size} Мб)</li>
