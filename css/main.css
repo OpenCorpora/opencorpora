@@ -1080,7 +1080,7 @@ button.ma_next_pack {
     position: absolute;
     top: 50%;
     margin-top: -9px;
-    left: -80px;
+    left: -30px;
     cursor: pointer;
 }
 
@@ -1097,7 +1097,7 @@ button.ma_next_pack {
 }
 
 .comment-marker span {
-    line-height: 20px;
+    line-height: 18px;
     font-size: 12px;
 }
 
