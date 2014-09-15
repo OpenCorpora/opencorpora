@@ -1,4 +1,7 @@
 <?php
+define('SEC_PER_DAY', 24 * 60  * 60);
+define('MSEC_PER_DAY', SEC_PER_DAY * 1000);
+
 define('MA_POOLS_STATUS_FOUND_CANDIDATES', 1);
 define('MA_POOLS_STATUS_NOT_STARTED', 2);
 define('MA_POOLS_STATUS_IN_PROGRESS', 3);

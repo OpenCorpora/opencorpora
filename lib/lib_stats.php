@@ -56,9 +56,9 @@ function get_word_stats_for_chart() {
 
     $res = sql_prepare("SELECT timestamp, param_value FROM stats_values WHERE timestamp > ? AND param_id = ? ORDER BY timestamp");
     foreach ($param_set as $param_id) {
-        sql_execute($res, array($time - 90*24*60*60, $param_id));
+        sql_execute($res, array($time - 90 * SEC_PER_DAY, $param_id));
         while ($r = sql_fetch_array($res)) {
-            $day = intval($r['timestamp'] / 86400);
+            $day = intval($r['timestamp'] / SEC_PER_DAY);
             $t[$day][$param_id] = $r['param_value'];
         }
     }
@@ -72,7 +72,7 @@ function get_word_stats_for_chart() {
         foreach ($param_set as $param_id) {
             if (isset($ar[$param_id]))
                 $sum += $ar[$param_id];
-            $tchart[$param_id][] = '['.($day * 24*60*60*1000).','.$sum.']';
+            $tchart[$param_id][] = '['.($day * MSEC_PER_DAY).','.$sum.']';
         }
     }
 
@@ -98,24 +98,24 @@ function get_ambiguity_stats_for_chart() {
 
     $res = sql_prepare("SELECT timestamp, param_value FROM stats_values WHERE timestamp > ? AND param_id = ? ORDER BY timestamp");
     foreach ($param_set as $param_id) {
-        sql_execute($res, array($time - 90*24*60*60, $param_id));
+        sql_execute($res, array($time - (90 * SEC_PER_DAY), $param_id));
         while ($r = sql_fetch_array($res)) {
-            $day = intval($r['timestamp'] / 86400);
+            $day = intval($r['timestamp'] / SEC_PER_DAY);
             $t[$day][$param_id] = $r['param_value'];
         }
     }
     ksort($t);
 
     foreach ($t as $day => $ar) {
-        $tchart['disamb_sentences'][] = '['.($day * 24*60*60*1000).','.$ar[41].']';
+        $tchart['disamb_sentences'][] = '['.($day * MSEC_PER_DAY).','.$ar[41].']';
         if ($ar[45])
-            $tchart['disamb_sent_length'][] = '['.($day * 24*60*60*1000).','.sprintf("%.3f", $ar[45] / $ar[41]).']';
+            $tchart['disamb_sent_length'][] = '['.($day * MSEC_PER_DAY).','.sprintf("%.3f", $ar[45] / $ar[41]).']';
         if ($ar[35] == 0)
             continue;
-        $tchart['avg_parses'][] = '['.($day * 24*60*60*1000).','.sprintf("%.3f", $ar[35] / $ar[5]).']';
-        $tchart['non_ambig'][] = '['.($day * 24*60*60*1000).','.sprintf("%.3f", $ar[37] / $ar[5] * 100).']';
-        $tchart['unknown'][] = '['.($day * 24*60*60*1000).','.sprintf("%.3f", $ar[36] / $ar[5] * 100).']';
-        $tchart['total_words'][] = '['.($day * 24*60*60*1000).','.$ar[5].']';
+        $tchart['avg_parses'][] = '['.($day * MSEC_PER_DAY).','.sprintf("%.3f", $ar[35] / $ar[5]).']';
+        $tchart['non_ambig'][] = '['.($day * MSEC_PER_DAY).','.sprintf("%.3f", $ar[37] / $ar[5] * 100).']';
+        $tchart['unknown'][] = '['.($day * MSEC_PER_DAY).','.sprintf("%.3f", $ar[36] / $ar[5] * 100).']';
+        $tchart['total_words'][] = '['.($day * MSEC_PER_DAY).','.$ar[5].']';
     }
 
     foreach ($tchart as $name => $ar) {
@@ -148,17 +148,16 @@ function get_pools_stats() {
 }
 function get_annot_stats_for_chart() {
     $stats = array();
-    $day = 60 * 60 * 24;
 
     $res = sql_query("
         SELECT
-            FLOOR(timestamp / $day) * $day AS day,
+            FLOOR(timestamp / ".SEC_PER_DAY.") * ".SEC_PER_DAY." AS day,
             COUNT(DISTINCT user_id) AS users,
             COUNT(sample_id) AS samples
         FROM morph_annot_click_log
         WHERE clck_type < 10
-        AND FLOOR(timestamp / $day) > FLOOR(UNIX_TIMESTAMP() / $day) - 30
-        GROUP BY FLOOR(timestamp / $day)
+        AND FLOOR(timestamp / ".SEC_PER_DAY.") > FLOOR(UNIX_TIMESTAMP() / ".SEC_PER_DAY.") - 30
+        GROUP BY FLOOR(timestamp / ".SEC_PER_DAY.")
     ");
     
     while ($r = sql_fetch_array($res)) {
@@ -182,7 +181,7 @@ function get_tag_stats() {
 }
 function get_user_stats($weekly=false, $team=0) {
     if ($weekly) {
-        $start_time = time() - 7 * 24 * 60 * 60;
+        $start_time = time() - (7 * SEC_PER_DAY);
         $counter_param = 58;
         $params = array(59, 60, 61);
     } else {
@@ -243,7 +242,7 @@ function get_user_stats($weekly=false, $team=0) {
     $res = sql_query("
         SELECT user_id, MAX(timestamp) AS last_time
         FROM morph_annot_click_log
-        WHERE timestamp > UNIX_TIMESTAMP(NOW()) - 60*60*24 * 60
+        WHERE timestamp > UNIX_TIMESTAMP(NOW()) - ".SEC_PER_DAY." * 60
         GROUP BY user_id
     ");
     while ($r = sql_fetch_array($res)) {
@@ -316,7 +315,7 @@ function get_user_stats($weekly=false, $team=0) {
         }
     }
 
-    $timestamp_yesterday = ($timestamp_today = mktime(0, 0, 0)) - 3600 * 24;
+    $timestamp_yesterday = ($timestamp_today = mktime(0, 0, 0)) - SEC_PER_DAY;
 
     return array(
         'annotators' => $annotators,
