@@ -14,7 +14,10 @@ function send_email($to, $header, $body) {
       // Give it a body
       ->setBody($body);
     // Create the Transport
-    $transport = Swift_MailTransport::newInstance(); // should switch to SMTP though!
+    global $config;
+    $transport = Swift_SmtpTransport::newInstance($config['mail']['host'], $config['mail']['port'], $config['mail']['encrypt'])
+        ->setUsername($config['mail']['user'])
+        ->setPassword($config['mail']['password']);
     // Create the Mailer using your created Transport
     $mailer = Swift_Mailer::newInstance($transport);
     return $mailer->send($message);
