@@ -37,9 +37,9 @@ $(document).ready(function() {
     var non_ambig = {label: "% однозначных", data: [{/literal}{$ambig_chart.non_ambig}{literal}], yaxis: 2, lines: {show: true}, color: 'green'};
     var unknown = {label: "% неизвестных", data: [{/literal}{$ambig_chart.unknown}{literal}], yaxis: 2, lines: {show: true}, color: 'red'};
     var disamb_sents = {label: "однозначных предложений", data: [{/literal}{$ambig_chart.disamb_sentences}{literal}], yaxis: 1, lines: {show: true}, color: 'navy'}
-    var disamb_sents2 = {data: [{/literal}{$ambig_chart.disamb_sentences_strict}{literal}], yaxis: 1, lines: {show: true, lineWidth: 1}, color: 'navy'}
+    var disamb_sents2 = {data: [{/literal}{$ambig_chart.disamb_sentences_strict}{literal}], yaxis: 1, lines: {show: true, lineWidth: 1}, color: 'blue', label: "то же без UNKN"}
     var disamb_sent_length = {label: "средняя длина (слов)", data: [{/literal}{$ambig_chart.disamb_sent_length}{literal}], yaxis: 2, lines: {show: true}, color: 'green'}
-    var disamb_sent_length2 = {data: [{/literal}{$ambig_chart.disamb_sent_strict_length}{literal}], yaxis: 2, lines: {show: true, lineWidth: 1}, color: 'green'}
+    var disamb_sent_length2 = {data: [{/literal}{$ambig_chart.disamb_sent_strict_length}{literal}], yaxis: 2, lines: {show: true, lineWidth: 1}, color: 'lime', label: "то же без UNKN"}
     var total_words = {label: "всего слов", data: [{/literal}{$ambig_chart.total_words}{literal}], lines: {show:true, fill: true}};
     var users_by_day = {label: "размечавших", data: [{/literal}{$annot_chart.users}{literal}], yaxis:2, lines: {show: true}, color: 'navy'}
     var samples_by_day = {label: "ответов", data: [{/literal}{$annot_chart.samples}{literal}], lines: {show:true, fill:true}}
@@ -75,7 +75,7 @@ $(document).ready(function() {
     $.plot($("#ambig_chart1"), [total_words, avg_parses], options2);
     $.plot($("#ambig_chart2"), [total_words, non_ambig], options2);
     $.plot($("#ambig_chart3"), [total_words, unknown], options2);
-    $.plot($("#ambig_chart4"), [disamb_sents, disamb_sents2, disamb_sent_length], options2);
+    $.plot($("#ambig_chart4"), [disamb_sents, disamb_sents2, disamb_sent_length, disamb_sent_length2], options2);
     $.plot($("#pools_chart"), pools, pie_options);
     options2['legend']['position'] = 'nw';
     options2['yaxis'] = {min: 0};
