@@ -50,17 +50,21 @@ function sql_query($q, $debug=1, $override_readonly=0) {
     }
 
     try {
+        if ($debug)
+            printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>%d<td>SQL: %s</td>", $total_queries, htmlspecialchars($q));
         $res = $pdo_db->query($q);
         if ($debug) {
             $time = microtime(true)-$time_start;
             $total_time += $time;
             $total_queries++;
-            printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>%d<td>SQL: %s</td><td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", $total_queries, htmlspecialchars($q), $time, $total_time);
+            printf("<td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", $time, $total_time);
         }
     }
     catch (PDOException $e) {
-        if ($debug)
+        if ($debug) {
+            printf("<td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", $time, $total_time);
             print "<table class='debug_error' width='100%'><tr><td colspan='3'>".htmlspecialchars($e->getMessage())."</td></tr></table>\n";
+        }
         throw new Exception("DB Error");
     }
     return $res;
