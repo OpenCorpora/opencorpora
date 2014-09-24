@@ -42,6 +42,12 @@
                 $("#source_orig").show();
             });
 
+            $("#main_annot a.reload").click(function(event){
+                dict_reload($(this));
+                event.preventDefault();
+
+            });
+
             $("div.tf").dblclick(function(){
                 var $this = $(this);
                 var token_text = $this.html();
@@ -126,7 +132,10 @@
         <div id="main_annot"><table><tr>
         {foreach item=token from=$sentence.tokens}
             <td id="var_{$token.tf_id}" data-tid="{$token.tf_id}">
-                <div class="tf">{$token.tf_text|htmlspecialchars}</div>
+                <div class="tf">
+                    {$token.tf_text|htmlspecialchars}
+                    <a href="#" class="reload" title="Разобрать заново из словаря"><i class="icon-refresh bggreen"></i></a>
+                </div>
                 {foreach item=variant from=$token.variants}
                     <div class="var" id="var_{$token.tf_id}_{$variant.num}">
                         <input type="hidden" name="var_flag[{$token.tf_id}][{$variant.num}]" value="1"/>

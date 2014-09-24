@@ -6,31 +6,6 @@ $(document).ready(function(){
 
     })
 
-function makeRequest() {
-    var req = false;
-    if (window.XMLHttpRequest) {
-        req = new XMLHttpRequest();
-        if (req.overrideMimeType) {
-            req.overrideMimeType('text/xml');
-        }
-    } else if (window.ActiveXObject) {
-        try {
-            req = new ActiveXObject("Msxml2.XMLHTTP");
-        }
-        catch(e) {
-            try {
-                req = new ActiveXObject("Microsoft.XMLHTTP");
-            }
-            catch(e) {}
-        }
-    }
-    if (!req) {
-        document.write("Cannot instantiate XMLHTTP object");
-        return false;
-    }
-    return req;
-}
-
 function changeSelectBook(n) {
     var m, $el;
     var $s_old = $('#book'+n);
@@ -188,6 +163,31 @@ function dehighlight_source() {
     for (i=0; $('#src_token_' + i).length; i++) {
         $("#src_token_"+i).removeClass('src_token_hlt src_token_hlt_light');
     }
+}
+function dict_reload($link) {
+    var $td = $link.closest('td');
+    var tf_id = $td.data('tid');
+    $td.find('div.var').remove();
+    $.get('ajax/dict_reload.php', {'tf_id': tf_id}, function(res) {
+        $td.append('<input type="hidden" name="dict_flag['+tf_id+']" value="1"/>');
+        $(res).find('v').each(function(i, el) {
+            var $div = $(document.createElement('div')).attr('id', 'var_' + tf_id + '_' + (i+1)).addClass('var');
+            $div.html('<input name="var_flag[' + tf_id + '][' + (i+1)+ ']" value="1" type="hidden"/>');
+            $el = $(el);
+            $lemma = $el.find('l');
+            if ($el.find('l').attr('id') > 0)
+                $div.append('<a href="dict.php?act=edit&amp;id='+$lemma.attr('id')+'">'+$lemma.attr('t')+'</a>');
+            else
+                $div.append('<span>' + $lemma.attr('t') + '</span>');
+            $div.append('<a class="best_var" onclick="best_var(this.parentNode); return false" href="#">v</a><a class="del_var" onclick="del_var(this.parentNode); return false" href="#">x</a><br/>');
+            $el.find('g').each(function(j, grel) {
+                $div.append(', ' + '<span class="hint" title="' + $(grel).attr('d') + '">' + $(grel).attr('v') + '</span>');
+            });
+            $td.append($div);
+        });
+        $('#submit_button').removeAttr('disabled');
+        prepareScroll();
+    });
 }
 function dict_add_form(event) {
     $('#paradigm tbody').append("<tr><td><input type='text' name='form_text[]'></td><td><input type='text' size='40' name='form_gram[]'></td></tr>")
