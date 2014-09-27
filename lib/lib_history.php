@@ -220,7 +220,7 @@ function revert_changeset($set_id, $comment) {
     foreach ($res as $r) {
         sql_execute($res_revtext, array($r[0], $set_id));
         $arr = sql_fetch_array($res_revtext);
-        sql_query("INSERT INTO `dict_revisions` VALUES(NULL, '$new_set_id', '$r[0]', '$arr[0]')");
+        sql_query("INSERT INTO dict_revisions (set_id, lemma_id, rev_text) VALUES($new_set_id, $r[0], '$arr[0]')");
         $dict_flag = 1;
     }
     $res_revtext->closeCursor();
@@ -249,7 +249,10 @@ function revert_dict($rev_id) {
     sql_begin();
     $new_set_id = create_revset("Отмена правки, возврат к версии d$rev_id");
 
-    sql_pe("INSERT INTO dict_revisions VALUES(NULL, ?, ?, ?, 0, 0)", array($new_set_id, $res[0]['lemma_id'], $res[0]['rev_text']));
+    sql_pe(
+        "INSERT INTO dict_revisions (set_id, lemma_id, rev_text) VALUES(?, ?, ?)",
+        array($new_set_id, $res[0]['lemma_id'], $res[0]['rev_text'])
+    );
     sql_commit();
 }
 function get_latest_comments($skip = 0) {

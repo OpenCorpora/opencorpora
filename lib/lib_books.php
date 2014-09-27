@@ -114,7 +114,7 @@ function get_book_first_sentence_id($book_id) {
 function books_add($name, $parent_id=0) {
     if ($name === '')
         throw new UnexpectedValueException();
-    sql_pe("INSERT INTO `books` VALUES(NULL, ?, ?, 0, 0, 0)", array($name, $parent_id));
+    sql_pe("INSERT INTO books (book_name, parent_id) VALUES(?, ?)", array($name, $parent_id));
     return sql_insert_id();
 }
 function books_move($book_id, $to_id) {
@@ -276,7 +276,7 @@ function split_sentence($token_id) {
     //shift the following sentences
     sql_query("UPDATE sentences SET pos=pos+1 WHERE par_id=$par_id AND pos > $spos");
     //create new sentence
-    sql_pe("INSERT INTO sentences VALUES(NULL, ?, ?, ?, 0)", array($par_id, $spos+1, $source_right));
+    sql_pe("INSERT INTO sentences VALUES(NULL, ?, ?, ?)", array($par_id, $spos+1, $source_right));
     $new_sent_id = sql_insert_id();
     //move tokens
     sql_query("UPDATE tokens SET sent_id=$new_sent_id, pos=pos-$tpos WHERE sent_id=$sent_id AND pos>$tpos");
@@ -536,7 +536,7 @@ function source_add($url, $title, $parent_id) {
     if (!$url)
         throw new UnexpectedValueException();
     
-    sql_pe("INSERT INTO sources VALUES(NULL, ?, ?, ?, 0, 0)", array($parent_id, $url, $title));
+    sql_pe("INSERT INTO sources (parent_id, url, title) VALUES(?, ?, ?)", array($parent_id, $url, $title));
 }
 
 ?>

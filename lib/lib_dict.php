@@ -579,7 +579,7 @@ function new_dict_rev($lemma_id, $new_xml, $comment = '') {
         throw new UnexpectedValueException();
     sql_begin();
     $revset_id = create_revset($comment);
-    sql_pe("INSERT INTO `dict_revisions` VALUES(NULL, ?, ?, ?, 0, 0)", array($revset_id, $lemma_id, $new_xml));
+    sql_pe("INSERT INTO dict_revisions (set_id, lemma_id, rev_text) VALUES(?, ?, ?)", array($revset_id, $lemma_id, $new_xml));
     $new_id = sql_insert_id();
     sql_commit();
     return $new_id;
@@ -605,7 +605,7 @@ function del_lemma($id) {
         del_link($r['link_id'], $revset_id);
 
     // create empty revision
-    sql_pe("INSERT INTO dict_revisions VALUES (NULL, ?, ?, '', 1, 1)", array($revset_id, $id));
+    sql_pe("INSERT INTO dict_revisions (set_id, lemma_id, rev_text, f2l_check, dict_check) VALUES (?, ?, '', 1, 1)", array($revset_id, $id));
     $rev_id = sql_insert_id();
 
     //update `updated_forms`

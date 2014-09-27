@@ -284,7 +284,7 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
     sql_query("UPDATE paragraphs SET pos=pos+".sizeof($pars)." WHERE book_id = $book_id AND pos >= $par_num");
 
     $par_ins = sql_prepare("INSERT INTO `paragraphs` VALUES(NULL, ?, ?)");
-    $sent_ins = sql_prepare("INSERT INTO `sentences` VALUES(NULL, ?, ?, ?, 0)");
+    $sent_ins = sql_prepare("INSERT INTO `sentences` VALUES(NULL, ?, ?, ?)");
     $token_ins = sql_prepare("INSERT INTO `tokens` VALUES(NULL, ?, ?, ?)");
 
     foreach ($pars as $par) {
