@@ -710,7 +710,7 @@ function add_morph_pool_type($post_gram, $post_descr) {
     $gram_sets_str = join('@', $gram_sets);
     $gram_descr_str = join('@', $gram_descr);
 
-    sql_pe("INSERT INTO morph_annot_pool_types VALUES (NULL, ?, ?, '')", array($gram_sets_str, $gram_descr_str));
+    sql_pe("INSERT INTO morph_annot_pool_types VALUES (NULL, ?, ?, '', 0, 0, 0)", array($gram_sets_str, $gram_descr_str));
     return sql_insert_id();
 }
 function add_morph_pool() {
@@ -724,7 +724,7 @@ function add_morph_pool() {
     $token_check = $_POST['token_checked'];
     $ts = time();
     sql_pe(
-        "INSERT INTO morph_annot_pools VALUES(NULL, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO morph_annot_pools VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0)",
         array($pool_type, $pool_name, $token_check, $users, $ts, $ts, $_SESSION['user_id'])
     );
     sql_commit();
@@ -889,8 +889,8 @@ function publish_pool($pool_id) {
         //all this should be done only if the pool is published for the 1st time
         $N = $res[0]['users_needed'];
         for ($i = 0; $i < $N; ++$i)
-            sql_pe("INSERT INTO morph_annot_instances(SELECT NULL, sample_id FROM morph_annot_samples WHERE pool_id=? ORDER BY sample_id)", array($pool_id));
-        sql_pe("INSERT INTO morph_annot_moderated_samples (SELECT sample_id FROM morph_annot_samples WHERE pool_id=? ORDER BY sample_id)", array($pool_id));
+            sql_pe("INSERT INTO morph_annot_instances(SELECT NULL, sample_id, 0, 0, 0 FROM morph_annot_samples WHERE pool_id=? ORDER BY sample_id)", array($pool_id));
+        sql_pe("INSERT INTO morph_annot_moderated_samples (SELECT sample_id, 0, 0, 0, 0, 0 FROM morph_annot_samples WHERE pool_id=? ORDER BY sample_id)", array($pool_id));
     }
 
     sql_pe("UPDATE morph_annot_pools SET `status`=".MA_POOLS_STATUS_IN_PROGRESS.", `updated_ts`=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
