@@ -1,5 +1,6 @@
 <?php
 require_once('lib_annot.php');
+require_once('lib_dict.php');
 require_once('lib_diff.php');
 
 function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0) {
@@ -220,7 +221,7 @@ function revert_changeset($set_id, $comment) {
     foreach ($res as $r) {
         sql_execute($res_revtext, array($r[0], $set_id));
         $arr = sql_fetch_array($res_revtext);
-        sql_query("INSERT INTO `dict_revisions` VALUES(NULL, '$new_set_id', '$r[0]', '$arr[0]')");
+        new_dict_rev($r[0], $arr[0], $new_set_id);
         $dict_flag = 1;
     }
     $res_revtext->closeCursor();
@@ -249,7 +250,7 @@ function revert_dict($rev_id) {
     sql_begin();
     $new_set_id = create_revset("Отмена правки, возврат к версии d$rev_id");
 
-    sql_pe("INSERT INTO dict_revisions VALUES(NULL, ?, ?, ?, 0, 0)", array($new_set_id, $res[0]['lemma_id'], $res[0]['rev_text']));
+    new_dict_rev($res[0]['lemma_id'], $res[0]['rev_text'], $new_set_id);
     sql_commit();
 }
 function get_latest_comments($skip = 0) {

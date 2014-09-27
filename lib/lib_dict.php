@@ -477,7 +477,7 @@ function dict_add_lemma($array) {
     $lemma_id = sql_insert_id();
     //array -> xml
     $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
-    $rev_id = new_dict_rev($lemma_id, $new_xml, $array['comment']);
+    $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $array['comment']);
 
     $ins = sql_prepare("INSERT INTO `updated_forms` VALUES (?, ?)");
     foreach ($upd_forms as $upd_form)
@@ -546,7 +546,7 @@ function dict_save($array) {
                 "UPDATE dict_lemmata SET lemma_text=? WHERE lemma_id=?",
                 array($lemma_text, $array['lemma_id'])
             );
-        $rev_id = new_dict_rev($array['lemma_id'], $new_xml, $array['comment']);
+        $rev_id = new_dict_rev($array['lemma_id'], $new_xml, 0, $array['comment']);
         $ins = sql_prepare("INSERT INTO `updated_forms` VALUES (?, ?)");
         foreach ($upd_forms as $upd_form)
             sql_execute($ins, array($upd_form, $rev_id));
@@ -579,11 +579,12 @@ function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
     $new_xml .= '</dr>';
     return $new_xml;
 }
-function new_dict_rev($lemma_id, $new_xml, $comment = '') {
+function new_dict_rev($lemma_id, $new_xml, $revset_id=0, $comment = '') {
     if (!$lemma_id || !$new_xml)
         throw new UnexpectedValueException();
     sql_begin();
-    $revset_id = create_revset($comment);
+    if (!$revset_id)
+        $revset_id = create_revset($comment);
     sql_pe("INSERT INTO `dict_revisions` VALUES(NULL, ?, ?, ?, 0, 0)", array($revset_id, $lemma_id, $new_xml));
     $new_id = sql_insert_id();
     sql_commit();
