@@ -4,7 +4,7 @@ require_once('lib/lib_annot.php');
 require_once('lib/lib_books.php');
 header('Content-type: application/json');
 
-define('API_VERSION', '0.22');
+define('API_VERSION', '0.3');
 $action = $_GET['action'];
 
 $answer = array(
@@ -35,6 +35,16 @@ switch ($action) {
             }
             $res['text_fullname'] = join(': ', array_reverse($parts));
         }
+        break;
+    case 'login':
+        include_once('lib/lib_users.php');
+        $user_id = user_check_password($_POST['login'], $_POST['password']);
+        if ($user_id) {
+            $token = remember_user($user_id, false, false);
+            $answer['answer'] = array('token' => $token);
+        }
+        else
+            $answer['error'] = 'Incorrect login or password';
         break;
     default:
         $answer['error'] = 'Unknown action';

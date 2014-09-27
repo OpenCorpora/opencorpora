@@ -90,7 +90,7 @@ function check_for_user_alias($user_id) {
     }
     return false;
 }
-function remember_user($user_id, $auth_token=false) {
+function remember_user($user_id, $auth_token=false, $set_cookie=true) {
     sql_begin();
     //deleting the old token
     if ($auth_token) {
@@ -100,7 +100,8 @@ function remember_user($user_id, $auth_token=false) {
     $token = mt_rand();
     sql_query("INSERT INTO user_tokens VALUES('$user_id','$token', '".time()."')", 1, 1);
 
-    setcookie('auth', $user_id.'@'.$token, time()+60*60*24*7, '/');
+    if ($set_cookie)
+        setcookie('auth', $user_id.'@'.$token, time()+60*60*24*7, '/');
     sql_commit();
     return $token;
 }
