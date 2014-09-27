@@ -541,6 +541,11 @@ function dict_save($array) {
     $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
     if ($lemma_text != $old_lemma_text || $new_xml != $old_xml) {
         //something's really changed
+        if ($lemma_text != $old_lemma_text)
+            sql_pe(
+                "UPDATE dict_lemmata SET lemma_text=? WHERE lemma_id=?",
+                array($lemma_text, $array['lemma_id'])
+            );
         $rev_id = new_dict_rev($array['lemma_id'], $new_xml, $array['comment']);
         $ins = sql_prepare("INSERT INTO `updated_forms` VALUES (?, ?)");
         foreach ($upd_forms as $upd_form)
