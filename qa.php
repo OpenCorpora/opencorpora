@@ -62,5 +62,6 @@ switch ($action) {
     default:
         header("Location:index.php");
 }
+log_timing();
 
 ?>

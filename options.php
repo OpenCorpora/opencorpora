@@ -42,4 +42,5 @@ if (is_logged()) {
     }
 } else
     show_error($config['msg']['notlogged']);
+log_timing();
 ?>

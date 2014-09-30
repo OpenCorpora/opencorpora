@@ -15,4 +15,5 @@ catch (Exception $e) {
     $res['error'] = 1;
 }
 
+log_timing(true);
 die(json_encode($res));

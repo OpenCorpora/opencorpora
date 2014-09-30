@@ -15,4 +15,5 @@ try {
 catch (Exception $e) {
     echo '<result ok="0"/>';
 }
+log_timing(true);
 ?>

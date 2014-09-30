@@ -38,5 +38,6 @@ try {
 }
 catch (Exception $e) {
     echo '<response ok="0"/>';
+log_timing(true);
 }
 ?>

@@ -6,4 +6,5 @@ $res = sql_pe("SELECT DISTINCT dl.lemma_id, dl.lemma_text, SUBSTR(grammems, 7, 4
 foreach ($res as $line) {
    echo $line['lemma_text'] . '|' . $line['gr'] . '|' . $line['lemma_id'] ."\n";
 }
+log_timing(true);
 ?>

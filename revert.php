@@ -23,4 +23,5 @@ elseif (isset($_GET['dict_rev']) && $rev_id = $_GET['dict_rev']) {
     revert_dict($rev_id);
     header("Location:dict_history.php");
 }
+log_timing();
 ?>

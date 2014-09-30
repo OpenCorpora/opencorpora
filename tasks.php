@@ -68,4 +68,5 @@ switch ($action) {
             4 => 'Очень сложные задания'));
         $smarty->display('qa/tasks.tpl');
 }
+log_timing();
 ?>

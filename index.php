@@ -93,4 +93,5 @@ else {
     }
     $smarty->display('index.tpl');
 }
+log_timing();
 ?>

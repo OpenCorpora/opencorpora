@@ -25,3 +25,4 @@ catch (Exception $e) {
 }
 
 echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?><result ok="'.(int)$res.'"/>';
+log_timing(true);

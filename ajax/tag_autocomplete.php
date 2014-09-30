@@ -6,4 +6,5 @@ $res = sql_pe("SELECT DISTINCT tag_name FROM book_tags WHERE tag_name LIKE ? ORD
 foreach ($res as $line) {
    echo $line['tag_name']."\n";
 }
+log_timing(true);
 ?>

@@ -28,4 +28,5 @@ if (is_admin()) {
 else {
     show_error($config['msg']['notadmin']);
 }
+log_timing();
 ?>

@@ -27,4 +27,5 @@ switch ($action) {
         $smarty->assign('page', get_books_with_syntax());
         $smarty->display('syntax/main.tpl');
 }
+log_timing();
 ?>

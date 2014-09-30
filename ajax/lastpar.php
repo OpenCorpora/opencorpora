@@ -15,4 +15,5 @@ $r = sql_fetch_array(sql_query("SELECT SUBSTRING_INDEX(source, ' ', -5) AS `end`
 $txt .= $r['end'];
 
 echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?><response num="'.$num.'">'.htmlspecialchars($txt).'</response>';
+log_timing(true);
 ?>

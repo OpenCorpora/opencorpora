@@ -14,5 +14,6 @@ echo '<response>';
 echo '<success>' . ($result['success'] ? 'ok' : 'failed') . '</success>';
 echo '<output>' . htmlspecialchars($result['output']) . '</output>';
 echo '</response>';
+log_timing(true);
 
 ?>

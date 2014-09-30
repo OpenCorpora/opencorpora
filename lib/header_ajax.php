@@ -7,6 +7,7 @@ if (!headers_sent()) {
 $config = parse_ini_file(__DIR__ . '/../config.ini', true);
 
 require_once('common.php');
+require_once('timer.php');
 
 $transaction_counter = 0;
 $nested_transaction_counter = 0;

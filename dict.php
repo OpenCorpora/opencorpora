@@ -125,4 +125,5 @@ switch ($action) {
         }
         $smarty->display('dict/main.tpl', (int)user_has_permission('perm_dict'));
 }
+log_timing();
 ?>

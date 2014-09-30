@@ -85,3 +85,4 @@ switch ($action) {
         $smarty->assign('pools', get_morph_pools_page((int)$_GET['type'], (int)$_GET['moder_id'], $_GET['filter']));
         $smarty->display('qa/pools.tpl');
 }
+log_timing();

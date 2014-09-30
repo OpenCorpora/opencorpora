@@ -24,4 +24,5 @@ if (!is_cached('history.tpl', $cache_id)) {
     $smarty->assign('maa', $maa);
 }
 $smarty->display('history.tpl', $cache_id);
+log_timing();
 ?>

@@ -21,6 +21,7 @@ while($r = sql_fetch_array($res)) {
 recursive_print(0);
 
 echo '</comments>';
+log_timing(true);
 
 function recursive_print($id) {
     global $comm;

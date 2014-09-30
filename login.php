@@ -20,6 +20,7 @@ switch($action) {
         } else {
             header('Location:login.php?act=error');
         }
+        log_timing();
         exit();
     case 'login_openid':
         $r = user_login_openid($_POST['token']);
@@ -36,9 +37,11 @@ switch($action) {
             default:
                 header('Location:login.php?act=error');
         }
+        log_timing();
         exit();
     case 'login_openid2':
         user_login_openid_agree(isset($_POST['agree']));
+        log_timing();
         header('Location:index.php');
         exit();
     case 'logout':
@@ -48,6 +51,7 @@ switch($action) {
         } else {
             header('Location:index.php');
         }
+        log_timing();
         exit();
     case 'reg_done':
         $reg_status = user_register($_POST);
@@ -71,6 +75,7 @@ switch($action) {
         $smarty->assign('change_status', user_change_shown_name($_POST['shown_name']));
         break;
 }
+log_timing();
 
 if (
     isset($_SERVER['HTTP_REFERER']) &&

@@ -14,5 +14,6 @@ echo '<response>';
 echo '<success>' . ($published['success'] ? 'ok' : 'failed') . '</success>';
 echo '<output>' . htmlspecialchars($published['output']) . '</output>';
 echo '</response>';
+log_timing(true);
 
 ?>

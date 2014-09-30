@@ -8,6 +8,7 @@ $config = parse_ini_file(__DIR__ . '/../config.ini', true);
 require_once('vendor/autoload.php'); // Smarty, something else which was installed via Composer
 require_once('common.php');
 require_once('lib_awards.php');
+require_once('timer.php');
 
 $smarty = new Smarty(); // no need to require the Smarty.php, it was autoloaded
 $smarty->template_dir = $config['smarty']['template_dir'];

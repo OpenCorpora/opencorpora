@@ -10,4 +10,5 @@ if ($para) {
     }
 }
 echo '</response>';
+log_timing(true);
 ?>

@@ -11,4 +11,5 @@ if ($tf_id && $dir) {
     }
 }
 echo '</context>';
+log_timing(true);
 ?>

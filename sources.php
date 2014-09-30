@@ -23,4 +23,5 @@ switch ($action) {
         $smarty->assign('skip', $skip);
         $smarty->display('templates/sources.tpl');
 }
+log_timing();
 ?>

@@ -13,4 +13,5 @@ $smarty->assign('complexity',array(
     4 => 'Очень сложные задания'));
 $smarty->assign('badges', get_user_badges($id));
 $smarty->display('user.tpl');
+log_timing();
 ?>

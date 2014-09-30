@@ -9,4 +9,5 @@ foreach ($t as $id => $title) {
 }
 
 echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?><response>'.$out.'</response>';
+log_timing(true);
 ?>

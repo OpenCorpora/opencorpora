@@ -26,3 +26,4 @@ switch ($action) {
         $smarty->assign('page', get_books_with_NE());
         $smarty->display('ner/main.tpl');
 }
+log_timing();

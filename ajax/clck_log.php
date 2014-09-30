@@ -13,3 +13,4 @@ catch (Exception $e) {
 }
 
 echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?><result ok="'.$result.'"/>';
+log_timing(true);

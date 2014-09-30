@@ -44,8 +44,8 @@ function sql_query($q, $debug=1, $override_readonly=0) {
     if (file_exists('/var/lock/oc_readonly.lock') && stripos(trim($q), 'select') > 1 && !$override_readonly)
         throw new Exception("Database in readonly mode");
     $debug = isset($_SESSION['debug_mode']) && $debug;
+    $time_start = microtime(true);
     if ($debug) {
-        $time_start = microtime(true);
         $q = str_ireplace('select ', 'SELECT SQL_NO_CACHE ', $q);
     }
 
@@ -53,10 +53,10 @@ function sql_query($q, $debug=1, $override_readonly=0) {
         if ($debug)
             printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>%d<td>SQL: %s</td>", $total_queries, htmlspecialchars($q));
         $res = $pdo_db->query($q);
+        $time = microtime(true)-$time_start;
+        $total_time += $time;
+        $total_queries++;
         if ($debug) {
-            $time = microtime(true)-$time_start;
-            $total_time += $time;
-            $total_queries++;
             printf("<td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", $time, $total_time);
         }
     }
@@ -80,11 +80,16 @@ function sql_insert_id() {
 }
 function sql_prepare($q) {
     global $pdo_db;
+    global $total_time;
     $debug = isset($_SESSION['debug_mode']);
+    $time_start = microtime(true);
     if ($debug)
         printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>*</td><td colspan='3'>PREPARE: %s</td></tr></table>\n", htmlspecialchars($q));
     try {
-        return $pdo_db->prepare($q);
+        $q = $pdo_db->prepare($q);
+        $time = microtime(true)-$time_start;
+        $total_time += $time;
+        return $q;
     }
     catch (PDOException $e) {
         if ($debug)
@@ -97,15 +102,14 @@ function sql_execute($res, $params) {
     global $total_time;
     global $total_queries;
     $debug = isset($_SESSION['debug_mode']);
-    if ($debug)
-        $time_start = microtime(true);
+    $time_start = microtime(true);
 
     try {
         $res->execute($params);
+        $time = microtime(true)-$time_start;
+        $total_time += $time;
+        $total_queries++;
         if ($debug) {
-            $time = microtime(true)-$time_start;
-            $total_time += $time;
-            $total_queries++;
             printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>%d<td>SQL: %s</td><td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", $total_queries, "(prepared statement)", $time, $total_time);
         }
     }

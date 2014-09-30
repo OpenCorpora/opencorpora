@@ -50,5 +50,6 @@ switch ($action) {
         $answer['error'] = 'Unknown action';
 }
 
+log_timing();
 die(json_encode_readable($answer));
 ?>

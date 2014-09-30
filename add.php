@@ -24,3 +24,4 @@ if (user_has_permission('perm_adder')) {
 } else {
     show_error($config['msg']['notadmin']);
 }
+log_timing();

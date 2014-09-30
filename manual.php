@@ -10,4 +10,5 @@ else
     $smarty->assign('content', get_wiki_page("Инструкция по интерфейсу для снятия омонимии"));
 
 $smarty->display('static/doc/annotation.tpl');
+log_timing();
 ?>

@@ -24,4 +24,5 @@ if (isset($_GET['tf_id'])) {
     echo '</tfr>';
 }
 echo '</response>';
+log_timing(true);
 ?>

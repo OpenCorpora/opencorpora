@@ -30,5 +30,6 @@ try {
 catch (Exception $e) {
     $result = 0;
 }
+log_timing(true);
 echo '<result ok="'.$result.'"/>';
 ?>

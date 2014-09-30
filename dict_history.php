@@ -10,4 +10,5 @@ if (isset($_GET['skip']))
 $smarty->assign('history', dict_history($lemma_id, $skip));
 $smarty->assign('skip', $skip);
 $smarty->display('dict/history.tpl');
+log_timing();
 ?>

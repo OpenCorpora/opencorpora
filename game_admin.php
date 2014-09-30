@@ -17,4 +17,5 @@ switch ($action) {
         $smarty->assign('badges', get_badges_info());
         $smarty->display('game_admin.tpl');
 }
+log_timing();
 ?>

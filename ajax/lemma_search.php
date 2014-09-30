@@ -7,4 +7,5 @@ foreach ($res as $r) {
     echo '<lemma id="'.$r['lemma_id'].'"/>';
 }
 echo '</lemmata>';
+log_timing(true);
 ?>

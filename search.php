@@ -8,3 +8,4 @@ if (isset($_GET['q'])) {
     $smarty->display('search.tpl');
 } else
     show_error("Не задан поисковый запрос");
+log_timing();
