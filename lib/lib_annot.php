@@ -994,9 +994,19 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     // get sample counts for selected pools
     // gather count of all available samples grouped by pool
     $r_rejected_samples = sql_query("SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id");
-    $rejected = array(0);
+    $rejected_or_owned = array(0);
     while ($r = sql_fetch_array($r_rejected_samples))
-        $rejected[] = $r['sample_id'];
+        $rejected_or_owned[] = $r['sample_id'];
+
+    $r_owned_samples = sql_query("
+        SELECT sample_id
+        FROM morph_annot_instances
+        JOIN morph_annot_samples USING (sample_id)
+        WHERE user_id = $user_id
+        AND pool_id IN (" . implode(', ', $pool_ids) . ")
+    ");
+    while ($r = sql_fetch_array($r_owned_samples))
+        $rejected_or_owned[] = $r['sample_id'];
 
     $r_available_samples = sql_query('
         SELECT pool_id,count(distinct sample_id) as cnt
@@ -1006,11 +1016,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
             answer=0
             AND ts_finish < ' . $time . '
             AND pool_id IN (' . implode(', ',$pool_ids) . ')
-            AND sample_id NOT IN ('. join(',', $rejected).')
-            AND sample_id NOT IN (
-                SELECT sample_id
-                FROM morph_annot_instances
-                WHERE user_id=' . $user_id . ')
+            AND sample_id NOT IN ('. join(', ', $rejected_or_owned).')
         GROUP BY pool_id');
     while ($available_samples = sql_fetch_array($r_available_samples)) {
         $pools[$available_samples['pool_id']]['num'] = $available_samples['cnt'];
