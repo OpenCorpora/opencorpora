@@ -1150,6 +1150,29 @@ function get_next_pool($user_id, $prev_pool_id) {
     }
     return 0;
 }
+function get_non_owned_samples($user_id, $pool_id, $limit) {
+    return sql_query("
+        SELECT instance_id, sample_id
+        FROM morph_annot_instances
+        JOIN morph_annot_samples
+            USING (sample_id)
+        WHERE pool_id = $pool_id
+        AND sample_id NOT IN (
+            SELECT DISTINCT sample_id
+            FROM morph_annot_instances
+            WHERE user_id=$user_id
+        )
+        AND sample_id NOT IN (
+            SELECT sample_id
+            FROM morph_annot_rejected_samples
+            WHERE user_id=$user_id
+        )
+        AND ts_finish=0
+        AND answer=0
+        GROUP BY sample_id
+        LIMIT $limit
+    ");
+}
 function get_annotation_packet($pool_id, $size) {
     global $config;
 
@@ -1172,7 +1195,7 @@ function get_annotation_packet($pool_id, $size) {
     if (!sql_num_rows($res)) {
         //ok, we should find new samples
         //first, check non-owned ones
-        $res = sql_query("SELECT instance_id, sample_id FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id) AND sample_id NOT IN (SELECT DISTINCT sample_id FROM morph_annot_instances WHERE user_id=$user_id) AND sample_id NOT IN (SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id) AND ts_finish=0 AND answer=0 GROUP BY sample_id LIMIT $size");
+        $res = get_non_owned_samples($user_id, $pool_id, $size);
         $flag_new = 1;
         if (!sql_num_rows($res)) {
             $time = time();
