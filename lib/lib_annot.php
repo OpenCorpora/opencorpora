@@ -993,10 +993,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     $pool_ids = array_keys($pools);
     // get sample counts for selected pools
     // gather count of all available samples grouped by pool
-    $r_rejected_samples = sql_query("SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id");
-    $rejected_or_owned = array(0);
-    while ($r = sql_fetch_array($r_rejected_samples))
-        $rejected_or_owned[] = $r['sample_id'];
+    $rejected_or_owned = get_rejected_samples($user_id);
 
     $r_owned_samples = sql_query("
         SELECT sample_id
@@ -1150,7 +1147,32 @@ function get_next_pool($user_id, $prev_pool_id) {
     }
     return 0;
 }
-function get_non_owned_samples($user_id, $pool_id, $limit) {
+function get_rejected_samples($user_id, $pool_id=0) {
+    $out = array(0);
+    if ($pool_id > 0)
+        $q = "
+            SELECT sample_id
+            FROM morph_annot_rejected_samples
+            JOIN morph_annot_samples
+                USING (sample_id)
+            WHERE user_id=$user_id
+            AND pool_id=$pool_id
+        ";
+    else
+        $q = "
+            SELECT sample_id
+            FROM morph_annot_rejected_samples
+            WHERE user_id=$user_id
+        ";
+    $res = sql_query($q);
+    while ($r = sql_fetch_array($res))
+        $out[] = $r['sample_id'];
+    return $out;
+}
+function get_free_samples($user_id, $pool_id, $limit, $include_owned, $rejected=NULL) {
+    if (!is_array($rejected))
+        $rejected = get_rejected_samples($user_id, $pool_id);
+    $time = time();
     return sql_query("
         SELECT instance_id, sample_id
         FROM morph_annot_instances
@@ -1162,12 +1184,8 @@ function get_non_owned_samples($user_id, $pool_id, $limit) {
             FROM morph_annot_instances
             WHERE user_id=$user_id
         )
-        AND sample_id NOT IN (
-            SELECT sample_id
-            FROM morph_annot_rejected_samples
-            WHERE user_id=$user_id
-        )
-        AND ts_finish=0
+        AND sample_id NOT IN (".join(',', $rejected).")
+        AND ".($include_owned ? "ts_finish=0" : "ts_finish < $time")."
         AND answer=0
         GROUP BY sample_id
         LIMIT $limit
@@ -1195,12 +1213,12 @@ function get_annotation_packet($pool_id, $size) {
     if (!sql_num_rows($res)) {
         //ok, we should find new samples
         //first, check non-owned ones
-        $res = get_non_owned_samples($user_id, $pool_id, $size);
+        $rejected = get_rejected_samples($user_id, $pool_id);
+        $res = get_free_samples($user_id, $pool_id, $size, false, $rejected);
         $flag_new = 1;
         if (!sql_num_rows($res)) {
-            $time = time();
             //if nothing found, check owned but outdated ones
-            $res = sql_query("SELECT instance_id, sample_id FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=$pool_id) AND sample_id NOT IN (SELECT DISTINCT sample_id FROM morph_annot_instances WHERE user_id=$user_id) AND sample_id NOT IN (SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id) AND answer=0 AND ts_finish < $time GROUP BY sample_id LIMIT $size");
+            $res = get_free_samples($user_id, $pool_id, $size, true, $rejected);
         }
     }
     if (!sql_num_rows($res)) return false;
