@@ -275,14 +275,14 @@ class Lexeme(object):
             if gram not in self.lemma['gram']:
                 self.lemma['gram'].append(gram)
 
-        self.updated_forms.union(set([x['text'] for x in self.forms]))
+        self.updated_forms.update(set([x['text'] for x in self.forms]))
 
     def remove_lemma_gram(self, grammemes):
         if isinstance(grammemes, str):
             grammemes = grammemes,
 
         self.lemma['gram'] = [x for x in self.lemma['gram'] if x not in grammemes]
-        self.updated_forms.union(set([x['text'] for x in self.forms]))
+        self.updated_forms.update(set([x['text'] for x in self.forms]))
 
     def update_forms(self, rev_id):
         for form in self.updated_forms:
