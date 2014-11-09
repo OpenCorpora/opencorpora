@@ -34,8 +34,10 @@ class AnnotationEditor(object):
     def get_insert_id(self):
         return self.db_cursor.lastrowid
 
-    def sql(self, sql):
+    def sql(self, sql, ret=False):
         self.db_cursor.execute(sql)
+        if ret:
+            return self.db_cursor.fetchall()
 
     def commit(self):
         self._db_connect.commit()
@@ -264,6 +266,23 @@ class Lexeme(object):
         assert hasattr(grammemes, '__iter__')
         self.forms.append({'text': form_text, 'gram': grammemes})
         self.updated_forms.add(form_text)
+
+    def add_lemma_gram(self, grammemes):
+        if isinstance(grammemes, str):
+            grammemes = grammemes,
+
+        for gram in grammemes:
+            if gram not in self.lemma['gram']:
+                self.lemma['gram'].append(gram)
+
+        self.updated_forms.union(set([x['text'] for x in self.forms]))
+
+    def remove_lemma_gram(self, grammemes):
+        if isinstance(grammemes, str):
+            grammemes = grammemes,
+
+        self.lemma['gram'] = [x for x in self.lemma['gram'] if x not in grammemes]
+        self.updated_forms.union(set([x['text'] for x in self.forms]))
 
     def update_forms(self, rev_id):
         for form in self.updated_forms:
