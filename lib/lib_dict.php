@@ -57,10 +57,10 @@ function get_all_forms_by_lemma_id($lid) {
 }
 function get_all_forms_by_lemma_text($lemma) {
     $lemmata = get_dict_search_results(array('search_lemma' => $lemma));
-    $forms = array();
+    $forms = array($lemma);
     foreach ($lemmata['lemma']['found'] as $l)
         $forms = array_merge($forms, get_all_forms_by_lemma_id($l['id']));
-    return $forms;
+    return array_unique($forms);
 }
 function generate_tf_rev($token) {
     $out = '<tfr t="'.htmlspecialchars($token).'">';
@@ -357,7 +357,7 @@ function update_pending_token($token_id, $rev_id, $revset_id=0) {
         LIMIT 1
     ", array($token_id, $rev_id));
     if (sizeof($res) > 0)
-        throw new Exception();
+        throw new Exception("Current token <$token_id> form is not the latest");
 
     // ok, now we can safely update
     $res = sql_pe("SELECT tf_text FROM tokens WHERE tf_id=? LIMIT 1", array($token_id));
