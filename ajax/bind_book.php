@@ -21,7 +21,7 @@ try {
         if (!isset($_GET['book_name']) || !$res[0]['book_id'])
             throw new UnexpectedValueException();
 
-        $book_id = books_add($_GET['book_name'], $r['book_id']);
+        $book_id = books_add($_GET['book_name'], $res[0]['book_id']);
 
         $res = sql_pe("SELECT url FROM sources WHERE source_id=? LIMIT 1", array($sid));
         books_add_tag($book_id, 'url:'.$res[0]['url']);
