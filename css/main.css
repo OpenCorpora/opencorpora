@@ -450,6 +450,7 @@ div#scrollbar {
     height: 10px;
     overflow: scroll;
     overflow-y: hidden;
+    -webkit-overflow-scrolling: touch; /* iOS */
     padding: 10px;
     clear: left;
 }
@@ -461,6 +462,7 @@ div#main_annot {
 
 div#main_annot table {
     border-spacing: 10px 0px;
+    max-width: none;
 }
 
 div#main_annot table td {
@@ -1144,3 +1146,14 @@ button.ma_next_pack {
 .comment-add textarea {
     font-size: 13px;
 }
+
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    height: 7px;
+}
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0,0,0,.5);
+    box-shadow: 0 0 1px rgba(255,255,255,.5);
+}
+
