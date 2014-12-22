@@ -17,6 +17,7 @@
 
         <link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css?4'/>
         <link rel='stylesheet' type='text/css' href='http://yandex.st/jquery-ui/1.9.0/themes/smoothness/jquery-ui.min.css'/>
+        <link rel="stylesheet" type="text/css" href="{$web_prefix}/bootstrap/css/bootstrap-notify.css" />
 
         <!-- Open Sans for headers -->
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,800,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
@@ -29,7 +30,7 @@
         <script src='{$web_prefix}/js/jquery.mousewheel.js' type='text/javascript'></script>
         <script src='{$web_prefix}/js/jquery.autocomplete.js'></script>
         <script src="bootstrap/js/bootstrap.min.js"></script>
-
+        <script src="bootstrap/js/bootstrap-notify.js"></script>
 
     </head>
 {block name=nojs}<noscript><meta http-equiv="refresh" content="0; URL=/no_js.php"></noscript>{/block}
@@ -46,6 +47,7 @@
 </div>
 {block name=content}{/block}
 </div>
+<div class="notifications top-right"></div>
 {include file='footer.tpl'}
 </div>
 <script type="text/javascript">

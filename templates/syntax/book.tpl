@@ -44,12 +44,10 @@
     </div>
 </div>
 
-<div class="notifications top-right"></div>
 {/block}
 
 {block name="javascripts"}
 {literal}
-    <script src="bootstrap/js/bootstrap-notify.js"></script>
     <script src="js/anaphora.js"></script>
     <script>
     var syntax_groups_json = JSON.parse('{/literal}{$token_groups|@json_encode|replace:"\"":"\\\""}{literal}');
@@ -59,5 +57,5 @@
 {/block}
 
 {block name=styles}
-    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-notify.css" />
+
 {/block}

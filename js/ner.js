@@ -75,15 +75,6 @@ var deactivateHotKeys = function() {
    });
 };
 
-var notify = function(text, t) {
-    $('.notifications').notify({
-        message: {
-            text: text
-        },
-        type: typeof t == 'undefined' ? 'info' : t,
-    }).show();
-};
-
 var log_event = function(type, message, id, extra_data_as_string) {
     $.post('/ajax/ner.php', {
         act: 'logEvent',

@@ -100,7 +100,6 @@
         </div>
     </div>
 </div>
-<div class="notifications top-right"></div>
 
 <div class="popover types-popover top floating-block">
     <div class="arrow"></div>
@@ -141,7 +140,6 @@
 
 {block name="javascripts"}
 {literal}
-    <script src="{/literal}{$web_prefix}{literal}/bootstrap/js/bootstrap-notify.js"></script>
     <script src="{/literal}{$web_prefix}{literal}/bootstrap/js/bootstrap.select.min.js"></script>
     <script src="{/literal}{$web_prefix}{literal}/js/rangy-core.js"></script>
     <script src="{/literal}{$web_prefix}{literal}/js/mousetrap.min.js"></script>
@@ -151,6 +149,5 @@
 {/block}
 
 {block name=styles}
-    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-notify.css" />
     <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-select.min.css" />
 {/block}

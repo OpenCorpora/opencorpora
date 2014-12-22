@@ -150,16 +150,6 @@ function set_group_head(gid, head_id, cb) {
     }, 'json');
 }
 
-// Уведомление в уголке
-function notify(text) {
-    $('.notifications').notify({
-        message: {
-            text: text
-        },
-        type: 'info'
-    }).show();
-}
-
 // Обрабатывает клик на .token
 // Если мы кликаем на невыделенный токен, то:
 //   если он расположен по соседству с выделенными, выделяем и его;

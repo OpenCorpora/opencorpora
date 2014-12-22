@@ -535,3 +535,13 @@ function getQueryVariable(variable) {
    }
    return false;
 }
+
+// Уведомление в уголке
+function notify(text, type) {
+    $('.notifications').notify({
+        message: {
+            text: text
+        },
+        type: (type ? type : 'info')
+    }).show();
+}
