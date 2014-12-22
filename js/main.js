@@ -520,10 +520,6 @@ function check_for_whitespace() {
     if (!flag) alert('Bad symbols (whitespace or line break) detected');
     return flag;
 }
-function show_bootalert(type,msg) {
-    $("#alert_wrap").html('<div class="alert alert-' + type + '">' + msg + '</div>');
-    setTimeout('$("#alert_wrap .alert").fadeOut()', 3000);
-}
 
 
 function getQueryVariable(variable) {

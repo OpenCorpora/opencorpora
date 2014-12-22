@@ -54,7 +54,7 @@
         });
         $("#save_team_form").submit(function(event){
             if($("#select_team_id").val()==-1 && $('#new_team_name').val()=='') {
-                show_bootalert('error','Укажите команду.');
+                notify('Укажите команду.', 'error');
                 event.preventDefault();
             }
         })

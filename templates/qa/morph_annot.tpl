@@ -64,7 +64,7 @@ $(document).ready(function() {
                     var $r = $(res).find('response');
                     if ($r.attr('ok') == 1) {
                         $(comment_event.target).closest('.controls').hide();
-                        show_bootalert('success','Спасибо, ваш комментарий добавлен!');
+                        notify('Спасибо, ваш комментарий добавлен!', 'success');
                     } else {
                         alert('Comment saving failed');
                     }
@@ -160,7 +160,7 @@ $(document).ready(function() {
         {if $instance.has_left_context}<a class='expand' href="#" rel='{$instance.has_left_context}' rev='-1'>...</a>{/if}
         {foreach from=$instance.context item=word name=x}
         {if $smarty.foreach.x.index == $instance.mainword}
-        <b class='ma_instance_word' title='{$instance.lemmata}'>{$word|htmlspecialchars}</b> 
+        <b class='ma_instance_word' title='{$instance.lemmata}'>{$word|htmlspecialchars}</b>
         {else}
         {$word|htmlspecialchars}
         {/if}
