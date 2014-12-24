@@ -940,18 +940,6 @@ CREATE TABLE `tag_stats` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `temp_ambig`
---
-
-DROP TABLE IF EXISTS `temp_ambig`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `temp_ambig` (
-  `id` int(11) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `tf_revisions`
 --
 
@@ -1254,18 +1242,3 @@ CREATE TABLE `users` (
   KEY `user_rating10` (`user_rating10`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3455 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `yo_temp`
---
-
-DROP TABLE IF EXISTS `yo_temp`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `yo_temp` (
-  `tf_id` int(10) unsigned NOT NULL,
-  `tf_text` text NOT NULL,
-  `rev_id` int(10) unsigned NOT NULL,
-  `rev_text` text NOT NULL,
-  KEY `tf_id` (`tf_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
