@@ -2,10 +2,10 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class InitialMigration extends AbstractMigration
+class InitialDb extends AbstractMigration
 {
     public function up() {
-        $this->execute(file_get_contents('initial_schema.sql'));
+        $this->execute(file_get_contents(__DIR__.'/initial_schema.sql'));
     }
 
     public function down() {
