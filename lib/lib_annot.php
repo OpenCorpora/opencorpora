@@ -279,12 +279,29 @@ function create_tf_revision($revset_id, $token_id, $rev_xml) {
     sql_commit();
 }
 // annotation pools
-function get_morph_pool_types() {
-    $res = sql_query("SELECT type_id, grammemes FROM morph_annot_pool_types order by grammemes");
+function get_morph_pool_types($extended=false) {
+    $res = sql_query("SELECT type_id, grammemes, complexity, doc_link FROM morph_annot_pool_types order by grammemes");
     $types = array();
     while ($r = sql_fetch_array($res))
-        $types[$r['type_id']] = $r['grammemes'];
+        if ($extended)
+            $types[$r['type_id']] = array(
+                'grammemes' => $r['grammemes'],
+                'complexity' => $r['complexity'],
+                'doc_link' => $r['doc_link']
+            );
+        else
+            $types[$r['type_id']] = $r['grammemes'];
     return $types;
+}
+function save_morph_pool_types($data) {
+    sql_begin();
+    $upd = sql_prepare("UPDATE morph_annot_pool_types SET complexity=?, doc_link=? WHERE type_id=? LIMIT 1");
+    foreach ($data['complexity'] as $id => $level) {
+        if ($id <= 0 || $level < 0 || $level > 4 || !isset($data['doc'][$id]))
+            throw new UnexpectedValueException();
+        sql_execute($upd, array($level, $data['doc'][$id], $id));
+    }
+    sql_commit();
 }
 function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     $pools = array();

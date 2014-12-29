@@ -75,6 +75,7 @@
                     <li class="nav-header">Задания на разметку (морфология)</li>
                     <li><a href='{$web_prefix}/pools.php?type=3'>Опубликованные задания</a></li>
                     <li><a href='{$web_prefix}/manual.php?what=morph_moderation'><i class="icon-info-sign"></i> Инструкция для модераторов</a></li>
+                    <li><a href='{$web_prefix}/pools.php?act=types'>Типы пулов</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=merge_fails'>То, что не удалось перелить</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=useful_pools'>Пулы для приоритетной модерации</a></li>
                     <li><a href='?page=pool_charts'>Графики</a></li>

@@ -23,6 +23,14 @@ switch ($action) {
         $smarty->assign('pool', get_pool_candidates_page($_GET['pool_id']));
         $smarty->display('qa/pool_candidates.tpl');
         break;
+    case 'types':
+        $smarty->assign('data', get_morph_pool_types(true));
+        $smarty->display('qa/pool_types.tpl');
+        break;
+    case 'save_types':
+        save_morph_pool_types($_POST);
+        header("Location:pools.php?act=types");
+        break;
     case 'samples':
         if (isset($_GET['tabs'])) {
             $smarty->assign('pool', get_morph_samples_page($_GET['pool_id'], true, 100));
