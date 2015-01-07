@@ -71,7 +71,7 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
     return false;
 }
 function init_session($user_id, $user_name, $options, $permissions, $token, $level, $show_game) {
-    if (!$options && !$permissions)
+    if (!$options || !$permissions)
         throw new Exception();
     $_SESSION['user_id'] = $user_id;
     $_SESSION['user_name'] = $user_name;

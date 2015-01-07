@@ -3,7 +3,7 @@ require_once('../lib/header_ajax.php');
 $book_id = (int)$_GET['book_id'];
 $r = sql_fetch_array(sql_query("SELECT `par_id`, `pos` FROM `paragraphs` WHERE `book_id`=$book_id ORDER BY `pos` DESC LIMIT 1", 0));
 $num = $r['pos'];
-$par_id = $r['par_id'] ?: 0;
+$par_id = $r['par_id'];
 $txt = '';
 
 $r = sql_fetch_array(sql_query("SELECT SUBSTRING_INDEX(source, ' ', 5) AS `start` FROM sentences WHERE `par_id` = $par_id ORDER BY `pos` LIMIT 1"));
