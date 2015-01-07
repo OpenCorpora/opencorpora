@@ -1117,6 +1117,8 @@ CREATE TABLE `user_options` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+INSERT INTO `user_options` VALUES (1,'Показывать русские названия граммем','1',1,1),(2,'Язык/Language','1=Русский|2=English',1,2),(3,'Количество примеров для разметки','1=5|2=10|3=20|4=50',1,3),(4,'Split annotation pools into pages','1',1,4);
+
 --
 -- Table structure for table `user_options_values`
 --
