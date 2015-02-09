@@ -1157,3 +1157,7 @@ button.ma_next_pack {
     box-shadow: 0 0 1px rgba(255,255,255,.5);
 }
 
+/* hide edit sections on pages from wiki */
+.mw-editsection {
+    display: none;
+}
