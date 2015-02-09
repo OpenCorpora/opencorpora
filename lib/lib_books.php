@@ -196,11 +196,19 @@ function download_url($url, $force=false) {
             throw new Exception();
     }
 
+    // preprocess url in case it has non-ASCII symbols
+    $host = parse_url($url, PHP_URL_HOST);
+    $better_host = idn_to_ascii($host);
+    $better_url = str_replace($host, $better_host, $url);
+
     //downloading
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_URL, $better_url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_USERAGENT, 'OpenCorpora.org bot');
+    curl_setopt($ch, CURLOPT_FAILONERROR, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     $contents = curl_exec($ch);
     curl_close($ch);
 
