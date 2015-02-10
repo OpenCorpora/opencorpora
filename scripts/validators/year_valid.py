@@ -56,7 +56,7 @@ for element in data:
         if match is not None:
             year = element[i].split(":")[1]
             try:
-                if int(year) < 1900 or int(year)>2011:
+                if int(year) < 1800 or int(year)>2015:
                     sql = """INSERT INTO tag_errors(book_id, tag_name, error_type) VALUES(%d, '%s', %d)""" % (element[0], element[i], 1)
                 
                     c.execute(sql)
