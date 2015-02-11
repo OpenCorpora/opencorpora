@@ -19,7 +19,9 @@
     })
 </script>
 <h1>{$user.shown_name|htmlspecialchars}</h1>
+{if $is_admin || ($is_logged && $smarty.session.user_id == $user.id)}
 <p>настоящий логин &mdash; {$user.name|htmlspecialchars}, дата регистрации {$user.registered|date_format:"%d.%m.%Y"}</p>
+{/if}
 {if $game_is_on == 1}
 <h2>Награды</h2>
 <div class="clearfix">
