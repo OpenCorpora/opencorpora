@@ -247,10 +247,17 @@ function revert_dict($rev_id) {
         throw new UnexpectedValueException();
 
     $res = sql_pe("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=? LIMIT 1", array($rev_id));
+    $lemma_id = $res[0]['lemma_id'];
+    $old_rev = sql_pe("SELECT rev_text FROM dict_revisions WHERE lemma_id=? ORDER BY rev_id DESC LIMIT 1", array($lemma_id));
+
     sql_begin();
     $new_set_id = create_revset("Отмена правки, возврат к версии d$rev_id");
+    $new_rev_id = new_dict_rev($lemma_id, $res[0]['rev_text'], $new_set_id);
 
-    new_dict_rev($res[0]['lemma_id'], $res[0]['rev_text'], $new_set_id);
+    // updated forms
+    $pdr = parse_dict_rev($old_rev[0]['rev_text']);
+    enqueue_updated_forms(calculate_updated_forms($pdr, parse_dict_rev($res[0]['rev_text'])), $new_rev_id);
+
     sql_commit();
 }
 function get_latest_comments($skip = 0) {

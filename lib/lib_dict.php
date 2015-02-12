@@ -470,7 +470,6 @@ function dict_add_lemma($array) {
     foreach ($new_paradigm as $form) {
         $upd_forms[] = $form[0];
     }
-    $upd_forms = array_unique($upd_forms);
     sql_begin();
     //new lemma in dict_lemmata
     sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?)", array(mb_strtolower($lemma_text)));
@@ -479,49 +478,30 @@ function dict_add_lemma($array) {
     $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
     $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $array['comment']);
 
-    $ins = sql_prepare("INSERT INTO `updated_forms` VALUES (?, ?)");
-    foreach ($upd_forms as $upd_form)
-        sql_execute($ins, array($upd_form, $rev_id));
+    enqueue_updated_forms($upd_forms, $rev_id);
 
     sql_commit();
     return $lemma_id;
 }
-function dict_save($array) {
-    //it may be a totally new lemma
-    if ($array['lemma_id'] == -1) {
-        return dict_add_lemma($array);
-    }
-    $lemma_text = trim($array['lemma_text']);
-    if (!$lemma_text)
-        throw new UnexpectedValueException();
-    $ltext = $array['form_text'];
-    $lgram = $array['form_gram'];
-    $lemma_gram_new = $array['lemma_gram'];
-    //let's construct the old paradigm
-    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=".$array['lemma_id']." ORDER BY `rev_id` DESC LIMIT 1"));
-    $pdr = parse_dict_rev($old_xml = $r['rev_text']);
-    $old_lemma_text = $pdr['lemma']['text'];
-    $lemma_gram_old = implode(', ', $pdr['lemma']['grm']);
+function calculate_updated_forms($old_rev, $new_rev) {
+    // presume that $old_rev and $new_rev come from parse_dict_rev()
+    $upd_forms = array();
+
+    $old_lemma_text = $old_rev['lemma']['text'];
+    $old_lemma_gram = implode(', ', $old_rev['lemma']['grm']);
     $old_paradigm = array();
-    foreach ($pdr['forms'] as $form_arr) {
+    foreach ($old_rev['forms'] as $form_arr) {
         array_push($old_paradigm, array($form_arr['text'], implode(', ', $form_arr['grm'])));
     }
+
+    $new_lemma_text = $new_rev['lemma']['text'];
+    $new_lemma_gram = implode(', ', $new_rev['lemma']['grm']);
     $new_paradigm = array();
-    foreach ($ltext as $i=>$text) {
-        $text = trim($text);
-        if ($text == '') {
-            //the form is to be deleted, so we do nothing
-        } elseif (strpos($text, ' ') !== false) {
-            throw new UnexpectedValueException();
-        } else {
-            //TODO: perhaps some data validity check?
-            array_push($new_paradigm, array($text, $lgram[$i]));
-        }
+    foreach ($new_rev['forms'] as $form_arr) {
+        array_push($new_paradigm, array($form_arr['text'], implode(', ', $form_arr['grm'])));
     }
-    //calculate which forms are actually updated
-    $upd_forms = array();
     //if lemma's grammems or lemma text have changed then all forms have changed
-    if ($lemma_gram_new != $lemma_gram_old || $lemma_text != $old_lemma_text) {
+    if ($new_lemma_gram != $old_lemma_gram || $new_lemma_text != $old_lemma_text) {
         foreach ($old_paradigm as $farr) {
             array_push($upd_forms, $farr[0]);
         }
@@ -535,7 +515,37 @@ function dict_save($array) {
             array_push($upd_forms, $int_form[0]);
         }
     }
-    $upd_forms = array_unique($upd_forms);
+    return $upd_forms;
+}
+function dict_save($array) {
+    //it may be a totally new lemma
+    if ($array['lemma_id'] == -1) {
+        return dict_add_lemma($array);
+    }
+    $lemma_text = trim($array['lemma_text']);
+    if (!$lemma_text)
+        throw new UnexpectedValueException();
+    $ltext = $array['form_text'];
+    $lgram = $array['form_gram'];
+    $lemma_gram_new = $array['lemma_gram'];
+
+    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=".$array['lemma_id']." ORDER BY `rev_id` DESC LIMIT 1"));
+    $old_rev_parsed = parse_dict_rev($old_xml = $r['rev_text']);
+    $old_lemma_text = $old_rev_parsed['lemma']['text'];
+
+    $new_paradigm = array();
+    foreach ($ltext as $i=>$text) {
+        $text = trim($text);
+        if ($text == '') {
+            //the form is to be deleted, so we do nothing
+        } elseif (strpos($text, ' ') !== false) {
+            throw new UnexpectedValueException();
+        } else {
+            //TODO: perhaps some data validity check?
+            array_push($new_paradigm, array($text, $lgram[$i]));
+        }
+    }
+
     sql_begin();
     //array -> xml
     $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
@@ -547,9 +557,7 @@ function dict_save($array) {
                 array($lemma_text, $array['lemma_id'])
             );
         $rev_id = new_dict_rev($array['lemma_id'], $new_xml, 0, $array['comment']);
-        $ins = sql_prepare("INSERT INTO `updated_forms` VALUES (?, ?)");
-        foreach ($upd_forms as $upd_form)
-            sql_execute($ins, array($upd_form, $rev_id));
+        enqueue_updated_forms(calculate_updated_forms($old_rev_parsed, parse_dict_rev($new_xml)), $rev_id);
         sql_commit();
     }
     return $array['lemma_id'];
@@ -578,6 +586,11 @@ function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
     }
     $new_xml .= '</dr>';
     return $new_xml;
+}
+function enqueue_updated_forms($forms, $revision_id) {
+    $ins = sql_prepare("INSERT INTO `updated_forms` VALUES (?, ?)");
+    foreach (array_unique($forms) as $upd_form)
+        sql_execute($ins, array($upd_form, $revision_id));
 }
 function new_dict_rev($lemma_id, $new_xml, $revset_id=0, $comment = '') {
     if (!$lemma_id || !$new_xml)
@@ -620,9 +633,7 @@ function del_lemma($id) {
     $updated_forms = array();
     foreach ($pdr['forms'] as $form)
         $updated_forms[] = $form['text'];
-    $ins = sql_prepare("INSERT INTO `updated_forms` VALUES(?, ?)");
-    foreach (array_unique($updated_forms) as $form)
-        sql_execute($ins, array($form, $rev_id));
+    enqueue_updated_forms($updated_forms, $rev_id);
     //delete forms from form2lemma
     sql_pe("DELETE FROM `form2lemma` WHERE lemma_id=?", array($id));
     //delete lemma
