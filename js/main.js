@@ -169,7 +169,7 @@ function dict_reload($link) {
     var tf_id = $td.data('tid');
     $td.find('div.var').remove();
     $.get('ajax/dict_reload.php', {'tf_id': tf_id}, function(res) {
-        $td.append('<input type="hidden" name="dict_flag['+tf_id+']" value="1"/>');
+        $td.children().first().append('<input type="hidden" name="dict_flag['+tf_id+']" value="1"/>');
         $(res).find('v').each(function(i, el) {
             var $div = $(document.createElement('div')).attr('id', 'var_' + tf_id + '_' + (i+1)).addClass('var');
             $div.html('<input name="var_flag[' + tf_id + '][' + (i+1)+ ']" value="1" type="hidden"/>');
