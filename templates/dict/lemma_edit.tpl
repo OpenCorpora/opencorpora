@@ -36,7 +36,11 @@
     {/if}
     <a href="#" onclick="$(this).closest('form').submit()">&lt;&lt;&nbsp;к поиску</a>
     </form></p-->
+    {if $editor.deleted}
+    <h1 class="bgpink">Лемма &laquo;{$editor.lemma.text|htmlspecialchars}&raquo; удалена</h1>
+    {else}
     <h1>Лемма &laquo;{$editor.lemma.text|htmlspecialchars}&raquo;</h1>
+    {/if}
     <ul class="breadcrumb">
         <li><a href="{$web_prefix}/dict.php">Словарь</a> <span class="divider">/</span></li>
         <li><a href="{$web_prefix}/dict.php">Поиск</a> <span class="divider">/</span></li>
@@ -74,7 +78,7 @@
         <input type="text" name="lemma_text" value="{$editor.lemma.text|htmlspecialchars}"> 
         <input type="text" name="lemma_gram"{if !$user_permission_dict}readonly="readonly"{/if} value="{$editor.lemma.grms|htmlspecialchars}" size="40">  
         <button class="btn" type="button" onClick="location.href='dict_history.php?lemma_id={$editor.lemma.id}'" >История</button> 
-        {if $user_permission_dict}<button type="button" class="btn" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" >Удалить лемму</button>{/if}
+        {if $user_permission_dict && !$editor.deleted}<button type="button" class="btn" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" >Удалить лемму</button>{/if}
         {else}
         <input type="text" name="lemma_text" id="lemma_txt" value="{$smarty.get.text}"/> 
         <input type="text"name="lemma_gram" id="lemma_gr" placeholder="граммемы" size="40"/><br/>
@@ -91,11 +95,11 @@
             <td><input type='text' name='form_gram[]' {if !$user_permission_dict}readonly="readonly"{/if} size='40' value="{$form.grms|htmlspecialchars}"/>
         </tr>
         {/foreach}
-        {if $user_permission_dict}
+        {if $user_permission_dict && !$editor.deleted}
             <tr><td>&nbsp;<td><a id="add_form_link" class="pseudo" href="#">Добавить ещё одну форму</a></tr>
         {/if}
         </table><br/>
-        {if $user_permission_dict}
+        {if $user_permission_dict && !$editor.deleted}
             Комментарий к правке:<br/>
             <input name='comment' type='text' size='60'/><br/>
             <input type="button" class='btn btn-primary' onclick="submit_with_readonly_check($(this).closest('form'))" value="Сохранить"/>&nbsp;&nbsp;
@@ -104,7 +108,7 @@
     </form>
     {/strip}
     <p><b>Связи</b></p>
-    {if $user_permission_dict}
+    {if $user_permission_dict && !$editor.deleted}
     <p><a href="#" class="pseudo" onclick="$('#add_link').show(); return false">Добавить связь</a></p>
     <form id="add_link" method='post' class='hidden-block' action='?act=add_link'>
         <input type='hidden' name='from_id' value='{$editor.lemma.id}'/>

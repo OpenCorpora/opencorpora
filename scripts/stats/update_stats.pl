@@ -163,7 +163,7 @@ $func->{'total_tokens'} = sub {
     return $sc->fetchrow_hashref()->{'cnt'};
 };
 $func->{'total_lemmata'} = sub {
-    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM dict_lemmata");
+    my $sc = $dbh->prepare("SELECT COUNT(*) AS cnt FROM dict_lemmata WHERE deleted=0");
     $sc->execute();
     return $sc->fetchrow_hashref()->{'cnt'};
 };

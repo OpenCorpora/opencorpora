@@ -8,7 +8,7 @@ function get_dict_stats() {
     $out = array();
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_g FROM `gram`"));
     $out['cnt_g'] = $r['cnt_g'];
-    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_l FROM `dict_lemmata`"));
+    $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_l FROM `dict_lemmata` WHERE deleted=0"));
     $out['cnt_l'] = $r['cnt_l'];
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt_f FROM `form2lemma`"));
     $out['cnt_f'] = $r['cnt_f'];
@@ -22,7 +22,7 @@ function get_dict_search_results($get) {
     $out = array();
     $find_pos = sql_prepare("SELECT SUBSTR(grammems, 7, 4) AS gr FROM form2lemma WHERE lemma_id = ? LIMIT 1");
     if (isset($get['search_lemma'])) {
-        $res = sql_pe("SELECT lemma_id FROM `dict_lemmata` WHERE `lemma_text`= ?", array($get['search_lemma']));
+        $res = sql_pe("SELECT lemma_id FROM `dict_lemmata` WHERE deleted=0 AND `lemma_text`= ?", array($get['search_lemma']));
         $count = sizeof($res);
         $out['lemma']['count'] = $count;
         if ($count == 0)
@@ -34,7 +34,7 @@ function get_dict_search_results($get) {
         }
     }
     elseif (isset($get['search_form'])) {
-        $res = sql_pe("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE fl.`form_text`= ?", array($get['search_form']));
+        $res = sql_pe("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE deleted=0 AND fl.`form_text`= ?", array($get['search_form']));
         $count = sizeof($res);
         $out['form']['count'] = $count;
         if ($count == 0)
@@ -184,7 +184,7 @@ function parse_dict_rev($text) {
     return $parsed;
 }
 function get_word_paradigm($lemma) {
-    $res = sql_pe("SELECT rev_text FROM dict_revisions LEFT JOIN dict_lemmata USING (lemma_id) WHERE lemma_text=? ORDER BY rev_id DESC LIMIT 1", array($lemma));
+    $res = sql_pe("SELECT rev_text FROM dict_revisions LEFT JOIN dict_lemmata USING (lemma_id) WHERE deleted=0 AND lemma_text=? ORDER BY rev_id DESC LIMIT 1", array($lemma));
     if (sizeof($res) == 0)
         return false;
     $r = $res[0];
@@ -404,9 +404,18 @@ function get_top_absent_words() {
 function get_lemma_editor($id) {
     $out = array('lemma' => array('id' => $id), 'errata' => array());
     if ($id == -1) return $out;
-    $res = sql_pe("SELECT l.`lemma_text`, d.`rev_id`, d.`rev_text` FROM `dict_lemmata` l LEFT JOIN `dict_revisions` d ON (l.lemma_id = d.lemma_id) WHERE l.`lemma_id`=? ORDER BY d.rev_id DESC LIMIT 1", array($id));
+    $res = sql_pe("
+        SELECT l.`lemma_text`, l.deleted, d.`rev_id`, d.`rev_text`
+        FROM `dict_lemmata` l
+            LEFT JOIN `dict_revisions` d
+            ON (l.lemma_id = d.lemma_id)
+        WHERE l.`lemma_id`=?
+        ORDER BY d.rev_id DESC
+        LIMIT 1
+    ", array($id));
     $arr = parse_dict_rev($res[0]['rev_text']);
-    $out['lemma']['text'] = $arr['lemma']['text'];
+    $out['deleted'] = $res[0]['deleted'];
+    $out['lemma']['text'] = $res[0]['lemma_text'];
     $out['lemma']['grms'] = implode(', ', $arr['lemma']['grm']);
     foreach ($arr['forms'] as $farr) {
         $out['forms'][] = array('text' => $farr['text'], 'grms' => implode(', ', $farr['grm']));
@@ -472,7 +481,7 @@ function dict_add_lemma($array) {
     }
     sql_begin();
     //new lemma in dict_lemmata
-    sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?)", array(mb_strtolower($lemma_text)));
+    sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?, 0)", array(mb_strtolower($lemma_text)));
     $lemma_id = sql_insert_id();
     //array -> xml
     $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
@@ -522,6 +531,12 @@ function dict_save($array) {
     if ($array['lemma_id'] == -1) {
         return dict_add_lemma($array);
     }
+
+    // lemma might have been deleted, it is not editable then
+    $r = sql_fetch_array(sql_query("SELECT deleted FROM dict_lemmata WHERE lemma_id = ".$array['lemma_id']." LIMIT 1"));
+    if ($r['deleted'])
+        throw new Exception("This lemma is not editable");
+
     $lemma_text = trim($array['lemma_text']);
     if (!$lemma_text)
         throw new UnexpectedValueException();
@@ -637,8 +652,7 @@ function del_lemma($id) {
     //delete forms from form2lemma
     sql_pe("DELETE FROM `form2lemma` WHERE lemma_id=?", array($id));
     //delete lemma
-    sql_pe("INSERT INTO dict_lemmata_deleted (SELECT * FROM dict_lemmata WHERE lemma_id=? LIMIT 1)", array($id));
-    sql_pe("DELETE FROM dict_lemmata WHERE lemma_id=? LIMIT 1", array($id));
+    sql_pe("UPDATE dict_lemmata SET deleted=1 WHERE lemma_id=? LIMIT 1", array($id));
     sql_commit();
 }
 function del_link($link_id, $revset_id=0) {

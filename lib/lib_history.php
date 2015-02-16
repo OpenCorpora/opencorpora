@@ -94,7 +94,8 @@ function dict_history($lemma_id, $skip = 0) {
             'lemma_text' => $r['lemma_text'],
             'lemma2_id'   => $r['lemma2_id'],
             'lemma2_text' => $r['lemma2_text'],
-            'is_link'    => $r['is_link']
+            'is_link'    => $r['is_link'],
+            'is_lemma_deleted' => $r['deleted']
         );
     }
     return $out;

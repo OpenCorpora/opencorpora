@@ -19,7 +19,7 @@
         {if $h.is_link && isset($smarty.get.lemma_id) && $smarty.get.lemma_id != $h.lemma_id}
         <a href="dict.php?act=edit&amp;id={$h.lemma2_id}">{$h.lemma2_text}</a>
         {else}
-        <a href="dict.php?act=edit&amp;id={$h.lemma_id}">{$h.lemma_text}</a>
+        <a href="dict.php?act=edit&amp;id={$h.lemma_id}" {if $h.is_lemma_deleted}class="bgpink"{/if}>{$h.lemma_text}</a>
         {/if}
     </td>
 	<td>
