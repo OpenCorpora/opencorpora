@@ -22,7 +22,7 @@ function get_dict_search_results($get) {
     $out = array();
     $find_pos = sql_prepare("SELECT SUBSTR(grammems, 7, 4) AS gr FROM form2lemma WHERE lemma_id = ? LIMIT 1");
     if (isset($get['search_lemma'])) {
-        $res = sql_pe("SELECT lemma_id FROM `dict_lemmata` WHERE deleted=0 AND `lemma_text`= ?", array($get['search_lemma']));
+        $res = sql_pe("SELECT lemma_id, deleted FROM `dict_lemmata` WHERE `lemma_text`= ?", array($get['search_lemma']));
         $count = sizeof($res);
         $out['lemma']['count'] = $count;
         if ($count == 0)
@@ -30,11 +30,16 @@ function get_dict_search_results($get) {
         foreach ($res as $r) {
             sql_execute($find_pos, array($r['lemma_id']));
             $r1 = sql_fetch_array($find_pos);
-            $out['lemma']['found'][] = array('id' => $r['lemma_id'], 'text' => $get['search_lemma'], 'pos' => $r1['gr']);
+            $out['lemma']['found'][] = array(
+                'id' => $r['lemma_id'],
+                'text' => $get['search_lemma'],
+                'pos' => $r1['gr'],
+                'is_deleted' => $r['deleted']
+            );
         }
     }
     elseif (isset($get['search_form'])) {
-        $res = sql_pe("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE deleted=0 AND fl.`form_text`= ?", array($get['search_form']));
+        $res = sql_pe("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE fl.`form_text`= ?", array($get['search_form']));
         $count = sizeof($res);
         $out['form']['count'] = $count;
         if ($count == 0)
