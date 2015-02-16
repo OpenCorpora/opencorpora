@@ -18,7 +18,7 @@
                             $b.hide().closest('td').html('<a href="books.php?book_id=' + $r.attr('book_id') + '" class="small">' + $r.attr('title') + '</a>');
                         }
                         else {
-                            alert('Bind failed');
+                            alert('Bind failed: ' + $r.attr('message'));
                         }
                     });
                 });
@@ -37,7 +37,7 @@
                             $b.hide().closest('td').html('<a href="books.php?book_id=' + $r.attr('book_id') + '" class="small">' + $r.attr('title') + '</a>');
                         }
                         else {
-                            alert('Bind failed');
+                            alert('Bind failed: ' + $r.attr('message'));
                         }
                     });
                 });
@@ -101,7 +101,9 @@
     <li class="dropdown{if $what == 'free'} active{/if}">
         <a href="?what=free&amp;src=10881" class="dropdown-toggle" data-toggle="dropdown" data-target="#">Свободные <b class="caret"></b></a>
         <ul class="dropdown-menu">
-            <li><a href="?what=free&amp;src=1">ЧасКор (статьи)</a></li>
+            <li><a href="?what=free&amp;src=1">ЧасКор (статьи до 2013)</a></li>
+            <li><a href="?what=free&amp;src=20079">ЧасКор (статьи 2013)</a></li>
+            <li><a href="?what=free&amp;src=20080">ЧасКор (статьи 2014)</a></li>
             <li><a href="?what=free&amp;src=8283">Викиновости</a></li>
             <li><a href="?what=free&amp;src=10881">ЧасКор (новости)</a></li>
             <li><a href="?what=free&amp;src=17674">Блоги</a></li>
