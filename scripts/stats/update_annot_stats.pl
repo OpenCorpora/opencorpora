@@ -63,6 +63,16 @@ sub count_finished {
         $last_sample_id = $r->{'sample_id'};
         $last_answer = $r->{'answer'};
     }
+
+    # count the last sample
+    if ($last_sample_id) {
+        for my $uid(@users) {
+            ++$total_count->{$uid};
+            if (!$same_answer) {
+                ++$diverg_count->{$uid};
+            }
+        }
+    }
 }
 sub count_correct {
     my $dbh = shift;
