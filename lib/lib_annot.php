@@ -637,7 +637,7 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
     // prepare the 1st query
     if ($prepared_queries === NULL)
         $prepared_queries = array(sql_prepare("
-            SELECT MAX(tokens.pos) AS maxpos, sent_id, source, book_id
+            SELECT MAX(tokens.pos) AS maxpos, MIN(tokens.pos) AS minpos, sent_id, source, book_id
             FROM tokens
                 JOIN sentences USING (sent_id)
                 JOIN paragraphs USING (par_id)
@@ -655,6 +655,7 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
     $sentence_text = $r['source'];
     $book_id = $r['book_id'];
     $maxpos = $r['maxpos'];
+    $minpos = $r['minpos'];
 
     // prepare the 2nd query
     // this is really bad unreadable code, sorry
@@ -684,11 +685,13 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
     foreach (sql_fetchall($prepared_queries[1]) as $r) {
         if ($delta > 0) {
             if ($left_c == -1) {
-                $left_c = ($r['pos'] == 1) ? 0 : $r['tf_id'];
+                $left_c = ($r['pos'] == $minpos) ? 0 : $r['tf_id'];
             }
             if ($mw_pos) {
-                if ($r['pos'] >= $mw_pos + $delta && $r['pos'] < $maxpos)
+                if ($r['pos'] > $mw_pos)
                     $right_c = $r['tf_id'];
+                if ($right_c && $r['pos'] == $maxpos)
+                    $right_c = 0;
             }
         }
 
