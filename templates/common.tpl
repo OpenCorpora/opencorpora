@@ -28,7 +28,6 @@
         <script type="text/javascript" src="http://yandex.st/jquery-ui/1.9.0/jquery-ui.min.js"></script>
         <script src='{$web_prefix}/js/main.js?3' type='text/javascript'></script>
         <script src='{$web_prefix}/js/jquery.mousewheel.js' type='text/javascript'></script>
-        <script src='{$web_prefix}/js/jquery.autocomplete.js'></script>
         <script src="bootstrap/js/bootstrap.min.js"></script>
         <script src="bootstrap/js/bootstrap-notify.js"></script>
 

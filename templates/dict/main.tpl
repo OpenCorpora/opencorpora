@@ -1,19 +1,19 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
+<script src='{$web_prefix}/js/jquery.autocomplete.min.js'></script>
 <script>
     $(document).ready(function(){
-        $("#form_search_input").autocomplete("ajax/dict_substring_search.php",{
+        $("#form_search_input").autocomplete({
+            serviceUrl: "ajax/dict_substring_search.php",
             minChars:3,
-            maxItemsToShow:10,
-            width:200,
-            formatItem:function (row, i, num) {
-                var result = row[0] + " <em>" +
-                row[1] + "</em>";
-                return result;
+            lookupLimit:10,
+            triggerSelectOnValidInput:false,
+            formatResult: function(sug, curVal) {
+                return sug.value + ' (<em>' + sug.data.gram + '</em>)'
             },
-            onItemSelect:function(el){
-                location.href="dict.php?act=edit&id="+el.extra[1]
+            onSelect: function(el){
+                location.href="dict.php?act=edit&id="+el.data.id;
             }
         })
     })

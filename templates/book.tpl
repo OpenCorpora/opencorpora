@@ -2,6 +2,7 @@
 {extends file='common.tpl'}
 {block name=content}
     {if $user_permission_adder}
+    <script src='{$web_prefix}/js/jquery.autocomplete.min.js'></script>
     {literal}
     <script type="text/javascript">
         $(document).ready(function(){
@@ -45,13 +46,10 @@
                 return confirm('Удалить это предложение? Подумайте дважды.');
             });
         
-            $("#tag_name").autocomplete("ajax/tag_autocomplete.php",{
+            $("#tag_name").autocomplete({
+                serviceUrl: "ajax/tag_autocomplete.php",
                 minChars:2,
-                maxItemsToShow:10,
-                width:400,
-                formatItem:function (row) {
-                    return row[0];
-                }
+                lookupLimit:10
             });
         })
     </script>
