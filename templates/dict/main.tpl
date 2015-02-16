@@ -1,23 +1,6 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
-<script src='{$web_prefix}/js/jquery.autocomplete.min.js'></script>
-<script>
-    $(document).ready(function(){
-        $("#form_search_input").autocomplete({
-            serviceUrl: "ajax/dict_substring_search.php",
-            minChars:3,
-            lookupLimit:10,
-            triggerSelectOnValidInput:false,
-            formatResult: function(sug, curVal) {
-                return sug.value + ' (<em>' + sug.data.gram + '</em>)'
-            },
-            onSelect: function(el){
-                location.href="dict.php?act=edit&id="+el.data.id;
-            }
-        })
-    })
-</script>
     <h1>Словарь</h1>
     <p>Всего {$stats.cnt_g} граммем, {$stats.cnt_l} лемм, {$stats.cnt_f} форм в индексе ({$stats.cnt_r} ревизий не проверено).</p>
     <b>Поиск по словарю</b>
