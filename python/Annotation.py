@@ -60,6 +60,7 @@ class AnnotationEditor(object):
             SELECT lemma_id AS lid, lemma_text AS ltext
             FROM dict_lemmata
             WHERE lemma_text = '{0}'
+            AND deleted = 0
         """.format(lemma))
         rows = self.db_cursor.fetchall()
         lexemes = []
@@ -294,7 +295,7 @@ class Lexeme(object):
         # if the word is totally new (= has no id), add it
         if not self._id:
             self._editor.sql("""
-                INSERT INTO dict_lemmata VALUES(NULL, '{0}')
+                INSERT INTO dict_lemmata VALUES(NULL, '{0}', 0)
             """.format(self.lemma['text']))
             self._id = self._editor.get_insert_id()
 
