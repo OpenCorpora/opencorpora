@@ -37,8 +37,8 @@
 <p>Весь корпус, XML (<i class="icon-info-sign"></i> <a href="{$web_prefix}/export/annot/annot.opcorpora.xsd">XML Schema</a>) <span class="small muted">обновлён {$dl.annot.xml.updated}</span><br/>
 <span class='small'>предложений: {$stats.dump_full_sentences.value}, токенов: {$stats.dump_full_tokens.value}, слов: {$stats.dump_full_words.value}</span></p>
 <ul>
-<li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.bz2">архив .bz2</a> ({$dl.annot.xml.bz2.size} Мб)</li>
-<li><a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.zip">архив .zip</a> ({$dl.annot.xml.zip.size} Мб)</li>
+<li>целиком: <a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.bz2">архив .bz2</a> ({$dl.annot.xml.bz2.size} Мб), <a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.zip">архив .zip</a> ({$dl.annot.xml.zip.size} Мб)</li>
+<li>один текст на файл: <a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.byfile.bz2">архив .bz2</a>, <a href="{$web_prefix}/files/export/annot/annot.opcorpora.xml.byfile.zip">архив .zip</a></li>
 </ul>
 <h3>Со снятой омонимией</h3>
 <p><b>Подкорпус со снятой омонимией</b><sup>*</sup>, XML <span class="small muted">обновлён {$dl.annot.disamb_xml.updated}</span><br/>
