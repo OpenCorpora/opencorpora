@@ -11,7 +11,7 @@
 <table class="ma_types">
     {foreach from=$available item=type key=key}
 <tr class="ma_type_row">
-    <td class="ma_type_name">
+    <td class="ma_type_name {if $type.is_hot}ma_type_hot{/if}">
         <div class="ma_pools_complexity ma_pools_complexity_{$type.complexity}" title="{$complexity[$type.complexity]}"></div><a href="#" class="ma_type_show pseudo" title="показать список" data-key="{$key}">{$type.name|htmlspecialchars}</a>
     </td>
     <td class="ma_type_help">{if $type.has_manual}<a href="manual.php?pool_type={$key}" class="" title="инструкция по разметке">инструкция</a>{/if}</td>
@@ -56,7 +56,8 @@
                 $('#pools_' + $a.data('key')).hide();
             }
             
-        })
+        });
+        $('td.ma_type_hot').last().closest('tr').find('td').css('padding-bottom', '30px');
     })
 </script>
 {/block}

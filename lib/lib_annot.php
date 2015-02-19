@@ -976,12 +976,17 @@ function begin_pool_merge($pool_id) {
     sql_pe("UPDATE morph_annot_pools SET status=".MA_POOLS_STATUS_TO_MERGE.", updated_ts=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
 function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=false) {
+    global $config;
+    $hot_types = array(0);
+    if (isset($config['misc']['morph_annot_hot_pool_types']))
+        $hot_types = explode(',', $config['misc']['morph_annot_hot_pool_types']);
+
     $tasks = array();
 
     if ($random)
         $order_string = "ORDER BY RAND()";
     else
-        $order_string = "ORDER BY (complexity > 0) DESC, complexity, pool_type, created_ts";
+        $order_string = "ORDER BY (pool_type in (".join(',', $hot_types).")) DESC, (complexity > 0) DESC, complexity, pool_type, created_ts";
 
     if ($limit)
         $limit_string = "LIMIT " . (2 * $limit);
@@ -1101,6 +1106,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
             $tasks[$group_id]['has_manual'] = in_array($group_id, $types_with_manual);
             $tasks[$group_id]['complexity'] = isset($type2complexity[$group_id]) ? $type2complexity[$group_id] : 0;
             $tasks[$group_id]['name'] = preg_replace('/\s+#\d+\s*$/', '', $v['pools'][0]['name']);
+            $tasks[$group_id]['is_hot'] = in_array($group_id, $hot_types);
         }
 
     return $tasks;
