@@ -16,3 +16,6 @@ nice xz -cze8 $TEMP_DUMP >/backup/`date +%Y%m`/oc$NOW.sql.xz
 rm $TEMP_DUMP
 mysqldump \
     wikidb | xz -ze8 > /backup/`date +%Y%m`/wiki$NOW.sql.xz
+
+# backup to Yandex.Disk
+curl --user `cat /corpus/yadisk-auth` -T /backup/`date +%Y%m`/oc$NOW.sql.xz https://webdav.yandex.ru/opencorpora/backup/ || echo "Failed to upload backup to YaDisk"
