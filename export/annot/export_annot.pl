@@ -31,7 +31,7 @@ $rev->execute();
 $r = $rev->fetchrow_hashref();
 my $maxrev = $r->{'m'};
 
-my $header = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<annotation version=\"0.11\" revision=\"$maxrev\">\n";
+my $header = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<annotation version=\"0.12\" revision=\"$maxrev\">\n";
 my $footer = "</annotation>";
 
 print $header;
@@ -120,7 +120,7 @@ sub get_token {
     my $r = $tfrev->fetchrow_hashref();
     my ($rev_id, $rev_text) = ($r->{'rev_id'}, $r->{'rev_text'});
 
-    $text =~ s/<tfr/<tfr rev_id="$rev_id"/;
+    $rev_text =~ s/<tfr/<tfr rev_id="$rev_id"/;
 
     my $vars = 0;
     while ($rev_text =~ /<v>/g) {
