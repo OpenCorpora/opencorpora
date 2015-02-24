@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "robmorgan/phinx",
-            "version": "v0.3.7",
+            "version": "v0.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/robmorgan/phinx.git",
-                "reference": "d918fef14f44bc2e68c6263327ba5b44582313c6"
+                "reference": "589319c8bd7f819580bbab11a8987fb38853bfe7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/robmorgan/phinx/zipball/d918fef14f44bc2e68c6263327ba5b44582313c6",
-                "reference": "d918fef14f44bc2e68c6263327ba5b44582313c6",
+                "url": "https://api.github.com/repos/robmorgan/phinx/zipball/589319c8bd7f819580bbab11a8987fb38853bfe7",
+                "reference": "589319c8bd7f819580bbab11a8987fb38853bfe7",
                 "shasum": ""
             },
             "require": {
@@ -61,7 +61,7 @@
                 "migrations",
                 "phinx"
             ],
-            "time": "2014-08-18 08:15:10"
+            "time": "2014-10-06 09:27:17"
         },
         {
             "name": "smarty/smarty",
@@ -338,22 +338,15 @@
             "time": "2013-01-18 09:52:07"
         }
     ],
-    "packages-dev": [
-
-    ],
-    "aliases": [
-
-    ],
+    "packages-dev": [],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "smarty/smarty": 0,
         "swiftmailer/swiftmailer": 0
     },
     "prefer-stable": false,
-    "platform": [
-
-    ],
-    "platform-dev": [
-
-    ]
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
 }
