@@ -9,6 +9,9 @@ switch ($what) {
     case 'morph_moderation':
         $smarty->assign('content', get_wiki_page("Инструкция для модераторов"));
         break;
+    case 'newslist_announce':
+        $smarty->assign('content', get_wiki_page("Newslist opencorpora-dev"));
+        break;
     default:
         if ($pool_type)
             $smarty->assign('content', get_wiki_page(get_pool_manual_page($pool_type)));
