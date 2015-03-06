@@ -1,14 +1,18 @@
 <?php
 require_once('../lib/header_ajax.php');
 require_once('../lib/lib_dict.php');
-echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?><response>';
-$para = get_word_paradigm($_GET['word']);
+
+$para = get_word_paradigm($_POST['word']);
 if ($para) {
-    echo '<lemma gram="'.join(', ', $para['lemma_gram']).'" suffix="'.$para['lemma_suffix_len'].'"/>';
+    $result['lemma'] = array('gram' => $para['lemma_gram'], 'suffix' => $para['lemma_suffix_len']);
+    $result['forms'] = array();
     foreach ($para['forms'] as $form) {
-        echo '<form gram="'.join(', ', $form['grm']).'" suffix="'.$form['suffix'].'"/>';
+        $result['forms'][] = array('gram' => join(', ', $form['grm']), 'suffix' => $form['suffix']);
     }
 }
-echo '</response>';
+else
+    $result['error'] = 1;
+
 log_timing(true);
+die(json_encode($result));
 ?>

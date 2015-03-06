@@ -7,7 +7,7 @@
     </div>
     <script>
         $("#badge-alert").bind('close',function(){
-            $.get('ajax/game_mark_shown.php',{ 'act':'badge', 'badge_id':{$new_badge.id} })
+            $.post('ajax/game_mark_shown.php',{ 'act':'badge', 'badge_id':{$new_badge.id} })
         })
     </script>
 {/if}
@@ -20,7 +20,7 @@
     </div>
     <script>
         $("#level-alert").bind('close',function(){
-            $.get('ajax/game_mark_shown.php',{ 'act':'level', 'level':{$new_level} })
+            $.post('ajax/game_mark_shown.php',{ 'act':'level', 'level':{$new_level} })
         })
     </script>
 {/if}

@@ -11,14 +11,13 @@
                 $(this).next().hide();
                 var $i = $(document.createElement('input')).attr('size', 3).val('id');
                 var $b = $(document.createElement('button')).addClass('btn').html('Ok').click(function(event){
-                    $.get('ajax/bind_book.php', {'sid':sid, 'book_id':$(this).closest('td').find('input').val()}, function(res) {
-                        var $r = $(res).find('result');
-                        if ($r.attr('ok') == 1) {
-                            $i.hide();
-                            $b.hide().closest('td').html('<a href="books.php?book_id=' + $r.attr('book_id') + '" class="small">' + $r.attr('title') + '</a>');
+                    $.post('ajax/bind_book.php', {'sid':sid, 'book_id':$(this).closest('td').find('input').val()}, function(res) {
+                        if (res.error) {
+                            alert('Bind failed: ' + res.message);
                         }
                         else {
-                            alert('Bind failed: ' + $r.attr('message'));
+                            $i.hide();
+                            $b.hide().closest('td').html('<a href="books.php?book_id=' + res.book_id + '" class="small">' + res.title + '</a>');
                         }
                     });
                 });
@@ -30,14 +29,13 @@
                 var $i = $(document.createElement('input')).attr('size', '20').val('Название');
                 var $b = $(document.createElement('button')).addClass('btn').html('Ok').click(function(event){
                     $(this).attr('disabled', 'disabled');
-                    $.get('ajax/bind_book.php', {'sid':sid, 'book_id':-1, 'book_name':$(this).closest('td').find('input').val()}, function(res) {
-                        var $r = $(res).find('result');
-                        if ($r.attr('ok') == 1) {
-                            $i.hide();
-                            $b.hide().closest('td').html('<a href="books.php?book_id=' + $r.attr('book_id') + '" class="small">' + $r.attr('title') + '</a>');
+                    $.post('ajax/bind_book.php', {'sid':sid, 'book_id':-1, 'book_name':$(this).closest('td').find('input').val()}, function(res) {
+                        if (res.error) {
+                            alert('Bind failed: ' + res.message);
                         }
                         else {
-                            alert('Bind failed: ' + $r.attr('message'));
+                            $i.hide();
+                            $b.hide().closest('td').html('<a href="books.php?book_id=' + res.book_id + '" class="small">' + res.title + '</a>');
                         }
                     });
                 });
@@ -51,9 +49,9 @@
             event.preventDefault();
         });
         $("a.ya").click(function(event){
-            $.get('ajax/own_book.php', {'sid':$(this).data('srcid'), 'status':$(this).data('status')}, function(res) {
+            $.post('ajax/own_book.php', {'sid':$(this).data('srcid'), 'status':$(this).data('status')}, function(res) {
                 var $t = $(event.target);
-                if ($(res).find('result').attr('ok') == 1) {
+                if (!res.error) {
                     if ($t.data('status') == 1) {
                         $t.data('status', '0').html('не хочу');
                         var $b = $(document.createElement('button')).addClass('bgo').data({'srcid':$t.data('srcid'), 'status':'1'}).html('Готово').click(function(event){change_source_status(event)});
@@ -74,7 +72,7 @@
                 var $t = $(event.target);
                 $t.attr('disabled', 'disabled');
                 $.post('ajax/post_comment.php', {'type':'source', 'id':$t.data('srcid'), 'text':$t.closest('td').find('textarea').val()}, function(res) {
-                    if ($(res).find('response').attr('ok') == 1) {
+                    if (!res.error) {
                         $t.replaceWith('я: ' + $i.val());
                         $i.hide();
                     }

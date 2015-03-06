@@ -6,12 +6,12 @@
 <script type="text/javascript">
     function submit(id, answer, $target, manual) {
         $('select').attr('disabled', 'disabled');
-        $.get('ajax/annot.php', {'id':id, 'answer':answer, 'moder':1, 'manual':manual}, function(res) {
-            var $r = $(res).find('result');
-            if ($r.attr('ok') > 0) {
+        $.post('ajax/annot.php', {'id':id, 'answer':answer, 'moder':1, 'manual':manual}, function(res) {
+            var $r = res.status;
+            if ($r > 0) {
                 $target.closest('td').addClass('bggreen').find('select.sel_var [value=\''+answer+'\']').attr("selected", "selected");
                 $('select').removeAttr('disabled');
-                if ($r.attr('ok') == 2)
+                if ($r == 2)
                     $('button.finish_mod').removeAttr('disabled');
             } else {
                 alert('Save failed');
@@ -36,9 +36,8 @@
             var $tgt = $(event.target);
             $tgt.closest('td').removeClass('bggreen');
             $('select').attr('disabled', 'disabled');
-            $.get('ajax/annot.php', {'id':$tgt.closest('tr').data('sampleId'), 'status': $tgt.val(), 'moder':1, 'manual':1}, function(res) {
-                var $r = $(res).find('result');
-                if ($r.attr('ok') > 0) {
+            $.post('ajax/annot.php', {'id':$tgt.closest('tr').data('sampleId'), 'status': $tgt.val(), 'moder':1, 'manual':1}, function(res) {
+                if (res.status > 0) {
                     $tgt.closest('td').addClass('bggreen');
                     $('select').removeAttr('disabled');
                 } else {
@@ -62,11 +61,11 @@
         });
         $('a.expand').click(function(event) {
             var $btn = $(event.target);
-            $.get('ajax/get_context.php', {'tf_id':$(this).data('context'), 'dir':$(this).data('dir')}, function(res) {
+            $.post('ajax/get_context.php', {'tf_id':$(this).data('context'), 'dir':$(this).data('dir')}, function(res) {
                 var s = '';
-                $(res).find('w').each(function(i, el) {
-                    s += ' ' + $(el).text();
-                });
+                for (var i = 0; i < res.context.length; ++i) {
+                    s += ' ' + res.context[i];
+                }
                 if ($btn.data('dir') == -1)
                     $btn.closest('span').prepend(s);
                 else
@@ -79,8 +78,7 @@
             if ($(event.target).closest('td').find('textarea').length == 0) {
                 $(event.target).closest('td').append('<div><textarea placeholder="Ваш комментарий"></textarea><br/><button class="send_comment">Отправить комментарий</button></div>').find('button.send_comment').click(function() {
                     $.post('ajax/post_comment.php', {'type': 'morph_annot', 'id': $(event.target).data('sampleId'), 'text': $(this).closest('div').find('textarea').val()}, function(res) {
-                        var $r = $(res).find('response');
-                        if ($r.attr('ok') == 1) {
+                        if (!res.error) {
                             $(event.target).closest('td').find('div').replaceWith('<p>Спасибо, ваш комментарий добавлен!</p>');
                             $(event.target).closest('td').find('p').fadeOut(3000);
                         } else {

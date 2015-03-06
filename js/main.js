@@ -38,19 +38,18 @@ function changeSelectBook(n) {
     // очищаем и временно блокируем следующий селект
     $s_new.empty().html("<option value='0'>Загрузка...</option>")
 
-    $.get('ajax/select_book.php',{'id':$s_old.val()},
+    $.post('ajax/select_book.php',{'id':$s_old.val()},
         function(res){
             $s_new.empty().html("<option value='0'>-- Не выбрано --</option>")
-            $opts = $(res).find('option')
-            if(!$opts.length) {
+            if (!res.books.length) {
                 updateLastParInfo($s_old.val());
                 return;
             }
-            $opts.each(function(i,el){
-                $s_new.append("<option value='"+$(el).attr('value')+"'>"+$(el).text()+"</option>")
-                })
+            for (var i = 0; i < res.books.length; ++i) {
+                $s_new.append("<option value='"+res.books[i].id+"'>"+res.books[i].title+"</option>")
+            }
             $s_new.removeAttr('disabled')
-        },'xml'
+        }
         )
 }
 
@@ -70,21 +69,20 @@ function updateLastParInfo(book_id) {
 
     $p.html('<i>Загрузка...</i>');
 
-    $.get('ajax/lastpar.php',{'book_id':book_id},
+    $.post('ajax/lastpar.php',{'book_id':book_id},
         function(res) {
-            $par = $(res).children().eq(0)
             // есть ли к чему крепить?
-            if(!$par.text()) {
+            if (!res.text) {
                 $p.html('Нет ни одного абзаца.');
                 $np.val('1');
             }
             else {
-                $p.html('Последний абзац #' + $par.attr('num') + ' &laquo;<i>' + $par.text() + '</i>&raquo;');
-                $np.val(parseInt($par.attr('num')) + 1);
+                $p.html('Последний абзац #' + res.num + ' &laquo;<i>' + res.text + '</i>&raquo;');
+                $np.val(parseInt(res.num) + 1);
             }
             // теперь можно добавлять
             $sub.removeAttr('disabled');
-        },'xml'
+        }
         )
 }
 
@@ -168,9 +166,9 @@ function dict_reload($link) {
     var $td = $link.closest('td');
     var tf_id = $td.data('tid');
     $td.find('div.var').remove();
-    $.get('ajax/dict_reload.php', {'tf_id': tf_id}, function(res) {
+    $.post('ajax/dict_reload.php', {'tf_id': tf_id}, function(res) {
         $td.children().first().append('<input type="hidden" name="dict_flag['+tf_id+']" value="1"/>');
-        $(res).find('v').each(function(i, el) {
+        $(res.xml).find('v').each(function(i, el) {
             var $div = $(document.createElement('div')).attr('id', 'var_' + tf_id + '_' + (i+1)).addClass('var');
             $div.html('<input name="var_flag[' + tf_id + '][' + (i+1)+ ']" value="1" type="hidden"/>');
             $el = $(el);
@@ -213,7 +211,7 @@ function edit_gram(event) {
 
 function submit_with_readonly_check(f) {
     $.get("ajax/readonly.php",function(res){
-        if($(res).find('response').attr('readonly')=='1') {
+        if (res.readonly) {
             alert('Извините, система находится в режиме "только для чтения".');
         }
         else {
@@ -228,11 +226,10 @@ function get_lemma_search() {
     var q = $('#find_lemma').val();
     var lid;
 
-    $.get('ajax/lemma_search.php', {'q':q},
+    $.post('ajax/lemma_search.php', {'q':q},
         function(res) {
-            var $lemmata = $(res).find('lemma');
-            $lemmata.each(function(i){
-                lid = $(this).attr('id');
+            for (var i = 0; i < res.ids.length; ++i) {
+                lid = res.ids[i];
 
                 var $new_radio = $(document.createElement('input'));
                 $new_radio.attr({'type':'radio', 'name':'lemma_id'});
@@ -243,13 +240,13 @@ function get_lemma_search() {
                 $new_label.html($new_label.html() + '<a href="?act=edit&amp;id=' + lid + '" target="_blank">' + lid + '</a>');
 
                 $('#add_link').append($new_label);
-            })
+            }
 
             $("input[type='radio']").click(function(){
                 $('#add_link_submitter').removeAttr('disabled');
             })
 
-            if ($lemmata.length) {
+            if (res.ids.length > 0) {
                 $('#add_link').append(document.createTextNode(' '));
                 var $new_button = $(document.createElement('input'));
                 $new_button.attr({'type':'submit', 'value':'Добавить', 'disabled':'disabled', 'id':'add_link_submitter'});
@@ -266,10 +263,9 @@ function dict_add_exc_prepare($btn) {
 }
 function save_check_tokens($el) {
     $el.attr('disabled', 'disabled');
-    $.get('ajax/save_check.php', {'type':'token', 'id':$el.attr('id').substr(1), 'value':$el.is(':checked')},
+    $.post('ajax/save_check.php', {'type':'token', 'id':$el.attr('id').substr(1), 'value':$el.is(':checked')},
         function(res) {
-            var ok = $(res).find('result').attr('ok');
-            if (ok != 1) {
+            if (res.error) {
                 alert('Check failed');
             } else {
                 $el.closest('tr').fadeTo("normal", 0.4);
@@ -325,8 +321,8 @@ function merge_tokens() {
             a.push($(el).attr('id').substr(1));
         }
     });
-    $.get('ajax/merge_tokens.php', {'ids':a.join(',')}, function(res) {
-        if ($(res).find('result').attr('ok') == 1)
+    $.post('ajax/merge_tokens.php', {'ids':a.join(',')}, function(res) {
+        if (!res.error)
             location.reload();
         else
             alert('Error');
@@ -337,12 +333,10 @@ function download_url(event) {
     var force = $el.hasClass('redo') ? 1 : 0;
     var url = $el.data('url');
     $el.text('скачивается...');
-    $.get('ajax/download_url.php', {'url': url, 'force': force},
+    $.post('ajax/download_url.php', {'url': url, 'force': force},
         function(res) {
-            var ok = $(res).find('response').attr('ok');
-            if (ok == 1) {
-                var fname = $(res).find('response').attr('filename');
-                $el.attr('href', '../files/saved/'+fname+'.html');
+            if (!res.error) {
+                $el.attr('href', '../files/saved/'+res.filename+'.html');
                 if (force)
                     $el.html('новая сохранённая копия');
                 else
@@ -359,21 +353,20 @@ function post_sentence_comment($el, sent_id, username) {
     var reply_to = $el.closest('form').data('replyTo');
     $.post('ajax/post_comment.php', {'type':'sentence', 'text':txt, 'id':sent_id, 'reply_to':reply_to},
         function(res) {
-            var $res = $(res).find('response');
-            if ($res.attr('ok') == 1) {
+            if (!res.error) {
                 $el.closest('form').hide();
                 var $newcomment = $(document.createElement('div'));
-                $newcomment.attr({'id':'comm_'+$res.attr('id')});
+                $newcomment.attr({'id':'comm_'+res.id});
                 $newcomment.addClass('comment_main');
-                $newcomment.append('<div class="comment_top">'+username+', '+$res.attr('ts')+'</div><div class="comment_text">'+txt+'</div>');
-                var $reply_link = $(document.createElement('a')).addClass('small').attr('href', '#').data('replyTo', $res.attr('id')).html('ответить').click(function(){
+                $newcomment.append('<div class="comment_top">'+username+', '+res.timestamp+'</div><div class="comment_text">'+txt+'</div>');
+                var $reply_link = $(document.createElement('a')).addClass('small').attr('href', '#').data('replyTo', res.id).html('ответить').click(function(){
                     $(this).closest('div').after($("#comment_form"));
                     $("#comment_form").show().data('replyTo', $(this).data('replyTo'));
                     $("#comment_form").find('textarea').focus();
                     event.preventDefault();
                 });
                 $newcomment.append($reply_link);
-                $newcomment.append(' <a href="#comm_'+$res.attr('id')+'" class="small">пост. ссылка</a>');
+                $newcomment.append(' <a href="#comm_'+res.id+'" class="small">пост. ссылка</a>');
                 if (!reply_to) {
                     $("#comments").append($newcomment);
                 } else {
@@ -390,28 +383,27 @@ function post_sentence_comment($el, sent_id, username) {
 }
 function load_sentence_comments(sent_id, is_logged, need_scroll) {
     var $div = $("#comments");
-    $.get('ajax/get_comments.php', {'sent_id':sent_id},
+    $.post('ajax/get_comments.php', {'sent_id':sent_id},
         function(res) {
-            var $comm = $(res).find('comment');
-            $comm.each(function(i, el) {
-                var $el = $(el);
-                var t = '<div id="comm_'+$el.attr('id')+'" class="comment_main"><div class="comment_top">'+$el.attr('author')+', '+$el.attr('ts')+'</div><div class="comment_text">'+$el.text()+'</div>';
-                if (is_logged) t += '<a href="#" class="small reply" data-reply-to="'+$el.attr('id')+'">ответить</a>';
-                t += ' <a href="#comm_'+$el.attr('id')+'" class="small">пост. ссылка</a>';
+            for (var i = 0; i < res.comments.length; ++i) {
+                var comment = res.comments[i];
+                var t = '<div id="comm_'+comment.id+'" class="comment_main"><div class="comment_top">'+comment.author+', '+comment.timestamp+'</div><div class="comment_text">'+comment.text+'</div>';
+                if (is_logged) t += '<a href="#" class="small reply" data-reply-to="'+comment.id+'">ответить</a>';
+                t += ' <a href="#comm_'+comment.id+'" class="small">пост. ссылка</a>';
                 t += '</div>';
-                if ($el.attr('reply') == 0) {
+                if (comment.reply_to == 0) {
                     $div.append(t);
                 } else {
-                    var $p = $("#comm_"+$el.attr('reply'));
+                    var $p = $("#comm_"+comment.reply_to);
                     $p.after(t);
-                    var $n = $("#comm_"+$el.attr('id'));
+                    var $n = $("#comm_"+comment.id);
                     var offset = $p.offset();
                     $n.width($n.width()-offset.left);
                     offset.left += 25;
                     offset.top = $n.offset().top;
                     $n.offset(offset);
                 }
-            });
+            }
             $("a.reply").click(function(event){
                 $(this).closest('div').after($("#comment_form"));
                 $("#comment_form").show().data('replyTo', $(this).data('replyTo'));
@@ -424,9 +416,9 @@ function load_sentence_comments(sent_id, is_logged, need_scroll) {
     );
 }
 function change_source_status(event) {
-    $.get('ajax/save_check.php', {'id':$(event.target).data('srcid'), 'type':'source', 'value':$(event.target).data('status')}, function(res) {
+    $.post('ajax/save_check.php', {'id':$(event.target).data('srcid'), 'type':'source', 'value':$(event.target).data('status')}, function(res) {
         var $b = $(event.target);
-        if ($(res).find('result').attr('ok') == 1) {
+        if (!res.error) {
             if ($b.data('status') == 1) {
                 $b.data('status', '0').html('Не готово').closest('tr').removeClass().addClass('bggreen');
             } else {
@@ -452,15 +444,15 @@ function get_wikinews_info($link) {
                     categ.push(catitem.title);
                 });
                 add_field_for_tag(book_id, 'Автор:http://ru.wikinews.org/wiki/Участник:' + author);
-                $.get('ajax/guess_wiki_categ.php', {'cat':categ.join('|')}, function(res1){
-                    add_field_for_tag(book_id, 'Дата:' + $(res1).find("date").attr('v'));
-                    add_field_for_tag(book_id, 'Год:' + $(res1).find("year").attr('v'));
-                    $.each($(res1).find("topic"), function(j, catitem){
-                        add_field_for_tag(book_id, 'Тема:ВикиКатегория:' + $(catitem).attr('v'));
-                    });
-                    $.each($(res1).find("geo"), function(j, catitem){
-                        add_field_for_tag(book_id, 'Гео:ВикиКатегория:' + $(catitem).attr('v'));
-                    });
+                $.post('ajax/guess_wiki_categ.php', {'cat':categ.join('|')}, function(res1){
+                    add_field_for_tag(book_id, 'Дата:' + res1.cats.date);
+                    add_field_for_tag(book_id, 'Год:' + res1.cats.year);
+                    for (var j = 0; j < res1.cats.topic.length; ++j) {
+                        add_field_for_tag(book_id, 'Тема:ВикиКатегория:' + res1.cats.topic[j]);
+                    }
+                    for (var j = 0; j < res1.cats.geo.length; ++j) {
+                        add_field_for_tag(book_id, 'Гео:ВикиКатегория:' + res1.cats.geo[j]);
+                    }
                 });
                 $.getJSON(
                     'http://ru.wikinews.org/w/api.php?callback=?',
@@ -494,8 +486,8 @@ function add_field_for_tag(book_id, s) {
     var $i = $(document.createElement('input')).css('width', '600').val(s);
     var $b = $(document.createElement('button')).html('Ok').click(function(event) {
         $(this).attr('disabled', 'disabled');
-        $.get('ajax/add_book_tag.php', {'book_id':book_id, 'tag_name':$i.val()}, function(res){
-            if ($(res).find('result').attr('ok') == 1)
+        $.post('ajax/add_book_tag.php', {'book_id':book_id, 'tag_name':$i.val()}, function(res){
+            if (!res.error)
                 $(event.target).hide();
                 $i.replaceWith($i.val());
         });

@@ -1,28 +1,28 @@
 <?php
 require_once('../lib/header_ajax.php');
-echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?><root>';
-if (isset($_GET['cat'])) {
-    $categ = explode('|', $_GET['cat']);
+
+$result['cats'] = array('geo' => array(), 'topic' => array());
+if (isset($_POST['cat'])) {
+    $categ = explode('|', $_POST['cat']);
     foreach ($categ as $cat) {
         $cat = str_replace('Категория:', '', $cat);
         if (in_array($cat, array('Опубликовано'))) {
             continue;
         }
         if (preg_match('/^(\d+) (\S+) (\d\d\d\d)$/', $cat, $matches)) {
-            echo '<date v="'.sprintf("%02s", $matches[1]).'/'.month_to_number($matches[2]).'"/>';
-            echo '<year v="'.$matches[3].'"/>';
+            $result['cats']['date'] = sprintf("%02s", $matches[1]).'/'.month_to_number($matches[2]);
+            $result['cats']['year'] = $matches[3];
         }
         else {
-            if(check_for_geo($cat)) {
-                echo '<geo v="'.$cat.'"/>';
+            if (check_for_geo($cat)) {
+                $result['cats']['geo'][] = $cat;
             }
             else {
-                echo '<topic v="'.$cat.'"/>';
+                $result['cats']['topic'][] = $cat;
             }
         }
     }
 }
-echo '</root>';
 
 function check_for_geo($s) {
     $res = sql_query("SELECT tag_name FROM book_tags WHERE tag_name = ? LIMIT 1", array('Гео:ВикиКатегория:'.$s));
@@ -46,3 +46,6 @@ function month_to_number($s) {
     );
     return $months[$s];
 }
+
+log_timing(true);
+die(json_encode($result));

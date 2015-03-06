@@ -7,16 +7,15 @@
 $(document).ready(function() {
     if ({/literal}{$packet.editable}{literal}) {
         $('.ma_instance').each(function(i, el){
-            $.get('ajax/clck_log.php', {'id':$(el).attr('rev'), 'type':(20 + i)});
+            $.post('ajax/clck_log.php', {'id':$(el).attr('rev'), 'type':(20 + i)});
         });
         $('.ma_instance button').click(function(event) {
             $('button.ma_next_pack').addClass('disabled');
             var $btn = $(event.target);
             $btn.closest('div').find('button').attr('disabled', 'disabled').removeClass('chosen');
             $btn.addClass('chosen');
-            $.get('ajax/annot.php', {'id':$(this).closest('div').attr('rel'), 'answer':$(this).attr('rev')}, function(res){
-                var $r = $(res).find('result');
-                if ($r.attr('ok') == 1) {
+            $.post('ajax/annot.php', {'id':$(this).closest('div').attr('rel'), 'answer':$(this).attr('rev')}, function(res){
+                if (res.status == 1) {
                     $btn.closest('div').fadeTo('slow', 0.5).removeClass('ma_not_ready').addClass('ma_ready');
                     //perhaps all the instances are clicked
                     var flag = 1;
@@ -29,18 +28,18 @@ $(document).ready(function() {
                     alert('Что-то пошло не так. Попробуйте перезагрузить страницу.')
                 $btn.closest('div').find('button').removeAttr('disabled');
             });
-            $.get('ajax/clck_log.php', {'id': $btn.closest('div').attr('rev'), 'type': $btn.attr('rev')});
+            $.post('ajax/clck_log.php', {'id': $btn.closest('div').attr('rev'), 'type': $btn.attr('rev')});
         });
     } else {
         $('.ma_instance button').attr('disabled', 'disabled');
     }
     $('a.expand').click(function(event) {
         var $btn = $(event.target);
-        $.get('ajax/get_context.php', {'tf_id':$(this).attr('rel'), 'dir':$(this).attr('rev')}, function(res) {
+        $.post('ajax/get_context.php', {'tf_id':$(this).attr('rel'), 'dir':$(this).attr('rev')}, function(res) {
             var s = '';
-            $(res).find('w').each(function(i, el) {
-                s += ' ' + $(el).text();
-            });
+            for (var i = 0; i < res.context.length; ++i) {
+                s += ' ' + res.context[i];
+            };
             if ($btn.attr('rev') == -1) {
                 $btn.closest('div').prepend(s);
                 $btn.remove();
@@ -51,18 +50,17 @@ $(document).ready(function() {
             }
 
         });
-        $.get('ajax/clck_log.php', {
+        $.post('ajax/clck_log.php', {
             'id': $btn.closest('div').attr('rev'),
             'type': ($btn.attr('rev') == -1 ? 11 : 12)
-        }, function(res){if ($(res).find('result').attr('ok') == 1) $btn.hide()});
+        }, function(res) {if (!res.error) $btn.hide()});
         event.preventDefault();
     });
     $('a.comment').click(function(event) {
         if ($(event.target).closest('div').find('textarea').length == 0) {
             $(event.target).closest('div').append('<div class="controls"><textarea placeholder="Ваш комментарий" class="span4"></textarea><button class="btn send_comment">Отправить комментарий</button></div>').find('button.send_comment').click(function(comment_event) {
                 $.post('ajax/post_comment.php', {'type': 'morph_annot', 'id': $(event.target).attr('rel'), 'text': $(this).closest('div').find('textarea').val()}, function(res) {
-                    var $r = $(res).find('response');
-                    if ($r.attr('ok') == 1) {
+                    if (!res.error) {
                         $(comment_event.target).closest('.controls').hide();
                         notify('Спасибо, ваш комментарий добавлен!', 'success');
                     } else {

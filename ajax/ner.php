@@ -8,9 +8,6 @@ require_once('../lib/lib_ne.php');
 
 */
 
-header('Content-type: application/json');
-
-$res = array('error' => 0);
 
 try {
 
@@ -19,7 +16,7 @@ try {
 
             if (empty($_POST['paragraph'])) throw new Exception();
             $id = start_ne_annotation($_POST['paragraph']);
-            $res['id'] = $id;
+            $result['id'] = $id;
             break;
 
         case 'finishAnnotation':
@@ -37,7 +34,7 @@ try {
                                                      $_POST['types']);
 
             $id = add_ne_entity($par_id, $token_ids, $tags);
-            $res['id'] = $id;
+            $result['id'] = $id;
             break;
 
         case 'deleteEntity':
@@ -58,8 +55,8 @@ try {
              or empty($_POST['comment'])) throw new Exception();
 
             $id = add_comment_to_paragraph($_POST['paragraph'], $_SESSION['user_id'], $_POST['comment']);
-            $res['id'] = $id;
-            $res['time'] = date("M j, G:i");
+            $result['id'] = $id;
+            $result['time'] = date("M j, G:i");
             break;
 
         case 'logEvent':
@@ -77,15 +74,15 @@ try {
             break;
 
         default:
-            $res['message'] = "Action not implemented: {$_POST['act']}";
-            $res['error'] = 1;
+            $result['message'] = "Action not implemented: {$_POST['act']}";
+            $result['error'] = 1;
             break;
 
     }
 }
 catch (Exception $e) {
-    $res['error'] = 1;
+    $result['error'] = 1;
 }
 
 log_timing(true);
-die(json_encode($res));
+die(json_encode($result));

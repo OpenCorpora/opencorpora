@@ -2,15 +2,14 @@
 require_once('../lib/header_ajax.php');
 require_once('../lib/lib_annot.php');
 
-$result = 1;
 try {
-    if (!isset($_GET['id']) || !isset($_GET['type']))
+    if (!isset($_POST['id']) || !isset($_POST['type']))
         throw new UnexpectedValueException();
-    log_click($_GET['id'], $_GET['type']);
+    log_click($_POST['id'], $_POST['type']);
 }
 catch (Exception $e) {
-    $result = 0;
+    $result['error'] = 1;
 }
 
-echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?><result ok="'.$result.'"/>';
 log_timing(true);
+die(json_encode($result));

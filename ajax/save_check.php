@@ -1,11 +1,9 @@
 <?php
 require_once('../lib/header_ajax.php');
-$type = $_GET['type'];
-$id = (int)$_GET['id'];
-$value = $_GET['value'];
-echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?><response>';
+$type = $_POST['type'];
+$id = (int)$_POST['id'];
+$value = $_POST['value'];
 
-$result = 1;
 try {
     switch($type) {
         case 'token':
@@ -28,8 +26,8 @@ try {
     }
 }
 catch (Exception $e) {
-    $result = 0;
+    $result['error'] = 1;
 }
-echo '<result ok="'.$result.'"/></response>';
 log_timing(true);
+die(json_encode($result));
 ?>

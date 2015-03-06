@@ -1,6 +1,5 @@
 <?php
 require_once('../lib/header_ajax.php');
-echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?>';
 
 try {
     if (
@@ -34,10 +33,12 @@ try {
     }
 
     sql_query($q);
-    echo '<response ok="1" ts="'.date("d.m.y, H:i", $time).'" id="'.sql_insert_id().'"/>';
+    $result['timestamp'] = date("d.m.y, H:i", $time);
+    $result['id'] = sql_insert_id();
 }
 catch (Exception $e) {
-    echo '<response ok="0"/>';
-log_timing(true);
+    $result['error'] = 1;
 }
+log_timing(true);
+die(json_encode($result));
 ?>

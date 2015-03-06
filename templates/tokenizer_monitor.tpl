@@ -40,15 +40,15 @@
         $(dates[0]).datepicker('setDate', '-7d');
 
         function update() {
-            $.get(
+            $.post(
                 '/ajax/tokenizer_monitor.php',
                 {
                     from: $('#from').val(),
                     until: $('#until').val()
                 },
                 function(json) {
-                    plot(json, 'metrics');
-                    plot(json, 'f-score-threshold');
+                    plot(json.data, 'metrics');
+                    plot(json.data, 'f-score-threshold');
                 },
                 'json'
             );

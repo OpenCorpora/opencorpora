@@ -7,18 +7,19 @@
             $("#add_form_link").bind('click', dict_add_form)
             $("#copy_para").click(function(event) {
                 $(event.target).attr('disabled', 'disabled');
-                $.get('ajax/paradigm_info.php', {'word': $("#source").val()}, function(res) {
-                    var $res = $(res);
+                $.post('ajax/paradigm_info.php', {'word': $("#source").val()}, function(res) {
                     var $lemma = $("#lemma_txt");
-                    var pseudo_stem = $lemma.val().substr(0, $lemma.val().length - $res.find('lemma').attr('suffix'));
-                    $("#lemma_gr").val($res.find('lemma').attr('gram'));
-                    $res.find('form').each(function() {
-                        dict_add_form();
-                        var $tr = $("#paradigm tr").last();
-                        var form_text = pseudo_stem + $(this).attr('suffix');
-                        $tr.find('td').first().find('input').val(form_text);
-                        $tr.find('td').last().find('input').val($(this).attr('gram'));
-                    });
+                    if (!res.error) {
+                        var pseudo_stem = $lemma.val().substr(0, $lemma.val().length - res.lemma.suffix);
+                        $("#lemma_gr").val(res.lemma.gram);
+                        for (var i = 0; i < res.forms.length; ++i) {
+                            dict_add_form();
+                            var $tr = $("#paradigm tr").last();
+                            var form_text = pseudo_stem + res.forms[i].suffix;
+                            $tr.find('td').first().find('input').val(form_text);
+                            $tr.find('td').last().find('input').val(res.forms[i].gram);
+                        }
+                    }
                     $(event.target).removeAttr('disabled');
                 });
             });

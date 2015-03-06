@@ -11,7 +11,7 @@
             function show_output(res, action) {
                 $indicator = $('#result-' + action).removeClass()
                                                    .addClass('result');
-                if($(res).find('success').text() == 'ok') {
+                if (!res.error) {
                     $indicator.addClass('green');
                 }
                 else {
@@ -22,7 +22,7 @@
 
                 $('#output').html(
                       '<pre>'
-                    + $(res).find('output').text()
+                    + res.output
                     + '</pre>'
                 );
             }

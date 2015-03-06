@@ -1,13 +1,38 @@
 <?php
 require_once('../lib/header_ajax.php');
-echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?><comments>';
 
-if (!isset($_GET['sent_id']))
-    return;
+function recursive_print($id, $comm, $hier, &$ret) {
+    if (isset($comm[$id]))
+        $ret[] = array(
+            'id' => $id,
+            'timestamp' => $comm[$id]['ts'],
+            'author' => $comm[$id]['author'],
+            'reply_to' => $comm[$id]['parent'],
+            'text' => htmlspecialchars($comm[$id]['text'])
+        );
+    if (!isset($hier[$id]))
+        return;
+    if (!$id) {
+        foreach($hier[$id] as $cid) {
+            recursive_print($cid, $comm, $hier, $ret);
+        }
+    } else {
+        foreach(array_reverse($hier[$id]) as $cid) {
+            recursive_print($cid, $comm, $hier, $ret);
+        }
+    }
+}
 
-$sent_id = (int)$_GET['sent_id'];
+
+if (!isset($_POST['sent_id'])) {
+    $result['error'] = 1;
+    die(json_encode($result));
+}
+
+$sent_id = (int)$_POST['sent_id'];
 
 $comm = array();
+$result['comments'] = array();
 $res = sql_query("SELECT sc.*, u.user_name FROM sentence_comments sc LEFT JOIN users u ON (sc.user_id=u.user_id) WHERE sent_id=$sent_id ORDER BY timestamp");
 while($r = sql_fetch_array($res)) {
     $comm[$r['comment_id']] = array(
@@ -18,26 +43,8 @@ while($r = sql_fetch_array($res)) {
     );
     $hier[$r['parent_id']][] = $r['comment_id'];
 }
-recursive_print(0);
+recursive_print(0, $comm, $hier, $result['comments']);
 
-echo '</comments>';
 log_timing(true);
-
-function recursive_print($id) {
-    global $comm;
-    global $hier;
-    if (isset($comm[$id]))
-        echo '<comment id="'.$id.'" ts="'.$comm[$id]['ts'].'" author="'.$comm[$id]['author'].'" reply="'.$comm[$id]['parent'].'">'.htmlspecialchars($comm[$id]['text']).'</comment>';
-    if (!isset($hier[$id]))
-        return;
-    if (!$id) {
-        foreach($hier[$id] as $cid) {
-            recursive_print($cid);
-        }
-    } else {
-        foreach(array_reverse($hier[$id]) as $cid) {
-            recursive_print($cid);
-        }
-    }
-}
+die(json_encode($result));
 ?>

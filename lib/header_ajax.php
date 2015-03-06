@@ -1,7 +1,7 @@
 <?php
 if (!headers_sent()) {
     session_start();
-    header("Content-type: text/xml; charset=utf-8");
+    header('Content-type: application/json');
 }
 
 $config = parse_ini_file(__DIR__ . '/../config.ini', true);
@@ -16,4 +16,6 @@ $pdo_db = new PDO(sprintf('mysql:host=%s;dbname=%s;charset=utf8', $config['mysql
 $pdo_db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 $pdo_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
 $pdo_db->query("SET NAMES utf8");
+
+$result = array('error' => 0);  // this will end up being json-encoded and returned
 ?>

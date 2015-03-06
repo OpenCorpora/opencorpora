@@ -9,10 +9,6 @@ require_once('../lib/lib_syntax.php');
 
 */
 
-header('Content-type: application/json');
-
-$res = array('error' => 0);
-
 try {
     // TODO allow only perm_syntax
     if (!user_has_permission('perm_disamb') && !user_has_permission('perm_syntax'))
@@ -20,7 +16,7 @@ try {
 
     switch ($_POST['act']) {
         case 'newGroup':
-            $res['gid'] = add_group($_POST['tokens'], (int)$_POST['type']);
+            $result['gid'] = add_group($_POST['tokens'], (int)$_POST['type']);
             break;
 
         case 'copyGroup':
@@ -31,10 +27,10 @@ try {
             $new_groups = get_groups_by_sentence((int)$_POST['sentence_id'],
               (int)$_SESSION['user_id']);
 
-            $res['new_groups'] = array();
-            $res['new_groups']['simple'] = arr_diff($new_groups['simple'],
+            $result['new_groups'] = array();
+            $result['new_groups']['simple'] = arr_diff($new_groups['simple'],
                 $old_groups['simple']);
-            $res['new_groups']['complex'] = arr_diff($new_groups['complex'],
+            $result['new_groups']['complex'] = arr_diff($new_groups['complex'],
                 $old_groups['complex']);
 
             break;
@@ -68,18 +64,18 @@ try {
             $smarty->assign('groups', get_groups_by_sentence((int)$_POST['sentence_id'],
               $_SESSION['user_id']));
 
-            $res['table'] = $smarty->fetch('sentence_syntax_groups.tpl');
+            $result['table'] = $smarty->fetch('sentence_syntax_groups.tpl');
             break;
 
         default:
-            $res['message'] = "Action not implemented: {$_POST['act']}";
+            $result['message'] = "Action not implemented: {$_POST['act']}";
             throw new Exception();
 
     }
 }
 catch (Exception $e) {
-    $res['error'] = 1;
+    $result['error'] = 1;
 }
 
 log_timing(true);
-die(json_encode($res));
+die(json_encode($result));

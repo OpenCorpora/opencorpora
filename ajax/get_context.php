@@ -1,15 +1,16 @@
 <?php
 require_once('../lib/header_ajax.php');
 require_once('../lib/lib_annot.php');
-$tf_id = (int)$_GET['tf_id'];
-$dir = isset($_GET['dir']) ? (int)$_GET['dir'] : 0;
-echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?><context>';
+
+$result['context'] = array();
+$tf_id = (int)$_POST['tf_id'];
+$dir = isset($_POST['dir']) ? (int)$_POST['dir'] : 0;
 if ($tf_id && $dir) {
     $wds = get_context_for_word($tf_id, -1, $dir, 0);
     foreach ($wds['context'] as $word) {
-        echo "<w>".htmlspecialchars($word)."</w>";
+        $result['context'][] = htmlspecialchars($word);
     }
 }
-echo '</context>';
 log_timing(true);
+die(json_encode($result));
 ?>

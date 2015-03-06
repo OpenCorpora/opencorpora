@@ -15,9 +15,8 @@ $(document).ready(function(){
             action = 'forget';
 
         var tr = $(this).closest('tr');
-        $.get('ajax/dict_pending.php', {'act':action, 'token_id':tr.data('tokenid'), 'rev_id':tr.data('revision')}, function(res) {
-            var $r = $(res).find('result');
-            if ($r.attr('ok') == 1) {
+        $.post('ajax/dict_pending.php', {'act':action, 'token_id':tr.data('tokenid'), 'rev_id':tr.data('revision')}, function(res) {
+            if (!res.error) {
                 $(event.target).closest('tr').css('backgroundColor', '#999').find('button').hide();
             }
         });

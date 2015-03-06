@@ -1,27 +1,27 @@
 <?php
 require_once('../lib/header_ajax.php');
 require_once('../lib/lib_dict.php');
+
 if (!user_has_permission('perm_dict')) {
     return false;
 }
 
-$res = true;
 try {
-    switch ($_GET['act']) {
+    switch ($_POST['act']) {
         case 'forget':
-            forget_pending_token($_GET['token_id'], $_GET['rev_id']);
+            forget_pending_token($_POST['token_id'], $_POST['rev_id']);
             break;
         case 'update':
-            update_pending_token($_GET['token_id'], $_GET['rev_id']);
+            update_pending_token($_POST['token_id'], $_POST['rev_id']);
             break;
         default:
-            $res = false;
+            $result['error'] = 1;
     }
 }
 catch (Exception $e) {
-    $res = false;
+    $result['error'] = 1;
 }
 
-echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?><result ok="'.(int)$res.'"/>';
 log_timing(true);
+die(json_encode($result));
 ?>

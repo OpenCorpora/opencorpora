@@ -7,9 +7,7 @@ if(!is_admin()) {
     return;
 }
 
-header('Content-Type: application/x-json; charset=utf-8');
-
-echo json_encode(get_monitor_data($_GET['from'], $_GET['until']));
+$result['data'] = get_monitor_data($_POST['from'], $_POST['until']);
 log_timing(true);
-
+die(json_encode($result));
 ?>

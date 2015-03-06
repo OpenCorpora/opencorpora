@@ -8,12 +8,9 @@ if(!is_admin()) {
 }
 
 $published = publish_update();
+$result['error'] = int(!$published['success']);
+$result['output'] = htmlspecialchars($published['output']);
 
-echo '<?xml version="1.0" encoding="utf-8"?>';
-echo '<response>';
-echo '<success>' . ($published['success'] ? 'ok' : 'failed') . '</success>';
-echo '<output>' . htmlspecialchars($published['output']) . '</output>';
-echo '</response>';
 log_timing(true);
-
+die(json_encode($result));
 ?>

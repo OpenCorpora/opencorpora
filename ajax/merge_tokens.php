@@ -1,19 +1,18 @@
 <?php
 require_once('../lib/header_ajax.php');
 require_once('../lib/lib_books.php');
-echo '<?xml version="1.0" encoding="utf-8" standalone="yes"?>';
 
 try {
     if (!user_has_permission('perm_adder'))
         throw new Exception("Недостаточно прав");
-    if (!isset($_GET['ids']))
+    if (!isset($_POST['ids']))
         throw new UnexpectedValueException();
 
-    merge_tokens_ii(explode(',', $_GET['ids']));
-    echo '<result ok="1"/>';
+    merge_tokens_ii(explode(',', $_POST['ids']));
 }
 catch (Exception $e) {
-    echo '<result ok="0"/>';
+    $result['error'] = 1;
 }
 log_timing(true);
+die(json_encode($result));
 ?>
