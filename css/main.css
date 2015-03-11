@@ -1151,11 +1151,12 @@ button.ma_next_pack {
     font-size: 13px;
 }
 
-::-webkit-scrollbar {
+#scrollbar::-webkit-scrollbar {
     -webkit-appearance: none;
     height: 7px;
 }
-::-webkit-scrollbar-thumb {
+
+#scrollbar::-webkit-scrollbar-thumb {
     border-radius: 4px;
     background-color: rgba(0,0,0,.5);
     box-shadow: 0 0 1px rgba(255,255,255,.5);
@@ -1170,3 +1171,4 @@ button.ma_next_pack {
 .autocomplete-suggestions { border: 1px solid #999; background: #fff; overflow: auto }
 .autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
 .autocomplete-selected { background: #F0F0F0; }
+
