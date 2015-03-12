@@ -5,6 +5,7 @@ import datetime
 import argparse
 import shutil
 import xml.sax
+from xml.sax.saxutils import escape
 
 try:
     import xml.etree.cElementTree as ET
@@ -28,8 +29,13 @@ class OpcorpContentHandler(xml.sax.ContentHandler):
         self.file.close()
 
     def _gen_start_tag(self, name, attrs):
-        attributes = ' '.join('{}="{}"'.format(k, v) for k, v in attrs.items())
-        st_u = '<{} {}>'.format(name, attributes)
+        if not attrs:
+            st_u = '<{}>',format(name)
+        else:
+            attributes = ' '.join('{}="{}"'.format(k, escape(v)) \
+            for k, v in attrs.items())
+            st_u = '<{} {}>'.format(name, attributes)
+
         return st_u.encode(self.encoding)
 
     def _gen_end_tag(self, name):
@@ -46,7 +52,7 @@ class OpcorpContentHandler(xml.sax.ContentHandler):
         else:  # annotation
             with open(os.path.join(self.out_path, 'annotation.json'), 'w') as annot:
                 json.dump({k: v for k, v in attrs.items()}, annot)
-            
+
 
     def endElement(self, name):
         if name != 'annotation':
@@ -92,8 +98,7 @@ class OpcorpSplitter():
 
         if answer in ['', 'n']:
             return False
-        else:
-            return True
+        return True
 
     def process(self):
         # check if input file exists
@@ -114,48 +119,47 @@ class OpcorpSplitter():
             os.makedirs(self.output)
 
         try:
-            if self.parser == 'dom':
-                for ev, el in ET.iterparse(self.in_file):
-                    if ev == 'end':
-                        if el.tag == 'text':
-                            out_file_path = os.path.join(self.output,
-                                                         '{0}{1}'.format(el.get('id'),
-                                                                       '.xml'))
-                            if self.verbosity == 2:
-                                print('file {0} [id={1}] will be written to '
-                                      '{2}'.format(el.get('name'), el.get('id'),
-                                                   out_file_path))
-
-                            if os.path.exists(out_file_path):
-                                if self.verbosity > 0:
-                                    print('file {0} already exists. Maybe duplicate '
-                                          'ids or not empty output '
-                                          'location?'.format(out_file_path))
-
-                            tt = ET.ElementTree(element=el)
-                            tt.write(out_file_path, encoding=self.encoding,
-                                     xml_declaration=True)
-                            tt = None
-                            el.clear()
-
-                        elif el.tag == 'annotation':
-                            annotation_path = os.path.join(self.output,
-                                                           'annotation.json')
-                            if self.verbosity == 2:
-                                print('annotation file will be written to '
-                                      '{0}'.format(annotation_path))
-                            if os.path.exists(annotation_path):
-                                if self.verbosity > 0:
-                                    print('annotation file already exists in '
-                                          'output location'.format(annotation_path))
-
-                            with open(annotation_path, 'w') as annotation:
-                                json.dump({'version': el.get('version'),
-                                           'revision': el.get('revision')},
-                                          annotation)
-                            el.clear()
-            elif self.parser == 'sax':
+            if self.parser == 'sax':
                 parser = xml.sax.parse(self.in_file, OpcorpContentHandler(self.output, self.encoding))
+
+            elif self.parser == 'dom':
+                for ev, el in ET.iterparse(self.in_file):
+                    if ev == 'end' and el.tag == 'text':
+                        out_file_path = os.path.join(self.output,
+                                                     '{0}{1}'.format(el.get('id'),
+                                                                   '.xml'))
+                        if self.verbosity == 2:
+                            print('file {0} [id={1}] will be written to '
+                                  '{2}'.format(el.get('name'), el.get('id'),
+                                               out_file_path))
+
+                        if os.path.exists(out_file_path) and self.verbosity > 0:
+                            print('file {0} already exists. Maybe duplicate '
+                                  'ids or not empty output '
+                                  'location?'.format(out_file_path))
+
+                        tt = ET.ElementTree(element=el)
+                        tt.write(out_file_path, encoding=self.encoding,
+                                 xml_declaration=True)
+                        tt = None
+                        el.clear()
+
+                    elif ev == 'end' and el.tag == 'annotation':
+                        annotation_path = os.path.join(self.output,
+                                                       'annotation.json')
+                        if self.verbosity == 2:
+                            print('annotation file will be written to '
+                                  '{0}'.format(annotation_path))
+
+                        if os.path.exists(annotation_path) and self.verbosity > 0:
+                                print('annotation file already exists in '
+                                      'output location'.format(annotation_path))
+
+                        with open(annotation_path, 'w') as annotation:
+                            json.dump({'version': el.get('version'),
+                                       'revision': el.get('revision')},
+                                      annotation)
+                        el.clear()
 
         except Exception as ex:
             print(ex)
