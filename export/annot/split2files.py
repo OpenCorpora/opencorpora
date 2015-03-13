@@ -32,7 +32,7 @@ class OpcorpContentHandler(xml.sax.ContentHandler):
         if not attrs:
             st_u = '<{}>',format(name)
         else:
-            attributes = ' '.join('{}="{}"'.format(k, escape(v)) \
+            attributes = ' '.join('{}="{}"'.format(k, escape(v, {'"': '\\"'})) \
             for k, v in attrs.items())
             st_u = '<{} {}>'.format(name, attributes)
 
