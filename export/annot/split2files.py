@@ -53,7 +53,6 @@ class OpcorpContentHandler(xml.sax.ContentHandler):
             with open(os.path.join(self.out_path, 'annotation.json'), 'w') as annot:
                 json.dump({k: v for k, v in attrs.items()}, annot)
 
-
     def endElement(self, name):
         if name != 'annotation':
             self.file.write(self._gen_end_tag(name))
@@ -62,7 +61,7 @@ class OpcorpContentHandler(xml.sax.ContentHandler):
 
     def characters(self, content):
         if content.strip():
-            self.file.write(content.strip().encode(self.encoding))
+            self.file.write(escape(content.strip()).encode(self.encoding))
 
 
 class OpcorpSplitter():
