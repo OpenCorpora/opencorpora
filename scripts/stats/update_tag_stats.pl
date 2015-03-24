@@ -18,7 +18,7 @@ my $cyr_cp1251 = encode('cp1251', '[а-яё]');
 my $cyr_match = "CONVERT(tf_text USING cp1251) COLLATE 'cp1251_general_ci' REGEXP '$cyr_cp1251' COLLATE 'cp1251_general_ci'";
 
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
-$dbh->do("SET NAMES utf8");
+$dbh->do("SET NAMES cp1251");
 my $scan_books = $dbh->prepare("SELECT book_id, tag_name FROM book_tags WHERE tag_name NOT LIKE 'url:%' AND tag_name NOT LIKE 'Дата:%' ORDER BY book_id");
 my $count_words = $dbh->prepare("SELECT COUNT(*) AS cnt FROM tokens WHERE sent_id IN (SELECT sent_id FROM sentences WHERE par_id IN (SELECT par_id FROM paragraphs WHERE book_id=?)) AND $cyr_match");
 my $drop = $dbh->prepare("TRUNCATE TABLE tag_stats");
