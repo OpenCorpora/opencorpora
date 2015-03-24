@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 touch /var/lock/oc_readonly.lock
-TEMP_DUMP=/srv/sql_opencorpora/tmp/temp.sql
+TEMP_DUMP=/backup/temp.sql
 if [ ! -d /backup/`date +%Y%m` ]; then
 	mkdir /backup/`date +%Y%m`
 fi
 NOW=`date +%Y%m%d_%H%M`
 mysqldump \
+    --host ocdb \
     --ignore-table=opcorpora.dict_errata \
     --ignore-table=opcorpora.form2lemma \
     --ignore-table=opcorpora.form2tf \
@@ -15,6 +16,7 @@ rm /var/lock/oc_readonly.lock
 nice xz -cze8 $TEMP_DUMP >/backup/`date +%Y%m`/oc$NOW.sql.xz
 rm $TEMP_DUMP
 mysqldump \
+    --host ocdb \
     wikidb | xz -ze8 > /backup/`date +%Y%m`/wiki$NOW.sql.xz
 
 # backup to Yandex.Disk
