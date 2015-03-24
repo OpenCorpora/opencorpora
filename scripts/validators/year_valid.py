@@ -6,10 +6,14 @@ import re
 
 path = sys.argv[1]
 cp = ConfigParser.ConfigParser()
-#var = raw_input("Enter the path of the config file: ")
 cp.read(path)
-list = cp.items('mysql')
-db = MySQLdb.connect( host = list[1][1], user = list[3][1], passwd = list[0][1], db = list[2][1],use_unicode=True)
+
+hostname =  cp.get ('mysql', 'host')
+dbname =  cp.get ('mysql', 'dbname')
+username =  cp.get ('mysql', 'user')
+password =  cp.get ('mysql', 'passwd')
+
+db = MySQLdb.connect( host = hostname, user = username, passwd = password, db = dbname, use_unicode=True)
 c=db.cursor()
 c.execute("SET NAMES utf8")
 c.execute("SELECT *  FROM book_tags")
