@@ -14,7 +14,7 @@ if [ `ls -l $newpath.xml | awk '{print $5}'` -gt 100 ]; then
     rm $newpath.xml
 
     touch /var/lock/oc_readonly.lock
-    $ROOT_PATH/export/dict/export_dict.pl $1 --PLAINTEXT <$ROOT_PATH/config.ini >$newpath.txt
+    $ROOT_PATH/export/dict/export_dict.pl $1 -p <$ROOT_PATH/config.ini >$newpath.txt
     rm /var/lock/oc_readonly.lock
     bzip2 -cq9 $newpath.txt >$newpath.txt.bz2.new
     mv $newpath.txt.bz2.new $newpath.txt.bz2

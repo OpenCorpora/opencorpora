@@ -5,11 +5,15 @@ use utf8;
 use DBI;
 use Encode;
 use Config::INI::Reader;
-use Getopt::constant('FORCE' => 0, 'PLAINTEXT' => 0);
+use Getopt::Std;
 
 #reading config
 my $conf = Config::INI::Reader->read_handle(\*STDIN);
 $conf = $conf->{mysql};
+
+# parse options
+my %options;
+getopts('pf', \%options);
 
 #main
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'});
@@ -22,7 +26,7 @@ binmode(STDOUT, ':utf8');
 my $ts = $dbh->prepare("SELECT MAX(`timestamp`) `timestamp` FROM `rev_sets` WHERE `set_id` IN ((SELECT `set_id` FROM dict_revisions ORDER BY `rev_id` DESC LIMIT 1), (SELECT `set_id` FROM dict_links_revisions ORDER BY `rev_id` DESC LIMIT 1))");
 $ts->execute();
 my $r = $ts->fetchrow_hashref();
-if (time() - $r->{'timestamp'} > 60*60*25 && !FORCE) {
+if (time() - $r->{'timestamp'} > 60*60*25 && !$options{'f'}) {
     exit();
 }
 
@@ -55,7 +59,7 @@ my $maxrev = $r->{'m'};
 
 my $header;
 my $footer;
-unless (PLAINTEXT) {
+unless ($options{'p'}) {
     $header = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>\n<dictionary version=\"0.92\" revision=\"$maxrev\">\n";
     $footer = "</dictionary>";
 
@@ -84,7 +88,7 @@ unless (PLAINTEXT) {
 }
 
 # lemmata
-print "<lemmata>\n" unless PLAINTEXT;
+print "<lemmata>\n" unless $options{'p'};
 
 my $flag = 1;
 my $min_lid = 0;
@@ -95,7 +99,7 @@ while ($flag) {
     while($r = $read_l->fetchrow_hashref()) {
         $flag = 1;
         $r->{'rev_text'} =~ s/<\/?dr>//g;
-        if (PLAINTEXT) {
+        if ($options{'p'}) {
             print $r->{'lemma_id'}."\n";
             print rev2text($r->{'rev_text'})."\n";
         } else {
@@ -105,9 +109,9 @@ while ($flag) {
     $min_lid += 10000;
 }
 
-print "</lemmata>\n" unless PLAINTEXT;
+print "</lemmata>\n" unless $options{'p'};
 
-unless (PLAINTEXT) {
+unless ($options{'p'}) {
     # link types
     print "<link_types>\n";
 
