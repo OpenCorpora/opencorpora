@@ -47,7 +47,7 @@ function sql_query($q, $debug=1, $override_readonly=0) {
     $debug = isset($_SESSION['debug_mode']) && $debug;
     $time_start = microtime(true);
     if ($debug) {
-        $q = str_ireplace('select ', 'SELECT SQL_NO_CACHE ', $q);
+        $q = preg_replace('/select /i', 'SELECT SQL_NO_CACHE ', $q, 1);
     }
 
     try {
