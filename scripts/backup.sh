@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-touch /var/lock/oc_readonly.lock
+RO_FLAG=/corpus/readonly.tmp
+
+touch $RO_FLAG
 TEMP_DUMP=/backup/temp.sql
 if [ ! -d /backup/`date +%Y%m` ]; then
 	mkdir /backup/`date +%Y%m`
@@ -12,7 +14,7 @@ mysqldump \
     --ignore-table=opcorpora.form2tf \
     --ignore-table=opcorpora.tokenizer_strange \
     opcorpora > $TEMP_DUMP
-rm /var/lock/oc_readonly.lock
+rm $RO_FLAG
 nice xz -cze8 $TEMP_DUMP >/backup/`date +%Y%m`/oc$NOW.sql.xz
 rm $TEMP_DUMP
 mysqldump \
@@ -20,4 +22,4 @@ mysqldump \
     wikidb | xz -ze8 > /backup/`date +%Y%m`/wiki$NOW.sql.xz
 
 # backup to Yandex.Disk
-curl --user `cat /corpus/yadisk-auth` -T /backup/`date +%Y%m`/oc$NOW.sql.xz https://webdav.yandex.ru/opencorpora/backup/ || echo "Failed to upload backup to YaDisk"
+curl -s --user `cat /corpus/yadisk-auth` -T /backup/`date +%Y%m`/oc$NOW.sql.xz https://webdav.yandex.ru/opencorpora/backup/ || echo "Failed to upload backup to YaDisk"

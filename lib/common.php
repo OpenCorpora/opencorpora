@@ -38,10 +38,11 @@ function sql_commit() {
     }
 }
 function sql_query($q, $debug=1, $override_readonly=0) {
+    global $config;
     global $pdo_db;
     global $total_time;
     global $total_queries;
-    if (file_exists('/var/lock/oc_readonly.lock') && stripos(trim($q), 'select') > 1 && !$override_readonly)
+    if (file_exists($config['project']['readonly_flag']) && stripos(trim($q), 'select') > 1 && !$override_readonly)
         throw new Exception("Database in readonly mode");
     $debug = isset($_SESSION['debug_mode']) && $debug;
     $time_start = microtime(true);
@@ -78,10 +79,13 @@ function sql_insert_id() {
     global $pdo_db;
     return $pdo_db->lastInsertId();
 }
-function sql_prepare($q) {
+function sql_prepare($q, $override_readonly=0) {
+    global $config;
     global $pdo_db;
     global $total_time;
     $debug = isset($_SESSION['debug_mode']);
+    if (file_exists($config['project']['readonly_flag']) && stripos(trim($q), 'select') > 1 && !$override_readonly)
+        throw new Exception("Database in readonly mode");
     $time_start = microtime(true);
     if ($debug)
         printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>*</td><td colspan='3'>PREPARE: %s</td></tr></table>\n", htmlspecialchars($q));
@@ -294,11 +298,13 @@ function get_top100_info($what, $type) {
 }
 function set_readonly_on() {
     if (!is_admin()) return 0;
-    touch_file('/var/lock/oc_readonly.lock');
+    global $config;
+    touch_file($config['project']['readonly_flag']);
 }
 function set_readonly_off() {
     if (!is_admin()) return 0;
-    unlink('/var/lock/oc_readonly.lock');
+    global $config;
+    unlink($config['project']['readonly_flag']);
 }
 function touch_file($path) {
     exec("touch ".escapeshellarg($path));

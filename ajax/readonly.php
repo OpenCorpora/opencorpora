@@ -1,4 +1,5 @@
 <?php
-$result = array('readonly' => file_exists('/var/lock/oc_readonly.lock') ? 1 : 0);
+require_once('../lib/header_ajax.php');
+$result = array('readonly' => file_exists($config['project']['readonly_flag']) ? 1 : 0);
 die(json_encode($result));
 ?>

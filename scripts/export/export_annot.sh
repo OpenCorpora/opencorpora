@@ -1,7 +1,8 @@
 #!/bin/bash
 
 ROOT_PATH=${ROOT_PATH:-/corpus}
-touch /var/lock/oc_readonly.lock
+RO_FLAG=$ROOT_PATH/readonly.tmp
+touch $RO_FLAG
 
 EXPORT_DIR=$ROOT_PATH/files/export/annot
 EXPORT_PATH=$EXPORT_DIR/annot.opcorpora
@@ -17,7 +18,7 @@ for f in $EXPORT_PATH $EXPORT_PATH.no_ambig $EXPORT_PATH.no_ambig_strict; do
     mv $f.xml.zip.new $f.xml.zip
 done
 
-rm /var/lock/oc_readonly.lock
+rm $RO_FLAG
 
 # export one text per file
 python3 $ROOT_PATH/export/annot/split2files.py $EXPORT_PATH.xml $EXPORT_DIR/byfile
