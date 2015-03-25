@@ -662,7 +662,7 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
     if (sizeof($prepared_queries) == 1) {
         $q = "SELECT tf_id, tf_text, pos FROM tokens WHERE sent_id = ?";
         if ($dir != 0 || $delta > 0) {
-            $q_left = $dir <= 0 ? ($delta > 0 ? "(SELECT GREATEST(0, pos-$delta) FROM tokens WHERE tf_id=? LIMIT 1)" : "0") : "(SELECT pos FROM tokens WHERE tf_id=? LIMIT 1)";
+            $q_left = $dir <= 0 ? ($delta > 0 ? "(SELECT IF(pos > $delta, pos - $delta, 0) FROM tokens WHERE tf_id=? LIMIT 1)" : "0") : "(SELECT pos FROM tokens WHERE tf_id=? LIMIT 1)";
             $q_right = $dir >= 0 ? ($delta > 0 ? "(SELECT pos+$delta FROM tokens WHERE tf_id=? LIMIT 1)" : "1000") : "(SELECT pos FROM tokens WHERE tf_id=? LIMIT 1)";
             $q .= " AND pos BETWEEN $q_left AND $q_right";
         }
