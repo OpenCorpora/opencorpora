@@ -16,15 +16,23 @@
         margin-top: 1em;
     }
 </style>
+<script type="text/javascript" src="{$web_prefix}/bootstrap/js/bootstrap-datepicker.min.js"></script>
+<link href="{$web_prefix}/bootstrap/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="{$web_prefix}/js/jquery.flot.min.js"></script>
+<script type="text/javascript" src="{$web_prefix}/js/jquery.flot.time.min.js"></script>
 <script type="text/javascript">
 {literal}
     $(document).ready(function() {
-        $('#tabs').tabs();
+
+        $('.nav-tabs a').click(function(e) {
+          e.preventDefault();
+          $(this).tab('show');
+        })
 
         var dates = $('#from, #until').datepicker({
-            dateFormat: 'yy-mm-dd',
-            constraintInput: true,
+            format: 'yy-mm-dd',
+            // bootstrap datepicker does not understand this, whatsoever
+/*          constraintInput: true,
             onSelect: function(selected) {
                 var option = this.id == 'from' ? 'minDate' : 'maxDate',
                     instance = $(this).data('datepicker'),
@@ -34,7 +42,7 @@
                         instance.settings
                     );
                 dates.not(this).datepicker('option', option, date);
-            }
+            }*/
         });
         $(dates[1]).datepicker('setDate', new Date());
         $(dates[0]).datepicker('setDate', '-7d');
@@ -167,12 +175,11 @@
 </script>
 
 <h1>Контроль качества токенизатора</h1>
-
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#tabs-1" data-toggle="tab">Все метрики</a></li>
+  <li><a href="#tabs-2" data-toggle="tab">F-score и threshold</a></li>
+</ul>
 <div id="tabs">
-    <ul>
-        <li><a href="#tabs-1">Все метрики</a></li>
-        <li><a href="#tabs-2">F-score и threshold</a></li>
-    </ul>
 
     <div id="tabs-1">
         <div id="chart"></div>

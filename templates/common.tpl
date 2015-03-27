@@ -16,7 +16,6 @@
         <link href="bootstrap/css/btn-palette.css" rel="stylesheet">
 
         <link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css?4'/>
-        <link rel='stylesheet' type='text/css' href='http://yandex.st/jquery-ui/1.9.0/themes/smoothness/jquery-ui.min.css'/>
         <link rel="stylesheet" type="text/css" href="{$web_prefix}/bootstrap/css/bootstrap-notify.css" />
 
         <!-- Open Sans for headers -->
@@ -25,7 +24,6 @@
         {block name=styles}{/block}
 
         <script src="http://yandex.st/jquery/1.9.0/jquery.min.js"></script>
-        <script type="text/javascript" src="http://yandex.st/jquery-ui/1.9.0/jquery-ui.min.js"></script>
         <script src='{$web_prefix}/js/main.js?3' type='text/javascript'></script>
         <script src='{$web_prefix}/js/jquery.mousewheel.js' type='text/javascript'></script>
         <script src="bootstrap/js/bootstrap.min.js"></script>
