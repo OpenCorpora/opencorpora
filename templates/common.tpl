@@ -4,7 +4,7 @@
         <meta http-equiv='content' content='text/html;charset=utf-8'/>
         <title>OpenCorpora: открытый корпус русского языка</title>
 
-        <meta property="og:image" content="http://opencorpora.org/img/fb-pic.png"/>
+        <meta property="og:image" content="http://opencorpora.org/assets/img/fb-pic.png"/>
         <meta property="og:type" content="website" />
         <meta property="og:url" content="http://opencorpora.org" />
         <meta property="og:title" content="OpenCorpora: открытый корпус русского языка" />
@@ -12,22 +12,22 @@
         <link rel="shortcut icon" href="{$web_prefix}/favicon.ico" />
 
         <!-- Bootstrap -->
-        <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
-        <link href="bootstrap/css/btn-palette.css" rel="stylesheet">
+        <link href="{$web_prefix}/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="{$web_prefix}/assets/css/btn-palette.css" rel="stylesheet">
 
-        <link rel='stylesheet' type='text/css' href='{$web_prefix}/css/main.css?4'/>
-        <link rel="stylesheet" type="text/css" href="{$web_prefix}/bootstrap/css/bootstrap-notify.css" />
+        <link rel='stylesheet' type='text/css' href='{$web_prefix}/assets/css/main.css?4'/>
+        <link rel="stylesheet" type="text/css" href="{$web_prefix}/assets/vendor/bootstrap-notify/css/bootstrap-notify.css" />
 
         <!-- Open Sans for headers -->
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,800,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
         {block name=styles}{/block}
 
-        <script src="http://yandex.st/jquery/1.9.0/jquery.min.js"></script>
-        <script src='{$web_prefix}/js/main.js?3' type='text/javascript'></script>
-        <script src='{$web_prefix}/js/jquery.mousewheel.js' type='text/javascript'></script>
-        <script src="bootstrap/js/bootstrap.min.js"></script>
-        <script src="bootstrap/js/bootstrap-notify.js"></script>
+        <script src="{$web_prefix}/assets/vendor/jquery/jquery.min.js"></script>
+        <script src='{$web_prefix}/assets/js/main.js?3' type='text/javascript'></script>
+        <script src='{$web_prefix}/assets/js/jquery.mousewheel.js' type='text/javascript'></script>
+        <script src="{$web_prefix}/assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+        <script src="{$web_prefix}/assets/vendor/bootstrap-notify/js/bootstrap-notify.js"></script>
 
     </head>
 {block name=nojs}<noscript><meta http-equiv="refresh" content="0; URL=/no_js.php"></noscript>{/block}

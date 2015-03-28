@@ -48,7 +48,7 @@
 
 {block name="javascripts"}
 {literal}
-    <script src="js/anaphora.js"></script>
+    <script src="{$web_prefix}/assets/js/anaphora.js"></script>
     <script>
     var syntax_groups_json = JSON.parse('{/literal}{$token_groups|@json_encode|replace:"\"":"\\\""}{literal}');
     var group_types = JSON.parse('{/literal}{$group_types|@json_encode|replace:"\"":"\\\""}{literal}');

@@ -92,7 +92,7 @@
     .hidden { display: none; }
     .result { width: 30px;   }
     .progress {
-        background: url(/img/ajax-loader.gif) no-repeat center center;
+        background: url(/assets/img/ajax-loader.gif) no-repeat center center;
     }
     .pseudo-link {
         border-bottom: 1px dotted;

@@ -14,7 +14,7 @@
                 $a.removeClass('active');
                 $('.pools_' + $a.data('key')).hide();
             }
-            
+
         })
     })
 </script>
@@ -27,7 +27,7 @@
 <div class="clearfix">
 {foreach from=$badges item=badge}
 <div class="pull-left" style="border: 1px #ddd solid; margin-right: 10px; padding: 5px">
-    <div><img style="margin-bottom: 5px; cursor: help" src="{if $badge.image}img/badges/{$badge.image}-100x100.png{else}http://placehold.it/100x100{/if}" title="{$badge.description|htmlspecialchars}"></div>
+    <div><img style="margin-bottom: 5px; cursor: help" src="{if $badge.image}assets/img/badges/{$badge.image}-100x100.png{else}http://placehold.it/100x100{/if}" title="{$badge.description|htmlspecialchars}"></div>
     <div align="center"><b>{$badge.name}</b><br/>{$badge.shown_time|date_format:"%d.%m.%Y"}</div>
 </div>
 {/foreach}
