@@ -56,6 +56,15 @@ switch ($action) {
         header("Location:dict.php?act=gram_restr");
         break;
     case 'save':
+        // update after selectpicker (lemma_edit.tpl)
+        // now we have to implode the arrays
+        if (!empty($_POST['form_gram']))
+            foreach ($_POST['form_gram'] as &$grams) {
+                $grams = implode(', ', $grams);
+            }
+        if (!empty($_POST['lemma_gram']))
+            $_POST['lemma_gram'] = implode(', ', $_POST['lemma_gram']);
+
         $lemma_id = dict_save($_POST);
         header("Location:dict.php?act=edit&saved&id=$lemma_id");
         break;
@@ -93,6 +102,7 @@ switch ($action) {
     case 'edit':
         $smarty->assign('editor', get_lemma_editor($_GET['id']));
         $smarty->assign('link_types', get_link_types());
+        $smarty->assign('possible_grammems', dict_get_select_gram());
         $smarty->display('dict/lemma_edit.tpl');
         break;
     case 'errata':

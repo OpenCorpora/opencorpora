@@ -1,10 +1,43 @@
 {* Smarty *}
 {extends file='common.tpl'}
+
+{block name="javascripts"}
+{literal}
+    <script src="{/literal}{$web_prefix}{literal}/bootstrap/js/bootstrap.select.min.js"></script>
+{/literal}
+{/block}
+{block name=styles}
+     <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-select.min.css" />
+{/block}
+
 {block name='content'}
     {literal}
     <script type="text/javascript">
-        $(document).ready(function(){
-            $("#add_form_link").bind('click', dict_add_form)
+        $(document).ready(function() {
+
+            function dict_add_form(i, event) {
+                var select = $('.gram-selectpicker.template').clone()
+                                .removeClass('template hidden')
+                                .attr('name', 'form_gram[' + i + '][]');
+
+                $('#paradigm tbody').append(
+                    $("<tr>").addClass("valign-top")
+                        .append(
+                            $("<td>").append("<input type='text' name='form_text[]'>") )
+                        .append(
+                            $("<td>").append(select) ));
+
+                select.selectpicker();
+                if (event) event.preventDefault();
+            }
+
+            // add new form
+            $("#add_form_link").bind('click', function(e) {
+                var i = $('#paradigm tbody select').length; // indexed from zero
+                return dict_add_form(i, e);
+            });
+
+            // copy paradigm
             $("#copy_para").click(function(event) {
                 $(event.target).attr('disabled', 'disabled');
                 $.post('ajax/paradigm_info.php', {'word': $("#source").val()}, function(res) {
@@ -13,16 +46,26 @@
                         var pseudo_stem = $lemma.val().substr(0, $lemma.val().length - res.lemma.suffix);
                         $("#lemma_gr").val(res.lemma.gram);
                         for (var i = 0; i < res.forms.length; ++i) {
-                            dict_add_form();
+                            dict_add_form(i);
                             var $tr = $("#paradigm tr").last();
                             var form_text = pseudo_stem + res.forms[i].suffix;
                             $tr.find('td').first().find('input').val(form_text);
-                            $tr.find('td').last().find('input').val(res.forms[i].gram);
+                            $tr.find('td').last().find('select').selectpicker('val', res.forms[i].gram.split(/[\s,]+/));
                         }
                     }
                     $(event.target).removeAttr('disabled');
                 });
             });
+
+            $.fn.selectpicker.defaults = {
+              noneSelectedText: '',
+              noneResultsText: 'Не найдено совпадений',
+              countSelectedText: 'Выбрано {0} из {1}',
+              maxOptionsText: ['Достигнут предел ({n} {var} максимум)', 'Достигнут предел в группе ({n} {var} максимум)', ['items', 'item']],
+              multipleSeparator: ', '
+            };
+
+            $(".gram-selectpicker:not(.template)").selectpicker();
         })
     </script>
     {/literal}
@@ -73,28 +116,55 @@
     </div>
     {strip}
     <form action="?act=save" method="post">
-        <b>Лемма</b>:<br/>
-        <p class="form-inline"><input type="hidden" name="lemma_id" value="{$editor.lemma.id}"/>
+        <h4>Лемма</h4>
+        <div class="form-inline">
+        <input type="hidden" name="lemma_id" value="{$editor.lemma.id}"/>
         {if $editor.lemma.id > 0}
-        <input type="text" name="lemma_text" value="{$editor.lemma.text|htmlspecialchars}"> 
-        <input type="text" name="lemma_gram"{if !$user_permission_dict}readonly="readonly"{/if} value="{$editor.lemma.grms|htmlspecialchars}" size="40">  
-        <button class="btn" type="button" onClick="location.href='dict_history.php?lemma_id={$editor.lemma.id}'" >История</button> 
-        {if $user_permission_dict && !$editor.deleted}<button type="button" class="btn" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" >Удалить лемму</button>{/if}
+            <p>
+                <input type="text" name="lemma_text" value="{$editor.lemma.text|htmlspecialchars}">
+                <select name="lemma_gram[]" class="gram-selectpicker"
+                        data-live-search="true" title="граммемы" multiple {if !$user_permission_dict}disabled{/if}>
+                    {foreach $possible_grammems as $name}
+                        <option value="{$name}" {if in_array($name, $editor.lemma.grms_raw)}selected{/if}>{$name}</option>
+                    {/foreach}
+                </select>
+
+                <button class="btn" type="button" onClick="location.href='dict_history.php?lemma_id={$editor.lemma.id}'" >История</button>
+
+                {if $user_permission_dict && !$editor.deleted}<button type="button" class="btn" onClick="if (confirm('Вы уверены?')) location.href='dict.php?act=del_lemma&lemma_id={$editor.lemma.id}'" >Удалить лемму</button>{/if}
+            </p>
+
         {else}
-        <input type="text" name="lemma_text" id="lemma_txt" value="{$smarty.get.text}"/> 
-        <input type="text"name="lemma_gram" id="lemma_gr" placeholder="граммемы" size="40"/><br/>
-        <input id='copy_para' class='btn' type='button' value='Заполнить'/> по аналогии с леммой <input type='text' id='source' class='span2' placeholder='примус'/>
+            <p>
+                <input type="text" name="lemma_text" id="lemma_txt" value="{$smarty.get.text}"/>
+                <select name="lemma_gram[]" class="gram-selectpicker"
+                        data-live-search="true" title="граммемы" multiple>
+                    {foreach $possible_grammems as $id => $name}
+                        <option value="{$name}">{$name}</option>
+                    {/foreach}
+                </select>
+
+            </p>
+            <p>
+                <input id='copy_para' class='btn' type='button' value='Заполнить'/> по аналогии с леммой <input type='text' id='source' class='span2' placeholder='примус'/>
+            </p>
         {/if}
-        </p>
-        <b>Формы
-        {if $user_permission_dict} (оставление левого поля пустым удаляет форму){/if}
-        :</b><br/>
+        </div>
+        <h4>Формы {if $user_permission_dict} <small>(оставление левого поля пустым удаляет форму)</small>{/if}</h4>
         <table id="paradigm" cellpadding="3">
-        {foreach item=form from=$editor.forms}
-        <tr>
-            <td><input type='text' name='form_text[]' {if !$user_permission_dict}readonly="readonly"{/if} value="{$form.text|htmlspecialchars}"/>
-            <td><input type='text' name='form_gram[]' {if !$user_permission_dict}readonly="readonly"{/if} size='40' value="{$form.grms|htmlspecialchars}"/>
-        </tr>
+        {foreach item=form from=$editor.forms name=forms}
+            <tr class="valign-top">
+                <td><input type='text' name='form_text[]' {if !$user_permission_dict}readonly="readonly"{/if} value="{$form.text|htmlspecialchars}"/></td>
+
+                <td>
+                 <select name="form_gram[{$smarty.foreach.forms.index}][]" class="gram-selectpicker"
+                         data-live-search="true" title="граммемы" multiple {if !$user_permission_dict}disabled{/if}>
+                     {foreach $possible_grammems as $name}
+                         <option value="{$name}" {if in_array($name, $form.grms_raw)}selected{/if}>{$name}</option>
+                     {/foreach}
+                 </select>
+                </td>
+            </tr>
         {/foreach}
         {if $user_permission_dict && !$editor.deleted}
             <tr><td>&nbsp;<td><a id="add_form_link" class="pseudo" href="#">Добавить ещё одну форму</a></tr>
@@ -108,7 +178,7 @@
         {/if}
     </form>
     {/strip}
-    <p><b>Связи</b></p>
+    <h4>Связи</h4>
     {if $user_permission_dict && !$editor.deleted}
     <p><a href="#" class="pseudo" onclick="$('#add_link').show(); return false">Добавить связь</a></p>
     <form id="add_link" method='post' class='hidden-block' action='?act=add_link'>
@@ -138,4 +208,11 @@
     <p>Нет ни одной связи.</p>
     {/foreach}
     </ul>
+
+    <select name="form_gram[]" class="gram-selectpicker hidden template"
+        data-live-search="true" title="граммемы" multiple>
+    {foreach $possible_grammems as $id => $name}
+        <option value="{$name}">{$name}</option>
+    {/foreach}
+    </select>
 {/block}

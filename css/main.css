@@ -1172,3 +1172,11 @@ button.ma_next_pack {
 .autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
 .autocomplete-selected { background: #F0F0F0; }
 
+/* grammems edit (dict.php?act=edit) */
+.form-inline .bootstrap-select {
+    vertical-align: top;
+}
+
+tr.valign-top td {
+    vertical-align: top;
+}

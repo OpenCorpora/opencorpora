@@ -422,8 +422,9 @@ function get_lemma_editor($id) {
     $out['deleted'] = $res[0]['deleted'];
     $out['lemma']['text'] = $res[0]['lemma_text'];
     $out['lemma']['grms'] = implode(', ', $arr['lemma']['grm']);
+    $out['lemma']['grms_raw'] = $arr['lemma']['grm'];
     foreach ($arr['forms'] as $farr) {
-        $out['forms'][] = array('text' => $farr['text'], 'grms' => implode(', ', $farr['grm']));
+        $out['forms'][] = array('text' => $farr['text'], 'grms' => implode(', ', $farr['grm']), 'grms_raw' => $farr['grm']);
     }
     //links
     $res = sql_pe("
