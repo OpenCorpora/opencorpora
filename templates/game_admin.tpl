@@ -27,7 +27,7 @@ $(document).ready(function() {
 </div>
 {foreach from=$badges item=badge}
 <div class="pull-left" style="border: 1px #ddd solid; margin-right: 10px; padding: 5px" class="">
-    <div><img style="margin-bottom: 5px; cursor: help" src="{if $badge.image}img/badges/{$badge.image}-100x100.png{else}http://placehold.it/100x100{/if}" title="{$badge.description|htmlspecialchars}"></div>
+    <div><img style="margin-bottom: 5px; cursor: help" src="{if $badge.image}assets/img/badges/{$badge.image}-100x100.png{else}http://placehold.it/100x100{/if}" title="{$badge.description|htmlspecialchars}"></div>
     <div align="center">
         <input type="text" name="badge_name[{$badge.id}]" class="pull-left" value="{$badge.name|htmlspecialchars}"/>
         <input type="text" name="badge_group[{$badge.id}]" class="pull-left span1" value="{$badge.group}"/><br/>

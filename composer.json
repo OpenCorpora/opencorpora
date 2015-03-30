@@ -6,6 +6,16 @@
         "symfony/console": "2.0.24",
         "symfony/yaml": "2.0.24",
         "smarty/smarty": "@stable",
-        "swiftmailer/swiftmailer": "@stable"
+        "swiftmailer/swiftmailer": "@stable",
+        "robloach/component-installer": "@stable",
+
+        "components/jquery": "1.10",
+        "components/bootstrap": "2.3.2",
+        "components/bootstrap-notify": "dev-master"
+
+    },
+
+    "config": {
+        "component-dir": "assets/vendor"
     }
 }

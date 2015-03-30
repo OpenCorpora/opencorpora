@@ -16,10 +16,10 @@
         margin-top: 1em;
     }
 </style>
-<script type="text/javascript" src="{$web_prefix}/bootstrap/js/bootstrap-datepicker.min.js"></script>
-<link href="{$web_prefix}/bootstrap/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css" />
-<script type="text/javascript" src="{$web_prefix}/js/jquery.flot.min.js"></script>
-<script type="text/javascript" src="{$web_prefix}/js/jquery.flot.time.min.js"></script>
+<script type="text/javascript" src="{$web_prefix}/assets/js/bootstrap-datepicker.min.js"></script>
+<link href="{$web_prefix}/assets/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="{$web_prefix}/assets/js/jquery.flot.min.js"></script>
+<script type="text/javascript" src="{$web_prefix}/assets/js/jquery.flot.time.min.js"></script>
 <script type="text/javascript">
 {literal}
     $(document).ready(function() {

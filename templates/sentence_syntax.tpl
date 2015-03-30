@@ -2,12 +2,12 @@
 {extends file='common.tpl'}
 
 {block name=styles}
-    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-notify.css" />
+    <link rel="stylesheet" type="text/css" href="{$web_prefix}/assets/css/bootstrap-notify.css" />
 {/block}
 
 {block name=javascripts}
-    <script src="bootstrap/js/bootstrap-notify.js"></script>
-    <script type="text/javascript" src="/js/syntax_groups.js"></script>
+    <script src="{$web_prefix}/assets/js/bootstrap-notify.js"></script>
+    <script type="text/javascript" src="{$web_prefix}/assets/js/syntax_groups.js"></script>
     {block name=inject_groups_json}
     {literal}
         <script>
