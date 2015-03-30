@@ -3,11 +3,11 @@
 
 {block name="javascripts"}
 {literal}
-    <script src="{/literal}{$web_prefix}{literal}/bootstrap/js/bootstrap.select.min.js"></script>
+    <script src="{/literal}{$web_prefix}{literal}/assets/js/bootstrap.select.min.js"></script>
 {/literal}
 {/block}
 {block name=styles}
-     <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-select.min.css" />
+     <link rel="stylesheet" type="text/css" href="{$web_prefix}/assets/css/bootstrap-select.min.css" />
 {/block}
 
 {block name='content'}
