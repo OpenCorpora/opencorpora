@@ -257,7 +257,6 @@ sub misses_oblig_grammems_f {
                             !has_any_grammem($forbidden{'ff'}{$clgr}, \@form_gram) &&
                             !has_any_grammem($forbidden{'fl'}{$clgr}, \@lemma_gram)
                            ) {
-                            print STDERR "failed\n";
                             return join('|', keys %$cl);
                         }
                     }
