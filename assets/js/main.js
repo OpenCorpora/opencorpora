@@ -192,6 +192,7 @@ function dict_add_form(event) {
     if (event)
         event.preventDefault()
 }
+
 function edit_gram(event) {
     var $a = $(event.target).closest('a')
     var names = ['','inner_id','outer_id','descr','','submit']
