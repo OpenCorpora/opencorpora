@@ -10,10 +10,15 @@
         "robloach/component-installer": "@stable",
 
         "components/jquery": "1.10",
-        "components/bootstrap": "2.3.2",
+        "opencorpora/bootstrap": "dev-master",
         "components/bootstrap-notify": "dev-master"
 
     },
+
+    "repositories": [{
+      "type": "vcs",
+      "url": "https://github.com/opencorpora/bootstrap"
+    }],
 
     "config": {
         "component-dir": "assets/vendor"

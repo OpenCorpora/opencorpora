@@ -4,63 +4,8 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ec11095f03467ce3383606c59fef2770",
+    "hash": "2570bb42530876ea40e533b4bc395604",
     "packages": [
-        {
-            "name": "components/bootstrap",
-            "version": "2.3.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/components/bootstrap.git",
-                "reference": "4e517c991623b3bd913e2becd44831b2c9b0be90"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/components/bootstrap/zipball/4e517c991623b3bd913e2becd44831b2c9b0be90",
-                "reference": "4e517c991623b3bd913e2becd44831b2c9b0be90",
-                "shasum": ""
-            },
-            "require": {
-                "components/jquery": "*"
-            },
-            "suggest": {
-                "components/bootstrap-default": "Provide a theme for Bootstrap as components/bootstrap only provides the CSS as file assets"
-            },
-            "type": "component",
-            "extra": {
-                "component": {
-                    "scripts": [
-                        "js/bootstrap.js"
-                    ],
-                    "files": [
-                        "js/bootstrap.min.js",
-                        "css/*.css",
-                        "img/*.png"
-                    ],
-                    "shim": {
-                        "deps": [
-                            "jquery"
-                        ]
-                    }
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Twitter, Inc"
-                }
-            ],
-            "description": "Sleek, intuitive, and powerful front-end framework for faster and easier web development.",
-            "homepage": "http://twitter.github.com/bootstrap/",
-            "keywords": [
-                "bootstrap",
-                "css"
-            ],
-            "time": "2013-07-18 20:01:48"
-        },
         {
             "name": "components/bootstrap-notify",
             "version": "dev-master",
@@ -213,6 +158,61 @@
                 "minification"
             ],
             "time": "2014-12-12 05:04:05"
+        },
+        {
+            "name": "opencorpora/bootstrap",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/OpenCorpora/bootstrap.git",
+                "reference": "9d4589c475e01ae2cf187ceac6364bbee366d799"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/OpenCorpora/bootstrap/zipball/9d4589c475e01ae2cf187ceac6364bbee366d799",
+                "reference": "9d4589c475e01ae2cf187ceac6364bbee366d799",
+                "shasum": ""
+            },
+            "require": {
+                "components/jquery": "1.10.*"
+            },
+            "type": "component",
+            "extra": {
+                "component": {
+                    "scripts": [
+                        "js/bootstrap.min.js"
+                    ],
+                    "files": [
+                        "js/bootstrap.min.js",
+                        "css/*.css",
+                        "img/*.png"
+                    ],
+                    "shim": {
+                        "deps": [
+                            "jquery"
+                        ]
+                    }
+                }
+            },
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Twitter, Inc"
+                }
+            ],
+            "description": "Sleek, intuitive, and powerful front-end framework for faster and easier web development.",
+            "homepage": "http://twitter.github.com/bootstrap/",
+            "keywords": [
+                "bootstrap",
+                "css"
+            ],
+            "support": {
+                "source": "https://github.com/OpenCorpora/bootstrap/tree/master",
+                "issues": "https://github.com/OpenCorpora/bootstrap/issues"
+            },
+            "time": "2015-04-01 22:13:59"
         },
         {
             "name": "robloach/component-installer",
@@ -556,17 +556,17 @@
         },
         {
             "name": "symfony/process",
-            "version": "v2.6.5",
+            "version": "v2.6.6",
             "target-dir": "Symfony/Component/Process",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Process.git",
-                "reference": "4d717f34f3d1d6ab30fbe79f7132960a27f4a0dc"
+                "reference": "a8bebaec1a9dc6cde53e0250e32917579b0be552"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Process/zipball/4d717f34f3d1d6ab30fbe79f7132960a27f4a0dc",
-                "reference": "4d717f34f3d1d6ab30fbe79f7132960a27f4a0dc",
+                "url": "https://api.github.com/repos/symfony/Process/zipball/a8bebaec1a9dc6cde53e0250e32917579b0be552",
+                "reference": "a8bebaec1a9dc6cde53e0250e32917579b0be552",
                 "shasum": ""
             },
             "require": {
@@ -602,7 +602,7 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "http://symfony.com",
-            "time": "2015-03-12 10:28:44"
+            "time": "2015-03-30 15:54:10"
         },
         {
             "name": "symfony/yaml",
@@ -656,6 +656,7 @@
         "smarty/smarty": 0,
         "swiftmailer/swiftmailer": 0,
         "robloach/component-installer": 0,
+        "opencorpora/bootstrap": 20,
         "components/bootstrap-notify": 20
     },
     "prefer-stable": false,
