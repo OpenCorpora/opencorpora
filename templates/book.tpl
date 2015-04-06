@@ -1,7 +1,6 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-    {if $user_permission_adder}
     <script src='{$web_prefix}/js/jquery.autocomplete.min.js'></script>
     {literal}
     <script type="text/javascript">
@@ -13,6 +12,7 @@
                     $('a[name='+h.substring(1)+']').closest('tr').addClass('bgyellow');
                 }
             }
+            {/literal}{if $user_permission_adder}{literal}
 
             $("input.tok").click(function(){
                 save_check_tokens($(this));
@@ -51,10 +51,10 @@
                 minChars:2,
                 lookupLimit:10
             });
+            {/literal}{/if}{literal}
         })
     </script>
     {/literal}
-    {/if}
     <h2>{$book.title} (id={$book.id})</h2>
     {if isset($book.parents.0)}
     <ul class="breadcrumb">
