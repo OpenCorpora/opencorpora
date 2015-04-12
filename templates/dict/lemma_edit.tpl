@@ -152,23 +152,25 @@
         </div>
         <h4>Формы {if $user_permission_dict} <small>(оставление левого поля пустым удаляет форму)</small>{/if}</h4>
         <table id="paradigm" cellpadding="3">
-        {foreach item=form from=$editor.forms name=forms}
-            <tr class="valign-top">
-                <td><input type='text' name='form_text[]' {if !$user_permission_dict}readonly="readonly"{/if} value="{$form.text|htmlspecialchars}"/></td>
+            <tbody>
+            {foreach item=form from=$editor.forms name=forms}
+                <tr class="valign-top">
+                    <td><input type='text' name='form_text[]' {if !$user_permission_dict}readonly="readonly"{/if} value="{$form.text|htmlspecialchars}"/></td>
 
-                <td>
-                 <select name="form_gram[{$smarty.foreach.forms.index}][]" class="gram-selectpicker"
-                         data-live-search="true" title="граммемы" multiple {if !$user_permission_dict}disabled{/if}>
-                     {foreach $possible_grammems as $name}
-                         <option value="{$name}" {if in_array($name, $form.grms_raw)}selected{/if}>{$name}</option>
-                     {/foreach}
-                 </select>
-                </td>
-            </tr>
-        {/foreach}
-        {if $user_permission_dict && !$editor.deleted}
-            <tr><td>&nbsp;<td><a id="add_form_link" class="pseudo" href="#">Добавить ещё одну форму</a></tr>
-        {/if}
+                    <td>
+                     <select name="form_gram[{$smarty.foreach.forms.index}][]" class="gram-selectpicker"
+                             data-live-search="true" title="граммемы" multiple {if !$user_permission_dict}disabled{/if}>
+                         {foreach $possible_grammems as $name}
+                             <option value="{$name}" {if in_array($name, $form.grms_raw)}selected{/if}>{$name}</option>
+                         {/foreach}
+                     </select>
+                    </td>
+                </tr>
+            {/foreach}
+            {if $user_permission_dict && !$editor.deleted}
+                <tr><td>&nbsp;<td><a id="add_form_link" class="pseudo" href="#">Добавить ещё одну форму</a></tr>
+            {/if}
+            </tbody>
         </table><br/>
         {if $user_permission_dict && !$editor.deleted}
             Комментарий к правке:<br/>
