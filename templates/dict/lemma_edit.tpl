@@ -44,7 +44,7 @@
                     var $lemma = $("#lemma_txt");
                     if (!res.error) {
                         var pseudo_stem = $lemma.val().substr(0, $lemma.val().length - res.lemma.suffix);
-                        $("#lemma_gr").val(res.lemma.gram);
+                        $("#lemma_gr").selectpicker('val', res.lemma.gram);
                         for (var i = 0; i < res.forms.length; ++i) {
                             dict_add_form(i);
                             var $tr = $("#paradigm tr").last();
@@ -122,7 +122,7 @@
         {if $editor.lemma.id > 0}
             <p>
                 <input type="text" name="lemma_text" value="{$editor.lemma.text|htmlspecialchars}">
-                <select name="lemma_gram[]" class="gram-selectpicker"
+                <select name="lemma_gram[]" id="lemma_gr" class="gram-selectpicker"
                         data-live-search="true" title="граммемы" multiple {if !$user_permission_dict}disabled{/if}>
                     {foreach $possible_grammems as $name}
                         <option value="{$name}" {if in_array($name, $editor.lemma.grms_raw)}selected{/if}>{$name}</option>
@@ -137,7 +137,7 @@
         {else}
             <p>
                 <input type="text" name="lemma_text" id="lemma_txt" value="{$smarty.get.text}"/>
-                <select name="lemma_gram[]" class="gram-selectpicker"
+                <select name="lemma_gram[]" id="lemma_gr" class="gram-selectpicker"
                         data-live-search="true" title="граммемы" multiple>
                     {foreach $possible_grammems as $id => $name}
                         <option value="{$name}">{$name}</option>
