@@ -1,6 +1,7 @@
 <?php
 require_once('../lib/header_ajax.php');
 require_once('../lib/lib_annot.php');
+require_once('../lib/lib_achievements.php');
 
 if (!is_logged()) {
     return;
@@ -24,12 +25,14 @@ try {
             $result['status'] = save_moderated_answer($id, $answer, (int)$_POST['manual']);
     } else {
         update_annot_instance($id, $answer);
+
+        $am = new AchievementsManager((int)$_SESSION['user_id']);
+        $am->emit(EventTypes::TASK_DONE);
     }
 }
 catch (Exception $e) {
-    $result['status'] = 0;
+    $result['status'] = $e->getMessage();
     $result['error'] = 1;
 }
 log_timing(true);
 die(json_encode($result));
-?>
