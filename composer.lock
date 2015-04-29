@@ -165,12 +165,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/OpenCorpora/bootstrap.git",
-                "reference": "9d4589c475e01ae2cf187ceac6364bbee366d799"
+                "reference": "8b39a3533d3e7e31f38e52f9ab829756731b9f53"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/OpenCorpora/bootstrap/zipball/9d4589c475e01ae2cf187ceac6364bbee366d799",
-                "reference": "9d4589c475e01ae2cf187ceac6364bbee366d799",
+                "url": "https://api.github.com/repos/OpenCorpora/bootstrap/zipball/8b39a3533d3e7e31f38e52f9ab829756731b9f53",
+                "reference": "8b39a3533d3e7e31f38e52f9ab829756731b9f53",
                 "shasum": ""
             },
             "require": {
@@ -180,10 +180,12 @@
             "extra": {
                 "component": {
                     "scripts": [
-                        "js/bootstrap.min.js"
+                        "js/bootstrap.min.js",
+                        "js/bootstrap.tooltip-fixed.js"
                     ],
                     "files": [
                         "js/bootstrap.min.js",
+                        "js/bootstrap.tooltip-fixed.js",
                         "css/*.css",
                         "img/*.png"
                     ],
@@ -212,7 +214,7 @@
                 "source": "https://github.com/OpenCorpora/bootstrap/tree/master",
                 "issues": "https://github.com/OpenCorpora/bootstrap/issues"
             },
-            "time": "2015-04-01 22:13:59"
+            "time": "2015-04-15 22:31:47"
         },
         {
             "name": "robloach/component-installer",
