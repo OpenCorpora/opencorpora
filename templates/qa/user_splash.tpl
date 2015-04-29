@@ -1,26 +1,45 @@
-{if isset($new_badge)}
-    <div class="alert alert-block clearfix" id="badge-alert">
-        <button type="button" class="close" data-dismiss="alert">×</button>
-        <div class="pull-left" style="margin-right: 15px;"><img src="assets/img/{if $new_badge.image}badges/{$new_badge.image}-100x100.png{else}icon_target.png{/if}"></div>
-        <h4>Поздравляем!</h4>
-        Вы получили медаль <strong>«{$new_badge.name}»</strong>{if $new_badge.description} &mdash; {$new_badge.description}{/if}! Спасибо, что помогаете нам!
+{if $achievements_unseen}
+    <link rel="stylesheet" href="{$web_prefix}/assets/css/animate.min.css">
+    {assign var="single" value=count($achievements_unseen)==1}
+    <div class="modal hide fade a-modal {if $single}a-modal-square{/if}">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3>Поздравляем!</h3>
+        </div>
+        <div class="modal-body fs0-fix">
+        {foreach $achievements_unseen as $a}
+            {counter assign=id}
+            <div class="{if !$single}inline-50{/if} a-wrap">
+                <div class="achievement-wrap achievement-{$a->css_class} {if !$single}achievement-small{else}achievement-medium{/if}">
+                    {if $a->level}
+                        <div class="achievement-level achievement-{$a->css_class}-level">{$a->level}</div>
+                    {/if}
+                </div>
+                <div class="a-desc">
+                    {if $a->level <= 1}
+                        Вы получили ачивку <br/>
+                        <strong>«{$a->short_title}»</strong>
+                    {else}
+                        Вы получили <strong>{$a->level}</strong> уровень ачивки <br/>
+                        <strong>«{$a->short_title}»</strong>
+                    {/if}
+                </div>
+            </div>
+        {/foreach}
+
+        </div>
+        <div class="modal-footer">
+            <a href="/user.php" class="btn btn-link pull-left">Мои ачивки</a>
+            <a href="#" class="btn btn-primary" data-dismiss="modal">Круто!</a>
+        </div>
     </div>
+
     <script>
-        $("#badge-alert").bind('close',function(){
-            $.post('ajax/game_mark_shown.php',{ 'act':'badge', 'badge_id':{$new_badge.id} })
-        })
-    </script>
-{/if}
-{if isset($new_level) && $new_level > 0}
-    <div class="alert alert-block alert-success clearfix" id="level-alert">
-        <button type="button" class="close" data-dismiss="alert">×</button>
-        <div class="pull-left" style="margin-right: 15px;"><img src="assets/img/icon_trophy_black.png"></div>
-        <h4>Ура!</h4>
-        Вы достигли <strong>{$new_level}-го Уровня!</strong> Спасибо, что помогаете нам!
-    </div>
-    <script>
-        $("#level-alert").bind('close',function(){
-            $.post('ajax/game_mark_shown.php',{ 'act':'level', 'level':{$new_level} })
-        })
+        $('.a-modal').on('shown', function() {
+            $.post("/ajax/game_mark_shown.php");
+            $(this).find('.achievement-wrap').addClass("animated bounceIn");
+        });
+
+        $('.a-modal').modal('show');
     </script>
 {/if}

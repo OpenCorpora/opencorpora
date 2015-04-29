@@ -58,7 +58,7 @@
 
     <div class="tab-content">
       <div class="tab-pane active" id="achievements">
-          {include file="user_achievements.tpl" badges=$badges user=$user}
+          {include file="achievements/user_achievements.tpl" badges=$badges user=$user}
       </div>
       <div class="tab-pane" id="stats">
           {$smarty.capture.stats_table}

@@ -80,6 +80,7 @@ $(document).ready(function() {
             $('html').scrollTop($first_notready.offset().top)
         }
         else {
+            $.post('/ajax/wantmore.php');
             document.location.reload();
         }
     });
