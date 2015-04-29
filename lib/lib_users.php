@@ -1,5 +1,7 @@
 <?php
 require_once('lib_mail.php');
+require_once('lib_achievements.php');
+
 function user_check_password($login, $password) {
     $password = md5(md5($password).substr($login, 0, 2));
     $res = sql_pe("SELECT `user_id` FROM `users` WHERE `user_name`=? AND `user_passwd`=? LIMIT 1", array($login, $password));
@@ -136,6 +138,9 @@ function user_login_openid($token) {
     init_session($user_id, $row['user_shown_name'], get_user_options($user_id),
                   get_user_permissions($user_id), $token, $row['user_level'], $row['show_game']);
     sql_commit();
+
+    user_award_for_signup($user_id);
+
     if ($row['user_passwd'] == 'notagreed') {
         $_SESSION['user_pending'] = 1;
         return 2;
@@ -165,7 +170,7 @@ function user_register($post) {
     $name = trim($post['login']);
     $email = strtolower(trim($post['email']));
     //testing if all fields are ok
-    if ($post['passwd'] != $post['passwd_re']) 
+    if ($post['passwd'] != $post['passwd_re'])
         return 2;
     if ($post['passwd'] == '' || $name == '')
         return 5;
@@ -197,6 +202,7 @@ function user_register($post) {
     }
 
     sql_commit();
+    user_award_for_signup($user_id);
     if (!user_login($name, $post['passwd']))
         return 0;
     return 1;
@@ -255,7 +261,7 @@ function get_user_info($user_id) {
         'checked_answers' => 0,
         'incorrect_answers' => 0
     );
-    
+
     // annotation stats
     $annot = array();
     $last_type = '';
@@ -348,7 +354,7 @@ function get_user_permissions($user_id) {
     if (!$user_id)
         throw new UnexpectedValueException();
     $out = array();
-    
+
     $res = sql_query("SELECT * FROM user_permissions WHERE user_id = $user_id LIMIT 1");
 
     if (sql_num_rows($res) == 0) {
@@ -500,4 +506,8 @@ function get_user_team($user_id) {
     $res = sql_query("SELECT user_team, team_id, team_name FROM users LEFT JOIN user_teams ON (user_team=team_id) WHERE user_id=$user_id LIMIT 1");
     return sql_fetch_array($res);
 }
-?>
+
+function user_award_for_signup($user_id) {
+    $am = new AchievementsManager($user_id);
+    $am->emit(EventTypes::SIGNED_UP);
+}

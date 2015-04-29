@@ -5,9 +5,10 @@ if (!headers_sent()) {
 }
 
 $config = parse_ini_file(__DIR__ . '/../config.ini', true);
-require_once('vendor/autoload.php'); // Smarty, something else which was installed via Composer
+require_once(__DIR__.'/../vendor/autoload.php'); // Smarty, something else which was installed via Composer
 require_once('common.php');
 require_once('lib_awards.php');
+require_once('lib_achievements.php');
 require_once('timer.php');
 
 $smarty = new Smarty(); // no need to require the Smarty.php, it was autoloaded
@@ -83,17 +84,11 @@ $smarty->assign('game_is_on', 0);
 if (is_logged()) {
     if (game_is_on()) {
         $smarty->assign('game_is_on', 1);
-        $new_badge = check_user_badges($_SESSION['user_id']);
-        //$new_level = check_user_level($_SESSION['user_id']);
-
-        if ($new_badge) {
-            $smarty->assign('new_badge', $new_badge);
-            mark_shown_badge($_SESSION['user_id'], $new_badge['id']);
-        }
-        //if ($new_level)
-        //    update_user_level($new_level);
-        //if ($new_level > 1)
-        //    $smarty->assign('new_level', $new_level);
+        $am = new AchievementsManager($_SESSION['user_id']);
+        $smarty->assign('achievements', $a = $am->pull_all());
+        $smarty->assign('achievements_unseen', array_filter($a, function($e) {
+            return !$e->seen;
+        }));
     }
 }
 

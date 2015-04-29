@@ -29,7 +29,7 @@ function update_user_rating($user_id, $pool_id, $is_skip, $previous_answer) {
     "));
 
     $weight = $r['rating_weight'];
-    
+
     if ($is_skip)
         add_user_rating($user_id, $pool_id, -$weight);
     add_user_rating($user_id, $pool_id, $weight);
@@ -116,7 +116,7 @@ function check_user_level($user_id) {
         break;
     }
     $next_level--;
-    
+
     if ($next_level == $r['user_level'])
         return 0;
     return $next_level;
@@ -288,13 +288,15 @@ function check_user_sticking_badges($user_id) {
     // weeks
     // -2 comes from 1 Jan 0000 being not a Monday
     $res = sql_query("
-        SELECT FLOOR((TO_DAYS(FROM_UNIXTIME(timestamp)) - 2) / 7) AS week
+        SELECT MONTH(FROM_UNIXTIME(timestamp)) AS month,
+               YEAR(FROM_UNIXTIME(timestamp)) AS year
+
         FROM morph_annot_click_log
         WHERE user_id = $user_id
             AND clck_type < 10
-        GROUP BY FLOOR((TO_DAYS(FROM_UNIXTIME(timestamp)) - 2) / 7)
+        GROUP BY year, month
         HAVING COUNT(*) >= 50
-        ORDER BY week
+        ORDER BY year, month
     ");
     $max_weeks = 1;
     $cur_weeks = 1;
