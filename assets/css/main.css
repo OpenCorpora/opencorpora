@@ -1183,7 +1183,7 @@ tr.valign-top td {
 
 /* achievements */
 .achievement-well {
-    padding-top: 20px;
+    /*padding-top: 20px;*/
     padding-bottom: 10px;
 }
 
@@ -1198,6 +1198,7 @@ tr.valign-top td {
     margin-right: 50px;
     margin-bottom: 50px;
     margin-top: 30px;
+    cursor: pointer;
 }
 
 /* общие классы */
@@ -1229,8 +1230,18 @@ tr.valign-top td {
     border-width: 15px;
 }
 
+.achievement-wrap:after {
+    font-size: 200px;
+    line-height: 368px;
+}
+
 .achievement-tooltip {
     font-family: "Open Sans";
+}
+
+.tooltip-wider .tooltip-inner {
+    max-width: 300px;
+    font-family: "Helvetica", Arial, sans-serif;
 }
 
 .achievement-tooltip.top {
@@ -1249,14 +1260,19 @@ tr.valign-top td {
     border-bottom-color: #eee;
 }
 
+.achievement-tooltip.tooltip-white.right .tooltip-arrow {
+    border-right-color: #eee;
+}
+
 .achievement-tooltip.tooltip-white .tooltip-inner {
     background-color: #eee;
     color: black;
 }
 
 .achievement-stub {
-    -webkit-filter: grayscale(0.8); blur(1px);
+/*    -webkit-filter: grayscale(0.8);*/
     opacity: 0.3;
+    border-color: #666 !important;
 }
 
 .achievement-stub .achievement-level,
@@ -1284,9 +1300,39 @@ tr.valign-top td {
     bottom: -4px;
 }
 
+.achievement-small:after {
+    font-size: 50px;
+    line-height: 92px;
+}
+
+/* средние */
+.achievement-medium {
+    display: inline-block;
+    border-width: 8px;
+    width: 184px;
+    height: 184px;
+    background-size: 200px 200px;
+}
+
+.achievement-medium .achievement-level {
+    width: 60px;
+    height: 60px;
+    border-radius: 60px;
+    border-width: 8px;
+    line-height: 60px;
+    font-size: 30px;
+    right: -20px;
+    bottom: -8px;
+}
+
+.achievement-medium:after {
+    font-size: 100px;
+    line-height: 184px;
+}
+
 /* а теперь - звери */
 .achievement-wrap.achievement-bobr {
-    background-image: url(https://pp.vk.me/c622116/v622116728/1b8c4/CjoiLOfuF2k.jpg); /* url зверушки */
+    background-image: url(../img/badges/bobr-400x400.png); /* url зверушки */
     border-color: #603813; /* цвет обводки снаружи */
 }
 
@@ -1296,8 +1342,12 @@ tr.valign-top td {
     color: #603813; /* цвет цифры == цвет обводки */
 }
 
+.achievement-stub.achievement-bobr {
+    background-image: url(../img/badges/bobr-100x100-grayscale.png);
+}
+
 .achievement-wrap.achievement-dog {
-    background-image: url(https://pp.vk.me/c622116/v622116728/1b8bd/maYPdqtcLok.jpg); /* url зверушки */
+    background-image: url(../img/badges/dog-400x400.png); /* url зверушки */
     border-color: #4D4D4D; /* цвет обводки снаружи */
 }
 
@@ -1307,57 +1357,175 @@ tr.valign-top td {
     color: #4D4D4D; /* цвет цифры == цвет обводки */
 }
 
-.achievement-wrap.achievement-hameleon {
-    background-image: url(https://pp.vk.me/c622116/v622116728/1b8b6/Xdpvq8ws7AA.jpg); /* url зверушки */
+.achievement-stub.achievement-dog {
+    background-image: url(../img/badges/dog-100x100-grayscale.png);
+}
+
+.achievement-wrap.achievement-chameleon {
+    background-image: url(../img/badges/chameleon-400x400.png); /* url зверушки */
     border-color: #006837; /* цвет обводки снаружи */
 }
 
-.achievement-level.achievement-hameleon-level {
+.achievement-level.achievement-chameleon-level {
     background-color: #EDF4AB; /* фон круга с цифрой */
     border-color: #006837; /* цвет обводки снаружи у круга с цифрой */
     color: #006837; /* цвет цифры == цвет обводки */
 }
 
+.achievement-stub.achievement-chameleon {
+    background-image: url(../img/badges/chameleon-100x100-grayscale.png);
+}
 
 /* рыбки */
-.achievement-wrap.achievement-fish3 {
-    background-image: url(http://cs14114.vk.me/c624618/v624618178/19139/pnISnJphxUc.jpg); /* url зверушки */
+.achievement-wrap.achievement-fish {
+    background-image: url(../img/badges/fish-400x400.png); /* url зверушки */
     border-color: #384a8c; /* цвет обводки снаружи */
 }
 
-.achievement-level.achievement-fish3-level {
+.achievement-level.achievement-fish-level {
     background-color: #ffffff; /* фон круга с цифрой */
     border-color: #384a8c; /* цвет обводки снаружи у круга с цифрой */
     color: #384a8c; /* цвет цифры == цвет обводки */
 }
 
+.achievement-stub.achievement-fish {
+    background-image: url(../img/badges/fish-100x100-grayscale.png);
+}
+
 /*аист*/
-.achievement-wrap.achievement-stork {
-    background-image: url(http://cs621616.vk.me/v621616178/11e09/_jMLbD3IIUw.jpg); /* url зверушки */
+.achievement-wrap.achievement-aist {
+    background-image: url(../img/badges/aist-400x400.png); /* url зверушки */
     border-color: #333333; /* цвет обводки снаружи */
 }
 
-.achievement-level.achievement-stork-level {
+.achievement-level.achievement-aist-level {
     background-color: #e6f9fe; /* фон круга с цифрой */
     border-color: #333333; /* цвет обводки снаружи у круга с цифрой */
     color: #333333; /* цвет цифры == цвет обводки */
 }
 
+.achievement-stub.achievement-aist {
+    background-image: url(../img/badges/aist-100x100-grayscale.png);
+}
+
 /* хочу еще */
-.achievement-wrap.achievement-proceed {
+.achievement-wrap.achievement-wantmore {
     background-color: #f4e3ea;
     border-color: #952600;
 }
 
-.achievement-wrap.achievement-proceed:after {
+.achievement-wrap.achievement-wantmore:after {
     content: '10';
     color: #952600;
     font-family: Arial;
-    font-size: 50px;
-    line-height: 92px;
     text-align: center;
     font-weight: bold;
     position: absolute;
     width: 100%;
     height: 100%;
+}
+
+.achievement-stub.achievement-wantmore {
+    background-color: #ccc;
+}
+
+.achievement-stub.achievement-wantmore:after {
+    color: #666;
+}
+
+.fs0-fix {
+    font-size: 0;
+}
+
+.a-wrap .achievement-wrap {
+    display: block;
+    margin: 0 auto;
+}
+
+.inline-50 {
+    display: inline-block;
+    box-sizing: border-box;
+    width: 50%;
+    margin-bottom: 20px;
+}
+
+.a-desc {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.modal-open .tooltip {
+    z-index: 1030;
+}
+
+.a-modal-square {
+    width: 390px;
+    margin-left: -195px;
+}
+
+/* achievement stats */
+.achievement-stats {
+    padding-left: 45px;
+}
+
+.achievements-tabbable {
+    padding-top: 10px;
+}
+
+.achievement-stats .a-title {
+    width: 200px;
+    text-align: center;
+    color: #444;
+}
+
+.achievement-stats .a-desc {
+    width: 200px;
+}
+
+.lead-medium {
+    font-size: 16px;
+    line-height: 22px;
+}
+
+.a-stats {
+    height: auto;
+/*    border-left: solid 2px #f5f5f5;
+    border-bottom: solid 2px #f5f5f5;
+    padding-left: 5px;
+    padding-bottom: 5px;*/
+}
+
+.a-bar-wrap {
+    width: 150px;
+    background-color: #fbfbfb;
+/*    margin-bottom: 3px;*/
+}
+
+.a-bar {
+    width: 100%;
+    position: relative;
+    background-color: #eee;
+    padding-left: 5px;
+}
+
+.t-level, .t-count {
+    text-align: right;
+    color: #ccc;
+    font-weight: bold;
+    padding: 0px 10px;
+}
+
+.t-level {
+    color: #444;
+}
+
+.height-5 {
+    height: 20px;
+}
+
+.t-text {
+    color: #444;
+    width: 100px;
+    padding-left: 10px;
 }
