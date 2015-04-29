@@ -1180,3 +1180,184 @@ button.ma_next_pack {
 tr.valign-top td {
     vertical-align: top;
 }
+
+/* achievements */
+.achievement-well {
+    padding-top: 20px;
+    padding-bottom: 10px;
+}
+
+.achievement-well .progress {
+    position: absolute;
+    width: 100%;
+    height: 15px;
+    bottom: -50px;
+}
+
+.achievement-well .achievement-wrap {
+    margin-right: 50px;
+    margin-bottom: 50px;
+    margin-top: 30px;
+}
+
+/* общие классы */
+.achievement-wrap {
+    display: inline-block;
+    width: 400px;
+    height: 400px;
+    background-position: center center;
+    border-radius: 400px;
+    border-style: solid;
+    border-width: 15px;
+    position: relative;
+    background-repeat: no-repeat;
+}
+
+.achievement-level {
+    position: absolute;
+    bottom: -15px;
+    right: -15px;
+    width: 100px;
+    height: 100px;
+    border-radius: 100px;
+    line-height: 100px;
+    text-align: center;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 40px;
+    border-style: solid;
+    border-width: 15px;
+}
+
+.achievement-tooltip {
+    font-family: "Open Sans";
+}
+
+.achievement-tooltip.top {
+    margin-top: -10px;
+
+}
+.achievement-tooltip.bottom {
+    margin-top: 10px;
+}
+
+.achievement-tooltip.top.tooltip-white .tooltip-arrow {
+    border-top-color: #eee;
+}
+
+.achievement-tooltip.tooltip-white.bottom .tooltip-arrow {
+    border-bottom-color: #eee;
+}
+
+.achievement-tooltip.tooltip-white .tooltip-inner {
+    background-color: #eee;
+    color: black;
+}
+
+.achievement-stub {
+    -webkit-filter: grayscale(0.8); blur(1px);
+    opacity: 0.3;
+}
+
+.achievement-stub .achievement-level,
+.achievement-stub .progress {
+    display: none;
+}
+
+/* маленькие ачивки */
+.achievement-small {
+    display: inline-block;
+    border-width: 4px;
+    width: 92px;
+    height: 92px;
+    background-size: 100px 100px;
+}
+
+.achievement-small .achievement-level {
+    width: 30px;
+    height: 30px;
+    border-radius: 30px;
+    border-width: 4px;
+    line-height: 30px;
+    font-size: 15px;
+    right: -10px;
+    bottom: -4px;
+}
+
+/* а теперь - звери */
+.achievement-wrap.achievement-bobr {
+    background-image: url(https://pp.vk.me/c622116/v622116728/1b8c4/CjoiLOfuF2k.jpg); /* url зверушки */
+    border-color: #603813; /* цвет обводки снаружи */
+}
+
+.achievement-level.achievement-bobr-level {
+    background-color: #E6CEB3; /* фон круга с цифрой */
+    border-color: #603813; /* цвет обводки снаружи у круга с цифрой */
+    color: #603813; /* цвет цифры == цвет обводки */
+}
+
+.achievement-wrap.achievement-dog {
+    background-image: url(https://pp.vk.me/c622116/v622116728/1b8bd/maYPdqtcLok.jpg); /* url зверушки */
+    border-color: #4D4D4D; /* цвет обводки снаружи */
+}
+
+.achievement-level.achievement-dog-level {
+    background-color: #F5F5F7; /* фон круга с цифрой */
+    border-color: #4D4D4D; /* цвет обводки снаружи у круга с цифрой */
+    color: #4D4D4D; /* цвет цифры == цвет обводки */
+}
+
+.achievement-wrap.achievement-hameleon {
+    background-image: url(https://pp.vk.me/c622116/v622116728/1b8b6/Xdpvq8ws7AA.jpg); /* url зверушки */
+    border-color: #006837; /* цвет обводки снаружи */
+}
+
+.achievement-level.achievement-hameleon-level {
+    background-color: #EDF4AB; /* фон круга с цифрой */
+    border-color: #006837; /* цвет обводки снаружи у круга с цифрой */
+    color: #006837; /* цвет цифры == цвет обводки */
+}
+
+
+/* рыбки */
+.achievement-wrap.achievement-fish3 {
+    background-image: url(http://cs14114.vk.me/c624618/v624618178/19139/pnISnJphxUc.jpg); /* url зверушки */
+    border-color: #384a8c; /* цвет обводки снаружи */
+}
+
+.achievement-level.achievement-fish3-level {
+    background-color: #ffffff; /* фон круга с цифрой */
+    border-color: #384a8c; /* цвет обводки снаружи у круга с цифрой */
+    color: #384a8c; /* цвет цифры == цвет обводки */
+}
+
+/*аист*/
+.achievement-wrap.achievement-stork {
+    background-image: url(http://cs621616.vk.me/v621616178/11e09/_jMLbD3IIUw.jpg); /* url зверушки */
+    border-color: #333333; /* цвет обводки снаружи */
+}
+
+.achievement-level.achievement-stork-level {
+    background-color: #e6f9fe; /* фон круга с цифрой */
+    border-color: #333333; /* цвет обводки снаружи у круга с цифрой */
+    color: #333333; /* цвет цифры == цвет обводки */
+}
+
+/* хочу еще */
+.achievement-wrap.achievement-proceed {
+    background-color: #f4e3ea;
+    border-color: #952600;
+}
+
+.achievement-wrap.achievement-proceed:after {
+    content: '10';
+    color: #952600;
+    font-family: Arial;
+    font-size: 50px;
+    line-height: 92px;
+    text-align: center;
+    font-weight: bold;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
