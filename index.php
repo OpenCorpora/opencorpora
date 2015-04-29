@@ -80,6 +80,11 @@ if (isset($_GET['page'])) {
             $smarty->assign('title', 'FAQ');
             $smarty->display('static/faq.tpl');
             break;
+        case 'achievements':
+            $am = new AchievementsManager($_SESSION['user_id']);
+            $smarty->assign('stats', $am->pull_stats());
+            $smarty->assign('manager', $am);
+            $smarty->display('achievements/all_achievements.tpl');
         default:
             header("Location:index.php");
             break;
