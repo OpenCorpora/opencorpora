@@ -1437,6 +1437,10 @@ tr.valign-top td {
     font-size: 0;
 }
 
+.modal-body.fs0-fix {
+    max-height: 500px;
+}
+
 .a-wrap .achievement-wrap {
     display: block;
     margin: 0 auto;
