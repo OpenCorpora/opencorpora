@@ -7,6 +7,8 @@ require_once('lib/lib_achievements.php');
 $id = $_GET['id'] ?: $_SESSION['user_id'];
 
 $smarty->assign('user', get_user_info($id));
+$smarty->assign('user_id', $id);
+
 $smarty->assign('complexity', array(
     0 => 'Сложность неизвестна',
     1 => 'Очень простые задания',
