@@ -61,8 +61,8 @@ class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
             $this->progress = 0;
             $this->seen = FALSE;
         }
-
-        $this->push();
+        if ($this->level)
+            $this->push();
     }
 
     public function how_to_get_next() {
