@@ -8,14 +8,14 @@
 <div class="tabbable achievements-tabbable tabs-left">
     <ul class="nav nav-tabs">
         {foreach $manager->objects as $a}
-            <li {if $a@iteration==1}class="active"{/if}>
+            <li>
                 <a href="#{$a->css_class}" data-toggle="tab">{$a->short_title}</a>
             </li>
         {/foreach}
     </ul>
     <div class="tab-content">
         {foreach $manager->objects as $a}
-            <div class="tab-pane {if $a@iteration==1}active{/if}" id="{$a->css_class}">
+            <div class="tab-pane" id="{$a->css_class}">
                 <div class="row achievement-stats">
                     <div class="span3">
                         <div class="achievement-wrap achievement-medium achievement-{$a->css_class}"></div>
@@ -86,6 +86,16 @@
 
 
 <script>{literal}
+$(document).ready(function() {
+
+        tab = location.hash.split('-')[0];
+        if (tab)
+            $('[data-toggle=tab]').filter('a[href=' + tab + ']').tab('show');
+        else
+            $('[data-toggle=tab]:eq(0)').tab('show');
+
+
+
     $('.t-text:not(.empty-text)').tooltip({
         trigger: 'manual',
         template: '<div class="tooltip achievement-tooltip tooltip-white tooltip-wider"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
@@ -97,7 +107,10 @@
 
     $('[data-toggle=tab]').on('show', function() {
         $('.t-text').tooltip('hide');
+        location.hash = $(this).attr('href') + '-tab';
     });
+
+});
 
 </script>{/literal}
 {/block}

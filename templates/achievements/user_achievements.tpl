@@ -5,7 +5,8 @@
 
 	{foreach $achievements as $a}
 		{if $a->given}
-			<div class="achievement-wrap achievement-{$a->css_class} achievement-small">
+			<div class="achievement-wrap achievement-{$a->css_class} achievement-small"
+				data-tab-name="{$a->css_class}-tab">
 				{if $a->level}
 					<div class="achievement-level achievement-{$a->css_class}-level">{$a->level}</div>
 					{$htgn = $a->how_to_get_next()}
@@ -18,7 +19,8 @@
 			</div>
 		{else}
 			<div class="achievement-wrap achievement-{$a->css_class} achievement-small achievement-stub"
-				title="{if $mine}{$a->how_to_get}{/if}" data-placement="bottom"></div>
+				title="{if $mine}{$a->how_to_get}{/if}" data-placement="bottom"
+				data-tab-name="{$a->css_class}-tab"></div>
 		{/if}
 	{/foreach}
 
@@ -44,7 +46,7 @@
 	});
 
 	$('.achievement-well > .achievement-wrap').click(function() {
-		document.location.href = "/?page=achievements";
+		document.location.href = "/?page=achievements#" + $(this).attr('data-tab-name');
 	});
 {/literal}
 </script>
