@@ -1463,6 +1463,10 @@ tr.valign-top td {
     z-index: 1030;
 }
 
+.a-modal {
+    margin-top: -300px;
+}
+
 .a-modal-square {
     width: 390px;
     margin-left: -195px;
