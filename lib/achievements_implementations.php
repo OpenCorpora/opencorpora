@@ -36,7 +36,7 @@ class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
         $counter = 0;
         $progress = 0;
         foreach ($grades as $level0 => $count) {
-            if ($tasks_done > $count) {
+            if ($tasks_done >= $count) {
                 $counter++;
 
                 if (isset($grades[$level0 + 1])

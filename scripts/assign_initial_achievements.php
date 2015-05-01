@@ -26,7 +26,7 @@ if (php_sapi_name() == 'cli') {
         $progress = 0;
         $grades = explode(',', $config['achievements']['bobr']);
         foreach ($grades as $level0 => $COUNT) {
-            if ($count > $COUNT) $level++;
+            if ($count >= $COUNT) $level++;
 
             if (isset($grades[$level0 + 1])
                 && $count < $grades[$level0 + 1]) {
