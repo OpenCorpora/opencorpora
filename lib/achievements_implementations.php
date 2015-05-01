@@ -112,7 +112,7 @@ class ChameleonAchievement extends Achievement implements TaskDoneListenerInterf
         foreach ($grades as $level0 => $params) {
             list($types, $min) = $params;
             if (count($counts) < $types) break;
-            foreach ($counts as $num) {
+            foreach (array_slice($counts, 0, $types) as $num) {
                 if ($num < $min) break 2;
             }
             $level++;
@@ -128,7 +128,11 @@ class ChameleonAchievement extends Achievement implements TaskDoneListenerInterf
             // means that next level can be achieved)
             list($types, $min) = $grades[$this->level];
             $has_to_do = $min * $types;
-            $did = array_sum(array_slice($counts, 0, $types));
+            $did = array_sum(
+                array_map(function($e) use ($min) {
+                    return $e > $min ? $min : $e;
+                }, array_slice($counts, 0, $types)));
+
             $base_for_level = $grades[$this->level - 1][0] * $grades[$this->level - 1][1];
             $progress = ceil(($did - $base_for_level) * 100 / ($has_to_do - $base_for_level));
 
