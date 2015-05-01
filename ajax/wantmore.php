@@ -8,3 +8,5 @@ if (!is_logged())
 
 $am = new AchievementsManager((int)$_SESSION['user_id']);
 $am->emit(EventTypes::WANT_MORE);
+
+echo json_encode($result);

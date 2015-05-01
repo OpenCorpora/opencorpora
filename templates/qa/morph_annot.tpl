@@ -74,14 +74,16 @@ $(document).ready(function() {
         }
         event.preventDefault();
     });
-    $('button.ma_next_pack').click(function() {
+    $('button.ma_next_pack').click(function(e) {
+        e.preventDefault();
         if($(this).hasClass('disabled')) {
             $first_notready = $('.ma_not_ready').eq(0);
             $('html').scrollTop($first_notready.offset().top)
         }
         else {
-            $.post('/ajax/wantmore.php');
-            document.location.reload();
+            $.post('/ajax/wantmore.php', function() {
+                location.reload();
+            });
         }
     });
     // class for progress-bar
