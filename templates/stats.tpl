@@ -44,7 +44,7 @@ $(document).ready(function(){
 {foreach item=s from=$user_stats.annotators}
     <tr {if $s@iteration>20 && (!isset($smarty.session.user_id) || $smarty.session.user_id != $s.user_id)}style="display:none;"{/if}>
         <td><a name="user{$s.user_id}"></a>{$s@iteration}
-        <td>{if $is_admin}<a href="{$web_prefix}/user.php?id={$s.user_id}">{$s.fin.user_name}</a>{else}{$s.fin.user_name}{/if}
+        <td><a href="{$web_prefix}/user.php?id={$s.user_id}">{$s.fin.user_name}</a>
         {if !isset($smarty.get.weekly)}<td>{$s.rating}</td>{/if}
         <td>{$s.total}
         <td>{$s.fin.value|default:'0'}
