@@ -179,7 +179,7 @@ if (php_sapi_name() == 'cli') {
         			 'level' => $level, 'progress' => $progress));
         }
 
-        print "dog: ".$res['count']." month(s), level {$level}, progress {$progress}\n";
+        print "dog: $level month(s), level {$level}, progress {$progress}\n";
     }
 
     // aist

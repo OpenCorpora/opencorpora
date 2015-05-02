@@ -71,7 +71,7 @@ class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
 
         $next_level = $this->level + 1;
         if (isset($grades[$next_level])) {
-            $next_amount = $grades[$next_level];
+            $next_amount = $grades[$this->level];
             return "Для получения $next_level уровня надо сделать $next_amount заданий";
         }
         return FALSE;
@@ -213,7 +213,7 @@ class DogAchievement extends Achievement implements MonthPassedListenerInterface
         if ($this->level == count($grades)) return FALSE;
 
         $next_level = $this->level + 1;
-        $next = $grades[$next_level];
+        $next = $grades[$this->level];
         return "Для получения $next_level уровня надо сделать $next[0] заданий за $next[1]";
     }
 
