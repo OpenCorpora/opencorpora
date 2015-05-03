@@ -44,17 +44,23 @@ function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0) {
         $res = sql_query("SELECT tr.set_id, st.sent_id, s.timestamp, s.comment, u.user_shown_name AS user_name FROM tf_revisions tr LEFT JOIN rev_sets s ON (tr.set_id=s.set_id) LEFT JOIN users u ON (s.user_id=u.user_id) RIGHT JOIN tokens tf ON (tr.tf_id = tf.tf_id) RIGHT JOIN sentences st ON (tf.sent_id = st.sent_id) ".($maa ? "WHERE tr.set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %') AND " : 'WHERE ').($set_id?"tr.set_id=$set_id GROUP BY st.sent_id":"st.sent_id=$sentence_id GROUP BY tr.set_id")." ORDER BY tr.rev_id DESC LIMIT $skip,20");
         while ($r = sql_fetch_array($res)) {
             $out['sets'][] = array(
-                'set_id'    => $r['set_id'],
-                'user_name' => $r['user_name'],
-                'timestamp' => $r['timestamp'],
-                'sent_cnt'  => isset($r['cnt']) ? $r['cnt'] : 0,
-                'sent_id'   => isset($r['sent_id']) ? $r['sent_id'] : 0,
-                'comment'   => $r['comment']
+                'set_id'       => $r['set_id'],
+                'user_name'    => $r['user_name'],
+                'timestamp'    => $r['timestamp'],
+                'sent_cnt'     => isset($r['cnt']) ? $r['cnt'] : 0,
+                'sent_id'      => isset($r['sent_id']) ? $r['sent_id'] : 0,
+                'comment_html' => history_get_comment_html($r['comment']),
+                'comment'      => $r['comment']
             );
         }
     }
 
     return $out;
+}
+function history_get_comment_html($comment) {
+    $pattern = array('/Merge data from annotation pool #(\d+)/i');
+    $replacement = array('Merge data from annotation pool <a href="/pools.php?act=samples&amp;pool_id=$1">#$1</a>');
+    return preg_replace ($pattern, $replacement, $comment);
 }
 function dict_history($lemma_id, $skip = 0) {
     $out = array();

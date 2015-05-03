@@ -22,7 +22,14 @@
         <td><a href="sentence.php?id={$h.sent_id}">Предложение {$h.sent_id}</a></td>
         <td><a href="diff.php?sent_id={$h.sent_id}&amp;set_id={$h.set_id}">Изменения</a></td>
     {/if}
-    <td>{if $h.comment}{$h.comment|htmlspecialchars}{else}(без комментария){/if}</td>
+    <td>{if $h.comment_html}
+            {$h.comment_html}
+        {elseif $h.comment}
+            {$h.comment|htmlspecialchars}
+        {else}
+            (без комментария)
+        {/if}
+    </td>
 </tr>
 {/foreach}
 </table>
