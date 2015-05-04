@@ -15,8 +15,11 @@ if (php_sapi_name() == 'cli') {
     $maxdoge = 0;
     $maxdoge_user = 0;
 
-    $maxuser = sql_pe("SELECT MAX(user_id) FROM users;", array())[0][0];
-    foreach (range(1, $maxuser) as $user_id) {
+    $users = sql_pe("SELECT user_id, user_reg FROM users;", array());
+    foreach ($users as $row) {
+        $user_id = $row['user_id'];
+        $regdaysago = ceil((time() - (int)$row['user_reg']) / (60 * 60 * 24));
+
         print "User id {$user_id}\n";
         // bobr
         $r = sql_fetch_array(sql_query("SELECT COUNT(*) AS cnt FROM morph_annot_instances WHERE user_id = $user_id AND answer > 0"));
@@ -133,6 +136,8 @@ if (php_sapi_name() == 'cli') {
         print "chameleon: did ".count($cnt)." pool type(s), level {$level}, progress {$progress}\n";
 		////////////////////////
         // doge
+        if ($regdaysago < 16) continue;
+
         $res = sql_query("
 	        SELECT MONTH(FROM_UNIXTIME(timestamp)) AS month,
 	               YEAR(FROM_UNIXTIME(timestamp)) AS year

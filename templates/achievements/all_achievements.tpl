@@ -52,8 +52,15 @@
 
                                         {$percent =
                                             ceil((count($stats[$a->css_class][$level]) * 100) /
-                                            $stats['total_users'])}
-                                        <tr>
+                                            array_sum(array_map(count, array_values($stats[$a->css_class]))))}
+                                        {$percent_total = ceil((count($stats[$a->css_class][$level]) * 100) / $stats['total_users'])}
+
+                                        {if count($stats[$a->css_class][$level])}
+                                        <tr class="t-row" data-placement="right"
+                                                title='{include file="achievements/counter.tpl" stats=$stats[$a->css_class][$level] among_them=true}'>
+                                        {else}
+                                        <tr class="t-row empty-text-row">
+                                        {/if}
                                             <td class="t-level">{$level}</td>
                                             <td class="t-count">{$grades[$level - 1]}</td>
                                             <td class="t-bar">
@@ -66,9 +73,8 @@
                                             {if !count($stats[$a->css_class][$level])}
                                                 <td class="t-text empty-text"></td>
                                             {else}
-                                                <td class="t-text" data-placement="right"
-                                                title='{include file="achievements/counter.tpl" stats=$stats[$a->css_class][$level] among_them=true}'>
-                                                    ({$percent}%) {count($stats[$a->css_class][$level])}
+                                                <td class="t-text">
+                                                    ({$percent_total}%) {count($stats[$a->css_class][$level])}
                                                 </td>
                                             {/if}
                                         </tr>
@@ -96,17 +102,17 @@ $(document).ready(function() {
 
 
 
-    $('.t-text:not(.empty-text)').tooltip({
+    $('.t-row:not(.empty-text-row)').tooltip({
         trigger: 'manual',
         template: '<div class="tooltip achievement-tooltip tooltip-white tooltip-wider"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',
         container: '.tab-content'
     }).on('mouseenter', function() {
-        $('.t-text').not('.empty-text').not($(this)).tooltip('hide');
+        $('.t-row').not('.empty-text-row').not($(this)).tooltip('hide');
         $(this).tooltip('show');
     });
 
     $('[data-toggle=tab]').on('show', function() {
-        $('.t-text').tooltip('hide');
+        $('.t-row').tooltip('hide');
         location.hash = $(this).attr('href') + '-tab';
     });
 
