@@ -85,6 +85,7 @@ if (isset($_GET['page'])) {
             $smarty->assign('stats', $am->pull_stats());
             $smarty->assign('manager', $am);
             $smarty->display('achievements/all_achievements.tpl');
+            break;
         default:
             header("Location:index.php");
             break;

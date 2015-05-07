@@ -203,6 +203,23 @@ trait AchievementWithLevels {
         return $out;
     }
 
+    protected function _types_spelling($number) {
+        $lastdigit = substr($number, -1);
+        if ($lastdigit == 1) return "типе";
+        return "типах";
+    }
+
+    protected function _tasks_spelling($number) {
+        $lastdigit = substr($number, -1);
+        $prevdigit = substr($number, -2, 1);
+
+        if ($lastdigit == 1 && $prevdigit != 1 && $prevdigit != 0)
+            return "задание";
+        if (in_array($lastdigit, range(2, 4)) && $prevdigit != 1)
+            return "задания";
+        return "заданий";
+    }
+
     public function how_to_get_next() {}
 }
 

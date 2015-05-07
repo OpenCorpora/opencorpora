@@ -1537,3 +1537,8 @@ tr.valign-top td {
     width: 100px;
     padding-left: 10px;
 }
+
+
+.t-row.t-my-level td {
+    color: #a19679;
+}

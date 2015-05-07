@@ -23,15 +23,19 @@ class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
 
     public $column_description = "количество заданий, которое нужно сделать";
 
+    private function _tasks_done() {
+        $res = sql_pe("SELECT COUNT(*) AS cnt
+            FROM morph_annot_instances
+            WHERE user_id=? AND answer > 0", array($this->user_id));
+        return $res[0]['cnt'];
+    }
+
     public function dispatch($args) {
         // update progress and maybe level
         // if level was updated, toggle seen
         $grades = $this->grades();
 
-        $res = sql_pe("SELECT COUNT(*) AS cnt
-            FROM morph_annot_instances
-            WHERE user_id=? AND answer > 0", array($this->user_id));
-        $tasks_done = $res[0]['cnt'];
+        $tasks_done = $this->_tasks_done();
 
         $counter = 0;
         $progress = 0;
@@ -69,10 +73,12 @@ class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
         $grades = $this->grades();
         if ($this->level == count($this->grades)) return FALSE;
 
+        $tasks_done = $this->_tasks_done();
+
         $next_level = $this->level + 1;
         if (isset($grades[$next_level])) {
-            $next_amount = $grades[$this->level];
-            return "Для получения $next_level уровня надо сделать $next_amount заданий";
+            $required = $grades[$this->level] - $tasks_done;
+            return "Для получения $next_level уровня осталось сделать $required ".$this->_tasks_spelling($required);
         }
         return FALSE;
     }
@@ -88,7 +94,8 @@ class ChameleonAchievement extends Achievement implements TaskDoneListenerInterf
 
     public $amount_of_work = "%d по %d";
     public $column_description = "количество типов пулов и количество заданий в каждом";
-    public function dispatch($args) {
+
+    private function _get_counts() {
         $res = sql_pe("
             SELECT COUNT(instance_id)
             FROM morph_annot_instances
@@ -105,6 +112,10 @@ class ChameleonAchievement extends Achievement implements TaskDoneListenerInterf
         $counts = array_map(function($type) {
             return $type[0];
         }, $res);
+        return $counts;
+    }
+    public function dispatch($args) {
+        $counts = $this->_get_counts();
 
         $level = 0;
         $progress = 0;
@@ -149,7 +160,16 @@ class ChameleonAchievement extends Achievement implements TaskDoneListenerInterf
 
         $next_level = $this->level + 1;
         $next = $grades[$this->level];
-        return "Для получения $next_level уровня надо сделать по {$next[1]} заданий в {$next[0]} типах пулов";
+
+        $counts = array_slice($this->_get_counts(), 0, $next[1]);
+        $required_types = $next[0] - count(array_filter($counts,
+            function($typecount) use ($next) {
+                return $typecount >= $next[1];
+            }
+        ));
+        return "Для получения $next_level уровня осталось сделать ".
+        ($required_types > 1 ? "по ": "").
+        "{$next[1]} заданий в $required_types ".$this->_types_spelling($required_types)." пулов";
     }
 }
 
@@ -214,7 +234,10 @@ class DogAchievement extends Achievement implements MonthPassedListenerInterface
 
         $next_level = $this->level + 1;
         $next = $grades[$this->level];
-        return "Для получения $next_level уровня надо сделать $next[0] заданий за $next[1]";
+        $required = $next[0] - $this->_get_count_for_last_month();
+        if ($required < 0) $required = 0;
+
+        return "Для получения $next_level уровня в этом месяце осталось сделать $required ".$this->_tasks_spelling($required);
     }
 
 }

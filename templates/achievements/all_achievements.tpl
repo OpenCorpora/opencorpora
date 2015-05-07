@@ -55,8 +55,10 @@
                                             array_sum(array_map(count, array_values($stats[$a->css_class]))))}
                                         {$percent_total = ceil((count($stats[$a->css_class][$level]) * 100) / $stats['total_users'])}
 
+                                        {$my_level = ($level == $achievements[$a->css_class]->level)}
+                                        {$passed_level = ($level < $achievements[$a->css_class]->level)}
                                         {if count($stats[$a->css_class][$level])}
-                                        <tr class="t-row" data-placement="right"
+                                        <tr class="t-row {if $my_level}t-my-level{elseif $passed_level}t-passed-level{else}{/if}" data-placement="right"
                                                 title='{include file="achievements/counter.tpl" stats=$stats[$a->css_class][$level] among_them=true}'>
                                         {else}
                                         <tr class="t-row empty-text-row">
