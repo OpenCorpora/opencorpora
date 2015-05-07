@@ -16,7 +16,7 @@
     </td>
     <td class="ma_type_help">{if $type.has_manual}<a href="manual.php?pool_type={$key}" class="" title="инструкция по разметке">инструкция</a>{/if}</td>
     <td class="">{if isset($type.random_id)}<a href="?act=annot&amp;pool_id={$type.random_id}" class="btn">Взять на разметку</a>{/if}</td>
-    <td class=""><a href="pool-probator.php?pool_type={$key}" class="btn">Попробовать тестовые задания</a></td>
+    <td class="">{if $type.has_samples}<a href="pool-probator.php?pool_type={$key}" class="btn">Попробовать тестовые задания</a>{/if}</td>
 </tr>
 <tr class="ma_type_pools" style="display: none;" id="pools_{$key}">
     <td colspan="3">
