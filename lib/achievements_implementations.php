@@ -167,7 +167,7 @@ class ChameleonAchievement extends Achievement implements TaskDoneListenerInterf
                 return $typecount >= $next[1];
             }
         ));
-        return "Для получения $next_level уровня осталось сделать ".
+        return "Для получения $next_level уровня нужно сделать ".
         ($required_types > 1 ? "по ": "").
         "{$next[1]} заданий в $required_types ".$this->_types_spelling($required_types)." пулов";
     }
@@ -185,18 +185,15 @@ class DogAchievement extends Achievement implements MonthPassedListenerInterface
     public $amount_of_work = "%d";
 
     private function _get_count_for_last_month() {
-        $res = sql_pe("SELECT MONTH(FROM_UNIXTIME(timestamp)) AS month,
-                   YEAR(FROM_UNIXTIME(timestamp)) AS year, COUNT(*) as count
-
-                FROM morph_annot_click_log
-                WHERE user_id = ?
-                    AND clck_type < 10
+        $res = sql_pe("SELECT MONTH(FROM_UNIXTIME(ts_finish)) AS month,
+                   YEAR(FROM_UNIXTIME(ts_finish)) AS year, COUNT(*) as cnt
+                FROM morph_annot_instances
+                WHERE user_id=? AND answer > 0
                 GROUP BY year, month
                 HAVING month = MONTH(NOW()) AND year = YEAR(NOW())
                 ORDER BY year, month", array($this->user_id));
 
-        $res = $res[0];
-        return $res['count'];
+        return $res[0]['cnt'];
     }
 
     public function dispatch($args) {
@@ -237,7 +234,10 @@ class DogAchievement extends Achievement implements MonthPassedListenerInterface
         $required = $next[0] - $this->_get_count_for_last_month();
         if ($required < 0) $required = 0;
 
-        return "Для получения $next_level уровня в этом месяце осталось сделать $required ".$this->_tasks_spelling($required);
+        if ($required)
+            return "Для получения $next_level уровня в этом месяце осталось сделать $required ".$this->_tasks_spelling($required);
+
+        return "Для получения $next_level уровня осталось дождаться следующего месяца";
     }
 
 }

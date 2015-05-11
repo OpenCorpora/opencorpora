@@ -28,6 +28,7 @@ if (php_sapi_name() == 'cli') {
         $level = 0;
         $progress = 0;
         $grades = explode(',', $config['achievements']['bobr']);
+
         foreach ($grades as $level0 => $COUNT) {
             if ($count >= $COUNT) $level++;
 
@@ -139,13 +140,11 @@ if (php_sapi_name() == 'cli') {
         if ($regdaysago < 16) continue;
 
         $res = sql_query("
-	        SELECT MONTH(FROM_UNIXTIME(timestamp)) AS month,
-	               YEAR(FROM_UNIXTIME(timestamp)) AS year
-
-	        FROM morph_annot_click_log
-	        WHERE user_id = $user_id
-	            AND clck_type < 10
-	        GROUP BY year, month
+	        SELECT MONTH(FROM_UNIXTIME(ts_finish)) AS month,
+                   YEAR(FROM_UNIXTIME(ts_finish)) AS year
+            FROM morph_annot_instances
+            WHERE user_id=$user_id AND answer > 0
+            GROUP BY year, month
 	        HAVING COUNT(*) >= 50
             AND NOT (month = MONTH(NOW()) AND year = YEAR(NOW()))
 	        ORDER BY year, month
@@ -156,12 +155,10 @@ if (php_sapi_name() == 'cli') {
             $level++;
 
         $res = sql_pe("
-                SELECT MONTH(FROM_UNIXTIME(timestamp)) AS month,
-                   YEAR(FROM_UNIXTIME(timestamp)) AS year, COUNT(*) as count
-
-                FROM morph_annot_click_log
-                WHERE user_id = ?
-                    AND clck_type < 10
+                SELECT MONTH(FROM_UNIXTIME(ts_finish)) AS month,
+                   YEAR(FROM_UNIXTIME(ts_finish)) AS year, COUNT(*) as count
+                FROM morph_annot_instances
+                WHERE user_id=? AND answer > 0
                 GROUP BY year, month
                 HAVING month = MONTH(NOW()) AND year = YEAR(NOW())
                 ORDER BY year, month", array($user_id));
@@ -190,10 +187,10 @@ if (php_sapi_name() == 'cli') {
     // aist
     sql_pe("insert ignore into user_achievements
         (user_id, achievement_type, level, progress, seen)
-select user_id, 'aist', 1, 0, 0 from users;", array());
+select user_id, 'aist', 0, 0, 0 from users;", array());
 
     // fish
     sql_pe("insert ignore into user_achievements (user_id, achievement_type, level, progress, seen)
-select user_id, 'fish', 1, 0, 0 from users where user_team > 0;", array());
+select user_id, 'fish', 0, 0, 0 from users where user_team > 0;", array());
 
 }
