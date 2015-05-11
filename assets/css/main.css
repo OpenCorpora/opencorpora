@@ -24,6 +24,9 @@
 a {
     text-decoration: underline;
 }
+.dropdown-menu {
+    z-index: 1050;
+}
 
 .dropdown-menu a {
     text-decoration: none;
