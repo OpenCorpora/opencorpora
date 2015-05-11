@@ -1410,19 +1410,28 @@ tr.valign-top td {
 
 /* хочу еще */
 .achievement-wrap.achievement-wantmore {
-    background-color: #f4e3ea;
-    border-color: #952600;
+    background-color: #f4e5fa; /*#EACCF6;*/
+    border-color: #663399; /*rebeccapurple*/
 }
 
 .achievement-wrap.achievement-wantmore:after {
-    content: '10';
-    color: #952600;
-    font-family: Arial;
+    content: 'ЕЩЁ!';
+    color: #663399; /*rebeccapurple*/
+    font-family: "Open Sans";
+    text-shadow: 0px 1px white;
     text-align: center;
     font-weight: bold;
     position: absolute;
     width: 100%;
     height: 100%;
+}
+
+.achievement-wrap.achievement-wantmore.achievement-small:after {
+    font-size: 28px;
+}
+
+.achievement-wrap.achievement-wantmore.achievement-medium:after {
+    font-size: 56px;
 }
 
 .achievement-stub.achievement-wantmore {
