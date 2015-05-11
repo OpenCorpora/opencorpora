@@ -36,7 +36,7 @@
                     <div class="span5">
                         {if !$stats[$a->css_class]}
                             <p class="lead-medium">
-                                Этой ачивки пока ни у кого нет. Будьте первыми!
+                                {$titles.global.nobody_has_badge}
                             </p>
 
                         {else}
