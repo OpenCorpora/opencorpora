@@ -8,7 +8,6 @@ class AistAchievement extends Achievement implements SignedUpListenerInterface {
 
     public $short_title = "Аист";
     public $caption = "За регистрацию";
-    public $how_to_get = "Чтобы получить эту ачивку, нужно зарегистрироваться";
     public $css_class = "aist";
 
 }
@@ -18,7 +17,6 @@ class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
 
     public $short_title = "Бобёр";
     public $caption = "За трудолюбие";
-    public $how_to_get = "Для получения ачивки нужно разметить 10 примеров";
     public $css_class = "bobr";
 
     public $column_description = "количество заданий, которое нужно сделать";
@@ -89,7 +87,6 @@ class ChameleonAchievement extends Achievement implements TaskDoneListenerInterf
 
     public $short_title = "Хамелеон";
     public $caption = "За разнообразие";
-    public $how_to_get = "Для получения ачивки нужно разметить по 10 примеров в 2 разных типах заданий";
     public $css_class = "chameleon";
 
     public $amount_of_work = "%d по %d";
@@ -178,7 +175,6 @@ class DogAchievement extends Achievement implements MonthPassedListenerInterface
 
     public $short_title = "Пёс";
     public $caption = "За преданность";
-    public $how_to_get = "Чтобы получить эту ачивку, нужно разметить 50 примеров в этом месяце и вернуться в следующем";
     public $css_class = "dog";
 
     public $column_description = "сколько заданий надо сделать в месяц (каждый месяц уровень увеличивается)";
@@ -247,7 +243,6 @@ class WantMoreAchievement extends Achievement implements WantMoreListenerInterfa
 
     public $short_title = "Хочу ещё!";
     public $caption = "Хочу еще!";
-    public $how_to_get = "Чтобы получить эту ачивку, вы должны нажать &quot;Хочу еще примеров&quot;";
     public $css_class = "wantmore";
 }
 
@@ -256,7 +251,6 @@ class FishAchievement extends Achievement implements JoinedTeamListenerInterface
 
     public $short_title = "Рыбы";
     public $caption = "За вступление в команду";
-    public $how_to_get = "Чтобы получить эту ачивку, надо вступить в команду";
     public $css_class = "fish";
 
 }

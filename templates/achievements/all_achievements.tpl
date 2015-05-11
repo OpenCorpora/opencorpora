@@ -1,15 +1,18 @@
-{* Smarty *}
 {extends file='common.tpl'}
 {block name='content'}
-<h1>Все награды</h1>
+
+{$titles = $achievements_titles}
+<h1>{$titles.global.wiki_header}</h1>
+{if $titles.global.wiki_lead}
 <div class="lead">
-    На этой странице собраны все ачивки, которые мы вам пока не дадим.
+    {$titles.global.wiki_lead}
 </div>
+{/if}
 <div class="tabbable achievements-tabbable tabs-left">
     <ul class="nav nav-tabs">
         {foreach $manager->objects as $a}
             <li>
-                <a href="#{$a->css_class}" data-toggle="tab">{$a->short_title}</a>
+                <a href="#{$a->css_class}" data-toggle="tab">{$titles[$a->css_class].short_title}</a>
             </li>
         {/foreach}
     </ul>
@@ -19,10 +22,10 @@
                 <div class="row achievement-stats">
                     <div class="span3">
                         <div class="achievement-wrap achievement-medium achievement-{$a->css_class}"></div>
-                        <h3 class="a-title">{$a->short_title}
+                        <h3 class="a-title">{$titles[$a->css_class].short_title}
                             </h3>
                         <p class="a-desc">
-                            {$a->how_to_get}
+                            {$titles[$a->css_class].how_to_get_detailed}
                         </p>
                         <p class="a-desc">
                             {if !isset($a->level)}
@@ -42,9 +45,9 @@
                                     {include file="achievements/counter.tpl" stats=$stats[$a->css_class]}
                                 </p>
                             {else}
-                                <p class="lead-medium">
+                                <!--p class="lead-medium">
                                     В первой колонке указан уровень, во второй &mdash; {$a->column_description}.
-                                </p>
+                                </p-->
                                 <table class="a-stats">
                                     <tbody>
                                     {$grades = $a->grades()}

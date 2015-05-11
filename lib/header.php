@@ -81,6 +81,11 @@ $smarty->assign('readonly', file_exists($config['project']['readonly_flag']) ? 1
 $smarty->assign('goals', $config['goals']);
 $smarty->assign('game_is_on', 0);
 
+//$smarty->configLoad(__DIR__.'/../templates/achievements/titles.conf', NULL);
+// smarty->configLoad is a piece of shit which can not handle multiple sections at once.
+// reverting to something much simplier.
+$smarty->assign('achievements_titles', parse_ini_file(__DIR__.'/../templates/achievements/titles.conf', TRUE));
+
 if (is_logged()) {
     if (game_is_on()) {
         $smarty->assign('game_is_on', 1);

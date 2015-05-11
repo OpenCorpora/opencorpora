@@ -1,6 +1,7 @@
 {strip}
 <script src="{$web_prefix}/assets/vendor/bootstrap/js/bootstrap.tooltip-fixed.js"></script>
 {$mine = ($user_id == $smarty.session.user_id)}
+{$titles = $achievements_titles}
 <div class="achievement-well">
 
 	{foreach $achievements as $a}
@@ -19,7 +20,7 @@
 			</div>
 		{else}
 			<div class="achievement-wrap achievement-{$a->css_class} achievement-small achievement-stub"
-				title="{if $mine}{$a->how_to_get}{/if}" data-placement="bottom"
+				title="{if $mine}{$titles[$a->css_class].how_to_get}{/if}" data-placement="bottom"
 				data-tab-name="{$a->css_class}-tab"></div>
 		{/if}
 	{/foreach}

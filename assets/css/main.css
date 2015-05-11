@@ -1483,21 +1483,24 @@ tr.valign-top td {
 
 /* achievement stats */
 .achievement-stats {
-    padding-left: 45px;
+    padding-left: 25px;
 }
 
 .achievements-tabbable {
     padding-top: 10px;
 }
 
-.achievement-stats .a-title {
-    width: 200px;
-    text-align: center;
-    color: #444;
+.achievement-stats .achievement-wrap {
+    margin-left: 35px;
+    margin-right: 35px;
 }
 
-.achievement-stats .a-desc {
+.achievement-stats .a-title {
     width: 200px;
+    margin-left: 35px;
+    margin-right: 35px;
+    text-align: center;
+    color: #444;
 }
 
 .lead-medium {
