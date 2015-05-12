@@ -30,9 +30,8 @@ function get_proba_packet($pool_type, $size) {
         'gram_descr' => explode('@', $r['gram_descr'])
     );
     
-    $res = sql_query("SELECT `sample`.`sample_id`, `sample`.`pool_id`, `pool`.`revision`, `answer`.`answer` 
+    $res = sql_query("SELECT `sample`.`sample_id`, `sample`.`pool_id`, `pool`.`revision` 
                 FROM `morph_annot_samples` AS `sample`
-                INNER JOIN `morph_annot_moderated_samples` AS `answer` ON `sample`.`sample_id` = `answer`.`sample_id`
                 INNER JOIN `morph_annot_pools` AS `pool` ON `pool`.`pool_id` = `sample`.`pool_id`
                 WHERE `pool`.`pool_type` = $pool_type AND `pool`.`status` = ".MA_POOLS_STATUS_ARCHIVED."
                 ORDER BY RAND()
@@ -53,7 +52,6 @@ function get_proba_packet($pool_type, $size) {
         }
         $instance['lemmata'] = implode(', ', array_unique($lemmata));
         $instance['sample_id'] = $r['sample_id'];
-        $instance['correct_answer'] = $r['answer'];
         $packet['instances'][] = $instance;
     }
     return $packet;

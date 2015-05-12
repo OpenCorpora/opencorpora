@@ -3,8 +3,13 @@
 {*block name=before_content}{if $game_is_on == 1}{include file="qa/game_status.tpl"}{/if}{/block*}
 {block name=content}
 {literal}
+<style type="text/css">
+    .correct {background-color:green;}
+    .incorrect {background-color:red;}
+</style>
 <script type="text/javascript">
 $(document).ready(function() {
+    $('div.alert').hide();
     $('.ma_instance button').click(function(event) {
         $('button.ma_show_results').addClass('disabled');
         var $btn = $(event.target);
@@ -50,30 +55,61 @@ $(document).ready(function() {
             ShowResults();
         }
     });
-    
-    function ShowResults()
-    {
-        var samples_total = $('div.ma_instance').length;
-        
-        var samples_rejected = 0;
-        $('button.reject').each(function(i, el) {
-            if ($(el).hasClass('chosen'))
-                samples_rejected++;
-        });
-        
-        var samples_agree = 0;
-        
+
+    function ShowResults(){
+        var answers = new Array();
         $('div.ma_instance').each(function(i, el) {
-            var sample_id = $(el).attr('rel');
-            var sample_answer_moderator = $('#h_' + sample_id).val();
-            if ($('button#b_' + sample_id + '_' + sample_answer_moderator).hasClass('chosen'))
-                samples_agree++;
-            //alert("sample_id=" + sample_id + " moderator_answer =" + sample_answer_moderator);
+            var sample_id = Number($(el).attr('rel'));
+            var answer_id = GetMyAnswer(sample_id);
+            answers.push(new Array(sample_id, answer_id));
         });
-        
-        alert('Всего примеров: ' + samples_total + '\nВы пропустили примеров: ' + samples_rejected + '\nОтветов совпало с правильным: = ' + samples_agree);
+
+        $.post('ajax/annot_proba.php', {answers: JSON.stringify(answers)}, function(res){
+            if (res.status == 1) {
+                CalculateResults(res.answers);
+            } else
+                alert('Что-то пошло не так. Попробуйте перезагрузить страницу.')
+        });
+
     }
     
+    function CalculateResults(answers)
+    {
+        var samples_total = answers.length;
+        var samples_rejected = 0;
+        var samples_agree = 0;
+        for(var k=0; k<samples_total; k++) {
+            var sample_id = answers[k][0];
+            var answer_id = answers[k][1];
+            var moderator_answer_id = answers[k][2];
+            if ( answer_id == moderator_answer_id)
+                samples_agree++;	
+            else
+                samples_rejected++;
+            if ( answer_id == moderator_answer_id)
+                $('#a_' + sample_id).addClass('correct');	
+            else
+                $('#a_' + sample_id).addClass('incorrect');	
+        }
+        var text = 'Всего примеров: ' + samples_total + ' Вы пропустили примеров: ' + samples_rejected + ' Ответов совпало с правильным: = ' + samples_agree;
+        $('div.alert').show();
+        $("div.alert").text(text);
+    }
+	
+    function GetMyAnswer(sample_id)
+    {
+        if ($('button#b_' + sample_id + '_99').hasClass('chosen'))
+            return 99;
+        var result = -1;
+        $("button[rel='" + sample_id+"']").each(function(i, el) {
+            var button_id = $(el).attr('rev');
+            if ($('button#b_' + sample_id + '_' + button_id).hasClass('chosen')){
+                result = button_id;
+            }
+        });
+        return Number(result);
+    }
+
 });
 </script>
 </script>
@@ -95,7 +131,6 @@ $(document).ready(function() {
 {foreach from=$packet.instances item=instance}
 <div class='ma_instance ma_not_ready' rel='{$instance.sample_id}' rev='{$instance.sample_id}'>
     <div class="ma_instance_words">
-        <input type="hidden" id="h_{$instance.sample_id}" value="{$instance.correct_answer}">
         {if $instance.has_left_context}<a class='expand' href="#" rel='{$instance.has_left_context}' rev='-1'>...</a>{/if}
         {foreach from=$instance.context item=word name=x}
         {if $smarty.foreach.x.index == $instance.mainword}
@@ -107,12 +142,13 @@ $(document).ready(function() {
         {if $instance.has_right_context}<a class='expand' href="#" rel='{$instance.has_right_context}' rev='1'>...</a>{/if}
     </div>
     {foreach from=$packet.gram_descr item=var name=x}
-    <button rev='{$smarty.foreach.x.index + 1}' id="b_{$instance.sample_id}_{$smarty.foreach.x.index + 1}" class="btn">{$var|htmlspecialchars}</button>
+    <button rev='{$smarty.foreach.x.index + 1}'  rel="{$instance.sample_id}" id="b_{$instance.sample_id}_{$smarty.foreach.x.index + 1}" class="btn">{$var|htmlspecialchars}</button>
     {/foreach}
     <button rev='99' id="b_{$instance.sample_id}_99" class='btn other'>Другое</button>
     <button rev='-1' class='btn reject btn-danger'>Пропустить</button>
-    <div class='btn disabled debug_info'>Debug. Верный ответ: {$instance.correct_answer}</div>
+    <div class="btn answer_helper" id="a_{$instance.sample_id}">ответ</div>
 </div>
 {/foreach}
 <button class='btn btn-primary btn-large ma_show_results disabled'>Узнать свою статистику!</button>
+<div class="alert" ></div>
 {/block}
