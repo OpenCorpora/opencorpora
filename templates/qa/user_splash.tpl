@@ -1,7 +1,7 @@
+{$titles = $achievements_titles}
 {if $achievements_unseen}
     <link rel="stylesheet" href="{$web_prefix}/assets/css/animate.min.css">
     {assign var="single" value=count($achievements_unseen)==1}
-    {$titles = $achievement_titles}
     <div class="modal hide fade a-modal {if $single}a-modal-square{/if}">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>

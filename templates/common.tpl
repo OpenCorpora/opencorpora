@@ -39,7 +39,7 @@
 <div class='alert alert-error'><div class="container">Система находится в режиме &laquo;только для чтения&raquo;. Функции разметки и редактирования временно не работают.</div></div>
 {/if}
 <div id="container" class="container">
-{if $game_is_on == 1}{include file='qa/user_splash.tpl'}{/if}
+{if $game_is_on == 1}{include file='qa/user_splash.tpl' achievements_titles=$achievements_titles}{/if}
 <div id="alert_wrap">{if $alerts}{foreach $alerts as $type=>$message}<div class="alert alert-{$type}">{$message}</div>{/foreach}<script>setTimeout('$("#alert_wrap .alert").fadeOut()',3000);</script>{/if}
 </div>
 {block name=content}{/block}
