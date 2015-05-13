@@ -1540,7 +1540,8 @@ tr.valign-top td {
 }
 
 .t-count {
-    min-width: 70px;
+    /*min-width: 70px;*/
+    white-space: nowrap;
 }
 
 .t-level {
