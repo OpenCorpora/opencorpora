@@ -22,18 +22,9 @@
 {if $is_admin || ($is_logged && $smarty.session.user_id == $smarty.get.id)}
 <p>настоящий логин &mdash; {$user.name|htmlspecialchars}, дата регистрации {$user.registered|date_format:"%d.%m.%Y"}</p>
 {/if}
-{if $game_is_on == 1}
-<h2>Награды</h2>
-<div class="clearfix">
-{foreach from=$badges item=badge}
-<div class="pull-left" style="border: 1px #ddd solid; margin-right: 10px; padding: 5px">
-    <div><img style="margin-bottom: 5px; cursor: help" src="{if $badge.image}assets/img/badges/{$badge.image}-100x100.png{else}http://placehold.it/100x100{/if}" title="{$badge.description|htmlspecialchars}"></div>
-    <div align="center"><b>{$badge.name}</b><br/>{$badge.shown_time|date_format:"%d.%m.%Y"}</div>
-</div>
-{/foreach}
-</div>
-{/if}
-<h2>Разметка</h2>
+
+{capture name="stats_table"}
+
 <table class='table-condensed table'>
 <tr><th>Тип пула<th>Название пула<th>Всего ответов<th>Проверено<th colspan='2'>Ошибок</tr>
 <tr><td></td><td><b>ВСЕГО</b></td><td><b>{$user.total_answers}</b></td><td><b>{$user.checked_answers}</b></td><td><b>{$user.incorrect_answers}</b></td><td><b>=&nbsp;{if $user.checked_answers > 0}{($user.incorrect_answers / $user.checked_answers * 100)|number_format:1}%{else}N/A{/if}</b></td></tr>
@@ -57,4 +48,25 @@
     {/foreach}
 {/foreach}
 </table>
+{/capture}
+
+{if $game_is_on == 1}
+    <ul class="nav nav-tabs" id="profile-tabs">
+      <li class="active"><a href="#achievements" data-toggle="tab">Мои бейджи</a></li>
+      <li><a href="#stats" data-toggle="tab">Мои ответы</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane active" id="achievements">
+          {include file="achievements/user_achievements.tpl" badges=$badges user=$user}
+      </div>
+      <div class="tab-pane" id="stats">
+          {$smarty.capture.stats_table}
+      </div>
+    </div>
+{else}
+    <h2>Мои ответы</h2>
+    {$smarty.capture.stats_table}
+{/if}
+
 {/block}

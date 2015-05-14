@@ -1,5 +1,7 @@
 <?php
 require('lib/header.php');
+require_once('lib/lib_achievements.php');
+
 if (is_logged()) {
     if (isset($_GET['act'])) {
         $action = $_GET['act'];
@@ -13,6 +15,10 @@ if (is_logged()) {
             break;
         case 'save_team':
             save_user_team($_POST['team_id'], $_POST['new_team_name']);
+            if ($_POST['team_id'] || $_POST['new_team_name']) {
+                $am = new AchievementsManager((int)$_SESSION['user_id']);
+                $am->emit(EventTypes::JOINED_TEAM);
+            }
             alert_set('success','Настройки сохранены');
             header('Location:options.php');
             break;
@@ -43,4 +49,3 @@ if (is_logged()) {
 } else
     show_error($config['msg']['notlogged']);
 log_timing();
-?>

@@ -4,6 +4,7 @@
 #0 3 * * * nice /corpus/scripts/tokenizer/collect_data.pl /corpus/config.ini --dry-run >/dev/null 2>/home/grand/tokenizer.log
 0 4 * * * /corpus/scripts/backup.sh 2>>/home/grand/error.log
 30 4 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/export_and_stats.sh" 2>>/home/grand/error.log
+0 6 1 * * php /corpus/scripts/check_dog_achievement.php >> /home/madfriend/error.log 2&>1
 #30 6 * * * nice /corpus/scripts/cronrunner.pl "/corpus/export/pools/export_pools.sh" 2>>/home/grand/error.log
 0 7 * * * /corpus/scripts/invalidate_auth_tokens.pl /corpus/config.ini
 45 7 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/train_tokenizer.sh" >/dev/null 2>/dev/null

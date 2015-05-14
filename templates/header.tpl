@@ -19,6 +19,7 @@
                     <li><a href="#">Downloads</a></li>*}
                     <li {if $active_page=="downloads"}class="active"{/if}><a href="{$web_prefix}/?page=downloads">Скачать</a></li>
                     <li {if $active_page=="about"}class="active"{/if}><a href="{$web_prefix}/?page=about">О проекте</a></li>
+                    <li {if $active_page=="achievements"}class="active"{/if}><a href="{$web_prefix}/?page=achievements">Бейджи</a></li>
                 </ul>
                 <ul class="nav pull-right">
                     <li class="dropdown">
