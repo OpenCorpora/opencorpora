@@ -7,6 +7,7 @@ try {
         !isset($_POST['id']) ||
         !$_POST['id'] ||
         !isset($_POST['text']) ||
+        !trim($_POST['text']) ||
         !isset($_SESSION['user_id'])
     )
         throw new UnexpectedValueException();
