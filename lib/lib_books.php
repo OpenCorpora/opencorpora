@@ -223,8 +223,7 @@ function download_url($url, $force=false) {
     return $filename;
 }
 function split_paragraph($sentence_id) {
-    // temporarily disabled to secure NE
-    throw new Exception("Function disabled");
+    // fails if this paragraph has any NE
 
     if (!$sentence_id)
         throw new UnexpectedValueException();
@@ -234,6 +233,12 @@ function split_paragraph($sentence_id) {
     //get the paragraph info
     $res = sql_pe("SELECT par_id, book_id, pos FROM paragraphs WHERE par_id=(SELECT par_id FROM sentences WHERE sent_id=? LIMIT 1) LIMIT 1", array($sentence_id));
     $r = $res[0];
+
+    // check for NE
+    $res = sql_pe("SELECT annot_id FROM ne_paragraphs WHERE par_id = ? LIMIT 1", array($r['par_id']));
+    if (sizeof($res) > 0)
+        throw new Exception("This paragraph cannot be split (NE)");
+
     sql_begin();
     //move the following paragraphs
     sql_pe("UPDATE paragraphs SET pos=pos+1 WHERE book_id=? AND pos > ?", array($r['book_id'], $r['pos']));
@@ -248,17 +253,40 @@ function split_paragraph($sentence_id) {
     sql_commit();
     return $r['book_id'];
 }
-function split_sentence($token_id) {
-    //note: comments will stay with the first sentence
+function sentence_has_ne_markup($sent_id) {
+    $res = sql_pe("
+        SELECT entity_id
+        FROM ne_entities
+        WHERE start_token IN (
+            SELECT tf_id
+            FROM tokens
+            WHERE sent_id = ?
+        )
+        LIMIT 1
+    ", array($sent_id));
 
-    // temporarily disabled to secure NE
-    throw new Exception("Function disabled");
+    return sizeof($res) > 0;
+}
+function sentence_has_syntax_markup($sent_id) {
+    $res = sql_pe("SELECT parse_id FROM syntax_parses WHERE sent_id = ? LIMIT 1", array($sent_id));
+    return sizeof($res) > 0;
+}
+function split_sentence($token_id) {
+    // note: comments will stay with the first sentence
+    // note: fails if this sentence has NE or syntax markup
 
     //find which sentence the token is in
     $res = sql_pe("SELECT sent_id, pos FROM tokens WHERE tf_id=? LIMIT 1", array($token_id));
     $r = $res[0];
     $sent_id = $r['sent_id'];
     $tpos = $r['pos'];
+    
+    if (sentence_has_ne_markup($sent_id))
+        throw new Exception("This sentence cannot be split (NE)");
+
+    if (sentence_has_syntax_markup($sent_id))
+        throw new Exception("This sentence cannot be split (syntax)");
+
     //check that it is not the last token
     $r = sql_fetch_array(sql_query("SELECT MAX(pos) mpos FROM tokens WHERE sent_id=$sent_id"));
     if ($r['mpos'] == $tpos)
@@ -300,9 +328,6 @@ function split_sentence($token_id) {
     return array($r['book_id'], $sent_id);
 }
 function merge_sentences($id1, $id2) {
-    // temporarily disabled to secure NE
-    throw new Exception("Function disabled");
-
     if ($id1 < 1 || $id2 < 1)
         throw new UnexpectedValueException();
     // check same paragraph and adjacency
@@ -317,7 +342,7 @@ function merge_sentences($id1, $id2) {
     sql_begin();
     $res = sql_pe("SELECT MAX(pos) AS maxpos FROM tokens WHERE sent_id=?", array($id1));
     sql_pe(
-        "UPDATE tokens SET sent_id=?, pos=pos+? WHERE sent_id=$id2",
+        "UPDATE tokens SET sent_id=?, pos=pos+? WHERE sent_id=?",
         array($id1, $res[0]['maxpos'], $id2)
     );
     //merging source text
@@ -334,14 +359,22 @@ function merge_sentences($id1, $id2) {
     sql_pe("UPDATE sentences SET check_status=0 WHERE sent_id=? LIMIT 1", array($id1));
     sql_pe("UPDATE sentence_comments SET sent_id=? WHERE sent_id=?", array($id1, $id2));
     sql_pe("DELETE FROM sentence_check WHERE sent_id=? OR sent_id=?", array($id1, $id2));
+
+    // change syntax markup accordingly
+    sql_pe("UPDATE syntax_parses SET sent_id = ? WHERE sent_id = ?", array($id1, $id2));
+
     //deleting sentence
     sql_pe("DELETE FROM sentence_authors WHERE sent_id=? LIMIT 1", array($id2));
     sql_pe("DELETE FROM sentences WHERE sent_id=? LIMIT 1", array($id2));
     sql_commit();
 }
 function delete_sentence($sid) {
-    // temporarily disabled to secure NE
-    throw new Exception("Function disabled");
+    // fails if this sentence has NE or syntax markup
+
+    if (sentence_has_ne_markup($sid))
+        throw new Exception("This sentence cannot be deleted (NE)");
+    if (sentence_has_syntax_markup($sid))
+        throw new Exception("This sentence cannot be deleted (syntax)");
 
     sql_begin();
     sql_pe("DELETE FROM sentence_authors WHERE sent_id=? LIMIT 1", array($sid));
