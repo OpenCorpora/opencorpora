@@ -21,6 +21,7 @@ try {
                 throw new Exception();
             if ($value === '0' || $value === '1')
                 sql_query("INSERT INTO sources_status VALUES('$id', '".$_SESSION['user_id']."', '$value', '".time()."')");
+            break;
         default:
             throw new Exception();
     }
