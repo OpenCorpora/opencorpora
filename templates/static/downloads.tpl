@@ -123,4 +123,9 @@
 <li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.txt.bz2">архив .bz2</a> ({$dl.dict.txt.bz2.size} Мб)</li>
 <li><a href="{$web_prefix}/files/export/dict/dict.opcorpora.txt.zip">архив .zip</a> ({$dl.dict.txt.zip.size} Мб)</li>
 </ul>
+<h2>Копия базы данных</h2>
+<p class='small'>Информация о пользователях не включена. Обновляется раз в неделю.</p>
+<ul>
+<li><a href="{$web_prefix}/files/export/database/database-dev.sql.gz">Архив .gz</a> (около 160 Мб)</li>
+</ul>
 {/block}
