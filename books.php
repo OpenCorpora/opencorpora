@@ -124,6 +124,10 @@ elseif (user_has_permission('perm_adder')) {
             $book_id = split_paragraph($sent_id);
             header("Location:books.php?book_id=$book_id&full#sen$sent_id");
             break;
+        case 'merge_paragraph':
+            list($book_id, $sent_id) = merge_paragraphs($_GET['pid']);
+            header("Location:books.php?book_id=$book_id&full#sen$sent_id");
+            break;
     }
 } else {
     show_error($config['msg']['notadmin']);

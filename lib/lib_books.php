@@ -253,6 +253,49 @@ function split_paragraph($sentence_id) {
     sql_commit();
     return $r['book_id'];
 }
+function merge_paragraphs($par_id) {
+    // merges this paragraph to the previous one
+    if (!$par_id)
+        throw new UnexpectedValueException();
+
+    $res = sql_pe("SELECT book_id, pos FROM paragraphs WHERE par_id = ?", array($par_id));
+    $pos = $res[0]['pos'];
+    $book_id = $res[0]['book_id'];
+
+    $res = sql_pe("
+        SELECT par_id
+        FROM paragraphs
+        WHERE book_id = ?
+        AND pos < ?
+        ORDER BY pos DESC
+        LIMIT 1
+    ", array($book_id, $pos));
+    if (!sizeof($res))
+        throw new Exception("No previous paragraph");
+
+    $prev_id = $res[0]['par_id'];
+
+    $res = sql_pe("
+        SELECT MAX(pos) AS maxpos
+        FROM sentences
+        WHERE par_id = ?
+    ", array($prev_id));
+    $maxpos = $res[0]['maxpos'];
+
+    // move sentences
+    sql_pe("UPDATE sentences SET par_id = ?, pos=pos+$maxpos WHERE par_id = ?",
+        array($prev_id, $par_id));
+
+    // change NE accordingly
+    sql_pe("UPDATE ne_paragraphs SET par_id = ? WHERE par_id = ?", array($prev_id, $par_id));
+
+    // delete paragraph
+    sql_pe("DELETE FROM paragraphs WHERE par_id = ? LIMIT 1", array($par_id));
+
+    $res = sql_pe("SELECT sent_id FROM sentences WHERE par_id = ? ORDER BY pos LIMIT 1", array($prev_id));
+
+    return array($book_id, $res[0]['sent_id']);
+}
 function sentence_has_ne_markup($sent_id) {
     $res = sql_pe("
         SELECT entity_id
