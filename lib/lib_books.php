@@ -405,7 +405,7 @@ function save_token_text($tf_id, $tf_text) {
     $token_for_form2tf = str_replace('ё', 'е', mb_strtolower($tf_text));
     sql_pe("UPDATE tokens SET tf_text = ? WHERE tf_id=? LIMIT 1", array($tf_text, $tf_id));
     sql_pe("DELETE FROM form2tf WHERE tf_id=?", array($tf_id));
-    sql_query("INSERT INTO form2tf VALUES(?, ?)", array($token_for_form2tf, $tf_id));
+    sql_pe("INSERT INTO form2tf VALUES(?, ?)", array($token_for_form2tf, $tf_id));
     create_tf_revision($revset_id, $tf_id, generate_tf_rev($tf_text));
 
     sql_commit();
