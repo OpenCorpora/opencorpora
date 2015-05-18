@@ -50,10 +50,11 @@
 </table>
 {/capture}
 
+{$mine = ($user_id == $smarty.session.user_id)}
 {if $game_is_on == 1}
     <ul class="nav nav-tabs" id="profile-tabs">
-      <li class="active"><a href="#achievements" data-toggle="tab">Мои бейджи</a></li>
-      <li><a href="#stats" data-toggle="tab">Мои ответы</a></li>
+      <li class="active"><a href="#achievements" data-toggle="tab">{if $mine}Мои бейджи{else}Бейджи{/if}</a></li>
+      <li><a href="#stats" data-toggle="tab">{if $mine}Мои ответы{else}Ответы{/if}</a></li>
     </ul>
 
     <div class="tab-content">
@@ -65,7 +66,7 @@
       </div>
     </div>
 {else}
-    <h2>Мои ответы</h2>
+    <h2>{if $mine}Мои ответы{else}Ответы{/if}</h2>
     {$smarty.capture.stats_table}
 {/if}
 
