@@ -15,7 +15,7 @@
         <link href="{$web_prefix}/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
         <link href="{$web_prefix}/assets/css/btn-palette.css" rel="stylesheet">
 
-        <link rel='stylesheet' type='text/css' href='{$web_prefix}/assets/css/main.css?8'/>
+        <link rel='stylesheet' type='text/css' href='{$web_prefix}/assets/css/main.css?9'/>
         <link rel="stylesheet" type="text/css" href="{$web_prefix}/assets/vendor/bootstrap-notify/css/bootstrap-notify.css" />
 
         <!-- Open Sans for headers -->
