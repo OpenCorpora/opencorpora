@@ -1,7 +1,5 @@
 <?php
 
-require_once(__DIR__.'/achievements_implementations.php');
-
 class EventTypes {
     const TASK_DONE = "TaskDoneListenerInterface";
     const JOINED_TEAM = "JoinedTeamListenerInterface";
@@ -19,6 +17,9 @@ interface JoinedTeamListenerInterface extends ListenerInterface {}
 interface WantMoreListenerInterface extends ListenerInterface {}
 interface SignedUpListenerInterface extends ListenerInterface {}
 interface MonthPassedListenerInterface extends ListenerInterface {}
+
+require_once(__DIR__.'/achievements_implementations.php');
+
 
 abstract class Achievement {
     // Текст "как получить ачивку"
