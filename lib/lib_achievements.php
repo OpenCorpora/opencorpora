@@ -14,11 +14,11 @@ interface ListenerInterface {
     public function dispatch($args);
 }
 
-interface TaskDoneListenerInterface {}
-interface JoinedTeamListenerInterface {}
-interface WantMoreListenerInterface {}
-interface SignedUpListenerInterface {}
-interface MonthPassedListenerInterface {}
+interface TaskDoneListenerInterface extends ListenerInterface {}
+interface JoinedTeamListenerInterface extends ListenerInterface {}
+interface WantMoreListenerInterface extends ListenerInterface {}
+interface SignedUpListenerInterface extends ListenerInterface {}
+interface MonthPassedListenerInterface extends ListenerInterface {}
 
 abstract class Achievement {
     // Текст "как получить ачивку"
