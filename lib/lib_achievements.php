@@ -128,6 +128,7 @@ class AchievementsManager {
     }
 
     public function pull_stats() {
+        global $config;
         $res = sql_pe("
             SELECT *
             FROM user_achievements
@@ -140,7 +141,7 @@ class AchievementsManager {
             $haslevels = isset($this->objects[$record['achievement_type']]->level);
             if (empty($out[$record['achievement_type']])) {
                 if ($haslevels)
-                    $out[$record['achievement_type']] = array_fill_keys(range(1, 20), array());
+                    $out[$record['achievement_type']] = array_fill_keys(range(1, $config['achievements']['max_level']), array());
                 else $out[$record['achievement_type']] = array();
             }
 
@@ -195,8 +196,6 @@ trait AchievementWithLevels {
     }
 
     public function grades() {
-        global $config;
-
         $out = array();
         foreach ($this->fetch_grades() as $pair) {
             array_push($out, vsprintf($this->amount_of_work, $pair));
