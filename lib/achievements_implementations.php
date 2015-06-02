@@ -21,6 +21,8 @@ class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
 
     public $column_description = "количество заданий, которое нужно сделать";
 
+    private $level_reqs = array(10, 50, 100, 300, 500, 900, 1500, 2500, 4300, 6500, 8800, 12000, 16000, 21000, 36000, 61000, 103000, 175000, 300000, 500000);
+
     private function _tasks_done() {
         $res = sql_pe("SELECT COUNT(*) AS cnt
             FROM morph_annot_instances
@@ -91,6 +93,29 @@ class ChameleonAchievement extends Achievement implements TaskDoneListenerInterf
 
     public $amount_of_work = "%d по %d";
     public $column_description = "количество типов пулов и количество заданий в каждом";
+
+    private $level_reqs = array(
+        array(2, 10),
+        array(3, 20),
+        array(5, 30),
+        array(7, 40),
+        array(9, 50),
+        array(10, 60),
+        array(12, 70),
+        array(14, 80),
+        array(15, 90),
+        array(17, 100),
+        array(19, 110),
+        array(20, 120),
+        array(22, 130),
+        array(24, 140),
+        array(26, 150),
+        array(27, 160),
+        array(29, 170),
+        array(31, 180),
+        array(32, 190),
+        array(34, 200)
+    );
 
     private function _get_counts() {
         $res = sql_pe("
@@ -179,6 +204,8 @@ class DogAchievement extends Achievement implements MonthPassedListenerInterface
 
     public $column_description = "сколько заданий надо сделать в месяц (каждый месяц уровень увеличивается)";
     public $amount_of_work = "%d";
+
+    private $level_reqs = array(50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50);
 
     private function _get_count_for_last_month() {
         $res = sql_pe("SELECT MONTH(FROM_UNIXTIME(ts_finish)) AS month,

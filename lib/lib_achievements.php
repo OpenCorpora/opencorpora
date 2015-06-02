@@ -168,6 +168,8 @@ trait AchievementWithLevels {
     public $progress = 0, // %
     $level = 0; // number
 
+    private $level_reqs;
+
     public function set($db_record) {
         parent::set($db_record);
         $this->level = (int)$db_record['level'];
@@ -188,11 +190,7 @@ trait AchievementWithLevels {
     }
 
     public function fetch_grades() {
-        global $config;
-        if (!$grades = $config['achievements'][$this->css_class]) return array();
-        return array_map(function($pair) {
-            return explode(':', $pair);
-        }, explode(',', $grades));
+        return $this->level_reqs;
     }
 
     public function grades() {
