@@ -177,7 +177,7 @@ trait AchievementWithLevels {
     public $progress = 0, // %
     $level = 0; // number
 
-    private $level_reqs;
+    public $level_reqs;
 
     public function set($db_record) {
         parent::set($db_record);
@@ -281,7 +281,7 @@ trait AchievementWithQualityRestriction {
 
     private function _has_enough_quality_info($level, $count) {}
 
-    private function _check_quality_restrictions($level) {
+    public function check_quality_restrictions($level) {
         // $level counts from 1
 
         $quality_info = array();

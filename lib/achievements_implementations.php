@@ -22,7 +22,7 @@ class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
 
     public $column_description = "количество заданий, которое нужно сделать";
 
-    private $level_reqs = array(10, 50, 100, 300, 500, 900, 1500, 2500, 4300, 6500, 8800, 12000, 16000, 21000, 36000, 61000, 103000, 175000, 300000, 500000);
+    public $level_reqs = array(10, 50, 100, 300, 500, 900, 1500, 2500, 4300, 6500, 8800, 12000, 16000, 21000, 36000, 61000, 103000, 175000, 300000, 500000);
 
     private function _has_enough_quality_info($level, $count) {
         return count >= $this->level_reqs[$level-1] / 10;
@@ -65,7 +65,7 @@ class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
             $progress = 100;
 
         $this->progress = $progress;
-        if ($counter > $this->level && $this->_check_quality_restrictions($counter)) {
+        if ($counter > $this->level && $this->check_quality_restrictions($counter)) {
             $this->level = $counter;
             $this->progress = 0;
             $this->seen = FALSE;
@@ -100,7 +100,7 @@ class ChameleonAchievement extends Achievement implements TaskDoneListenerInterf
     public $amount_of_work = "%d по %d";
     public $column_description = "количество типов пулов и количество заданий в каждом";
 
-    private $level_reqs = array(
+    public $level_reqs = array(
         array(2, 10),
         array(3, 20),
         array(5, 30),
@@ -163,7 +163,7 @@ class ChameleonAchievement extends Achievement implements TaskDoneListenerInterf
         }
 
         // shall we update level?
-        if ($level > $this->level && $this->_check_quality_restrictions($level)) {
+        if ($level > $this->level && $this->check_quality_restrictions($level)) {
             $this->level = $level;
             $this->progress = 0;
             $this->seen = FALSE;
@@ -216,7 +216,7 @@ class DogAchievement extends Achievement implements MonthPassedListenerInterface
     public $column_description = "сколько заданий надо сделать в месяц (каждый месяц уровень увеличивается)";
     public $amount_of_work = "%d";
 
-    private $level_reqs = array(50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50);
+    public $level_reqs = array(50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50);
 
     private function _get_count_for_last_month() {
         $res = sql_pe("SELECT MONTH(FROM_UNIXTIME(ts_finish)) AS month,

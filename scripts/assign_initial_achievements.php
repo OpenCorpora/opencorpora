@@ -4,6 +4,7 @@ if (php_sapi_name() == 'cli') {
     set_include_path(get_include_path().PATH_SEPARATOR.__DIR__
         .PATH_SEPARATOR.__DIR__.'/..');
     require_once("lib/header.php");
+    require_once("lib/achievements_implementations.php");
 
     // $_SESSION['debug_mode'] = true;
     // calculating achievements & levels
@@ -27,17 +28,24 @@ if (php_sapi_name() == 'cli') {
         $count = $r['cnt'];
         $level = 0;
         $progress = 0;
-        $grades = explode(',', $config['achievements']['bobr']);
+        $a = new BobrAchievement($user_id);
+        $grades = $a->level_reqs;
+
 
         foreach ($grades as $level0 => $COUNT) {
             if ($count >= $COUNT) $level++;
 
-            if (isset($grades[$level0 + 1])
-                && $count < $grades[$level0 + 1]) {
+            $check = $a->check_quality_restrictions($level);
+
+            if ((isset($grades[$level0 + 1])
+                && $count < $grades[$level0 + 1])
+                || !$check) {
 
                 $progress = ceil(
                     ($count - $COUNT) * 100 / ($grades[$level0 + 1] - $COUNT)
                 );
+
+                if (!$check) $level--;
                 break;
             }
         }
@@ -82,10 +90,8 @@ if (php_sapi_name() == 'cli') {
         while ($r = sql_fetch_array($res))
             $cnt[] = $r[0];
 
-        $clevels = explode(',', $config['achievements']['chameleon']);
-        $clevels = array_map(function($e) {
-            return explode(':', $e);
-        }, $clevels);
+        $a = new ChameleonAchievement($user_id);
+        $clevels = $a->level_reqs;
 
         $level = 0;
         $progress = 0;
@@ -99,6 +105,8 @@ if (php_sapi_name() == 'cli') {
                 foreach (array_slice($cnt, 0, $types) as $num) {
                     if ($num < $min) break 2;
                 }
+                if (!$a->check_quality_restrictions($level + 1))
+                    break;
                 $level++;
             }
 
