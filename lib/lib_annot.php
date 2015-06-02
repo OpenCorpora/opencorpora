@@ -999,12 +999,19 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     // memorize pool types with manual and complexity
     $types_with_manual = array();
     $type2complexity = array();
-    $res = sql_query("SELECT type_id, doc_link, complexity FROM morph_annot_pool_types WHERE doc_link != '' OR complexity > 0");
+    $type_has_samples = array();
+    $res = sql_query("SELECT `type_id`, `doc_link`, `complexity`
+                , (SELECT COUNT(*) AS `pool_count` FROM `morph_annot_pools` AS `p` 
+                        WHERE `p`.`pool_type` = `morph_annot_pool_types`.`type_id` AND `p`.`status` = ".MA_POOLS_STATUS_ARCHIVED.") AS `archieved_pools_count`
+                FROM `morph_annot_pool_types`
+                WHERE `doc_link` != '' OR `complexity` > 0");
     while ($r = sql_fetch_array($res)) {
         if ($r['doc_link'])
             $types_with_manual[] = $r['type_id'];
         if ($r['complexity'] > 0)
             $type2complexity[$r['type_id']] = $r['complexity'];
+        if ($r['archieved_pools_count'] > 0)
+            $type_has_samples[] = $r['type_id'];
     }
     // get all pools by status
     $res = sql_query("SELECT pool_id, pool_name, status, pool_type FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE status = ".MA_POOLS_STATUS_IN_PROGRESS." $order_string $limit_string");
@@ -1105,6 +1112,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
                 }
             $tasks[$group_id]['has_manual'] = in_array($group_id, $types_with_manual);
             $tasks[$group_id]['complexity'] = isset($type2complexity[$group_id]) ? $type2complexity[$group_id] : 0;
+            $tasks[$group_id]['has_samples'] = in_array($group_id, $type_has_samples);
             $tasks[$group_id]['name'] = preg_replace('/\s+#\d+\s*$/', '', $v['pools'][0]['name']);
             $tasks[$group_id]['is_hot'] = in_array($group_id, $hot_types);
         }
