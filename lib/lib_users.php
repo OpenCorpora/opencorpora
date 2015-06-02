@@ -281,11 +281,12 @@ function get_user_info($user_id) {
     $type = array();
     foreach ($res as $r) {
         if ($r['type_id'] != $last_type) {
-            if ($last_type)
+            if ($last_type) {
                 $annot[] = $type;
                 $user['total_answers'] += $type['total_answers'];
                 $user['checked_answers'] += $type['checked_answers'];
                 $user['incorrect_answers'] += $type['incorrect_answers'];
+            }
             $type = array(
                 'id' => $r['type_id'],
                 'grammemes' => str_replace('@', ' / ', $r['grammemes']),
