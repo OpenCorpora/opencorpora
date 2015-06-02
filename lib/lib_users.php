@@ -259,14 +259,18 @@ function get_user_info($user_id) {
         'registered' => $r['user_reg'],
         'total_answers' => 0,
         'checked_answers' => 0,
-        'incorrect_answers' => 0
+        'incorrect_answers' => 0,
+        'answers_in_ready_pools' => 0
     );
 
     // annotation stats
     $annot = array();
     $last_type = '';
     $res = sql_pe("
-        SELECT pool_id, pool_name, p.status, type_id, t.grammemes, t.complexity, COUNT(instance_id) AS total, SUM(ms.answer != 0) AS checked,
+        SELECT pool_id, pool_name, p.status, type_id, t.grammemes, t.complexity,
+            COUNT(instance_id) AS total,
+            SUM(ms.answer != 0) AS checked,
+            SUM(CASE WHEN p.status > 3 THEN 1 ELSE 0 END) AS ready,
             SUM(CASE WHEN (i.answer != ms.answer AND ms.answer > 0) THEN 1 ELSE 0 END) AS errors
         FROM morph_annot_instances i
         LEFT JOIN morph_annot_samples s USING (sample_id)
@@ -286,6 +290,7 @@ function get_user_info($user_id) {
                 $user['total_answers'] += $type['total_answers'];
                 $user['checked_answers'] += $type['checked_answers'];
                 $user['incorrect_answers'] += $type['incorrect_answers'];
+                $user['answers_in_ready_pools'] += $type['answers_in_ready_pools'];
             }
             $type = array(
                 'id' => $r['type_id'],
@@ -295,7 +300,8 @@ function get_user_info($user_id) {
                 'pools' => array(),
                 'total_answers' => 0,
                 'checked_answers' => 0,
-                'incorrect_answers' => 0
+                'incorrect_answers' => 0,
+                'answers_in_ready_pools' => 0
             );
         }
         $type['pools'][] = array(
@@ -310,12 +316,14 @@ function get_user_info($user_id) {
         $type['total_answers'] += $r['total'];
         $type['incorrect_answers'] += $r['errors'];
         $type['checked_answers'] += $r['checked'];
+        $type['answers_in_ready_pools'] += $r['ready'];
         $last_type = $r['type_id'];
     }
     $annot[] = $type;
     $user['total_answers'] += $type['total_answers'];
     $user['checked_answers'] += $type['checked_answers'];
     $user['incorrect_answers'] += $type['incorrect_answers'];
+    $user['answers_in_ready_pools'] += $type['answers_in_ready_pools'];
 
     $user['annot'] = $annot;
     return $user;

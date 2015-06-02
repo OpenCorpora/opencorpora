@@ -130,7 +130,6 @@ function get_ambiguity_stats_for_chart() {
 function get_pools_stats() {
     $stats = array();
     $total = 0;
-    $plan = 1333000;
 
     $res = sql_query("
         SELECT COUNT(sample_id) cnt, status
@@ -145,7 +144,7 @@ function get_pools_stats() {
         $total += $r['cnt'];
     }
 
-    $stats[MA_POOLS_STATUS_NOT_STARTED] += ($plan - $total);
+    $stats[MA_POOLS_STATUS_NOT_STARTED] += (MA_TOTAL_TASKS_PLAN - $total);
     
     return $stats;
 }
@@ -190,7 +189,7 @@ function get_user_stats($weekly=false, $team=0) {
     } else {
         $start_time = 0;
         $counter_param = 33;
-        $params = array(34, 38, 39);
+        $params = array(STATS_ANNOTATOR_DIVERGENCE_TOTAL, 38, 39);
     }
     
     $annotators = array();
@@ -260,7 +259,7 @@ function get_user_stats($weekly=false, $team=0) {
     $res = sql_query("SELECT user_id, param_id, param_value FROM user_stats WHERE param_id IN (".join(', ', $params).")");
     while ($r = sql_fetch_array($res)) {
         switch ($r['param_id']) {
-            case 34:
+            case STATS_ANNOTATOR_DIVERGENCE_TOTAL:
             case 59:
                 $divergence[$r['user_id']] = $r['param_value'];
                 break;

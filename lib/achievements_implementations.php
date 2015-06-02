@@ -14,6 +14,7 @@ class AistAchievement extends Achievement implements SignedUpListenerInterface {
 
 class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
     use AchievementWithLevels;
+    use AchievementWithQualityRestriction;
 
     public $short_title = "Бобёр";
     public $caption = "За трудолюбие";
@@ -22,6 +23,10 @@ class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
     public $column_description = "количество заданий, которое нужно сделать";
 
     private $level_reqs = array(10, 50, 100, 300, 500, 900, 1500, 2500, 4300, 6500, 8800, 12000, 16000, 21000, 36000, 61000, 103000, 175000, 300000, 500000);
+
+    private function _has_enough_quality_info($level, $count) {
+        return count >= $this->level_reqs[$level-1] / 10;
+    }
 
     private function _tasks_done() {
         $res = sql_pe("SELECT COUNT(*) AS cnt
@@ -60,7 +65,7 @@ class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
             $progress = 100;
 
         $this->progress = $progress;
-        if ($counter > $this->level) {
+        if ($counter > $this->level && $this->_check_quality_restrictions($counter)) {
             $this->level = $counter;
             $this->progress = 0;
             $this->seen = FALSE;
@@ -86,6 +91,7 @@ class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
 
 class ChameleonAchievement extends Achievement implements TaskDoneListenerInterface {
     use AchievementWithLevels;
+    use AchievementWithQualityRestriction;
 
     public $short_title = "Хамелеон";
     public $caption = "За разнообразие";
@@ -116,6 +122,11 @@ class ChameleonAchievement extends Achievement implements TaskDoneListenerInterf
         array(32, 190),
         array(34, 200)
     );
+
+    private function _has_enough_quality_info($level, $count) {
+        $lreqs = $this->level_reqs[$level-1];
+        return $count >= ($lreqs[0] * $lreqs[1] / 10);
+    }
 
     private function _get_counts() {
         $res = sql_pe("
@@ -152,7 +163,7 @@ class ChameleonAchievement extends Achievement implements TaskDoneListenerInterf
         }
 
         // shall we update level?
-        if ($level > $this->level) {
+        if ($level > $this->level && $this->_check_quality_restrictions($level)) {
             $this->level = $level;
             $this->progress = 0;
             $this->seen = FALSE;
