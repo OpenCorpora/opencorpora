@@ -42,7 +42,7 @@
                         {else}
                             {if !isset($a->level)}
                                 <p class="lead-medium">
-                                    {include file="achievements/counter.tpl" stats=$stats[$a->css_class]}
+                                    {include file="achievements/counter.tpl" stats=$stats[$a->css_class] among_them=false}
                                 </p>
                             {else}
                                 <!--p class="lead-medium">

@@ -122,7 +122,7 @@ class AchievementsManager {
     }
 
     public function pull_all() {
-        if ($all_pulled) return $this->objects;
+        if ($this->all_pulled) return $this->objects;
 
         $res = sql_pe("SELECT *
             FROM user_achievements
@@ -176,8 +176,6 @@ class AchievementsManager {
 trait AchievementWithLevels {
     public $progress = 0, // %
     $level = 0; // number
-
-    public $level_reqs;
 
     public function set($db_record) {
         parent::set($db_record);
