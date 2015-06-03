@@ -1,11 +1,20 @@
 <?php
 
+require_once('constants.php');
+require_once('lib_users.php');
+
 class EventTypes {
     const TASK_DONE = "TaskDoneListenerInterface";
     const JOINED_TEAM = "JoinedTeamListenerInterface";
     const WANT_MORE = "WantMoreListenerInterface";
     const SIGNED_UP = "SignedUpListenerInterface";
     const MONTH_PASSED = "MonthPassedListenerInterface";
+}
+
+class RestrictionTypes {
+    const NONE = 0;
+    const DIVERGENCE_PCT = 1;
+    const ERROR_PCT = 2;
 }
 
 interface ListenerInterface {
@@ -128,6 +137,7 @@ class AchievementsManager {
     }
 
     public function pull_stats() {
+        global $config;
         $res = sql_pe("
             SELECT *
             FROM user_achievements
@@ -140,7 +150,7 @@ class AchievementsManager {
             $haslevels = isset($this->objects[$record['achievement_type']]->level);
             if (empty($out[$record['achievement_type']])) {
                 if ($haslevels)
-                    $out[$record['achievement_type']] = array_fill_keys(range(1, 20), array());
+                    $out[$record['achievement_type']] = array_fill_keys(range(1, $config['achievements']['max_level']), array());
                 else $out[$record['achievement_type']] = array();
             }
 
@@ -167,6 +177,8 @@ trait AchievementWithLevels {
     public $progress = 0, // %
     $level = 0; // number
 
+    public $level_reqs;
+
     public function set($db_record) {
         parent::set($db_record);
         $this->level = (int)$db_record['level'];
@@ -187,16 +199,10 @@ trait AchievementWithLevels {
     }
 
     public function fetch_grades() {
-        global $config;
-        if (!$grades = $config['achievements'][$this->css_class]) return array();
-        return array_map(function($pair) {
-            return explode(':', $pair);
-        }, explode(',', $grades));
+        return $this->level_reqs;
     }
 
     public function grades() {
-        global $config;
-
         $out = array();
         foreach ($this->fetch_grades() as $pair) {
             array_push($out, vsprintf($this->amount_of_work, $pair));
@@ -222,6 +228,82 @@ trait AchievementWithLevels {
     }
 
     public function how_to_get_next() {}
+}
+
+trait AchievementWithQualityRestriction {
+    // for now these are the same for all achievements
+    private $restriction_levels = array(
+        array(RestrictionTypes::NONE, 1),
+        array(RestrictionTypes::NONE, 1),
+        array(RestrictionTypes::NONE, 1),
+        array(RestrictionTypes::DIVERGENCE_PCT, 0.50),
+        array(RestrictionTypes::DIVERGENCE_PCT, 0.45),
+        array(RestrictionTypes::DIVERGENCE_PCT, 0.40),
+        array(RestrictionTypes::DIVERGENCE_PCT, 0.35),
+        array(RestrictionTypes::DIVERGENCE_PCT, 0.30),
+        array(RestrictionTypes::DIVERGENCE_PCT, 0.25),
+        array(RestrictionTypes::ERROR_PCT, 0.15),
+        array(RestrictionTypes::ERROR_PCT, 0.14),
+        array(RestrictionTypes::ERROR_PCT, 0.13),
+        array(RestrictionTypes::ERROR_PCT, 0.12),
+        array(RestrictionTypes::ERROR_PCT, 0.11),
+        array(RestrictionTypes::ERROR_PCT, 0.10),
+        array(RestrictionTypes::ERROR_PCT, 0.09),
+        array(RestrictionTypes::ERROR_PCT, 0.08),
+        array(RestrictionTypes::ERROR_PCT, 0.07),
+        array(RestrictionTypes::ERROR_PCT, 0.06),
+        array(RestrictionTypes::ERROR_PCT, 0.05),
+    );
+
+    private function _get_divergence_info() {
+        // returns array(number_of_checked_samples, divergence_rate)
+        $res = sql_pe("
+            SELECT param_value FROM user_stats
+            WHERE param_id = ".STATS_ANNOTATOR_DIVERGENCE_TOTAL."
+            AND user_id = ?
+        ", array($this->user_id));
+        if (!sizeof($res))
+            return array(0, 1);
+
+        $divergent_count = $res[0]['param_value'];
+
+        $info = get_user_info($this->user_id);
+        $diverg_rate = $info['answers_in_ready_pools'] ? $divergent_count / $info['answers_in_ready_pools'] : 1;
+        return array($info['answers_in_ready_pools'], $diverg_rate);
+    }
+
+    private function _get_error_rate_info() {
+        // returns array(number_of_checked_samples, error_rate)
+        $info = get_user_info($this->user_id);
+        $error_rate = $info['checked_answers'] ? $info['incorrect_answers'] / $info['checked_answers'] : 1;
+        return array($info['checked_answers'], $error_rate);
+    }
+
+    private function _has_enough_quality_info($level, $count) {}
+
+    public function check_quality_restrictions($level) {
+        // $level counts from 1
+
+        $quality_info = array();
+
+        switch ($this->restriction_levels[$level-1][0]) {
+            case RestrictionTypes::NONE:
+                return TRUE;
+            case RestrictionTypes::DIVERGENCE_PCT:
+                $quality_info = $this->_get_divergence_info();
+                break;
+            case RestrictionTypes::ERROR_PCT:
+                $quality_info = $this->_get_error_rate_info();
+                break;
+            default:
+                throw new Exception("Unknown restriction type");
+        }
+
+        if (!$this->_has_enough_quality_info($level, $quality_info[0]))
+            return FALSE;
+
+        return $this->restriction_levels[$level-1][1] >= $quality_info[1]; 
+    }
 }
 
 trait GivenOnTrigger {
