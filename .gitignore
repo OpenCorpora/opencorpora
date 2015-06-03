@@ -1,0 +1,7 @@
+.htaccess
+/assets/vendor
+/composer.phar
+/config.ini
+/doc/articles/*.pdf
+/doc/presentations/*.pdf
+/yadisk-auth
