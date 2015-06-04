@@ -51,12 +51,12 @@ function get_book_page($book_id, $full = false) {
     //sentences
     if ($full) {
         $q = "SELECT p.`pos` ppos, par_id, s.sent_id, s.`pos` spos";
-        if (user_has_permission('perm_adder')) $q .= ", ss.status";
+        if (user_has_permission(PERM_ADDER)) $q .= ", ss.status";
         $q .= "\nFROM paragraphs p
             LEFT JOIN sentences s
             USING (par_id)\n";
 
-        if (user_has_permission('perm_adder')) $q .= "LEFT JOIN sentence_check ss ON (s.sent_id = ss.sent_id AND ss.status=1 AND ss.user_id=".$_SESSION['user_id'].")\n";
+        if (user_has_permission(PERM_ADDER)) $q .= "LEFT JOIN sentence_check ss ON (s.sent_id = ss.sent_id AND ss.status=1 AND ss.user_id=".$_SESSION['user_id'].")\n";
         $q .= "WHERE p.book_id = ?
             ORDER BY p.`pos`, s.`pos`";
         $res = sql_pe($q, array($book_id));
@@ -68,7 +68,7 @@ function get_book_page($book_id, $full = false) {
                 $tokens[] = array('text' => $r1['tf_text'], 'id' => $r1['tf_id']);
             }
             $new_a = array('id' => $r['sent_id'], 'pos' => $r['spos'], 'tokens' => $tokens);
-            if (user_has_permission('perm_adder'))
+            if (user_has_permission(PERM_ADDER))
                 $new_a['checked'] = $r['status'];
             $out['paragraphs'][$r['ppos']]['sentences'][] = $new_a;
             $out['paragraphs'][$r['ppos']]['id'] = $r['par_id'];

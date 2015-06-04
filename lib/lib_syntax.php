@@ -464,7 +464,7 @@ function is_group_owner($group_id, $user_id) {
 function set_syntax_annot_status($book_id, $status) {
     if (!$book_id || !in_array($status, array(0, 1, 2)))
         throw new UnexpectedValueException();
-    if (!user_has_permission('perm_syntax'))
+    if (!user_has_permission(PERM_SYNTAX))
         throw new Exception("Недостаточно прав");
     $user_id = $_SESSION['user_id'];
     sql_begin();
@@ -479,7 +479,7 @@ function set_syntax_annot_status($book_id, $status) {
 function become_syntax_moderator($book_id) {
     if (!$book_id)
         throw new UnexpectedValueException();
-    if (!user_has_permission('perm_syntax'))
+    if (!user_has_permission(PERM_SYNTAX))
         throw new Exception("Недостаточно прав");
 
     $res = sql_pe("
@@ -502,7 +502,7 @@ function become_syntax_moderator($book_id) {
 function finish_syntax_moderation($book_id) {
     if (!$book_id)
         throw new UnexpectedValueException();
-    if (!user_has_permission('perm_syntax'))
+    if (!user_has_permission(PERM_SYNTAX))
         throw new Exception("Недостаточно прав");
 
     $res = sql_pe("
@@ -523,7 +523,7 @@ function finish_syntax_moderation($book_id) {
 }
 
 function copy_group($source_group_id, $dest_user, $revset_id=0) {
-    if (!user_has_permission('perm_syntax'))
+    if (!user_has_permission(PERM_SYNTAX))
         throw new Exception();
     if (!$source_group_id || !$dest_user)
         throw new UnexpectedValueException();

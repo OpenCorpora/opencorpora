@@ -963,7 +963,7 @@ function finish_moderate_pool($pool_id) {
     sql_pe("UPDATE morph_annot_pools SET status=".MA_POOLS_STATUS_MODERATED.", updated_ts=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
 function begin_pool_merge($pool_id) {
-    if (!user_has_permission("perm_merge"))
+    if (!user_has_permission(PERM_MORPH_SUPERMODER))
         throw new Exception("Недостаточно прав");
     if (!$pool_id)
         throw new UnexpectedValueException();

@@ -18,7 +18,7 @@ elseif (is_admin() && $action == 'del_sentence') {
     delete_sentence($_GET['sid']);
     header("Location:books.php?book_id=".$_GET['book_id'].'&full');
 }
-elseif (user_has_permission('perm_syntax') && $action == 'anaphora') {
+elseif (user_has_permission(PERM_SYNTAX) && $action == 'anaphora') {
     if (isset($_GET['book_id']) && $book_id = $_GET['book_id']) {
         $book = get_book_page($book_id, TRUE);
         $groups = array();
@@ -44,7 +44,7 @@ elseif (user_has_permission('perm_syntax') && $action == 'anaphora') {
     }
 }
 
-elseif  (/*user_has_permission('perm_syntax') && */is_logged() && $action == 'ner') {
+elseif  (/*user_has_permission(PERM_SYNTAX) && */is_logged() && $action == 'ner') {
     if (isset($_GET['book_id']) && $book_id = $_GET['book_id']) {
 
         $book = get_book_page($book_id, TRUE);
@@ -73,7 +73,7 @@ elseif  (/*user_has_permission('perm_syntax') && */is_logged() && $action == 'ne
     }
 }
 
-elseif (user_has_permission('perm_adder')) {
+elseif (user_has_permission(PERM_ADDER)) {
     switch ($action) {
         case 'add':
             $book_name = trim($_POST['book_name']);

@@ -6,7 +6,7 @@ require_once('../lib/lib_achievements.php');
 if (!is_logged()) {
     return;
 }
-if (isset($_POST['moder']) && !user_has_permission('perm_check_morph')) {
+if (isset($_POST['moder']) && !user_has_permission(PERM_MORPH_MODER)) {
     return;
 }
 

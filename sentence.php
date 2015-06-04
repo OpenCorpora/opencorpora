@@ -18,7 +18,7 @@ $mode = isset($_GET['mode']) ? $_GET['mode'] : 'morph';
 
 switch ($action) {
     case 'save':
-        if (user_has_permission('perm_disamb')) {
+        if (user_has_permission(PERM_DISAMB)) {
             sentence_save($id);
             header("Location:sentence.php?id=$id");
         } else {

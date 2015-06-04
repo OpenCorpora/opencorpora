@@ -4,7 +4,7 @@ require('lib/lib_tokenizer.php');
 if (isset($_GET['act']))
     $action = $_GET['act'];
 else $action = '';
-if (user_has_permission('perm_adder')) {
+if (user_has_permission(PERM_ADDER)) {
     switch ($action) {
         case 'add':
             $book_id = array_pop($_POST['book']);

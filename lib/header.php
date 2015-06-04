@@ -78,14 +78,14 @@ $smarty->assign('is_logged', is_logged() ? 1 : 0);
 if (is_logged()) {
     $smarty->assign('is_openid', is_user_openid($_SESSION['user_id']) ? 1 : 0);
 }
-$smarty->assign('user_permission_dict', user_has_permission('perm_dict') ? 1 : 0);
-$smarty->assign('user_permission_disamb', user_has_permission('perm_disamb') ? 1 : 0);
-$smarty->assign('user_permission_adder', user_has_permission('perm_adder') ? 1 : 0);
-$smarty->assign('user_permission_check_tokens', user_has_permission('perm_check_tokens') ? 1 : 0);
-$smarty->assign('user_permission_check_morph', user_has_permission('perm_check_morph') ? 1 : 0);
-$smarty->assign('user_permission_merge', user_has_permission('perm_merge') ? 1 : 0);
-$smarty->assign('user_permission_syntax', user_has_permission('perm_syntax') ? 1 : 0);
-$smarty->assign('user_permission_check_syntax', user_has_permission('perm_check_syntax') ? 1 : 0);
+$smarty->assign('user_permission_dict', user_has_permission(PERM_DICT) ? 1 : 0);
+$smarty->assign('user_permission_disamb', user_has_permission(PERM_DISAMB) ? 1 : 0);
+$smarty->assign('user_permission_adder', user_has_permission(PERM_ADDER) ? 1 : 0);
+$smarty->assign('user_permission_check_tokens', user_has_permission(PERM_CHECK_TOKENS) ? 1 : 0);
+$smarty->assign('user_permission_check_morph', user_has_permission(PERM_MORPH_MODER) ? 1 : 0);
+$smarty->assign('user_permission_merge', user_has_permission(PERM_MORPH_SUPERMODER) ? 1 : 0);
+$smarty->assign('user_permission_syntax', user_has_permission(PERM_SYNTAX) ? 1 : 0);
+$smarty->assign('user_permission_check_syntax', user_has_permission(PERM_SYNTAX_MODER) ? 1 : 0);
 $smarty->assign('readonly', file_exists($config['project']['readonly_flag']) ? 1 : 0);
 $smarty->assign('goals', $config['goals']);
 $smarty->assign('game_is_on', 0);

@@ -2,7 +2,7 @@
 require_once('../lib/header_ajax.php');
 require_once('../lib/lib_dict.php');
 
-if (!user_has_permission('perm_dict')) {
+if (!user_has_permission(PERM_DICT)) {
     return false;
 }
 

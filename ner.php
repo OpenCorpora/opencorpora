@@ -3,7 +3,7 @@ require_once('lib/header.php');
 require_once('lib/lib_ne.php');
 
 // TODO: permissions?
-/*if (!user_has_permission('perm_syntax')) {
+/*if (!user_has_permission(PERM_SYNTAX)) {
     show_error($config['msg']['notadmin']);
     return;
 }*/

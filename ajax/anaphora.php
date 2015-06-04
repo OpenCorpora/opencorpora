@@ -11,7 +11,7 @@ require_once('../lib/lib_syntax.php');
 
 try {
     // TODO: проверка на модератора книги
-    if (!user_has_permission('perm_disamb') && !user_has_permission('perm_syntax')) {
+    if (!user_has_permission(PERM_DISAMB) && !user_has_permission(PERM_SYNTAX)) {
         throw new Exception("недостаточно прав");
     }
 
