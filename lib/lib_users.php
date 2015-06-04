@@ -366,7 +366,7 @@ function get_user_permissions($user_id) {
         throw new UnexpectedValueException();
     $out = array();
 
-    $res = sql_query("SELECT group_id FROM user_groups WHERE user_id = $user_id LIMIT 1");
+    $res = sql_query("SELECT group_id FROM user_groups WHERE user_id = $user_id");
     foreach ($res as $r)
         $out[] = $r['group_id'];
 
