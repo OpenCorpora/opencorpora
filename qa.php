@@ -9,7 +9,7 @@ if (isset($_GET['act']))
 
 switch ($action) {
     case 'sent_split':
-        if (user_has_permission('perm_adder')) {
+        if (user_has_permission(PERM_ADDER)) {
             $smarty->assign('sentences', get_page_sent_strange());
             $smarty->display('qa/sent_split.tpl');
         } else {
@@ -17,7 +17,7 @@ switch ($action) {
         }
         break;
     case 'tokenizer':
-        if (user_has_permission('perm_adder')) {
+        if (user_has_permission(PERM_ADDER)) {
             $smarty->assign('obj', get_page_tok_strange(isset($_GET['newest'])));
             $smarty->display('qa/tokenizer.tpl');
         } else {
@@ -25,7 +25,7 @@ switch ($action) {
         }
         break;
     case 'empty_books':
-        if (user_has_permission('perm_adder')) {
+        if (user_has_permission(PERM_ADDER)) {
             $smarty->assign('books', get_empty_books());
             $smarty->display('qa/empty_books.tpl');
         } else {
@@ -33,7 +33,7 @@ switch ($action) {
         }
         break;
     case 'dl_urls':
-        if (user_has_permission('perm_adder')) {
+        if (user_has_permission(PERM_ADDER)) {
             $smarty->assign('urls', get_downloaded_urls());
             $smarty->display('qa/dl_urls.tpl');
         } else {
@@ -41,7 +41,7 @@ switch ($action) {
         }
         break;
     case 'book_tags':
-        if (user_has_permission('perm_adder')) {
+        if (user_has_permission(PERM_ADDER)) {
             $smarty->assign('errata', get_tag_errors());
             $smarty->display('qa/book_tags.tpl');
         }

@@ -9,7 +9,7 @@ $smarty->assign('active_page', 'dict');
 
 //check permissions
 if (!in_array($action, array('', 'gram', 'gram_restr', 'lemmata', 'errata', 'edit', 'absent')) &&
-    !user_has_permission('perm_dict')) {
+    !user_has_permission(PERM_DICT)) {
         show_error($config['msg']['notadmin']);
         return;
 }
@@ -129,11 +129,11 @@ switch ($action) {
 
         $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
         $smarty->setCacheLifetime(600);
-        if (!is_cached('dict/main.tpl', (int)user_has_permission('perm_dict'))) {
+        if (!is_cached('dict/main.tpl', (int)user_has_permission(PERM_DICT))) {
             $smarty->assign('stats', get_dict_stats());
             $smarty->assign('dl', get_downloads_info());
         }
-        $smarty->display('dict/main.tpl', (int)user_has_permission('perm_dict'));
+        $smarty->display('dict/main.tpl', (int)user_has_permission(PERM_DICT));
 }
 log_timing();
 ?>

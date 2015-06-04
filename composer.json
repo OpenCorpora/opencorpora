@@ -1,10 +1,10 @@
 {
     "require": {
-        "robmorgan/phinx": "*",
-        "symfony/class-loader": "2.0.24",
-        "symfony/config": "2.0.24",
-        "symfony/console": "2.0.24",
-        "symfony/yaml": "2.0.24",
+        "robmorgan/phinx": ">=0.4.3",
+        "symfony/class-loader": "2.6.0",
+        "symfony/config": "2.6.0",
+        "symfony/console": "2.6.0",
+        "symfony/yaml": "2.6.0",
         "smarty/smarty": "@stable",
         "swiftmailer/swiftmailer": "@stable",
         "robloach/component-installer": "@stable",

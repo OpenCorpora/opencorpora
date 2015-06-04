@@ -7,6 +7,7 @@ if (!headers_sent()) {
 $config = parse_ini_file(__DIR__ . '/../config.ini', true);
 require_once(__DIR__.'/../vendor/autoload.php'); // Smarty, something else which was installed via Composer
 require_once('common.php');
+require_once('constants.php');
 require_once('lib_awards.php');
 require_once('lib_achievements.php');
 require_once('timer.php');
@@ -52,11 +53,19 @@ if (is_admin() && isset($_GET['debug']) && $debug = $_GET['debug']) {
 }
 
 //admin pretends that he is a user
-if (is_logged() && isset($_SESSION['user_permissions']['perm_admin']) && $_SESSION['user_permissions']['perm_admin'] == 1 && isset($_GET['pretend']) && $pretend = $_GET['pretend']) {
+if (
+    is_logged()
+    && (
+        (isset($_SESSION['user_permissions']['perm_admin']) && $_SESSION['user_permissions']['perm_admin'] == 1) // TODO old, remove
+        || in_array(PERM_ADMIN, $_SESSION['user_groups'])
+    )
+    && isset($_GET['pretend'])
+    && $pretend = $_GET['pretend']
+) {
     if ($pretend == 'on')
-        $_SESSION['user_permissions']['pretend'] = 1;
+        $_SESSION['noadmin'] = 1;
     elseif ($pretend == 'off')
-        unset($_SESSION['user_permissions']['pretend']);
+        unset($_SESSION['noadmin']);
     header("Location:".$_SERVER['HTTP_REFERER']);
     exit;
 }
@@ -69,14 +78,14 @@ $smarty->assign('is_logged', is_logged() ? 1 : 0);
 if (is_logged()) {
     $smarty->assign('is_openid', is_user_openid($_SESSION['user_id']) ? 1 : 0);
 }
-$smarty->assign('user_permission_dict', user_has_permission('perm_dict') ? 1 : 0);
-$smarty->assign('user_permission_disamb', user_has_permission('perm_disamb') ? 1 : 0);
-$smarty->assign('user_permission_adder', user_has_permission('perm_adder') ? 1 : 0);
-$smarty->assign('user_permission_check_tokens', user_has_permission('perm_check_tokens') ? 1 : 0);
-$smarty->assign('user_permission_check_morph', user_has_permission('perm_check_morph') ? 1 : 0);
-$smarty->assign('user_permission_merge', user_has_permission('perm_merge') ? 1 : 0);
-$smarty->assign('user_permission_syntax', user_has_permission('perm_syntax') ? 1 : 0);
-$smarty->assign('user_permission_check_syntax', user_has_permission('perm_check_syntax') ? 1 : 0);
+$smarty->assign('user_permission_dict', user_has_permission(PERM_DICT) ? 1 : 0);
+$smarty->assign('user_permission_disamb', user_has_permission(PERM_DISAMB) ? 1 : 0);
+$smarty->assign('user_permission_adder', user_has_permission(PERM_ADDER) ? 1 : 0);
+$smarty->assign('user_permission_check_tokens', user_has_permission(PERM_CHECK_TOKENS) ? 1 : 0);
+$smarty->assign('user_permission_check_morph', user_has_permission(PERM_MORPH_MODER) ? 1 : 0);
+$smarty->assign('user_permission_merge', user_has_permission(PERM_MORPH_SUPERMODER) ? 1 : 0);
+$smarty->assign('user_permission_syntax', user_has_permission(PERM_SYNTAX) ? 1 : 0);
+$smarty->assign('user_permission_check_syntax', user_has_permission(PERM_SYNTAX_MODER) ? 1 : 0);
 $smarty->assign('readonly', file_exists($config['project']['readonly_flag']) ? 1 : 0);
 $smarty->assign('goals', $config['goals']);
 $smarty->assign('game_is_on', 0);

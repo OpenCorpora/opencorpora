@@ -10,8 +10,7 @@ require_once('../lib/lib_syntax.php');
 */
 
 try {
-    // TODO allow only perm_syntax
-    if (!user_has_permission('perm_disamb') && !user_has_permission('perm_syntax'))
+    if (!user_has_permission(PERM_SYNTAX))
         throw new Exception();
 
     switch ($_POST['act']) {

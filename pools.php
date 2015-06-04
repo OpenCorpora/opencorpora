@@ -5,7 +5,7 @@ require_once('lib/lib_annot.php');
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 
-if ($action && !in_array($action, array('samples', 'candidates')) && !user_has_permission('perm_check_morph')) {
+if ($action && !in_array($action, array('samples', 'candidates')) && !user_has_permission(PERM_MORPH_MODER)) {
     show_error($config['msg']['notadmin']);
     return;
 }
@@ -41,7 +41,7 @@ switch ($action) {
         else {
             $filter = isset($_GET['filter']) ? $_GET['filter'] : false;
             $matches = NULL;
-            if ($filter && !user_has_permission('perm_check_morph') && preg_match('/^user:(\d+)$/', $filter, $matches)) {
+            if ($filter && !user_has_permission(PERM_MORPH_MODER) && preg_match('/^user:(\d+)$/', $filter, $matches)) {
                 if ($matches[1] != $_SESSION['user_id']) {
                     show_error("Можно просматривать только свои ответы.");
                     return;
@@ -54,7 +54,7 @@ switch ($action) {
                 $config['misc']['morph_annot_moder_context_size'],
                 isset($_GET['skip']) ? $_GET['skip'] : 0,
                 $filter,
-                (!user_has_permission('perm_check_morph') || $_SESSION['options'][4] == 1) ? $config['misc']['morph_annot_moder_page_size'] : 0
+                (!user_has_permission(PERM_MORPH_MODER) || $_SESSION['options'][4] == 1) ? $config['misc']['morph_annot_moder_page_size'] : 0
             ));
             $smarty->display('qa/pool.tpl');
         }

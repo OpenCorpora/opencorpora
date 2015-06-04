@@ -3,7 +3,7 @@ require_once('../lib/header_ajax.php');
 require_once('../lib/lib_books.php');
 
 try {
-    if (!user_has_permission('perm_adder'))
+    if (!user_has_permission(PERM_ADDER))
         throw new Exception("Недостаточно прав");
     if (!isset($_POST['ids']))
         throw new UnexpectedValueException();
