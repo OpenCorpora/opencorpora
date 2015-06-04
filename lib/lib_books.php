@@ -1,6 +1,7 @@
 <?php
 require_once('lib_dict.php');
 require_once('lib_annot.php');
+require_once('constants.php');
 
 function get_books_list() {
     $res = sql_query("SELECT `book_id`, `book_name` FROM `books` WHERE `parent_id`=0 ORDER BY `book_name`");

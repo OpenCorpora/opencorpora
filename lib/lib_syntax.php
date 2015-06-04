@@ -1,5 +1,6 @@
 <?php
 require_once('lib_books.php');
+require_once('constants.php');
 function get_books_with_syntax() {
     $res = sql_query("SELECT book_id, status, user_id FROM anaphora_syntax_annotators");
     $syntax = array();
