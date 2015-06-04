@@ -63,7 +63,6 @@
             {if $is_admin}
             <ul class="nav nav-list">
                 <li class="nav-header">Функции администратора</li>
-                <li><a href='{$web_prefix}/users.php'>Управление пользователями</a></li>
                 <li><a href='{$web_prefix}/generator_cp.php'>Генерация данных для CPAN-токенизатора</a></li>
             </ul>
             {/if}

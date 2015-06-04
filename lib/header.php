@@ -7,6 +7,7 @@ if (!headers_sent()) {
 $config = parse_ini_file(__DIR__ . '/../config.ini', true);
 require_once(__DIR__.'/../vendor/autoload.php'); // Smarty, something else which was installed via Composer
 require_once('common.php');
+require_once('constants.php');
 require_once('lib_awards.php');
 require_once('lib_achievements.php');
 require_once('timer.php');
@@ -52,11 +53,19 @@ if (is_admin() && isset($_GET['debug']) && $debug = $_GET['debug']) {
 }
 
 //admin pretends that he is a user
-if (is_logged() && isset($_SESSION['user_permissions']['perm_admin']) && $_SESSION['user_permissions']['perm_admin'] == 1 && isset($_GET['pretend']) && $pretend = $_GET['pretend']) {
+if (
+    is_logged()
+    && (
+        (isset($_SESSION['user_permissions']['perm_admin']) && $_SESSION['user_permissions']['perm_admin'] == 1) // TODO old, remove
+        || in_array(PERM_ADMIN, $_SESSION['user_groups'])
+    )
+    && isset($_GET['pretend'])
+    && $pretend = $_GET['pretend']
+) {
     if ($pretend == 'on')
-        $_SESSION['user_permissions']['pretend'] = 1;
+        $_SESSION['noadmin'] = 1;
     elseif ($pretend == 'off')
-        unset($_SESSION['user_permissions']['pretend']);
+        unset($_SESSION['noadmin']);
     header("Location:".$_SERVER['HTTP_REFERER']);
     exit;
 }

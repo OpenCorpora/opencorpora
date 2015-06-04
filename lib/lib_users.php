@@ -1,4 +1,5 @@
 <?php
+require_once('constants.php');
 require_once('lib_mail.php');
 require_once('lib_achievements.php');
 
@@ -78,7 +79,7 @@ function init_session($user_id, $user_name, $options, $permissions, $token, $lev
     $_SESSION['user_id'] = $user_id;
     $_SESSION['user_name'] = $user_name;
     $_SESSION['options'] = $options;
-    $_SESSION['user_permissions'] = $permissions;
+    $_SESSION['user_groups'] = $permissions;
     $_SESSION['token'] = $token;
     $_SESSION['user_level'] = $level;
     $_SESSION['show_game'] = $show_game;
@@ -161,10 +162,12 @@ function user_logout() {
     unset($_SESSION['user_level']);
     unset($_SESSION['debug_mode']);
     unset($_SESSION['options']);
-    unset($_SESSION['user_permissions']);
+    unset($_SESSION['user_permissions']); // TODO old, remove
+    unset($_SESSION['user_groups']);
     unset($_SESSION['token']);
     unset($_SESSION['show_game']);
     unset($_SESSION['user_pending']);
+    unset($_SESSION['noadmin']);
 }
 function user_register($post) {
     $name = trim($post['login']);
@@ -191,7 +194,6 @@ function user_register($post) {
     sql_begin();
     sql_pe("INSERT INTO `users` VALUES(NULL, ?, ?, ?, ?, ?, 0, 1, 1, 0, 0)", array($name, $passwd, $email, time(), $name));
     $user_id = sql_insert_id();
-    sql_query("INSERT INTO `user_permissions` VALUES ('$user_id', '0', '0', '0', '0', '0', '0', '0', 0, 0, 0)");
     if (isset($post['subscribe']) && $email) {
         //perhaps we should subscribe the user
         $ch = curl_init();
@@ -364,19 +366,9 @@ function get_user_permissions($user_id) {
         throw new UnexpectedValueException();
     $out = array();
 
-    $res = sql_query("SELECT * FROM user_permissions WHERE user_id = $user_id LIMIT 1");
-
-    if (sql_num_rows($res) == 0) {
-        //autovivify
-        sql_query("INSERT INTO user_permissions VALUES ('$user_id', '0', '0', '0', '0', '0', '0', '0', 0, 0, 0)");
-        $res = sql_query("SELECT * FROM user_permissions WHERE user_id = $user_id LIMIT 1");
-    }
-
-    $r = sql_fetch_assoc($res);
-    foreach ($r as $column_name => $val) {
-        if ($column_name == 'user_id') continue;
-        $out[$column_name] = $val;
-    }
+    $res = sql_query("SELECT group_id FROM user_groups WHERE user_id = $user_id LIMIT 1");
+    foreach ($res as $r)
+        $out[] = $r['group_id'];
 
     return $out;
 }
@@ -425,9 +417,13 @@ function save_user_options($post) {
 }
 function is_admin() {
     return (
-        isset($_SESSION['user_permissions']['perm_admin']) &&
-        $_SESSION['user_permissions']['perm_admin'] == 1 &&
-        !isset($_SESSION['user_permissions']['pretend'])
+        is_logged()
+        && (
+            (isset($_SESSION['user_permissions']['perm_admin'])
+             && $_SESSION['user_permissions']['perm_admin'] == 1)  // TODO old, remove
+            || in_array(PERM_ADMIN, $_SESSION['user_groups'])
+        )
+        && !isset($_SESSION['noadmin'])
     );
 }
 function is_logged() {
@@ -437,53 +433,19 @@ function is_user_openid($user_id) {
     $r = sql_fetch_array(sql_query("SELECT user_passwd FROM users WHERE user_id=$user_id LIMIT 1"));
     return ($r['user_passwd'] == '' || $r['user_passwd'] == 'notagreed');
 }
-function user_has_permission($perm) {
+function user_has_permission($group) {
+    global $PERMISSION_MAP;
     return (
-        is_admin() ||
-        (is_logged() && isset($_SESSION['user_permissions'][$perm]) &&
-        $_SESSION['user_permissions'][$perm] == 1)
+        is_admin()
+        || (
+            is_logged()
+            && (
+                (isset($_SESSION['user_permissions'][$PERMISSION_MAP[$group]])
+                && $_SESSION['user_permissions'][$PERMISSION_MAP[$group]] == 1)  // TODO old, remove
+                || in_array($group, $_SESSION['user_groups'])
+            )
+        )
     );
-}
-function get_users_page() {
-    $res = sql_query("SELECT p.*, u.user_id, user_shown_name AS user_name, user_reg, user_email, show_game FROM users u LEFT JOIN user_permissions p ON (u.user_id = p.user_id)");
-    $out = array();
-    while ($r = sql_fetch_assoc($res)) {
-        $out[] = $r;
-    }
-    return $out;
-}
-function save_users($post) {
-    include_once('lib_awards.php');
-    sql_begin();
-    $game = $post['game'];
-    foreach ($post['changed'] as $id => $val) {
-        if (!$val) continue;
-        $perm = $post['perm'][$id];
-        $qa = array();
-        if (isset($perm['admin'])) $qa[] = "perm_admin='1'";
-        if (isset($perm['adder'])) $qa[] = "perm_adder='1'";
-            else $qa[] = "perm_adder='0'";
-        if (isset($perm['dict'])) $qa[] = "perm_dict='1'";
-            else $qa[] = "perm_dict='0'";
-        if (isset($perm['disamb'])) $qa[] = "perm_disamb='1'";
-            else $qa[] = "perm_disamb='0'";
-        if (isset($perm['tokens'])) $qa[] = "perm_check_tokens='1'";
-            else $qa[] = "perm_check_tokens='0'";
-        if (isset($perm['morph'])) $qa[] = "perm_check_morph='1'";
-            else $qa[] = "perm_check_morph='0'";
-        if (isset($perm['merge'])) $qa[] = "perm_merge='1'";
-            else $qa[] = "perm_merge='0'";
-
-        $q = "UPDATE user_permissions SET ".implode(', ', $qa)." WHERE user_id=$id LIMIT 1";
-        sql_query($q);
-        sql_query("DELETE FROM user_tokens WHERE user_id=$id");
-        // game part
-        if (isset($game[$id]))
-            turn_game_on($id);
-        else
-            turn_game_off($id);
-    }
-    sql_commit();
 }
 function get_team_list() {
     $out = array();
