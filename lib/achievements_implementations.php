@@ -239,7 +239,7 @@ class DogAchievement extends Achievement implements MonthPassedListenerInterface
         if ($args['event_type'] == EventTypes::TASK_DONE) {
             if ($this->progress == 100 || !$this->level || !$next) return; // wait for another event
 
-            $progress = ceil($count * 100 / $next[0]);
+            $progress = ceil($count * 100 / $next);
             if ($progress > 100) $progress = 100;
             $this->progress = $progress;
             $this->push();
@@ -247,7 +247,7 @@ class DogAchievement extends Achievement implements MonthPassedListenerInterface
         }
         else if ($args['event_type'] == EventTypes::MONTH_PASSED) {
             if (($this->progress == 100 && $next)
-                || (!$this->level && $count >= $next[0])) {
+                || (!$this->level && $count >= $next)) {
                 $this->level++;
                 $this->progress = 0;
                 $this->seen = FALSE;
@@ -265,7 +265,7 @@ class DogAchievement extends Achievement implements MonthPassedListenerInterface
 
         $next_level = $this->level + 1;
         $next = $grades[$this->level];
-        $required = $next[0] - $this->_get_count_for_last_month();
+        $required = $next - $this->_get_count_for_last_month();
         if ($required < 0) $required = 0;
 
         if ($required)
