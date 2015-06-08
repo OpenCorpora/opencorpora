@@ -171,7 +171,7 @@ $(document).ready(function() {
     {foreach from=$packet.gram_descr item=var name=x}
     <button rev='{$smarty.foreach.x.index + 1}' class="btn {if isset($instance.answer) && $instance.answer == $smarty.foreach.x.index + 1} chosen{/if}">{$var|htmlspecialchars}</button>
     {/foreach}
-    <button rev='99' class='btn other{if isset($instance.answer) && $instance.answer == 99} chosen{/if}'>Другое</button>
+    <button rev='{$smarty.const.MA_ANSWER_OTHER}' class='btn other{if isset($instance.answer) && $instance.answer == $smarty.const.MA_ANSWER_OTHER} chosen{/if}'>Другое</button>
     <button rev='-1' class='btn reject btn-danger'>Пропустить</button>
     <a rel='{$instance.sample_id}' class='pseudo comment' href='#'>Прокомментировать</a>
 </div>

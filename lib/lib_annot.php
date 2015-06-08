@@ -374,7 +374,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     foreach ($pool_gram as $v) {
         $select_options[] = $v;
     }
-    $select_options[99] = 'Other';
+    $select_options[MA_ANSWER_OTHER] = 'Other';
     $out = array(
         'id' => $pool_id,
         'type' => $res[0]['pool_type'],
@@ -420,7 +420,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
             $not_ok_flag = false;
             $vars = '';
             while ($r1 = sql_fetch_array($res1)) {
-                if ($r1['answer'] == 99)
+                if ($r1['answer'] == MA_ANSWER_OTHER)
                     $disagreement_flag = 1;
                 elseif (!$vars)
                     $vars = $r1['answer'];
@@ -435,7 +435,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
                 $t['instances'][] = array(
                     'id' => $r1['instance_id'],
                     'answer_num' => $r1['answer'],
-                    'answer_gram' => ($r1['answer'] > 0 && $r1['answer'] < 99) ? $pool_gram[$r1['answer']-1] : '',
+                    'answer_gram' => ($r1['answer'] > 0 && $r1['answer'] < MA_ANSWER_OTHER) ? $pool_gram[$r1['answer']-1] : '',
                     'user_id' => $r1['user_id'],
                     'user_color' => $distinct_users[$r1['user_id']][0]
                 );
@@ -447,12 +447,12 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
                 $r1 = sql_fetch_array(sql_query("SELECT answer, status FROM morph_annot_moderated_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
                 $t['moder_answer_num'] = $r1['answer'];
                 $t['moder_status_num'] = $r1['status'];
-                if ($r1['status'] > 0)
+                if ($r1['status'] != MA_SAMPLES_STATUS_OK)
                     $not_ok_flag = true;
                 if ($t['moder_answer_num'] == 0)
                     $out['all_moderated'] = false;
                 else {
-                    $t['moder_answer_gram'] = ($r1['answer'] == 99 ? 'Other' : $pool_gram[$r1['answer']-1]);
+                    $t['moder_answer_gram'] = ($r1['answer'] == MA_ANSWER_OTHER ? 'Other' : $pool_gram[$r1['answer']-1]);
                     // highlight samples where the moderator disagreed with all the annotators
                     if (!$t['disagreed'] && $t['moder_answer_num'] != $t['instances'][0]['answer_num'])
                         $t['disagreed'] = 2;
@@ -953,8 +953,8 @@ function finish_moderate_pool($pool_id) {
         JOIN morph_annot_samples
             USING (sample_id)
         WHERE pool_id=?
-            AND answer = 99
-            AND status IN (0, 1)
+            AND answer = ".MA_ANSWER_OTHER."
+            AND status IN (".MA_SAMPLES_STATUS_OK.", ".MA_SAMPLES_STATUS_ALMOST_OK.")
         LIMIT 1
     ", array($pool_id));
     if (sizeof($res) > 0)

@@ -39,14 +39,14 @@ $(document).ready(function(){
 {* Type chooser *}
 <ul class="nav nav-tabs">
 <li{if $smarty.get.type == 0} class="active"{/if}><a href="?type=0">идёт поиск примеров</a></li>
-<li{if $smarty.get.type == 1} class="active"{/if}><a href="?type=1">найдены примеры</a></li>
-<li{if $smarty.get.type == 2} class="active"{/if}><a href="?type=2">не опубликованные</a></li>
-<li{if $smarty.get.type == 3} class="active"{/if}><a href="?type=3">опубликованные</a></li>
-<li{if $smarty.get.type == 4} class="active"{/if}><a href="?type=4">снятые с публикации</a></li>
-<li{if $smarty.get.type == 5} class="active"{/if}><a href="?type=5{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">на модерации</a></li>
-<li{if $smarty.get.type == 6} class="active"{/if}><a href="?type=6{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">модерация окончена</a></li>
-<li{if $smarty.get.type == 7} class="active"{/if}><a href="?type=7{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">в очереди на переливку</a></li>
-<li{if $smarty.get.type == 9} class="active"{/if}><a href="?type=9{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">в архиве</a></li>
+<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_FOUND_CANDIDATES} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_FOUND_CANDIDATES}">найдены примеры</a></li>
+<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_NOT_STARTED} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_NOT_STARTED}">не опубликованные</a></li>
+<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_IN_PROGRESS} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_IN_PROGRESS}">опубликованные</a></li>
+<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_ANSWERED} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_ANSWERED}">снятые с публикации</a></li>
+<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_MODERATION} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_MODERATION}{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">на модерации</a></li>
+<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_MODERATED} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_MODERATED}{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">модерация окончена</a></li>
+<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_TO_MERGE} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_TO_MERGE}{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">в очереди на переливку</a></li>
+<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_ARCHIVED} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_ARCHIVED}{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">в архиве</a></li>
 </ul>
 <table class="table">
 <tr class="borderless">
@@ -55,14 +55,14 @@ $(document).ready(function(){
     <th>Условия<br/><form class='form-inline' id='gram-filter'><input type='text' id='gram-cond' placeholder='фильтр (regexp)' value='{if isset($smarty.get.filter)}{$smarty.get.filter|htmlspecialchars}{/if}' class='span2'/> <input type='button' value='OK' class='btn'/></form></th>
     <th>Обновлён</th>
     <th>Автор</th>
-    {if $smarty.get.type > 4}<th>{html_options name=moder_id options=$pools.moderators id=moder_id}</th>{/if}
+    {if $smarty.get.type > $smarty.const.MA_POOLS_STATUS_ANSWERED}<th>{html_options name=moder_id options=$pools.moderators id=moder_id}</th>{/if}
     {if $smarty.get.type > 0}<th>Состояние</th>{/if}
 </tr>
 {foreach from=$pools.pools item=pool}
 <tr>
     <td>{$pool.pool_id}</td>
     <td>{strip}
-        {if $pool.status > 0}<a href="?act={if $pool.status == 1}candidates{else}samples{/if}&amp;pool_id={$pool.pool_id}">{/if}
+        {if $pool.status > 0}<a href="?act={if $pool.status == $smarty.const.MA_POOLS_STATUS_NOT_STARTED}candidates{else}samples{/if}&amp;pool_id={$pool.pool_id}">{/if}
         {$pool.pool_name|htmlspecialchars}
         {if $pool.status > 0}</a>{/if}
         {if $user_permission_check_morph}<br/><a href="?act=delete&amp;pool_id={$pool.pool_id}" class='del'>удалить</a>{/if}
@@ -70,14 +70,14 @@ $(document).ready(function(){
     <td>{$pool.grammemes|htmlspecialchars}<br/><span class='small'>{$pool.gram_descr|htmlspecialchars}</span><br/>Оценок: {$pool.users_needed}<br/>Токенизация: {$pool.token_check}</td>
     <td>{$pool.updated_ts|date_format:"%a %d.%m.%Y, %H:%M"}</td>
     <td>{$pool.author_name|htmlspecialchars}</td>
-    {if $pool.status > 4}
+    {if $pool.status > $smarty.const.MA_POOLS_STATUS_ANSWERED}
         <td>{$pool.moderator_name|default:"&ndash;"}</td>
     {/if}
-    {if $pool.status == 1}
+    {if $pool.status == $smarty.const.MA_POOLS_STATUS_FOUND_CANDIDATES}
         <td>найдено примеров: {$pool.candidate_count}</td>
-    {elseif $pool.status == 5}
+    {elseif $pool.status == $smarty.const.MA_POOLS_STATUS_MODERATION}
         <td>проверено: {$pool.moderated_count}/{$pool.instance_count / $pool.users_needed}</td>
-    {elseif $pool.status > 1}
+    {elseif $pool.status > $smarty.const.MA_POOLS_STATUS_NOT_STARTED}
         <td><span class='{if $pool.instance_count > 0 && $pool.answer_count == $pool.instance_count}bggreen{/if}'>{$pool.answer_count}/{$pool.instance_count} ответов</span></td>
     {/if}
 </tr>

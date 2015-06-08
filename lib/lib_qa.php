@@ -141,11 +141,11 @@ function get_merge_fails() {
         sql_execute($res1, array($r['tf_id'], $r['pool_revision']));
         $r1 = sql_fetch_array($res1);
 
-        if (!in_array($r['status'], array(3, 4))) {
+        if (!in_array($r['status'], array(MA_SAMPLES_STATUS_MISPRINT, MA_SAMPLES_STATUS_HOMONYMOUS))) {
             if ($r1)
-                $r['status'] = 5;
+                $r['status'] = MA_SAMPLES_STATUS_MANUAL_EDIT;
             else
-                $r['status'] = -1;
+                $r['status'] = -1; // smth strange
         }
 
         $data['samples'][] = array(

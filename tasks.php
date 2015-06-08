@@ -1,5 +1,6 @@
 <?php
 require('lib/header.php');
+require_once('lib/constants.php');
 require_once('lib/lib_xml.php');
 require_once('lib/lib_annot.php');
 

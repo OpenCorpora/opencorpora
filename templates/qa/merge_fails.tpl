@@ -5,9 +5,9 @@
 Общая статистика:
 <ul>
 <li>Всего: {count($data.samples)}
-<li>Опечатка: {$data.total[3]}</li>
-<li>Неснимаемая омонимия: {$data.total[4]}</li>
-<li>Ручная правка: {$data.total[5]}</li>
+<li>Опечатка: {$data.total[$smarty.const.MA_SAMPLES_STATUS_MISPRINT]}</li>
+<li>Неснимаемая омонимия: {$data.total[$smarty.const.MA_SAMPLES_STATUS_HOMONYMOUS]}</li>
+<li>Ручная правка: {$data.total[$smarty.const.MA_SAMPLES_STATUS_MANUAL_EDIT]}</li>
 <li>???: {$data.total[-1]|default:0}</li>
 </ul>
 <table class='table'>
@@ -15,11 +15,10 @@
 <tr>
     <td>{$sample.id}</td>
     <td>{$sample.pool_name}</td>
-    <td>{$sample.pool_revision}</td>
     <td>{strip}
-        {if     $sample.mod_status == 3}опечатка
-        {elseif $sample.mod_status == 4}неснимаемая омонимия
-        {elseif $sample.mod_status == 5}<a href="{$web_prefix}/diff.php?rev_id={$sample.revision}">ручная правка</a>
+        {if     $sample.mod_status == $smarty.const.MA_SAMPLES_STATUS_MISPRINT}опечатка
+        {elseif $sample.mod_status == $smarty.const.MA_SAMPLES_STATUS_HOMONYMOUS}неснимаемая омонимия
+        {elseif $sample.mod_status == $smarty.const.MA_SAMPLES_STATUS_MANUAL_EDIT}<a href="{$web_prefix}/diff.php?rev_id={$sample.revision}">ручная правка</a>
         {else}???
         {/if}
         {/strip}

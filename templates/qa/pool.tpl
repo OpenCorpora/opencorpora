@@ -96,33 +96,33 @@
 <p><a href="?type={$pool.status}">&lt;&lt; к списку пулов</a></p>
 <h1>Пул &laquo;{$pool.name}&raquo;</h1>
 {if $user_permission_check_morph}
-{if $pool.status == 2}
+{if $pool.status == $smarty.const.MA_POOLS_STATUS_NOT_STARTED}
 Пул не опубликован. <form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn">Опубликовать</button></form>
-{elseif $pool.status == 3}
+{elseif $pool.status == $smarty.const.MA_POOLS_STATUS_IN_PROGRESS}
 Пул опубликован.
 <form action="?act=unpublish&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn">Снять с публикации</button></form>
-{elseif $pool.status == 4}
+{elseif $pool.status == $smarty.const.MA_POOLS_STATUS_ANSWERED}
 Пул снят с публикации.
 <form action="?act=publish&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn">Опубликовать заново</button></form>
-{elseif $pool.status == 5}
+{elseif $pool.status == $smarty.const.MA_POOLS_STATUS_MODERATION}
     {if $pool.has_manual}<div>
         <a class="btn btn-primary" href="manual.php?pool_type={$pool.type}" target="_blank"><i class="icon-info-sign icon-white"></i> Инструкция</a>
     </div>{/if}
 Пул модерируется (новые ответы запрещены). <form action="?act=finish_moder&amp;pool_id={$pool.id}" method="post" class="inline"><button{if !$pool.all_moderated} disabled="disabled"{/if} class="btn finish_mod">Закончить модерацию</button></form>
 <form action="?act=agree&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn" onclick="return confirm('Вы уверены? Это действие необратимо.')">Согласиться со всеми однозначными</button></form>
-{elseif $pool.status == 6}
+{elseif $pool.status == $smarty.const.MA_POOLS_STATUS_MODERATED}
 Модерация пула закончена.
 {if $user_permission_merge}<form action="?act=begin_merge&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn btn-primary" onclick="return confirm('Вы уверены? Это действие необратимо.')">Вернуть результаты в корпус</button></form>{/if}
-{elseif $pool.status == 7 || $pool.status == 8}
+{elseif $pool.status == $smarty.const.MA_POOLS_STATUS_TO_MERGE || $pool.status == $smarty.const.MA_POOLS_STATUS_MERGING}
 Запущен процесс перемещения результатов в корпус. Обновите страницу через несколько минут.
-{elseif $pool.status == 9}
+{elseif $pool.status == $smarty.const.MA_POOLS_STATUS_ARCHIVED}
 Примеры из пула успешно возвращены в корпус.
 {/if}
-{if $pool.status == 4 || $pool.status == 6}
+{if $pool.status == $smarty.const.MA_POOLS_STATUS_ANSWERED || $pool.status == $smarty.const.MA_POOLS_STATUS_MODERATED}
 <form action="?act=begin_moder&amp;pool_id={$pool.id}" method="post" class="inline"><button class="btn" onclick="return confirm('Вы уверены? Это действие необратимо.')">Начать модерацию</button></form>
 {/if}
 {/if}
-{if $pool.status > 2}
+{if $pool.status > $smarty.const.MA_POOLS_STATUS_NOT_STARTED}
 <p>{if !isset($smarty.get.ext)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">к расширенному виду</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}">к обычному виду</a>{/if}</p>
 <p>
 {if $pool.filter != 'focus'}<a class="{if $pool.has_focus}bggreen{else}bgpink{/if}" href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=focus">список для модерации</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if} |
@@ -145,10 +145,10 @@
     <th>&nbsp;</th>
     {if isset($smarty.get.ext)}
         {for $i=1 to $pool.num_users}<th>{$i}</th>{/for}
-        {if $user_permission_check_morph && $pool.status == 5}
+        {if $user_permission_check_morph && $pool.status == $smarty.const.MA_POOLS_STATUS_MODERATION}
             <th><a class='agree_all_auto pseudo' href='#'>согласен со всеми однозначными (не читал)</a><br/>
             <i class="icon-eye-open"></i> <a class='agree_all_manual pseudo' href='#'>согласен со всеми однозначными (читал)</a></th></tr>
-        {elseif $pool.status > 5}
+        {elseif $pool.status > $smarty.const.MA_POOLS_STATUS_MODERATION}
             <th>Модератор<br/>({$pool.moderator_name})</th>
         {/if}
     {else}
@@ -188,9 +188,9 @@
     </td>
     {if isset($smarty.get.ext)}
         {foreach from=$sample.instances item=instance}
-        <td class="diff_colors_{$instance.user_color}">{if $instance.answer_num == 99}<b>Other</b>{elseif $instance.answer_num > 0}{$instance.answer_gram}{else}&ndash;{/if}</td>
+        <td class="diff_colors_{$instance.user_color}">{if $instance.answer_num == $smarty.const.MA_ANSWER_OTHER}<b>Other</b>{elseif $instance.answer_num > 0}{$instance.answer_gram}{else}&ndash;{/if}</td>
         {/foreach}
-        {if $user_permission_check_morph && $pool.status == 5}
+        {if $user_permission_check_morph && $pool.status == $smarty.const.MA_POOLS_STATUS_MODERATION}
             <td>
                 {if !$sample.disagreed && !$sample.moder_answer_num}
                 <a href='#' class='hint agree'>согласен</a><br/>
@@ -198,23 +198,23 @@
                 {html_options options=$pool.variants name='sel_var' class='sel_var' selected={$sample.moder_answer_num}}
                 <br/>
                 <select class='sel_status'>
-                    <option value='0' {if $sample.moder_status_num == 0}selected="selected"{/if}>OK</option>
-                    <option value='1' {if $sample.moder_status_num == 1}selected="selected"{/if}>Частично правильно</option>
-                    <option value='2' {if $sample.moder_status_num == 2}selected="selected"{/if}>Нет правильного разбора</option>
-                    <option value='3' {if $sample.moder_status_num == 3}selected="selected"{/if}>Опечатка</option>
-                    <option value='4' {if $sample.moder_status_num == 4}selected="selected"{/if}>Неснимаемая омонимия</option>
+                    <option value='{$smarty.const.MA_SAMPLES_STATUS_OK}' {if $sample.moder_status_num == $smarty.const.MA_SAMPLES_STATUS_OK}selected="selected"{/if}>OK</option>
+                    <option value='{$smarty.const.MA_SAMPLES_STATUS_ALMOST_OK}' {if $sample.moder_status_num == $smarty.const.MA_SAMPLES_STATUS_ALMOST_OK}selected="selected"{/if}>Частично правильно</option>
+                    <option value='{$smarty.const.MA_SAMPLES_STATUS_NO_CORRECT_PARSE}' {if $sample.moder_status_num == $smarty.const.MA_SAMPLES_STATUS_NO_CORRECT_PARSE}selected="selected"{/if}>Нет правильного разбора</option>
+                    <option value='{$smarty.const.MA_SAMPLES_STATUS_MISPRINT}' {if $sample.moder_status_num == $smarty.const.MA_SAMPLES_STATUS_MISPRINT}selected="selected"{/if}>Опечатка</option>
+                    <option value='{$smarty.const.MA_SAMPLES_STATUS_HOMONYMOUS}' {if $sample.moder_status_num == $smarty.const.MA_SAMPLES_STATUS_HOMONYMOUS}selected="selected"{/if}>Неснимаемая омонимия</option>
                 </select>
             </td>
-        {elseif $pool.status > 5}
+        {elseif $pool.status > $smarty.const.MA_POOLS_STATUS_MODERATION}
             <td>
                 {$sample.moder_answer_gram}<br/>
-                {if $sample.moder_status_num == 1}
+                {if $sample.moder_status_num == $smarty.const.MA_SAMPLES_STATUS_ALMOST_OK}
                     <b>Частично правильно</b>
-                {elseif $sample.moder_status_num == 2}
+                {elseif $sample.moder_status_num == $smarty.const.MA_SAMPLES_STATUS_NO_CORRECT_PARSE}
                     <b>Нет правильного разбора</b>
-                {elseif $sample.moder_status_num == 3}
+                {elseif $sample.moder_status_num == $smarty.const.MA_SAMPLES_STATUS_MISPRINT}
                     <b>Опечатка</b>
-                {elseif $sample.moder_status_num == 4}
+                {elseif $sample.moder_status_num == $smarty.const.MA_SAMPLES_STATUS_HOMONYMOUS}
                     <b>Неснимаемая омонимия</b>
                 {/if}
             </td>
@@ -224,7 +224,7 @@
     {/if}
 </tr>
 {/foreach}
-{if isset($smarty.get.ext) && $user_permission_check_morph && $pool.status == 5}
+{if isset($smarty.get.ext) && $user_permission_check_morph && $pool.status == $smarty.const.MA_POOLS_STATUS_MODERATION}
 <tr><th colspan='{$pool.num_users + 3}' align='right'><a class='agree_all_auto pseudo' href='#'>согласен со всеми однозначными (не читал)</a><br/>
 <i class="icon-eye-open"></i> <a class='agree_all_manual pseudo' href='#'>согласен со всеми однозначными (читал)</a></th></tr>
 {/if}
