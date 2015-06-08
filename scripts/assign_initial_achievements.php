@@ -45,7 +45,7 @@ if (php_sapi_name() == 'cli') {
                     ($count - $COUNT) * 100 / ($grades[$level0 + 1] - $COUNT)
                 );
 
-                if (!$check) $level--;
+                if ($count >= $COUNT && !$check) $level--;
                 break;
             }
         }

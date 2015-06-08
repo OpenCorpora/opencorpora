@@ -25,7 +25,8 @@ class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
     public $level_reqs = array(10, 50, 100, 300, 500, 900, 1500, 2500, 4300, 6500, 8800, 12000, 16000, 21000, 36000, 61000, 103000, 175000, 300000, 500000);
 
     private function _has_enough_quality_info($level, $count) {
-        return $count >= $this->level_reqs[$level-1] / 10;
+        // 5% check is required
+        return $count >= $this->level_reqs[$level-1] / 20;
     }
 
     private function _tasks_done() {
@@ -124,8 +125,9 @@ class ChameleonAchievement extends Achievement implements TaskDoneListenerInterf
     );
 
     private function _has_enough_quality_info($level, $count) {
+        // 5% check is required
         $lreqs = $this->level_reqs[$level-1];
-        return $count >= ($lreqs[0] * $lreqs[1] / 10);
+        return $count >= ($lreqs[0] * $lreqs[1] / 20);
     }
 
     private function _get_counts() {
