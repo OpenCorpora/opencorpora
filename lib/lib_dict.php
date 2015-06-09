@@ -117,6 +117,23 @@ function yo_filter($token, $arr) {
         $out[] = $r;
     return $out;
 }
+function dict_get_grammemes_by_order() {
+    $res = sql_query("SELECT inner_id FROM gram ORDER BY orderby");
+    $out = array();
+    while ($r = sql_fetch_array($res))
+        $out[] = $r['inner_id'];
+    return $out;
+}
+function sort_grammemes(&$gram_array, $gram_order) {
+    usort($gram_array, function($a, $b) use ($gram_order) {
+        return array_search($a, $gram_order) < array_search($b, $gram_order) ? -1 : 1;
+    });
+}
+function prepare_gram_array($gram_string, $gram_order) {
+    $grams = array_filter(array_map("trim", explode(',', $gram_string)), "strlen");
+    sort_grammemes($grams, $gram_order);
+    return $grams;
+}
 function dict_get_select_gram() {
     $res = sql_query("SELECT `gram_id`, `inner_id` FROM `gram` ORDER by `inner_id`");
     $out = array();
@@ -467,7 +484,8 @@ function get_lemma_editor($id) {
 function dict_add_lemma($array) {
     $ltext = $array['form_text'];
     $lgram = $array['form_gram'];
-    $lemma_gram_new = $array['lemma_gram'];
+    $gram_order = dict_get_grammemes_by_order();
+    $lemma_gram_new = prepare_gram_array($array['lemma_gram'], $gram_order);
     $lemma_text = $array['lemma_text'];
     $new_paradigm = array();
     foreach ($ltext as $i=>$text) {
@@ -478,7 +496,7 @@ function dict_add_lemma($array) {
             throw new UnexpectedValueException();
         } else {
             //TODO: perhaps some data validity check?
-            array_push($new_paradigm, array($text, $lgram[$i]));
+            array_push($new_paradigm, array($text, prepare_gram_array($lgram[$i], $gram_order)));
         }
     }
     $upd_forms = array();
@@ -548,7 +566,8 @@ function dict_save($array) {
         throw new UnexpectedValueException();
     $ltext = $array['form_text'];
     $lgram = $array['form_gram'];
-    $lemma_gram_new = $array['lemma_gram'];
+    $gram_order = dict_get_grammemes_by_order();
+    $lemma_gram_new = prepare_gram_array($array['lemma_gram'], $gram_order);
 
     $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=".$array['lemma_id']." ORDER BY `rev_id` DESC LIMIT 1"));
     $old_rev_parsed = parse_dict_rev($old_xml = $r['rev_text']);
@@ -563,7 +582,7 @@ function dict_save($array) {
             throw new UnexpectedValueException();
         } else {
             //TODO: perhaps some data validity check?
-            array_push($new_paradigm, array($text, $lgram[$i]));
+            array_push($new_paradigm, array($text, prepare_gram_array($lgram[$i], $gram_order)));
         }
     }
 
@@ -585,23 +604,16 @@ function dict_save($array) {
 }
 function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
     $new_xml = '<dr><l t="'.htmlspecialchars(mb_strtolower($lemma_text)).'">';
-    //lemma's grammems
-    $lg = explode(',', $lemma_gram);
-    foreach ($lg as $gr) {
-        if (!trim($gr))
-            continue;
-        $new_xml .= '<g v="'.htmlspecialchars(trim($gr)).'"/>';
+    foreach ($lemma_gram as $gr) {
+        $new_xml .= '<g v="'.htmlspecialchars($gr).'"/>';
     }
     $new_xml .= '</l>';
     //paradigm
     foreach ($paradigm as $new_form) {
         list($txt, $gram) = $new_form;
         $new_xml .= '<f t="'.htmlspecialchars(mb_strtolower($txt)).'">';
-        $gram = explode(',', $gram);
         foreach ($gram as $gr) {
-            if (!trim($gr))
-                continue;
-            $new_xml .= '<g v="'.htmlspecialchars(trim($gr)).'"/>';
+            $new_xml .= '<g v="'.htmlspecialchars($gr).'"/>';
         }
         $new_xml .= '</f>';
     }
