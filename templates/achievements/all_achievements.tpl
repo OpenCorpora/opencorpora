@@ -33,7 +33,7 @@
                             {/if}
                         </p>
                     </div>
-                    <div class="span5">
+                    <div class="span5" style="height: 450px;"> <!-- fix for vertical scrollbar on tab switch -->
                         {if !$stats[$a->css_class]}
                             <p class="lead-medium">
                                 {$titles.global.nobody_has_badge}
