@@ -126,7 +126,7 @@ function user_login_openid($token) {
     sql_begin();
     //if he doesn't
     if (sql_num_rows($res) == 0) {
-        sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0, 1, 1, 0, 0)");
+        sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0, 1, 1, 0, 1)");
         $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
     }
     $row = sql_fetch_array($res);
@@ -192,7 +192,7 @@ function user_register($post) {
         return 4;
     }
     sql_begin();
-    sql_pe("INSERT INTO `users` VALUES(NULL, ?, ?, ?, ?, ?, 0, 1, 1, 0, 0)", array($name, $passwd, $email, time(), $name));
+    sql_pe("INSERT INTO `users` VALUES(NULL, ?, ?, ?, ?, ?, 0, 1, 1, 0, 1)", array($name, $passwd, $email, time(), $name));
     $user_id = sql_insert_id();
     if (isset($post['subscribe']) && $email) {
         //perhaps we should subscribe the user
