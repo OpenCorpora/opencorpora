@@ -6,8 +6,7 @@ require_once('../lib/lib_annot.php');
 if (isset($_POST['tf_id'])) {
     $res = sql_pe("SELECT tf_text FROM tokens WHERE tf_id=? LIMIT 1", array($_POST['tf_id']));
     $r = $res[0];
-    $arr = xml2ary(generate_tf_rev($r['tf_text']));
-    $vars = get_morph_vars($arr['tfr']['_c']['v']);
+    $vars = parse_tf_rev(generate_tf_rev($r['tf_text']));
 
     $result['xml'] =  "<tfr t=\"".htmlspecialchars($arr['tfr']['_a']['t'])."\">";
     foreach($vars as $var) {
