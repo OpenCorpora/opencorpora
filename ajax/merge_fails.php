@@ -1,6 +1,7 @@
 <?php
 
 require_once('../lib/header_ajax.php');
+require_once('../lib/lib_qa.php');
 
 if (!is_logged()) {
     return;
@@ -9,11 +10,11 @@ if (!is_logged()) {
 try {
     switch ($_POST['act']) {
         case 'approve':
-        // POST contains id and value (true for checked/false for unchecked)
+            save_merge_fail_status($_POST['id'], $_POST['value']);
             $result['error'] = 0;
             break;
         case 'comment':
-        // POST contains id and text
+            save_merge_fail_comment($_POST['id'], $_POST['text']);
             $result['error'] = 0;
             break;
         default:

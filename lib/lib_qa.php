@@ -113,12 +113,13 @@ function get_good_sentences($no_zero = false) {
 }
 function get_merge_fails() {
     $res = sql_query("
-        SELECT sample_id, p.pool_name, p.revision AS pool_revision, ms.status, s.tf_id
+        SELECT sample_id, p.pool_name, p.pool_id, p.revision AS pool_revision, ms.status, s.tf_id, c.comment, merge_status
         FROM morph_annot_moderated_samples ms
         LEFT JOIN morph_annot_samples s USING (sample_id)
         LEFT JOIN morph_annot_pools p USING (pool_id)
+        LEFT JOIN morph_annot_merge_comments c USING (sample_id)
         WHERE p.status = ".MA_POOLS_STATUS_ARCHIVED."
-        AND merge_status = 0
+        AND merge_status in (0, 2)
         ORDER BY sample_id
     ");
             
@@ -134,7 +135,8 @@ function get_merge_fails() {
 
     $data = array(
         'samples' => array(),
-        'total' => array()
+        'total' => array(),
+        'checked' => array()
     );
 
     while ($r = sql_fetch_array($res)) {
@@ -151,14 +153,41 @@ function get_merge_fails() {
         $data['samples'][] = array(
             'id' => $r['sample_id'],
             'mod_status' => $r['status'],
+            'pool_id' => $r['pool_id'],
             'pool_name' => $r['pool_name'],
-            'revision' => $r1['rev_id']
+            'revision' => $r1['rev_id'],
+            'comment' => $r['comment'],
+            'merge_status' => $r['merge_status']
         );
-        if (!isset($data['total'][$r['status']]))
+        if (!isset($data['total'][$r['status']])) {
             $data['total'][$r['status']] = 0;
+            $data['checked'][$r['status']] = 0;
+        }
         ++$data['total'][$r['status']];
+        if ($r['merge_status'])
+            ++$data['checked'][$r['status']];
     }
     return $data;
+}
+function save_merge_fail_status($sample_id, $is_checked) {
+    sql_pe("
+        UPDATE morph_annot_moderated_samples
+        SET merge_status = ?
+        WHERE sample_id = ?
+        LIMIT 1
+    ", array($is_checked ? 2 : 0, $sample_id));
+}
+function save_merge_fail_comment($sample_id, $comment_text) {
+    $comment_text = trim($comment_text);
+    sql_pe("
+        DELETE FROM morph_annot_merge_comments
+        WHERE sample_id = ?
+    ", array($sample_id));
+    if ($comment_text)
+        sql_pe("
+            INSERT INTO morph_annot_merge_comments
+            VALUES (? , ?)
+        ", array($sample_id, $comment_text));
 }
 function get_most_useful_pools($type=0) {
     $res = sql_pe("
