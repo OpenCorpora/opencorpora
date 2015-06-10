@@ -11,6 +11,24 @@
 <li>???: {$data.total[-1]|default:0}</li>
 </ul>
 <table class='table'>
+<thead>
+    <tr>
+        <th>#</th>
+        <th>Название</th>
+        <th>Ревизия</th>
+        <th>Статус</th>
+        <th></th>
+        <th>Комментарий<br/>(можно редактировать)</th>
+    </tr>
+    <tr>
+        <col></col>
+        <col></col>
+        <col></col>
+        <col></col>
+        <col></col>
+        <col width="20%"></col>
+    </tr>
+</thead>
 {foreach from=$data.samples item=sample}
 <tr>
     <td>{$sample.id}</td>
@@ -23,7 +41,10 @@
         {/if}
         {/strip}
     </td>
+    <td><input type="checkbox" class="approve-sample" data-id="{$sample.id}"/></td>
+    <td class="comment-cell" data-id="{$sample.id}" contenteditable>{$sample.comment}</td>
 </tr>
 {/foreach}
 </table>
+<script src="{$web_prefix}/assets/js/merge_fails.js"></script>
 {/block}
