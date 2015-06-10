@@ -147,7 +147,7 @@ function get_adjacent_sentence_id($sent_id, $next) {
 function get_morph_vars($xml_arr, &$gram_descr=array()) {
     if (isset($xml_arr['_c']) && is_array($xml_arr['_c'])) {
         //the only variant
-        $var = get_morph_vars_inner($xml_arr, 1);
+        $var = get_morph_vars_inner($xml_arr);
         $t = array();
         foreach ($var['gram_list'] as $gr) {
             if (!isset($gram_descr[$gr['inner']])) {
@@ -161,10 +161,9 @@ function get_morph_vars($xml_arr, &$gram_descr=array()) {
     } else {
         //multiple variants
         $out = array();
-        $i = 1;
         if (is_array($xml_arr)) {
             foreach ($xml_arr as $xml_var_arr) {
-                $var = get_morph_vars_inner($xml_var_arr, $i++);
+                $var = get_morph_vars_inner($xml_var_arr);
                 $t = array();
                 foreach ($var['gram_list'] as $gr) {
                     if (!isset($gram_descr[$gr['inner']])) {
@@ -180,7 +179,7 @@ function get_morph_vars($xml_arr, &$gram_descr=array()) {
         return $out;
     }
 }
-function get_morph_vars_inner($xml_arr, $num) {
+function get_morph_vars_inner($xml_arr) {
     $lemma_grm = $xml_arr['_c']['l']['_c']['g'];
     $grm_arr = array();
     if (isset ($lemma_grm['_a']) && is_array($lemma_grm['_a'])) {
@@ -191,7 +190,6 @@ function get_morph_vars_inner($xml_arr, $num) {
         }
     }
     return array(
-        'num'        => $num,
         'lemma_id'   => $xml_arr['_c']['l']['_a']['id'],
         'lemma_text' => $xml_arr['_c']['l']['_a']['t'],
         'gram_list'  => $grm_arr

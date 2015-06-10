@@ -136,9 +136,9 @@
                     {$token.tf_text|htmlspecialchars}
                     <a href="#" class="reload" title="Разобрать заново из словаря"><i class="icon-refresh bggreen"></i></a>
                 </div>
-                {foreach item=variant from=$token.variants}
-                    <div class="var" id="var_{$token.tf_id}_{$variant.num}">
-                        <input type="hidden" name="var_flag[{$token.tf_id}][{$variant.num}]" value="1"/>
+                {foreach key=num item=variant from=$token.variants}
+                    <div class="var" id="var_{$token.tf_id}_{$num+1}">
+                        <input type="hidden" name="var_flag[{$token.tf_id}][{$num+1}]" value="1"/>
                         {if $variant.lemma_id > 0}
                             <a href="{$web_prefix}/dict.php?act=edit&amp;id={$variant.lemma_id}">{$variant.lemma_text}</a>
                         {else}
