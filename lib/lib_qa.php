@@ -224,4 +224,30 @@ function get_most_useful_pools($type=0) {
         );
     return $out;
 }
+function get_unknowns() {
+    $res = sql_pe("
+        SELECT tf_text, sent_id, ut.dict_revision
+        FROM tokens t
+        LEFT JOIN form2lemma f
+            ON (t.tf_text = f.form_text)
+        LEFT JOIN tf_revisions
+            USING (tf_id)
+        LEFT JOIN updated_tokens ut
+            ON (t.tf_id = ut.token_id)
+        WHERE is_last = 1
+        AND rev_text LIKE '%UNKN%'
+        AND f.lemma_id IS NOT NULL
+        GROUP BY tf_id
+        ORDER BY tf_id
+    ");
+    $out = array();
+    foreach ($res as $r) {
+        $out[] = array(
+            'sent_id' => $r['sent_id'],
+            'text' => $r['tf_text'],
+            'is_pending' => (bool)$r['dict_revision']
+        );
+    }
+    return $out;
+}
 ?>

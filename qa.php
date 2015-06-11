@@ -59,6 +59,10 @@ switch ($action) {
         $smarty->assign('types', get_morph_pool_types());
         $smarty->display('qa/useful_pools.tpl');
         break;
+    case 'unkn':
+        $smarty->assign('tokens', get_unknowns());
+        $smarty->display('qa/unknowns.tpl');
+        break;
     default:
         header("Location:index.php");
 }

@@ -88,7 +88,7 @@
                 {/if}
                 {* TODO: special permission? *}
                     <li class="nav-header">Именованные сущности</li>
-                    <li><a href='{$web_prefix}/ner.php'><span class="label label-small label-success">new!</span> Тексты</a></li>
+                    <li><a href='{$web_prefix}/ner.php'>Тексты</a></li>
                 {if $user_permission_adder}
                     <li class="nav-header">Контроль качества</li>
                     <li><a href='{$web_prefix}/sources.php'>Координация заливки</a></li>
@@ -99,6 +99,7 @@
                     <li><a href='{$web_prefix}/qa.php?act=empty_books'>Пустые тексты</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=book_tags'>Ошибки в тегах текстов</a></li>
                     <li><a href='{$web_prefix}/qa.php?act=dl_urls'>Сохранённые копии источников</a></li>
+                    <li><a href='{$web_prefix}/qa.php?act=unkn'><span class="label label-small label-success">new!</span> Словарные токены с UNKN</a></li>
                 {/if}
             </ul>
         </div>
