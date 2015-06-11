@@ -6,12 +6,12 @@ require_once('../lib/lib_annot.php');
 if (isset($_POST['tf_id'])) {
     $res = sql_pe("SELECT tf_text FROM tokens WHERE tf_id=? LIMIT 1", array($_POST['tf_id']));
     $r = $res[0];
-    $vars = parse_tf_rev(generate_tf_rev($r['tf_text']));
+    $pset = new MorphParseSet(generate_tf_rev($r['tf_text']));
 
-    $result['xml'] =  "<tfr t=\"".htmlspecialchars($arr['tfr']['_a']['t'])."\">";
-    foreach($vars as $var) {
-        $result['xml'] .= '<v><l id="'.$var['lemma_id'].'" t="'.htmlspecialchars($var['lemma_text']).'">';
-        foreach($var['gram_list'] as $gram) {
+    $result['xml'] = "<tfr>";
+    foreach($pset->parses as $parse) {
+        $result['xml'] .= '<v><l id="'.$parse->lemma_id.'" t="'.htmlspecialchars($parse->lemma_text).'">';
+        foreach($parse->gramlist as $gram) {
             if (isset($_SESSION['options']) && $_SESSION['options'][1] == 1) {
                 $result['xml'] .= '<g v="'.$gram['outer'].'" d="'.$gram['descr'].'"/>';
             } else {

@@ -1,6 +1,74 @@
 <?php
 require_once('constants.php');
 
+class MorphParse {
+    public $lemma_id = 0;
+    public $lemma_text;
+    public $gramlist = array();
+    // $gramlist is array with keys 'inner', 'outer', 'descr'
+
+    public function from_xml_ary($xml_arr) {
+        $lemma_grm = $xml_arr['_c']['l']['_c']['g'];
+        $grm_arr = array();
+        if (isset ($lemma_grm['_a']) && is_array($lemma_grm['_a'])) {
+            $grm_arr[] = array('inner' => $lemma_grm['_a']['v']);
+        } elseif (is_array($lemma_grm)) {
+            foreach ($lemma_grm as $t) {
+                $grm_arr[] = array('inner' => $t['_a']['v']);
+            }
+        }
+        $this->lemma_id   = $xml_arr['_c']['l']['_a']['id'];
+        $this->lemma_text = $xml_arr['_c']['l']['_a']['t'];
+        $this->gramlist  = $grm_arr;
+    }
+}
+
+class MorphParseSet {
+    public $token_text;
+    public $parses;
+    private static $gram_descr = array();
+
+    public function __construct($xml="", $token_text="") {
+        if ($xml)
+            $this->_from_xml($xml);
+    }
+
+    private static function _fill_gram_info($gram_list) {
+        $t = array();
+        foreach ($gram_list as $gr) {
+            if (!isset(self::$gram_descr[$gr['inner']])) {
+                $r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='".$gr['inner']."' COLLATE utf8_bin LIMIT 1"));
+                self::$gram_descr[$gr['inner']] = array($r[0], $r[1]);
+            }
+            $t[] = array(
+                'inner' => $gr['inner'],
+                'outer' => self::$gram_descr[$gr['inner']][0],
+                'descr' => self::$gram_descr[$gr['inner']][1]
+            );
+        }
+        return $t;
+    }
+
+    private function _from_xml($xml) {
+        $xml_arr = xml2ary($xml)['tfr']['_c']['v'];
+        if (isset($xml_arr['_c']) && is_array($xml_arr['_c'])) {
+            //the only variant
+            $this->parses[] = new MorphParse();
+            $this->parses[0]->from_xml_ary($xml_arr);
+            $this->parses[0]->gramlist = self::_fill_gram_info($this->parses[0]->gramlist);
+        } elseif (is_array($xml_arr)) {
+            //multiple variants
+            foreach ($xml_arr as $i => $xml_var_arr) {
+                $this->parses[] = new MorphParse();
+                $this->parses[$i]->from_xml_ary($xml_var_arr);
+                $this->parses[$i]->gramlist = self::_fill_gram_info($this->parses[$i]->gramlist);
+            }
+        }
+        else
+            throw new Exception();
+    }
+}
+
 function get_sentence($sent_id) {
     $r = sql_fetch_array(sql_query("SELECT `check_status`, source FROM sentences WHERE sent_id=$sent_id LIMIT 1"));
     $out = array(
@@ -65,14 +133,13 @@ function get_sentence($sent_id) {
         ORDER BY `pos`
     ");
     $j = 0; //token position, for further highlighting
-    $gram_descr = array();  //associative array to keep info about grammemes
     while ($r = sql_fetch_array($res)) {
         array_push($tf_text, '<span id="src_token_'.($j++).'">'.htmlspecialchars($r['tf_text']).'</span>');
-
+        $parse = new MorphParseSet($r['rev_text']);
         $out['tokens'][] = array(
             'tf_id'        => $r['tf_id'],
             'tf_text'      => $r['tf_text'],
-            'variants'     => parse_tf_rev($r['rev_text'], $gram_descr)
+            'variants'     => $parse->parses
         );
     }
     $out['fulltext'] = typo_spaces(implode(' ', $tf_text), 1);
@@ -143,61 +210,6 @@ function get_adjacent_sentence_id($sent_id, $next) {
     }
 
     return 0;
-}
-function get_morph_vars($xml_arr, &$gram_descr=array()) {
-    if (isset($xml_arr['_c']) && is_array($xml_arr['_c'])) {
-        //the only variant
-        $var = get_morph_vars_inner($xml_arr);
-        $t = array();
-        foreach ($var['gram_list'] as $gr) {
-            if (!isset($gram_descr[$gr['inner']])) {
-                $r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='".$gr['inner']."' COLLATE utf8_bin LIMIT 1"));
-                $gram_descr[$gr['inner']] = array($r[0], $r[1]);
-            }
-            $t[] = array('inner' => $gr['inner'], 'outer' => $gram_descr[$gr['inner']][0], 'descr' => $gram_descr[$gr['inner']][1]);
-        }
-        $var['gram_list'] = $t;
-        return array($var);
-    } else {
-        //multiple variants
-        $out = array();
-        if (is_array($xml_arr)) {
-            foreach ($xml_arr as $xml_var_arr) {
-                $var = get_morph_vars_inner($xml_var_arr);
-                $t = array();
-                foreach ($var['gram_list'] as $gr) {
-                    if (!isset($gram_descr[$gr['inner']])) {
-                        $r = sql_fetch_array(sql_query("SELECT outer_id, gram_descr FROM gram WHERE inner_id='".$gr['inner']."' COLLATE utf8_bin LIMIT 1"));
-                        $gram_descr[$gr['inner']] = array($r[0], $r[1]);
-                    }
-                    $t[] = array('inner' => $gr['inner'], 'outer' => $gram_descr[$gr['inner']][0], 'descr' => $gram_descr[$gr['inner']][1]);
-                }
-                $var['gram_list'] = $t;
-                $out[] = $var;
-            }
-        }
-        return $out;
-    }
-}
-function get_morph_vars_inner($xml_arr) {
-    $lemma_grm = $xml_arr['_c']['l']['_c']['g'];
-    $grm_arr = array();
-    if (isset ($lemma_grm['_a']) && is_array($lemma_grm['_a'])) {
-        $grm_arr[] = array('inner' => $lemma_grm['_a']['v']);
-    } elseif (is_array($lemma_grm)) {
-        foreach ($lemma_grm as $t) {
-            $grm_arr[] = array('inner' => $t['_a']['v']);
-        }
-    }
-    return array(
-        'lemma_id'   => $xml_arr['_c']['l']['_a']['id'],
-        'lemma_text' => $xml_arr['_c']['l']['_a']['t'],
-        'gram_list'  => $grm_arr
-    );
-}
-function parse_tf_rev($rev_xml, &$gram_descr=array()) {
-    $arr = xml2ary($rev_xml);
-    return get_morph_vars($arr['tfr']['_c']['v'], $gram_descr);
 }
 function sentence_save($sent_id) {
     if (!$sent_id)
@@ -395,7 +407,6 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         WHERE pool_id=?
         ORDER BY tf_text, sample_id
     ", array($pool_id));
-    $gram_descr = array();
     $distinct_users = array();
     $out['all_moderated'] = $extended ? true : false;  // for now we never get active button with non-extended view, just for code simplicity
     $num_samples = sizeof($res);
@@ -414,7 +425,8 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         $t['answered'] = $r1[0];
         if ($extended) {
             $r1 = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id = ".$r['tf_id']." AND is_last=1 LIMIT 1"));
-            $t['parses'] = parse_tf_rev($r1['rev_text'], $gram_descr);
+            $pset = new MorphParseSet($r1['rev_text']);
+            $t['parses'] = $pset->parses;
             $res1 = sql_query("SELECT instance_id, user_id, answer FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." ORDER BY instance_id");
             $disagreement_flag = 0;
             $not_ok_flag = false;
@@ -579,7 +591,7 @@ function filter_sample_for_moderation($pool_type, $sample, $has_focus) {
 
     // focus word with Fixd or Pltm
     foreach ($sample['parses'] as $parse) {
-        foreach ($parse['gram_list'] as $gram) {
+        foreach ($parse->gramlist as $gram) {
             if (in_array($gram['inner'], array('Fixd', 'Pltm')))
                 return true;
         }
@@ -1132,10 +1144,10 @@ function get_my_answers($pool_id, $limit=10, $skip=0) {
     while ($r = sql_fetch_array($res)) {
         $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) AND is_last=1 LIMIT 1"));
         $instance = get_context_for_word($r1['tf_id'], 4);
-        $parses = parse_tf_rev($r1['rev_text'], $gram_descr);
+        $pset = new MorphParseSet($r1['rev_text']);
         $lemmata = array();
-        foreach ($parses as $p) {
-            $lemmata[] = $p['lemma_text'];
+        foreach ($pset->parses as $p) {
+            $lemmata[] = $p->lemma_text;
         }
         $instance['lemmata'] = implode(', ', array_unique($lemmata));
         $instance['id'] = $r['instance_id'];
@@ -1255,10 +1267,10 @@ function get_annotation_packet($pool_id, $size) {
     while ($r = sql_fetch_array($res)) {
         $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) AND rev_id <= $pool_revision ORDER BY rev_id DESC LIMIT 1"));
         $instance = get_context_for_word($r1['tf_id'], $config['misc']['morph_annot_user_context_size']);
-        $parses = parse_tf_rev($r1['rev_text'], $gram_descr);
+        $pset = new MorphParseSet($r1['rev_text']);
         $lemmata = array();
-        foreach ($parses as $p) {
-            $lemmata[] = $p['lemma_text'];
+        foreach ($pset->parses as $p) {
+            $lemmata[] = $p->lemma_text;
         }
         $instance['lemmata'] = implode(', ', array_unique($lemmata));
         $instance['id'] = $r['instance_id'];

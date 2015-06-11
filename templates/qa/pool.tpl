@@ -171,8 +171,8 @@
             <br/><ul>
             {foreach from=$sample.parses item=parse}
                 <li>{strip}
-                    {$parse.lemma_text}
-                    {foreach from=$parse.gram_list item=gr}
+                    {$parse->lemma_text}
+                    {foreach from=$parse->gramlist item=gr}
                         , <span title='{$gr.descr}'>{$gr.inner}</span>
                     {/foreach}
                 {/strip}</li>
