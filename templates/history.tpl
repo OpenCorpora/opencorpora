@@ -5,8 +5,8 @@
 {if !isset($smarty.get.sent_id)}
     <p>Всего: {$history.total}. <a href='?skip={$skip}&amp;maa={1 - $maa}'>Показать {if $maa}все{else}только слияния и разбиения{/if}</a></p>
     <ul class="pager">
-        {if $history.total > ($skip + 20)}<li class="next"><a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip + 20}&amp;maa={$maa}'>раньше &rarr;</a></li>{else}<li class="next disabled"><a href="#">раньше &rarr;</a></li>{/if}
-        {if $skip > 0}<li class="previous"><a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip - 20}&amp;maa={$maa}'>&larr; позже</a></li>{else}<li class="previous disabled"><a href="#">&larr; позже</a></li>{/if}
+        {if $history.total > ($skip + 20)}<li class="next"><a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip + 20}&amp;maa={$maa}&amp;user_id={$user_id}'>раньше &rarr;</a></li>{else}<li class="next disabled"><a href="#">раньше &rarr;</a></li>{/if}
+        {if $skip > 0}<li class="previous"><a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip - 20}&amp;maa={$maa}&amp;user_id={$user_id}'>&larr; позже</a></li>{else}<li class="previous disabled"><a href="#">&larr; позже</a></li>{/if}
     </ul>
 {/if}
 <table class="table">
@@ -28,8 +28,8 @@
 </table>
 {if !isset($smarty.get.sent_id)}
     <ul class="pager">
-        {if $history.total > ($skip + 20)}<li class="next"><a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip + 20}&amp;maa={$maa}'>раньше &rarr;</a></li>{else}<li class="next disabled"><a href="#">раньше &rarr;</a></li>{/if}
-        {if $skip > 0}<li class="previous"><a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip - 20}&amp;maa={$maa}'>&larr; позже</a></li>{else}<li class="previous disabled"><a href="#">&larr; позже</a></li>{/if}
+        {if $history.total > ($skip + 20)}<li class="next"><a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip + 20}&amp;maa={$maa}&amp;user_id={$user_id}'>раньше &rarr;</a></li>{else}<li class="next disabled"><a href="#">раньше &rarr;</a></li>{/if}
+        {if $skip > 0}<li class="previous"><a href='?{if isset($smarty.get.set_id)}set_id={$smarty.get.set_id}&amp;{/if}skip={$skip - 20}&amp;maa={$maa}&amp;user_id={$user_id}'>&larr; позже</a></li>{else}<li class="previous disabled"><a href="#">&larr; позже</a></li>{/if}
     </ul>
 {/if}
 {/block}

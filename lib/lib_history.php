@@ -3,12 +3,19 @@ require_once('lib_annot.php');
 require_once('lib_dict.php');
 require_once('lib_diff.php');
 
-function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0) {
+function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0, $user_id = 0) {
     $out = array();
     if (!$sentence_id) {
-        if (!$set_id)
-            $res = sql_fetch_array(sql_query("SELECT COUNT(DISTINCT tfr.set_id) FROM tf_revisions tfr".($maa ? " LEFT JOIN rev_sets s ON (tfr.set_id=s.set_id) WHERE s.comment LIKE '% merged %' or s.comment LIKE '% split %'" : '')));
-        else {
+        if (!$set_id) {
+            $q = "SELECT COUNT(DISTINCT tfr.set_id) FROM tf_revisions tfr LEFT JOIN rev_sets s ON (tfr.set_id=s.set_id) ";
+            if ($maa)
+                $q .= "WHERE (s.comment LIKE '% merged %' or s.comment LIKE '% split %') ";
+            if ($user_id) {
+                $q .= ($maa ? "AND " : "WHERE ");
+                $q .= "user_id = $user_id";
+            }
+            $res = sql_fetch_array(sql_query($q));
+        } else {
             $tf_ids = array(0);
             $res = sql_query("SELECT tf_id FROM tf_revisions WHERE set_id = $set_id".($maa ? " AND set_id IN (SELECT set_id FROM rev_sets WHERE comment LIKE '% merged %' OR comment LIKE '% split %')" : ''));
             while ($r = sql_fetch_array($res))
@@ -20,7 +27,16 @@ function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0) {
     }
 
     if (!$set_id && !$sentence_id) {
-        $res = sql_query("SELECT DISTINCT tfr.set_id FROM tf_revisions tfr".($maa ? " LEFT JOIN rev_sets s ON (tfr.set_id=s.set_id) WHERE s.comment LIKE '% merged %' or s.comment LIKE '% split %'" : ''). " ORDER BY tfr.set_id DESC LIMIT $skip,20");
+        $q = "SELECT DISTINCT tfr.set_id FROM tf_revisions tfr LEFT JOIN rev_sets s ON (tfr.set_id=s.set_id) ";
+        if ($maa)
+            $q .= "WHERE (s.comment LIKE '% merged %' or s.comment LIKE '% split %') ";
+        if ($user_id) {
+            $q .= ($maa ? "AND " : "WHERE ");
+            $q .= "s.user_id = $user_id ";
+        }
+        $q .="ORDER BY tfr.set_id DESC LIMIT $skip, 20";
+
+        $res = sql_query($q);
         $res_revset = sql_prepare("SELECT s.comment, s.timestamp, u.user_shown_name AS user_name FROM rev_sets s LEFT JOIN users u ON (s.user_id=u.user_id) WHERE s.set_id=? LIMIT 1");
         while ($r = sql_fetch_array($res)) {
             sql_execute($res_revset, array($r['set_id']));
