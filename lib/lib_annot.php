@@ -1344,14 +1344,17 @@ function update_annot_instance($id, $answer) {
     sql_commit();
 }
 function check_moderator_right($user_id, $pool_id, $make_owner=false) {
-    //the pool must have status=5 (under moderation) AND either have no moderator or have this user as moderator
+    // the pool must have status=5 (under moderation) AND either:
+    // - have no moderator
+    // - or have this user as moderator
+    // - or this user must be a supermoderator
     $res = sql_pe("SELECT `status`, moderator_id FROM morph_annot_pools WHERE pool_id = ? LIMIT 1", array($pool_id));
     if ($res[0]['status'] != MA_POOLS_STATUS_MODERATION)
         return false;
     if ($res[0]['moderator_id'] == 0) {
         if ($make_owner)
             sql_pe("UPDATE morph_annot_pools SET moderator_id=? WHERE pool_id=? LIMIT 1", array($user_id, $pool_id));
-    } elseif ($res[0]['moderator_id'] != $user_id)
+    } elseif ($res[0]['moderator_id'] != $user_id && !user_has_permission(PERM_MORPH_SUPERMODER))
         return false;
     return true;
 }
