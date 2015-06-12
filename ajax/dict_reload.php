@@ -6,7 +6,7 @@ require_once('../lib/lib_annot.php');
 if (isset($_POST['tf_id'])) {
     $res = sql_pe("SELECT tf_text FROM tokens WHERE tf_id=? LIMIT 1", array($_POST['tf_id']));
     $r = $res[0];
-    $pset = new MorphParseSet(generate_tf_rev($r['tf_text']));
+    $pset = new MorphParseSet(false, $r['tf_text']);
 
     $result['xml'] = "<tfr>";
     foreach($pset->parses as $parse) {

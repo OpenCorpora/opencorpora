@@ -7,6 +7,12 @@ class MorphParse {
     public $gramlist = array();
     // $gramlist is array with keys 'inner', 'outer', 'descr'
 
+    public function __construct($lemma_text = "", $gramlist = array(), $lemma_id = 0) {
+        $this->lemma_id = $lemma_id;
+        $this->lemma_text = $lemma_text;
+        $this->gramlist = $gramlist;
+    }
+
     public function from_xml_ary($xml_arr) {
         $lemma_grm = $xml_arr['_c']['l']['_c']['g'];
         $grm_arr = array();
@@ -21,6 +27,14 @@ class MorphParse {
         $this->lemma_text = $xml_arr['_c']['l']['_a']['t'];
         $this->gramlist  = $grm_arr;
     }
+
+    public function to_xml() {
+        $out = '<v><l id="'.$this->lemma_id.'" t="'.$this->lemma_text.'">';
+        foreach ($this->gramlist as $gram)
+            $out .= '<g v="'.$gram['inner'].'"/>';
+        $out .= '</l></v>';
+        return $out;
+    }
 }
 
 class MorphParseSet {
@@ -31,9 +45,22 @@ class MorphParseSet {
     public function __construct($xml="", $token_text="") {
         if ($xml)
             $this->_from_xml($xml);
+        elseif ($token_text)
+            $this->_from_token($token_text);
+        else
+            throw new Exception();
+    }
+
+    public function to_xml() {
+        $out = '<tfr t="'.htmlspecialchars($this->token_text).'">';
+        foreach ($this->parses as $parse)
+            $out .= $parse->to_xml();
+        $out .= '</tfr>';
+        return $out;
     }
 
     private static function _fill_gram_info($gram_list) {
+        // TODO preload all the grammemes at once and cache
         $t = array();
         foreach ($gram_list as $gr) {
             if (!isset(self::$gram_descr[$gr['inner']])) {
@@ -47,6 +74,25 @@ class MorphParseSet {
             );
         }
         return $t;
+    }
+
+    private static function _yo_filter($token, $arr) {
+        $token = mb_strtolower($token);
+
+        if (!preg_match('/ё/u', $token))
+            return $arr;
+
+        // so there is a 'ё'
+        $res = sql_pe("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text COLLATE 'utf8_bin' = ?", array($token));
+        // return if no difference
+        if (sizeof($res) == sizeof($arr) || !sizeof($res))
+            return $arr;
+
+        // otherwise the difference is what we need to omit
+        $out = array();
+        foreach ($res as $r)
+            $out[] = $r;
+        return $out;
     }
 
     private function _from_xml($xml) {
@@ -66,6 +112,43 @@ class MorphParseSet {
         }
         else
             throw new Exception();
+    }
+
+    private function _from_token($token) {
+        if (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {
+            $res = sql_pe("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text=?", array($token));
+            if (sizeof($res) > 0) {
+                $var = array();
+                foreach ($res as $r) {
+                    $var[] = $r;
+                }
+                if (sizeof($var) > 1) {
+                    $var = self::_yo_filter($token, $var);
+                }
+                foreach ($var as $r) {
+                    $gramlist = array();
+                    if (preg_match_all('/g v="([^"]+)"/', $r['grammems'], $matches) > 0)
+                        foreach ($matches[1] as $gr)
+                            $gramlist[] = array('inner' => $gr);
+                    $this->parses[] = new MorphParse($r['lemma_text'], $gramlist, $r['lemma_id']);
+                }
+            } else {
+                $this->parses[] = new MorphParse(mb_strtolower($token, 'UTF-8'), array(array('inner' => 'UNKN')));
+            }
+        } elseif (preg_match('/^\p{P}+$/u', $token)) {
+            $this->parses[] = new MorphParse($token, array(array('inner' => 'PNCT')));
+        } elseif (preg_match('/^\p{Nd}+[\.,]?\p{Nd}*$/u', $token)) {
+            $this->parses[] = new MorphParse($token, array(array('inner' => 'NUMB')));
+        } elseif (preg_match('/^[\p{Latin}\.-]+$/u', $token)) {
+            $this->parses[] = new MorphParse($token, array(array('inner' => 'LATN')));
+            if (preg_match('/^[IVXLCMDivxlcmd]+$/u', $token))
+                $this->parses[] = new MorphParse($token, array(array('inner' => 'ROMN')));
+        } else {
+            $this->parses[] = new MorphParse($token, array(array('inner' => 'UNKN')));
+        }
+
+        foreach ($this->parses as $parse)
+            $parse->gramlist = self::_fill_gram_info($parse->gramlist);
     }
 }
 
@@ -238,8 +321,10 @@ function sentence_save($sent_id) {
     foreach ($tokens as $tf_id=>$v) {
         list($tf_text, $base_xml) = $v;
         //substitute the last revision's xml for one from dictionary if relevant
+        // TODO why are we doing this? we have all the info already
         if ($dict[$tf_id] == 1) {
-            $xml = generate_tf_rev($tf_text);
+            $parse = new MorphParseSet(false, $tf_text);
+            $xml = $parse->to_xml();
         } else {
             $xml = $base_xml;
         }
@@ -250,18 +335,21 @@ function sentence_save($sent_id) {
             if (count($matches[1]) != count($flag[$tf_id]))
                 throw new Exception();
 
-            $not_empty = 0;
+            $empty = true;
             foreach ($flag[$tf_id] as $k=>$f) {
                 if ($f == 1) {
-                    $not_empty = 1;
+                    $empty = false;
                     $new_xml .= '<v>'.$matches[1][$k-1].'</v>'; //attention to -1
                 }
             }
             //inserting UnknownPOS if no variants present
-            if (!$not_empty) {
-                $new_xml .= '<v><l id="0" t="'.htmlspecialchars(mb_strtolower($tf_text, 'UTF-8')).'"><g v="UNKN"/></l></v>';
+            if ($empty) {
+                $p = new MorphParseSet(false, $tf_text);
+                $new_xml = $p->to_xml();
             }
-            $new_xml .= '</tfr>';
+            else
+                $new_xml .= '</tfr>';
+
             if ($base_xml != $new_xml) {
                 //something's changed
                 array_push($all_changes, array($tf_id, $new_xml));

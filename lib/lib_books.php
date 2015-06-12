@@ -450,7 +450,8 @@ function save_token_text($tf_id, $tf_text) {
     sql_pe("UPDATE tokens SET tf_text = ? WHERE tf_id=? LIMIT 1", array($tf_text, $tf_id));
     sql_pe("DELETE FROM form2tf WHERE tf_id=?", array($tf_id));
     sql_pe("INSERT INTO form2tf VALUES(?, ?)", array($token_for_form2tf, $tf_id));
-    create_tf_revision($revset_id, $tf_id, generate_tf_rev($tf_text));
+    $parse = new MorphParseSet(false, $tf_text);
+    create_tf_revision($revset_id, $tf_id, $parse->to_xml());
 
     sql_commit();
 }
@@ -520,7 +521,8 @@ function merge_tokens_ii($id_array) {
     $token_for_form2tf = str_replace('ё', 'е', mb_strtolower($new_text));
     sql_pe("UPDATE tokens SET tf_text = ? WHERE tf_id=? LIMIT 1", array($new_text, $new_id));
     sql_pe("INSERT INTO form2tf VALUES(?, ?)", array($token_for_form2tf, $new_id));
-    create_tf_revision($revset_id, $new_id, generate_tf_rev($new_text));
+    $parse = new MorphParseSet(false, $new_text);
+    create_tf_revision($revset_id, $new_id, $parse->to_xml());
     //drop sentence status
     sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$sent_id LIMIT 1");
     sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id");
@@ -555,12 +557,14 @@ function split_token($token_id, $num) {
         "INSERT INTO tokens VALUES(NULL, ?, ?, ?)",
         array($r['sent_id'], $r['pos']+1, $text2)
     );
-    create_tf_revision($revset_id, sql_insert_id(), generate_tf_rev($text2));
+    $parse1 = new MorphParseSet(false, $text1);
+    $parse2 = new MorphParseSet(false, $text2);
+    create_tf_revision($revset_id, sql_insert_id(), $parse2->to_xml());
     //update old token and parse
     sql_pe("DELETE FROM form2tf WHERE tf_id=?", array($token_id));
     sql_pe("UPDATE tokens SET tf_text=? WHERE tf_id=? LIMIT 1", array($text1, $token_id));
     sql_pe("INSERT INTO form2tf VALUES(?, ?)", array($token_for_form2tf, $token_id));
-    create_tf_revision($revset_id, $token_id, generate_tf_rev($text1));
+    create_tf_revision($revset_id, $token_id, $parse1->to_xml());
 
     //dropping sentence status
     $res = sql_pe("SELECT sent_id FROM tokens WHERE tf_id=? LIMIT 1", array($token_id));

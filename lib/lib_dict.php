@@ -67,56 +67,6 @@ function get_all_forms_by_lemma_text($lemma) {
         $forms = array_merge($forms, get_all_forms_by_lemma_id($l['id']));
     return array_unique($forms);
 }
-function generate_tf_rev($token) {
-    $out = '<tfr t="'.htmlspecialchars($token).'">';
-    if (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {
-        $res = sql_pe("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text=?", array($token));
-        if (sizeof($res) > 0) {
-            $var = array();
-            foreach ($res as $r) {
-                $var[] = $r;
-            }
-            if (sizeof($var) > 1) {
-                $var = yo_filter($token, $var);
-            }
-            foreach ($var as $r) {
-                $out .= '<v><l id="'.$r['lemma_id'].'" t="'.$r['lemma_text'].'">'.$r['grammems'].'</l></v>';
-            }
-        } else {
-            $out .= '<v><l id="0" t="'.htmlspecialchars(mb_strtolower($token, 'UTF-8')).'"><g v="UNKN"/></l></v>';
-        }
-    } elseif (preg_match('/^\p{P}+$/u', $token)) {
-        $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="PNCT"/></l></v>';
-    } elseif (preg_match('/^\p{Nd}+[\.,]?\p{Nd}*$/u', $token)) {
-        $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="NUMB"/></l></v>';
-    } elseif (preg_match('/^[\p{Latin}\.-]+$/u', $token)) {
-        $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="LATN"/></l></v>';
-        if (preg_match('/^[IVXLCMDivxlcmd]+$/u', $token))
-            $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="ROMN"/></l></v>';
-    } else {
-        $out .= '<v><l id="0" t="'.htmlspecialchars($token).'"><g v="UNKN"/></l></v>';
-    }
-    $out .= '</tfr>';
-    return $out;
-}
-function yo_filter($token, $arr) {
-    $token = mb_strtolower($token);
-
-    if (!preg_match('/ё/u', $token))
-        return $arr;
-
-    // so there is a 'ё'
-    $res = sql_pe("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text COLLATE 'utf8_bin' = ?", array($token));
-    // return if no difference
-    if (sizeof($res) == sizeof($arr) || !sizeof($res))
-        return $arr;
-
-    // otherwise the difference is what we need to omit
-    $out = array();
-    foreach ($res as $r)
-        $out[] = $r;
-    return $out;
-}
 function dict_get_grammemes_by_order() {
     $res = sql_query("SELECT inner_id FROM gram ORDER BY orderby");
     $out = array();
@@ -386,7 +336,8 @@ function update_pending_token($token_id, $rev_id, $revset_id=0) {
     $token_text = $res[0]['tf_text'];
     $res = sql_pe("SELECT rev_text FROM tf_revisions WHERE tf_id=? AND is_last=1 LIMIT 1", array($token_id));
     $previous_rev = $res[0]['rev_text'];
-    $new_rev = generate_tf_rev($token_text);
+    $parse = new MorphParse(false, $token_text);
+    $new_rev = $parse->to_xml();
     // do nothing if nothing changed
     if ($previous_rev == $new_rev) {
         forget_pending_token($token_id, $rev_id);

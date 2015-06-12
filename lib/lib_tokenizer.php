@@ -1,4 +1,5 @@
 <?php
+require_once('lib_annot.php');
 require_once('lib_books.php');
 
 function split2paragraphs($txt) {
@@ -307,7 +308,8 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
                 sql_execute($token_ins, array($sent_id, $token_num++, trim($token)));
                 $tf_id = sql_insert_id();
                 //adding a revision
-                create_tf_revision($revset_id, $tf_id, generate_tf_rev(trim($token)));
+                $parse = new MorphParseSet(false, trim($token));
+                create_tf_revision($revset_id, $tf_id, $parse->to_xml());
             }
         }
     }
