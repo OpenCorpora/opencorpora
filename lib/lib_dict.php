@@ -336,7 +336,7 @@ function update_pending_token($token_id, $rev_id, $revset_id=0) {
     $token_text = $res[0]['tf_text'];
     $res = sql_pe("SELECT rev_text FROM tf_revisions WHERE tf_id=? AND is_last=1 LIMIT 1", array($token_id));
     $previous_rev = $res[0]['rev_text'];
-    $parse = new MorphParse(false, $token_text);
+    $parse = new MorphParseSet(false, $token_text);
     $new_rev = $parse->to_xml();
     // do nothing if nothing changed
     if ($previous_rev == $new_rev) {
