@@ -9,17 +9,22 @@ $(document).ready(function(){
             return;
 
         var action;
-        if ($(this).hasClass('upd_token'))
+        var smart = 0;
+        if ($(this).hasClass('upd_token')) {
             action = 'update';
-        else if ($(this).hasClass('forget_token'))
+            smart = $(this).hasClass('smart_update') ? 1 : 0;
+        } else if ($(this).hasClass('forget_token'))
             action = 'forget';
 
         var tr = $(this).closest('tr');
-        $.post('ajax/dict_pending.php', {'act':action, 'token_id':tr.data('tokenid'), 'rev_id':tr.data('revision')}, function(res) {
-            if (!res.error) {
-                $(event.target).closest('tr').css('backgroundColor', '#999').find('button').hide();
+        $.post('ajax/dict_pending.php',
+            {'act': action, 'smart': smart, 'token_id': tr.data('tokenid'), 'rev_id': tr.data('revision')},
+            function(res) {
+                if (!res.error) {
+                    $(event.target).closest('tr').css('backgroundColor', '#999').find('button').hide();
+                }
             }
-        });
+        );
     });
     $("input.btn-small").click(function() {
         if (!confirm('Точно?'))
@@ -62,7 +67,8 @@ $(document).ready(function(){
 <tr data-tokenid="{$token.id}" data-revision="{$revision.id}" {if $token.is_unkn}class='bggreen'{elseif !$token.human_edits}class='bgblue'{else}class='bgpink'{/if}><td colspan='3'>
     <a href="sentence.php?id={$token.sentence_id}">{$token.context}</a>
         <div class='pull-right'>
-            <button class='btn btn-small btn-success upd_token'>Обновить</button>
+            <button class='btn btn-small btn-success upd_token smart_update'>Smart update</button>
+            <button class='btn btn-small btn-primary upd_token'>Переразобрать</button>
             <button class='btn btn-small btn-danger forget_token'>Забыть</button>
         </div>
 </td></tr>

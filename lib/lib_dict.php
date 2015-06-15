@@ -303,6 +303,22 @@ function check_for_human_edits($token_id) {
     ", array($token_id));
     return sizeof($res) > 1;
 }
+function check_safe_token_update($token_id, $rev_id) {
+    // forbid updating if form2lemma is outdated
+    $res = sql_query("SELECT rev_id FROM dict_revisions WHERE f2l_check=0 LIMIT 1");
+    if (sql_num_rows($res) > 0)
+        return false;
+
+    // forbid updating if revision of the CURRENT TOKEN'S FORM is not latest
+    $res = sql_pe("
+        SELECT *
+        FROM updated_tokens
+        WHERE token_id = ?
+        AND dict_revision > ?
+        LIMIT 1
+    ", array($token_id, $rev_id));
+    return sizeof($res) == 0;
+}
 function forget_pending_token($token_id, $rev_id) {
     sql_pe("DELETE FROM updated_tokens WHERE token_id=? AND dict_revision=?", array($token_id, $rev_id));
 }
@@ -314,29 +330,34 @@ function update_pending_tokens($rev_id) {
         update_pending_token($r['token_id'], $rev_id, $revset_id);
     sql_commit();
 }
-function update_pending_token($token_id, $rev_id, $revset_id=0) {
-    // forbid updating if form2lemma is outdated
-    $res = sql_query("SELECT rev_id FROM dict_revisions WHERE f2l_check=0 LIMIT 1");
-    if (sql_num_rows($res) > 0)
-        throw new Exception();
+function smart_update_pending_token($parse_set, $rev_id) {
+    // currently works only for deleted lemmata
+    
+    // check that rev_id deletes a lemma
+    $res = sql_pe("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=? LIMIT 1", array($rev_id));
+    $rev_text = $res[0]['rev_text'];
+    if ($rev_text)
+        throw new Exception("Smart mode unavailable");
 
-    // forbid updating if revision of the CURRENT TOKEN'S FORM is not latest
-    $res = sql_pe("
-        SELECT *
-        FROM updated_tokens
-        WHERE token_id = ?
-        AND dict_revision > ?
-        LIMIT 1
-    ", array($token_id, $rev_id));
-    if (sizeof($res) > 0)
-        throw new Exception("Current token <$token_id> form is not the latest");
+    $lemma_id = $res[0]['lemma_id'];
+    $parse_set->filter_by_lemma($lemma_id, false);
+}
+function update_pending_token($token_id, $rev_id, $revset_id=0, $smart=false) {
+    if (!check_safe_token_update($token_id, $rev_id))
+        throw new Exception("Update forbidden");
 
     // ok, now we can safely update
     $res = sql_pe("SELECT tf_text FROM tokens WHERE tf_id=? LIMIT 1", array($token_id));
     $token_text = $res[0]['tf_text'];
     $res = sql_pe("SELECT rev_text FROM tf_revisions WHERE tf_id=? AND is_last=1 LIMIT 1", array($token_id));
     $previous_rev = $res[0]['rev_text'];
-    $parse = new MorphParseSet(false, $token_text);
+
+    if ($smart) {
+        $parse = new MorphParseSet($previous_rev);
+        smart_update_pending_token($parse, $rev_id);
+    }
+    else
+        $parse = new MorphParseSet(false, $token_text);
     $new_rev = $parse->to_xml();
     // do nothing if nothing changed
     if ($previous_rev == $new_rev) {

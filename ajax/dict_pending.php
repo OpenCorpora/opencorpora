@@ -12,7 +12,7 @@ try {
             forget_pending_token($_POST['token_id'], $_POST['rev_id']);
             break;
         case 'update':
-            update_pending_token($_POST['token_id'], $_POST['rev_id']);
+            update_pending_token($_POST['token_id'], $_POST['rev_id'], 0, (bool)$_POST['smart']);
             break;
         default:
             $result['error'] = 1;

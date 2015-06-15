@@ -59,6 +59,14 @@ class MorphParseSet {
         return $out;
     }
 
+    public function filter_by_lemma($lemma_id, $allow) {
+        $newparses = array();
+        foreach ($this->parses as $parse)
+            if (($parse->lemma_id == $lemma_id) == $allow)
+                $newparses[] = $parse;
+        $this->parses = $newparses;
+    }
+
     private static function _fill_gram_info($gram_list) {
         // TODO preload all the grammemes at once and cache
         $t = array();
@@ -96,7 +104,9 @@ class MorphParseSet {
     }
 
     private function _from_xml($xml) {
-        $xml_arr = xml2ary($xml)['tfr']['_c']['v'];
+        $arr = xml2ary($xml);
+        $this->token_text = $arr['tfr']['_a']['t'];
+        $xml_arr = $arr['tfr']['_c']['v'];
         if (isset($xml_arr['_c']) && is_array($xml_arr['_c'])) {
             //the only variant
             $this->parses[] = new MorphParse();
@@ -115,6 +125,7 @@ class MorphParseSet {
     }
 
     private function _from_token($token) {
+        $this->token_text = $token;
         if (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {
             $res = sql_pe("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text=?", array($token));
             if (sizeof($res) > 0) {
