@@ -42,11 +42,11 @@ class MorphParseSet {
     public $parses;
     private static $gram_descr = array();
 
-    public function __construct($xml="", $token_text="") {
+    public function __construct($xml="", $token_text="", $force_unknown=false) {
         if ($xml)
             $this->_from_xml($xml);
         elseif ($token_text)
-            $this->_from_token($token_text);
+            $this->_from_token($token_text, $force_unknown);
         else
             throw new Exception();
     }
@@ -124,9 +124,11 @@ class MorphParseSet {
             throw new Exception();
     }
 
-    private function _from_token($token) {
+    private function _from_token($token, $force_unknown) {
         $this->token_text = $token;
-        if (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {
+        if ($force_unknown) {
+            $this->parses[] = new MorphParse($token, array(array('inner' => 'UNKN')));
+        } elseif (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {
             $res = sql_pe("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text=?", array($token));
             if (sizeof($res) > 0) {
                 $var = array();
@@ -355,7 +357,7 @@ function sentence_save($sent_id) {
             }
             //inserting UnknownPOS if no variants present
             if ($empty) {
-                $p = new MorphParseSet(false, $tf_text);
+                $p = new MorphParseSet(false, $tf_text, true);
                 $new_xml = $p->to_xml();
             }
             else
