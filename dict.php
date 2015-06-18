@@ -115,7 +115,7 @@ switch ($action) {
         $smarty->display('dict/pending.tpl');
         break;
     case 'reannot':
-        update_pending_tokens($_POST['rev_id']);
+        update_pending_tokens($_POST['rev_id'], isset($_POST['smart_mode']) && $_POST['smart_mode'] == 'on');
         header("Location:dict.php?act=pending");
         break;
     case 'absent':

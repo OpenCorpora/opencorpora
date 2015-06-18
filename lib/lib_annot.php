@@ -28,6 +28,18 @@ class MorphParse {
         $this->gramlist  = $grm_arr;
     }
 
+    public function replace_gram_subset($gram_find, $gram_replace) {
+        // bad but quick
+        $gram_find_str = join(':', $gram_find);
+        $gram_replace_str = join(':', $gram_replace);
+        $old_gram_str = join(':', array_map(function($a) { return $a['inner']; }, $this->gramlist));
+        $gramlist_inner = explode(':', str_replace($gram_find_str, $gram_replace_str, $old_gram_str));
+        // additional info (outer, descr) is lost, seems ok
+        $this->gramlist = array();
+        foreach ($gramlist_inner as $gr)
+            $this->gramlist[] = array('inner' => $gr);
+    }
+
     public function to_xml() {
         $out = '<v><l id="'.$this->lemma_id.'" t="'.$this->lemma_text.'">';
         foreach ($this->gramlist as $gram)
@@ -65,6 +77,22 @@ class MorphParseSet {
             if (($parse->lemma_id == $lemma_id) == $allow)
                 $newparses[] = $parse;
         $this->parses = $newparses;
+    }
+
+    public function set_lemma_text($lemma_id, $lemma_text) {
+        if (!$lemma_id || !$lemma_text)
+            throw new Exception();
+        foreach ($this->parses as $parse)
+            if ($parse->lemma_id == $lemma_id)
+                $parse->lemma_text = $lemma_text;
+    }
+
+    public function replace_gram_subset($lemma_id, $gram_find, $gram_replace) {
+        if (!$lemma_id || !is_array($gram_find) || !is_array($gram_replace))
+            throw new Exception();
+        foreach ($this->parses as $parse)
+            if ($parse->lemma_id == $lemma_id)
+                $parse->replace_gram_subset($gram_find, $gram_replace);
     }
 
     private static function _fill_gram_info($gram_list) {

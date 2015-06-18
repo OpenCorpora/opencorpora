@@ -322,25 +322,57 @@ function check_safe_token_update($token_id, $rev_id) {
 function forget_pending_token($token_id, $rev_id) {
     sql_pe("DELETE FROM updated_tokens WHERE token_id=? AND dict_revision=?", array($token_id, $rev_id));
 }
-function update_pending_tokens($rev_id) {
+function update_pending_tokens($rev_id, $smart=false) {
     $res = sql_pe("SELECT token_id FROM updated_tokens WHERE dict_revision=?", array($rev_id));
     sql_begin();
     $revset_id = create_revset("Update tokens from dictionary");
     foreach ($res as $r)
-        update_pending_token($r['token_id'], $rev_id, $revset_id);
+        update_pending_token($r['token_id'], $rev_id, $revset_id, $smart);
     sql_commit();
 }
 function smart_update_pending_token($parse_set, $rev_id) {
-    // currently works only for deleted lemmata
+    // currently works only for
+    // - deleted lemma
+    // - lemma text change
+    // - lemma gramset change
     
-    // check that rev_id deletes a lemma
     $res = sql_pe("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=? LIMIT 1", array($rev_id));
+    if (!sizeof($res))
+        throw new Exception();
     $rev_text = $res[0]['rev_text'];
-    if ($rev_text)
-        throw new Exception("Smart mode unavailable");
-
     $lemma_id = $res[0]['lemma_id'];
-    $parse_set->filter_by_lemma($lemma_id, false);
+
+    if (!$rev_text) {
+        // the revision deletes a lemma
+        $parse_set->filter_by_lemma($lemma_id, false);
+        return;
+    }
+
+    // get previous revision
+    $res = sql_pe("SELECT rev_text FROM dict_revisions WHERE lemma_id=? ORDER BY rev_id DESC LIMIT 1,1", array($lemma_id));
+    if (!sizeof($res))
+        throw new Exception();
+    $prev_rev_text = $res[0]['rev_text'];
+
+    $prev_rev_parsed = parse_dict_rev($prev_rev_text);
+    $new_rev_parsed = parse_dict_rev($rev_text);
+
+    // cannot work if smth changed in the paradigm, not lemma
+    $prev_forms = $prev_rev_parsed['forms'];
+    $new_forms = $new_rev_parsed['forms'];
+
+    if (sizeof($prev_forms) != sizeof($new_forms))
+        throw new Exception("Smart mode unavailable");
+    foreach ($prev_forms as $i => $pf) {
+        if (
+            $pf['text'] != $new_forms[$i]['text']
+            || $pf['grm'] != $new_forms[$i]['grm']
+        )
+            throw new Exception("Smart mode unavailable");
+    }
+
+    $parse_set->set_lemma_text($lemma_id, $new_rev_parsed['lemma']['text']);
+    $parse_set->replace_gram_subset($lemma_id, $prev_rev_parsed['lemma']['grm'], $new_rev_parsed['lemma']['grm']);
 }
 function update_pending_token($token_id, $rev_id, $revset_id=0, $smart=false) {
     if (!check_safe_token_update($token_id, $rev_id))

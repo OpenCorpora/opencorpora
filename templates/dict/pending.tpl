@@ -53,7 +53,9 @@ $(document).ready(function(){
 <table class='table'>
 {foreach from=$data.revisions item=revision}
 <tr>
-    <td>{$revision.id}<br/><form class='form-inline' action="?act=reannot" method="post"><input type='hidden' name='rev_id' value='{$revision.id}'><input type='button' class='btn btn-primary btn-small' value='Обновить все'/></form></td>
+    <td>{$revision.id}<br/>
+    <form class='form-inline' action="?act=reannot" method="post"><input type='hidden' name='rev_id' value='{$revision.id}'><input type='button' class='btn btn-primary btn-small' value='Обновить все'/> <label><input type="checkbox" name='smart_mode'/> smart mode</label></form>
+    </td>
     <td><pre>
 {foreach from=$revision.diff.diff[0] item=str}
 <span class="{if $str[1] == 1}bgpink{elseif $str[1] == 2}bggreen{elseif $str[1] == 3}bgyellow{/if}">{$str[2]|htmlspecialchars}</span>
