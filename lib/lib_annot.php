@@ -54,11 +54,11 @@ class MorphParseSet {
     public $parses;
     private static $gram_descr = array();
 
-    public function __construct($xml="", $token_text="", $force_unknown=false) {
+    public function __construct($xml="", $token_text="", $force_unknown=false, $force_include_init=false) {
         if ($xml)
             $this->_from_xml($xml);
         elseif ($token_text)
-            $this->_from_token($token_text, $force_unknown);
+            $this->_from_token($token_text, $force_unknown, $force_include_init);
         else
             throw new Exception();
     }
@@ -152,7 +152,7 @@ class MorphParseSet {
             throw new Exception();
     }
 
-    private function _from_token($token, $force_unknown) {
+    private function _from_token($token, $force_unknown, $force_include_init) {
         $this->token_text = $token;
         if ($force_unknown) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'UNKN')));
@@ -168,10 +168,16 @@ class MorphParseSet {
                 }
                 foreach ($var as $r) {
                     $gramlist = array();
-                    if (preg_match_all('/g v="([^"]+)"/', $r['grammems'], $matches) > 0)
-                        foreach ($matches[1] as $gr)
+                    if (preg_match_all('/g v="([^"]+)"/', $r['grammems'], $matches) > 0) {
+                        $require_uc = false;
+                        foreach ($matches[1] as $gr) {
                             $gramlist[] = array('inner' => $gr);
-                    $this->parses[] = new MorphParse($r['lemma_text'], $gramlist, $r['lemma_id']);
+                            if ($gr == 'Init')
+                                $require_uc = true;
+                        }
+                    }
+                    if (!$require_uc || $force_include_init || preg_match('/^[А-ЯЁ]+$/u', $token))
+                        $this->parses[] = new MorphParse($r['lemma_text'], $gramlist, $r['lemma_id']);
                 }
             } else {
                 $this->parses[] = new MorphParse(mb_strtolower($token, 'UTF-8'), array(array('inner' => 'UNKN')));
@@ -184,7 +190,9 @@ class MorphParseSet {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'LATN')));
             if (preg_match('/^[IVXLCMDivxlcmd]+$/u', $token))
                 $this->parses[] = new MorphParse($token, array(array('inner' => 'ROMN')));
-        } else {
+        }
+
+        if (sizeof($this->parses) == 0) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'UNKN')));
         }
 
