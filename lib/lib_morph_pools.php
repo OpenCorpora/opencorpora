@@ -83,7 +83,7 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     }
     return array('pools' => $pools, 'types' => $types, 'moderators' => $moderators);
 }
-function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $skip=0, $filter=false, $samples_by_page=0) {
+function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $skip=0, $filter=false, $samples_by_page=0, $orderby="text") {
     $res = sql_pe("
         SELECT pool_name, pool_type, status, t.grammemes, t.has_focus, t.doc_link,
             users_needed, moderator_id, user_shown_name AS user_name
@@ -110,12 +110,22 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         'has_focus' => $res[0]['has_focus'],
         'samples' => array()
     );
+
+    $orderby_str =
+        $orderby == "text"
+            ? "tf_text"
+            : "COUNT(DISTINCT(i.answer)) DESC, answer, tf_text";
+
     $res = sql_pe("
         SELECT sample_id, s.tf_id
         FROM morph_annot_samples s
-        LEFT JOIN tokens f ON (s.tf_id = f.tf_id)
+        LEFT JOIN tokens f
+            USING (tf_id)
+        LEFT JOIN morph_annot_instances i
+            USING (sample_id)
         WHERE pool_id=?
-        ORDER BY tf_text, sample_id
+        GROUP BY sample_id
+        ORDER BY $orderby_str, sample_id
     ", array($pool_id));
     $distinct_users = array();
     $out['all_moderated'] = $extended ? true : false;  // for now we never get active button with non-extended view, just for code simplicity

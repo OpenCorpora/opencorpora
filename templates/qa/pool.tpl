@@ -123,7 +123,15 @@
 {/if}
 {/if}
 {if $pool.status > $smarty.const.MA_POOLS_STATUS_NOT_STARTED}
-<p>{if !isset($smarty.get.ext)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">к расширенному виду</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}">к обычному виду</a>{/if}</p>
+
+<p>{if !isset($smarty.get.ext)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">к расширенному виду</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}">к обычному виду</a>{/if} |
+{if $smarty.get.sortby == 'answer'}
+    <a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;sortby=text">отсортировать по ключевому слову</a>
+{else}
+    <a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;sortby=answer">отсортировать по ответу</a>
+{/if}
+</p>
+
 <p>
 {if $pool.filter != 'focus'}<a class="{if $pool.has_focus}bggreen{else}bgpink{/if}" href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=focus">список для модерации</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if} |
 {if $pool.filter != 'disagreed'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=disagreed">несогласованные ответы</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">показать все</a>{/if} |

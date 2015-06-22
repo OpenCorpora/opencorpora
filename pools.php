@@ -55,7 +55,8 @@ switch ($action) {
                 $config['misc']['morph_annot_moder_context_size'],
                 isset($_GET['skip']) ? $_GET['skip'] : 0,
                 $filter,
-                (!user_has_permission(PERM_MORPH_MODER) || $_SESSION['options'][4] == 1) ? $config['misc']['morph_annot_moder_page_size'] : 0
+                (!user_has_permission(PERM_MORPH_MODER) || $_SESSION['options'][4] == 1) ? $config['misc']['morph_annot_moder_page_size'] : 0,
+                isset($_GET['sortby']) ? $_GET['sortby'] : 'text'
             ));
             $smarty->display('qa/pool.tpl');
         }
