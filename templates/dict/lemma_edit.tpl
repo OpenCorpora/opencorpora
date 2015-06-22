@@ -72,14 +72,6 @@
     {if isset($smarty.get.saved)}
         <div class='info'>Изменения сохранены. <a href="?act=edit&amp;id=-1">Добавить другую лемму</a></div>
     {/if}
-    <!--p><form class='inline' method="post" action="?act=lemmata">
-    {if $smarty.get.found_lemma}
-    <input type='hidden' name='search_lemma' value='{$smarty.get.found_lemma}'/>
-    {elseif $smarty.get.found_form}
-    <input type='hidden' name='search_form' value='{$smarty.get.found_form}'/>
-    {/if}
-    <a href="#" onclick="$(this).closest('form').submit()">&lt;&lt;&nbsp;к поиску</a>
-    </form></p-->
     {if $editor.deleted}
     <h1 class="bgpink">Лемма &laquo;{$editor.lemma.text|htmlspecialchars}&raquo; удалена</h1>
     {else}
