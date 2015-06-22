@@ -5,3 +5,4 @@
 /doc/articles/*.pdf
 /doc/presentations/*.pdf
 /yadisk-auth
+*.swp
