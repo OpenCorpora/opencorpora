@@ -1,7 +1,7 @@
 <?php
 require('lib/header.php');
 require('lib/lib_qa.php');
-require_once('lib/lib_annot.php');
+require('lib/lib_morph_pools.php');
 
 $action = '';
 if (isset($_GET['act']))

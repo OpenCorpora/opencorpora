@@ -1,6 +1,6 @@
 <?php
 require('lib/header.php');
-require_once('lib/lib_annot.php');
+require_once('lib/lib_morph_pools.php');
 
 $pool_type = isset($_GET['pool_type']) ? $_GET['pool_type'] : 0;
 $what = isset($_GET['what']) ? $_GET['what'] : '';

@@ -1,6 +1,6 @@
 <?php
 require('lib/header.php');
-require_once('lib/lib_annot.php');
+require_once('lib/lib_morph_pools.php');
 require_once('lib/lib_stats.php');
 if (isset($_GET['rand'])) {
     $r = sql_fetch_array(sql_query("SELECT sent_id FROM sentences ORDER BY RAND() LIMIT 1", 0));

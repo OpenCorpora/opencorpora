@@ -1,6 +1,6 @@
 <?php
 require_once('../lib/header_ajax.php');
-require_once('../lib/lib_annot.php');
+require_once('../lib/lib_morph_pools.php');
 
 try {
     if (!isset($_POST['id']) || !isset($_POST['type']))

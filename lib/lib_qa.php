@@ -225,7 +225,7 @@ function get_most_useful_pools($type=0) {
     return $out;
 }
 function get_unknowns() {
-    $res = sql_pe("
+    $res = sql_query("
         SELECT tf_text, sent_id, ut.dict_revision
         FROM tokens t
         LEFT JOIN form2lemma f
@@ -241,7 +241,7 @@ function get_unknowns() {
         ORDER BY tf_id
     ");
     $out = array();
-    foreach ($res as $r) {
+    while ($r = sql_fetch_array($res)) {
         $out[] = array(
             'sent_id' => $r['sent_id'],
             'text' => $r['tf_text'],
