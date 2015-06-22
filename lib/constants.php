@@ -13,21 +13,6 @@ define('PERM_SYNTAX', 8);
 define('PERM_SYNTAX_MODER', 9);
 define('PERM_NE_MODER', 10);
 
-// without '$GLOBALS' this won't work within migration for unknown reasons
-// TODO remove with other old permissions-related things
-$GLOBALS['PERMISSION_MAP'] = array(
-    PERM_ADMIN => 'perm_admin',
-    PERM_ADDER => 'perm_adder',
-    PERM_DICT => 'perm_dict',
-    PERM_DISAMB => 'perm_disamb',
-    PERM_CHECK_TOKENS => 'perm_check_tokens',
-    PERM_MORPH_MODER => 'perm_check_morph',
-    PERM_MORPH_SUPERMODER => 'perm_merge',
-    PERM_SYNTAX => 'perm_syntax',
-    PERM_SYNTAX_MODER => 'perm_check_syntax',
-    PERM_NE_MODER => 'perm_check_ne'
-);
-
 define('STATS_ANNOTATOR_DIVERGENCE_TOTAL', 34);
 
 define('MA_POOLS_STATUS_FOUND_CANDIDATES', 1);

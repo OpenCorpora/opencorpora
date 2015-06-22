@@ -55,10 +55,7 @@ if (is_admin() && isset($_GET['debug']) && $debug = $_GET['debug']) {
 //admin pretends that he is a user
 if (
     is_logged()
-    && (
-        (isset($_SESSION['user_permissions']['perm_admin']) && $_SESSION['user_permissions']['perm_admin'] == 1) // TODO old, remove
-        || in_array(PERM_ADMIN, $_SESSION['user_groups'])
-    )
+    && in_array(PERM_ADMIN, $_SESSION['user_groups'])
     && isset($_GET['pretend'])
     && $pretend = $_GET['pretend']
 ) {

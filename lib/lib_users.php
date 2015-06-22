@@ -162,7 +162,6 @@ function user_logout() {
     unset($_SESSION['user_level']);
     unset($_SESSION['debug_mode']);
     unset($_SESSION['options']);
-    unset($_SESSION['user_permissions']); // TODO old, remove
     unset($_SESSION['user_groups']);
     unset($_SESSION['token']);
     unset($_SESSION['show_game']);
@@ -418,11 +417,7 @@ function save_user_options($post) {
 function is_admin() {
     return (
         is_logged()
-        && (
-            (isset($_SESSION['user_permissions']['perm_admin'])
-             && $_SESSION['user_permissions']['perm_admin'] == 1)  // TODO old, remove
-            || in_array(PERM_ADMIN, $_SESSION['user_groups'])
-        )
+        && in_array(PERM_ADMIN, $_SESSION['user_groups'])
         && !isset($_SESSION['noadmin'])
     );
 }
@@ -434,16 +429,11 @@ function is_user_openid($user_id) {
     return ($r['user_passwd'] == '' || $r['user_passwd'] == 'notagreed');
 }
 function user_has_permission($group) {
-    global $PERMISSION_MAP;
     return (
         is_admin()
         || (
             is_logged()
-            && (
-                (isset($_SESSION['user_permissions'][$PERMISSION_MAP[$group]])
-                && $_SESSION['user_permissions'][$PERMISSION_MAP[$group]] == 1)  // TODO old, remove
-                || in_array($group, $_SESSION['user_groups'])
-            )
+            && in_array($group, $_SESSION['user_groups'])
         )
     );
 }
