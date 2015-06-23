@@ -83,7 +83,7 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     }
     return array('pools' => $pools, 'types' => $types, 'moderators' => $moderators);
 }
-function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $skip=0, $filter=false, $samples_by_page=0, $orderby="text") {
+function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $skip=0, $filter=false, $samples_by_page=0, $orderby="answer") {
     $res = sql_pe("
         SELECT pool_name, pool_type, status, t.grammemes, t.has_focus, t.doc_link,
             users_needed, moderator_id, user_shown_name AS user_name

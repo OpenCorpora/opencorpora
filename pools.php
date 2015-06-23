@@ -49,6 +49,7 @@ switch ($action) {
                 }
             }
 
+            $smarty->assign('sortby', isset($_GET['sortby']) ? $_GET['sortby'] : '');
             $smarty->assign('pool', get_morph_samples_page(
                 $_GET['pool_id'],
                 isset($_GET['ext']),
@@ -56,7 +57,7 @@ switch ($action) {
                 isset($_GET['skip']) ? $_GET['skip'] : 0,
                 $filter,
                 (!user_has_permission(PERM_MORPH_MODER) || $_SESSION['options'][4] == 1) ? $config['misc']['morph_annot_moder_page_size'] : 0,
-                isset($_GET['sortby']) ? $_GET['sortby'] : 'text'
+                isset($_GET['sortby']) ? $_GET['sortby'] : ''
             ));
             $smarty->display('qa/pool.tpl');
         }
