@@ -2,6 +2,7 @@
 require_once('lib_annot.php');
 require_once('lib_history.php');
 require_once('lib_xml.php');
+require_once('lib_morph_pools.php');
 
 // GENERAL
 function get_dict_stats() {
