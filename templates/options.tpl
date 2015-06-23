@@ -62,7 +62,7 @@
 </script>
 <h2>Регистрационные данные</h2>
 {if !$is_openid}
-    <form action='{$web_prefix}/login.php?act=change_pw' method='post'>
+    <form action='/login.php?act=change_pw' method='post'>
         <h3>Изменить пароль</h3>
         <label for="old_pwd">Старый пароль</label>
         <input type='password' name='old_pw'/>
@@ -75,14 +75,14 @@
         </div>
     </form>
 {/if}
-<form action='{$web_prefix}/login.php?act=change_name' method='post' id='change_name' class="">
+<form action='/login.php?act=change_name' method='post' id='change_name' class="">
     <h3>Изменить отображаемое имя</h3>
     <input name='shown_name' value='{$current_name|htmlspecialchars}' maxlength='120' type="text" class="span3">
     <div class="controls">
         <button onclick="submit_with_readonly_check($('#change_name'))" class="btn">Изменить имя</button>
     </div>
 </form>
-<form action='{$web_prefix}/login.php?act=change_email' method='post' id='change_email'>
+<form action='/login.php?act=change_email' method='post' id='change_email'>
     <h3>Изменить адрес электронной почты</h3>
     <label>Текущий адрес: <b>{if $current_email}{$current_email}{else}(отсутствует){/if}</b></label>
     <label for="email">Новый адрес</label>

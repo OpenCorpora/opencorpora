@@ -2,12 +2,12 @@
 {extends file='common.tpl'}
 
 {block name=styles}
-    <link rel="stylesheet" type="text/css" href="{$web_prefix}/assets/css/bootstrap-notify.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap-notify.css" />
 {/block}
 
 {block name=javascripts}
-    <script src="{$web_prefix}/assets/js/bootstrap-notify.js"></script>
-    <script type="text/javascript" src="{$web_prefix}/assets/js/syntax_groups.js"></script>
+    <script src="/assets/js/bootstrap-notify.js"></script>
+    <script type="text/javascript" src="/assets/js/syntax_groups.js"></script>
     {block name=inject_groups_json}
     {literal}
         <script>
@@ -24,7 +24,7 @@
     <a href="?id={$sentence.id}&mode=morph" class="btn {if !isset($smarty.get.mode) || $smarty.get.mode == 'morph'}btn-success{/if}">Морфология</a>
     <a href="?id={$sentence.id}&mode=syntax" class="btn {if isset($smarty.get.mode) && $smarty.get.mode == 'syntax'}btn-success active{/if}">Синтаксис {block name=button_caption}{/block}</a>
 <a href="/books.php?book_id={$sentence.book_id}" class="btn">Вернуться к списку предложений</a>
-                <a href="{$web_prefix}/syntax.php" class="btn">Вернуться к текстам</a>
+                <a href="/syntax.php" class="btn">Вернуться к текстам</a>
 
 </div>
 {block name=syntax_heading}{/block}
@@ -40,7 +40,7 @@
             {else}<span>&gt;&gt;</span>{/if}
         </li>
         {if !$sentence.next_id}
-        <li><a href="{$web_prefix}/syntax.php?act=finish_moder&amp;book_id={$sentence.book_id}" class="btn-success" onclick="return confirm('Закончить модерацию?')">Закончить модерацию</a></li>
+        <li><a href="/syntax.php?act=finish_moder&amp;book_id={$sentence.book_id}" class="btn-success" onclick="return confirm('Закончить модерацию?')">Закончить модерацию</a></li>
         {/if}
     </ul>
 </div>

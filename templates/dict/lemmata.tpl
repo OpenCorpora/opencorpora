@@ -3,7 +3,7 @@
 {block name='content'}
     <h1>{if $user_permission_dict} Редактор морфологического словаря {else} Просмотр морфологического словаря {/if}</h1>
     <ul class="breadcrumb">
-        <li><a href="{$web_prefix}/dict.php">Словарь</a> <span class="divider">/</span></li>
+        <li><a href="/dict.php">Словарь</a> <span class="divider">/</span></li>
         <li>Поиск</li>
     </ul>
     <p class="alert alert-success">Поиск <u>по лемме</u> позволяет искать в том числе удалённые леммы.</p>

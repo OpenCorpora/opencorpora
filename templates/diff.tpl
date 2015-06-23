@@ -11,7 +11,7 @@
 </p>
 {if $is_logged && $diff.prev_set && !$diff.next_set}
 <p><a class="hint" href="#" onclick="$('#revert_form').show(); return false">Вернуть предыдущую редакцию предложения</a></p>
-<form id="revert_form" action="{$web_prefix}/revert.php?set_id={$diff.set_id}" method="post" style="display:none">
+<form id="revert_form" action="/revert.php?set_id={$diff.set_id}" method="post" style="display:none">
     Комментарий: <input name='comment' value='Отмена правки {$diff.user_name}, возврат к предыдущей версии' size='60'/>&nbsp;
     <input type='button' onclick="submit_with_readonly_check($(this).closest('form'))" value="Вернуть"/>
 </form>
@@ -27,7 +27,7 @@
 {if $token.old_ver > 0}
         <td valign='top'><b>(Было)</b>
         {if $is_logged}
-        <form class='inline' id='form_revert_t{$token.old_ver}' method='post' action='{$web_prefix}/revert.php?tf_rev={$token.old_ver}'><button type="button" onclick="submit_with_readonly_check($('#form_revert_t{$token.old_ver}'))">Вернуть эту версию</button></form>
+        <form class='inline' id='form_revert_t{$token.old_ver}' method='post' action='/revert.php?tf_rev={$token.old_ver}'><button type="button" onclick="submit_with_readonly_check($('#form_revert_t{$token.old_ver}'))">Вернуть эту версию</button></form>
         {/if}
         <br/><b>Версия {$token.old_ver} ({$token.old_user_name|default:'Робот'}, {$token.old_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b></td>
         <td valign='top'><b>(Стало)<br/>Версия {$token.new_ver} ({$token.new_user_name|default:'Робот'}, {$token.new_timestamp|date_format:"%d.%m.%Y, %H:%M"})</b></td>

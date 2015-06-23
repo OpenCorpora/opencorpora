@@ -40,7 +40,7 @@
 {/if}
     <td>{$error.id}</td>
     <td>{$error.timestamp|date_format:"%d.%m.%Y, %H:%M"}</td>
-    <td><a href="{$web_prefix}/dict_diff.php?lemma_id={$error.lemma_id}&amp;set_id={$error.set_id}">{$error.revision}</a></td>
+    <td><a href="/dict_diff.php?lemma_id={$error.lemma_id}&amp;set_id={$error.set_id}">{$error.revision}</a></td>
     <td>
         {if $error.type == 1}
             Несовместимые граммемы

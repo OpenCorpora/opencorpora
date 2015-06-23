@@ -102,11 +102,11 @@
     {if $change_status == 1}
         <div class="alert alert-success">Пароль успешно изменён.</div>
     {elseif $change_status == 2}
-        <div class="alert alert-error"><h4>Старый пароль введён неверно.</h4>Попробуйте, пожалуйста, <a href='{$web_prefix}/options.php'>ещё раз</a>.</div>
+        <div class="alert alert-error"><h4>Старый пароль введён неверно.</h4>Попробуйте, пожалуйста, <a href='/options.php'>ещё раз</a>.</div>
     {elseif $change_status == 3}
-        <div class="alert alert-error"><h4>Введённые пароли не совпадают.</h4>Попробуйте, пожалуйста, <a href='{$web_prefix}/options.php'>ещё раз</a>.</div>
+        <div class="alert alert-error"><h4>Введённые пароли не совпадают.</h4>Попробуйте, пожалуйста, <a href='/options.php'>ещё раз</a>.</div>
     {elseif $change_status == 4}
-        <div class="alert alert-error"><h4>Недопустимые символы в пароле</h4>(допустимыми являются все латинские символы, цифры и знаки &laquo;<b>-</b>&raquo; и &laquo;<b>_</b>&raquo;). Попробуйте, пожалуйста, <a href='{$web_prefix}/options.php'>ещё раз</a>.</div>
+        <div class="alert alert-error"><h4>Недопустимые символы в пароле</h4>(допустимыми являются все латинские символы, цифры и знаки &laquo;<b>-</b>&raquo; и &laquo;<b>_</b>&raquo;). Попробуйте, пожалуйста, <a href='/options.php'>ещё раз</a>.</div>
     {else}
         <div class="alert alert-error">Ошибка :(</div>
     {/if}
@@ -114,11 +114,11 @@
     {if $change_status == 1}
         <div class="alert alert-success">Адрес электронной почты успешно изменён.</div>
     {elseif $change_status == 2}
-        <div class="alert alert-error"><h4>Пароль введён неверно.</h4>Попробуйте, пожалуйста, <a href='{$web_prefix}/options.php'>ещё раз</a>.</div>
+        <div class="alert alert-error"><h4>Пароль введён неверно.</h4>Попробуйте, пожалуйста, <a href='/options.php'>ещё раз</a>.</div>
     {elseif $change_status == 3}
-        <div class="alert alert-error"><h4>Неверный адрес электронной почты</h4>(если вы вводите верный адрес &mdash; напишите нам об этой ошибке). Попробуйте, пожалуйста, <a href='{$web_prefix}/options.php'>ещё раз</a>.</div>
+        <div class="alert alert-error"><h4>Неверный адрес электронной почты</h4>(если вы вводите верный адрес &mdash; напишите нам об этой ошибке). Попробуйте, пожалуйста, <a href='/options.php'>ещё раз</a>.</div>
     {elseif $change_status == 4}
-        <div class="alert alert-error"><h4>Такой адрес электронной почты уже существует.</h4>Попробуйте, пожалуйста, <a href='{$web_prefix}/options.php'>ещё раз</a>.</div>
+        <div class="alert alert-error"><h4>Такой адрес электронной почты уже существует.</h4>Попробуйте, пожалуйста, <a href='/options.php'>ещё раз</a>.</div>
     {else}
         <div class="alert alert-error">Ошибка :(</div>
     {/if}
@@ -126,7 +126,7 @@
     {if $change_status == 1}
         <div class="alert alert-error">Имя успешно изменено.</div>
     {elseif $change_status == 2}
-        <div class="alert alert-error"><h4>Недопустимые символы в имени или слишком короткое имя.</h4>Попробуйте, пожалуйста, <a href='{$web_prefix}/options.php'>ещё раз</a>.</div>
+        <div class="alert alert-error"><h4>Недопустимые символы в имени или слишком короткое имя.</h4>Попробуйте, пожалуйста, <a href='/options.php'>ещё раз</a>.</div>
     {else}
         <div class="alert alert-error">Ошибка :(</h4>
     {/if}
@@ -134,16 +134,16 @@
     <h1>Авторизация</h1>
     <div class="help-block">Войдите через один из этих сайтов:</div>
     <script src="http://s1.loginza.ru/js/widget.js" type="text/javascript"></script>
-    <iframe src="http://loginza.ru/api/widget?overlay=loginza&token_url=http%3A%2F%2F{$smarty.server.HTTP_HOST}{$web_prefix|urlencode}%2Flogin.php?act=login_openid&amp;lang=ru" style="width:350px; height:170px; margin-left:-15px;" scrolling="no" frameborder="no"></iframe>
+    <iframe src="http://loginza.ru/api/widget?overlay=loginza&token_url=http%3A%2F%2F{$smarty.server.HTTP_HOST}%2Flogin.php?act=login_openid&amp;lang=ru" style="width:350px; height:170px; margin-left:-15px;" scrolling="no" frameborder="no"></iframe>
     <div class="help-block">Или через учётную запись OpenCorpora:</div>
-    <form action="{$web_prefix}/login.php?act=login" method="POST">
+    <form action="/login.php?act=login" method="POST">
         <label for="login">Логин</label>
         <input type="text" name="login">
         <label for="passwd">Пароль</label>
         <input type="password" name="passwd">
-        <label><small><a href="{$web_prefix}/login.php?act=lost_pwd" class="forgot-link">Забыли пароль?</a></small></label>
+        <label><small><a href="/login.php?act=lost_pwd" class="forgot-link">Забыли пароль?</a></small></label>
         <div class="controls">
-            <button type="submit" class="btn btn-primary">Войти</button> <a href="{$web_prefix}/login.php?act=register" class="reg-link">Зарегистрироваться</a>
+            <button type="submit" class="btn btn-primary">Войти</button> <a href="/login.php?act=register" class="reg-link">Зарегистрироваться</a>
         </div>
     </form>
 {/if}

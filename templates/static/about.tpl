@@ -3,10 +3,10 @@
 {block name='content'}
 <h1>О проекте</h1>
 <ul class="nav nav-tabs">
-    <li class="active"><a href="{$web_prefix}/?page=about">Описание проекта</a></li>
-    <li><a href="{$web_prefix}/?page=team">Участники</a></li>
-    <li><a href="{$web_prefix}/?page=publications">Публикации</a></li>
-    <li><a href="{$web_prefix}/?page=faq">FAQ</a></li>
+    <li class="active"><a href="/?page=about">Описание проекта</a></li>
+    <li><a href="/?page=team">Участники</a></li>
+    <li><a href="/?page=publications">Публикации</a></li>
+    <li><a href="/?page=faq">FAQ</a></li>
 </ul>
 <h2>Что такое Открытый Корпус?</h2>
 <p>Для решения многих лингвистических задач используются так называемые <em>текстовые корпуса</em> &mdash; специальным образом подобранные и структурированные коллекции текстов. Наиболее информативными являются <em>размеченные корпуса</em>, то есть такие, в которых частям текста приписана лингвистическая информация &mdash; например, каждое слово отнесено к той или иной части речи.</p>

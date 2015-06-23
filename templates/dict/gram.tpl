@@ -8,7 +8,7 @@
     </script>
     <h2>Граммемы</h2>
     <ul class="breadcrumb">
-        <li><a href="{$web_prefix}/dict.php">Словарь</a> <span class="divider">/</span></li>
+        <li><a href="/dict.php">Словарь</a> <span class="divider">/</span></li>
         <li>Редактор граммем</li>
     </ul>
     {if $user_permission_dict}

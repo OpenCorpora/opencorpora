@@ -1,7 +1,7 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-    <script src='{$web_prefix}/js/jquery.autocomplete.min.js'></script>
+    <script src='/js/jquery.autocomplete.min.js'></script>
     {literal}
     <script type="text/javascript">
         $(document).ready(function(){
@@ -110,7 +110,7 @@
                 {if $tag.prefix == 'url'}
                     url:<a href="{$tag.body}" target="_blank">{$tag.body}</a>
                     {if isset($tag.filename)}
-                    , <a class='small' href="{$web_prefix}/files/saved/{$tag.filename}.html">сохранённая копия</a> (<a class='small download_url redo' href="#" data-url='{$tag.body}'>перезакачать</a>)
+                    , <a class='small' href="/files/saved/{$tag.filename}.html">сохранённая копия</a> (<a class='small download_url redo' href="#" data-url='{$tag.body}'>перезакачать</a>)
                     {elseif $user_permission_adder}
                     , <a class='small download_url' href="#" data-url='{$tag.body}'>скачать</a>
                     {/if}
@@ -135,7 +135,7 @@
     <h3>Разделы</h3>
     {if $user_permission_adder}
     Добавить раздел
-    <form class='inline' action='{$web_prefix}/books.php?act=add' method='post'>
+    <form class='inline' action='/books.php?act=add' method='post'>
         <input name='book_name' size='30' maxlength='100' value='&lt;Название&gt;'/>
         <input type='hidden' name='book_parent' value='{$book.id}'/>
         <input type='submit' value='Добавить'/>
@@ -177,7 +177,7 @@
             {foreach name=s item=sentence from=$paragraph.sentences}
                 {if isset($smarty.get.full)}
                     {strip}
-                    <tr><td></td><td valign='top'><a name="sen{$sentence.id}" href="{$web_prefix}/sentence.php?id={$sentence.id}">{$sentence.id}</a>.</td><td valign="top">
+                    <tr><td></td><td valign='top'><a name="sen{$sentence.id}" href="/sentence.php?id={$sentence.id}">{$sentence.id}</a>.</td><td valign="top">
                         {if !$smarty.foreach.s.last && $user_permission_adder}
                             <a href="?act=split_paragraph&amp;sid={$sentence.id}" title="Разбить абзац после этого предложения" class="spp">Р</a>
                         {/if}
@@ -219,5 +219,5 @@
     {else}
         <p>В тексте нет ни одного предложения.</p>
     {/if}
-    {if !isset($book.children[0]) && $user_permission_adder}<p><a href="{$web_prefix}/add.php?to={$book.id}">Добавить текст в эту книгу</a></p>{/if}
+    {if !isset($book.children[0]) && $user_permission_adder}<p><a href="/add.php?to={$book.id}">Добавить текст в эту книгу</a></p>{/if}
 {/block}

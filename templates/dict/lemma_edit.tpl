@@ -3,11 +3,11 @@
 
 {block name="javascripts"}
 {literal}
-    <script src="{/literal}{$web_prefix}{literal}/assets/js/bootstrap.select.min.js"></script>
+    <script src="/assets/js/bootstrap.select.min.js"></script>
 {/literal}
 {/block}
 {block name=styles}
-     <link rel="stylesheet" type="text/css" href="{$web_prefix}/assets/css/bootstrap-select.min.css" />
+     <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap-select.min.css" />
 {/block}
 
 {block name='content'}
@@ -78,8 +78,8 @@
     <h1>Лемма &laquo;{$editor.lemma.text|htmlspecialchars}&raquo;</h1>
     {/if}
     <ul class="breadcrumb">
-        <li><a href="{$web_prefix}/dict.php">Словарь</a> <span class="divider">/</span></li>
-        <li><a href="{$web_prefix}/dict.php">Поиск</a> <span class="divider">/</span></li>
+        <li><a href="/dict.php">Словарь</a> <span class="divider">/</span></li>
+        <li><a href="/dict.php">Поиск</a> <span class="divider">/</span></li>
     </ul>
     <div id="errata">
     {foreach from=$editor.errata item=error}

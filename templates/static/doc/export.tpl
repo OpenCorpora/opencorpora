@@ -3,8 +3,8 @@
 {block name='content'}
 <h1>Материалы для скачивания</h1>
 <ul class="nav nav-tabs">
-    <li><a href="{$web_prefix}/?page=downloads">Скачать</a></li>
-    <li class="active"><a href="{$web_prefix}/?page=export">Форматы экспорта</a></li>
+    <li><a href="/?page=downloads">Скачать</a></li>
+    <li class="active"><a href="/?page=export">Форматы экспорта</a></li>
 </ul>
 <h2>Формат экспорта словаря (версия 0.82)</h2>
 <p>Словарь представляет собой файл XML в кодировке utf-8.</p>

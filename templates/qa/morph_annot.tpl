@@ -134,7 +134,7 @@ $(document).ready(function() {
 {/literal}
 <br>
 <ul class="breadcrumb">
-    <li><a href="{$web_prefix}/tasks.php">Разметка</a> <span class="divider">/</span></li>
+    <li><a href="/tasks.php">Разметка</a> <span class="divider">/</span></li>
     <li class="active">{$packet.gram_descr|implode:" &mdash; "}</li>
 </ul>
 <div class="ma_annot_top_block clearfix">

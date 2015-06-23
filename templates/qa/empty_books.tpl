@@ -6,7 +6,7 @@
 <p>Список обновляется при каждом обращении к этой странице.</p>
 <ol>
 {foreach item=book from=$books}
-<li><a href='{$web_prefix}/books.php?book_id={$book.id}'>{$book.name|htmlspecialchars}</a></li>
+<li><a href='/books.php?book_id={$book.id}'>{$book.name|htmlspecialchars}</a></li>
 {foreachelse}
 <p>Список пуст.</p>
 {/foreach}

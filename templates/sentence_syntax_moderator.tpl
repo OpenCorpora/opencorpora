@@ -7,7 +7,7 @@
 
 {block name=button_caption}<span class="badge badge-inverse">Модератор</span>{/block}
 {block name=inject_groups_json}
-    <script type="text/javascript" src="{$web_prefix}/assets/js/syntax_groups_moderator.js"></script>
+    <script type="text/javascript" src="/assets/js/syntax_groups_moderator.js"></script>
     {literal}
         <script>
         var groups_json = JSON.parse('{/literal}{$all_groups|@json_encode|replace:"\"":"\\\""}{literal}');

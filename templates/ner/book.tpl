@@ -140,14 +140,14 @@
 
 {block name="javascripts"}
 {literal}
-    <script src="{/literal}{$web_prefix}{literal}/assets/js/bootstrap.select.min.js"></script>
-    <script src="{/literal}{$web_prefix}{literal}/assets/js/rangy-core.js"></script>
-    <script src="{/literal}{$web_prefix}{literal}/assets/js/mousetrap.min.js"></script>
-    <script src="{/literal}{$web_prefix}{literal}/assets/js/ner.js"></script>
-    <script src="{/literal}{$web_prefix}{literal}/assets/js/ne_comments.js"></script>
+    <script src="/assets/js/bootstrap.select.min.js"></script>
+    <script src="/assets/js/rangy-core.js"></script>
+    <script src="/assets/js/mousetrap.min.js"></script>
+    <script src="/assets/js/ner.js"></script>
+    <script src="/assets/js/ne_comments.js"></script>
 {/literal}
 {/block}
 
 {block name=styles}
-    <link rel="stylesheet" type="text/css" href="{$web_prefix}/assets/css/bootstrap-select.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap-select.min.css" />
 {/block}

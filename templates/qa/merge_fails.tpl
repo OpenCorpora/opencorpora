@@ -34,7 +34,7 @@
     <td>{strip}
         {if     $sample.mod_status == $smarty.const.MA_SAMPLES_STATUS_MISPRINT}опечатка
         {elseif $sample.mod_status == $smarty.const.MA_SAMPLES_STATUS_HOMONYMOUS}неснимаемая омонимия
-        {elseif $sample.mod_status == $smarty.const.MA_SAMPLES_STATUS_MANUAL_EDIT}<a href="{$web_prefix}/diff.php?rev_id={$sample.revision}">ручная правка</a>
+        {elseif $sample.mod_status == $smarty.const.MA_SAMPLES_STATUS_MANUAL_EDIT}<a href="/diff.php?rev_id={$sample.revision}">ручная правка</a>
         {else}???
         {/if}
         {/strip}
@@ -44,5 +44,5 @@
 </tr>
 {/foreach}
 </table>
-<script src="{$web_prefix}/assets/js/merge_fails.js"></script>
+<script src="/assets/js/merge_fails.js"></script>
 {/block}

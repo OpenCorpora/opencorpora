@@ -3,10 +3,10 @@
 {block name='content'}
 <h1>О проекте</h1>
 <ul class="nav nav-tabs">
-    <li><a href="{$web_prefix}/?page=about">Описание проекта</a></li>
-    <li class="active"><a href="{$web_prefix}/?page=team">Участники</a></li>
-    <li><a href="{$web_prefix}/?page=publications">Публикации</a></li>
-    <li><a href="{$web_prefix}/?page=faq">FAQ</a></li>
+    <li><a href="/?page=about">Описание проекта</a></li>
+    <li class="active"><a href="/?page=team">Участники</a></li>
+    <li><a href="/?page=publications">Публикации</a></li>
+    <li><a href="/?page=faq">FAQ</a></li>
 </ul>
 <h2>Участники проекта</h2>
 <table>
@@ -64,6 +64,6 @@
     кафедре математической лингвистики СПбГУ,
     кафедре информационных систем в гуманитарных науках и искусстве СПбГУ,
     коллективу АОТ (<a href="http://www.aot.ru">aot.ru</a>)<br>
-    <b>и <a href="{$web_prefix}/?page=stats#users">всем</a>, кто помогал и помогает добавлять и размечать тексты</b>.
+    <b>и <a href="/?page=stats#users">всем</a>, кто помогал и помогает добавлять и размечать тексты</b>.
 </p>
 {/block}

@@ -9,10 +9,10 @@
 <table class="table"> 
 {foreach item=comment from=$comments.c}
     <tr>
-        <td><a href="{$web_prefix}/sentence.php?id={$comment.sent_id}">Предложение {$comment.sent_id}</a></td>
+        <td><a href="/sentence.php?id={$comment.sent_id}">Предложение {$comment.sent_id}</a></td>
         <td>{$comment.user_name|htmlspecialchars}</td>
         <td>{$comment.ts|date_format:"%a %d.%m.%Y, %H:%M"}</td>
-        <td><a href="{$web_prefix}/sentence.php?id={$comment.sent_id}#comm_{$comment.id}">{$comment.text|htmlspecialchars}</a></td>
+        <td><a href="/sentence.php?id={$comment.sent_id}#comm_{$comment.id}">{$comment.text|htmlspecialchars}</a></td>
     </tr>
 {/foreach}
 </table>

@@ -132,7 +132,7 @@
     </td>
     <td>
         {if $s.book_id}
-        <a href="{$web_prefix}/books.php?book_id={$s.book_id}" class="small">{$s.book_title|htmlspecialchars}</a>
+        <a href="/books.php?book_id={$s.book_id}" class="small">{$s.book_title|htmlspecialchars}</a>
         {elseif !$s.user_id || $s.user_id == $smarty.session.user_id}
         <a href="#" class="pseudo ab" data-srcid="{$s.id}">добавить</a>
         {else}

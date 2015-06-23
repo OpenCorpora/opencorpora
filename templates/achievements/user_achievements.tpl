@@ -1,5 +1,5 @@
 {strip}
-<script src="{$web_prefix}/assets/vendor/bootstrap/js/bootstrap.tooltip-fixed.js"></script>
+<script src="/assets/vendor/bootstrap/js/bootstrap.tooltip-fixed.js"></script>
 {$mine = ($user_id == $smarty.session.user_id)}
 {$titles = $achievements_titles}
 <div class="achievement-well">

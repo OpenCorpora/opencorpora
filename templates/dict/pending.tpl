@@ -40,7 +40,7 @@ $(document).ready(function(){
 <h2>Оглавление</h2>
 <ol>
 {foreach from=$data.header item=i}
-    <li><a href="?act=pending&amp;skip={$i.skip}">{$i.revision}</a>: <a href="{$web_prefix}/dict.php?act=edit&id={$i.lemma_id}">{$i.lemma|htmlspecialchars}</a> ({$i.count})</li>
+    <li><a href="?act=pending&amp;skip={$i.skip}">{$i.revision}</a>: <a href="/dict.php?act=edit&id={$i.lemma_id}">{$i.lemma|htmlspecialchars}</a> ({$i.count})</li>
 {/foreach}
 </ol>
 <div class="pagination pagination-centered"><ul>

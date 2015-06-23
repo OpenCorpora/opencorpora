@@ -13,7 +13,7 @@
 <table class="table">
 <tr>
     <th>Источник</th>
-    <th><a href="{$web_prefix}/books.php">Текстов</a></th>
+    <th><a href="/books.php">Текстов</a></th>
     <th>Предложений</th>
     <th>Токенов</th>
     <th>Словоупотреблений</th>

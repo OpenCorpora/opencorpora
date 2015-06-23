@@ -107,7 +107,7 @@
     <div id="source_text"><b>Весь текст:</b> {$sentence.fulltext}</div>
     <p class='small'><a href='#' class='hint' id="show_src">Показать исходный текст</a></p>
     <div class='small' style='display:none' id='source_orig'><span>{$sentence.source|htmlspecialchars}</span>{if $is_admin}<button class='btn btn-small' id='btn_show_src_edit'>Исправить</button>{/if}</div>
-    <p class='small' align='right'>Источник: <a href="{$sentence.url}">{$sentence.book_name}</a> (<a href="{$web_prefix}/books.php?book_id={$sentence.book_id}&amp;full">весь текст</a>)</p>
+    <p class='small' align='right'>Источник: <a href="{$sentence.url}">{$sentence.book_name}</a> (<a href="/books.php?book_id={$sentence.book_id}&amp;full">весь текст</a>)</p>
     <button id="a_parse" class="hidden-block">Вернуться к разбору</button>
     <form method="post" action="?id={$sentence.id}&amp;act=save" class='oc_tabs' id="form_annot">
         <div id="main_scroller">
@@ -140,7 +140,7 @@
                     <div class="var" id="var_{$token.tf_id}_{$num+1}">
                         <input type="hidden" name="var_flag[{$token.tf_id}][{$num+1}]" value="1"/>
                         {if $variant->lemma_id > 0}
-                            <a href="{$web_prefix}/dict.php?act=edit&amp;id={$variant->lemma_id}">{$variant->lemma_text}</a>
+                            <a href="/dict.php?act=edit&amp;id={$variant->lemma_id}">{$variant->lemma_text}</a>
                         {else}
                             <span class='lt'>{$variant->lemma_text|htmlspecialchars}</span>
                         {/if}

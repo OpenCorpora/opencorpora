@@ -1,11 +1,11 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-<script type="text/javascript" src="{$web_prefix}/assets/js/jquery.flot.min.js"></script>
-<script type="text/javascript" src="{$web_prefix}/assets/js/jquery.flot.time.min.js"></script>
-<script type="text/javascript" src="{$web_prefix}/assets/js/jquery.flot.pie.min.js"></script>
-<script type="text/javascript" src="{$web_prefix}/assets/js/jquery.flot.stack.min.js"></script>
-<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{$web_prefix}/assets/js/excanvas.min.js"></script><![endif]-->
+<script type="text/javascript" src="/assets/js/jquery.flot.min.js"></script>
+<script type="text/javascript" src="/assets/js/jquery.flot.time.min.js"></script>
+<script type="text/javascript" src="/assets/js/jquery.flot.pie.min.js"></script>
+<script type="text/javascript" src="/assets/js/jquery.flot.stack.min.js"></script>
+<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="/assets/js/excanvas.min.js"></script><![endif]-->
 <script type="text/javascript">
 {literal}
 $(document).ready(function() {
@@ -113,7 +113,7 @@ $(document).ready(function() {
             {if isset($moder.data[0].$typenum) && $moder.data[0].$typenum[4][0] > 0}
                 <span class='badge badge-important'>{$moder.data[0].$typenum[4][0]}</span>
             {/if}
-            <a href="{$web_prefix}/pools.php?type=4&amp;filter={$type[0]|urlencode}">{$type[0]|htmlspecialchars}</a>
+            <a href="/pools.php?type=4&amp;filter={$type[0]|urlencode}">{$type[0]|htmlspecialchars}</a>
         </td>
         {foreach from=$moder.moderators key=modnum item=mod}
             <td><div class='progress'>

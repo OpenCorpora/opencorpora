@@ -12,7 +12,7 @@
     <h2>Как я могу помочь прямо сейчас?</h2>
     <ul>
     <li>
-        принять участие в снятии морфологической неоднозначности {if $is_logged}(см. <b><a href="manual.php">руководство</a></b>, <a href="tasks.php">задания</a>):{else}(<a href="{$web_prefix}/login.php">зарегистрируйтесь</a>, чтобы получить доступ к заданиям, а также прочтите <a href="{$web_prefix}/manual.php">руководство</a>){/if}
+        принять участие в снятии морфологической неоднозначности {if $is_logged}(см. <b><a href="manual.php">руководство</a></b>, <a href="tasks.php">задания</a>):{else}(<a href="/login.php">зарегистрируйтесь</a>, чтобы получить доступ к заданиям, а также прочтите <a href="/manual.php">руководство</a>){/if}
         <div>(всего мы получили уже <b>больше {($answer_count / 1000000)|string_format:"%.2f"} млн</b> ответов)</div>
         {if $is_logged}
             <div>
@@ -45,16 +45,16 @@
         <div class="well nav-wrapper span5">
             <ul class="nav nav-list">
                 <li class="nav-header">Свежие правки</li>
-                <li><a href="{$web_prefix}/history.php">В разметке</a></li>
-                <li><a href="{$web_prefix}/dict_history.php">В словаре</a></li>
-                <li><a href="{$web_prefix}/comments.php">Последние комментарии</a></li>
+                <li><a href="/history.php">В разметке</a></li>
+                <li><a href="/dict_history.php">В словаре</a></li>
+                <li><a href="/comments.php">Последние комментарии</a></li>
                 {if $user_permission_adder}<li class="nav-header">Тексты</li>
-                    <li><a href='{$web_prefix}/books.php'>Редактор источников</a></li>
-                    <li><a href='{$web_prefix}/add.php'>Добавить текст</a></li>
+                    <li><a href='/books.php'>Редактор источников</a></li>
+                    <li><a href='/add.php'>Добавить текст</a></li>
                 {/if}
             </ul>
             {if $user_permission_adder}
-                <form class='nav-well-form' method='post' action='{$web_prefix}/books.php?act=merge_sentences'>
+                <form class='nav-well-form' method='post' action='/books.php?act=merge_sentences'>
                 <label>Склеить предложения</label>
                 <div class="controls"><input type="text" name='id1' class="input-small"> и&nbsp;<input type="text" name='id2' class="input-small"> <button type='submit' class="btn" onclick="return confirm('Вы уверены?')">Склеить</button></div>
                 </form>
@@ -63,7 +63,7 @@
             {if $is_admin}
             <ul class="nav nav-list">
                 <li class="nav-header">Функции администратора</li>
-                <li><a href='{$web_prefix}/generator_cp.php'>Генерация данных для CPAN-токенизатора</a></li>
+                <li><a href='/generator_cp.php'>Генерация данных для CPAN-токенизатора</a></li>
             </ul>
             {/if}
         </div>
@@ -71,35 +71,35 @@
             <ul class="nav nav-list">
                 {if $user_permission_check_morph}
                     <li class="nav-header">Задания на разметку (морфология)</li>
-                    <li><a href='{$web_prefix}/pools.php?type=3'>Опубликованные задания</a></li>
-                    <li><a href='{$web_prefix}/manual.php?what=morph_moderation'><i class="icon-info-sign"></i> Инструкция для модераторов</a></li>
-                    <li><a href='{$web_prefix}/pools.php?act=types'>Типы пулов</a></li>
-                    <li><a href='{$web_prefix}/qa.php?act=merge_fails'>То, что не удалось перелить</a></li>
-                    <li><a href='{$web_prefix}/qa.php?act=useful_pools'>Пулы для приоритетной модерации</a></li>
+                    <li><a href='/pools.php?type=3'>Опубликованные задания</a></li>
+                    <li><a href='/manual.php?what=morph_moderation'><i class="icon-info-sign"></i> Инструкция для модераторов</a></li>
+                    <li><a href='/pools.php?act=types'>Типы пулов</a></li>
+                    <li><a href='/qa.php?act=merge_fails'>То, что не удалось перелить</a></li>
+                    <li><a href='/qa.php?act=useful_pools'>Пулы для приоритетной модерации</a></li>
                     <li><a href='?page=pool_charts'>Графики</a></li>
                     <li class="nav-header">Пулы, где я модератор</li>
-                    <li><a href='{$web_prefix}/pools.php?type=5&amp;moder_id={$smarty.session.user_id}'>В работе</a></li>
-                    <li><a href='{$web_prefix}/pools.php?type=6&amp;moder_id={$smarty.session.user_id}'>Готовые</a></li>
-                    <li><a href='{$web_prefix}/pools.php?type=9&amp;moder_id={$smarty.session.user_id}'>В архиве</a></li>
+                    <li><a href='/pools.php?type=5&amp;moder_id={$smarty.session.user_id}'>В работе</a></li>
+                    <li><a href='/pools.php?type=6&amp;moder_id={$smarty.session.user_id}'>Готовые</a></li>
+                    <li><a href='/pools.php?type=9&amp;moder_id={$smarty.session.user_id}'>В архиве</a></li>
                 {/if}
                 {if $user_permission_syntax}
                     <li class="nav-header">Синтаксис</li>
-                    <li><a href='{$web_prefix}/syntax.php'>Тексты</a></li>
+                    <li><a href='/syntax.php'>Тексты</a></li>
                 {/if}
                 {* TODO: special permission? *}
                     <li class="nav-header">Именованные сущности</li>
-                    <li><a href='{$web_prefix}/ner.php'>Тексты</a></li>
+                    <li><a href='/ner.php'>Тексты</a></li>
                 {if $user_permission_adder}
                     <li class="nav-header">Контроль качества</li>
-                    <li><a href='{$web_prefix}/sources.php'>Координация заливки</a></li>
-                    <li><a href='{$web_prefix}/tokenizer_monitor.php'>Мониторинг качества токенизатора</a></li>
-                    <li><a href='{$web_prefix}/qa.php?act=tokenizer'>Странная токенизация</a></li>
-                    <li><a href='{$web_prefix}/qa.php?act=good_sentences&no_zero'>Наименее омонимичные предложения</a></li>
-                    <li><a href='{$web_prefix}/qa.php?act=sent_split'>Странное разделение на предложения</a></li>
-                    <li><a href='{$web_prefix}/qa.php?act=empty_books'>Пустые тексты</a></li>
-                    <li><a href='{$web_prefix}/qa.php?act=book_tags'>Ошибки в тегах текстов</a></li>
-                    <li><a href='{$web_prefix}/qa.php?act=dl_urls'>Сохранённые копии источников</a></li>
-                    <li><a href='{$web_prefix}/qa.php?act=unkn'><span class="label label-small label-success">new!</span> Словарные токены с UNKN</a></li>
+                    <li><a href='/sources.php'>Координация заливки</a></li>
+                    <li><a href='/tokenizer_monitor.php'>Мониторинг качества токенизатора</a></li>
+                    <li><a href='/qa.php?act=tokenizer'>Странная токенизация</a></li>
+                    <li><a href='/qa.php?act=good_sentences&no_zero'>Наименее омонимичные предложения</a></li>
+                    <li><a href='/qa.php?act=sent_split'>Странное разделение на предложения</a></li>
+                    <li><a href='/qa.php?act=empty_books'>Пустые тексты</a></li>
+                    <li><a href='/qa.php?act=book_tags'>Ошибки в тегах текстов</a></li>
+                    <li><a href='/qa.php?act=dl_urls'>Сохранённые копии источников</a></li>
+                    <li><a href='/qa.php?act=unkn'><span class="label label-small label-success">new!</span> Словарные токены с UNKN</a></li>
                 {/if}
             </ul>
         </div>

@@ -1,6 +1,6 @@
 {$titles = $achievements_titles}
 {if $achievements_unseen}
-    <link rel="stylesheet" href="{$web_prefix}/assets/css/animate.min.css">
+    <link rel="stylesheet" href="/assets/css/animate.min.css">
     {assign var="single" value=count($achievements_unseen)==1}
     <div class="modal hide fade a-modal {if $single}a-modal-square{/if}">
         <div class="modal-header">

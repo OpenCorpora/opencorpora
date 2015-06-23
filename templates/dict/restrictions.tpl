@@ -3,7 +3,7 @@
 {block name='content'}
 <h1>Ограничения на граммемы</h1>
 <ul class="breadcrumb">
-    <li><a href="{$web_prefix}/dict.php">Словарь</a> <span class="divider">/</span></li>
+    <li><a href="/dict.php">Словарь</a> <span class="divider">/</span></li>
     <li>Ограничения на граммемы</li>
 </ul>
 {if $user_permission_dict}

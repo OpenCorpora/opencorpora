@@ -171,7 +171,7 @@
 {/if}
     <td>{$sample.id}</td>
     <td>
-        <a href="{$web_prefix}/books.php?book_id={$sample.book_id}&amp;full#sen{$sample.sentence_id}" target="_blank">контекст</a>
+        <a href="/books.php?book_id={$sample.book_id}&amp;full#sen{$sample.sentence_id}" target="_blank">контекст</a>
         <span>{if $sample.has_left_context}<a class='expand' href="#" data-context='{$sample.has_left_context}' data-dir='-1'>...</a>{/if}
         {foreach from=$sample.context item=word name=x}{if $smarty.foreach.x.index == $sample.mainword}<b class='bggreen'>{$word|htmlspecialchars}</b>{else}{$word|htmlspecialchars}{/if} {/foreach}
         {if $sample.has_right_context}<a class='expand' href="#" data-context='{$sample.has_right_context}' data-dir='1'>...</a>{/if}</span>

@@ -12,7 +12,7 @@
 </tr>
 {foreach from=$page.books item=book}
 <tr>
-    <td><a href="{$web_prefix}/books.php?book_id={$book.id}">{$book.id}</a></td>
+    <td><a href="/books.php?book_id={$book.id}">{$book.id}</a></td>
     <td>{$book.name|htmlspecialchars}</td>
     <td>
         <div class="btn-group">
@@ -31,8 +31,8 @@
         </div>
     </td>
     <td>
-        <a href="{$web_prefix}/sentence.php?mode=syntax&amp;id={$book.first_sentence_id}" class="btn btn-mini">К 1-ому предложению&nbsp;&raquo;</a>
-    <td><a href="{$web_prefix}/books.php?book_id={$book.id}&amp;act=anaphora" class="btn btn-mini"{if !$book.status.syntax.moderated} disabled="disabled"{/if}>Размечать</a></td>
+        <a href="/sentence.php?mode=syntax&amp;id={$book.first_sentence_id}" class="btn btn-mini">К 1-ому предложению&nbsp;&raquo;</a>
+    <td><a href="/books.php?book_id={$book.id}&amp;act=anaphora" class="btn btn-mini"{if !$book.status.syntax.moderated} disabled="disabled"{/if}>Размечать</a></td>
 </tr>
 {/foreach}
 </table>

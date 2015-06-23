@@ -39,11 +39,11 @@
             {elseif $pool.status == 9}<i class="icon-check" title="пул в архиве"></i>
             {else}{$pool.status}
             {/if}
-            <a href="{$web_prefix}/pools.php?act=samples&amp;pool_id={$pool.id}">{$pool.name}</a>
+            <a href="/pools.php?act=samples&amp;pool_id={$pool.id}">{$pool.name}</a>
         </td>
         <td>{$pool.total_answers}</td>
         <td>{$pool.checked_answers}</td>
-        <td{if $pool.incorrect_answers > 0} class='bgpink'{/if}>{if $pool.incorrect_answers > 0}<a href="{$web_prefix}/pools.php?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=user:{$smarty.get.id}">{$pool.incorrect_answers}</a>{else}0{/if}</td>
+        <td{if $pool.incorrect_answers > 0} class='bgpink'{/if}>{if $pool.incorrect_answers > 0}<a href="/pools.php?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=user:{$smarty.get.id}">{$pool.incorrect_answers}</a>{else}0{/if}</td>
     </tr>
     {/foreach}
 {/foreach}

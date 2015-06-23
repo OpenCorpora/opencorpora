@@ -9,25 +9,25 @@
         <meta property="og:url" content="http://opencorpora.org" />
         <meta property="og:title" content="OpenCorpora: открытый корпус русского языка" />
 
-        <link rel="shortcut icon" href="{$web_prefix}/favicon.ico" />
+        <link rel="shortcut icon" href="/favicon.ico" />
 
         <!-- Bootstrap -->
-        <link href="{$web_prefix}/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-        <link href="{$web_prefix}/assets/css/btn-palette.css" rel="stylesheet">
+        <link href="/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/assets/css/btn-palette.css" rel="stylesheet">
 
-        <link rel='stylesheet' type='text/css' href='{$web_prefix}/assets/css/main.css?9'/>
-        <link rel="stylesheet" type="text/css" href="{$web_prefix}/assets/vendor/bootstrap-notify/css/bootstrap-notify.css" />
+        <link rel='stylesheet' type='text/css' href='/assets/css/main.css?9'/>
+        <link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-notify/css/bootstrap-notify.css" />
 
         <!-- Open Sans for headers -->
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,800,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
         {block name=styles}{/block}
 
-        <script src="{$web_prefix}/assets/vendor/jquery/jquery.min.js"></script>
-        <script src='{$web_prefix}/assets/js/main.js?3' type='text/javascript'></script>
-        <script src='{$web_prefix}/assets/js/jquery.mousewheel.js' type='text/javascript'></script>
-        <script src="{$web_prefix}/assets/vendor/bootstrap/js/bootstrap.min.js"></script>
-        <script src="{$web_prefix}/assets/vendor/bootstrap-notify/js/bootstrap-notify.js"></script>
+        <script src="/assets/vendor/jquery/jquery.min.js"></script>
+        <script src='/assets/js/main.js?3' type='text/javascript'></script>
+        <script src='/assets/js/jquery.mousewheel.js' type='text/javascript'></script>
+        <script src="/assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+        <script src="/assets/vendor/bootstrap-notify/js/bootstrap-notify.js"></script>
 
     </head>
 {block name=nojs}<noscript><meta http-equiv="refresh" content="0; URL=/no_js.php"></noscript>{/block}
