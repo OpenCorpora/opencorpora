@@ -226,7 +226,7 @@ function get_most_useful_pools($type=0) {
 }
 function get_unknowns() {
     $res = sql_query("
-        SELECT tf_text, sent_id, ut.dict_revision
+        SELECT tf_id, tf_text, sent_id, ut.dict_revision
         FROM tokens t
         LEFT JOIN form2lemma f
             ON (t.tf_text = f.form_text)
@@ -240,12 +240,29 @@ function get_unknowns() {
         GROUP BY tf_id
         ORDER BY tf_id
     ");
+
+    $res1 = sql_prepare("
+        SELECT text, user_shown_name
+        FROM morph_annot_comments
+        LEFT JOIN morph_annot_samples
+            USING (sample_id)
+        LEFT JOIN users
+            USING (user_id)
+        WHERE tf_id = ?
+    ");
+
     $out = array();
     while ($r = sql_fetch_array($res)) {
+        sql_execute($res1, array($r['tf_id']));
+        $comments = array();
+        while ($r1 = sql_fetch_array($res1))
+            $comments[] = array('text' => $r1['text'], 'author' => $r1['user_shown_name']);
+
         $out[] = array(
             'sent_id' => $r['sent_id'],
             'text' => $r['tf_text'],
-            'is_pending' => (bool)$r['dict_revision']
+            'is_pending' => (bool)$r['dict_revision'],
+            'comments' => $comments
         );
     }
     return $out;
