@@ -21,7 +21,7 @@ function get_proba_packet($pool_type, $size) {
                         INNER JOIN `morph_annot_pool_types` AS `pool_type` ON `pool`.`pool_type` = `pool_type`.`type_id`
                         WHERE `pool`.`pool_type` = $pool_type AND `pool`.`status` = ".MA_POOLS_STATUS_ARCHIVED." ");
     $r = sql_fetch_array($res);    
-    if ((int)$r['pool_count'] == 0)
+    if ($r['pool_count'] == 0)
         throw new UnexpectedValueException("No archieved pools for pool_type=$pool_type");
 
     $packet = array(

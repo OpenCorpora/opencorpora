@@ -16,12 +16,12 @@ try {
         $answer_id = $answ[1];
         $moderator_answer_id = 0; // No_answer or DB corrupt
 
-    // TODO save my answer
+        // TODO save my answer
 
-    $res = sql_query("SELECT `answer` FROM `morph_annot_moderated_samples` WHERE `sample_id` = $sample_id");
+        $res = sql_query("SELECT `answer` FROM `morph_annot_moderated_samples` WHERE `sample_id` = $sample_id");
 
-    if ($r = sql_fetch_array($res))
-        $moderator_answer_id = (int)$r['answer'];
+        if ($r = sql_fetch_array($res))
+            $moderator_answer_id = (int)$r['answer'];
 
         $answers[] = array($sample_id, $answer_id, $moderator_answer_id);
     }
