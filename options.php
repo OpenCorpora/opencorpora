@@ -39,7 +39,8 @@ if (is_logged()) {
                 show_error($config['msg']['notadmin']);
             break;
         default:
-            $smarty->assign('meta', get_meta_options());
+            $mgr = new UserOptionsManager();
+            $smarty->assign('meta', $mgr->get_all_options(true));
             $smarty->assign('current_email', get_user_email($_SESSION['user_id']));
             $smarty->assign('current_name', get_user_shown_name($_SESSION['user_id']));
             $smarty->assign('teams',get_team_list());

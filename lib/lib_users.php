@@ -2,6 +2,7 @@
 require_once('constants.php');
 require_once('lib_mail.php');
 require_once('lib_achievements.php');
+require_once('lib_options.php');
 
 function user_check_password($login, $password) {
     $password = md5(md5($password).substr($login, 0, 2));
@@ -344,21 +345,8 @@ function get_user_shown_name($user_id) {
     return $r['user_shown_name'];
 }
 function get_user_options($user_id) {
-    if (!$user_id)
-        throw new UnexpectedValueException();
-    $out = array();
-
-    //autovivify
-    $res = sql_query("SELECT option_id, default_value FROM user_options WHERE option_id NOT IN (SELECT option_id FROM user_options_values WHERE user_id=$user_id)");
-    sql_begin();
-    while ($r = sql_fetch_array($res))
-        sql_query("INSERT INTO user_options_values VALUES('$user_id', '".$r['option_id']."', '".$r['default_value']."')");
-    sql_commit();
-
-    $res = sql_query("SELECT option_id id, option_value value FROM user_options_values WHERE user_id=$user_id");
-    while ($r = sql_fetch_array($res))
-        $out[$r['id']] = $r['value'];
-    return $out;
+    $mgr = new UserOptionsManager();
+    return $mgr->get_user_options($user_id);
 }
 function get_user_permissions($user_id) {
     if (!$user_id)
@@ -369,23 +357,6 @@ function get_user_permissions($user_id) {
     foreach ($res as $r)
         $out[] = $r['group_id'];
 
-    return $out;
-}
-function get_meta_options() {
-    $out = array();
-    $res = sql_query("SELECT * FROM user_options WHERE option_id != 2 ORDER BY `order_by`");
-    while ($r = sql_fetch_array($res)) {
-        if ($r['option_values'] == '1') {
-            $out[$r['option_id']] = array('name'=>$r['option_name'], 'value_type'=>$r['option_values']);
-        } else {
-            $values = array();
-            foreach (explode('|', $r['option_values']) as $t) {
-                list($val, $descr) = explode('=', $t);
-                $values[$val] = $descr;
-            }
-            $out[$r['option_id']] = array('name'=>$r['option_name'], 'value_type'=>2, 'values' => $values);
-        }
-    }
     return $out;
 }
 function save_user_option($option_id, $value) {
