@@ -378,22 +378,6 @@ function add_morph_pool_type($post_gram, $post_descr) {
     sql_pe("INSERT INTO morph_annot_pool_types VALUES (NULL, ?, ?, '', 0, 0, 0)", array($gram_sets_str, $gram_descr_str));
     return sql_insert_id();
 }
-function add_morph_pool() {
-    $pool_name = trim($_POST['pool_name']);
-    $pool_type = $_POST['pool_type'];
-    sql_begin();
-    if (!$pool_type)
-        $pool_type = add_morph_pool_type($_POST['gram'], $_POST['descr']);
-
-    $users = $_POST['users_needed'];
-    $token_check = $_POST['token_checked'];
-    $ts = time();
-    sql_pe(
-        "INSERT INTO morph_annot_pools VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0)",
-        array($pool_type, $pool_name, $token_check, $users, $ts, $ts, $_SESSION['user_id'])
-    );
-    sql_commit();
-}
 function delete_morph_pool($pool_id) {
     //NB: we mustn't delete any pools with answers
     $res = sql_pe("SELECT instance_id FROM morph_annot_instances WHERE answer > 0 AND sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=?) LIMIT 1", array($pool_id));

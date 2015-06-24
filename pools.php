@@ -12,9 +12,9 @@ if ($action && !in_array($action, array('samples', 'candidates')) && !user_has_p
 }
 
 switch ($action) {
-    case 'add':
-        add_morph_pool();
-        header("Location:pools.php?added&type=0");
+    case 'add_type':
+        add_morph_pool_type($_POST['gram'], $_POST['descr']);
+        header("Location:pools.php?added&type=1");
         break;
     case 'delete':
         delete_morph_pool($_GET['pool_id']);
@@ -91,8 +91,7 @@ switch ($action) {
         header("Location:index.php?page=pool_charts");
         break;
     default:
-        $smarty->assign('statuses', array(
-        ));
+        $smarty->assign('moder_id', isset($GET['moder_id']) ? $_GET['moder_id'] : 0);
         $smarty->assign('pools', get_morph_pools_page((int)$_GET['type'], (int)$_GET['moder_id'], $_GET['filter']));
         $smarty->display('qa/pools.tpl');
 }

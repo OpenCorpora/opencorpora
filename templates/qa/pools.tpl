@@ -18,14 +18,14 @@ $(document).ready(function(){
         else
             $('tr.ex_pool').show('slow');
     });
-    $('#moder_id').val({/literal}{$smarty.get.moder_id}{literal});
+    $('#moder_id').val({/literal}{$moder_id}{literal});
     $('#moder_id').change(function() {
         location.href = "?type={/literal}{$smarty.get.type}{literal}&moder_id=" + $(this).val();
     });
     $('#gram-filter input[type=button]').click(function() {
         var reg = $("#gram-cond").val();
         {/literal}
-        location.href = "?type={$smarty.get.type}&moder_id={if isset($smarty.get.moder_id)}{$smarty.get.moder_id}{else}0{/if}&filter=" + encodeURIComponent(reg);
+        location.href = "?type={$smarty.get.type}&moder_id={$moder_id}&filter=" + encodeURIComponent(reg);
         {literal}
     });
 });
@@ -38,15 +38,14 @@ $(document).ready(function(){
 
 {* Type chooser *}
 <ul class="nav nav-tabs">
-<li{if $smarty.get.type == 0} class="active"{/if}><a href="?type=0">идёт поиск примеров</a></li>
 <li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_FOUND_CANDIDATES} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_FOUND_CANDIDATES}">найдены примеры</a></li>
 <li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_NOT_STARTED} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_NOT_STARTED}">не опубликованные</a></li>
 <li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_IN_PROGRESS} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_IN_PROGRESS}">опубликованные</a></li>
 <li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_ANSWERED} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_ANSWERED}">снятые с публикации</a></li>
-<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_MODERATION} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_MODERATION}{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">на модерации</a></li>
-<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_MODERATED} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_MODERATED}{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">модерация окончена</a></li>
-<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_TO_MERGE} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_TO_MERGE}{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">в очереди на переливку</a></li>
-<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_ARCHIVED} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_ARCHIVED}{if isset($smarty.get.moder_id)}&amp;moder_id={$smarty.get.moder_id}{/if}">в архиве</a></li>
+<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_MODERATION} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_MODERATION}&amp;moder_id={$moder_id}">на модерации</a></li>
+<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_MODERATED} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_MODERATED}&amp;moder_id={$moder_id}">модерация окончена</a></li>
+<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_TO_MERGE} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_TO_MERGE}&amp;moder_id={$moder_id}">в очереди на переливку</a></li>
+<li{if $smarty.get.type == $smarty.const.MA_POOLS_STATUS_ARCHIVED} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_ARCHIVED}&amp;moder_id={$moder_id}">в архиве</a></li>
 </ul>
 <table class="table">
 <tr class="borderless">
@@ -86,10 +85,8 @@ $(document).ready(function(){
 {/foreach}
 </table><br/>
 {if $user_permission_check_morph}
-<a href="#" class="pseudo" id="add_pool">Добавить новый пул</a>
-<form id="f_add" style="display:none" method="post" action="?act=add"><table border="0" cellspacing="5">
-<tr><td>Название:<td><input name="pool_name" maxlength="120" size="60" type="text" placeholder="Название пула"/></tr>
-<tr><td>Тип:<td>{html_options name=pool_type options=$pools.types class=pool_select}</tr>
+<a href="#" class="pseudo" id="add_pool">Добавить новый тип пулов</a>
+<form id="f_add" style="display:none" method="post" action="?act=add_type"><table class="table">
 <tr class="ex_pool">
     <td>Граммемы:<br/><span class='small'>лишние оставить пустыми</span>
     <td>
@@ -110,9 +107,7 @@ $(document).ready(function(){
         <input name="descr[]" placeholder="42" maxlength='127' type="text" class="span2"/>
         <input name="descr[]" placeholder="двойственное" maxlength='127' type="text" class="span2"/>
 </tr>
-<tr><td>Желаемое число оценок<td><input name="users_needed" maxlength="2" size="3" value="3" type="text" class="span1"/>
-<tr><td>Брать только примеры с<td><input name="token_checked" size="3" maxlength="2" value="0" type="text" class="span1"/> и более подтверждениями токенизации </tr>
-<tr><td colspan="2"><button class="btn btn-large btn-primary">Начать поиск примеров</button></tr>
+<tr><td colspan="2"><button class="btn btn-large btn-primary">Добавить</button></tr>
 </table></form>
 {/if}
 {/block}
