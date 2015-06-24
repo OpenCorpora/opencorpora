@@ -16,10 +16,11 @@ class ChangeCandidateSamples extends AbstractMigration
 
     public function down()
     {
+        $this->execute("TRUNCATE TABLE morph_annot_candidate_samples");  // yes, this is irreversible
         $cs = $this->table("morph_annot_candidate_samples");
         $cs->renameColumn("pool_type", "pool_id")->save();
 
         $types = $this->table("morph_annot_pool_types");
-        $types->dropColumn('last_auto_search');
+        $types->removeColumn('last_auto_search');
     }
 }
