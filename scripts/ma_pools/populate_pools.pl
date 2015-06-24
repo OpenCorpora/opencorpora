@@ -3,6 +3,8 @@ use strict;
 use DBI;
 use Config::INI::Reader;
 
+use constant PROCESS_TYPES_PER_RUN => 1;
+
 #reading config
 my $conf = Config::INI::Reader->read_file($ARGV[0]);
 $conf = $conf->{mysql};
@@ -15,19 +17,18 @@ if ($dbh->{'AutoCommit'}) {
 }
 
 my $add = $dbh->prepare("INSERT INTO morph_annot_candidate_samples VALUES(?, ?)");
-my $update_pool = $dbh->prepare("UPDATE morph_annot_pools SET `status`='1' WHERE pool_id=? LIMIT 1");
-my $find_pools = $dbh->prepare("SELECT pool_id, pool_type, t.grammemes FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE status=0 LIMIT 1");
+my $update_type = $dbh->prepare("UPDATE morph_annot_pool_types SET last_auto_search=? WHERE type_id=? LIMIT 1");
+my $find_pools = $dbh->prepare("SELECT type_id, grammemes FROM morph_annot_pool_types ORDER BY last_auto_search LIMIT " . PROCESS_TYPES_PER_RUN);
 $find_pools->execute();
 if (my $ref = $find_pools->fetchrow_hashref()) {
-    process_pool($ref->{'pool_id'}, $ref->{'pool_type'}, $ref->{'grammemes'});
+    #print "process " . $ref->{'type_id'} . "\n";
+    process_pool($ref->{'type_id'}, $ref->{'grammemes'});
 }
 $dbh->commit();
 
 sub process_pool {
-    my $pool_id = shift;
     my $pool_type = shift;
     my @gram_strings = split /@/, shift;
-    #printf STDERR "processing pool #%d: <%s>\n", $pool_id, join('>, <', @gram_strings);
 
     my @gram_sets;
     my @gramset_types;
@@ -74,7 +75,7 @@ sub process_pool {
     my $s = $dbh->prepare($q);
     $s->execute();
     while (my $ref = $s->fetchrow_hashref()) {
-        check_revision($pool_id, $ref->{'tf_id'}, $ref->{'rev_id'}, $ref->{'rev_text'}, \@gram_sets, \@gramset_types);
+        check_revision($pool_type, $ref->{'tf_id'}, $ref->{'rev_id'}, $ref->{'rev_text'}, \@gram_sets, \@gramset_types);
     }
 
     # part 2, tokens in pools not under annotation
@@ -97,7 +98,7 @@ sub process_pool {
         if ($last_ref && $last_ref->{'tf_id'} != $ref->{'tf_id'}) {
             # check previous
             if (!$skip) {
-                check_revision($pool_id, $last_ref->{'tf_id'}, $last_ref->{'rev_id'}, $last_ref->{'rev_text'}, \@gram_sets, \@gramset_types);
+                check_revision($pool_type, $last_ref->{'tf_id'}, $last_ref->{'rev_id'}, $last_ref->{'rev_text'}, \@gram_sets, \@gramset_types);
             }
             $skip = 0;
         }
@@ -121,10 +122,10 @@ sub process_pool {
     }
     # check last
     if (!$skip) {
-        check_revision($pool_id, $last_ref->{'tf_id'}, $last_ref->{'rev_id'}, $last_ref->{'rev_text'}, \@gram_sets, \@gramset_types);
+        check_revision($pool_type, $last_ref->{'tf_id'}, $last_ref->{'rev_id'}, $last_ref->{'rev_text'}, \@gram_sets, \@gramset_types);
     }
 
-    $update_pool->execute($pool_id);
+    $update_type->execute(time(), $pool_type);
 }
 sub combine_or {
     my $var= shift;
@@ -163,7 +164,7 @@ sub combine_and {
     return \@new_var;
 }
 sub check_revision {
-    my ($pool_id, $tf_id, $rev_id, $rev_text, $gram_sets, $gramset_types) = @_;
+    my ($pool_type, $tf_id, $rev_id, $rev_text, $gram_sets, $gramset_types) = @_;
     #print STDERR "will check revision $rev_id, ";
 
     # are the "and"-restrictions really satisfied?
@@ -183,7 +184,7 @@ sub check_revision {
     }
 
     #print STDERR "ok\n";
-    $add->execute($pool_id, $tf_id);
+    $add->execute($pool_type, $tf_id);
 }
 sub var_has_all_gram {
     my ($rev_text, $aref) = @_;
