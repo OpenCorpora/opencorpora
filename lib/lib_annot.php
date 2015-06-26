@@ -76,6 +76,8 @@ class MorphParseSet {
             if (($parse->lemma_id == $lemma_id) == $allow)
                 $newparses[] = $parse;
         $this->parses = $newparses;
+        if (sizeof($this->parses) == 0)
+            $this->_from_token($this->token_text, true, false);
     }
 
     public function set_lemma_text($lemma_id, $lemma_text) {
