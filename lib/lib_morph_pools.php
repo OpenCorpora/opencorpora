@@ -2,18 +2,26 @@
 require_once('constants.php');
 require_once('lib_annot.php');
 
-function get_morph_pool_types($extended=false) {
-    $res = sql_query("SELECT type_id, grammemes, complexity, doc_link FROM morph_annot_pool_types order by grammemes");
+function get_morph_pool_types() {
+    $res = sql_query("
+        SELECT type_id, grammemes, gram_descr, complexity, doc_link, last_auto_search,
+            COUNT(tf_id) AS found_samples
+        FROM morph_annot_pool_types t
+        LEFT JOIN morph_annot_candidate_samples s
+            ON (t.type_id = s.pool_type)
+        GROUP BY type_id
+        ORDER BY grammemes
+    ");
     $types = array();
     while ($r = sql_fetch_array($res))
-        if ($extended)
-            $types[$r['type_id']] = array(
-                'grammemes' => $r['grammemes'],
-                'complexity' => $r['complexity'],
-                'doc_link' => $r['doc_link']
-            );
-        else
-            $types[$r['type_id']] = $r['grammemes'];
+        $types[$r['type_id']] = array(
+            'grammemes' => $r['grammemes'],
+            'gram_descr' => $r['gram_descr'],
+            'complexity' => $r['complexity'],
+            'doc_link' => $r['doc_link'],
+            'last_search' => $r['last_auto_search'],
+            'found_samples' => $r['found_samples']
+        );
     return $types;
 }
 function save_morph_pool_types($data) {
@@ -30,10 +38,6 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
     $pools = array();
     $instance_count = array();
     $moderators = array(0 => '-- Модератор --');
-
-    // possible pool types for addition form
-    $types = get_morph_pool_types();
-    $types[0] = 'Новый';
 
     // possible moderators for filter
     $res = sql_query("SELECT DISTINCT moderator_id, user_shown_name AS user_name FROM morph_annot_pools p LEFT JOIN users u ON (p.moderator_id = u.user_id) WHERE moderator_id > 0 ORDER BY user_shown_name");
@@ -77,7 +81,7 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
 
         $pools[] = $r;
     }
-    return array('pools' => $pools, 'types' => $types, 'moderators' => $moderators);
+    return array('pools' => $pools, 'moderators' => $moderators);
 }
 function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $skip=0, $filter=false, $samples_by_page=0, $orderby="answer") {
     $res = sql_pe("
@@ -332,23 +336,33 @@ function filter_sample_for_moderation($pool_type, $sample, $has_focus) {
     // nothing suspicious, ok
     return false;
 }
-/*
-TODO change these for use with types
+function get_pool_candidates_page($type_id) {
+    $pool = array('id' => $type_id);
+    $res = sql_pe("
+        SELECT grammemes, pool_name, COUNT(s.tf_id) as found_samples
+        FROM morph_annot_pool_types t
+        LEFT JOIN morph_annot_pools p
+            ON (t.type_id = p.pool_type)
+        LEFT JOIN morph_annot_candidate_samples s
+            ON (t.type_id = s.pool_type)
+        WHERE type_id=?
+        GROUP BY type_id, pool_id
+        LIMIT 1
+    ", array($type_id));
+    $pool['grammemes'] = $res[0]['grammemes'];
+    $pool['pool_name'] = $res[0]['pool_name'];
+    $pool['found_samples'] = $res[0]['found_samples'];
 
-function get_pool_candidates_page($pool_id) {
-    $pool = array('id' => $pool_id);
-    $res = sql_pe("SELECT pool_name FROM morph_annot_pools WHERE pool_id=? LIMIT 1", array($pool_id));
-    $pool['name'] = $res[0]['pool_name'];
     $matches = array();
     if (preg_match('/^(.+?)\s+#(\d+)/', $pool['name'], $matches))
         $pool['next_name'] = $matches[1] . ' #';
     else
         $pool['next_name'] = $pool['name'] . ' #';
-    $pool['samples'] = get_pool_candidates($pool_id);
+    $pool['samples'] = get_pool_candidates($type_id);
     return $pool;
 }
-function get_pool_candidates($pool_id) {
-    $res = sql_pe("SELECT tf_id FROM morph_annot_candidate_samples WHERE pool_id=? ORDER BY RAND() LIMIT 200", array($pool_id));
+function get_pool_candidates($type_id) {
+    $res = sql_pe("SELECT tf_id FROM morph_annot_candidate_samples WHERE pool_type=? ORDER BY RAND() LIMIT 200", array($type_id));
     $out = array();
     $prep_query = NULL;
     foreach ($res as $r) {
@@ -356,7 +370,6 @@ function get_pool_candidates($pool_id) {
     }
     return $out;
 }
-*/
 function add_morph_pool_type($post_gram, $post_descr) {
     $gram_sets = array();
     $gram_descr = array();
