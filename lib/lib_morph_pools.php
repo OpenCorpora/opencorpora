@@ -410,7 +410,7 @@ function promote_samples_aux($tf_ids, $pool_type, $lastrev, $new_pool_name, &$ne
 
     $full_name = $new_pool_name . ' #' . ($new_pool_index++);
     sql_pe(
-        "INSERT INTO morph_annot_pools VALUES (NULL, ?, ".sql_quote($full_name).", 0, " . MA_ANNOTATORS_PER_SAMPLE . ", $time, $time, ? , 0, ".MA_POOLS_STATUS_NOT_STARTED.", $lastrev)",
+        "INSERT INTO morph_annot_pools VALUES (NULL, ?, ".sql_quote($full_name).", " . MA_ANNOTATORS_PER_SAMPLE . ", $time, $time, ? , 0, ".MA_POOLS_STATUS_NOT_STARTED.", $lastrev)",
         array($pool_type, $_SESSION['user_id'])
     );
     $new_pool_id = sql_insert_id();

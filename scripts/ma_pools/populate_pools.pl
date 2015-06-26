@@ -20,7 +20,7 @@ my $add = $dbh->prepare("INSERT INTO morph_annot_candidate_samples VALUES(?, ?)"
 my $update_type = $dbh->prepare("UPDATE morph_annot_pool_types SET last_auto_search=? WHERE type_id=? LIMIT 1");
 my $find_pools = $dbh->prepare("SELECT type_id, grammemes FROM morph_annot_pool_types ORDER BY last_auto_search LIMIT " . PROCESS_TYPES_PER_RUN);
 $find_pools->execute();
-if (my $ref = $find_pools->fetchrow_hashref()) {
+while (my $ref = $find_pools->fetchrow_hashref()) {
     #print "process " . $ref->{'type_id'} . "\n";
     process_pool($ref->{'type_id'}, $ref->{'grammemes'});
 }
