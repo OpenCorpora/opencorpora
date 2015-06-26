@@ -32,6 +32,7 @@ define('MA_SAMPLES_STATUS_MISPRINT', 3);
 define('MA_SAMPLES_STATUS_HOMONYMOUS', 4);
 define('MA_SAMPLES_STATUS_MANUAL_EDIT', 5);  // for non-merged samples
 
+define('MA_ANNOTATORS_PER_SAMPLE', 4);
 define('MA_ANSWER_OTHER', 99);
 define('MA_TOTAL_TASKS_PLAN', 1333000);
 

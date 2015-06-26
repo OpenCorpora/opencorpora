@@ -5,7 +5,7 @@
 <p>Некоторый пул этого типа назывался <b>{$data.pool_name}</b></p>
 <p>Показано не более 200 случайно выбранных примеров из {$data.found_samples}.</p>
 {if $is_admin}
-<form method="post" action="?act=promote&amp;pool_type={$pool.id}"> 
+<form method="post" action="?act=promote&amp;pool_type={$data.id}"> 
 <input type='radio' name='type' value='random' checked='checked'/><input type='text' name='random_n' maxlength='4' size='4' value='200'/> случайных<br/>
 <input type='radio' name='type' value='first'/><input type='text' name='first_n' maxlength='4' size='4' value='200'/> первых<br/>
 сделать <input type='text' name='pools_num' class='span1' value='{floor($data.found_samples / 200)}'/> таких пулов<br/>
