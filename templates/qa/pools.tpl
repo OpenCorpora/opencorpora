@@ -56,7 +56,7 @@ $(document).ready(function(){
         <a href="?act=samples&amp;pool_id={$pool.pool_id}">{$pool.pool_name|htmlspecialchars}</a>
         {if $user_permission_check_morph}<br/><a href="?act=delete&amp;pool_id={$pool.pool_id}" class='del'>удалить</a>{/if}
     {/strip}</td>
-    <td>{$pool.grammemes|htmlspecialchars}<br/><span class='small'>{$pool.gram_descr|htmlspecialchars}</span><br/>Оценок: {$pool.users_needed}<br/>Токенизация: {$pool.token_check}</td>
+    <td>{$pool.grammemes|htmlspecialchars}<br/><span class='small'>{$pool.gram_descr|htmlspecialchars}</span><br/>Оценок: {$pool.users_needed}</td>
     <td>{$pool.updated_ts|date_format:"%a %d.%m.%Y, %H:%M"}</td>
     <td>{$pool.author_name|htmlspecialchars}</td>
     {if $pool.status > $smarty.const.MA_POOLS_STATUS_ANSWERED}
