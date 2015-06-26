@@ -21,8 +21,8 @@ switch ($action) {
         header("Location:pools.php");
         break;
     case 'candidates':
-        $smarty->assign('pool', get_pool_candidates_page($_GET['pool_id']));
-        $smarty->display('qa/pool_candidates.tpl');
+        //$smarty->assign('pool', get_pool_candidates_page($_GET['pool_id']));
+        //$smarty->display('qa/pool_candidates.tpl');
         break;
     case 'types':
         $smarty->assign('data', get_morph_pool_types(true));

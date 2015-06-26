@@ -55,7 +55,7 @@ $(document).ready(function(){
     <th>Обновлён</th>
     <th>Автор</th>
     {if $smarty.get.type > $smarty.const.MA_POOLS_STATUS_ANSWERED}<th>{html_options name=moder_id options=$pools.moderators id=moder_id}</th>{/if}
-    {if $smarty.get.type > 0}<th>Состояние</th>{/if}
+    {if $smarty.get.type > 1}<th>Состояние</th>{/if}
 </tr>
 {foreach from=$pools.pools item=pool}
 <tr>
@@ -72,9 +72,7 @@ $(document).ready(function(){
     {if $pool.status > $smarty.const.MA_POOLS_STATUS_ANSWERED}
         <td>{$pool.moderator_name|default:"&ndash;"}</td>
     {/if}
-    {if $pool.status == $smarty.const.MA_POOLS_STATUS_FOUND_CANDIDATES}
-        <td>найдено примеров: {$pool.candidate_count}</td>
-    {elseif $pool.status == $smarty.const.MA_POOLS_STATUS_MODERATION}
+    {if $pool.status == $smarty.const.MA_POOLS_STATUS_MODERATION}
         <td>проверено: {$pool.moderated_count}/{$pool.instance_count / $pool.users_needed}</td>
     {elseif $pool.status > $smarty.const.MA_POOLS_STATUS_NOT_STARTED}
         <td><span class='{if $pool.instance_count > 0 && $pool.answer_count == $pool.instance_count}bggreen{/if}'>{$pool.answer_count}/{$pool.instance_count} ответов</span></td>

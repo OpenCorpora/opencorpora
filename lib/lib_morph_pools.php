@@ -68,11 +68,7 @@ function get_morph_pools_page($type, $moder_id=0, $filter=false) {
 
     $res = sql_pe("SELECT p.*, t.grammemes, t.gram_descr, u1.user_shown_name AS author_name, u2.user_shown_name AS moderator_name FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) LEFT JOIN users u1 ON (p.author_id = u1.user_id) LEFT JOIN users u2 ON (p.moderator_id = u2.user_id) WHERE status = ? $q_moder $q_filter ORDER BY p.updated_ts DESC", array($type));
     foreach ($res as $r) {
-        if ($type == MA_POOLS_STATUS_FOUND_CANDIDATES) {
-            $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_candidate_samples WHERE pool_id=".$r['pool_id']));
-            $r['candidate_count'] = $r1[0];
-        }
-        elseif ($type == MA_POOLS_STATUS_MODERATION) {
+        if ($type == MA_POOLS_STATUS_MODERATION) {
             $r['moderated_count'] = $instance_count[$r['pool_id']][2];
         }
 
@@ -336,6 +332,9 @@ function filter_sample_for_moderation($pool_type, $sample, $has_focus) {
     // nothing suspicious, ok
     return false;
 }
+/*
+TODO change these for use with types
+
 function get_pool_candidates_page($pool_id) {
     $pool = array('id' => $pool_id);
     $res = sql_pe("SELECT pool_name FROM morph_annot_pools WHERE pool_id=? LIMIT 1", array($pool_id));
@@ -357,6 +356,7 @@ function get_pool_candidates($pool_id) {
     }
     return $out;
 }
+*/
 function add_morph_pool_type($post_gram, $post_descr) {
     $gram_sets = array();
     $gram_descr = array();
@@ -386,7 +386,6 @@ function delete_morph_pool($pool_id) {
 
     sql_begin();
     sql_pe("DELETE FROM morph_annot_instances WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=?)", array($pool_id));
-    sql_pe("DELETE FROM morph_annot_candidate_samples WHERE pool_id=?", array($pool_id));
     sql_pe("DELETE FROM morph_annot_moderated_samples WHERE sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=?)", array($pool_id));
     sql_pe("DELETE FROM morph_annot_samples WHERE pool_id=?", array($pool_id));
     sql_pe("DELETE FROM morph_annot_pools WHERE pool_id=? LIMIT 1", array($pool_id));
