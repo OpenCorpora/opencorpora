@@ -18,15 +18,13 @@
                     <li><a href="#">Downloads</a></li>*}
                     <li {if $active_page=="downloads"}class="active"{/if}><a href="/?page=downloads">Скачать</a></li>
                     <li {if $active_page=="about"}class="active"{/if}><a href="/?page=about">О проекте</a></li>
-                    {if $game_is_on}
                     <li {if $active_page=="achievements"}class="active"{/if}><a href="/?page=achievements">Бейджи</a></li>
-                    {/if}
                 </ul>
                 <ul class="nav pull-right">
                     <li class="dropdown">
                         {if isset($smarty.session.user_id)}
                             <a href="/options.php" class="dropdown-toggle login-corner-user{if in_array(1, $smarty.session.user_groups)} login-corner-admin{/if}" data-toggle="dropdown" data-target="#">
-                            {*if $game_is_on == 1}<span class="badge badge-star" title="Ваш текущий уровень">{$smarty.session.user_level}</span>{/if*}
+                            {*<span class="badge badge-star" title="Ваш текущий уровень">{$smarty.session.user_level}</span>*}
                             {if mb_strlen($smarty.session.user_name) > 20}{$smarty.session.user_name|mb_substr:0:20}…{else}{$smarty.session.user_name}{/if}
                             <b class="caret"></b></a>
                             <ul class="dropdown-menu">

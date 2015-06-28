@@ -84,7 +84,6 @@ $smarty->assign('user_permission_syntax', user_has_permission(PERM_SYNTAX) ? 1 :
 $smarty->assign('user_permission_check_syntax', user_has_permission(PERM_SYNTAX_MODER) ? 1 : 0);
 $smarty->assign('readonly', file_exists($config['project']['readonly_flag']) ? 1 : 0);
 $smarty->assign('goals', $config['goals']);
-$smarty->assign('game_is_on', 0);
 
 //$smarty->configLoad(__DIR__.'/../templates/achievements/titles.conf', NULL);
 // smarty->configLoad is a piece of shit which can not handle multiple sections at once.
@@ -92,14 +91,11 @@ $smarty->assign('game_is_on', 0);
 $smarty->assign('achievements_titles', parse_ini_file(__DIR__.'/../templates/achievements/titles.conf', TRUE));
 
 if (is_logged()) {
-    if (game_is_on()) {
-        $smarty->assign('game_is_on', 1);
-        $am = new AchievementsManager($_SESSION['user_id']);
-        $smarty->assign('achievements', $a = $am->pull_all());
-        $smarty->assign('achievements_unseen', array_filter($a, function($e) {
-            return !$e->seen;
-        }));
-    }
+    $am = new AchievementsManager($_SESSION['user_id']);
+    $smarty->assign('achievements', $a = $am->pull_all());
+    $smarty->assign('achievements_unseen', array_filter($a, function($e) {
+        return !$e->seen;
+    }));
 }
 
 // alert messages
