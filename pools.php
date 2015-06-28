@@ -96,7 +96,11 @@ switch ($action) {
         $type = isset($_GET['type']) ? $_GET['type'] : 0;
         $smarty->assign('type', $type);
         if ($type == MA_POOLS_STATUS_FOUND_CANDIDATES) {
-            $smarty->assign('types', get_morph_pool_types());
+            $types = get_morph_pool_types();
+            uasort($types, function ($a, $b) {
+                return $a['found_samples'] < $b['found_samples'] ? 1 : -1;
+            });
+            $smarty->assign('types', $types);
             $smarty->display('qa/pools_notready.tpl');
         } else {
             $smarty->assign('pools', get_morph_pools_page($type, (int)$_GET['moder_id'], $_GET['filter']));

@@ -3,7 +3,7 @@ use strict;
 use DBI;
 use Config::INI::Reader;
 
-use constant PROCESS_TYPES_PER_RUN => 1;
+use constant PROCESS_TYPES_PER_RUN => 10;
 
 #reading config
 my $conf = Config::INI::Reader->read_file($ARGV[0]);
@@ -17,6 +17,7 @@ if ($dbh->{'AutoCommit'}) {
 }
 
 my $add = $dbh->prepare("INSERT INTO morph_annot_candidate_samples VALUES(?, ?)");
+my $del = $dbh->prepare("DELETE FROM morph_annot_candidate_samples WHERE pool_type=?");
 my $update_type = $dbh->prepare("UPDATE morph_annot_pool_types SET last_auto_search=? WHERE type_id=? LIMIT 1");
 my $find_pools = $dbh->prepare("SELECT type_id, grammemes FROM morph_annot_pool_types ORDER BY last_auto_search LIMIT " . PROCESS_TYPES_PER_RUN);
 $find_pools->execute();
@@ -29,6 +30,8 @@ $dbh->commit();
 sub process_pool {
     my $pool_type = shift;
     my @gram_strings = split /@/, shift;
+
+    $del->execute($pool_type);
 
     my @gram_sets;
     my @gramset_types;

@@ -67,7 +67,7 @@ $(document).ready(function(){
         <a href="?act=candidates&amp;pool_type={$type_id}">{$t.grammemes|htmlspecialchars}</a><br/>
         <span class='small'>{$t.gram_descr|htmlspecialchars}</span>
     </td>
-    <td>{$t.last_search|date_format:"%a %d.%m.%Y, %H:%M"}, найдено {$t.found_samples}</td>
+    <td>{if $t.last_search}{$t.last_search|date_format:"%a %d.%m.%Y, %H:%M"}, найдено {$t.found_samples}{else}никогда{/if}</td>
 </tr>
 {/foreach}
 </table><br/>
