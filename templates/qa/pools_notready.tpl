@@ -58,15 +58,24 @@ $(document).ready(function(){
 <tr class="borderless">
     <th>ID</th>
     <th>Условия<br/><form class='form-inline' id='gram-filter'><input type='text' id='gram-cond' placeholder='фильтр (regexp)' value='{if isset($smarty.get.filter)}{$smarty.get.filter|htmlspecialchars}{/if}' class='span2'/> <input type='button' value='OK' class='btn'/></form></th>
+    <th>Сложность</th>
+    <th>Инструкция</th>
     <th>Последний поиск</th>   
 </tr>
 {foreach from=$types item=t key=type_id}
-<tr>
+<tr {if $t.is_auto_mode}class='success muted'{/if}>
     <td>{$type_id}</td>
     <td>
         <a href="?act=candidates&amp;pool_type={$type_id}">{$t.grammemes|htmlspecialchars}</a><br/>
         <span class='small'>{$t.gram_descr|htmlspecialchars}</span>
     </td>
+    <td>
+        <img src="/assets/img/icon_star_{if $t.complexity == 1}green{else}gray{/if}.png"/>
+        <img src="/assets/img/icon_star_{if $t.complexity == 2}yellow{else}gray{/if}.png"/>
+        <img src="/assets/img/icon_star_{if $t.complexity == 3}orange{else}gray{/if}.png"/>
+        <img src="/assets/img/icon_star_{if $t.complexity == 4}red{else}gray{/if}.png"/>
+    </td>
+    <td>{if $t.doc_link != ''}<a href="/manual.php?pool_type={$type_id}">есть</a>{/if}</td>
     <td>{if $t.last_search}{$t.last_search|date_format:"%a %d.%m.%Y, %H:%M"}, найдено {$t.found_samples}{else}никогда{/if}</td>
 </tr>
 {/foreach}

@@ -20,7 +20,8 @@ function get_morph_pool_types() {
             'complexity' => $r['complexity'],
             'doc_link' => $r['doc_link'],
             'last_search' => $r['last_auto_search'],
-            'found_samples' => $r['found_samples']
+            'found_samples' => $r['found_samples'],
+            'is_auto_mode' => $r['complexity'] > 0 && $r['doc_link'] != ''
         );
     return $types;
 }
