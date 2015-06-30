@@ -22,6 +22,7 @@ switch ($action) {
         break;
     case 'candidates':
         $smarty->assign('data', get_pool_candidates_page($_GET['pool_type']));
+        $smarty->assign('default_size', MA_DEFAULT_POOL_SIZE);
         $smarty->display('qa/pool_candidates.tpl');
         break;
     case 'types':
@@ -64,7 +65,11 @@ switch ($action) {
         }
         break;
     case 'promote':
-        promote_samples((int)$_GET['pool_type'], $_POST['type']);
+        promote_samples((int)$_GET['pool_type'],
+                        $_POST['type'],
+                        (int)$_POST[$_POST['type']."_n"],
+                        (int)$_POST['pools_num'],
+                        $_SESSION['user_id']);
         header("Location:pools.php?type=2");
         break;
     case 'publish':

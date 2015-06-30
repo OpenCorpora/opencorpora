@@ -58,7 +58,7 @@ $(document).ready(function(){
     {/strip}</td>
     <td>{$pool.grammemes|htmlspecialchars}<br/><span class='small'>{$pool.gram_descr|htmlspecialchars}</span><br/>Оценок: {$pool.users_needed}</td>
     <td>{$pool.updated_ts|date_format:"%a %d.%m.%Y, %H:%M"}</td>
-    <td>{$pool.author_name|htmlspecialchars}</td>
+    <td>{$pool.author_name|htmlspecialchars|default:"Робот"}</td>
     {if $pool.status > $smarty.const.MA_POOLS_STATUS_ANSWERED}
         <td>{$pool.moderator_name|default:"&ndash;"}</td>
     {/if}

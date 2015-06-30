@@ -10,6 +10,7 @@
 #30 6 * * * nice /corpus/scripts/cronrunner.pl "/corpus/export/pools/export_pools.sh" 2>>/home/grand/error.log
 0 7 * * * /corpus/scripts/invalidate_auth_tokens.pl /corpus/config.ini
 5 7 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/ma_pools/populate_pools.pl /corpus/config.ini" 2>>/home/grand/error.log
+20 7 * * * php /corpus/scripts/ma_pools/autopublish.php 2>>/home/grand/error.log
 45 7 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/train_tokenizer.sh" >/dev/null 2>/dev/null
 # several times a day
 20 * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/ma_pools/unpublish_pools.py /corpus/config.ini" 2>>/home/grand/error.log

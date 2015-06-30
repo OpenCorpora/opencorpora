@@ -405,14 +405,14 @@ function delete_morph_pool($pool_id) {
     sql_pe("DELETE FROM morph_annot_pools WHERE pool_id=? LIMIT 1", array($pool_id));
     sql_commit();
 }
-function promote_samples_aux($tf_ids, $pool_type, $lastrev, $new_pool_name, &$new_pool_index) {
+function create_pool($tf_ids, $pool_type, $lastrev, $new_pool_name, &$new_pool_index, $author_id) {
     sql_begin();
     $time = time();
 
     $full_name = $new_pool_name . ' #' . ($new_pool_index++);
     sql_pe(
         "INSERT INTO morph_annot_pools VALUES (NULL, ?, ".sql_quote($full_name).", " . MA_ANNOTATORS_PER_SAMPLE . ", $time, $time, ? , 0, ".MA_POOLS_STATUS_NOT_STARTED.", $lastrev)",
-        array($pool_type, $_SESSION['user_id'])
+        array($pool_type, $author_id)
     );
     $new_pool_id = sql_insert_id();
 
@@ -424,6 +424,7 @@ function promote_samples_aux($tf_ids, $pool_type, $lastrev, $new_pool_name, &$ne
     sql_query("DELETE FROM morph_annot_candidate_samples WHERE tf_id IN (".join(',', $tf_ids).")");
 
     sql_commit();
+    return $new_pool_id;
 }
 function delete_samples_by_token_id($token_id) {
     $res = sql_pe("
@@ -459,8 +460,7 @@ function delete_sample($sample_id) {
     sql_pe("DELETE FROM morph_annot_samples WHERE sample_id=? LIMIT 1", array($sample_id));
     sql_commit();
 }
-function promote_samples($pool_type, $choice_type) {
-    $pools_num = (int)$_POST['pools_num'];
+function promote_samples($pool_type, $choice_type, $pool_size, $pools_num, $author_id) {
     if (!$pool_type || !$choice_type || !$pools_num)
         throw new UnexpectedValueException();
 
@@ -468,12 +468,10 @@ function promote_samples($pool_type, $choice_type) {
 
     switch ($choice_type) {
         case 'first':
-            $n = (int)$_POST['first_n'];
-            $cond .= " ORDER BY tf_id LIMIT " . ($n * $pools_num);
+            $cond .= " ORDER BY tf_id LIMIT " . ($pool_size * $pools_num);
             break;
         case 'random':
-            $n = (int)$_POST['random_n'];
-            $cond .= " ORDER BY RAND() LIMIT " . ($n * $pools_num);
+            $cond .= " ORDER BY RAND() LIMIT " . ($pool_size * $pools_num);
             break;
         default:
             throw new Exception();
@@ -509,19 +507,22 @@ function promote_samples($pool_type, $choice_type) {
     sql_begin();
     $res = sql_pe("SELECT tf_id FROM morph_annot_candidate_samples $cond", array($pool_type));
 
+    $created_pool_ids = array();
     $i = 0;
     $tf_array = array();
     foreach ($res as $r) {
         $tf_array[] = $r['tf_id'];
-        if (++$i % $n == 0) {
-            promote_samples_aux($tf_array, $pool_type, $lastrev, $next_pool_name, $next_pool_index);
+        if (++$i % $pool_size == 0) {
+            $new_pool_id = create_pool($tf_array, $pool_type, $lastrev, $next_pool_name, $next_pool_index, $author_id);
+            $created_pool_ids[] = $new_pool_id;
             $tf_array = array();
         }
     }
     if ($tf_array)
-        promote_samples_aux($tf_array, $pool_type, $lastrev, $next_pool_name, $next_pool_index);
+        $created_pool_ids[] = create_pool($tf_array, $pool_type, $lastrev, $next_pool_name, $next_pool_index, $author_id);
 
     sql_commit();
+    return $created_pool_ids;
 }
 function publish_pool($pool_id) {
     if (!$pool_id)
@@ -539,6 +540,31 @@ function publish_pool($pool_id) {
     }
 
     sql_pe("UPDATE morph_annot_pools SET `status`=".MA_POOLS_STATUS_IN_PROGRESS.", `updated_ts`=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
+    sql_commit();
+}
+function make_and_publish_pools() {
+    $res = sql_query("
+        SELECT pool_type, COUNT(tf_id) AS cnt
+        FROM morph_annot_candidate_samples cs
+        JOIN morph_annot_pool_types t
+            ON (cs.pool_type = t.type_id)
+        WHERE t.complexity > 0
+        AND t.doc_link != ''
+        GROUP BY pool_type
+    ");
+    sql_begin();
+    while ($r = sql_fetch_array($res)) {
+        // how many pools can we make?
+        $n_pools = floor($r['cnt'] / MA_DEFAULT_POOL_SIZE);
+        if (!$n_pools)
+            continue;
+        // create and publish pools
+        $pool_ids = promote_samples($r['pool_type'], 'first', MA_DEFAULT_POOL_SIZE, $n_pools, 0);
+        foreach ($pool_ids as $pid) {
+            echo "publishing $pid\n";
+            publish_pool($pid);
+        }
+    }
     sql_commit();
 }
 function unpublish_pool($pool_id) {
@@ -1055,3 +1081,4 @@ function get_pool_manual_page($type_id) {
     $res = sql_pe("SELECT doc_link FROM morph_annot_pool_types WHERE type_id=? LIMIT 1", array($type_id));
     return $res[0]['doc_link'];
 }
+
