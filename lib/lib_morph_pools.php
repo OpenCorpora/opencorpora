@@ -2,13 +2,14 @@
 require_once('constants.php');
 require_once('lib_annot.php');
 
-function get_morph_pool_types() {
+function get_morph_pool_types($filter=false) {
     $res = sql_query("
         SELECT type_id, grammemes, gram_descr, complexity, doc_link, last_auto_search,
             COUNT(tf_id) AS found_samples
         FROM morph_annot_pool_types t
         LEFT JOIN morph_annot_candidate_samples s
             ON (t.type_id = s.pool_type)
+        ".($filter ? "WHERE grammemes REGEXP ".sql_quote($filter) : "")."
         GROUP BY type_id
         ORDER BY grammemes
     ");

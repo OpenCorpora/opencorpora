@@ -9,6 +9,12 @@ $(document).ready(function(){
         $('#f_add').show('slow');
         event.preventDefault();
     });
+    $('#gram-filter input[type=button]').click(function() {
+        var reg = $("#gram-cond").val();
+        {/literal}
+        location.href = "?type={$type}&filter=" + encodeURIComponent(reg);
+        {literal}
+    });
 });
 </script>
 {/literal}
@@ -19,7 +25,7 @@ $(document).ready(function(){
 
 {* Type chooser *}
 <ul class="nav nav-tabs">
-<li{if $type == $smarty.const.MA_POOLS_STATUS_FOUND_CANDIDATES} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_FOUND_CANDIDATES}">поиск примеров</a></li>
+<li class="active"><a href="?type={$smarty.const.MA_POOLS_STATUS_FOUND_CANDIDATES}">поиск примеров</a></li>
 <li{if $type == $smarty.const.MA_POOLS_STATUS_NOT_STARTED} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_NOT_STARTED}">не опубликованные</a></li>
 <li{if $type == $smarty.const.MA_POOLS_STATUS_IN_PROGRESS} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_IN_PROGRESS}">опубликованные</a></li>
 <li{if $type == $smarty.const.MA_POOLS_STATUS_ANSWERED} class="active"{/if}><a href="?type={$smarty.const.MA_POOLS_STATUS_ANSWERED}">снятые с публикации</a></li>
