@@ -561,10 +561,8 @@ function make_and_publish_pools() {
             continue;
         // create and publish pools
         $pool_ids = promote_samples($r['pool_type'], 'first', MA_DEFAULT_POOL_SIZE, $n_pools, 0);
-        foreach ($pool_ids as $pid) {
-            echo "publishing $pid\n";
+        foreach ($pool_ids as $pid)
             publish_pool($pid);
-        }
     }
     sql_commit();
 }
