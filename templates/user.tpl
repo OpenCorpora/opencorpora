@@ -51,18 +51,23 @@
 {/capture}
 
 {$mine = ($user_id == $smarty.session.user_id)}
-<ul class="nav nav-tabs" id="profile-tabs">
-  <li class="active"><a href="#achievements" data-toggle="tab">{if $mine}Мои бейджи{else}Бейджи{/if}</a></li>
-  <li><a href="#stats" data-toggle="tab">{if $mine}Мои ответы{else}Ответы{/if}</a></li>
-</ul>
+{if $game_is_on == 1}
+    <ul class="nav nav-tabs" id="profile-tabs">
+      <li class="active"><a href="#achievements" data-toggle="tab">{if $mine}Мои бейджи{else}Бейджи{/if}</a></li>
+      <li><a href="#stats" data-toggle="tab">{if $mine}Мои ответы{else}Ответы{/if}</a></li>
+    </ul>
 
-<div class="tab-content">
-  <div class="tab-pane active" id="achievements">
-      {include file="achievements/user_achievements.tpl" badges=$badges user=$user}
-  </div>
-  <div class="tab-pane" id="stats">
-      {$smarty.capture.stats_table}
-  </div>
-</div>
+    <div class="tab-content">
+      <div class="tab-pane active" id="achievements">
+          {include file="achievements/user_achievements.tpl" badges=$badges user=$user}
+      </div>
+      <div class="tab-pane" id="stats">
+          {$smarty.capture.stats_table}
+      </div>
+    </div>
+{else}
+    <h2>{if $mine}Мои ответы{else}Ответы{/if}</h2>
+    {$smarty.capture.stats_table}
+{/if}
 
 {/block}

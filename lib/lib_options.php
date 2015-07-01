@@ -46,6 +46,10 @@ class UserOptionsManager {
         $opt->default_value = 0;
         $opt->caption = "Быстрый режим разметки именованных сущностей";
         $this->options[] = $opt;
+
+        $opt = new UserOption(6);
+        $opt->caption = "Включить геймификацию";
+        $this->options[] = $opt;
     }
 
     public function get_all_options($only_active=false) {

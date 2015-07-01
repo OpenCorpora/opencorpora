@@ -18,7 +18,9 @@
                     <li><a href="#">Downloads</a></li>*}
                     <li {if $active_page=="downloads"}class="active"{/if}><a href="/?page=downloads">Скачать</a></li>
                     <li {if $active_page=="about"}class="active"{/if}><a href="/?page=about">О проекте</a></li>
+                    {if $game_is_on}
                     <li {if $active_page=="achievements"}class="active"{/if}><a href="/?page=achievements">Бейджи</a></li>
+                    {/if}
                 </ul>
                 <ul class="nav pull-right">
                     <li class="dropdown">

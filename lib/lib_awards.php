@@ -1,4 +1,8 @@
 <?php
+// on/off
+function game_is_on() {
+    return !isset($_SESSION['options'][6]) || $_SESSION['options'][6] == 1;
+}
 
 // rating and level
 function update_user_rating($user_id, $pool_id, $is_skip, $previous_answer) {
