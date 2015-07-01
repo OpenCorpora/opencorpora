@@ -371,9 +371,8 @@ function sentence_save($sent_id) {
     foreach ($tokens as $tf_id=>$v) {
         list($tf_text, $base_xml) = $v;
         //substitute the last revision's xml for one from dictionary if relevant
-        // TODO why are we doing this? we have all the info already
-        if ($dict[$tf_id] == 1) {
-            $parse = new MorphParseSet(false, $tf_text);
+        if (isset($dict[$tf_id]) && $dict[$tf_id] == 1) {
+            $parse = new MorphParseSet(false, $tf_text, false, true);
             $xml = $parse->to_xml();
         } else {
             $xml = $base_xml;
