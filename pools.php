@@ -27,7 +27,7 @@ switch ($action) {
         break;
     case 'types':
         // TODO move to common listing page (type='')
-        $smarty->assign('data', get_morph_pool_types(true));
+        $smarty->assign('data', get_morph_pool_types());
         $smarty->display('qa/pool_types.tpl');
         break;
     case 'save_types':
