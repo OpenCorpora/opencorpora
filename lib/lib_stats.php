@@ -244,7 +244,7 @@ function get_user_stats($weekly=false, $team=0) {
     $res = sql_query("
         SELECT user_id, MAX(timestamp) AS last_time
         FROM morph_annot_click_log
-        WHERE timestamp > UNIX_TIMESTAMP(NOW()) - ".SEC_PER_DAY." * 60
+        WHERE timestamp > UNIX_TIMESTAMP(NOW()) - ".SEC_PER_DAY." * ".($weekly ? "30" : "60")."
         GROUP BY user_id
     ");
     while ($r = sql_fetch_array($res)) {
