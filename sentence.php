@@ -2,7 +2,7 @@
 require_once('lib/header.php');
 require_once('lib/lib_xml.php');
 require_once('lib/lib_annot.php');
-require_once('lib/lib_syntax.php');
+require_once('lib/lib_anaphora_syntax.php');
 require_once('lib/lib_dict.php');
 require_once('lib/lib_users.php');
 require_once('lib/lib_books.php');

@@ -1,6 +1,6 @@
 <?php
 require_once('lib/header.php');
-require_once('lib/lib_syntax.php');
+require_once('lib/lib_anaphora_syntax.php');
 
 if (!user_has_permission(PERM_SYNTAX)) {
     show_error($config['msg']['notadmin']);

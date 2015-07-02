@@ -5,7 +5,7 @@
 // set_include_path(".:/Users/alex/pear/share/pear:/Users/alex/Code/php/smarty/libs");
 
 require_once('lib/header.php');
-require_once('lib/lib_syntax.php');
+require_once('lib/lib_anaphora_syntax.php');
 require_once('lib/lib_users.php');
 require_once('kappa_fn.php');
 require_once('docopt.php');
