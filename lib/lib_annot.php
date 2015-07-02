@@ -80,6 +80,16 @@ class MorphParseSet {
             $this->_from_token($this->token_text, true, false);
     }
 
+    public function filter_by_parse_index($index_array) {
+        $newparses = array();
+        foreach ($this->parses as $i => $parse)
+            if (in_array($i, $index_array))
+                $newparses[] = $parse;
+        $this->parses = $newparses;
+        if (sizeof($this->parses) == 0)
+            $this->_from_token($this->token_text, true, false);
+    }
+
     public function set_lemma_text($lemma_id, $lemma_text) {
         if (!$lemma_id || !$lemma_text)
             throw new Exception();
@@ -344,6 +354,15 @@ function get_adjacent_sentence_id($sent_id, $next) {
 
     return 0;
 }
+function prepare_parse_indices($flag_array) {
+    // note: $flag_array is 1-based, return values are 0-based
+    $ret = array();
+    foreach ($flag_array as $i => $val) {
+        if ($val)
+            $ret[] = $i-1;
+    }
+    return $ret;
+}
 function sentence_save($sent_id) {
     if (!$sent_id)
         throw new UnexpectedValueException();
@@ -373,38 +392,25 @@ function sentence_save($sent_id) {
         //substitute the last revision's xml for one from dictionary if relevant
         if (isset($dict[$tf_id]) && $dict[$tf_id] == 1) {
             $parse = new MorphParseSet(false, $tf_text, false, true);
-            $xml = $parse->to_xml();
         } else {
-            $xml = $base_xml;
+            $parse = new MorphParseSet($base_xml);
         }
-        $new_xml = "<tfr t=\"".htmlspecialchars($tf_text)."\">";
-        //let's find all vars inside tf_text
-        if (preg_match_all("/<v>(.+?)<\/v>/", $xml, $matches) !== false) {
-            //flags quantity check
-            if (count($matches[1]) != count($flag[$tf_id]))
-                throw new Exception();
 
-            $empty = true;
-            foreach ($flag[$tf_id] as $k=>$f) {
-                if ($f == 1) {
-                    $empty = false;
-                    $new_xml .= '<v>'.$matches[1][$k-1].'</v>'; //attention to -1
-                }
-            }
-            //inserting UnknownPOS if no variants present
-            if ($empty) {
-                $p = new MorphParseSet(false, $tf_text, true);
-                $new_xml = $p->to_xml();
-            }
-            else
-                $new_xml .= '</tfr>';
-
-            if ($base_xml != $new_xml) {
-                //something's changed
-                array_push($all_changes, array($tf_id, $new_xml));
-            }
-        } else {
+        if (sizeof($parse->parses) == 0)
             throw new Exception();
+        // flags quantity check
+        if (sizeof($parse->parses) != sizeof($flag[$tf_id]))
+            throw new Exception();
+
+        // XXX this is bad since order of parse selection from db
+        //    is not guaranteed to be consistent
+        $parse->filter_by_parse_index(prepare_parse_indices($flag[$tf_id]));
+
+        $new_xml = $parse->to_xml();
+
+        if ($base_xml != $new_xml) {
+            //something's changed
+            array_push($all_changes, array($tf_id, $new_xml));
         }
     }
     if (count($all_changes) > 0) {
