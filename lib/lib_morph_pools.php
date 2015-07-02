@@ -487,6 +487,17 @@ function promote_samples($pool_type, $choice_type, $pool_size, $pools_num, $auth
         ORDER BY pool_id DESC
         LIMIT 1
     ", array($pool_type));
+
+    if (!sizeof($res)) {
+        //this happens when there is no pools of given type yet
+        $res = sql_pe("
+            SELECT REPLACE(gram_descr, '@', ' / ') AS pool_name, last_auto_search
+            FROM morph_annot_pool_types
+            WHERE type_id = ?
+            LIMIT 1
+        ", array($pool_type));
+    }
+
     $pool_info = $res[0];
 
     $r = sql_fetch_array(sql_query("SELECT MAX(rev_id) FROM tf_revisions LEFT JOIN rev_sets USING (set_id) WHERE `timestamp` < ".$pool_info['last_auto_search']));
