@@ -390,7 +390,8 @@ function add_morph_pool_type($post_gram, $post_descr) {
     $gram_sets_str = join('@', $gram_sets);
     $gram_descr_str = join('@', $gram_descr);
 
-    sql_pe("INSERT INTO morph_annot_pool_types VALUES (NULL, ?, ?, '', 0, 0, 0)", array($gram_sets_str, $gram_descr_str));
+    sql_pe("INSERT INTO morph_annot_pool_types (grammemes, gram_descr, doc_link, complexity, has_focus, rating_weight)
+            VALUES (?, ?, '', 0, 0, 0)", array($gram_sets_str, $gram_descr_str));
     return sql_insert_id();
 }
 function delete_morph_pool($pool_id) {
