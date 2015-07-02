@@ -457,6 +457,8 @@ function delete_samples_by_token_id($token_id) {
     if ($last_sid && !$has_answer)
         delete_sample($last_sid);
 
+    sql_pe("DELETE FROM morph_annot_candidate_samples WHERE tf_id = ?", array($token_id));
+
     sql_commit();
 }
 function delete_sample($sample_id) {
