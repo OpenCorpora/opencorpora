@@ -961,8 +961,18 @@ function update_annot_instance($id, $answer) {
     if (!$id || !$answer || !$user_id)
         throw new UnexpectedValueException();
 
+    $res = sql_pe("
+        SELECT pool_id, p.status, i.user_id, answer
+        FROM morph_annot_instances i
+        LEFT JOIN morph_annot_samples
+            USING (sample_id)
+        LEFT JOIN morph_annot_pools p
+            USING (pool_id)
+        WHERE instance_id = ?
+        LIMIT 1
+    ", array($id));
+    $r = $res[0];
     // the pool should be editable
-    $r = sql_fetch_array(sql_query("SELECT pool_id, `status` FROM morph_annot_pools WHERE pool_id = (SELECT pool_id FROM morph_annot_samples WHERE sample_id=(SELECT sample_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1) LIMIT 1)"));
     if ($r['status'] != MA_POOLS_STATUS_IN_PROGRESS)
         throw new Exception("Пул недоступен для разметки");
 
@@ -971,7 +981,6 @@ function update_annot_instance($id, $answer) {
     sql_begin();
 
     // does the instance really belong to this user?
-    $r = sql_fetch_array(sql_query("SELECT user_id, answer FROM morph_annot_instances WHERE instance_id=$id LIMIT 1"));
     $previous_answer = $r['answer'] > 0;
     if ($r['user_id'] != $user_id) {
         // if another user has taken it, no chance
