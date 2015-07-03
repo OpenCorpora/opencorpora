@@ -2,7 +2,7 @@
 {extends file='common.tpl'}
 {block name=content}
 <h1>Найденные примеры для типа {$data.id}</h1>
-<p>Некоторый пул этого типа назывался <b>{$data.pool_name}</b></p>
+<p>Пулы этого типа называются <b>{$data.pool_name}</b></p>
 <p>Показано не более 200 случайно выбранных примеров из {$data.found_samples}.</p>
 {if $is_admin}
 <form method="post" action="?act=promote&amp;pool_type={$data.id}"> 

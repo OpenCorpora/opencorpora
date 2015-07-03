@@ -342,7 +342,7 @@ function filter_sample_for_moderation($pool_type, $sample, $has_focus) {
 function get_pool_candidates_page($type_id) {
     $pool = array('id' => $type_id);
     $res = sql_pe("
-        SELECT grammemes, pool_name, COUNT(s.tf_id) as found_samples
+        SELECT grammemes, pool_proto_name, COUNT(s.tf_id) as found_samples
         FROM morph_annot_pool_types t
         LEFT JOIN morph_annot_pools p
             ON (t.type_id = p.pool_type)
@@ -353,7 +353,7 @@ function get_pool_candidates_page($type_id) {
         LIMIT 1
     ", array($type_id));
     $pool['grammemes'] = $res[0]['grammemes'];
-    $pool['pool_name'] = $res[0]['pool_name'];
+    $pool['pool_name'] = $res[0]['pool_proto_name'];
     $pool['found_samples'] = $res[0]['found_samples'];
 
     $matches = array();
