@@ -13,7 +13,7 @@ if ($action && !in_array($action, array('samples', 'candidates')) && !user_has_p
 
 switch ($action) {
     case 'add_type':
-        add_morph_pool_type($_POST['gram'], $_POST['descr']);
+        add_morph_pool_type($_POST['gram'], $_POST['descr'], $_POST['pool_name']);
         header("Location:pools.php?added&type=1");
         break;
     case 'delete':

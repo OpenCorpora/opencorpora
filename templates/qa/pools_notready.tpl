@@ -57,6 +57,7 @@ $(document).ready(function(){
         <input name="descr[]" placeholder="42" maxlength='127' type="text" class="span2"/>
         <input name="descr[]" placeholder="двойственное" maxlength='127' type="text" class="span2"/>
 </tr>
+<tr><td>Название для пулов</td><td><input type="text" placeholder="Существительное / глагол" class="span4" maxlength="120" name="pool_name"/></td></tr>
 <tr><td colspan="2"><button class="btn btn-large btn-primary">Добавить</button></tr>
 </table></form>
 {/if}
@@ -73,7 +74,8 @@ $(document).ready(function(){
     <td>{$type_id}</td>
     <td>
         <a href="?act=candidates&amp;pool_type={$type_id}">{$t.grammemes|htmlspecialchars}</a><br/>
-        <span class='small'>{$t.gram_descr|htmlspecialchars}</span>
+        <div class='small'>{$t.gram_descr|htmlspecialchars}</div>
+        <div class='small'>Имя пулов: {$t.pool_proto_name|htmlspecialchars|default:"<span class='bgpink'>не задано</span>"}</div>
     </td>
     <td>
         <img src="/assets/img/icon_star_{if $t.complexity == 1}green{else}gray{/if}.png"/>

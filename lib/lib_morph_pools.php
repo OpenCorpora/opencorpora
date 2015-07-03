@@ -4,7 +4,7 @@ require_once('lib_annot.php');
 
 function get_morph_pool_types($filter=false) {
     $res = sql_query("
-        SELECT type_id, grammemes, gram_descr, complexity, doc_link, last_auto_search,
+        SELECT type_id, grammemes, gram_descr, complexity, doc_link, last_auto_search, pool_proto_name,
             COUNT(tf_id) AS found_samples
         FROM morph_annot_pool_types t
         LEFT JOIN morph_annot_candidate_samples s
@@ -22,7 +22,8 @@ function get_morph_pool_types($filter=false) {
             'doc_link' => $r['doc_link'],
             'last_search' => $r['last_auto_search'],
             'found_samples' => $r['found_samples'],
-            'is_auto_mode' => $r['complexity'] > 0 && $r['doc_link'] != ''
+            'is_auto_mode' => $r['complexity'] > 0 && $r['doc_link'] != '',
+            'pool_proto_name' => $r['pool_proto_name']
         );
     return $types;
 }
@@ -372,7 +373,7 @@ function get_pool_candidates($type_id) {
     }
     return $out;
 }
-function add_morph_pool_type($post_gram, $post_descr) {
+function add_morph_pool_type($post_gram, $post_descr, $pool_name) {
     $gram_sets = array();
     $gram_descr = array();
     foreach ($post_gram as $i => $gr) {
@@ -384,14 +385,17 @@ function add_morph_pool_type($post_gram, $post_descr) {
         $gram_descr[] = trim($_POST['descr'][$i]);
     }
 
-    if (sizeof($gram_sets) < 2)
+    if (sizeof($gram_sets) < 2 || sizeof($gram_sets) != sizeof($gram_descr))
         throw new UnexpectedValueException();
 
     $gram_sets_str = join('@', $gram_sets);
     $gram_descr_str = join('@', $gram_descr);
 
-    sql_pe("INSERT INTO morph_annot_pool_types (grammemes, gram_descr, doc_link, complexity, has_focus, rating_weight)
-            VALUES (?, ?, '', 0, 0, 0)", array($gram_sets_str, $gram_descr_str));
+    sql_pe("
+        INSERT INTO morph_annot_pool_types
+            (grammemes, gram_descr, doc_link, complexity, has_focus, rating_weight, pool_proto_name)
+            VALUES (?, ?, '', 0, 0, 0, ?)
+    ", array($gram_sets_str, $gram_descr_str, $pool_name));
     return sql_insert_id();
 }
 function delete_morph_pool($pool_id) {
@@ -480,24 +484,14 @@ function promote_samples($pool_type, $choice_type, $pool_size, $pools_num, $auth
     }
 
     $res = sql_pe("
-        SELECT pool_name, last_auto_search
-        FROM morph_annot_pools p
-        LEFT JOIN morph_annot_pool_types t
-            ON (p.pool_type = t.type_id)
-        WHERE pool_type=?
+        SELECT pool_proto_name AS proto_name, pool_name AS last_name, last_auto_search
+        FROM morph_annot_pool_types t
+        LEFT JOIN morph_annot_pools p
+            ON (t.type_id = p.pool_type)
+        WHERE type_id=?
         ORDER BY pool_id DESC
         LIMIT 1
     ", array($pool_type));
-
-    if (!sizeof($res)) {
-        //this happens when there is no pools of given type yet
-        $res = sql_pe("
-            SELECT REPLACE(gram_descr, '@', ' / ') AS pool_name, last_auto_search
-            FROM morph_annot_pool_types
-            WHERE type_id = ?
-            LIMIT 1
-        ", array($pool_type));
-    }
 
     $pool_info = $res[0];
 
@@ -507,12 +501,15 @@ function promote_samples($pool_type, $choice_type, $pool_size, $pools_num, $auth
     $matches = array();
     $next_pool_name = '';
     $next_pool_index = '';
-    if (preg_match('/^(.+?)\s+#(\d+)/', $pool_info['pool_name'], $matches)) {
+    if (preg_match('/^(.+?)\s+#(\d+)/', $pool_info['last_name'], $matches)) {
         $next_pool_name = $matches[1];
         $next_pool_index = $matches[2] + 1;
-    } else {
-        $next_pool_name = $pool_info['pool_name'];
+    } elseif ($pool_info['last_name']) {
+        $next_pool_name = $pool_info['last_name'];
         $next_pool_index = 2;
+    } else {
+        $next_pool_name = $pool_info['proto_name'];
+        $next_pool_index = 1;
     }
 
     $time = time();
