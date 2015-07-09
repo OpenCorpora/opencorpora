@@ -36,7 +36,6 @@ def merge(dbh, id1_, id2_):
         "UPDATE sources_comments SET user_id = {} WHERE user_id = {}",
         "UPDATE sources_status SET user_id = {} WHERE user_id = {}",
         "UPDATE user_teams SET creator_id = {} WHERE creator_id = {}",
-        "UPDATE user_rating_log SET user_id = {} WHERE user_id = {}",
     ):
         dbh.execute(query.format(id1, id2))
 

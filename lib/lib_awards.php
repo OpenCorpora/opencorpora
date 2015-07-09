@@ -31,15 +31,11 @@ function update_user_rating($user_id, $pool_id, $is_skip, $previous_answer) {
     $weight = $r['rating_weight'];
 
     if ($is_skip)
-        add_user_rating($user_id, $pool_id, -$weight);
-    add_user_rating($user_id, $pool_id, $weight);
+        add_user_rating($user_id, -$weight);
+    add_user_rating($user_id, $weight);
 }
-function add_user_rating($user_id, $pool_id, $weight) {
-    sql_begin();
-
+function add_user_rating($user_id, $weight) {
     sql_query("UPDATE users SET user_rating10 = user_rating10 + $weight WHERE user_id=$user_id LIMIT 1");
-    sql_query("INSERT INTO user_rating_log VALUES($user_id, $weight, $pool_id, ".time().")");
-    sql_commit();
 }
 function get_user_rating($user_id) {
     $r = sql_fetch_array(sql_query("SELECT user_level, user_rating10 FROM users WHERE user_id=$user_id LIMIT 1"));

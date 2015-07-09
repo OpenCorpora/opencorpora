@@ -6,7 +6,6 @@ from MySQLdb.cursors import DictCursor
 
 def update_rating(dbh):
     dbh.execute("UPDATE users SET user_rating10 = 0")
-    dbh.execute("TRUNCATE TABLE user_rating_log")
 
     dbh.execute("""
         SELECT user_id, SUM(rating_weight) AS rating
