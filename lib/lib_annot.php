@@ -130,7 +130,12 @@ class MorphParseSet {
             return $arr;
 
         // so there is a 'ё'
-        $res = sql_pe("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text COLLATE 'utf8_bin' = ?", array($token));
+        $res = sql_pe("
+            SELECT lemma_id, lemma_text, grammems
+            FROM form2lemma
+            WHERE form_text COLLATE 'utf8_bin' = ?
+            ORDER BY lemma_id, grammems
+        ", array($token));
         // return if no difference
         if (sizeof($res) == sizeof($arr) || !sizeof($res))
             return $arr;
@@ -168,7 +173,12 @@ class MorphParseSet {
         if ($force_unknown) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'UNKN')));
         } elseif (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {
-            $res = sql_pe("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text=?", array($token));
+            $res = sql_pe("
+                SELECT lemma_id, lemma_text, grammems
+                FROM form2lemma
+                WHERE form_text=?
+                ORDER BY lemma_id, grammems
+            ", array($token));
             if (sizeof($res) > 0) {
                 $var = array();
                 foreach ($res as $r) {
