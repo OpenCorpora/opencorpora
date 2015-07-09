@@ -689,7 +689,7 @@ function del_link($link_id, $revset_id=0) {
     sql_commit();
 }
 function add_link($from_id, $to_id, $link_type, $revset_id=0) {
-    if (!$from_id || !$to_id || !$link_type)
+    if ($from_id <= 0 || $to_id <= 0 || !$link_type)
         throw new UnexpectedValueException();
     sql_begin();
     if (!$revset_id) $revset_id = create_revset();

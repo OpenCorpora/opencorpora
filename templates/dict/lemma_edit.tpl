@@ -173,7 +173,7 @@
     </form>
     {/strip}
     <h4>Связи</h4>
-    {if $user_permission_dict && !$editor.deleted}
+    {if $user_permission_dict && $editor.lemma_id > 0 && !$editor.deleted}
     <p><a href="#" class="pseudo" onclick="$('#add_link').show(); return false">Добавить связь</a></p>
     <form id="add_link" method='post' class='hidden-block' action='?act=add_link'>
         <input type='hidden' name='from_id' value='{$editor.lemma.id}'/>
