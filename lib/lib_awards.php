@@ -11,32 +11,6 @@ function turn_game_off($user_id) {
 }
 
 // rating and level
-function update_user_rating($user_id, $pool_id, $is_skip, $previous_answer) {
-    // increase or decrease rating depending on the answer
-    // (or do nothing)
-
-    if (($previous_answer && !$is_skip) ||
-        (!$previous_answer && $is_skip))
-        return true;
-
-    $r = sql_fetch_array(sql_query("
-        SELECT rating_weight
-        FROM morph_annot_pools p
-        JOIN morph_annot_pool_types t
-            ON (p.pool_type = t.type_id)
-        WHERE pool_id = $pool_id
-        LIMIT 1
-    "));
-
-    $weight = $r['rating_weight'];
-
-    if ($is_skip)
-        add_user_rating($user_id, -$weight);
-    add_user_rating($user_id, $weight);
-}
-function add_user_rating($user_id, $weight) {
-    sql_query("UPDATE users SET user_rating10 = user_rating10 + $weight WHERE user_id=$user_id LIMIT 1");
-}
 function get_user_rating($user_id) {
     $r = sql_fetch_array(sql_query("SELECT user_level, user_rating10 FROM users WHERE user_id=$user_id LIMIT 1"));
 

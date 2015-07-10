@@ -1001,13 +1001,11 @@ function update_annot_instance($id, $answer) {
     // a valid answer
     if ($answer > 0) {
         sql_query("UPDATE morph_annot_instances SET user_id=$user_id, answer='$answer' WHERE instance_id=$id LIMIT 1");
-        update_user_rating($user_id, $pool_id, false, $previous_answer);
     }
     // or a rejected question
     elseif ($answer == -1) {
         sql_query("INSERT INTO morph_annot_rejected_samples (SELECT sample_id, $user_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1)");
         sql_query("UPDATE morph_annot_instances SET user_id='0', ts_finish='0', answer='0' WHERE instance_id=$id LIMIT 1");
-        update_user_rating($user_id, $pool_id, true, $previous_answer);
     }
     sql_commit();
 }
