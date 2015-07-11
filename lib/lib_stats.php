@@ -209,7 +209,7 @@ function get_user_stats($weekly=false, $team=0) {
 
     $uid2sid = array();
     $res = sql_pe("
-        SELECT user_id, COUNT(*) AS cnt, FLOOR(user_rating10 / 10) AS rating
+        SELECT user_id, COUNT(*) AS cnt, user_rating10 AS rating
         FROM morph_annot_instances
         LEFT JOIN users USING(user_id)
         WHERE answer > 0
