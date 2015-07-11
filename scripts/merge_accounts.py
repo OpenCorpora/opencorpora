@@ -39,24 +39,7 @@ def merge(dbh, id1_, id2_):
     ):
         dbh.execute(query.format(id1, id2))
 
-    # update rating
-    dbh.execute("""
-        UPDATE users
-        SET user_rating10 = (
-            SELECT SUM(rating_weight)
-            FROM morph_annot_instances
-            LEFT JOIN morph_annot_samples USING(sample_id)
-            LEFT JOIN morph_annot_pools p USING(pool_id)
-            LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id)
-            WHERE user_id = {}
-            AND answer > 0
-        )
-        WHERE user_id = {} LIMIT 1
-    """.format(id1, id1))
-    dbh.execute("UPDATE users SET user_rating10 = 0 WHERE user_id = {} LIMIT 1".format(id2))
-
-
-    # user stats will autoupdate later
+    # user stats and rating will autoupdate later
     # user groups must be tweaked manually
     # user achievements EXCEPT THE DOG will autoupdate
 

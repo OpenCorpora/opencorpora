@@ -8,6 +8,7 @@ class SimplifyUserRating extends AbstractMigration
     public function up()
     {
         $this->dropTable("user_rating_log");
+        $this->table("morph_annot_pool_types")->removeColumn("rating_weight")->update();
     }
 
     public function down()
@@ -20,5 +21,8 @@ class SimplifyUserRating extends AbstractMigration
             ->addIndex(array('user_id'))
             ->addIndex(array('timestamp'))
             ->save();
+        $this->table("morph_annot_pool_types")
+             ->addColumn('rating_weight', 'integer', array('signed' => false, 'after' => 'has_focus', 'limit' => MysqlAdapter::INT_SMALL))
+             ->save();
     }
 }

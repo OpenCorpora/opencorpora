@@ -393,8 +393,8 @@ function add_morph_pool_type($post_gram, $post_descr, $pool_name) {
 
     sql_pe("
         INSERT INTO morph_annot_pool_types
-            (grammemes, gram_descr, doc_link, complexity, has_focus, rating_weight, pool_proto_name)
-            VALUES (?, ?, '', 0, 0, 0, ?)
+            (grammemes, gram_descr, doc_link, complexity, has_focus, pool_proto_name)
+            VALUES (?, ?, '', 0, 0, ?)
     ", array($gram_sets_str, $gram_descr_str, $pool_name));
     return sql_insert_id();
 }
