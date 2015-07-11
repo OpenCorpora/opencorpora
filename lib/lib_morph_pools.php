@@ -996,8 +996,6 @@ function update_annot_instance($id, $answer) {
         }
     }
 
-    include_once('lib_awards.php');
-
     // a valid answer
     if ($answer > 0) {
         sql_query("UPDATE morph_annot_instances SET user_id=$user_id, answer='$answer' WHERE instance_id=$id LIMIT 1");
