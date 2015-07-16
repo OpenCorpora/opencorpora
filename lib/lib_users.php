@@ -110,9 +110,15 @@ function remember_user($user_id, $auth_token=false, $set_cookie=true) {
     return $token;
 }
 function make_new_user($login, $passwd, $email, $shown_name) {
-    sql_pe("INSERT INTO `users` VALUES(NULL, ?, ?, ?, ?, ?, 0, 1, 1, 0, 1)",
+    sql_pe("INSERT INTO `users` VALUES(NULL, ?, ?, ?, ?, ?, 0, 1, 1, 0, 0)",
            array($login, $passwd, $email, time(), $shown_name));
-    return sql_insert_id();
+    $user_id = sql_insert_id();
+
+    // turn achievements on for odd user_ids
+    if ($user_id % 2 == 1)
+        sql_pe("UPDATE users SET show_game = 1 WHERE user_id = ? LIMIT 1", array($user_id));
+
+    return $user_id;
 }
 function user_login_openid($token) {
     $ch = curl_init();
