@@ -1628,3 +1628,11 @@ tr.valign-top td {
 .ner-entity-text {
     height: 26px;
 }
+
+.single-achievement-wrap {
+    text-align: center;
+}
+
+.single-achievement-wrap .achievement-wrap {
+    margin-top: 30px;
+}
