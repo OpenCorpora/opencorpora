@@ -40,7 +40,7 @@ class MorphParse {
     }
 
     public function to_xml() {
-        $out = '<v><l id="'.$this->lemma_id.'" t="'.$this->lemma_text.'">';
+        $out = '<v><l id="'.$this->lemma_id.'" t="'.htmlspecialchars($this->lemma_text).'">';
         foreach ($this->gramlist as $gram)
             $out .= '<g v="'.$gram['inner'].'"/>';
         $out .= '</l></v>';
