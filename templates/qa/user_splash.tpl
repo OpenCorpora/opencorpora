@@ -11,19 +11,19 @@
         {foreach $achievements_unseen as $a}
             {counter assign=id}
             <div class="{if !$single}inline-50{/if} a-wrap">
-                <div class="achievement-wrap achievement-{$a->css_class} {if !$single}achievement-small{else}achievement-medium{/if}"
+                <div class="achievement-wrap achievement-{$a->css_class} {if !$single}achievement-small{else}achievement-medium{/if} {if $a->level <= 1}bouncy{/if}"
                 data-tab-name="{$a->css_class}-tab">
                     {if $a->level}
-                        <div class="achievement-level achievement-{$a->css_class}-level">{$a->level}</div>
+                        <div class="achievement-level achievement-{$a->css_class}-level
+                        {if $a->level > 1}bouncy{/if}">{$a->level}</div>
                     {/if}
                 </div>
                 <div class="a-desc">
                     {if $a->level <= 1}
-                        Вы получили бейдж <br/>
-                        <strong>«{$titles[$a->css_class].short_title}»</strong>
+                        {$titles[$a->css_class].popup_text}
                     {else}
-                        Вы получили <strong>{$a->level}</strong> уровень бейджа <br/>
-                        <strong>«{$titles[$a->css_class].short_title}»</strong>
+                        {$randomindex=$titles.global.cheers|@array_rand}
+                        {$titles.global.cheers.$randomindex}
                     {/if}
                 </div>
             </div>
@@ -39,7 +39,7 @@
     <script>
         $('.a-modal').on('shown', function() {
             $.post("/ajax/game_mark_shown.php");
-            $(this).find('.achievement-wrap').addClass("animated bounceIn");
+            $(this).find('.bouncy').addClass("animated bounceIn");
         });
 
         $('.a-modal').modal('show');

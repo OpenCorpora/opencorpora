@@ -1436,6 +1436,7 @@ tr.valign-top td {
 
 .inline-50 {
     display: inline-block;
+    vertical-align: top;
     box-sizing: border-box;
     width: 50%;
     margin-bottom: 20px;
