@@ -109,6 +109,17 @@ function remember_user($user_id, $auth_token=false, $set_cookie=true) {
     sql_commit();
     return $token;
 }
+function make_new_user($login, $passwd, $email, $shown_name) {
+    sql_pe("INSERT INTO `users` VALUES(NULL, ?, ?, ?, ?, ?, 0, 1, 1, 0, 0)",
+           array($login, $passwd, $email, time(), $shown_name));
+    $user_id = sql_insert_id();
+
+    // turn achievements on for odd user_ids
+    if ($user_id % 2 == 1)
+        sql_pe("UPDATE users SET show_game = 1 WHERE user_id = ? LIMIT 1", array($user_id));
+
+    return $user_id;
+}
 function user_login_openid($token) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "http://loginza.ru/api/authinfo?token=$token");
@@ -123,15 +134,11 @@ function user_login_openid($token) {
     if (!$id)
         throw new Exception();
     //check if the user exists
-    $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
+    $res = sql_pe("SELECT user_id FROM `users` WHERE user_name=? LIMIT 1", array($id));
     sql_begin();
-    //if he doesn't
-    if (sql_num_rows($res) == 0) {
-        sql_query("INSERT INTO `users` VALUES(NULL, '$id', 'notagreed', '', '".time()."', '$id', 0, 1, 1, 0, 1)");
-        $res = sql_query("SELECT user_id FROM `users` WHERE user_name='$id' LIMIT 1");
-    }
-    $row = sql_fetch_array($res);
-    $user_id = $row['user_id'];
+
+    $user_id = sizeof($res) ? $res[0]['user_id'] : make_new_user($id, 'notagreed', '', $id);
+
     $alias_uid = check_for_user_alias($user_id);
     if ($alias_uid)
         $user_id = $alias_uid;
@@ -192,8 +199,7 @@ function user_register($post) {
         return 4;
     }
     sql_begin();
-    sql_pe("INSERT INTO `users` VALUES(NULL, ?, ?, ?, ?, ?, 0, 1, 1, 0, 1)", array($name, $passwd, $email, time(), $name));
-    $user_id = sql_insert_id();
+    $user_id = make_new_user($name, $passwd, $email, $name);
     if (isset($post['subscribe']) && $email) {
         //perhaps we should subscribe the user
         $ch = curl_init();
