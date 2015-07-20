@@ -740,32 +740,6 @@ function add_grammem($inner_id, $group, $outer_id, $descr) {
 function del_grammem($grm_id) {
     sql_pe("DELETE FROM `gram` WHERE `gram_id`=? LIMIT 1", array($grm_id));
 }
-function move_grammem($grm_id, $dir) {
-    if (!$grm_id || !$dir)
-        throw new UnexpectedValueException();
-    $res = sql_pe("SELECT `orderby` as `ord` FROM `gram` WHERE gram_id=?", array($grm_id));
-    $ord = $res[0]['ord'];
-    if ($dir == 'up') {
-        $q = sql_query("SELECT MAX(`orderby`) as `ord` FROM `gram` WHERE `orderby`<$ord");
-        if ($q) {
-            $r = sql_fetch_array($q);
-            $ord2 = $r['ord'];
-        }
-    } else {
-        $q = sql_query("SELECT MIN(`orderby`) as `ord` FROM `gram` WHERE `orderby`>$ord");
-        if ($q) {
-            $r = sql_fetch_array($q);
-            $ord2 = $r['ord'];
-        }
-    }
-    if (!isset($ord2))
-        return true;
-
-    sql_begin();
-    sql_query("UPDATE `gram` SET `orderby`='$ord' WHERE `orderby`=$ord2 LIMIT 1");
-    sql_pe("UPDATE `gram` SET `orderby`=? WHERE `gram_id`=? LIMIT 1", array($ord2, $grm_id));
-    sql_commit();
-}
 function edit_grammem($id, $inner_id, $outer_id, $descr) {
     if (!$id || !$inner_id)
         throw new UnexpectedValueException();

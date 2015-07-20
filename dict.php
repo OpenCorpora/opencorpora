@@ -19,10 +19,6 @@ switch ($action) {
         add_grammem($_POST['g_name'], $_POST['parent_gram'], $_POST['outer_id'], $_POST['descr']);
         header("Location:dict.php?act=gram");
         break;
-    case 'move_gram':
-        move_grammem($_GET['id'], $_GET['dir']);
-        header('Location:dict.php?act=gram#g'.$grm_id);
-        break;
     case 'del_gram':
         del_grammem($_GET['id']);
         header("Location:dict.php?act=gram");
