@@ -170,9 +170,11 @@ class MorphParseSet {
 
     private function _from_token($token, $force_unknown, $force_include_init) {
         $this->token_text = $token;
+        $cyrillic = false;
         if ($force_unknown) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'UNKN')));
         } elseif (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {
+            $cyrillic = true;
             $res = sql_pe("
                 SELECT lemma_id, lemma_text, grammems
                 FROM form2lemma
@@ -200,8 +202,6 @@ class MorphParseSet {
                     if (!$require_uc || $force_include_init || preg_match('/^[А-ЯЁ]+$/u', $token))
                         $this->parses[] = new MorphParse($r['lemma_text'], $gramlist, $r['lemma_id']);
                 }
-            } else {
-                $this->parses[] = new MorphParse(mb_strtolower($token, 'UTF-8'), array(array('inner' => 'UNKN')));
             }
         } elseif (preg_match('/^\p{P}+$/u', $token)) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'PNCT')));
@@ -209,11 +209,14 @@ class MorphParseSet {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'NUMB')));
         } elseif (preg_match('/^[\p{Latin}\.-]+$/u', $token)) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'LATN')));
-            if (preg_match('/^[IVXLCMDivxlcmd]+$/u', $token))
-                $this->parses[] = new MorphParse($token, array(array('inner' => 'ROMN')));
         }
 
+        if (preg_match('/^[IVXLCMDivxlcmdХх]+$/u', $token))
+            $this->parses[] = new MorphParse($token, array(array('inner' => 'ROMN')));
+
         if (sizeof($this->parses) == 0) {
+            if ($cyrillic)
+                $token = mb_strtolower($token, 'UTF-8');
             $this->parses[] = new MorphParse($token, array(array('inner' => 'UNKN')));
         }
 
