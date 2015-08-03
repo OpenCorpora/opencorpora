@@ -1,3 +1,4 @@
+{nocache}
 {$titles = $achievements_titles}
 {if $achievements_unseen}
     <link rel="stylesheet" href="/assets/css/animate.min.css">
@@ -49,3 +50,4 @@
         });
     </script>
 {/if}
+{/nocache}
