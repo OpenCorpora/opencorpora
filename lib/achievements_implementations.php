@@ -77,7 +77,7 @@ class BobrAchievement extends Achievement implements TaskDoneListenerInterface {
 
     public function how_to_get_next() {
         $grades = $this->grades();
-        if ($this->level == count($this->grades)) return FALSE;
+        if ($this->level == count($grades)) return FALSE;
 
         $tasks_done = $this->_tasks_done();
 
