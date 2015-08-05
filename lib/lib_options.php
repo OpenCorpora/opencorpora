@@ -35,6 +35,7 @@ class UserOptionsManager {
 
         $opt = new UserOption(3, OptionTypes::KEY_VALUE);
         $opt->values = array(1 => 5, 2 => 10, 3 => 20, 4 => 50);
+        $opt->default_value = 2;
         $opt->caption = "Количество примеров для разметки";
         $this->options[] = $opt;
 
