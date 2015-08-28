@@ -294,3 +294,19 @@ class FishAchievement extends Achievement implements JoinedTeamListenerInterface
     public $css_class = "fish";
 
 }
+
+class RabbitAchievement extends Achievement implements TaskDoneListenerInterface {
+    use AchievementWithLevels, AchievementWithQualityRestriction;
+
+    public $short_title = "Кролик";
+    public $caption = "За активность";
+    public $css_class = "rabbit";
+
+    public function dispatch($e) {
+
+    }
+
+    public function how_to_get_next() {
+        return "Я не знаю, сколько тебе осталось";
+    }
+}
