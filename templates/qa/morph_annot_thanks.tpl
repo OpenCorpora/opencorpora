@@ -14,11 +14,11 @@
 <h3>А если разметить ещё немного, то можно получить:</h3>
 <div class="achievement-well achievement-well-no-margin">
     {if $achievement->given}
+        {$htgn = $achievement->how_to_get_next()}
         <div class="achievement-wrap achievement-{$achievement->css_class} achievement-small with-static-tip"
             data-tab-name="{$achievement->css_class}-tab"
             data-placement="right" title="{$htgn}">
             <div class="achievement-level achievement-{$achievement->css_class}-level">{$achievement->level}</div>
-            {$htgn = $achievement->how_to_get_next()}
             {if $htgn}
             <div class="progress">
                 <div class="bar" style="width: {$achievement->progress}%;"></div>
