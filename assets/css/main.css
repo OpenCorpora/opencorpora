@@ -1204,6 +1204,10 @@ tr.valign-top td {
     cursor: pointer;
 }
 
+.achievement-well-no-margin .achievement-wrap {
+    margin-top: 0px;
+}
+
 /* общие классы */
 .achievement-wrap {
     display: inline-block;
@@ -1538,4 +1542,11 @@ tr.valign-top td {
 
 .t-row.t-my-level td {
     color: #a19679;
+}
+
+.tooltip-large {
+    font-size: 13px;
+}
+.tooltip-large.right {
+    margin-left: 13px;
 }
