@@ -10,4 +10,23 @@
 <li><a href="/?page=stats&weekly#user{$smarty.session.user_id}">увидеть себя в статистике разметки</a></li>
 {if $user_permission_adder}<li><a href='/sources.php'>добавить новый текст в корпус</a></li>{/if}
 </ul>
+<h3>А если разметить ещё немного, то можно получить:</h3>
+<div class="achievement-well">
+    {if $achievement->given}
+        <div class="achievement-wrap achievement-{$achievement->css_class} achievement-small"
+            data-tab-name="{$achievement->css_class}-tab">
+            <div class="achievement-level achievement-{$achievement->css_class}-level">{$achievement->level}</div>
+            {$htgn = $achievement->how_to_get_next()}
+            {if $htgn}
+            <div class="progress" data-placement="bottom" title="{$htgn}">
+                <div class="bar" style="width: {$achievement->progress}%;"></div>
+            </div>
+            {/if}
+        </div>
+    {else}
+        <div class="achievement-wrap achievement-{$achievement->css_class} achievement-small achievement-stub"
+            title="{$titles[$achievement->css_class].how_to_get}" data-placement="bottom"
+            data-tab-name="{$achievement->css_class}-tab"></div>
+    {/if}
+</div>
 {/block}

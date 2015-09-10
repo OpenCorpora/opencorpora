@@ -136,6 +136,18 @@ class AchievementsManager {
         return $this->objects;
     }
 
+    public function get_closest() {
+        $all = $this->pull_all();
+        $next = NULL;
+        foreach ($all as $a) {
+            if (!isset($a->level) || $a->progress >= 100)
+                continue;
+            if (!$next || $a->progress > $next->progress)
+                $next = $a;
+        }
+        return $next;
+    }
+
     public function pull_stats() {
         global $config;
         $res = sql_pe("
