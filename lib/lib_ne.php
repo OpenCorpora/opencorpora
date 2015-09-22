@@ -182,9 +182,8 @@ function get_ne_tokens_by_paragraph($par_id, $user_id) {
 
     foreach ($annot['entities'] as $e) {
         foreach ($e['tokens'] as $token) {
-            // one token can belong to only one entity, thus [] was omitted
-            $tokens[$token[0]]['tags'] = $e['tags'];
-            $tokens[$token[0]]['entity_id'] = $e['id'];
+            $ne = array('tags' => $e['tags'], 'entity_id' => $e['id']);
+            $tokens[$token[0]][] = $ne;
         }
     }
     return $tokens;

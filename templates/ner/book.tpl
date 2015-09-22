@@ -21,29 +21,17 @@
                     <div class="ner-paragraph-wrap {if $paragraph.disabled }ner-disabled{elseif $paragraph.mine}ner-mine{/if}" {if isset($paragraph.annotation_id)}data-annotation-id="{$paragraph.annotation_id}"{/if}>
                         <p class="ner-paragraph" data-par-id="{$paragraph.id}">
                         {foreach name=s item=sentence from=$paragraph.sentences}
-                            {foreach name=t item=token from=$sentence.tokens}{capture name="token"}<span
-
+                            {foreach name=t item=token from=$sentence.tokens}{capture name="token"}
+                                <span
                                     id="t{$token.id}"
                                     data-tid="{$token.id}"
-                                {if $paragraph.ne_by_token[$token.id]}
-                                    data-entity-id="{$paragraph.ne_by_token[$token.id].entity_id}"
-                                {/if}
-                                    class="ner-token
-                                        {if $paragraph.ne_by_token[$token.id]}
-                                            ner-entity
-                                            {if count($paragraph.ne_by_token[$token.id]['tags']) > 1}
-                                                ner-multiple-types
-                                            {else}
-                                                border-bottom-palette-{$paragraph.ne_by_token[$token.id]['tags'][0][0] * $colorStep}
-                                            {/if}
-                                        {/if}"
-
-                                >{$token.text|htmlspecialchars} </span>{/capture}{$smarty.capture.token|strip:" "}{/foreach}
-
+                                    class="ner-token">
+                                    <span class="ner-token-text">{$token.text|htmlspecialchars}</span>
+                                    <span class="ner-token-borders"></span>
+                                </span>{/capture}{$smarty.capture.token|strip:" "}{/foreach}
                         {/foreach}
                         </p>
                         <div class="ner-paragraph-controls">
-                            <!--button class="btn btn-primary ner-btn-start" data-par-id="{$paragraph.id}">Я буду размечать</button-->
                             <button class="btn btn-success ner-btn-finish pull-right" data-par-id="{$paragraph.id}">Сохранить</button>
                         </div>
                         <div class="clearfix"></div>
@@ -86,6 +74,9 @@
                 </div>
             </div>
         {/foreach}
+        <script type="text/javascript">
+            var PARAGRAPHS = {$book.paragraphs|json_encode};
+        </script>
     {else}
         <div class="row">
             <p>В тексте нет ни одного предложения.</p>
@@ -143,7 +134,7 @@
     <script src="/assets/js/bootstrap.select.min.js"></script>
     <script src="/assets/js/rangy-core.js"></script>
     <script src="/assets/js/mousetrap.min.js"></script>
-    <script src="/assets/js/ner.js"></script>
+    <script src="/assets/js/ner.js?1"></script>
     <script src="/assets/js/ne_comments.js"></script>
 {/literal}
 {/block}
