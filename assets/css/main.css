@@ -929,8 +929,8 @@ button.ma_next_pack {
 
 /* NER module */
 .ner-paragraph {
-    font-size: 16px;
-    line-height: 24px;
+    font-size: 0; /* to remove extra spaces */
+    line-height: 37px;
 }
 
 /* абзац можно размечать - по умолчанию */
@@ -978,7 +978,38 @@ button.ma_next_pack {
 .ner-token {
     padding: 3px;
     display: inline-block;
+    position: relative;
     cursor: pointer;
+}
+
+.ner-token-text {
+    font-size: 16px;
+}
+
+.ner-token-borders {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 32px;
+    bottom: -7px;
+    left: 0px;
+}
+
+.ner-token-border {
+    display: block;
+    position: absolute;
+    width: 100%;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    height: 5px;
+}
+
+.ner-token-border.first-token {
+    border-bottom-left-radius: 10px;
+}
+
+.ner-token-border.last-token {
+    border-bottom-right-radius: 10px;
 }
 
 .ner-token.ner-token-selected {
@@ -992,7 +1023,7 @@ button.ma_next_pack {
     padding-bottom: 0px;
 }
 
-.ner-entity.ner-multiple-types {
+.ner-entity.ner-multiple-types, .ner-token-border.ner-multiple-types {
     border-bottom-color: darkgray;
 }
 

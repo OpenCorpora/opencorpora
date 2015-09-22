@@ -98,7 +98,7 @@ var paragraph__textSelectionHandler = function(e) {
     }
 
     var nodes = range.getNodes();
-    var spans = (nodes.length == 1) ? $(nodes[0].parentElement) : $(nodes).filter('span');
+    var spans = (nodes.length == 1) ? $(nodes[0].parentElement) : $(nodes).filter('span.ner-token');
     if (!spans.hasClass('ner-entity')) {
         spans.addClass('ner-token-selected');
         var offset = spans.last().offset();
@@ -133,6 +133,46 @@ var token__clickHandler = function(e) {
         showTypeSelector(X, Y);
     }
 };
+
+function highlightEntitiesInParagraph(data, $paragraph_node) {
+  for (i in data.named_entities) {
+    var entity = data.named_entities[i];
+    var type = (entity.tags.length > 1 ? 'ner-multiple-types' : 'border-bottom-palette-' + entity.tags[0][0] * colorStep);
+
+    drawBorder(entity.tokens, type, entity.id);
+  }
+}
+
+function drawBorder(tokens, typestr, entityid) {
+  var $tokens = $();
+  for (i in tokens) {
+    if (typeof tokens[i] == "object")
+      $tokens = $tokens.add($('.ner-token').filterByAttr('data-tid', tokens[i][0]));
+    else
+      $tokens = $tokens.add($('.ner-token').filterByAttr('data-tid', tokens[i]));
+  }
+
+  var offset_for_border = 0;
+  $tokens.each(function() {
+    var highest_border_top = 0;
+    $(this).find('.ner-token-border').each(function() {
+      highest_border_top = Math.max(parseInt($(this).css('top')), highest_border_top);
+    });
+    offset_for_border =
+      Math.max(highest_border_top, offset_for_border);
+  });
+
+  $bd = $('<span>').addClass('ner-token-border').addClass(typestr).attr('data-entity-id', entityid);
+  $bd.css('top', offset_for_border + 5);
+
+  var last = $tokens.length - 1;
+  $tokens.each(function(index) {
+    var $bdc = $bd.clone();
+    if (index == 0) $bdc.addClass("first-token");
+    if (index == last) $bdc.addClass("last-token");
+    $(this).find('.ner-token-borders').append($bdc);
+  });
+}
 
 $(document).ready(function() {
     $.fn.mapGetter = function(prop) {
@@ -193,6 +233,11 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
+
+    for (i in PARAGRAPHS) {
+      highlightEntitiesInParagraph(PARAGRAPHS[i],
+        $('.ner-paragraph').filterByAttr('data-par-id', PARAGRAPHS[i].id));
+    }
 
     $('.selectpicker').selectpicker();
 
@@ -293,12 +338,12 @@ $(document).ready(function() {
         var entityId = $(this).parents('tr').attr('data-entity-id');
 
         if ($(this).val().length > 1) {
-            $('.ner-entity').filterByAttr('data-entity-id', entityId)
+            $('.ner-token-border').filterByAttr('data-entity-id', entityId)
                 .removeClassRegex(/border-bottom-palette-\d/)
                 .addClass('ner-multiple-types');
         }
         else {
-            $('.ner-entity').filterByAttr('data-entity-id', entityId)
+            $('.ner-token-border').filterByAttr('data-entity-id', entityId)
                 .removeClass('ner-multiple-types')
             .removeClassRegex(/border-bottom-palette-\d/)
                 .addClass('border-bottom-palette-' + $(this).val()[0] * colorStep);
@@ -326,9 +371,8 @@ $(document).ready(function() {
                 },
                 function(response) {
                     notify("Сущность удалена.");
-                    $('.ner-entity').filterByAttr('data-entity-id', entityId)
-                        .removeAttr('data-entity-id')
-                        .removeClass('ner-entity ner-multiple-types border-bottom-palette-*');
+                    $('.ner-token-border').filterByAttr('data-entity-id', entityId)
+                        .remove();
                     tr.remove();
             });
         }
@@ -349,13 +393,14 @@ $(document).ready(function() {
         }, function(response) {
             var t = $('table').filterByAttr('data-par-id', paragraph.attr('data-par-id'));
 
-            selected.addClass('ner-entity').attr('data-entity-id', response.id);
-
+            var typestr;
             if (typesIds.length == 1) {
-                selected.addClass('border-bottom-palette-' + typesIds[0] * colorStep);
+                typestr = 'border-bottom-palette-' + typesIds[0] * colorStep;
             } else {
-                selected.addClass('ner-multiple-types');
+                typestr = 'ner-multiple-types';
             }
+
+            drawBorder(selectedIds, typestr, response.id);
 
             var tr = $('.templates').find('.tr-template').clone().removeClass('tr-template');
             tr.add(tr.find('.remove-entity')).add(tr.find('.selectpicker-tpl')).attr('data-entity-id', response.id);
