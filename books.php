@@ -57,11 +57,14 @@ elseif  (/*user_has_permission(PERM_SYNTAX) && */is_logged() && $action == 'ner'
             $paragraph['ne_by_token'] = get_ne_tokens_by_paragraph($paragraph['id'], $_SESSION['user_id']);
             $paragraph['comments'] = get_comments_by_paragraph($paragraph['id'], $_SESSION['user_id']);
 
+            $paragraph['mine'] = false;
             if (in_array($paragraph['id'], $paragraphs_status['unavailable']) or
-                in_array($paragraph['id'], $paragraphs_status['done_by_user']))
+                in_array($paragraph['id'], $paragraphs_status['done_by_user'])) {
                 $paragraph['disabled'] = true;
-            elseif (in_array($paragraph['id'], $paragraphs_status['started_by_user']))
+            }
+            elseif (in_array($paragraph['id'], $paragraphs_status['started_by_user'])) {
                 $paragraph['mine'] = true;
+            }
         }
 
         $smarty->assign('book', $book);
