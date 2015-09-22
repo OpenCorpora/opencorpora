@@ -52,8 +52,8 @@ elseif  (/*user_has_permission(PERM_SYNTAX) && */is_logged() && $action == 'ner'
 
         foreach ($book['paragraphs'] as &$paragraph) {
             $ne = get_ne_by_paragraph($paragraph['id'], $_SESSION['user_id']);
-            $paragraph['named_entities'] = $ne['entities'];
-            $paragraph['annotation_id'] = $ne['annot_id'];
+            $paragraph['named_entities'] = isset($ne['entities']) ? $ne['entities'] : array();
+            $paragraph['annotation_id'] = isset($ne['annot_id']) ? $ne['annot_id'] : array();
             $paragraph['ne_by_token'] = get_ne_tokens_by_paragraph($paragraph['id'], $_SESSION['user_id']);
             $paragraph['comments'] = get_comments_by_paragraph($paragraph['id'], $_SESSION['user_id']);
 
