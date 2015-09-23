@@ -11,6 +11,7 @@
     {if $user_permission_adder}<li><a href='/sources.php'>добавить новый текст в корпус</a></li>{/if}
     </ul>
 </p>
+{if $game_is_on == 1}
 <h3>А если разметить ещё немного, то можно получить:</h3>
 <div class="achievement-well achievement-well-no-margin">
     {if $achievement->given}
@@ -41,4 +42,5 @@
     {/literal}
     </script>
 </div>
+{/if}
 {/block}

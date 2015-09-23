@@ -41,8 +41,10 @@ switch ($action) {
         } else {
             $smarty->assign('next_pool_id', get_next_pool($_SESSION['user_id'], (int)$_GET['pool_id']));
             $smarty->assign('final', true);
-            $am2 = new AchievementsManager($_SESSION['user_id']);
-            $smarty->assign('achievement', $am2->get_closest());
+            if (game_is_on()) {
+                $am2 = new AchievementsManager($_SESSION['user_id']);
+                $smarty->assign('achievement', $am2->get_closest());
+            }
             $smarty->display('qa/morph_annot_thanks.tpl');
         }
         break;
