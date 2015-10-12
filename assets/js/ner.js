@@ -98,15 +98,13 @@ var paragraph__textSelectionHandler = function(e) {
     }
 
     var nodes = range.getNodes();
-    var spans = (nodes.length == 1) ? $(nodes[0].parentElement) : $(nodes).filter('span.ner-token');
-    if (!spans.hasClass('ner-entity')) {
-        spans.addClass('ner-token-selected');
-        var offset = spans.last().offset();
-        var X = offset.left + $(spans.last()).width() / 2;
-        var Y = offset.top;
-        showTypeSelector(X, Y);
-        log_event("selection", "text selection in paragraph", $(e.target).parents('.ner-paragraph').attr('data-par-id'), spans.text());
-    }
+    var spans = (nodes.length == 1) ? $(nodes[0]).parents('.ner-token') : $(nodes).filter('span.ner-token');
+    spans.addClass('ner-token-selected');
+    var offset = spans.last().offset();
+    var X = offset.left + $(spans.last()).width() / 2;
+    var Y = offset.top;
+    showTypeSelector(X, Y);
+    log_event("selection", "text selection in paragraph", $(e.target).parents('.ner-paragraph').attr('data-par-id'), spans.text());
     sel.removeAllRanges();
 };
 
@@ -135,8 +133,12 @@ var token__clickHandler = function(e) {
 };
 
 function highlightEntitiesInParagraph(data, $paragraph_node) {
-  for (i in data.named_entities) {
-    var entity = data.named_entities[i];
+  $paragraph_node.find('.ner-token-border').remove();
+  var entities = data.named_entities.sort(function(a, b) {
+    return a.tokens.length - b.tokens.length;
+  });
+  for (i in entities) {
+    var entity = entities[i];
     var type = (entity.tags.length > 1 ? 'ner-multiple-types' : 'border-bottom-palette-' + entity.tags[0][0] * colorStep);
 
     drawBorder(entity.tokens, type, entity.id);
@@ -400,7 +402,15 @@ $(document).ready(function() {
                 typestr = 'ner-multiple-types';
             }
 
-            drawBorder(selectedIds, typestr, response.id);
+            $.each(PARAGRAPHS, function(i, par) {
+              if (par.id != paragraph.attr('data-par-id')) return;
+              PARAGRAPHS[i].named_entities.push({
+                tokens: selectedIds,
+                tags: $.map(typesIds, function(n) { return [n]; }),
+                id: response.id
+              });
+              highlightEntitiesInParagraph(PARAGRAPHS[i], paragraph);
+            });
 
             var tr = $('.templates').find('.tr-template').clone().removeClass('tr-template');
             tr.add(tr.find('.remove-entity')).add(tr.find('.selectpicker-tpl')).attr('data-entity-id', response.id);
