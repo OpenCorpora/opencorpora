@@ -380,6 +380,20 @@ $(document).ready(function() {
         }
     });
 
+    $('.ner-table-wrap').on('mouseenter', 'tr',
+      function() { // hover in
+        var tokens = $('.ner-token-border').filterByAttr('data-entity-id', $(this).attr('data-entity-id'))
+          .parents('.ner-token');
+        tokens.addClass('ner-token-highlighted');
+    });
+
+    $('.ner-table-wrap').on('mouseleave', 'tr',
+      function() { // hover out
+        var tokens = $('.ner-token-border').filterByAttr('data-entity-id', $(this).attr('data-entity-id'))
+          .parents('.ner-token');
+        tokens.removeClass('ner-token-highlighted');
+    });
+
     $('.type-selector > .btn').click(function() {
         var selected = $('.ner-token-selected');
         var paragraph = selected.parents('.ner-paragraph');

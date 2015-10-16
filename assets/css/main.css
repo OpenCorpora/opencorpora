@@ -982,6 +982,10 @@ button.ma_next_pack {
     cursor: pointer;
 }
 
+.ner-token-highlighted {
+    background-color: white;
+}
+
 .ner-token-text {
     font-size: 16px;
 }

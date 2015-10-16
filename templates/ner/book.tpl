@@ -134,7 +134,7 @@
     <script src="/assets/js/bootstrap.select.min.js"></script>
     <script src="/assets/js/rangy-core.js"></script>
     <script src="/assets/js/mousetrap.min.js"></script>
-    <script src="/assets/js/ner.js?2"></script>
+    <script src="/assets/js/ner.js?3"></script>
     <script src="/assets/js/ne_comments.js"></script>
 {/literal}
 {/block}
