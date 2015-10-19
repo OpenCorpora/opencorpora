@@ -164,6 +164,19 @@ function get_ne_by_paragraph($par_id, $user_id) {
     return $out;
 }
 
+function get_all_ne_by_sentence($sent_id) {
+    return sql_pe("
+        SELECT entity_id, start_token, length
+        FROM ne_entities
+        WHERE start_token IN (
+            SELECT tf_id
+            FROM tokens
+            WHERE sent_id = ?
+        )
+        LIMIT 1
+    ", array($sent_id));
+}
+
 function get_ne_tokens_by_paragraph($par_id, $user_id) {
     $annot = get_ne_by_paragraph($par_id, $user_id);
     $tokens = array();

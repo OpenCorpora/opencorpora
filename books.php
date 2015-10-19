@@ -1,8 +1,8 @@
 <?php
 require('lib/header.php');
-require('lib/lib_books.php');
-require('lib/lib_anaphora_syntax.php');
-require('lib/lib_ne.php');
+require_once('lib/lib_books.php');
+require_once('lib/lib_anaphora_syntax.php');
+require_once('lib/lib_ne.php');
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 if (!$action) {
