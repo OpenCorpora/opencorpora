@@ -14,7 +14,7 @@ if (!$action) {
         $smarty->display('books.tpl');
     }
 }
-elseif (is_admin()) {
+elseif (is_admin() && in_array($action, array('del_sentence', 'move'))) {
     switch ($action) {
         case 'del_sentence':
             delete_sentence($_GET['sid']);
