@@ -34,7 +34,20 @@ function get_book_parents($book_id, $include_self=false) {
 }
 function check_book_hidden($book_id) {
     global $config;
-    if ($book_id >= $config['misc']['hidden_books_start_id'])
+    // hide books when 24 hours passed after last edit
+    $res = sql_pe("
+        SELECT MAX(timestamp) AS ts
+        FROM tokens
+        LEFT JOIN sentences USING (sent_id)
+        LEFT JOIN paragraphs USING (par_id)
+        LEFT JOIN tf_revisions USING (tf_id)
+        LEFT JOIN rev_sets USING (set_id)
+        WHERE book_id = ?
+    ", array($book_id));
+    if (!$res[0]['ts'])
+        return;
+    $last_edit = $res[0]['ts'];
+    if (!is_admin() && $book_id >= $config['misc']['hidden_books_start_id'] && (time() - $last_edit > SEC_PER_DAY))
         throw new Exception("Sorry, this book is temporarily hidden");
 }
 function get_book_page($book_id, $full = false) {
