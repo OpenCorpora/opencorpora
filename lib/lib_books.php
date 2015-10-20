@@ -32,7 +32,13 @@ function get_book_parents($book_id, $include_self=false) {
     }
     return $parents;
 }
+function check_book_hidden($book_id) {
+    global $config;
+    if ($book_id >= $config['misc']['hidden_books_start_id'])
+        throw new Exception("Sorry, this book is temporarily hidden");
+}
 function get_book_page($book_id, $full = false) {
+    check_book_hidden($book_id);
     $res = sql_pe("SELECT * FROM `books` WHERE `book_id`=? LIMIT 1", array($book_id));
     if (!sizeof($res))
         throw new UnexpectedValueException();
@@ -136,9 +142,10 @@ function books_rename($book_id, $name) {
     sql_pe("UPDATE `books` SET book_name=? WHERE book_id=? LIMIT 1", array($name, $book_id));
 }
 function get_books_for_select($parent = -1) {
+    global $config;
     $out = array();
-    $pg = $parent > -1 ? "WHERE `parent_id`=$parent " : '';
-    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` ".$pg."ORDER BY `book_name`", 0);
+    $pg = $parent > -1 ? "AND `parent_id`=$parent " : '';
+    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` WHERE book_id < ".$config['hidden_books_start_id']."  ".$pg."ORDER BY `book_name`", 0);
     while ($r = sql_fetch_array($res)) {
         $out["$r[book_id]"] = $r['book_name'];
     }

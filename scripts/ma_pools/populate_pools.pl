@@ -7,6 +7,7 @@ use constant PROCESS_TYPES_PER_RUN => 10;
 
 #reading config
 my $conf = Config::INI::Reader->read_file($ARGV[0]);
+my $HIDDEN_BOOK = $conf->{misc}->{'hidden_books_start_id'};
 $conf = $conf->{mysql};
 
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
@@ -70,7 +71,9 @@ sub process_pool {
         SELECT tfr.tf_id, tfr.rev_id, tfr.rev_text
         FROM tf_revisions tfr
         LEFT JOIN morph_annot_samples s USING (tf_id)
+        LEFT JOIN tokens USING (tf_id)
         WHERE is_last = 1
+        AND book_id < $HIDDEN_BOOK
         AND s.sample_id IS NULL
         AND (".join(' OR ', @q).")
     ";
@@ -88,7 +91,9 @@ sub process_pool {
         RIGHT JOIN morph_annot_samples s USING (tf_id)
         LEFT JOIN morph_annot_moderated_samples ms USING (sample_id)
         LEFT JOIN morph_annot_pools p USING (pool_id)
+        LEFT JOIN tokens USING (tf_id)
         WHERE is_last = 1
+        AND book_id < $HIDDEN_BOOK
         AND (".join(' OR ', @q).")
         ORDER BY tfr.tf_id
     ";

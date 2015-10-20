@@ -1,4 +1,5 @@
 <?php
+require_once('lib_books.php');
 
 class MorphParse {
     public $lemma_id = 0;
@@ -226,6 +227,7 @@ class MorphParseSet {
 }
 
 function get_sentence($sent_id) {
+    global $config;
     $r = sql_fetch_array(sql_query("SELECT `check_status`, source FROM sentences WHERE sent_id=$sent_id LIMIT 1"));
     $out = array(
         'id' => $sent_id,
@@ -253,6 +255,7 @@ function get_sentence($sent_id) {
         )
     "));
     $out['book_id'] = $book_id = $r['book_id'];
+    check_book_hidden($book_id);
     $out['syntax_moder_id'] = $r['old_syntax_moder_id'];
     $r = sql_fetch_array(sql_query("
         SELECT book_name
