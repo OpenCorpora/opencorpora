@@ -14,9 +14,17 @@ if (!$action) {
         $smarty->display('books.tpl');
     }
 }
-elseif (is_admin() && $action == 'del_sentence') {
-    delete_sentence($_GET['sid']);
-    header("Location:books.php?book_id=".$_GET['book_id'].'&full');
+elseif (is_admin()) {
+    switch ($action) {
+        case 'del_sentence':
+            delete_sentence($_GET['sid']);
+            header("Location:books.php?book_id=".$_GET['book_id'].'&full');
+            break;
+        case 'move':
+            books_move($_POST['book_id'], $_POST['book_to']);
+            header("Location:books.php?book_id=$book_to");
+            break;
+    }
 }
 elseif (user_has_permission(PERM_SYNTAX) && $action == 'anaphora') {
     if (isset($_GET['book_id']) && $book_id = $_GET['book_id']) {
@@ -91,10 +99,6 @@ elseif (user_has_permission(PERM_ADDER)) {
             $book_id = $_POST['book_id'];
             books_rename($book_id, $name);
             header("Location:books.php?book_id=$book_id");
-            break;
-        case 'move':
-            books_move($_POST['book_id'], $_POST['book_to']);
-            header("Location:books.php?book_id=$book_to");
             break;
         case 'add_tag':
             $book_id = $_POST['book_id'];
