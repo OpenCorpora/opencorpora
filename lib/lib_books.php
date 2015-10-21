@@ -155,10 +155,9 @@ function books_rename($book_id, $name) {
     sql_pe("UPDATE `books` SET book_name=? WHERE book_id=? LIMIT 1", array($name, $book_id));
 }
 function get_books_for_select($parent = -1) {
-    global $config;
     $out = array();
-    $pg = $parent > -1 ? "AND `parent_id`=$parent " : '';
-    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` WHERE book_id < ".$config['misc']['hidden_books_start_id']."  ".$pg."ORDER BY `book_name`", 0);
+    $pg = $parent > -1 ? "WHERE `parent_id`=$parent" : '';
+    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` ".$pg." ORDER BY `book_name`", 0);
     while ($r = sql_fetch_array($res)) {
         $out["$r[book_id]"] = $r['book_name'];
     }
