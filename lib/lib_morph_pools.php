@@ -916,12 +916,17 @@ function get_annotation_packet($pool_id, $size) {
     while ($r = sql_fetch_array($res)) {
         $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) AND rev_id <= $pool_revision ORDER BY rev_id DESC LIMIT 1"));
         $instance = get_context_for_word($r1['tf_id'], $config['misc']['morph_annot_user_context_size']);
-        $pset = new MorphParseSet($r1['rev_text']);
-        $lemmata = array();
-        foreach ($pset->parses as $p) {
-            $lemmata[] = $p->lemma_text;
+        try {
+            $pset = new MorphParseSet($r1['rev_text']);
+            $lemmata = array();
+            foreach ($pset->parses as $p) {
+                $lemmata[] = $p->lemma_text;
+            }
+            $instance['lemmata'] = implode(', ', array_unique($lemmata));
         }
-        $instance['lemmata'] = implode(', ', array_unique($lemmata));
+        catch (Exception $e) {
+            // some old revisions may be broken, no big deal
+        }
         $instance['id'] = $r['instance_id'];
         $instance['sample_id'] = $r['sample_id'];
         $packet['instances'][] = $instance;
