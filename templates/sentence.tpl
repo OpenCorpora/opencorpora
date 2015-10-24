@@ -50,7 +50,7 @@
 
             $("div.tf").dblclick(function(){
                 var $this = $(this);
-                var token_text = $this.html();
+                var token_text = $this.find('span').html();
                 var tid = $this.closest('td').data('tid');
                 $(this).html('<form class="inline" method="post" action="?act=save_token_src&amp;id={$sentence.id}"><input name="token_id" type="hidden" value="' + tid + '"/><input name="src_text" value="' + token_text + '" class="span2"/><button class="btn btn-success btn-small"><i class="icon-ok"></i></button></form>');
             });
@@ -133,7 +133,7 @@
         {foreach item=token from=$sentence.tokens}
             <td id="var_{$token.tf_id}" data-tid="{$token.tf_id}">
                 <div class="tf">
-                    {$token.tf_text|htmlspecialchars}
+                    <span>{$token.tf_text|htmlspecialchars}</span>
                     <a href="#" class="reload" title="Разобрать заново из словаря"><i class="icon-refresh bggreen"></i></a>
                 </div>
                 {foreach key=num item=variant from=$token.variants}
