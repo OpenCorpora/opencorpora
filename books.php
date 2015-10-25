@@ -14,10 +14,14 @@ if (!$action) {
         $smarty->display('books.tpl');
     }
 }
-elseif (is_admin() && in_array($action, array('del_sentence', 'move'))) {
+elseif (is_admin() && in_array($action, array('del_sentence', 'del_paragraph', 'move'))) {
     switch ($action) {
         case 'del_sentence':
             delete_sentence($_GET['sid']);
+            header("Location:books.php?book_id=".$_GET['book_id'].'&full');
+            break;
+        case 'del_paragraph':
+            delete_paragraph($_GET['pid']);
             header("Location:books.php?book_id=".$_GET['book_id'].'&full');
             break;
         case 'move':

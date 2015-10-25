@@ -471,6 +471,13 @@ function delete_sentence($sid) {
         sql_query("DELETE FROM paragraphs WHERE par_id=$par_id LIMIT 1");
     sql_commit();
 }
+function delete_paragraph($pid) {
+    $res = sql_pe("SELECT sent_id FROM sentences WHERE par_id=?", array($pid));
+    sql_begin();
+    foreach ($res as $sent)
+        delete_sentence($sent['sent_id']);
+    sql_commit();
+}
 function save_token_text($tf_id, $tf_text) {
     $tf_text = trim($tf_text);
     if (!$tf_id || !$tf_text)
