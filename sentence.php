@@ -32,13 +32,6 @@ switch ($action) {
         } else
             show_error($config['msg']['notadmin']);
         break;
-    case 'save_token_src':
-        if (is_admin()) {
-            save_token_text($_POST['token_id'], $_POST['src_text']);
-            header("Location:sentence.php?id=$id");
-        } else
-            show_error($config['msg']['notadmin']);
-        break;
     default:
         $smarty->assign('sentence', $sentence = get_sentence($id));
         if ($mode == 'syntax') {

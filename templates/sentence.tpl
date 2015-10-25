@@ -52,7 +52,19 @@
                 var $this = $(this);
                 var token_text = $this.find('span').html();
                 var tid = $this.closest('td').data('tid');
-                $(this).html('<form class="inline" method="post" action="?act=save_token_src&amp;id={$sentence.id}"><input name="token_id" type="hidden" value="' + tid + '"/><input name="src_text" value="' + token_text + '" class="span2"/><button class="btn btn-success btn-small"><i class="icon-ok"></i></button></form>');
+
+                $this.find(".btn-save-token").show().click(function() {
+                    $.post('/ajax/set_token_text.php', {
+                        token_id: tid,
+                        token_text: $this.find('input#token-src-text').val()
+                    },
+                    function(response) {
+                        if (response.error) return notify('Произошла ошибка при сохранении.', 'error');
+                        else window.location.reload();
+                    });
+                });
+
+                $(this).find('span').replaceWith('<input id="token-src-text" value="' + token_text + '" class="span2"/>');
             });
 
             $("#btn_show_src_edit").click(function(){
@@ -134,6 +146,7 @@
             <td id="var_{$token.tf_id}" data-tid="{$token.tf_id}">
                 <div class="tf">
                     <span>{$token.tf_text|htmlspecialchars}</span>
+                    <button class="btn btn-success btn-small btn-save-token" style="display: none"><i class="icon-ok"></i></button>
                     <a href="#" class="reload" title="Разобрать заново из словаря"><i class="icon-refresh bggreen"></i></a>
                 </div>
                 {foreach key=num item=variant from=$token.variants}
