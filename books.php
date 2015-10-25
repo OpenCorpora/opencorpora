@@ -59,15 +59,17 @@ elseif (user_has_permission(PERM_SYNTAX) && $action == 'anaphora') {
 elseif  (/*user_has_permission(PERM_SYNTAX) && */is_logged() && $action == 'ner') {
     if (isset($_GET['book_id']) && $book_id = $_GET['book_id']) {
 
+        $tagset_id = 1; // TODO switch
+
         $book = get_book_page($book_id, TRUE);
-        $paragraphs_status = get_ne_paragraph_status($book_id, $_SESSION['user_id']);
+        $paragraphs_status = get_ne_paragraph_status($book_id, $_SESSION['user_id'], $tagset_id);
 
         foreach ($book['paragraphs'] as &$paragraph) {
-            $ne = get_ne_by_paragraph($paragraph['id'], $_SESSION['user_id']);
+            $ne = get_ne_by_paragraph($paragraph['id'], $_SESSION['user_id'], $tagset_id);
             $paragraph['named_entities'] = isset($ne['entities']) ? $ne['entities'] : array();
             $paragraph['annotation_id'] = isset($ne['annot_id']) ? $ne['annot_id'] : array();
-            $paragraph['ne_by_token'] = get_ne_tokens_by_paragraph($paragraph['id'], $_SESSION['user_id']);
-            $paragraph['comments'] = get_comments_by_paragraph($paragraph['id'], $_SESSION['user_id']);
+            $paragraph['ne_by_token'] = get_ne_tokens_by_paragraph($paragraph['id'], $_SESSION['user_id'], $tagset_id);
+            $paragraph['comments'] = get_comments_by_paragraph($paragraph['id'], $_SESSION['user_id'], $tagset_id);
 
             $paragraph['mine'] = false;
             if (in_array($paragraph['id'], $paragraphs_status['unavailable']) or
@@ -80,7 +82,7 @@ elseif  (/*user_has_permission(PERM_SYNTAX) && */is_logged() && $action == 'ner'
         }
 
         $smarty->assign('book', $book);
-        $smarty->assign('types', get_ne_types());
+        $smarty->assign('types', get_ne_types($tagset_id));
         $smarty->assign('use_fast_mode', $_SESSION['options'][5]);
         $smarty->display('ner/book.tpl');
     } else {
