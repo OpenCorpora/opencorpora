@@ -1,8 +1,8 @@
 <?php
 require_once('constants.php');
 
-function get_books_with_ne() {
-    $res = sql_query("
+function get_books_with_ne($tagset_id) {
+    $res = sql_pe("
         SELECT book_id, book_name, par_id, status, user_id
         FROM books
         LEFT JOIN paragraphs
@@ -10,8 +10,9 @@ function get_books_with_ne() {
         LEFT JOIN ne_paragraphs
             USING (par_id)
         WHERE ne_on = 1
+        AND tagset_id = ?
         ORDER BY book_id, par_id
-    ");
+    ", array($tagset_id));
     $out = array();
     $book = array(
         'num_par' => 0,
@@ -23,7 +24,7 @@ function get_books_with_ne() {
     $last_par_id = 0;
     $finished_annot = 0;
     $finished_by_me = 0;
-    while ($r = sql_fetch_array($res)) {
+    foreach ($res as $r) {
         if ($r['par_id'] != $last_par_id) {
             if ($last_par_id) {
                 $book['num_par'] += 1;
@@ -78,10 +79,10 @@ function get_books_with_ne() {
     return $out;
 }
 
-function get_ne_types() {
-    $res = sql_query("SELECT tag_id, tag_name FROM ne_tags ORDER BY tag_id");
+function get_ne_types($tagset_id) {
+    $res = sql_pe("SELECT tag_id, tag_name FROM ne_tags WHERE tagset_id=? ORDER BY tag_id", array($tagset_id));
     $out = array();
-    while ($r = sql_fetch_array($res))
+    foreach ($res as $r)
         $out[] = array(
             'id' => $r['tag_id'],
             'name' => $r['tag_name']
@@ -89,7 +90,7 @@ function get_ne_types() {
     return $out;
 }
 
-function get_ne_by_paragraph($par_id, $user_id) {
+function get_ne_by_paragraph($par_id, $user_id, $tagset_id) {
     if (!$user_id)
         throw new UnexpectedValueException();
 
@@ -98,8 +99,9 @@ function get_ne_by_paragraph($par_id, $user_id) {
         FROM ne_paragraphs
         WHERE par_id = ?
         AND user_id = ?
+        AND tagset_id = ?
         LIMIT 1
-    ", array($par_id, $user_id));
+    ", array($par_id, $user_id, $tagset_id));
 
     if (!sizeof($res))
         return array();
@@ -133,6 +135,8 @@ function get_ne_by_paragraph($par_id, $user_id) {
         sql_execute($tag_res, array($r['entity_id']));
         while ($r1 = sql_fetch_array($tag_res))
             $entity['tags'][] = array($r1['tag_id'], $r1['tag_name']);
+
+        // TODO check that tags belong to the correct tagset
 
         $out['entities'][] = $entity;
     }
@@ -177,8 +181,8 @@ function get_all_ne_by_sentence($sent_id) {
     ", array($sent_id));
 }
 
-function get_ne_tokens_by_paragraph($par_id, $user_id) {
-    $annot = get_ne_by_paragraph($par_id, $user_id);
+function get_ne_tokens_by_paragraph($par_id, $user_id, $tagset_id) {
+    $annot = get_ne_by_paragraph($par_id, $user_id, $tagset_id);
     $tokens = array();
 
     $res = sql_pe("
@@ -202,36 +206,48 @@ function get_ne_tokens_by_paragraph($par_id, $user_id) {
     return $tokens;
 }
 
-function get_comments_by_paragraph($par_id, $user_id) {
+function get_comments_by_paragraph($par_id, $user_id, $tagset_id) {
     $res = sql_pe("
         SELECT *
-        FROM ne_paragraph_comments
-        WHERE par_id = ?
-        AND user_id = ?",
-        array($par_id, $user_id));
+        FROM ne_paragraph_comments npc
+        LEFT JOIN ne_paragraphs np
+            USING (annot_id)
+        WHERE np.par_id = ?
+        AND npc.user_id = ?
+        AND tagset_id = ?",
+        array($par_id, $user_id, $tagset_id));
     return $res;
 }
 
 // for moderator
-function get_all_comments_by_paragraph($par_id) {
+function get_all_comments_by_paragraph($par_id, $tagset_id) {
     $res = sql_pe("
         SELECT *
         FROM ne_paragraph_comments
-        WHERE par_id = ?",
-        array($par_id));
+        LEFT JOIN ne_paragraphs
+            USING (annot_id)
+        WHERE par_id = ?
+        AND tagset_id = ?",
+        array($par_id, $tagset_id));
     return $res;
 }
 
 function add_comment_to_paragraph($par_id, $user_id, $comment) {
+    // current design allows user to add comments to his own paragraphs only
+    // though database allows comments to anyone's paragraphs
+    $tres = sql_pe("SELECT annot_id FROM ne_paragraphs WHERE user_id=? and par_id=?", array($user_id, $par_id));
+    if (sizeof($tres) > 1)
+        throw new Exception();
+    $annot_id = $tres[0]['annot_id'];
     $res = sql_pe("
         INSERT INTO ne_paragraph_comments
-        (par_id, user_id, comment)
+        (annot_id, user_id, comment)
         VALUES (?, ?, ?)",
-        array($par_id, $user_id, $comment));
+        array($annot_id, $user_id, $comment));
     return sql_insert_id();
 }
 
-function get_ne_paragraph_status($book_id, $user_id) {
+function get_ne_paragraph_status($book_id, $user_id, $tagset_id) {
     $out = array(
         'unavailable' => array(),
         'started_by_user' => array(),
@@ -242,8 +258,9 @@ function get_ne_paragraph_status($book_id, $user_id) {
         FROM ne_paragraphs
         JOIN paragraphs USING (par_id)
         WHERE book_id = ?
+        AND tagset_id = ?
         ORDER BY par_id
-    ", array($book_id));
+    ", array($book_id, $tagset_id));
 
     $cur_pid = 0;
     $occupied_num = 0;
@@ -292,7 +309,7 @@ function get_ne_paragraph_status($book_id, $user_id) {
     return $out;
 }
 
-function start_ne_annotation($par_id) {
+function start_ne_annotation($par_id, $tagset_id) {
     if (!$par_id)
         throw new UnexpectedValueException();
 
@@ -306,16 +323,17 @@ function start_ne_annotation($par_id) {
         FROM ne_paragraphs
         WHERE user_id = ?
         AND par_id = ?
+        AND tagset_id = ?
         LIMIT 1
-    ", array($user_id, $par_id));
+    ", array($user_id, $par_id, $tagset_id));
 
     if (sizeof($res) > 0)
         throw new Exception();
 
     sql_pe("
         INSERT INTO ne_paragraphs
-        VALUES (NULL, ?, ?, ?, ?, ?)
-    ", array($par_id, $user_id, NE_STATUS_IN_PROGRESS, time(), 0));
+        VALUES (NULL, ?, ?, ?, ?, ?, ?)
+    ", array($par_id, $user_id, NE_STATUS_IN_PROGRESS, time(), 0, $tagset_id));
 
     return sql_insert_id();
 }
@@ -385,6 +403,7 @@ function delete_ne_entity($entity_id, $annot_id=0) {
 
 function set_ne_tags($entity_id, $tags, $annot_id=0) {
     // overwrites old set of tags
+    // TODO check that tags and annotation belong to the same tagset
     if (!$annot_id) {
         $res = sql_pe("SELECT annot_id FROM ne_entities WHERE entity_id = ?", array($entity_id));
         $annot_id = $res[0]['annot_id'];
