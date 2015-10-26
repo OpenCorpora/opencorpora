@@ -377,7 +377,8 @@ function add_ne_entity($annot_id, $token_ids, $tags) {
     sql_begin();
     sql_pe("
         INSERT INTO ne_entities
-        VALUES (NULL, ?, ?, ?, ?)
+        (annot_id, start_token, length, updated_ts)
+        VALUES (?, ?, ?, ?)
     ", array($annot_id, $token_ids[0], sizeof($token_ids), time()));
 
     $entity_id = sql_insert_id();
