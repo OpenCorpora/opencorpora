@@ -426,3 +426,45 @@ function log_event($message) {
     return sql_pe("INSERT INTO ne_event_log (user_id, message)
             VALUES (?, ?)", array($_SESSION['user_id'], $message));
 }
+
+function add_mention($entity_ids, $object_type) {
+    $entities_in = str_repeat('?,', count($entity_ids) - 1) . '?';
+    $entities = sql_pe("SELECT entity_id FROM ne_entities WHERE entity_id IN (" .$entities_in . ")", $entity_ids);
+    if (sizeof($entities) != sizeof($entity_ids))
+        throw new Exception("Not valid NE entity ids");
+    $type = sql_pe("SELECT * FROM ne_object_types WHERE object_type_id = ? LIMIT 1", array($object_type));
+    if (sizeof($type) != 1)
+        throw new Exception("Not valid object type");
+    else
+        $type = $type[0];
+    sql_begin();
+    sql_pe("INSERT INTO ne_mentions SET object_type_id = ?", array($object_type));
+    $mention_id = sql_insert_id();
+    array_unshift($entity_ids, $mention_id);
+    sql_pe("UPDATE ne_entities SET mention_id = ? WHERE entity_id IN (" . $entities_in . ")", $entity_ids);
+    sql_commit();
+}
+
+function delete_mention($mention_id) {
+    sql_begin();
+    sql_pe("UPDATE ne_entities set mention_id = 0 WHERE mention_id = ?", array($mention_id));
+    sql_pe("DELETE FROM ne_mentions WHERE mention_id = ?", array($mention_id));
+    sql_commit();
+}
+
+function update_mention($mention_id, $object_type) {
+    $mention = sql_pe("SELECT * FROM ne_mentions WHERE mention_id = ? LIMIT 1", array($mention_id));
+    if (sizeof($mention) != 1)
+        throw new Exception("Mention not found");
+    $type = sql_pe("SELECT * FROM ne_object_types WHERE object_type_id = ? LIMIT 1", array($object_type));
+    if (sizeof($type) != 1)
+        throw new Exception("Not valid object type");
+    sql_pe("UPDATE ne_mentions SET object_type_id = ? WHERE mention_id = ? LIMIT 1", array($object_type, $mention_id));
+}
+
+function clear_entity_mention($entity_id) {
+    $entity = sql_pe("SELECT * FROM ne_entities WHERE entity_id = ? LIMIT 1", array($entity_id));
+    if (sizeof($entity) != 1)
+        throw new Exception("Entity not found");
+    sql_pe("UPDATE ne_entities SET mention_id = 0 where entity_id = ?", array($entity_id));
+}
