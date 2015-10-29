@@ -46,6 +46,7 @@ function get_allowed_fields($fact_type) {
  */
 function add_field_values($fact_id, $fact_type, $fields) {
     $allowed_fields = get_allowed_fields($fact_type);
+    sql_begin();
     foreach ($fields as $field) {
         $fid = $field['field_type_id'];
         if (!isset($allowed_fields[$fid]))
@@ -61,6 +62,7 @@ function add_field_values($fact_id, $fact_type, $fields) {
         if ($fld['required'] and !isset($fld['isset']))
             throw new Exception("Required field '" . $fld['field_name'] . "' is not specified");
     }
+    sql_commit();
 }
 
 function check_field_value($field) {
