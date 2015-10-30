@@ -84,6 +84,9 @@ elseif  (/*user_has_permission(PERM_SYNTAX) && */is_logged() && $action == 'ner'
         $smarty->assign('book', $book);
         $smarty->assign('types', get_ne_types($tagset_id));
         $smarty->assign('use_fast_mode', $_SESSION['options'][5]);
+        $smarty->assign('possible_guidelines',
+            array(1 => "Default (2014)", 2 => "Dialogue Eval (2016)"));
+        $smarty->assign('current_guideline', $_SESSION['options'][6]);
         $smarty->display('ner/book.tpl');
     } else {
         throw new UnexpectedValueException();

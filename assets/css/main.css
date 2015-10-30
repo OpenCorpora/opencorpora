@@ -1585,3 +1585,19 @@ tr.valign-top td {
 .tooltip-large.right {
     margin-left: 13px;
 }
+
+.small-tabs.nav-tabs > li, .small-tabs.nav-tabs > li > a {
+    line-height: 12px;
+    font-size: 11px;
+    padding-top: 2px;
+    padding-bottom: 1px;
+    margin-bottom: -1px;
+    text-transform: uppercase;
+}
+
+.dragged-up {
+    position: relative;
+    top: -18px;
+}
+
+

@@ -10,7 +10,7 @@
             <button class="ner-mode-basic btn btn-small {if not $use_fast_mode}active{/if}">Разметка кликом</button>
             <button class="ner-mode-fast btn btn-small {if $use_fast_mode}active{/if}">Разметка выделением</button>
         </div>
-        <a class="btn btn-primary btn-small" href="/ner.php?act=manual" target="_blank"><i class="icon-info-sign icon-white"></i> Инструкция</a>
+        <a class="btn btn-primary btn-small" href="/ner.php?act=manual&id={$current_guideline}" target="_blank"><i class="icon-info-sign icon-white"></i> Инструкция {$possible_guidelines[$current_guideline]}</a>
     </div>
     {if isset($book.paragraphs)}
         {foreach name=b key=num item=paragraph from=$book.paragraphs}
@@ -47,30 +47,44 @@
                     </div>
                 </div>
                 <div class="span4 ner-table-wrap {if $paragraph.disabled }ner-disabled{elseif $paragraph.mine}ner-mine{/if}">
+                    <div class="tabbable dragged-up">
+                        <ul class="nav nav-tabs small-tabs">
+                            <li class="active"><a href="#tab-entities-{$paragraph.id}" data-toggle="tab">Спаны</a></li>
+                            <li><a href="#tab-mentions-{$paragraph.id}" data-toggle="tab">Упоминания</a></li>
+                            <li class="disabled"><a>Объекты</a></li>
+                            <li class="disabled"><a>Факты</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="tab-entities-{$paragraph.id}">
+                                <table class="table ner-table table-condensed" data-par-id="{$paragraph.id}">
+                                {foreach $paragraph.named_entities as $ne}
+                                    <tr data-entity-id="{$ne.id}">
+                                        <td class="ner-entity-actions"><i class="icon icon-remove ner-remove" data-entity-id={$ne.id}></i></td>
+                                        <td class="ner-entity-text span4">
+                                        {foreach $ne.tokens as $token}{$token[1]} {/foreach}
+                                        </td>
+                                        <td class="ner-entity-type span3">
+                                        {if $paragraph.mine}
+                                            <select class="selectpicker show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-entity-id="{$ne.id}" multiple>
+                                            {foreach $types as $type}
+                                                <option data-content="<span class='label label-palette-{$type.id * $colorStep}'>{$type.name}</span>" {if in_array(array_values($type), $ne.tags)}selected{/if}>{$type.id}</option>
+                                            {/foreach}
+                                            </select>
+                                        {else}
+                                            {foreach $ne.tags as $tag}
+                                                <span class="label label-palette-{$tag[0] * $colorStep}">{$tag[1]}</span>
+                                            {/foreach}
+                                        {/if}
+                                        </td>
+                                    </tr>
+                                {/foreach}
+                                </table>
+                            </div>
 
-                    <table class="table ner-table table-condensed" data-par-id="{$paragraph.id}">
-                        {foreach $paragraph.named_entities as $ne}
-                            <tr data-entity-id="{$ne.id}">
-                                <td class="ner-entity-actions"><i class="icon icon-remove ner-remove" data-entity-id={$ne.id}></i></td>
-                                <td class="ner-entity-text span4">
-                                {foreach $ne.tokens as $token}{$token[1]} {/foreach}
-                                </td>
-                                <td class="ner-entity-type span3">
-                                {if $paragraph.mine}
-                                    <select class="selectpicker show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-entity-id="{$ne.id}" multiple>
-                                    {foreach $types as $type}
-                                        <option data-content="<span class='label label-palette-{$type.id * $colorStep}'>{$type.name}</span>" {if in_array(array_values($type), $ne.tags)}selected{/if}>{$type.id}</option>
-                                    {/foreach}
-                                    </select>
-                                {else}
-                                    {foreach $ne.tags as $tag}
-                                        <span class="label label-palette-{$tag[0] * $colorStep}">{$tag[1]}</span>
-                                    {/foreach}
-                                {/if}
-                                </td>
-                            </tr>
-                        {/foreach}
-                    </table>
+                            <div class="tab-pane" id="tab-mentions-{$paragraph.id}">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         {/foreach}
