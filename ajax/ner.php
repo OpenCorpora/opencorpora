@@ -14,7 +14,7 @@ try {
     switch ($_POST['act']) {
         case 'newAnnotation':
 
-            $tagset_id = 1; // TODO switch
+            $tagset_id = get_current_tagset();
 
             if (empty($_POST['paragraph'])) throw new Exception();
             $id = start_ne_annotation($_POST['paragraph'], $tagset_id);

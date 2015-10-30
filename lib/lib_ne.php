@@ -1,6 +1,14 @@
 <?php
 require_once('constants.php');
 
+function get_current_tagset() {
+    if (!is_logged())
+        throw new Exception("You must be logged");
+    if (!isset($_SESSION['options'][6]))
+        throw new Exception("Tagset option unset");
+    return $_SESSION['options'][6];
+}
+
 function get_books_with_ne($tagset_id) {
     $res = sql_pe("
         SELECT book_id, book_name, par_id, status, user_id

@@ -13,7 +13,7 @@ if (!is_logged()) {
 }
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
-$tagset_id = 1; // TODO switch
+$tagset_id = get_current_tagset();
 
 switch ($action) {
 

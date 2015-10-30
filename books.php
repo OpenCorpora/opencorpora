@@ -59,7 +59,7 @@ elseif (user_has_permission(PERM_SYNTAX) && $action == 'anaphora') {
 elseif  (/*user_has_permission(PERM_SYNTAX) && */is_logged() && $action == 'ner') {
     if (isset($_GET['book_id']) && $book_id = $_GET['book_id']) {
 
-        $tagset_id = 1; // TODO switch
+        $tagset_id = get_current_tagset();
 
         $book = get_book_page($book_id, TRUE);
         $paragraphs_status = get_ne_paragraph_status($book_id, $_SESSION['user_id'], $tagset_id);
