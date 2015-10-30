@@ -414,6 +414,10 @@ function user_has_permission($group) {
         )
     );
 }
+function check_permission($group) {
+    if (!user_has_permission($group))
+        throw new PermissionError();
+}
 function get_team_list() {
     $out = array();
     $res = sql_query("SELECT team_id, team_name, COUNT(user_id) AS num_users FROM user_teams t LEFT JOIN users u ON (t.team_id = u.user_team) GROUP BY team_id");

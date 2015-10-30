@@ -28,6 +28,7 @@ function get_morph_pool_types($filter=false) {
     return $types;
 }
 function save_morph_pool_types($data) {
+    check_permission(PERM_MORPH_MODER);
     sql_begin();
     $upd = sql_prepare("UPDATE morph_annot_pool_types SET complexity=?, doc_link=? WHERE type_id=? LIMIT 1");
     foreach ($data['complexity'] as $id => $level) {
@@ -374,6 +375,7 @@ function get_pool_candidates($type_id) {
     return $out;
 }
 function add_morph_pool_type($post_gram, $post_descr, $pool_name) {
+    check_permission(PERM_MORPH_MODER);
     $gram_sets = array();
     $gram_descr = array();
     foreach ($post_gram as $i => $gr) {
@@ -399,6 +401,7 @@ function add_morph_pool_type($post_gram, $post_descr, $pool_name) {
     return sql_insert_id();
 }
 function delete_morph_pool($pool_id) {
+    check_permission(PERM_MORPH_MODER);
     //NB: we mustn't delete any pools with answers
     $res = sql_pe("SELECT instance_id FROM morph_annot_instances WHERE answer > 0 AND sample_id IN (SELECT sample_id FROM morph_annot_samples WHERE pool_id=?) LIMIT 1", array($pool_id));
     if (sizeof($res) > 0)
@@ -537,6 +540,7 @@ function promote_samples($pool_type, $choice_type, $pool_size, $pools_num, $auth
     return $created_pool_ids;
 }
 function publish_pool($pool_id) {
+    check_permission(PERM_MORPH_MODER);
     if (!$pool_id)
         throw new UnexpectedValueException();
 
@@ -578,12 +582,14 @@ function make_and_publish_pools() {
     sql_commit();
 }
 function unpublish_pool($pool_id) {
+    check_permission(PERM_MORPH_MODER);
     if (!$pool_id)
         throw new UnexpectedValueException();
 
     sql_pe("UPDATE morph_annot_pools SET `status`=".MA_POOLS_STATUS_ANSWERED.", `updated_ts`=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
 function moderate_pool($pool_id) {
+    check_permission(PERM_MORPH_MODER);
     if (!$pool_id)
         throw new UnexpectedValueException();
 
@@ -595,6 +601,7 @@ function moderate_pool($pool_id) {
     sql_pe("UPDATE morph_annot_pools SET `status`=".MA_POOLS_STATUS_MODERATION.", `updated_ts`=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
 function finish_moderate_pool($pool_id) {
+    check_permission(PERM_MORPH_MODER);
     if (!$pool_id)
         throw new UnexpectedValueException();
 
@@ -624,8 +631,7 @@ function finish_moderate_pool($pool_id) {
     sql_pe("UPDATE morph_annot_pools SET status=".MA_POOLS_STATUS_MODERATED.", updated_ts=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
 function begin_pool_merge($pool_id) {
-    if (!user_has_permission(PERM_MORPH_SUPERMODER))
-        throw new Exception("Недостаточно прав");
+    check_permission(PERM_MORPH_SUPERMODER);
     if (!$pool_id)
         throw new UnexpectedValueException();
 
@@ -1028,6 +1034,7 @@ function check_moderator_right($user_id, $pool_id, $make_owner=false) {
     return true;
 }
 function moder_agree_with_all($pool_id) {
+    check_permission(PERM_MORPH_MODER);
     $samples = get_morph_samples_page($pool_id, true, 1, 0, 'not_moderated');
     sql_begin();
     foreach ($samples['samples'] as $sample) {

@@ -219,6 +219,7 @@ function is_prefix($s, $prefixes) {
 function addtext_check($array) {
     global $config;
 
+    check_permission(PERM_ADDER);
     //read file for tokenizer
     $tok_exc = array_map('mb_strtolower', file($config['project']['root'] . '/scripts/tokenizer/tokenizer_exceptions.txt', FILE_IGNORE_NEW_LINES));
     $tok_prefixes = file($config['project']['root'] . '/scripts/tokenizer/tokenizer_prefixes.txt', FILE_IGNORE_NEW_LINES);
@@ -274,6 +275,7 @@ function addtext_check($array) {
     return $out;
 }
 function addtext_add($text, $sentences, $book_id, $par_num) {
+    check_permission(PERM_ADDER);
     if (!$text || !$book_id || !$par_num)
         throw new UnexpectedValueException();
     sql_begin();

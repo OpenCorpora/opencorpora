@@ -23,20 +23,12 @@ if (is_logged()) {
             header('Location:options.php');
             break;
         case 'readonly_on':
-            if (is_admin()) {
-                set_readonly_on();
-                header('Location:options.php');
-                return;
-            } else
-                show_error($config['msg']['notadmin']);
+            set_readonly_on();
+            header('Location:options.php');
             break;
         case 'readonly_off':
-            if (is_admin()) {
-                set_readonly_off();
-                header('Location:options.php');
-                return;
-            } else
-                show_error($config['msg']['notadmin']);
+            set_readonly_off();
+            header('Location:options.php');
             break;
         default:
             $mgr = new UserOptionsManager();

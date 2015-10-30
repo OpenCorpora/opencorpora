@@ -624,6 +624,7 @@ function split_token($token_id, $num) {
 // book adding queue
 
 function get_sources_page($skip = 0, $show_type = '', $src = 0) {
+    check_permission(PERM_ADDER);
     $out = array();
     $q_main = "SELECT s.source_id, s.url, s.title, s.user_id, s.book_id, u.user_shown_name AS user_name, b.book_name FROM sources s LEFT JOIN books b ON (s.book_id = b.book_id) LEFT JOIN users u ON (s.user_id = u.user_id) ";
     $q_tail = '';
@@ -662,6 +663,7 @@ function get_sources_page($skip = 0, $show_type = '', $src = 0) {
     return $out;
 }
 function source_add($url, $title, $parent_id) {
+    check_permission(PERM_ADDER);
     if (!$url)
         throw new UnexpectedValueException();
     

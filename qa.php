@@ -9,42 +9,24 @@ if (isset($_GET['act']))
 
 switch ($action) {
     case 'sent_split':
-        if (user_has_permission(PERM_ADDER)) {
-            $smarty->assign('sentences', get_page_sent_strange());
-            $smarty->display('qa/sent_split.tpl');
-        } else {
-            show_error($config['msg']['notadmin']);
-        }
+        $smarty->assign('sentences', get_page_sent_strange());
+        $smarty->display('qa/sent_split.tpl');
         break;
     case 'tokenizer':
-        if (user_has_permission(PERM_ADDER)) {
-            $smarty->assign('obj', get_page_tok_strange(isset($_GET['newest'])));
-            $smarty->display('qa/tokenizer.tpl');
-        } else {
-            show_error($config['msg']['notadmin']);
-        }
+        $smarty->assign('obj', get_page_tok_strange(isset($_GET['newest'])));
+        $smarty->display('qa/tokenizer.tpl');
         break;
     case 'empty_books':
-        if (user_has_permission(PERM_ADDER)) {
-            $smarty->assign('books', get_empty_books());
-            $smarty->display('qa/empty_books.tpl');
-        } else {
-            show_error($config['msg']['notadmin']);
-        }
+        $smarty->assign('books', get_empty_books());
+        $smarty->display('qa/empty_books.tpl');
         break;
     case 'dl_urls':
-        if (user_has_permission(PERM_ADDER)) {
-            $smarty->assign('urls', get_downloaded_urls());
-            $smarty->display('qa/dl_urls.tpl');
-        } else {
-            show_error($config['msg']['notadmin']);
-        }
+        $smarty->assign('urls', get_downloaded_urls());
+        $smarty->display('qa/dl_urls.tpl');
         break;
     case 'book_tags':
-        if (user_has_permission(PERM_ADDER)) {
-            $smarty->assign('errata', get_tag_errors());
-            $smarty->display('qa/book_tags.tpl');
-        }
+        $smarty->assign('errata', get_tag_errors());
+        $smarty->display('qa/book_tags.tpl');
         break;
     case 'merge_fails':
         $smarty->assign('data', get_merge_fails());

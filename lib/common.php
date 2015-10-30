@@ -160,8 +160,14 @@ function show_error($text = "Произошла ошибка.") {
     $smarty->assign('error_text', $text);
     $smarty->display('error.tpl');
 }
+
+class PermissionError extends Exception {}
+
 function oc_exception_handler($exception) {
-    show_error("Произошла ошибка.<br/><br/>" . $exception->getMessage());
+    if ($exception instanceof PermissionError)
+        show_error("У вас недостаточно прав для просмотра этой страницы.");
+    else
+        show_error("Произошла ошибка.<br/><br/>" . $exception->getMessage());
 }
 function create_revset($comment = '') {
     if (!isset($_SESSION['user_id']) || !$_SESSION['user_id'])
@@ -297,12 +303,12 @@ function get_top100_info($what, $type) {
     return $stats;
 }
 function set_readonly_on() {
-    if (!is_admin()) return 0;
+    check_permission(PERM_ADMIN);
     global $config;
     touch_file($config['project']['readonly_flag']);
 }
 function set_readonly_off() {
-    if (!is_admin()) return 0;
+    check_permission(PERM_ADMIN);
     global $config;
     unlink($config['project']['readonly_flag']);
 }

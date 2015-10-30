@@ -210,6 +210,7 @@ function form_exists($f) {
     return sizeof($res);
 }
 function get_pending_updates($skip=0, $limit=500) {
+    check_permission(PERM_DICT);
     $out = array('revisions' => array(), 'header' => array());
 
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) cnt FROM updated_tokens"));
@@ -324,6 +325,7 @@ function forget_pending_token($token_id, $rev_id) {
     sql_pe("DELETE FROM updated_tokens WHERE token_id=? AND dict_revision=?", array($token_id, $rev_id));
 }
 function update_pending_tokens($rev_id, $smart=false) {
+    check_permission(PERM_DICT);
     $res = sql_pe("SELECT token_id FROM updated_tokens WHERE dict_revision=?", array($rev_id));
     sql_begin();
     $revset_id = create_revset("Update tokens from dictionary");
@@ -556,6 +558,7 @@ function calculate_updated_forms($old_rev, $new_rev) {
     return $upd_forms;
 }
 function dict_save($array) {
+    check_permission(PERM_DICT);
     //it may be a totally new lemma
     if ($array['lemma_id'] == -1) {
         return dict_add_lemma($array);
@@ -655,6 +658,7 @@ function paradigm_diff($array1, $array2) {
     return $diff;
 }
 function del_lemma($id) {
+    check_permission(PERM_DICT);
     //delete links (but preserve history)
     $res = sql_pe("SELECT link_id FROM dict_links WHERE lemma1_id=? OR lemma2_id=?", array($id, $id));
     sql_begin();
@@ -681,6 +685,7 @@ function del_lemma($id) {
     sql_commit();
 }
 function del_link($link_id, $revset_id=0) {
+    check_permission(PERM_DICT);
     $res = sql_pe("SELECT * FROM dict_links WHERE link_id=? LIMIT 1", array($link_id));
     if (!sizeof($res))
         throw new UnexpectedValueException();
@@ -691,6 +696,7 @@ function del_link($link_id, $revset_id=0) {
     sql_commit();
 }
 function add_link($from_id, $to_id, $link_type, $revset_id=0) {
+    check_permission(PERM_DICT);
     if ($from_id <= 0 || $to_id <= 0 || !$link_type)
         throw new UnexpectedValueException();
     sql_begin();
@@ -700,6 +706,7 @@ function add_link($from_id, $to_id, $link_type, $revset_id=0) {
     sql_commit();
 }
 function change_link_direction($link_id) {
+    check_permission(PERM_DICT);
     if (!$link_id)
         throw new UnexpectedValueException();
     sql_begin();
@@ -734,15 +741,18 @@ function get_grammem_editor($order) {
     return $out;
 }
 function add_grammem($inner_id, $group, $outer_id, $descr) {
+    check_permission(PERM_DICT);
     if (!$inner_id)
         throw new UnexpectedValueException();
     $r = sql_fetch_array(sql_query("SELECT MAX(`orderby`) AS `m` FROM `gram`"));
     sql_pe("INSERT INTO `gram` VALUES(NULL, ?, ?, ?, ?, ?)", array($group, $inner_id, $outer_id, $descr, $r['m']+1));
 }
 function del_grammem($grm_id) {
+    check_permission(PERM_DICT);
     sql_pe("DELETE FROM `gram` WHERE `gram_id`=? LIMIT 1", array($grm_id));
 }
 function edit_grammem($id, $inner_id, $outer_id, $descr) {
+    check_permission(PERM_DICT);
     if (!$id || !$inner_id)
         throw new UnexpectedValueException();
     sql_pe(
@@ -781,6 +791,7 @@ function get_dict_errata($all, $rand) {
     return $out;
 }
 function clear_dict_errata($old) {
+    check_permission(PERM_DICT);
     if ($old) {
         sql_query("UPDATE dict_revisions SET dict_check='0'");
         return true;
@@ -793,6 +804,7 @@ function clear_dict_errata($old) {
     sql_commit();
 }
 function mark_dict_error_ok($id, $comment) {
+    check_permission(PERM_DICT);
     if (!$id)
         throw new UnexpectedValueException();
 
@@ -830,18 +842,21 @@ function get_gram_restrictions($hide_auto) {
     return $out;
 }
 function add_dict_restriction($post) {
+    check_permission(PERM_DICT);
     sql_begin();
     sql_query("INSERT INTO gram_restrictions VALUES(NULL, '".(int)$post['if']."', '".(int)$post['then']."', '".(int)$post['rtype']."', '".((int)$post['if_type'] + (int)$post['then_type'])."', '0')");
     calculate_gram_restrictions();
     sql_commit();
 }
 function del_dict_restriction($id) {
+    check_permission(PERM_DICT);
     sql_begin();
     sql_pe("DELETE FROM gram_restrictions WHERE restr_id=? LIMIT 1", array($id));
     calculate_gram_restrictions();
     sql_commit();
 }
 function calculate_gram_restrictions() {
+    check_permission(PERM_DICT);
     sql_begin();
     sql_query("DELETE FROM gram_restrictions WHERE `auto`=1");
 

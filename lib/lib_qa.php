@@ -2,6 +2,7 @@
 require_once('constants.php');
 
 function get_page_tok_strange($newest = false) {
+    check_permission(PERM_ADDER);
     $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE param_id=7 ORDER BY timestamp DESC LIMIT 1");
     $r = sql_fetch_array($res);
     $out = array(
@@ -43,6 +44,7 @@ function get_page_tok_strange($newest = false) {
     return $out;
 }
 function get_page_sent_strange() {
+    check_permission(PERM_ADDER);
     $out = array();
     $res = sql_query("
         SELECT DISTINCT sent_id, source, book_id
@@ -56,6 +58,7 @@ function get_page_sent_strange() {
     return $out;
 }
 function get_empty_books() {
+    check_permission(PERM_ADDER);
     global $config;
     $res = sql_query("
         SELECT book_id, book_name
@@ -71,6 +74,7 @@ function get_empty_books() {
     return $out;
 }
 function get_downloaded_urls() {
+    check_permission(PERM_ADDER);
     global $config;
     $res = sql_query("
         SELECT b.book_id, b.book_name, SUBSTR(t.tag_name, 5) url, u.filename
@@ -96,6 +100,7 @@ function get_downloaded_urls() {
     return $out;
 }
 function get_tag_errors() {
+    check_permission(PERM_ADDER);
     $res = sql_query("SELECT * FROM tag_errors ORDER BY book_id DESC");
     $out = array();
     while ($r = sql_fetch_array($res)) {

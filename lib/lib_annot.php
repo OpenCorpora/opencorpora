@@ -380,6 +380,7 @@ function prepare_parse_indices($flag_array) {
     return $ret;
 }
 function sentence_save($sent_id) {
+    check_permission(PERM_DISAMB);
     if (!$sent_id)
         throw new UnexpectedValueException();
     $flag = $_POST['var_flag'];  //what morphovariants are checked as possible (array of arrays)
@@ -438,6 +439,7 @@ function sentence_save($sent_id) {
     sql_commit();
 }
 function sentence_save_source($sent_id, $text) {
+    check_permission(PERM_ADMIN);
     sql_pe("UPDATE sentences SET source = ? WHERE sent_id=? LIMIT 1", array(trim($text), $sent_id));
 }
 function create_tf_revision($revset_id, $token_id, $rev_xml) {
