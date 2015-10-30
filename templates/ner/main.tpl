@@ -1,23 +1,22 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-<div class="clearfix">
-    <div class="btn-group pull-right">
-      <a href="?act=manual&id=1" class="btn btn-primary" target="_blank">
-        <i class="icon-info-sign icon-white"></i> Инструкция {$possible_guidelines[$current_guideline]}</a>
-      <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-        <span class="caret"></span>
-      </button>
-      <ul class="dropdown-menu">
-        {foreach $possible_guidelines as $id => $name }
-            <li {if $id == $current_guideline }class="active"{/if}>
-                <a class="guideline-switch" data-guideline-id="{$id}">{$name}</a>
-            </li>
-        {/foreach}
-      </ul>
-    </div>
+<h3 class="clearfix">Разметка именованных сущностей
+<div class="btn-group pull-right">
+  <a href="?act=manual&id=1" class="btn btn-primary" target="_blank">
+    <i class="icon-info-sign icon-white"></i> Инструкция {$possible_guidelines[$current_guideline]}</a>
+  <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    {foreach $possible_guidelines as $id => $name }
+        <li {if $id == $current_guideline }class="active"{/if}>
+            <a class="guideline-switch" data-guideline-id="{$id}">{$name}</a>
+        </li>
+    {/foreach}
+  </ul>
 </div>
-<h3>Разметка именованных сущностей</h3>
+</h3>
 <table class='table'>
 <tr class='small'>
     <th></th>
