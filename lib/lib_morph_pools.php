@@ -367,9 +367,8 @@ function get_pool_candidates_page($type_id) {
 function get_pool_candidates($type_id) {
     $res = sql_pe("SELECT tf_id FROM morph_annot_candidate_samples WHERE pool_type=? ORDER BY RAND() LIMIT 200", array($type_id));
     $out = array();
-    $prep_query = NULL;
     foreach ($res as $r) {
-        $out[] = get_context_for_word($r[0], 2, 0, 1, $prep_query);
+        $out[] = get_context_for_word($r[0], 2, 0, 1);
     }
     return $out;
 }

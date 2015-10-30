@@ -450,7 +450,7 @@ function create_tf_revision($revset_id, $token_id, $rev_xml) {
     sql_pe("INSERT INTO `tf_revisions` VALUES(NULL, ?, ?, ?, 1)", array($revset_id, $token_id, $rev_xml));
     sql_commit();
 }
-function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepared_queries=NULL) {
+function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
     // dir stands for direction (-1 => left, 1 => right, 0 => both)
     // delta <= 0 stands for infinity
     $t = array();
@@ -459,9 +459,10 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
     $right_c = 0;  //same for right context
     $mw_pos = 0;
     
+    static $query1 = NULL;
     // prepare the 1st query
-    if ($prepared_queries === NULL)
-        $prepared_queries = array(sql_prepare("
+    if ($query1 == NULL)
+        $query1 = sql_prepare("
             SELECT MAX(tokens.pos) AS maxpos, MIN(tokens.pos) AS minpos, sent_id, source, book_id
             FROM tokens
                 JOIN sentences USING (sent_id)
@@ -471,10 +472,10 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
                 FROM tokens
                 WHERE tf_id=? LIMIT 1
             )
-        "));
+        ");
 
-    sql_execute($prepared_queries[0], array($tf_id));
-    $res = sql_fetchall($prepared_queries[0]);
+    sql_execute($query1, array($tf_id));
+    $res = sql_fetchall($query1);
     $r = $res[0];
     $sent_id = $r['sent_id'];
     $sentence_text = $r['source'];
@@ -484,7 +485,8 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
 
     // prepare the 2nd query
     // this is really bad unreadable code, sorry
-    if (sizeof($prepared_queries) == 1) {
+    static $query2 = NULL;
+    if ($query2 == NULL) {
         $q = "SELECT tf_id, tf_text, pos FROM tokens WHERE sent_id = ?";
         if ($dir != 0 || $delta > 0) {
             $q_left = $dir <= 0 ? ($delta > 0 ? "(SELECT IF(pos > $delta, pos - $delta, 0) FROM tokens WHERE tf_id=? LIMIT 1)" : "0") : "(SELECT pos FROM tokens WHERE tf_id=? LIMIT 1)";
@@ -493,7 +495,7 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
         }
 
         $q .= " ORDER BY pos";
-        $prepared_queries[] = sql_prepare($q);
+        $query2 = sql_prepare($q);
     }
 
     // how many values should we provide?
@@ -505,9 +507,9 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
             $bound = array($tf_id);
     }
 
-    sql_execute($prepared_queries[1], array_merge(array($sent_id), $bound));
+    sql_execute($query2, array_merge(array($sent_id), $bound));
 
-    foreach (sql_fetchall($prepared_queries[1]) as $r) {
+    foreach (sql_fetchall($query2) as $r) {
         if ($delta > 0) {
             if ($left_c == -1) {
                 $left_c = ($r['pos'] == $minpos) ? 0 : $r['tf_id'];
