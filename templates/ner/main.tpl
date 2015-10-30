@@ -2,8 +2,19 @@
 {extends file='common.tpl'}
 {block name=content}
 <div class="clearfix">
-    <div class="pull-right">
-        <a class="btn btn-primary" href="?act=manual" target="_blank"><i class="icon-info-sign icon-white"></i> Инструкция</a>
+    <div class="btn-group pull-right">
+      <a href="?act=manual&id=1" class="btn btn-primary" target="_blank">
+        <i class="icon-info-sign icon-white"></i> Инструкция {$possible_guidelines[$current_guideline]}</a>
+      <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        {foreach $possible_guidelines as $id => $name }
+            <li {if $id == $current_guideline }class="active"{/if}>
+                <a class="guideline-switch" data-guideline-id="{$id}">{$name}</a>
+            </li>
+        {/foreach}
+      </ul>
     </div>
 </div>
 <h3>Разметка именованных сущностей</h3>
@@ -38,4 +49,18 @@
 </tr>
 {/foreach}
 </table>
+{/block}
+
+{block name="javascripts"}
+<script>
+{literal}
+$(document).ready(function() {
+    $(".guideline-switch").click(function() {
+        var id = $(this).attr("data-guideline-id");
+        $.post('/ajax/set_option.php', {option: 6, value: id});
+        document.location.reload();
+    });
+});
+</script>
+{/literal}
 {/block}
