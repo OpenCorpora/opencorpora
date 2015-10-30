@@ -98,7 +98,46 @@ function get_ne_types($tagset_id) {
     return $out;
 }
 
-function get_ne_by_paragraph($par_id, $user_id, $tagset_id) {
+function get_ne_entity_tokens_info($start_token_id, $length) {
+    static $token_res = NULL;
+
+    if ($token_res == NULL) {
+        $token_res = sql_prepare("
+            SELECT tf_id, tf_text
+            FROM tokens
+            WHERE sent_id = (
+                SELECT sent_id FROM tokens WHERE tf_id = ?
+            )
+            AND pos >= (
+                SELECT pos FROM tokens WHERE tf_id = ?
+            )
+            ORDER BY pos
+            LIMIT ?
+        ");
+    }
+
+    $out = array();
+    sql_execute($token_res, array($start_token_id, $start_token_id, $length));
+    while ($r = sql_fetch_array($token_res))
+        $out[] = array($r['tf_id'], $r['tf_text']);
+
+    return $out;
+}
+
+function group_entities_by_mention($entities) {
+    $new = array();
+
+    foreach ($entities as $e) {
+        $mid = $e['mention_id'];
+        if (!isset($new[$mid]))
+            $new[$mid] = array();
+        $new[$mid][] = $e;
+    }
+
+    return $new;
+}
+
+function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = false) {
     if (!$user_id)
         throw new UnexpectedValueException();
 
@@ -120,7 +159,7 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id) {
     );
 
     $res = sql_query("
-        SELECT entity_id, start_token, length
+        SELECT entity_id, start_token, length, mention_id
         FROM ne_entities
         WHERE annot_id=".$out['annot_id']
     );
@@ -137,6 +176,7 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id) {
             'start_token' => $r['start_token'],
             'length' => $r['length'],
             'tokens' => array(),
+            'mention_id' => $r['mention_id'],
             'tags' => array()
         );
 
@@ -151,27 +191,14 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id) {
     $tag_res->closeCursor();
 
     // add token info
-    $token_res = sql_prepare("
-        SELECT tf_id, tf_text
-        FROM tokens
-        WHERE sent_id = (
-            SELECT sent_id FROM tokens WHERE tf_id = ?
-        )
-        AND pos >= (
-            SELECT pos FROM tokens WHERE tf_id = ?
-        )
-        ORDER BY pos
-        LIMIT ?
-    ");
-
     foreach ($out['entities'] as &$entity) {
-        sql_execute($token_res, array($entity['start_token'], $entity['start_token'], $entity['length']));
-        while ($r = sql_fetch_array($token_res))
-            $entity['tokens'][] = array($r['tf_id'], $r['tf_text']);
-
+        $entity['tokens'] = get_ne_entity_tokens_info($entity['start_token'], $entity['length']);
         if (sizeof($entity['tokens']) != $entity['length'])
             throw new Exception();
     }
+
+    if ($group_by_mention)
+        $out['entities'] = group_entities_by_mention($out['entities']);
 
     return $out;
 }
