@@ -52,6 +52,30 @@ try {
             set_ne_tags($entity_id, $tags);
             break;
 
+        case 'newMention':
+            if (empty($_POST['entities']) || empty($_POST['object_type']))
+                throw new UnexpectedValueException();
+            $result['id'] = add_mention($_POST['entities'], $_POST['object_type']);
+            break;
+
+        case 'deleteMention':
+            if (empty($_POST['mention']))
+                throw new UnexpectedValueException();
+            delete_mention($_POST['mention']);
+            break;
+
+        case 'deleteEntityFromMention':
+            if (empty($_POST['entity']))
+                throw new UnexpectedValueException();
+            clear_entity_mention($_POST['entity']);
+            break;
+
+        case 'setMentionType':
+            if (empty($_POST['mention']) || empty($_POST['object_type']))
+                throw new UnexpectedValueException();
+            update_mention($_POST['mention'], $_POST['object_type']);
+            break;
+
         case 'addComment':
             if (empty($_POST['paragraph'])
              or empty($_POST['comment'])) throw new Exception();

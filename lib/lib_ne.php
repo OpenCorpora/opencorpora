@@ -478,6 +478,7 @@ function add_mention($entity_ids, $object_type) {
     array_unshift($entity_ids, $mention_id);
     sql_pe("UPDATE ne_entities SET mention_id = ? WHERE entity_id IN (" . $entities_in . ")", $entity_ids);
     sql_commit();
+    return $mention_id;
 }
 
 function delete_mention($mention_id) {
