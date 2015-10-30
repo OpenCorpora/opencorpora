@@ -12,7 +12,12 @@
 </script>
 <h1>Пулы, сильнее всего влияющие на объём корпуса со снятой омонимией</h1>
 <p>Список хороших предложений обновляется раз в сутки.</p>
-<p>Тип: {html_options name=pool_type options=$types id=pool_select selected=$smarty.get.type}</p>
+<p>Тип:
+<select id="pool_select">
+{foreach from=$types item=t key=id}
+    <option value='{$id}' {if $id == $smarty.get.type}selected="selected"{/if}>{$t.grammemes}</option>
+{/foreach}
+</select>
 <table class="table">
 <tr><td>Пул<td>Циферка</tr>
 {foreach item=pool from=$pools}

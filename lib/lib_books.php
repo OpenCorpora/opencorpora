@@ -1,6 +1,7 @@
 <?php
 require_once('lib_dict.php');
 require_once('lib_annot.php');
+require_once('lib_ne.php');
 require_once('constants.php');
 
 function get_books_list() {
@@ -31,7 +32,26 @@ function get_book_parents($book_id, $include_self=false) {
     }
     return $parents;
 }
+function check_book_hidden($book_id) {
+    global $config;
+    // hide books when 24 hours passed after last edit
+    $res = sql_pe("
+        SELECT MAX(timestamp) AS ts
+        FROM tokens
+        LEFT JOIN sentences USING (sent_id)
+        LEFT JOIN paragraphs USING (par_id)
+        LEFT JOIN tf_revisions USING (tf_id)
+        LEFT JOIN rev_sets USING (set_id)
+        WHERE book_id = ?
+    ", array($book_id));
+    if (!$res[0]['ts'])
+        return;
+    $last_edit = $res[0]['ts'];
+    if (!is_admin() && $book_id >= $config['misc']['hidden_books_start_id'] && (time() - $last_edit > SEC_PER_DAY))
+        throw new Exception("Sorry, this book is temporarily hidden");
+}
 function get_book_page($book_id, $full = false) {
+    check_book_hidden($book_id);
     $res = sql_pe("SELECT * FROM `books` WHERE `book_id`=? LIMIT 1", array($book_id));
     if (!sizeof($res))
         throw new UnexpectedValueException();
@@ -136,8 +156,8 @@ function books_rename($book_id, $name) {
 }
 function get_books_for_select($parent = -1) {
     $out = array();
-    $pg = $parent > -1 ? "WHERE `parent_id`=$parent " : '';
-    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` ".$pg."ORDER BY `book_name`", 0);
+    $pg = $parent > -1 ? "WHERE `parent_id`=$parent" : '';
+    $res = sql_query("SELECT `book_id`, `book_name` FROM `books` ".$pg." ORDER BY `book_name`", 0);
     while ($r = sql_fetch_array($res)) {
         $out["$r[book_id]"] = $r['book_name'];
     }
@@ -298,22 +318,34 @@ function merge_paragraphs($par_id) {
     return array($book_id, $res[0]['sent_id']);
 }
 function sentence_has_ne_markup($sent_id) {
-    $res = sql_pe("
-        SELECT entity_id
-        FROM ne_entities
-        WHERE start_token IN (
-            SELECT tf_id
-            FROM tokens
-            WHERE sent_id = ?
-        )
-        LIMIT 1
-    ", array($sent_id));
-
-    return sizeof($res) > 0;
+    return sizeof(get_all_ne_by_sentence($sent_id)) > 0;
 }
 function sentence_has_syntax_markup($sent_id) {
     $res = sql_pe("SELECT parse_id FROM syntax_parses WHERE sent_id = ? LIMIT 1", array($sent_id));
     return sizeof($res) > 0;
+}
+function is_token_covered_by_ne_markup($tf_id) {
+    $res = sql_pe("SELECT sent_id FROM tokens WHERE tf_id=? LIMIT 1", array($tf_id));
+    $entities = get_all_ne_by_sentence($res[0]['sent_id']);
+
+    $tokres = sql_prepare("
+        SELECT tf_id
+        FROM tokens
+        WHERE sent_id = ?
+        AND pos >= (
+            SELECT pos FROM tokens WHERE tf_id = ?
+        )
+        ORDER BY pos
+        LIMIT ?
+    ");
+    foreach ($entities as $e) {
+        sql_execute($tokres, array($sent_id, $e['start_token'], $e['length']));
+        foreach (sql_fetchall($tokres) as $r) {
+            if ($r['tf_id'] == $tf_id)
+                return true;
+        }
+    }
+    return false;
 }
 function split_sentence($token_id) {
     // note: comments will stay with the first sentence
@@ -439,6 +471,13 @@ function delete_sentence($sid) {
         sql_query("DELETE FROM paragraphs WHERE par_id=$par_id LIMIT 1");
     sql_commit();
 }
+function delete_paragraph($pid) {
+    $res = sql_pe("SELECT sent_id FROM sentences WHERE par_id=?", array($pid));
+    sql_begin();
+    foreach ($res as $sent)
+        delete_sentence($sent['sent_id']);
+    sql_commit();
+}
 function save_token_text($tf_id, $tf_text) {
     $tf_text = trim($tf_text);
     if (!$tf_id || !$tf_text)
@@ -456,8 +495,8 @@ function save_token_text($tf_id, $tf_text) {
     sql_commit();
 }
 function delete_token($tf_id, $delete_history=true) {
-    // temporarily disabled to secure NE
-    throw new Exception("Function disabled");
+    if (is_token_covered_by_ne_markup($tf_id))
+        throw new Exception("Cannot delete token under NE markup");
 
     $sample_ids = array(0);
     $res = sql_query("SELECT sample_id FROM morph_annot_samples WHERE tf_id = $tf_id");
@@ -482,14 +521,15 @@ function delete_token($tf_id, $delete_history=true) {
     sql_commit();
 }
 function merge_tokens_ii($id_array) {
-    // temporarily disabled to secure NE
-    throw new Exception("Function disabled");
-
     //ii stands for "id insensitive"
     if (sizeof($id_array) < 2)
         throw new UnexpectedValueException();
 
     $id_array = array_map('intval', $id_array);
+    foreach ($id_array as $tid) {
+        if (is_token_covered_by_ne_markup($tid))
+            throw new Exception("Cannot change tokens under NE markup");
+    }
     $joined = join(',', $id_array);
 
     //check if they are all in the same sentence
@@ -531,8 +571,8 @@ function merge_tokens_ii($id_array) {
 function split_token($token_id, $num) {
     //$num is the number of characters (in the beginning) that should become a separate token
 
-    // temporarily disabled to secure NE
-    throw new Exception("Function disabled");
+    if (is_token_covered_by_ne_markup($token_id))
+        throw new Exception("Cannot split token under NE markup");
 
     if (!$token_id || !$num)
         throw new UnexpectedValueException();
@@ -540,7 +580,7 @@ function split_token($token_id, $num) {
     if (sizeof($res) == 0) {
         throw new Exception();
     }
-    $r = sql_fetch_array($res);
+    $r = $res[0];
     $text1 = trim(mb_substr($r['tf_text'], 0, $num));
     $text2 = trim(mb_substr($r['tf_text'], $num));
     if (!$text1 || !$text2) {

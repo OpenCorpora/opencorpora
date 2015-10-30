@@ -4,20 +4,27 @@ import time
 import ConfigParser, MySQLdb
 from MySQLdb.cursors import DictCursor 
 
-def update_rating(dbh):
+def update_rating(dbh, weights):
     dbh.execute("UPDATE users SET user_rating10 = 0")
-    dbh.execute("TRUNCATE TABLE user_rating_log")
 
     dbh.execute("""
-        SELECT user_id, SUM(rating_weight) AS rating
+        SELECT user_id, SUM(
+            CASE complexity
+                WHEN 0 THEN {0}
+                WHEN 1 THEN {1}
+                WHEN 2 THEN {2}
+                WHEN 3 THEN {3}
+                WHEN 4 THEN {4}
+            END
+        ) AS rating
         FROM users
         LEFT JOIN morph_annot_instances USING(user_id)
         LEFT JOIN morph_annot_samples USING(sample_id)
         LEFT JOIN morph_annot_pools p USING(pool_id)
         LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id)
         GROUP BY user_id
-        ORDER BY SUM(rating_weight) DESC
-    """)
+        ORDER BY rating DESC
+    """.format(*weights))
 
     users = dbh.fetchall()
     for user in users:
@@ -33,10 +40,13 @@ def main():
     username = config.get('mysql', 'user')
     password = config.get('mysql', 'passwd')
 
+    weights = map(float, config.get('misc', 'morph_annot_rating_weights').split(','))
+    assert len(weights) == 5
+
     db = MySQLdb.connect(hostname, username, password, dbname, use_unicode=True, charset="utf8")
     dbh = db.cursor(DictCursor)
     dbh.execute('START TRANSACTION')
-    update_rating(dbh)
+    update_rating(dbh, weights)
 
     db.commit()
 

@@ -114,7 +114,7 @@
         {if $editor.lemma.id > 0}
             <p>
                 <input type="text" name="lemma_text" value="{$editor.lemma.text|htmlspecialchars}">
-                <select name="lemma_gram[]" id="lemma_gr" class="gram-selectpicker"
+                <select name="lemma_gram[]" id="lemma_gr" class="gram-selectpicker span5"
                         data-live-search="true" title="граммемы" multiple {if !$user_permission_dict}disabled{/if}>
                     {foreach $possible_grammems as $name}
                         <option value="{$name}" {if in_array($name, $editor.lemma.grms_raw)}selected{/if}>{$name}</option>
@@ -173,7 +173,7 @@
     </form>
     {/strip}
     <h4>Связи</h4>
-    {if $user_permission_dict && !$editor.deleted}
+    {if $user_permission_dict && $editor.lemma.id > 0 && !$editor.deleted}
     <p><a href="#" class="pseudo" onclick="$('#add_link').show(); return false">Добавить связь</a></p>
     <form id="add_link" method='post' class='hidden-block' action='?act=add_link'>
         <input type='hidden' name='from_id' value='{$editor.lemma.id}'/>

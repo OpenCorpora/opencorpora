@@ -265,7 +265,7 @@ function revert_dict($rev_id) {
 
     $res = sql_pe("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=? LIMIT 1", array($rev_id));
     $lemma_id = $res[0]['lemma_id'];
-    $old_rev = sql_pe("SELECT rev_text FROM dict_revisions WHERE lemma_id=? ORDER BY rev_id DESC LIMIT 1", array($lemma_id));
+    $old_rev = sql_pe("SELECT rev_text FROM dict_revisions WHERE lemma_id=? and is_last=1 LIMIT 1", array($lemma_id));
 
     sql_begin();
     $new_set_id = create_revset("Отмена правки, возврат к версии d$rev_id");

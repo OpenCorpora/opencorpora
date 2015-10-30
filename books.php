@@ -1,8 +1,8 @@
 <?php
 require('lib/header.php');
-require('lib/lib_books.php');
-require('lib/lib_syntax.php');
-require('lib/lib_ne.php');
+require_once('lib/lib_books.php');
+require_once('lib/lib_anaphora_syntax.php');
+require_once('lib/lib_ne.php');
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 if (!$action) {
@@ -14,9 +14,21 @@ if (!$action) {
         $smarty->display('books.tpl');
     }
 }
-elseif (is_admin() && $action == 'del_sentence') {
-    delete_sentence($_GET['sid']);
-    header("Location:books.php?book_id=".$_GET['book_id'].'&full');
+elseif (is_admin() && in_array($action, array('del_sentence', 'del_paragraph', 'move'))) {
+    switch ($action) {
+        case 'del_sentence':
+            delete_sentence($_GET['sid']);
+            header("Location:books.php?book_id=".$_GET['book_id'].'&full');
+            break;
+        case 'del_paragraph':
+            delete_paragraph($_GET['pid']);
+            header("Location:books.php?book_id=".$_GET['book_id'].'&full');
+            break;
+        case 'move':
+            books_move($_POST['book_id'], $_POST['book_to']);
+            header("Location:books.php?book_id=$book_to");
+            break;
+    }
 }
 elseif (user_has_permission(PERM_SYNTAX) && $action == 'anaphora') {
     if (isset($_GET['book_id']) && $book_id = $_GET['book_id']) {
@@ -47,26 +59,34 @@ elseif (user_has_permission(PERM_SYNTAX) && $action == 'anaphora') {
 elseif  (/*user_has_permission(PERM_SYNTAX) && */is_logged() && $action == 'ner') {
     if (isset($_GET['book_id']) && $book_id = $_GET['book_id']) {
 
+        $tagset_id = get_current_tagset();
+
         $book = get_book_page($book_id, TRUE);
-        $paragraphs_status = get_ne_paragraph_status($book_id, $_SESSION['user_id']);
+        $paragraphs_status = get_ne_paragraph_status($book_id, $_SESSION['user_id'], $tagset_id);
 
         foreach ($book['paragraphs'] as &$paragraph) {
-            $ne = get_ne_by_paragraph($paragraph['id'], $_SESSION['user_id']);
-            $paragraph['named_entities'] = $ne['entities'];
-            $paragraph['annotation_id'] = $ne['annot_id'];
-            $paragraph['ne_by_token'] = get_ne_tokens_by_paragraph($paragraph['id'], $_SESSION['user_id']);
-            $paragraph['comments'] = get_comments_by_paragraph($paragraph['id'], $_SESSION['user_id']);
+            $ne = get_ne_by_paragraph($paragraph['id'], $_SESSION['user_id'], $tagset_id);
+            $paragraph['named_entities'] = isset($ne['entities']) ? $ne['entities'] : array();
+            $paragraph['annotation_id'] = isset($ne['annot_id']) ? $ne['annot_id'] : array();
+            $paragraph['ne_by_token'] = get_ne_tokens_by_paragraph($paragraph['id'], $_SESSION['user_id'], $tagset_id);
+            $paragraph['comments'] = get_comments_by_paragraph($paragraph['id'], $_SESSION['user_id'], $tagset_id);
 
+            $paragraph['mine'] = false;
             if (in_array($paragraph['id'], $paragraphs_status['unavailable']) or
-                in_array($paragraph['id'], $paragraphs_status['done_by_user']))
+                in_array($paragraph['id'], $paragraphs_status['done_by_user'])) {
                 $paragraph['disabled'] = true;
-            elseif (in_array($paragraph['id'], $paragraphs_status['started_by_user']))
+            }
+            elseif (in_array($paragraph['id'], $paragraphs_status['started_by_user'])) {
                 $paragraph['mine'] = true;
+            }
         }
 
         $smarty->assign('book', $book);
-        $smarty->assign('types', get_ne_types());
+        $smarty->assign('types', get_ne_types($tagset_id));
         $smarty->assign('use_fast_mode', $_SESSION['options'][5]);
+        $smarty->assign('possible_guidelines',
+            array(1 => "Default (2014)", 2 => "Dialogue Eval (2016)"));
+        $smarty->assign('current_guideline', $_SESSION['options'][6]);
         $smarty->display('ner/book.tpl');
     } else {
         throw new UnexpectedValueException();
@@ -88,10 +108,6 @@ elseif (user_has_permission(PERM_ADDER)) {
             $book_id = $_POST['book_id'];
             books_rename($book_id, $name);
             header("Location:books.php?book_id=$book_id");
-            break;
-        case 'move':
-            books_move($_POST['book_id'], $_POST['book_to']);
-            header("Location:books.php?book_id=$book_to");
             break;
         case 'add_tag':
             $book_id = $_POST['book_id'];

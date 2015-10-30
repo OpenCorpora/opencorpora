@@ -8,7 +8,7 @@
 		{if $a->given}
 			<div class="achievement-wrap achievement-{$a->css_class} achievement-small"
 				data-tab-name="{$a->css_class}-tab">
-				{if $a->level}
+				{if property_exists($a, "level")}
 					<div class="achievement-level achievement-{$a->css_class}-level">{$a->level}</div>
 					{$htgn = $a->how_to_get_next()}
 					{if $htgn && $mine}

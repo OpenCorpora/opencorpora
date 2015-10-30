@@ -2,6 +2,7 @@
 require_once('lib_annot.php');
 require_once('lib_history.php');
 require_once('lib_xml.php');
+require_once('lib_morph_pools.php');
 
 // GENERAL
 function get_dict_stats() {
@@ -53,7 +54,7 @@ function get_dict_search_results($get) {
     return $out;
 }
 function get_all_forms_by_lemma_id($lid) {
-    $res = sql_pe("SELECT rev_text FROM dict_revisions WHERE lemma_id=? ORDER BY rev_id DESC LIMIT 1", array($lid));
+    $res = sql_pe("SELECT rev_text FROM dict_revisions WHERE lemma_id=? AND is_last=1 LIMIT 1", array($lid));
     $parsed = parse_dict_rev($res[0]['rev_text']);
     $forms = array();
     foreach ($parsed['forms'] as $form)
@@ -156,7 +157,7 @@ function parse_dict_rev($text) {
     return $parsed;
 }
 function get_word_paradigm($lemma) {
-    $res = sql_pe("SELECT rev_text FROM dict_revisions LEFT JOIN dict_lemmata USING (lemma_id) WHERE deleted=0 AND lemma_text=? ORDER BY rev_id DESC LIMIT 1", array($lemma));
+    $res = sql_pe("SELECT rev_text FROM dict_revisions LEFT JOIN dict_lemmata USING (lemma_id) WHERE deleted=0 AND lemma_text=? AND is_last=1 LIMIT 1", array($lemma));
     if (sizeof($res) == 0)
         return false;
     $r = $res[0];
@@ -247,7 +248,7 @@ function get_pending_updates($skip=0, $limit=500) {
         LEFT JOIN dict_revisions dr ON (ut.dict_revision = dr.rev_id)
         LEFT JOIN tokens tf ON (ut.token_id = tf.tf_id)
         LEFT JOIN tf_revisions tfr USING (tf_id)
-        WHERE is_last = 1
+        WHERE tfr.is_last = 1
         ORDER BY dict_revision, token_id
         LIMIT ?, ?
     ", array($skip, $limit));
@@ -434,9 +435,9 @@ function get_lemma_editor($id) {
         SELECT l.`lemma_text`, l.deleted, d.`rev_id`, d.`rev_text`
         FROM `dict_lemmata` l
             LEFT JOIN `dict_revisions` d
-            ON (l.lemma_id = d.lemma_id)
+            USING (lemma_id)
         WHERE l.`lemma_id`=?
-        ORDER BY d.rev_id DESC
+        AND d.is_last=1
         LIMIT 1
     ", array($id));
     $arr = parse_dict_rev($res[0]['rev_text']);
@@ -470,7 +471,7 @@ function get_lemma_editor($id) {
         LEFT JOIN dict_errata_exceptions x ON (e.error_type=x.error_type AND e.error_descr=x.error_descr)
         LEFT JOIN users u ON (x.author_id = u.user_id)
         WHERE e.rev_id =
-        (SELECT rev_id FROM dict_revisions WHERE lemma_id=? ORDER BY rev_id DESC LIMIT 1)
+        (SELECT rev_id FROM dict_revisions WHERE lemma_id=? AND is_last=1 LIMIT 1)
     ", array($id));
     foreach ($res as $r) {
         $out['errata'][] = array(
@@ -573,7 +574,7 @@ function dict_save($array) {
     $gram_order = dict_get_grammemes_by_order();
     $lemma_gram_new = prepare_gram_array($array['lemma_gram'], $gram_order);
 
-    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=".$array['lemma_id']." ORDER BY `rev_id` DESC LIMIT 1"));
+    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=".$array['lemma_id']." AND is_last=1 LIMIT 1"));
     $old_rev_parsed = parse_dict_rev($old_xml = $r['rev_text']);
     $old_lemma_text = $old_rev_parsed['lemma']['text'];
 
@@ -635,7 +636,8 @@ function new_dict_rev($lemma_id, $new_xml, $revset_id=0, $comment = '') {
     sql_begin();
     if (!$revset_id)
         $revset_id = create_revset($comment);
-    sql_pe("INSERT INTO `dict_revisions` VALUES(NULL, ?, ?, ?, 0, 0)", array($revset_id, $lemma_id, $new_xml));
+    sql_pe("UPDATE dict_revisions SET is_last=0 WHERE lemma_id=?", array($lemma_id));
+    sql_pe("INSERT INTO `dict_revisions` VALUES(NULL, ?, ?, ?, 0, 0, 1)", array($revset_id, $lemma_id, $new_xml));
     $new_id = sql_insert_id();
     sql_commit();
     return $new_id;
@@ -661,7 +663,8 @@ function del_lemma($id) {
         del_link($r['link_id'], $revset_id);
 
     // create empty revision
-    sql_pe("INSERT INTO dict_revisions VALUES (NULL, ?, ?, '', 1, 1)", array($revset_id, $id));
+    sql_pe("UPDATE dict_revisions SET is_last=0 WHERE lemma_id=?", array($id));
+    sql_pe("INSERT INTO dict_revisions VALUES (NULL, ?, ?, '', 1, 1, 1)", array($revset_id, $id));
     $rev_id = sql_insert_id();
 
     //update `updated_forms`
@@ -688,7 +691,7 @@ function del_link($link_id, $revset_id=0) {
     sql_commit();
 }
 function add_link($from_id, $to_id, $link_type, $revset_id=0) {
-    if (!$from_id || !$to_id || !$link_type)
+    if ($from_id <= 0 || $to_id <= 0 || !$link_type)
         throw new UnexpectedValueException();
     sql_begin();
     if (!$revset_id) $revset_id = create_revset();
@@ -738,32 +741,6 @@ function add_grammem($inner_id, $group, $outer_id, $descr) {
 }
 function del_grammem($grm_id) {
     sql_pe("DELETE FROM `gram` WHERE `gram_id`=? LIMIT 1", array($grm_id));
-}
-function move_grammem($grm_id, $dir) {
-    if (!$grm_id || !$dir)
-        throw new UnexpectedValueException();
-    $res = sql_pe("SELECT `orderby` as `ord` FROM `gram` WHERE gram_id=?", array($grm_id));
-    $ord = $res[0]['ord'];
-    if ($dir == 'up') {
-        $q = sql_query("SELECT MAX(`orderby`) as `ord` FROM `gram` WHERE `orderby`<$ord");
-        if ($q) {
-            $r = sql_fetch_array($q);
-            $ord2 = $r['ord'];
-        }
-    } else {
-        $q = sql_query("SELECT MIN(`orderby`) as `ord` FROM `gram` WHERE `orderby`>$ord");
-        if ($q) {
-            $r = sql_fetch_array($q);
-            $ord2 = $r['ord'];
-        }
-    }
-    if (!isset($ord2))
-        return true;
-
-    sql_begin();
-    sql_query("UPDATE `gram` SET `orderby`='$ord' WHERE `orderby`=$ord2 LIMIT 1");
-    sql_pe("UPDATE `gram` SET `orderby`=? WHERE `gram_id`=? LIMIT 1", array($ord2, $grm_id));
-    sql_commit();
 }
 function edit_grammem($id, $inner_id, $outer_id, $descr) {
     if (!$id || !$inner_id)

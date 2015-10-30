@@ -14,8 +14,10 @@ try {
     switch ($_POST['act']) {
         case 'newAnnotation':
 
+            $tagset_id = get_current_tagset();
+
             if (empty($_POST['paragraph'])) throw new Exception();
-            $id = start_ne_annotation($_POST['paragraph']);
+            $id = start_ne_annotation($_POST['paragraph'], $tagset_id);
             $result['id'] = $id;
             break;
 
@@ -48,6 +50,30 @@ try {
 
             list($entity_id, $tags) = array($_POST['entity'], $_POST['types']);
             set_ne_tags($entity_id, $tags);
+            break;
+
+        case 'newMention':
+            if (empty($_POST['entities']) || empty($_POST['object_type']))
+                throw new UnexpectedValueException();
+            $result['id'] = add_mention($_POST['entities'], $_POST['object_type']);
+            break;
+
+        case 'deleteMention':
+            if (empty($_POST['mention']))
+                throw new UnexpectedValueException();
+            delete_mention($_POST['mention']);
+            break;
+
+        case 'deleteEntityFromMention':
+            if (empty($_POST['entity']))
+                throw new UnexpectedValueException();
+            clear_entity_mention($_POST['entity']);
+            break;
+
+        case 'setMentionType':
+            if (empty($_POST['mention']) || empty($_POST['object_type']))
+                throw new UnexpectedValueException();
+            update_mention($_POST['mention'], $_POST['object_type']);
             break;
 
         case 'addComment':

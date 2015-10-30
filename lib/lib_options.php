@@ -35,6 +35,7 @@ class UserOptionsManager {
 
         $opt = new UserOption(3, OptionTypes::KEY_VALUE);
         $opt->values = array(1 => 5, 2 => 10, 3 => 20, 4 => 50);
+        $opt->default_value = 2;
         $opt->caption = "Количество примеров для разметки";
         $this->options[] = $opt;
 
@@ -47,7 +48,12 @@ class UserOptionsManager {
         $opt->caption = "Быстрый режим разметки именованных сущностей";
         $this->options[] = $opt;
 
-        $opt = new UserOption(6);
+        $opt = new UserOption(6, OptionTypes::KEY_VALUE);
+        $opt->values = array(1 => "Default (2014)", 2 => "Dialogue Eval (2016)");
+        $opt->caption = "Инструкция (tagset) разметки NER";
+        $this->options[] = $opt;
+
+        $opt = new UserOption(7);
         $opt->caption = "Включить геймификацию";
         $this->options[] = $opt;
     }

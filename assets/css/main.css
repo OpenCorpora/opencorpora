@@ -929,8 +929,8 @@ button.ma_next_pack {
 
 /* NER module */
 .ner-paragraph {
-    font-size: 16px;
-    line-height: 24px;
+    font-size: 0; /* to remove extra spaces */
+    line-height: 37px;
 }
 
 /* абзац можно размечать - по умолчанию */
@@ -978,7 +978,42 @@ button.ma_next_pack {
 .ner-token {
     padding: 3px;
     display: inline-block;
+    position: relative;
     cursor: pointer;
+}
+
+.ner-token-highlighted {
+    background-color: lightblue;
+}
+
+.ner-token-text {
+    font-size: 16px;
+}
+
+.ner-token-borders {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 32px;
+    bottom: -7px;
+    left: 0px;
+}
+
+.ner-token-border {
+    display: block;
+    position: absolute;
+    width: 100%;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    height: 5px;
+}
+
+.ner-token-border.first-token {
+    border-bottom-left-radius: 10px;
+}
+
+.ner-token-border.last-token {
+    border-bottom-right-radius: 10px;
 }
 
 .ner-token.ner-token-selected {
@@ -992,7 +1027,7 @@ button.ma_next_pack {
     padding-bottom: 0px;
 }
 
-.ner-entity.ner-multiple-types {
+.ner-entity.ner-multiple-types, .ner-token-border.ner-multiple-types {
     border-bottom-color: darkgray;
 }
 
@@ -1202,6 +1237,10 @@ tr.valign-top td {
     margin-bottom: 50px;
     margin-top: 30px;
     cursor: pointer;
+}
+
+.achievement-well-no-margin .achievement-wrap {
+    margin-top: 0px;
 }
 
 /* общие классы */
@@ -1436,6 +1475,7 @@ tr.valign-top td {
 
 .inline-50 {
     display: inline-block;
+    vertical-align: top;
     box-sizing: border-box;
     width: 50%;
     margin-bottom: 20px;
@@ -1538,3 +1578,26 @@ tr.valign-top td {
 .t-row.t-my-level td {
     color: #a19679;
 }
+
+.tooltip-large {
+    font-size: 13px;
+}
+.tooltip-large.right {
+    margin-left: 13px;
+}
+
+.small-tabs.nav-tabs > li, .small-tabs.nav-tabs > li > a {
+    line-height: 12px;
+    font-size: 11px;
+    padding-top: 2px;
+    padding-bottom: 1px;
+    margin-bottom: -1px;
+    text-transform: uppercase;
+}
+
+.dragged-up {
+    position: relative;
+    top: -18px;
+}
+
+

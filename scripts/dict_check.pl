@@ -1,10 +1,21 @@
 #!/usr/bin/perl
 use strict;
+use warnings;
 use utf8;
 use DBI;
 use Encode;
 use Config::INI::Reader;
 #use Data::Dump qw/dump/;
+
+use constant ERR_INCOMPATIBLE_GRAM => 1;
+use constant ERR_UNKNOWN_GRAM => 2;
+use constant ERR_DUPLICATE_FORMS => 3;
+use constant ERR_MISSING_GRAM => 4;
+use constant ERR_FORBIDDEN_GRAM => 5;
+
+use constant RESTR_ALLOWED => 0;
+use constant RESTR_OBLIGATORY => 1;
+use constant RESTR_DISALLOWED => 2;
 
 #reading config
 my $conf = Config::INI::Reader->read_file($ARGV[0]);
@@ -12,7 +23,6 @@ $conf = $conf->{mysql};
 
 #main
 my %bad_pairs;
-my %all_grammems;
 my %must;
 my %may;
 my %forbidden;
@@ -31,14 +41,14 @@ my $update = $dbh->prepare("UPDATE dict_revisions SET dict_check='1' WHERE rev_i
 my $scan = $dbh->prepare("SELECT rev_id, lemma_id, rev_text FROM dict_revisions WHERE dict_check=0 ORDER BY rev_id LIMIT 500");
 my $scan0 = $dbh->prepare("SELECT gram_id, inner_id FROM gram WHERE parent_id=0");
 
-get_gram_info();
+my $all_gram = get_gram_info();
 #print STDERR dump(%forbidden)."\n";
 my @revisions = @{get_new_revisions()};
 while(my $ref = shift @revisions) {
     $clear->execute($ref->{'lemma_id'});
     if ($ref->{'text'} ne '') {
         # an empty revision is created when a lemma is deleted
-        check($ref);
+        check($ref, $all_gram);
     }
     $update->execute($ref->{'id'});
 }
@@ -58,6 +68,7 @@ sub get_gram_info {
     #bad pairs, all valid grammems
     $scan0->execute();
     my %h;
+    my %all_grammems;
     while(my $ref = $scan0->fetchrow_hashref()) {
         %h = ();
         $h{$ref->{'inner_id'}} = 0;
@@ -93,14 +104,14 @@ sub get_gram_info {
         LEFT JOIN gram g3 ON (g2.gram_id = g3.parent_id)
         WHERE r.restr_type = ? OR r.restr_type = ?
         ORDER BY r.restr_type");
-    $scan1->execute(0, 1);
+    $scan1->execute(RESTR_ALLOWED, RESTR_OBLIGATORY);
     my $last_id = 0;
     my @real = ();
     while(my $ref = $scan1->fetchrow_hashref()) {
         @real = ($ref->{'then_id'});
         push @real, $ref->{'gram1'} if $ref->{'gram1'};
         push @real, $ref->{'gram2'} if $ref->{'gram2'};
-        if ($ref->{'restr_type'} == 1) {
+        if ($ref->{'restr_type'} == RESTR_OBLIGATORY) {
             #grammem must be there in some cases
             if ($ref->{'restr_id'} != $last_id) {
                 my %t;
@@ -119,7 +130,7 @@ sub get_gram_info {
     }
 
     # deleting what is forbidden
-    $scan1->execute(2, 2);
+    $scan1->execute(RESTR_DISALLOWED, RESTR_DISALLOWED);
     while(my $ref = $scan1->fetchrow_hashref()) {
         @real = ($ref->{'then_id'});
         push @real, $ref->{'gram1'} if $ref->{'gram1'};
@@ -127,9 +138,13 @@ sub get_gram_info {
         delete $may{swap2($objtype{$ref->{'obj_type'}})}{$_}{$ref->{'if_id'}} for (@real);
         $forbidden{swap2($objtype{$ref->{'obj_type'}})}{$_}{$ref->{'if_id'}} = 1 for (@real);
     }
+
+    return \%all_grammems;
 }
 sub check {
     my $ref = shift;
+    my $allgram_ref = shift;
+
     my $newerr = $dbh->prepare("INSERT INTO dict_errata VALUES(NULL, ?, ?, ?, ?)");
     $ref->{'text'} =~ /<l t="(.+)">(.+)<\/l>/;
     my ($lt, $lg_str) = ($1, $2);
@@ -139,16 +154,16 @@ sub check {
     }
 
     if (my $err = is_incompatible(\@lemma_gram)) {
-        $newerr->execute(time(), $ref->{'id'}, 1, "<$lt> ($err)");
+        $newerr->execute(time(), $ref->{'id'}, ERR_INCOMPATIBLE_GRAM, "<$lt> ($err)");
     }
-    if (my $err = has_unknown_grammems(\@lemma_gram)) {
-        $newerr->execute(time(), $ref->{'id'}, 2, "<$lt> ($err)");
+    if (my $err = has_unknown_grammems(\@lemma_gram, $allgram_ref)) {
+        $newerr->execute(time(), $ref->{'id'}, ERR_UNKNOWN_GRAM, "<$lt> ($err)");
     }
     if (my $err = misses_oblig_grammems_l(\@lemma_gram)) {
-        $newerr->execute(time(), $ref->{'id'}, 4, "<$lt> ($err)");
+        $newerr->execute(time(), $ref->{'id'}, ERR_MISSING_GRAM, "<$lt> ($err)");
     }
     if (my $err = has_disallowed_grammems_l(\@lemma_gram)) {
-        $newerr->execute(time(), $ref->{'id'}, 5, "<$lt> ($err)");
+        $newerr->execute(time(), $ref->{'id'}, ERR_FORBIDDEN_GRAM, "<$lt> ($err)");
     }
 
     my @form_gram = ();
@@ -164,20 +179,20 @@ sub check {
         }
         @all_gram = (@lemma_gram, @form_gram);
         if (my $err = is_incompatible(\@all_gram)) {
-            $newerr->execute(time(), $ref->{'id'}, 1, "<$ft> ($err)");
+            $newerr->execute(time(), $ref->{'id'}, ERR_INCOMPATIBLE_GRAM, "<$ft> ($err)");
         }
-        if (my $err = has_unknown_grammems(\@all_gram)) {
-            $newerr->execute(time(), $ref->{'id'}, 2, "<$ft> ($err)");
+        if (my $err = has_unknown_grammems(\@all_gram, $allgram_ref)) {
+            $newerr->execute(time(), $ref->{'id'}, ERR_UNKNOWN_GRAM, "<$ft> ($err)");
         }
         if (my $err = misses_oblig_grammems_f(\@form_gram, \@lemma_gram)) {
-            $newerr->execute(time(), $ref->{'id'}, 4, "<$ft> ($err)");
+            $newerr->execute(time(), $ref->{'id'}, ERR_MISSING_GRAM, "<$ft> ($err)");
         }
         if (my $err = has_disallowed_grammems_f(\@form_gram, \@lemma_gram)) {
-            $newerr->execute(time(), $ref->{'id'}, 5, "<$ft> ($err)");
+            $newerr->execute(time(), $ref->{'id'}, ERR_FORBIDDEN_GRAM, "<$ft> ($err)");
         }
         $form_gram_str = join('|', sort @form_gram);
         if (my $f = $form_gram_hash{$form_gram_str}) {
-            $newerr->execute(time(), $ref->{'id'}, 3, "<$ft>, <$f> ($form_gram_str)");
+            $newerr->execute(time(), $ref->{'id'}, ERR_DUPLICATE_FORMS, "<$ft>, <$f> ($form_gram_str)");
             return;
         } else {
             $form_gram_hash{$form_gram_str} = $ft;
@@ -195,8 +210,10 @@ sub is_incompatible {
 }
 sub has_unknown_grammems {
     my @gram = @{shift()};
+    my $allgram_ref = shift;
+
     for my $g(@gram) {
-        exists $all_grammems{$g} || return $g;
+        exists $allgram_ref->{$g} || return $g;
     }
     return 0;
 }

@@ -15,7 +15,7 @@
         <link href="/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
         <link href="/assets/css/btn-palette.css" rel="stylesheet">
 
-        <link rel='stylesheet' type='text/css' href='/assets/css/main.css?9'/>
+        <link rel='stylesheet' type='text/css' href='/assets/css/main.css?11'/>
         <link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-notify/css/bootstrap-notify.css" />
 
         <!-- Open Sans for headers -->

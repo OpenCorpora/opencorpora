@@ -1,6 +1,6 @@
 <?php
 require_once('../lib/header_ajax.php');
-require_once('../lib/lib_syntax.php');
+require_once('../lib/lib_anaphora_syntax.php');
 
 /*
     Сюда приходит POST'ом следующее:

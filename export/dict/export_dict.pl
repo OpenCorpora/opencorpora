@@ -38,7 +38,7 @@ my $read_r = $dbh->prepare("
     LEFT JOIN gram g1 ON (r.if_id = g1.gram_id)
     LEFT JOIN gram g2 ON (r.then_id = g2.gram_id)
 ");
-my $read_l = $dbh->prepare("SELECT * FROM (SELECT lemma_id, rev_id, rev_text FROM dict_revisions LEFT JOIN dict_lemmata dl USING (lemma_id) WHERE dl.lemma_text IS NOT NULL AND dl.deleted = 0 AND lemma_id BETWEEN ? AND ? ORDER BY lemma_id, rev_id DESC) T GROUP BY T.lemma_id");
+my $read_l = $dbh->prepare("SELECT lemma_id, rev_id, rev_text FROM dict_revisions LEFT JOIN dict_lemmata dl USING (lemma_id) WHERE is_last=1 AND dl.deleted = 0 AND lemma_id BETWEEN ? AND ? ORDER BY lemma_id");
 my $read_lt = $dbh->prepare("SELECT * FROM dict_links_types ORDER BY link_id");
 my $read_links = $dbh->prepare("SELECT * FROM dict_links ORDER BY link_id LIMIT ?, 10000");
 my %restr_types = (

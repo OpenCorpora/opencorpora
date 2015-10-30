@@ -209,7 +209,7 @@ function get_user_stats($weekly=false, $team=0) {
 
     $uid2sid = array();
     $res = sql_pe("
-        SELECT user_id, COUNT(*) AS cnt, FLOOR(user_rating10 / 10) AS rating
+        SELECT user_id, COUNT(*) AS cnt, user_rating10 AS rating
         FROM morph_annot_instances
         LEFT JOIN users USING(user_id)
         WHERE answer > 0
@@ -244,7 +244,7 @@ function get_user_stats($weekly=false, $team=0) {
     $res = sql_query("
         SELECT user_id, MAX(timestamp) AS last_time
         FROM morph_annot_click_log
-        WHERE timestamp > UNIX_TIMESTAMP(NOW()) - ".SEC_PER_DAY." * 60
+        WHERE timestamp > UNIX_TIMESTAMP(NOW()) - ".SEC_PER_DAY." * ".($weekly ? "7" : "60")."
         GROUP BY user_id
     ");
     while ($r = sql_fetch_array($res)) {

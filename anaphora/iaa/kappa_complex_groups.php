@@ -4,7 +4,7 @@
 // register_shutdown_function(function() { debug_print_backtrace(); });
 
 require_once('lib/header.php');
-require_once('lib/lib_syntax.php');
+require_once('lib/lib_anaphora_syntax.php');
 require_once('lib/lib_users.php');
 require_once('kappa_fn.php');
 

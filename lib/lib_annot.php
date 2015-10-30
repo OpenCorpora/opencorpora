@@ -1,4 +1,5 @@
 <?php
+require_once('lib_books.php');
 
 class MorphParse {
     public $lemma_id = 0;
@@ -40,7 +41,7 @@ class MorphParse {
     }
 
     public function to_xml() {
-        $out = '<v><l id="'.$this->lemma_id.'" t="'.$this->lemma_text.'">';
+        $out = '<v><l id="'.$this->lemma_id.'" t="'.htmlspecialchars($this->lemma_text).'">';
         foreach ($this->gramlist as $gram)
             $out .= '<g v="'.$gram['inner'].'"/>';
         $out .= '</l></v>';
@@ -76,6 +77,18 @@ class MorphParseSet {
             if (($parse->lemma_id == $lemma_id) == $allow)
                 $newparses[] = $parse;
         $this->parses = $newparses;
+        if (sizeof($this->parses) == 0)
+            $this->_from_token($this->token_text, true, false);
+    }
+
+    public function filter_by_parse_index($index_array) {
+        $newparses = array();
+        foreach ($this->parses as $i => $parse)
+            if (in_array($i, $index_array))
+                $newparses[] = $parse;
+        $this->parses = $newparses;
+        if (sizeof($this->parses) == 0)
+            $this->_from_token($this->token_text, true, false);
     }
 
     public function set_lemma_text($lemma_id, $lemma_text) {
@@ -118,7 +131,12 @@ class MorphParseSet {
             return $arr;
 
         // so there is a 'ё'
-        $res = sql_pe("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text COLLATE 'utf8_bin' = ?", array($token));
+        $res = sql_pe("
+            SELECT lemma_id, lemma_text, grammems
+            FROM form2lemma
+            WHERE form_text COLLATE 'utf8_bin' = ?
+            ORDER BY lemma_id, grammems
+        ", array($token));
         // return if no difference
         if (sizeof($res) == sizeof($arr) || !sizeof($res))
             return $arr;
@@ -153,10 +171,17 @@ class MorphParseSet {
 
     private function _from_token($token, $force_unknown, $force_include_init) {
         $this->token_text = $token;
+        $cyrillic = false;
         if ($force_unknown) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'UNKN')));
         } elseif (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {
-            $res = sql_pe("SELECT lemma_id, lemma_text, grammems FROM form2lemma WHERE form_text=?", array($token));
+            $cyrillic = true;
+            $res = sql_pe("
+                SELECT lemma_id, lemma_text, grammems
+                FROM form2lemma
+                WHERE form_text=?
+                ORDER BY lemma_id, grammems
+            ", array($token));
             if (sizeof($res) > 0) {
                 $var = array();
                 foreach ($res as $r) {
@@ -178,8 +203,6 @@ class MorphParseSet {
                     if (!$require_uc || $force_include_init || preg_match('/^[А-ЯЁ]+$/u', $token))
                         $this->parses[] = new MorphParse($r['lemma_text'], $gramlist, $r['lemma_id']);
                 }
-            } else {
-                $this->parses[] = new MorphParse(mb_strtolower($token, 'UTF-8'), array(array('inner' => 'UNKN')));
             }
         } elseif (preg_match('/^\p{P}+$/u', $token)) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'PNCT')));
@@ -187,11 +210,14 @@ class MorphParseSet {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'NUMB')));
         } elseif (preg_match('/^[\p{Latin}\.-]+$/u', $token)) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'LATN')));
-            if (preg_match('/^[IVXLCMDivxlcmd]+$/u', $token))
-                $this->parses[] = new MorphParse($token, array(array('inner' => 'ROMN')));
         }
 
+        if (preg_match('/^[IVXLCMDivxlcmdХх]+$/u', $token))
+            $this->parses[] = new MorphParse($token, array(array('inner' => 'ROMN')));
+
         if (sizeof($this->parses) == 0) {
+            if ($cyrillic)
+                $token = mb_strtolower($token, 'UTF-8');
             $this->parses[] = new MorphParse($token, array(array('inner' => 'UNKN')));
         }
 
@@ -201,6 +227,7 @@ class MorphParseSet {
 }
 
 function get_sentence($sent_id) {
+    global $config;
     $r = sql_fetch_array(sql_query("SELECT `check_status`, source FROM sentences WHERE sent_id=$sent_id LIMIT 1"));
     $out = array(
         'id' => $sent_id,
@@ -228,6 +255,7 @@ function get_sentence($sent_id) {
         )
     "));
     $out['book_id'] = $book_id = $r['book_id'];
+    check_book_hidden($book_id);
     $out['syntax_moder_id'] = $r['old_syntax_moder_id'];
     $r = sql_fetch_array(sql_query("
         SELECT book_name
@@ -342,6 +370,15 @@ function get_adjacent_sentence_id($sent_id, $next) {
 
     return 0;
 }
+function prepare_parse_indices($flag_array) {
+    // note: $flag_array is 1-based, return values are 0-based
+    $ret = array();
+    foreach ($flag_array as $i => $val) {
+        if ($val)
+            $ret[] = $i-1;
+    }
+    return $ret;
+}
 function sentence_save($sent_id) {
     if (!$sent_id)
         throw new UnexpectedValueException();
@@ -369,41 +406,27 @@ function sentence_save($sent_id) {
     foreach ($tokens as $tf_id=>$v) {
         list($tf_text, $base_xml) = $v;
         //substitute the last revision's xml for one from dictionary if relevant
-        // TODO why are we doing this? we have all the info already
-        if ($dict[$tf_id] == 1) {
-            $parse = new MorphParseSet(false, $tf_text);
-            $xml = $parse->to_xml();
+        if (isset($dict[$tf_id]) && $dict[$tf_id] == 1) {
+            $parse = new MorphParseSet(false, $tf_text, false, true);
         } else {
-            $xml = $base_xml;
+            $parse = new MorphParseSet($base_xml);
         }
-        $new_xml = "<tfr t=\"".htmlspecialchars($tf_text)."\">";
-        //let's find all vars inside tf_text
-        if (preg_match_all("/<v>(.+?)<\/v>/", $xml, $matches) !== false) {
-            //flags quantity check
-            if (count($matches[1]) != count($flag[$tf_id]))
-                throw new Exception();
 
-            $empty = true;
-            foreach ($flag[$tf_id] as $k=>$f) {
-                if ($f == 1) {
-                    $empty = false;
-                    $new_xml .= '<v>'.$matches[1][$k-1].'</v>'; //attention to -1
-                }
-            }
-            //inserting UnknownPOS if no variants present
-            if ($empty) {
-                $p = new MorphParseSet(false, $tf_text, true);
-                $new_xml = $p->to_xml();
-            }
-            else
-                $new_xml .= '</tfr>';
-
-            if ($base_xml != $new_xml) {
-                //something's changed
-                array_push($all_changes, array($tf_id, $new_xml));
-            }
-        } else {
+        if (sizeof($parse->parses) == 0)
             throw new Exception();
+        // flags quantity check
+        if (sizeof($parse->parses) != sizeof($flag[$tf_id]))
+            throw new Exception();
+
+        // XXX this is bad since order of parse selection from db
+        //    is not guaranteed to be consistent
+        $parse->filter_by_parse_index(prepare_parse_indices($flag[$tf_id]));
+
+        $new_xml = $parse->to_xml();
+
+        if ($base_xml != $new_xml) {
+            //something's changed
+            array_push($all_changes, array($tf_id, $new_xml));
         }
     }
     if (count($all_changes) > 0) {
@@ -427,7 +450,7 @@ function create_tf_revision($revset_id, $token_id, $rev_xml) {
     sql_pe("INSERT INTO `tf_revisions` VALUES(NULL, ?, ?, ?, 1)", array($revset_id, $token_id, $rev_xml));
     sql_commit();
 }
-function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepared_queries=NULL) {
+function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
     // dir stands for direction (-1 => left, 1 => right, 0 => both)
     // delta <= 0 stands for infinity
     $t = array();
@@ -436,9 +459,10 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
     $right_c = 0;  //same for right context
     $mw_pos = 0;
     
+    static $query1 = NULL;
     // prepare the 1st query
-    if ($prepared_queries === NULL)
-        $prepared_queries = array(sql_prepare("
+    if ($query1 == NULL)
+        $query1 = sql_prepare("
             SELECT MAX(tokens.pos) AS maxpos, MIN(tokens.pos) AS minpos, sent_id, source, book_id
             FROM tokens
                 JOIN sentences USING (sent_id)
@@ -448,10 +472,10 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
                 FROM tokens
                 WHERE tf_id=? LIMIT 1
             )
-        "));
+        ");
 
-    sql_execute($prepared_queries[0], array($tf_id));
-    $res = sql_fetchall($prepared_queries[0]);
+    sql_execute($query1, array($tf_id));
+    $res = sql_fetchall($query1);
     $r = $res[0];
     $sent_id = $r['sent_id'];
     $sentence_text = $r['source'];
@@ -461,7 +485,8 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
 
     // prepare the 2nd query
     // this is really bad unreadable code, sorry
-    if (sizeof($prepared_queries) == 1) {
+    static $query2 = NULL;
+    if ($query2 == NULL) {
         $q = "SELECT tf_id, tf_text, pos FROM tokens WHERE sent_id = ?";
         if ($dir != 0 || $delta > 0) {
             $q_left = $dir <= 0 ? ($delta > 0 ? "(SELECT IF(pos > $delta, pos - $delta, 0) FROM tokens WHERE tf_id=? LIMIT 1)" : "0") : "(SELECT pos FROM tokens WHERE tf_id=? LIMIT 1)";
@@ -470,7 +495,7 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
         }
 
         $q .= " ORDER BY pos";
-        $prepared_queries[] = sql_prepare($q);
+        $query2 = sql_prepare($q);
     }
 
     // how many values should we provide?
@@ -482,9 +507,9 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1, &$prepare
             $bound = array($tf_id);
     }
 
-    sql_execute($prepared_queries[1], array_merge(array($sent_id), $bound));
+    sql_execute($query2, array_merge(array($sent_id), $bound));
 
-    foreach (sql_fetchall($prepared_queries[1]) as $r) {
+    foreach (sql_fetchall($query2) as $r) {
         if ($delta > 0) {
             if ($left_c == -1) {
                 $left_c = ($r['pos'] == $minpos) ? 0 : $r['tf_id'];

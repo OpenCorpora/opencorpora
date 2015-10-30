@@ -89,7 +89,9 @@ $smarty->assign('game_is_on', 0);
 //$smarty->configLoad(__DIR__.'/../templates/achievements/titles.conf', NULL);
 // smarty->configLoad is a piece of shit which can not handle multiple sections at once.
 // reverting to something much simplier.
-$smarty->assign('achievements_titles', parse_ini_file(__DIR__.'/../templates/achievements/titles.conf', TRUE));
+$titles = json_decode(
+    file_get_contents(__DIR__.'/../templates/achievements/titles.json'), TRUE);
+$smarty->assign('achievements_titles', $titles);
 
 if (is_logged()) {
     if (game_is_on()) {

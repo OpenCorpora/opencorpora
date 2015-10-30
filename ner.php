@@ -13,6 +13,7 @@ if (!is_logged()) {
 }
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
+$tagset_id = get_current_tagset();
 
 switch ($action) {
 
@@ -22,8 +23,10 @@ switch ($action) {
         break;
 
     default:
-
-        $smarty->assign('page', get_books_with_NE());
+        $smarty->assign('possible_guidelines',
+            array(1 => "Default (2014)", 2 => "Dialogue Eval (2016)"));
+        $smarty->assign('current_guideline', $_SESSION['options'][6]);
+        $smarty->assign('page', get_books_with_NE($tagset_id));
         $smarty->display('ner/main.tpl');
 }
 log_timing();

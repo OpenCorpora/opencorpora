@@ -48,6 +48,9 @@
             $('a.merge-par').click(function(event){
                 return confirm('Приклеить абзац к предыдущему?');
             });
+            $('a.delete-par').click(function(event){
+                return confirm('Удалить абзац? Это действие нельзя будет отменить.');
+            });
         
             $("#tag_name").autocomplete({
                 serviceUrl: "ajax/tag_autocomplete.php",
@@ -169,7 +172,7 @@
         {/if}
         {foreach key=num item=paragraph from=$book.paragraphs}
             {if isset($smarty.get.full)}
-                <tr><td>{$num}&nbsp;{if $is_admin}<a href="?act=merge_paragraph&amp;pid={$paragraph.id}" title="Приклеить к предыдущему абзацу" class="merge-par">&uarr;</a>{/if}</td><td></td><td></td><td></td></tr>
+                <tr><td>{$num}&nbsp;{if $is_admin}<a href="?act=merge_paragraph&amp;pid={$paragraph.id}" title="Приклеить к предыдущему абзацу" class="merge-par">&uarr;</a>{/if}</td><td>{if $is_admin}<a href="?act=del_paragraph&amp;pid={$paragraph.id}&amp;book_id={$book.id}" class="delete-par" title="Удалить абзац"><i class="icon-remove"></i></a>{/if}</td><td></td><td></td></tr>
             {else}
                 <li value="{$num}">
                 <ol>

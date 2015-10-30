@@ -10,7 +10,7 @@
             <button class="ner-mode-basic btn btn-small {if not $use_fast_mode}active{/if}">Разметка кликом</button>
             <button class="ner-mode-fast btn btn-small {if $use_fast_mode}active{/if}">Разметка выделением</button>
         </div>
-        <a class="btn btn-primary btn-small" href="/ner.php?act=manual" target="_blank"><i class="icon-info-sign icon-white"></i> Инструкция</a>
+        <a class="btn btn-primary btn-small" href="/ner.php?act=manual&id={$current_guideline}" target="_blank"><i class="icon-info-sign icon-white"></i> Инструкция {$possible_guidelines[$current_guideline]}</a>
     </div>
     {if isset($book.paragraphs)}
         {foreach name=b key=num item=paragraph from=$book.paragraphs}
@@ -21,29 +21,17 @@
                     <div class="ner-paragraph-wrap {if $paragraph.disabled }ner-disabled{elseif $paragraph.mine}ner-mine{/if}" {if isset($paragraph.annotation_id)}data-annotation-id="{$paragraph.annotation_id}"{/if}>
                         <p class="ner-paragraph" data-par-id="{$paragraph.id}">
                         {foreach name=s item=sentence from=$paragraph.sentences}
-                            {foreach name=t item=token from=$sentence.tokens}{capture name="token"}<span
-
+                            {foreach name=t item=token from=$sentence.tokens}{capture name="token"}
+                                <span
                                     id="t{$token.id}"
                                     data-tid="{$token.id}"
-                                {if $paragraph.ne_by_token[$token.id]}
-                                    data-entity-id="{$paragraph.ne_by_token[$token.id].entity_id}"
-                                {/if}
-                                    class="ner-token
-                                        {if $paragraph.ne_by_token[$token.id]}
-                                            ner-entity
-                                            {if count($paragraph.ne_by_token[$token.id]['tags']) > 1}
-                                                ner-multiple-types
-                                            {else}
-                                                border-bottom-palette-{$paragraph.ne_by_token[$token.id]['tags'][0][0] * $colorStep}
-                                            {/if}
-                                        {/if}"
-
-                                >{$token.text|htmlspecialchars} </span>{/capture}{$smarty.capture.token|strip:" "}{/foreach}
-
+                                    class="ner-token">
+                                    <span class="ner-token-text">{$token.text|htmlspecialchars}</span>
+                                    <span class="ner-token-borders"></span>
+                                </span>{/capture}{$smarty.capture.token|strip:" "}{/foreach}
                         {/foreach}
                         </p>
                         <div class="ner-paragraph-controls">
-                            <!--button class="btn btn-primary ner-btn-start" data-par-id="{$paragraph.id}">Я буду размечать</button-->
                             <button class="btn btn-success ner-btn-finish pull-right" data-par-id="{$paragraph.id}">Сохранить</button>
                         </div>
                         <div class="clearfix"></div>
@@ -59,33 +47,50 @@
                     </div>
                 </div>
                 <div class="span4 ner-table-wrap {if $paragraph.disabled }ner-disabled{elseif $paragraph.mine}ner-mine{/if}">
+                    <div class="tabbable dragged-up">
+                        <ul class="nav nav-tabs small-tabs">
+                            <li class="active"><a href="#tab-entities-{$paragraph.id}" data-toggle="tab">Спаны</a></li>
+                            <li><a href="#tab-mentions-{$paragraph.id}" data-toggle="tab">Упоминания</a></li>
+                            <li class="disabled"><a>Объекты</a></li>
+                            <li class="disabled"><a>Факты</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="tab-entities-{$paragraph.id}">
+                                <table class="table ner-table table-condensed" data-par-id="{$paragraph.id}">
+                                {foreach $paragraph.named_entities as $ne}
+                                    <tr data-entity-id="{$ne.id}">
+                                        <td class="ner-entity-actions"><i class="icon icon-remove ner-remove" data-entity-id={$ne.id}></i></td>
+                                        <td class="ner-entity-text span4">
+                                        {foreach $ne.tokens as $token}{$token[1]} {/foreach}
+                                        </td>
+                                        <td class="ner-entity-type span3">
+                                        {if $paragraph.mine}
+                                            <select class="selectpicker show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-entity-id="{$ne.id}" multiple>
+                                            {foreach $types as $type}
+                                                <option data-content="<span class='label label-palette-{$type.id * $colorStep}'>{$type.name}</span>" {if in_array(array_values($type), $ne.tags)}selected{/if}>{$type.id}</option>
+                                            {/foreach}
+                                            </select>
+                                        {else}
+                                            {foreach $ne.tags as $tag}
+                                                <span class="label label-palette-{$tag[0] * $colorStep}">{$tag[1]}</span>
+                                            {/foreach}
+                                        {/if}
+                                        </td>
+                                    </tr>
+                                {/foreach}
+                                </table>
+                            </div>
 
-                    <table class="table ner-table table-condensed" data-par-id="{$paragraph.id}">
-                        {foreach $paragraph.named_entities as $ne}
-                            <tr data-entity-id="{$ne.id}">
-                                <td class="ner-entity-actions"><i class="icon icon-remove ner-remove" data-entity-id={$ne.id}></i></td>
-                                <td class="ner-entity-text span4">
-                                {foreach $ne.tokens as $token}{$token[1]} {/foreach}
-                                </td>
-                                <td class="ner-entity-type span3">
-                                {if $paragraph.mine}
-                                    <select class="selectpicker show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-entity-id="{$ne.id}" multiple>
-                                    {foreach $types as $type}
-                                        <option data-content="<span class='label label-palette-{$type.id * $colorStep}'>{$type.name}</span>" {if in_array(array_values($type), $ne.tags)}selected{/if}>{$type.id}</option>
-                                    {/foreach}
-                                    </select>
-                                {else}
-                                    {foreach $ne.tags as $tag}
-                                        <span class="label label-palette-{$tag[0] * $colorStep}">{$tag[1]}</span>
-                                    {/foreach}
-                                {/if}
-                                </td>
-                            </tr>
-                        {/foreach}
-                    </table>
+                            <div class="tab-pane" id="tab-mentions-{$paragraph.id}">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         {/foreach}
+        <script type="text/javascript">
+            var PARAGRAPHS = {$book.paragraphs|json_encode};
+        </script>
     {else}
         <div class="row">
             <p>В тексте нет ни одного предложения.</p>
@@ -143,7 +148,7 @@
     <script src="/assets/js/bootstrap.select.min.js"></script>
     <script src="/assets/js/rangy-core.js"></script>
     <script src="/assets/js/mousetrap.min.js"></script>
-    <script src="/assets/js/ner.js"></script>
+    <script src="/assets/js/ner.js?3"></script>
     <script src="/assets/js/ne_comments.js"></script>
 {/literal}
 {/block}

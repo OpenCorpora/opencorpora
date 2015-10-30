@@ -2,7 +2,7 @@
 require_once('lib/header.php');
 require_once('lib/lib_xml.php');
 require_once('lib/lib_annot.php');
-require_once('lib/lib_syntax.php');
+require_once('lib/lib_anaphora_syntax.php');
 require_once('lib/lib_dict.php');
 require_once('lib/lib_users.php');
 require_once('lib/lib_books.php');
@@ -28,13 +28,6 @@ switch ($action) {
     case 'save_src':
         if (is_admin()) {
             sentence_save_source($id, $_POST['src_text']);
-            header("Location:sentence.php?id=$id");
-        } else
-            show_error($config['msg']['notadmin']);
-        break;
-    case 'save_token_src':
-        if (is_admin()) {
-            save_token_text($_POST['token_id'], $_POST['src_text']);
             header("Location:sentence.php?id=$id");
         } else
             show_error($config['msg']['notadmin']);

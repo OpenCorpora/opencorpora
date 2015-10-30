@@ -129,11 +129,24 @@ class AchievementsManager {
             WHERE user_id=?", array($this->user_id));
 
         foreach ($res as $record) {
-            $this->objects[$record['achievement_type']]->set($record);
+            if (isset($this->objects[$record['achievement_type']]))
+                $this->objects[$record['achievement_type']]->set($record);
         }
 
         $this->all_pulled = TRUE;
         return $this->objects;
+    }
+
+    public function get_closest() {
+        $all = $this->pull_all();
+        $next = NULL;
+        foreach ($all as $a) {
+            if (!isset($a->level) || $a->progress >= 100)
+                continue;
+            if (!$next || $a->progress > $next->progress)
+                $next = $a;
+        }
+        return $next;
     }
 
     public function pull_stats() {
@@ -300,7 +313,7 @@ trait AchievementWithQualityRestriction {
         if (!$this->_has_enough_quality_info($level, $quality_info[0]))
             return FALSE;
 
-        return $this->restriction_levels[$level-1][1] >= $quality_info[1]; 
+        return $this->restriction_levels[$level-1][1] >= $quality_info[1];
     }
 }
 

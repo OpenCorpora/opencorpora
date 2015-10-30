@@ -98,15 +98,13 @@ var paragraph__textSelectionHandler = function(e) {
     }
 
     var nodes = range.getNodes();
-    var spans = (nodes.length == 1) ? $(nodes[0].parentElement) : $(nodes).filter('span');
-    if (!spans.hasClass('ner-entity')) {
-        spans.addClass('ner-token-selected');
-        var offset = spans.last().offset();
-        var X = offset.left + $(spans.last()).width() / 2;
-        var Y = offset.top;
-        showTypeSelector(X, Y);
-        log_event("selection", "text selection in paragraph", $(e.target).parents('.ner-paragraph').attr('data-par-id'), spans.text());
-    }
+    var spans = (nodes.length == 1) ? $(nodes[0]).parents('.ner-token') : $(nodes).filter('span.ner-token');
+    spans.addClass('ner-token-selected');
+    var offset = spans.last().offset();
+    var X = offset.left + $(spans.last()).width() / 2;
+    var Y = offset.top;
+    showTypeSelector(X, Y);
+    log_event("selection", "text selection in paragraph", $(e.target).parents('.ner-paragraph').attr('data-par-id'), spans.text());
     sel.removeAllRanges();
 };
 
@@ -133,6 +131,50 @@ var token__clickHandler = function(e) {
         showTypeSelector(X, Y);
     }
 };
+
+function highlightEntitiesInParagraph(data, $paragraph_node) {
+  $paragraph_node.find('.ner-token-border').remove();
+  var entities = data.named_entities.sort(function(a, b) {
+    return a.tokens.length - b.tokens.length;
+  });
+  for (i in entities) {
+    var entity = entities[i];
+    var type = (entity.tags.length > 1 ? 'ner-multiple-types' : 'border-bottom-palette-' + entity.tags[0][0] * colorStep);
+
+    drawBorder(entity.tokens, type, entity.id);
+  }
+}
+
+function drawBorder(tokens, typestr, entityid) {
+  var $tokens = $();
+  for (i in tokens) {
+    if (typeof tokens[i] == "object")
+      $tokens = $tokens.add($('.ner-token').filterByAttr('data-tid', tokens[i][0]));
+    else
+      $tokens = $tokens.add($('.ner-token').filterByAttr('data-tid', tokens[i]));
+  }
+
+  var offset_for_border = 0;
+  $tokens.each(function() {
+    var highest_border_top = 0;
+    $(this).find('.ner-token-border').each(function() {
+      highest_border_top = Math.max(parseInt($(this).css('top')), highest_border_top);
+    });
+    offset_for_border =
+      Math.max(highest_border_top, offset_for_border);
+  });
+
+  $bd = $('<span>').addClass('ner-token-border').addClass(typestr).attr('data-entity-id', entityid);
+  $bd.css('top', offset_for_border + 5);
+
+  var last = $tokens.length - 1;
+  $tokens.each(function(index) {
+    var $bdc = $bd.clone();
+    if (index == 0) $bdc.addClass("first-token");
+    if (index == last) $bdc.addClass("last-token");
+    $(this).find('.ner-token-borders').append($bdc);
+  });
+}
 
 $(document).ready(function() {
     $.fn.mapGetter = function(prop) {
@@ -193,6 +235,11 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
+
+    for (i in PARAGRAPHS) {
+      highlightEntitiesInParagraph(PARAGRAPHS[i],
+        $('.ner-paragraph').filterByAttr('data-par-id', PARAGRAPHS[i].id));
+    }
 
     $('.selectpicker').selectpicker();
 
@@ -293,12 +340,12 @@ $(document).ready(function() {
         var entityId = $(this).parents('tr').attr('data-entity-id');
 
         if ($(this).val().length > 1) {
-            $('.ner-entity').filterByAttr('data-entity-id', entityId)
+            $('.ner-token-border').filterByAttr('data-entity-id', entityId)
                 .removeClassRegex(/border-bottom-palette-\d/)
                 .addClass('ner-multiple-types');
         }
         else {
-            $('.ner-entity').filterByAttr('data-entity-id', entityId)
+            $('.ner-token-border').filterByAttr('data-entity-id', entityId)
                 .removeClass('ner-multiple-types')
             .removeClassRegex(/border-bottom-palette-\d/)
                 .addClass('border-bottom-palette-' + $(this).val()[0] * colorStep);
@@ -326,12 +373,25 @@ $(document).ready(function() {
                 },
                 function(response) {
                     notify("Сущность удалена.");
-                    $('.ner-entity').filterByAttr('data-entity-id', entityId)
-                        .removeAttr('data-entity-id')
-                        .removeClass('ner-entity ner-multiple-types border-bottom-palette-*');
+                    $('.ner-token-border').filterByAttr('data-entity-id', entityId)
+                        .remove();
                     tr.remove();
             });
         }
+    });
+
+    $('.ner-table-wrap').on('mouseenter', 'tr',
+      function() { // hover in
+        var tokens = $('.ner-token-border').filterByAttr('data-entity-id', $(this).attr('data-entity-id'))
+          .parents('.ner-token');
+        tokens.addClass('ner-token-highlighted');
+    });
+
+    $('.ner-table-wrap').on('mouseleave', 'tr',
+      function() { // hover out
+        var tokens = $('.ner-token-border').filterByAttr('data-entity-id', $(this).attr('data-entity-id'))
+          .parents('.ner-token');
+        tokens.removeClass('ner-token-highlighted');
     });
 
     $('.type-selector > .btn').click(function() {
@@ -349,13 +409,22 @@ $(document).ready(function() {
         }, function(response) {
             var t = $('table').filterByAttr('data-par-id', paragraph.attr('data-par-id'));
 
-            selected.addClass('ner-entity').attr('data-entity-id', response.id);
-
+            var typestr;
             if (typesIds.length == 1) {
-                selected.addClass('border-bottom-palette-' + typesIds[0] * colorStep);
+                typestr = 'border-bottom-palette-' + typesIds[0] * colorStep;
             } else {
-                selected.addClass('ner-multiple-types');
+                typestr = 'ner-multiple-types';
             }
+
+            $.each(PARAGRAPHS, function(i, par) {
+              if (par.id != paragraph.attr('data-par-id')) return;
+              PARAGRAPHS[i].named_entities.push({
+                tokens: selectedIds,
+                tags: $.map(typesIds, function(n) { return [n]; }),
+                id: response.id
+              });
+              highlightEntitiesInParagraph(PARAGRAPHS[i], paragraph);
+            });
 
             var tr = $('.templates').find('.tr-template').clone().removeClass('tr-template');
             tr.add(tr.find('.remove-entity')).add(tr.find('.selectpicker-tpl')).attr('data-entity-id', response.id);
