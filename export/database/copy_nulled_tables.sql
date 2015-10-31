@@ -14,8 +14,7 @@ INSERT INTO `users_for_selective_backup` (
     `user_team`,
     `user_level`,
     `user_shown_level`,
-    `user_rating10`,
-    `show_game`
+    `user_rating10`
 ) SELECT
     `user_id`,
     `user_name`,
@@ -26,8 +25,7 @@ INSERT INTO `users_for_selective_backup` (
     `user_team`,
     `user_level`,
     `user_shown_level`,
-    `user_rating10`,
-    `show_game`
+    `user_rating10`
 FROM `users`
 WHERE 1 = 1;
 

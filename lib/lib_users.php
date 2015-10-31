@@ -67,14 +67,14 @@ function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
         if ($alias_uid)
             $user_id = $alias_uid;
         $token = remember_user($user_id, $auth_token);
-        $r = sql_fetch_array(sql_query("SELECT user_shown_name, user_level, show_game FROM users WHERE user_id = $user_id LIMIT 1"));
+        $r = sql_fetch_array(sql_query("SELECT user_shown_name, user_level FROM users WHERE user_id = $user_id LIMIT 1"));
         init_session($user_id, $r['user_shown_name'], get_user_options($user_id), get_user_permissions($user_id),
-                     $token, $r['user_level'], $r['show_game']);
+                     $token, $r['user_level']);
         return true;
     }
     return false;
 }
-function init_session($user_id, $user_name, $options, $permissions, $token, $level, $show_game) {
+function init_session($user_id, $user_name, $options, $permissions, $token, $level) {
     if (!$options)
         throw new Exception();
     $_SESSION['user_id'] = $user_id;
@@ -83,7 +83,6 @@ function init_session($user_id, $user_name, $options, $permissions, $token, $lev
     $_SESSION['user_groups'] = $permissions;
     $_SESSION['token'] = $token;
     $_SESSION['user_level'] = $level;
-    $_SESSION['show_game'] = $show_game;
 }
 function check_for_user_alias($user_id) {
     // if a user tries to log in as alias_uid, he'll actually log in as primary_uid
@@ -110,7 +109,7 @@ function remember_user($user_id, $auth_token=false, $set_cookie=true) {
     return $token;
 }
 function make_new_user($login, $passwd, $email, $shown_name) {
-    sql_pe("INSERT INTO `users` VALUES(NULL, ?, ?, ?, ?, ?, 0, 1, 1, 0, 0)",
+    sql_pe("INSERT INTO `users` VALUES(NULL, ?, ?, ?, ?, ?, 0, 1, 1, 0)",
            array($login, $passwd, $email, time(), $shown_name));
     $user_id = sql_insert_id();
 
@@ -143,9 +142,9 @@ function user_login_openid($token) {
     if ($alias_uid)
         $user_id = $alias_uid;
     $token = remember_user($user_id, false);
-    $row = sql_fetch_array(sql_query("SELECT user_shown_name, user_passwd, user_level, show_game FROM users WHERE user_id = $user_id LIMIT 1"));
+    $row = sql_fetch_array(sql_query("SELECT user_shown_name, user_passwd, user_level FROM users WHERE user_id = $user_id LIMIT 1"));
     init_session($user_id, $row['user_shown_name'], get_user_options($user_id),
-                  get_user_permissions($user_id), $token, $row['user_level'], $row['show_game']);
+                  get_user_permissions($user_id), $token, $row['user_level']);
     sql_commit();
 
     user_award_for_signup($user_id);
@@ -172,7 +171,6 @@ function user_logout() {
     unset($_SESSION['options']);
     unset($_SESSION['user_groups']);
     unset($_SESSION['token']);
-    unset($_SESSION['show_game']);
     unset($_SESSION['user_pending']);
     unset($_SESSION['noadmin']);
 }

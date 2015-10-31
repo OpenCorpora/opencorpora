@@ -4,7 +4,7 @@
 <h1>Настройки</h1>
 <form action="?act=save" method="post">
     {foreach key=id item=option from=$meta}
-        {if $id != 4 || $user_permission_check_morph}
+        {if isset ($smarty.session.options.$id) && ($id != 4 || $user_permission_check_morph)}
         <div class="control-group">
             {$option.name}
             <div class="controls">
