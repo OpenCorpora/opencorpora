@@ -13,6 +13,14 @@ define('PERM_SYNTAX', 8);
 define('PERM_SYNTAX_MODER', 9);
 define('PERM_NE_MODER', 10);
 
+define('OPT_GRAMNAMES', 1);
+define('OPT_ILANG', 2);
+define('OPT_SAMPLES_PER_PAGE', 3);
+define('OPT_MODER_SPLIT', 4);
+define('OPT_NE_QUICK', 5);
+define('OPT_NE_TAGSET', 6);
+define('OPT_GAME_ON', 7);
+
 define('STATS_ANNOTATOR_DIVERGENCE_TOTAL', 34);
 
 define('MA_POOLS_STATUS_FOUND_CANDIDATES', 1);

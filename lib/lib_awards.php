@@ -1,7 +1,8 @@
 <?php
+require_once('lib_users.php');
 // on/off
 function game_is_on() {
-    return !isset($_SESSION['options'][7]) || $_SESSION['options'][7] == 1;
+    return OPTION(OPT_GAME_ON) == 1;
 }
 
 // rating and level

@@ -3,6 +3,7 @@ require('lib/header.php');
 require_once('lib/lib_books.php');
 require_once('lib/lib_anaphora_syntax.php');
 require_once('lib/lib_ne.php');
+require_once('lib/lib_users.php');
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 if (!$action) {
@@ -74,10 +75,10 @@ elseif ($action == 'ner') {
 
         $smarty->assign('book', $book);
         $smarty->assign('types', get_ne_types($tagset_id));
-        $smarty->assign('use_fast_mode', $_SESSION['options'][5]);
+        $smarty->assign('use_fast_mode', OPTION(OPT_NE_QUICK));
         $smarty->assign('possible_guidelines',
             array(1 => "Default (2014)", 2 => "Dialogue Eval (2016)"));
-        $smarty->assign('current_guideline', $_SESSION['options'][6]);
+        $smarty->assign('current_guideline', OPTION(OPT_NE_TAGSET));
         $smarty->display('ner/book.tpl');
     } else {
         throw new UnexpectedValueException();

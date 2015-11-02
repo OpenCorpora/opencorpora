@@ -21,17 +21,16 @@ switch ($action) {
             throw new UnexpectedValueException('Wrong pool_id');
 
         $pool_size = 5;
-        if (isset($_SESSION['options'][3])) {
-            switch ($_SESSION['options'][3]) {
-                case 2:
-                    $pool_size = 10;
-                    break;
-                case 3:
-                    $pool_size = 20;
-                    break;
-                case 4:
-                    $pool_size = 50;
-            }
+        $opt = OPTION(OPT_SAMPLES_PER_PAGE);
+        switch ($opt) {
+            case 2:
+                $pool_size = 10;
+                break;
+            case 3:
+                $pool_size = 20;
+                break;
+            case 4:
+                $pool_size = 50;
         }
 
         if ($t = get_annotation_packet((int)$_GET['pool_id'], $pool_size)) {

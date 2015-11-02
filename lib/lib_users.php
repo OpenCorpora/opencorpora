@@ -352,6 +352,16 @@ function get_user_options($user_id) {
     $mgr = new UserOptionsManager();
     return $mgr->get_user_options($user_id);
 }
+function OPTION($oid) {
+    // returns option value for current user
+    // or default value for new options or non-logged users
+    if (empty($_SESSION['options'][$oid])) {
+        $mgr = new UserOptionsManager();
+        return $mgr->get_default($oid);
+    }
+    else
+        return $_SESSION['options'][$oid];
+}
 function get_user_permissions($user_id) {
     if (!$user_id)
         throw new UnexpectedValueException();

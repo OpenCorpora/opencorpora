@@ -1,4 +1,5 @@
 <?php
+require_once('constants.php');
 
 class OptionTypes {
     const BINARY = 1;
@@ -23,39 +24,39 @@ class UserOptionsManager {
     private $options;
 
     public function __construct() {
-        $opt = new UserOption(1);
+        $opt = new UserOption(OPT_GRAMNAMES);
         $opt->caption = "Показывать русские названия граммем";
-        $this->options[] = $opt;
+        $this->_add($opt);
 
-        $opt = new UserOption(2, OptionTypes::KEY_VALUE);
+        $opt = new UserOption(OPT_ILANG, OptionTypes::KEY_VALUE);
         $opt->values = array(1 => "Русский", 2 => "English");
         $opt->caption = "Язык/Language";
         $opt->is_active = false;
-        $this->options[] = $opt;
+        $this->_add($opt);
 
-        $opt = new UserOption(3, OptionTypes::KEY_VALUE);
+        $opt = new UserOption(OPT_SAMPLES_PER_PAGE, OptionTypes::KEY_VALUE);
         $opt->values = array(1 => 5, 2 => 10, 3 => 20, 4 => 50);
         $opt->default_value = 2;
         $opt->caption = "Количество примеров для разметки";
-        $this->options[] = $opt;
+        $this->_add($opt);
 
-        $opt = new UserOption(4);
+        $opt = new UserOption(OPT_MODER_SPLIT);
         $opt->caption = "Разбивать пулы на страницы при модерации";
-        $this->options[] = $opt;
+        $this->_add($opt);
 
-        $opt = new UserOption(5);
+        $opt = new UserOption(OPT_NE_QUICK);
         $opt->default_value = 0;
         $opt->caption = "Быстрый режим разметки именованных сущностей";
-        $this->options[] = $opt;
+        $this->_add($opt);
 
-        $opt = new UserOption(6, OptionTypes::KEY_VALUE);
+        $opt = new UserOption(OPT_NE_TAGSET, OptionTypes::KEY_VALUE);
         $opt->values = array(1 => "Default (2014)", 2 => "Dialogue Eval (2016)");
         $opt->caption = "Инструкция (tagset) разметки NER";
-        $this->options[] = $opt;
+        $this->_add($opt);
 
-        $opt = new UserOption(7);
+        $opt = new UserOption(OPT_GAME_ON);
         $opt->caption = "Включить геймификацию";
-        $this->options[] = $opt;
+        $this->_add($opt);
     }
 
     public function get_all_options($only_active=false) {
@@ -93,5 +94,15 @@ class UserOptionsManager {
         sql_commit();
 
         return $out;
+    }
+
+    public function get_default($option_id) {
+        if (!isset($this->options[$option_id]))
+            throw new Exception();
+        return $this->options[$option_id]->default_value;
+    }
+
+    private function _add($opt) {
+        $this->options[$opt->id] = $opt;
     }
 }

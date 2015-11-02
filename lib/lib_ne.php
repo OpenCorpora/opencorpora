@@ -1,12 +1,10 @@
 <?php
 require_once('constants.php');
+require_once('lib_users.php');
 
 function get_current_tagset() {
-    if (!is_logged())
-        throw new Exception("You must be logged");
-    if (!isset($_SESSION['options'][6]))
-        throw new Exception("Tagset option unset");
-    return $_SESSION['options'][6];
+    check_logged();
+    return OPTION(OPT_NE_TAGSET);
 }
 
 function get_books_with_ne($tagset_id) {
