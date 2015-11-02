@@ -1600,4 +1600,11 @@ tr.valign-top td {
     top: -18px;
 }
 
+.mentions-current-selection {
+    background-color: plum;
+    color: white;
+}
 
+.tab-content {
+    overflow: visible;
+}
