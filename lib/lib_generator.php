@@ -5,6 +5,7 @@ require_once('common.php');
 function get_generator_status() {
     global $config;
 
+    check_permission(PERM_ADMIN);
     $stat = stat($config['generator']['status']);
     $current_status = safe_read($config['generator']['status'], 32);
     $current_tag = safe_read($config['generator']['current_tag'], 32);
@@ -34,6 +35,7 @@ function get_generator_status() {
 function set_generator_status($new_status) {
     global $config;
 
+    check_permission(PERM_ADMIN);
     safe_write($config['generator']['status'], 'w', $new_status);
 }
 

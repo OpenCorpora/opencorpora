@@ -2,10 +2,6 @@
 require_once('lib/header.php');
 require_once('lib/lib_anaphora_syntax.php');
 
-if (!user_has_permission(PERM_SYNTAX)) {
-    show_error($config['msg']['notadmin']);
-    return;
-}
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 
@@ -24,6 +20,7 @@ switch ($action) {
         break;
 
     default:
+        check_permission(PERM_SYNTAX);
         $smarty->assign('page', get_books_with_syntax());
         $smarty->display('syntax/main.tpl');
 }

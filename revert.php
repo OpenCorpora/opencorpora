@@ -1,10 +1,6 @@
 <?php
 require('lib/header.php');
 require_once('lib/lib_history.php');
-if (!is_logged() || !user_has_permission(PERM_DICT)) {
-    header("Location:index.php");
-    return;
-}
 
 if (isset($_POST['comment']))
     $comment = $_POST['comment'];

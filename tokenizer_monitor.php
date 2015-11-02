@@ -2,10 +2,6 @@
 
 require_once('lib/header.php');
 
-if (is_admin()) {
-    $smarty->display('tokenizer_monitor.tpl');
-}
-else {
-    show_error($config['msg']['notadmin']);
-}
+check_permission(PERM_ADMIN);
+$smarty->display('tokenizer_monitor.tpl');
 ?>

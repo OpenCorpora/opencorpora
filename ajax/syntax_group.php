@@ -10,9 +10,6 @@ require_once('../lib/lib_anaphora_syntax.php');
 */
 
 try {
-    if (!user_has_permission(PERM_SYNTAX))
-        throw new Exception();
-
     switch ($_POST['act']) {
         case 'newGroup':
             $result['gid'] = add_group($_POST['tokens'], (int)$_POST['type']);

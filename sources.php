@@ -2,11 +2,6 @@
 require('lib/header.php');
 require_once('lib/lib_books.php');
 
-if (!user_has_permission(PERM_ADDER)) {
-    show_error($config['msg']['notadmin']);
-    return;
-}
-
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 
 switch ($action) {

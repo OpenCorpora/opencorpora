@@ -219,6 +219,7 @@ function dict_diff($lemma_id, $set_id) {
 function revert_changeset($set_id, $comment) {
     if (!$set_id)
         throw new UnexpectedValueException();
+    check_permission(PERM_DICT);
 
     sql_begin();
     $new_set_id = create_revset($comment);
@@ -262,6 +263,7 @@ function revert_token($rev_id) {
 function revert_dict($rev_id) {
     if (!$rev_id)
         throw new UnexpectedValueException();
+    check_permission(PERM_DICT);
 
     $res = sql_pe("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=? LIMIT 1", array($rev_id));
     $lemma_id = $res[0]['lemma_id'];

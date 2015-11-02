@@ -3,14 +3,8 @@ require_once('lib/header.php');
 require_once('lib/lib_ne.php');
 
 // TODO: permissions?
-/*if (!user_has_permission(PERM_SYNTAX)) {
-    show_error($config['msg']['notadmin']);
-    return;
-}*/
-if (!is_logged()) {
-    show_error($config['msg']['notlogged']);
-    return;
-}
+
+check_logged();
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 $tagset_id = get_current_tagset();

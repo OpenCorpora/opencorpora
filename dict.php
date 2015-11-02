@@ -7,13 +7,6 @@ else $action = '';
 
 $smarty->assign('active_page', 'dict');
 
-//check permissions
-if (!in_array($action, array('', 'gram', 'gram_restr', 'lemmata', 'errata', 'edit', 'absent')) &&
-    !user_has_permission(PERM_DICT)) {
-        show_error($config['msg']['notadmin']);
-        return;
-}
-
 switch ($action) {
     case 'add_gram':
         add_grammem($_POST['g_name'], $_POST['parent_gram'], $_POST['outer_id'], $_POST['descr']);

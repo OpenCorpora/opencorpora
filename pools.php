@@ -6,11 +6,6 @@ require_once('lib/lib_morph_pools.php');
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 
-if ($action && !in_array($action, array('samples', 'candidates')) && !user_has_permission(PERM_MORPH_MODER)) {
-    show_error($config['msg']['notadmin']);
-    return;
-}
-
 switch ($action) {
     case 'add_type':
         add_morph_pool_type($_POST['gram'], $_POST['descr'], $_POST['pool_name']);
@@ -27,6 +22,7 @@ switch ($action) {
         break;
     case 'types':
         // TODO move to common listing page (type='')
+        check_permission(PERM_MORPH_MODER);
         $smarty->assign('data', get_morph_pool_types());
         $smarty->display('qa/pool_types.tpl');
         break;
@@ -65,6 +61,7 @@ switch ($action) {
         }
         break;
     case 'promote':
+        check_permission(PERM_MORPH_MODER);
         promote_samples((int)$_GET['pool_type'],
                         $_POST['type'],
                         (int)$_POST[$_POST['type']."_n"],

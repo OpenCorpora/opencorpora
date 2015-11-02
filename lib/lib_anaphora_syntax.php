@@ -341,6 +341,7 @@ function get_pronouns_by_sentence($sent_id) {
 }
 
 function add_group($parts, $type, $revset_id=0) {
+    check_permission(PERM_SYNTAX);
     $is_complex = false;
     $ids = array();
     foreach ($parts as $i => $el) {
@@ -405,6 +406,7 @@ function get_dummy_group_for_token($token_id, $create_if_absent=true, $revset_id
         throw new Exception();
 }
 function delete_group($group_id) {
+    check_permission(PERM_SYNTAX);
     if (!is_group_owner($group_id, $_SESSION['user_id']))
         throw new Exception();
 
@@ -420,6 +422,7 @@ function delete_group($group_id) {
     sql_commit();
 }
 function set_group_head($group_id, $head_id) {
+    check_permission(PERM_SYNTAX);
     // assume that the head of a complex group is also a group
 
     if (!is_group_owner($group_id, $_SESSION['user_id']))
@@ -447,6 +450,7 @@ function set_group_head($group_id, $head_id) {
     );
 }
 function set_group_type($group_id, $type_id) {
+    check_permission(PERM_SYNTAX);
     if (!is_group_owner($group_id, $_SESSION['user_id'])) {
         throw new Exception();
     }
@@ -465,8 +469,7 @@ function is_group_owner($group_id, $user_id) {
 function set_syntax_annot_status($book_id, $status) {
     if (!$book_id || !in_array($status, array(0, 1, 2)))
         throw new UnexpectedValueException();
-    if (!user_has_permission(PERM_SYNTAX))
-        throw new Exception("Недостаточно прав");
+    check_permission(PERM_SYNTAX);
     $user_id = $_SESSION['user_id'];
     sql_begin();
     sql_pe("DELETE FROM anaphora_syntax_annotators WHERE user_id=? AND book_id=?", array($user_id, $book_id));
@@ -480,8 +483,7 @@ function set_syntax_annot_status($book_id, $status) {
 function become_syntax_moderator($book_id) {
     if (!$book_id)
         throw new UnexpectedValueException();
-    if (!user_has_permission(PERM_SYNTAX))
-        throw new Exception("Недостаточно прав");
+    check_permission(PERM_SYNTAX);
 
     $res = sql_pe("
         SELECT old_syntax_moder_id AS mid
@@ -503,8 +505,7 @@ function become_syntax_moderator($book_id) {
 function finish_syntax_moderation($book_id) {
     if (!$book_id)
         throw new UnexpectedValueException();
-    if (!user_has_permission(PERM_SYNTAX))
-        throw new Exception("Недостаточно прав");
+    check_permission(PERM_SYNTAX);
 
     $res = sql_pe("
         SELECT old_syntax_moder_id AS mid
@@ -524,8 +525,7 @@ function finish_syntax_moderation($book_id) {
 }
 
 function copy_group($source_group_id, $dest_user, $revset_id=0) {
-    if (!user_has_permission(PERM_SYNTAX))
-        throw new Exception();
+    check_permission(PERM_SYNTAX);
     if (!$source_group_id || !$dest_user)
         throw new UnexpectedValueException();
     sql_begin();
@@ -601,6 +601,7 @@ function get_moderated_groups_by_sentence($sent_id) {
 // ANAPHORA
 
 function add_anaphora($anaphor_id, $antecedent_id) {
+    check_permission(PERM_SYNTAX);
     // check that anaphor exists and has Anph grammeme
     $res = sql_pe("SELECT rev_text FROM tf_revisions WHERE tf_id=? AND is_last=1 LIMIT 1", array($anaphor_id));
     if (sizeof($res) == 0)
@@ -627,6 +628,7 @@ function add_anaphora($anaphor_id, $antecedent_id) {
 }
 
 function delete_anaphora($ref_id) {
+    check_permission(PERM_SYNTAX);
     sql_pe("DELETE FROM anaphora WHERE ref_id=? LIMIT 1", array($ref_id));
 }
 
