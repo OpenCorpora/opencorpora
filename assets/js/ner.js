@@ -394,7 +394,7 @@ $(document).ready(function() {
         tokens.removeClass('ner-token-highlighted');
     });
 
-    $('.type-selector > .btn').click(function() {
+    $('.ner-type-selector > .btn').click(function() {
         var selected = $('.ner-token-selected');
         var paragraph = selected.parents('.ner-paragraph');
         var typesIds = ($(this).hasClass('composite-type') ?
@@ -407,7 +407,7 @@ $(document).ready(function() {
             types: typesIds,
             paragraph: paragraph.parents('.ner-paragraph-wrap').attr('data-annotation-id')
         }, function(response) {
-            var t = $('table').filterByAttr('data-par-id', paragraph.attr('data-par-id'));
+            var t = $('table.ner-table').filterByAttr('data-par-id', paragraph.attr('data-par-id'));
 
             var typestr;
             if (typesIds.length == 1) {

@@ -82,6 +82,32 @@
                             </div>
 
                             <div class="tab-pane" id="tab-mentions-{$paragraph.id}">
+                            <table class="table mentions-table table-condensed" data-par-id="{$paragraph.id}">
+                            {foreach $paragraph.mentions as $id => $entities}
+                                {if $id == 0}{continue}{/if}
+                                <tr data-mention-id="{$id}">
+                                    <td class="ner-mention-actions"><i class="icon icon-remove ner-remove remove-mention" data-mention-id={$id}></i></td>
+                                    <td class="ner-mention-text span4">
+                                        {foreach $entities as $ne}
+                                            {foreach $ne.tokens as $token}[{$token[1]}] {/foreach}
+                                        {/foreach}
+                                    </td>
+                                    <td class="ner-mention-type span3">
+                                    {if $paragraph.mine}
+                                        <select class="selectpicker show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-mention-id="{$id}" multiple>
+                                        {foreach $types as $type}
+                                            <option data-content="<span class='label label-palette-{$type.id * $colorStep}'>{$type.name}</span>" {*if in_array(array_values($type), $ne.tags)}selected{/if*}>{$type.id}</option>
+                                        {/foreach}
+                                        </select>
+                                    {else}
+                                        {*foreach $ne.tags as $tag}
+                                            <span class="label label-palette-{$tag[0] * $colorStep}">{$tag[1]}</span>
+                                        {/foreach*}
+                                    {/if}
+                                    </td>
+                                </tr>
+                            {/foreach}
+                            </table>
                             </div>
                         </div>
                     </div>
@@ -110,7 +136,7 @@
     <div class="arrow"></div>
     <h3 class="popover-title">Выберите один из типов:</h3>
     <div class="popover-content">
-        <div class="btn-group type-selector" data-toggle="buttons-checkbox">
+        <div class="btn-group type-selector ner-type-selector" data-toggle="buttons-checkbox">
             {foreach $types as $type}
                 {if $type.name !== 'phrase'}
                 <button class="btn btn-small btn-palette-{$type.id * $colorStep}" data-type-id="{$type.id}" data-hotkey="{$type.name|substr:0:1}">{$type.name}</button>{/if}
@@ -120,10 +146,23 @@
     </div>
 </div>
 
+<div class="popover types-popover top m-floating-block">
+    <div class="arrow"></div>
+    <h3 class="popover-title">Новое упоминание:</h3>
+    <div class="popover-content">
+        <div class="btn-group type-selector mention-type-selector" data-toggle="buttons-checkbox">
+            {foreach $types as $type}
+                {if $type.name !== 'phrase'}
+                <button class="btn btn-small btn-palette-{20 - $type.id * $colorStep}" data-type-id="{$type.id}" data-hotkey="{$type.name|substr:0:1}">{$type.name}</button>{/if}
+            {/foreach}
+        </div>
+    </div>
+</div>
+
 <div class="templates">
     <table class="table-stub">
     <tr class="tr-template">
-        <td class="ner-entity-actions"><i class="icon icon-remove ner-remove"></i></td>
+        <td class="ner-entity-actions"><i class="icon icon-remove ner-remove remove-entity"></i></td>
         <td class="ner-entity-text span4"></td>
         <td class="ner-entity-type span3">
             <select class="selectpicker-tpl show-menu-arrow pull-right" data-width="140px" data-style="btn-small" multiple>
@@ -134,6 +173,21 @@
         </td>
     </tr>
     </table>
+
+    <table class="m-table-stub">
+    <tr class="m-tr-template">
+        <td class="ner-mention-actions"><i class="icon icon-remove ner-remove remove-mention"></i></td>
+        <td class="ner-mention-text span4"></td>
+        <td class="ner-mention-type span3">
+            <select class="selectpicker-tpl show-menu-arrow pull-right" data-width="140px" data-style="btn-small" multiple>
+            {foreach $types as $type}
+                <option data-content="<span class='label label-palette-{$type.id * $colorStep}'>{$type.name}</span>">{$type.id}</option>
+            {/foreach}
+            </select>
+        </td>
+    </tr>
+    </table>
+
     <div class="comment-add-stub">
         <div class="comment-add">
             <textarea rows="2"></textarea>

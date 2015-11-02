@@ -108,6 +108,7 @@ try {
 }
 catch (Exception $e) {
     $result['error'] = 1;
+    $result['error_message'] = $e->getMessage();
 }
 
 log_timing(true);

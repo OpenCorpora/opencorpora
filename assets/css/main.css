@@ -1595,6 +1595,10 @@ tr.valign-top td {
     text-transform: uppercase;
 }
 
+.small-tabs {
+    margin-bottom: 8px;
+}
+
 .dragged-up {
     position: relative;
     top: -18px;
@@ -1607,4 +1611,9 @@ tr.valign-top td {
 
 .tab-content {
     overflow: visible;
+}
+
+.ner-table tr:first-child td, .mentions-table tr:first-child td {
+    border-top: none;
+}
 }
