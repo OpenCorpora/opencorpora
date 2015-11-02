@@ -98,6 +98,17 @@ function get_ne_types($tagset_id) {
     return $out;
 }
 
+function get_object_types($tagset_id) {
+    $res = sql_pe("SELECT object_type_id, object_name FROM ne_object_types WHERE tagset_id=? ORDER BY object_type_id", array($tagset_id));
+    $out = array();
+    foreach ($res as $r)
+        $out[] = array(
+            'id' => $r['object_type_id'],
+            'name' => $r['object_name']
+        );
+    return $out;
+}
+
 function get_ne_entity_tokens_info($start_token_id, $length) {
     static $token_res = NULL;
 
@@ -130,8 +141,8 @@ function group_entities_by_mention($entities) {
     foreach ($entities as $e) {
         $mid = $e['mention_id'];
         if (!isset($new[$mid]))
-            $new[$mid] = array();
-        $new[$mid][] = $e;
+            $new[$mid] = array('entities' => array(), 'type' => $e['mention_type']);
+        $new[$mid]['entities'][] = $e;
     }
 
     return $new;
@@ -159,8 +170,10 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
     );
 
     $res = sql_query("
-        SELECT entity_id, start_token, length, mention_id
+        SELECT entity_id, start_token, length, mention_id, object_type_id
         FROM ne_entities
+        LEFT JOIN ne_mentions
+            USING (mention_id)
         WHERE annot_id=".$out['annot_id']
     );
     $tag_res = sql_prepare("
@@ -177,6 +190,7 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
             'length' => $r['length'],
             'tokens' => array(),
             'mention_id' => $r['mention_id'],
+            'mention_type' => $r['object_type_id']
             'tags' => array()
         );
 
@@ -427,6 +441,10 @@ function delete_ne_entity($entity_id, $annot_id=0) {
         $res = sql_pe("SELECT annot_id FROM ne_entities WHERE entity_id = ?", array($entity_id));
         $annot_id = $res[0]['annot_id'];
     }
+
+    $res = sql_pe("SELECT mention_id FROM ne_entities WHERE entity_id=? LIMIT 1", array($entity_id));
+    if ($res[0]['mention_id'] > 0)
+        throw new Exception("Cannot delete entity in mention");
 
     if (!check_ne_paragraph_status($annot_id, $_SESSION['user_id']))
         throw new Exception();
