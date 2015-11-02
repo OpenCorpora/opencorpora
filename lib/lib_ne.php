@@ -190,7 +190,7 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
             'length' => $r['length'],
             'tokens' => array(),
             'mention_id' => $r['mention_id'],
-            'mention_type' => $r['object_type_id']
+            'mention_type' => $r['object_type_id'],
             'tags' => array()
         );
 
