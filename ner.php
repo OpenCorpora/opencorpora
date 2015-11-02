@@ -4,10 +4,7 @@ require_once('lib/lib_ne.php');
 
 // TODO: permissions?
 
-if (!is_logged()) {
-    show_error($config['msg']['notlogged']);
-    return;
-}
+check_logged();
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';
 $tagset_id = 1; // TODO switch

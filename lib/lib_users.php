@@ -381,6 +381,7 @@ function save_user_option($option_id, $value) {
 function save_user_options($post) {
     if (!isset($post['options']))
         throw new UnexpectedValueException();
+    check_logged();
     sql_begin();
     $upd = sql_prepare("UPDATE user_options_values SET option_value=? WHERE option_id=? AND user_id=? LIMIT 1");
     foreach ($post['options'] as $id=>$value) {
@@ -418,6 +419,10 @@ function check_permission($group) {
     if (!user_has_permission($group))
         throw new PermissionError();
 }
+function check_logged() {
+    if (!is_logged())
+        throw new NotLoggedError();
+}
 function get_team_list() {
     $out = array();
     $res = sql_query("SELECT team_id, team_name, COUNT(user_id) AS num_users FROM user_teams t LEFT JOIN users u ON (t.team_id = u.user_team) GROUP BY team_id");
@@ -430,8 +435,7 @@ function get_team_list() {
     return $out;
 }
 function save_user_team($team_id, $new_team_name=false) {
-    if (!$_SESSION['user_id'])
-        throw new Exception();
+    check_logged();
 
     sql_begin();
     // create new team if necessary

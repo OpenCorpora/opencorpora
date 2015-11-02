@@ -133,6 +133,7 @@ function get_book_first_sentence_id($book_id) {
     return $r['sent_id'];
 }
 function books_add($name, $parent_id=0) {
+    check_permission(PERM_ADDER);
     if ($name === '')
         throw new UnexpectedValueException();
     sql_pe("INSERT INTO `books` VALUES(NULL, ?, ?, 0, 0, 0)", array($name, $parent_id));
@@ -141,6 +142,7 @@ function books_add($name, $parent_id=0) {
 function books_move($book_id, $to_id) {
     if ($book_id == $to_id)
         throw new UnexpectedValueException();
+    check_permission(PERM_ADMIN);
 
     //to avoid loops
     $res = sql_pe("SELECT parent_id FROM books WHERE book_id=? LIMIT 1", array($to_id));
@@ -150,6 +152,7 @@ function books_move($book_id, $to_id) {
     sql_pe("UPDATE `books` SET parent_id=? WHERE book_id=? LIMIT 1", array($to_id, $book_id));
 }
 function books_rename($book_id, $name) {
+    check_permission(PERM_ADDER);
     if ($name === '')
         throw new UnexpectedValueException();
     sql_pe("UPDATE `books` SET book_name=? WHERE book_id=? LIMIT 1", array($name, $book_id));
@@ -190,6 +193,7 @@ function get_book_tags($book_id, &$out) {
     $out['tags'] = $tags;
 }
 function books_add_tag($book_id, $tag_name) {
+    check_permission(PERM_ADDER);
     $tag_name = preg_replace('/\:\s+/', ':', trim($tag_name), 1);
     sql_begin();
     books_del_tag($book_id, $tag_name);
@@ -197,6 +201,7 @@ function books_add_tag($book_id, $tag_name) {
     sql_commit();
 }
 function books_del_tag($book_id, $tag_name) {
+    check_permission(PERM_ADDER);
     if (!$book_id || !$tag_name)
         throw new UnexpectedValueException();
     sql_pe("DELETE FROM `book_tags` WHERE book_id=? AND tag_name=?", array($book_id, $tag_name));
@@ -248,6 +253,7 @@ function split_paragraph($sentence_id) {
 
     if (!$sentence_id)
         throw new UnexpectedValueException();
+    check_permission(PERM_ADDER);
     //get pos
     $res = sql_pe("SELECT pos FROM sentences WHERE sent_id=? LIMIT 1", array($sentence_id));
     $spos = $res[0]['pos'];
@@ -278,6 +284,7 @@ function merge_paragraphs($par_id) {
     // merges this paragraph to the previous one
     if (!$par_id)
         throw new UnexpectedValueException();
+    check_permission(PERM_ADDER);
 
     $res = sql_pe("SELECT book_id, pos FROM paragraphs WHERE par_id = ?", array($par_id));
     $pos = $res[0]['pos'];
@@ -351,6 +358,7 @@ function split_sentence($token_id) {
     // note: comments will stay with the first sentence
     // note: fails if this sentence has NE or syntax markup
 
+    check_permission(PERM_ADDER);
     //find which sentence the token is in
     $res = sql_pe("SELECT sent_id, pos FROM tokens WHERE tf_id=? LIMIT 1", array($token_id));
     $r = $res[0];
@@ -404,6 +412,7 @@ function split_sentence($token_id) {
     return array($r['book_id'], $sent_id);
 }
 function merge_sentences($id1, $id2) {
+    check_permission(PERM_ADDER);
     if ($id1 < 1 || $id2 < 1)
         throw new UnexpectedValueException();
     // check same paragraph and adjacency
@@ -446,6 +455,7 @@ function merge_sentences($id1, $id2) {
 }
 function delete_sentence($sid) {
     // fails if this sentence has NE or syntax markup
+    check_permission(PERM_ADMIN);
 
     if (sentence_has_ne_markup($sid))
         throw new Exception("This sentence cannot be deleted (NE)");
@@ -472,6 +482,7 @@ function delete_sentence($sid) {
     sql_commit();
 }
 function delete_paragraph($pid) {
+    check_permission(PERM_ADMIN);
     $res = sql_pe("SELECT sent_id FROM sentences WHERE par_id=?", array($pid));
     sql_begin();
     foreach ($res as $sent)
@@ -570,6 +581,7 @@ function merge_tokens_ii($id_array) {
 }
 function split_token($token_id, $num) {
     //$num is the number of characters (in the beginning) that should become a separate token
+    check_permission(PERM_ADDER);
 
     if (is_token_covered_by_ne_markup($token_id))
         throw new Exception("Cannot split token under NE markup");

@@ -14,22 +14,6 @@ if (!$action) {
         $smarty->display('books.tpl');
     }
 }
-elseif (is_admin() && in_array($action, array('del_sentence', 'del_paragraph', 'move'))) {
-    switch ($action) {
-        case 'del_sentence':
-            delete_sentence($_GET['sid']);
-            header("Location:books.php?book_id=".$_GET['book_id'].'&full');
-            break;
-        case 'del_paragraph':
-            delete_paragraph($_GET['pid']);
-            header("Location:books.php?book_id=".$_GET['book_id'].'&full');
-            break;
-        case 'move':
-            books_move($_POST['book_id'], $_POST['book_to']);
-            header("Location:books.php?book_id=$book_to");
-            break;
-    }
-}
 elseif (user_has_permission(PERM_SYNTAX) && $action == 'anaphora') {
     if (isset($_GET['book_id']) && $book_id = $_GET['book_id']) {
         $book = get_book_page($book_id, TRUE);
@@ -90,7 +74,7 @@ elseif  (/*user_has_permission(PERM_SYNTAX) && */is_logged() && $action == 'ner'
     }
 }
 
-elseif (user_has_permission(PERM_ADDER)) {
+else {
     switch ($action) {
         case 'add':
             $book_name = trim($_POST['book_name']);
@@ -141,9 +125,19 @@ elseif (user_has_permission(PERM_ADDER)) {
             list($book_id, $sent_id) = merge_paragraphs($_GET['pid']);
             header("Location:books.php?book_id=$book_id&full#sen$sent_id");
             break;
+        case 'del_sentence':
+            delete_sentence($_GET['sid']);
+            header("Location:books.php?book_id=".$_GET['book_id'].'&full');
+            break;
+        case 'del_paragraph':
+            delete_paragraph($_GET['pid']);
+            header("Location:books.php?book_id=".$_GET['book_id'].'&full');
+            break;
+        case 'move':
+            books_move($_POST['book_id'], $_POST['book_to']);
+            header("Location:books.php?book_id=$book_to");
+            break;
     }
-} else {
-    show_error($config['msg']['notadmin']);
 }
 log_timing();
 ?>
