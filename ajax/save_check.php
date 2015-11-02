@@ -7,8 +7,7 @@ $value = $_POST['value'];
 try {
     switch($type) {
         case 'token':
-            if (!user_has_permission(PERM_CHECK_TOKENS))
-                throw new Exception();
+            check_permission(PERM_CHECK_TOKENS);
             sql_begin();
             sql_query("DELETE FROM sentence_check WHERE sent_id=$id AND user_id=".$_SESSION['user_id']." AND `status`=1 LIMIT 1");
             if ($value === 'true') {
@@ -17,8 +16,7 @@ try {
             }
             break;
         case 'source':
-            if (!user_has_permission(PERM_ADDER))
-                throw new Exception();
+            check_permission(PERM_ADDER);
             if ($value === '0' || $value === '1')
                 sql_query("INSERT INTO sources_status VALUES('$id', '".$_SESSION['user_id']."', '$value', '".time()."')");
             break;

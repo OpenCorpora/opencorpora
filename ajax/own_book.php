@@ -2,11 +2,9 @@
 require_once('../lib/header_ajax.php');
 
 try {
-    if (!user_has_permission(PERM_ADDER))
-        throw new Exception("Недостаточно прав");
-
     if (!isset($_POST['sid']) || !isset($_POST['status']))
         throw new UnexpectedValueException();
+    check_permission(PERM_ADDER);
 
     $sid = $_POST['sid'];
     $status = $_POST['status'];

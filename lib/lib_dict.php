@@ -322,6 +322,7 @@ function check_safe_token_update($token_id, $rev_id) {
     return sizeof($res) == 0;
 }
 function forget_pending_token($token_id, $rev_id) {
+    check_permission(PERM_DICT);
     sql_pe("DELETE FROM updated_tokens WHERE token_id=? AND dict_revision=?", array($token_id, $rev_id));
 }
 function update_pending_tokens($rev_id, $smart=false) {
@@ -378,6 +379,7 @@ function smart_update_pending_token($parse_set, $rev_id) {
     $parse_set->replace_gram_subset($lemma_id, $prev_rev_parsed['lemma']['grm'], $new_rev_parsed['lemma']['grm']);
 }
 function update_pending_token($token_id, $rev_id, $revset_id=0, $smart=false) {
+    check_permission(PERM_DICT);
     if (!check_safe_token_update($token_id, $rev_id))
         throw new Exception("Update forbidden");
 

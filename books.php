@@ -14,7 +14,8 @@ if (!$action) {
         $smarty->display('books.tpl');
     }
 }
-elseif (user_has_permission(PERM_SYNTAX) && $action == 'anaphora') {
+elseif ($action == 'anaphora') {
+    check_permission(PERM_SYNTAX);
     if (isset($_GET['book_id']) && $book_id = $_GET['book_id']) {
         $book = get_book_page($book_id, TRUE);
         $groups = array();
@@ -40,7 +41,9 @@ elseif (user_has_permission(PERM_SYNTAX) && $action == 'anaphora') {
     }
 }
 
-elseif  (/*user_has_permission(PERM_SYNTAX) && */is_logged() && $action == 'ner') {
+elseif ($action == 'ner') {
+    //check_permission(PERM_SYNTAX);
+    check_logged();
     if (isset($_GET['book_id']) && $book_id = $_GET['book_id']) {
 
         $tagset_id = 1; // TODO switch

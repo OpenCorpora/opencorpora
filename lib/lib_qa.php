@@ -179,6 +179,7 @@ function get_merge_fails() {
     return $data;
 }
 function save_merge_fail_status($sample_id, $is_checked) {
+    check_permission(PERM_MORPH_SUPERMODER);
     sql_pe("
         UPDATE morph_annot_moderated_samples
         SET merge_status = ?
@@ -187,6 +188,7 @@ function save_merge_fail_status($sample_id, $is_checked) {
     ", array($is_checked ? 2 : 0, $sample_id));
 }
 function save_merge_fail_comment($sample_id, $comment_text) {
+    check_permission(PERM_MORPH_SUPERMODER);
     $comment_text = trim($comment_text);
     sql_pe("
         DELETE FROM morph_annot_merge_comments

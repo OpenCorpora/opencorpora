@@ -1034,7 +1034,6 @@ function check_moderator_right($user_id, $pool_id, $make_owner=false) {
     return true;
 }
 function moder_agree_with_all($pool_id) {
-    check_permission(PERM_MORPH_MODER);
     $samples = get_morph_samples_page($pool_id, true, 1, 0, 'not_moderated');
     sql_begin();
     foreach ($samples['samples'] as $sample) {
@@ -1044,6 +1043,7 @@ function moder_agree_with_all($pool_id) {
     sql_commit();
 }
 function save_moderated_answer($id, $answer, $manual, $field_name='answer') {
+    check_permission(PERM_MORPH_MODER);
     $user_id = $_SESSION['user_id'];
     if (!$id || !$user_id || $answer < 0)
         throw new UnexpectedValueException();

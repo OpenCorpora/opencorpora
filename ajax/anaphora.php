@@ -11,10 +11,6 @@ require_once('../lib/lib_anaphora_syntax.php');
 
 try {
     // TODO: проверка на модератора книги
-    if (!user_has_permission(PERM_DISAMB) && !user_has_permission(PERM_SYNTAX)) {
-        throw new Exception("недостаточно прав");
-    }
-
     switch ($_POST['act']) {
         case 'new':
             $result['aid'] = add_anaphora($_POST['anph_id'], $_POST['group_id']);

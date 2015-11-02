@@ -535,6 +535,7 @@ function merge_tokens_ii($id_array) {
     //ii stands for "id insensitive"
     if (sizeof($id_array) < 2)
         throw new UnexpectedValueException();
+    check_permission(PERM_ADDER);
 
     $id_array = array_map('intval', $id_array);
     foreach ($id_array as $tid) {
