@@ -73,4 +73,37 @@ $(document).ready(function() {
          hideMentionsTypeSelector();
       });
    });
+
+   $('.mentions-table').on('change', '.selectpicker', function(e) {
+      var mentionId = $(this).parents('tr').attr('data-mention-id');
+
+      log_event("mention", "updated types", mentionId, $(this).val().toString());
+      $.post('/ajax/ner.php', {
+         act: 'setMentionType',
+         mention: mentionId,
+         object_type: $(this).val()
+      }, function(response) {
+         notify("Тип упоминания сохранен.");
+      });
+      e.stopPropagation();
+   });
+
+   $('.mentions-table').on('click', '.remove-mention', function(e) {
+      if (window.confirm("Вы действительно хотите удалить это упоминание?")) {
+         var tr = $(this).parents('tr');
+         var mentionId = tr.attr('data-mention-id');
+         log_event("mention", "deleting mention", mentionId,
+            tr.find('td.ner-mention-text').text().trim());
+
+         $.post('/ajax/ner.php', {
+            act: 'deleteMention',
+            mention: mentionId
+         },
+         function(response) {
+            notify("Упоминание удалено.");
+            tr.remove();
+        });
+      }
+      e.stopPropagation();
+   });
 });

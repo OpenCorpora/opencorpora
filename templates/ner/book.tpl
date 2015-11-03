@@ -59,7 +59,7 @@
                                 <table class="table ner-table table-condensed" data-par-id="{$paragraph.id}">
                                 {foreach $paragraph.named_entities as $ne}
                                     <tr data-entity-id="{$ne.id}">
-                                        <td class="ner-entity-actions"><i class="icon icon-remove ner-remove" data-entity-id={$ne.id}></i></td>
+                                        <td class="ner-entity-actions"><i class="icon icon-remove ner-remove remove-ner" data-entity-id={$ne.id}></i></td>
                                         <td class="ner-entity-text span4">
                                         {foreach $ne.tokens as $token}{$token[1]} {/foreach}
                                         </td>
@@ -83,26 +83,24 @@
 
                             <div class="tab-pane" id="tab-mentions-{$paragraph.id}">
                             <table class="table mentions-table table-condensed" data-par-id="{$paragraph.id}">
-                            {foreach $paragraph.mentions as $id => $entities}
+                            {foreach $paragraph.mentions as $id => $mention}
                                 {if $id == 0}{continue}{/if}
                                 <tr data-mention-id="{$id}">
                                     <td class="ner-mention-actions"><i class="icon icon-remove ner-remove remove-mention" data-mention-id={$id}></i></td>
                                     <td class="ner-mention-text span4">
-                                        {foreach $entities as $ne}
+                                        {foreach $mention['entities'] as $ne}
                                             {foreach $ne.tokens as $token}[{$token[1]}] {/foreach}
                                         {/foreach}
                                     </td>
                                     <td class="ner-mention-type span3">
                                     {if $paragraph.mine}
-                                        <select class="selectpicker show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-mention-id="{$id}" multiple>
-                                        {foreach $types as $type}
-                                            <option data-content="<span class='label label-palette-{$type.id * $colorStep}'>{$type.name}</span>" {*if in_array(array_values($type), $ne.tags)}selected{/if*}>{$type.id}</option>
+                                        <select class="selectpicker show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-mention-id="{$id}">
+                                        {foreach $mention_types as $type}
+                                            <option data-content="<span class='label label-palette-{$type.id * $colorStep}'>{$type.name}</span>" {if $type['id'] == $mention['type']}selected{/if}>{$type.id}</option>
                                         {/foreach}
                                         </select>
                                     {else}
-                                        {*foreach $ne.tags as $tag}
-                                            <span class="label label-palette-{$tag[0] * $colorStep}">{$tag[1]}</span>
-                                        {/foreach*}
+                                            <span class="label label-palette-{$mention['type'] * $colorStep}">{$mention['type']}</span>
                                     {/if}
                                     </td>
                                 </tr>
@@ -151,9 +149,8 @@
     <h3 class="popover-title">Новое упоминание:</h3>
     <div class="popover-content">
         <div class="btn-group type-selector mention-type-selector" data-toggle="buttons-checkbox">
-            {foreach $types as $type}
-                {if $type.name !== 'phrase'}
-                <button class="btn btn-small btn-palette-{20 - $type.id * $colorStep}" data-type-id="{$type.id}" data-hotkey="{$type.name|substr:0:1}">{$type.name}</button>{/if}
+            {foreach $mention_types as $type}
+                <button class="btn btn-small btn-palette-{20 - $type.id * $colorStep}" data-type-id="{$type.id}">{$type.name}</button>
             {/foreach}
         </div>
     </div>
@@ -162,7 +159,7 @@
 <div class="templates">
     <table class="table-stub">
     <tr class="tr-template">
-        <td class="ner-entity-actions"><i class="icon icon-remove ner-remove remove-entity"></i></td>
+        <td class="ner-entity-actions"><i class="icon icon-remove ner-remove remove-ner"></i></td>
         <td class="ner-entity-text span4"></td>
         <td class="ner-entity-type span3">
             <select class="selectpicker-tpl show-menu-arrow pull-right" data-width="140px" data-style="btn-small" multiple>
@@ -179,8 +176,8 @@
         <td class="ner-mention-actions"><i class="icon icon-remove ner-remove remove-mention"></i></td>
         <td class="ner-mention-text span4"></td>
         <td class="ner-mention-type span3">
-            <select class="selectpicker-tpl show-menu-arrow pull-right" data-width="140px" data-style="btn-small" multiple>
-            {foreach $types as $type}
+            <select class="selectpicker-tpl show-menu-arrow pull-right" data-width="140px" data-style="btn-small">
+            {foreach $mention_types as $type}
                 <option data-content="<span class='label label-palette-{$type.id * $colorStep}'>{$type.name}</span>">{$type.id}</option>
             {/foreach}
             </select>

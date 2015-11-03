@@ -79,6 +79,7 @@ elseif ($action == 'ner') {
         $smarty->assign('possible_guidelines',
             array(1 => "Default (2014)", 2 => "Dialogue Eval (2016)"));
         $smarty->assign('current_guideline', OPTION(OPT_NE_TAGSET));
+        $smarty->assign('mention_types', get_object_types($tagset_id));
         $smarty->display('ner/book.tpl');
     } else {
         throw new UnexpectedValueException();

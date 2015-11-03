@@ -236,12 +236,11 @@ $(document).ready(function() {
 
 $(document).ready(function() {
 
+    $('.selectpicker').selectpicker();
     for (i in PARAGRAPHS) {
       highlightEntitiesInParagraph(PARAGRAPHS[i],
         $('.ner-paragraph').filterByAttr('data-par-id', PARAGRAPHS[i].id));
     }
-
-    $('.selectpicker').selectpicker();
 
     $('.ner-row').each(function() {
         $(this).find('.ner-paragraph-wrap').syncByClass($(this).find('.ner-table-wrap'));
@@ -267,7 +266,7 @@ $(document).ready(function() {
       e.stopPropagation();
 
       if ($('.floating-block').is(':visible')) {
-         notify("У вас есть несохраненная сущность.", 'error');
+         notify("У вас есть несохраненный спан.", 'error');
          return false;
       }
 
@@ -288,7 +287,7 @@ $(document).ready(function() {
    $('button.ner-btn-finish-all').click(function(e) {
 
       if ($('.floating-block').is(':visible')) {
-         notify("У вас есть несохраненная сущность.", 'error');
+         notify("У вас есть несохраненный спан.", 'error');
          return false;
       }
 
@@ -332,7 +331,7 @@ $(document).ready(function() {
       $.post('/ajax/set_option.php', {option: 5, value: 1});
    });
 
-    $('.ner-table-wrap').on('change', '.selectpicker', function(e) {
+    $('.ner-table').on('change', '.selectpicker', function(e) {
         if ($(this).val() == null) {
             $(this).selectpicker('val', miscTypeId);
         }
@@ -357,12 +356,13 @@ $(document).ready(function() {
             entity: entityId,
             types: $(this).val()
         }, function(response) {
-            notify("Типы сущности сохранены.");
+            notify("Типы спана сохранены.");
         });
+        e.stopPropagation();
     });
 
-    $('.ner-table-wrap').on('click', '.ner-remove', function(e) {
-        if (window.confirm("Вы действительно хотите удалить эту сущность?")) {
+    $('.ner-table').on('click', '.remove-ner', function(e) {
+        if (window.confirm("Вы действительно хотите удалить этот спан?")) {
             var tr = $(this).parents('tr');
             var entityId = tr.attr('data-entity-id');
             log_event("entity", "deleting entity", entityId, tr.find('td.ner-entity-text').text().trim());
@@ -372,22 +372,27 @@ $(document).ready(function() {
                     entity: entityId
                 },
                 function(response) {
-                    notify("Сущность удалена.");
-                    $('.ner-token-border').filterByAttr('data-entity-id', entityId)
+                  if (response.error) {
+                    notify("Не получилось удалить - может, спан содержится в упоминании?", "error");
+                    return;
+                  }
+                  notify("Спан удален.");
+                  $('.ner-token-border').filterByAttr('data-entity-id', entityId)
                         .remove();
                     tr.remove();
             });
         }
+        e.stopPropagation();
     });
 
-    $('.ner-table-wrap').on('mouseenter', 'tr',
+    $('.ner-table').on('mouseenter', 'tr',
       function() { // hover in
         var tokens = $('.ner-token-border').filterByAttr('data-entity-id', $(this).attr('data-entity-id'))
           .parents('.ner-token');
         tokens.addClass('ner-token-highlighted');
     });
 
-    $('.ner-table-wrap').on('mouseleave', 'tr',
+    $('.ner-table').on('mouseleave', 'tr',
       function() { // hover out
         var tokens = $('.ner-token-border').filterByAttr('data-entity-id', $(this).attr('data-entity-id'))
           .parents('.ner-token');
