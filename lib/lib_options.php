@@ -51,6 +51,7 @@ class UserOptionsManager {
 
         $opt = new UserOption(OPT_NE_TAGSET, OptionTypes::KEY_VALUE);
         $opt->values = array(1 => "Default (2014)", 2 => "Dialogue Eval (2016)");
+        $opt->default_value = 2;
         $opt->caption = "Инструкция (tagset) разметки NER";
         $this->_add($opt);
 
