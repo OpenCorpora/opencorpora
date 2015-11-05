@@ -13,10 +13,20 @@ var showMentionsTypeSelector = function(x, y) {
 
 var clearMentionsHighlight = function() {
    $('.mentions-current-selection').removeClass('mentions-current-selection');
+   $('.ner-token-highlighted-m').removeClass('ner-token-highlighted-m');
 };
 
 var clearMentionsSelectedTypes = function() {
     $('.mention-type-selector').find('.btn').removeClass('active');
+};
+
+var highlightMentionTokens = function($table_rows) {
+	$('.ner-token.ner-token-highlighted-m').removeClass('ner-token-highlighted-m');
+	$table_rows.each(function(i, row) {
+		var tokens = $('.ner-token-border').filterByAttr('data-entity-id', $(row).attr('data-entity-id'))
+		  .parents('.ner-token');
+		tokens.addClass('ner-token-highlighted-m');
+	});
 };
 
 $(document).ready(function() {
@@ -26,7 +36,10 @@ $(document).ready(function() {
          !== $('.mentions-current-selection').length) return false;
 
       $(this).toggleClass('mentions-current-selection');
+
       var current = $('.mentions-current-selection');
+      highlightMentionTokens(current);
+
       if (!current.length) {
          hideMentionsTypeSelector();
       }

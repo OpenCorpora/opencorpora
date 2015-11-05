@@ -986,6 +986,10 @@ button.ma_next_pack {
     background-color: lightblue;
 }
 
+.ner-token-highlighted-m {
+    color: blue !important;
+}
+
 .ner-token-text {
     font-size: 16px;
 }
@@ -1615,5 +1619,4 @@ tr.valign-top td {
 
 .ner-table tr:first-child td, .mentions-table tr:first-child td {
     border-top: none;
-}
 }
