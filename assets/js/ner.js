@@ -46,7 +46,7 @@ var hideTypeSelector = function() {
 
 var showTypeSelector = function(x, y) {
    var l = x - $('.floating-block').width() / 2;
-   var t = y - $('.floating-block').height() - 10;
+   var t = y - $('.floating-block').height() - 30;
    if (l < 0) l = 3;
    $('.floating-block').css('left', l)
                        .css('top', t);
@@ -364,6 +364,8 @@ $(document).ready(function() {
     $('.ner-table').on('click', '.remove-ner', function(e) {
         if (window.confirm("Вы действительно хотите удалить этот спан?")) {
             var tr = $(this).parents('tr');
+            var par_id = tr.parents('.ner-table').attr('data-par-id');
+
             var entityId = tr.attr('data-entity-id');
             log_event("entity", "deleting entity", entityId, tr.find('td.ner-entity-text').text().trim());
 
@@ -380,6 +382,16 @@ $(document).ready(function() {
                   $('.ner-token-border').filterByAttr('data-entity-id', entityId)
                         .remove();
                     tr.remove();
+
+                    $.each(PARAGRAPHS, function(i, par) {
+                        if (par.id != par_id) return;
+                        $.each(PARAGRAPHS[i].named_entities, function(j, entity) {
+                            if (entity.id === entityId) {
+                                delete PARAGRAPHS[i].named_entities[j];
+                            }
+                        });
+                    });
+
             });
         }
         e.stopPropagation();
