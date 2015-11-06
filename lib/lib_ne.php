@@ -509,7 +509,7 @@ function add_mention($entity_ids, $object_type) {
     $vals = array();
     foreach ($entities as $ent)
         $vals[] = "(" . $ent["entity_id"] . ", " . $mention_id . ")";
-    sql_query("INSERT INTO ne_entities_mentions VALUES " + implode(", ", $vals));
+    sql_query("INSERT INTO ne_entities_mentions VALUES " . implode(", ", $vals));
     sql_commit();
     return $mention_id;
 }

@@ -58,7 +58,7 @@
                                 {foreach $paragraph.named_entities as $ne}
                                     <tr data-entity-id="{$ne.id}">
                                         <td class="ner-entity-actions"><i class="icon icon-remove ner-remove remove-ner" data-entity-id={$ne.id}></i></td>
-                                        <td class="ner-entity-text span4">
+                                        <td class="ner-entity-text span4 {if count($ne.mention_ids) > 0}in-mentions{/if}">
                                         {foreach $ne.tokens as $token}{$token[1]} {/foreach}
                                         </td>
                                         <td class="ner-entity-type span3">

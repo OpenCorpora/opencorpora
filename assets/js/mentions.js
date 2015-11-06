@@ -69,8 +69,9 @@ $(document).ready(function() {
          object_type: type
       }, function(response) {
          notify('Упоминание добавлено.', 'success');
-         var t = $('table.mentions-table').filterByAttr('data-par-id', paragraph.attr('data-par-id'));
+         selected.find('td.ner-entity-text').addClass('in-mentions');
 
+         var t = $('table.mentions-table').filterByAttr('data-par-id', paragraph.attr('data-par-id'));
          var tr = $('.templates').find('.m-tr-template').clone().removeClass('m-tr-template');
          tr.add(tr.find('.remove-mention')).add(tr.find('.selectpicker-tpl'))
             .attr('data-mention-id', response.id);

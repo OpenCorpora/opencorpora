@@ -1629,3 +1629,14 @@ tr.valign-top td {
 .ner-entity-text {
     height: 26px;
 }
+
+.ner-entity-text.in-mentions:before {
+    content: "";
+    display: inline-block;
+    height: 8px;
+    width: 8px;
+    background-color: plum;
+    border-radius: 16px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
