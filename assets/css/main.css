@@ -1636,3 +1636,7 @@ tr.valign-top td {
 .single-achievement-wrap .achievement-wrap {
     margin-top: 30px;
 }
+
+.slim-header {
+    font-weight: 400;
+}

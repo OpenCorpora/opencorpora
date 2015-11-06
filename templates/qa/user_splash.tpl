@@ -55,7 +55,6 @@
     <script>
         $('.a-modal').on('shown', function() {
 
-            $.post("/ajax/game_mark_shown.php");
             $(this).find('.bouncy').addClass("animated bounceIn");
             // $.post("/ajax/game_mark_shown.php");
         });

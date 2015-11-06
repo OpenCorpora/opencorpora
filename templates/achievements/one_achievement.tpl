@@ -1,7 +1,7 @@
 {extends file='common.tpl'}
 {block name='content'}
     <div class="single-achievement-wrap">
-    <h2>Бейдж пользователя
+    <h2 class="slim-header">Бейдж пользователя
     <a href="{$web_prefix}/user.php?id={$user_id}">{$user['shown_name']}</a></h2>
 
     {$a = $achievement}
