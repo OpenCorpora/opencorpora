@@ -1620,3 +1620,11 @@ tr.valign-top td {
 .ner-table tr:first-child td, .mentions-table tr:first-child td {
     border-top: none;
 }
+
+.selectpicker-not-initialized {
+    display: none;
+}
+
+.ner-entity-text {
+    height: 26px;
+}

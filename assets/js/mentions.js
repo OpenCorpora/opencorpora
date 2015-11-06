@@ -54,6 +54,7 @@ $(document).ready(function() {
    $('.mention-type-selector > .btn').click(function() {
       var selected = $('.mentions-current-selection');
       var selectedText = '';
+
       selected.each(function() {
          selectedText += '[' + $(this).find('.ner-entity-text').text() + '] ';
       });
@@ -67,6 +68,7 @@ $(document).ready(function() {
          entities: selectedIds,
          object_type: type
       }, function(response) {
+         notify('Упоминание добавлено.', 'success');
          var t = $('table.mentions-table').filterByAttr('data-par-id', paragraph.attr('data-par-id'));
 
          var tr = $('.templates').find('.m-tr-template').clone().removeClass('m-tr-template');

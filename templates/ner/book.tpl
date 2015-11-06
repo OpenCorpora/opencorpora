@@ -51,8 +51,6 @@
                         <ul class="nav nav-tabs small-tabs">
                             <li class="active"><a href="#tab-entities-{$paragraph.id}" data-toggle="tab">Спаны</a></li>
                             <li><a href="#tab-mentions-{$paragraph.id}" data-toggle="tab">Упоминания</a></li>
-                            <li class="disabled"><a>Объекты</a></li>
-                            <li class="disabled"><a>Факты</a></li>
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane active" id="tab-entities-{$paragraph.id}">
@@ -65,7 +63,8 @@
                                         </td>
                                         <td class="ner-entity-type span3">
                                         {if $paragraph.mine}
-                                            <select class="selectpicker show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-entity-id="{$ne.id}" multiple>
+                                            <select class="selectpicker selectpicker-not-initialized
+                                            show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-entity-id="{$ne.id}" multiple>
                                             {foreach $types as $type}
                                                 <option data-content="<span class='label label-palette-{$type.id * $colorStep}'>{$type.name}</span>" {if in_array(array_values($type), $ne.tags)}selected{/if}>{$type.id}</option>
                                             {/foreach}
@@ -89,18 +88,19 @@
                                     <td class="ner-mention-actions"><i class="icon icon-remove ner-remove remove-mention" data-mention-id={$id}></i></td>
                                     <td class="ner-mention-text span4">
                                         {foreach $mention['entities'] as $ne}
-                                            {foreach $ne.tokens as $token}[{$token[1]}] {/foreach}
+                                            [{foreach $ne.tokens as $token}{$token[1]} {/foreach}]
                                         {/foreach}
                                     </td>
                                     <td class="ner-mention-type span3">
                                     {if $paragraph.mine}
-                                        <select class="selectpicker show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-mention-id="{$id}">
+                                        <select class="selectpicker selectpicker-not-initialized
+                                        show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-mention-id="{$id}">
                                         {foreach $mention_types as $type}
-                                            <option data-content="<span class='label label-palette-{$type.id * $colorStep}'>{$type.name}</span>" {if $type['id'] == $mention['type']}selected{/if}>{$type.id}</option>
+                                            <option data-content="<span class='label label-palette-{20 - $type.id * $colorStep}'>{$type.name}</span>" {if $type['id'] == $mention['type']}selected{/if}>{$type.id}</option>
                                         {/foreach}
                                         </select>
                                     {else}
-                                            <span class="label label-palette-{$mention['type'] * $colorStep}">{$mention['type']}</span>
+                                            <span class="label label-palette-{20 - $mention['type'] * $colorStep}">{$mention['type']}</span>
                                     {/if}
                                     </td>
                                 </tr>
@@ -178,7 +178,7 @@
         <td class="ner-mention-type span3">
             <select class="selectpicker-tpl show-menu-arrow pull-right" data-width="140px" data-style="btn-small">
             {foreach $mention_types as $type}
-                <option data-content="<span class='label label-palette-{$type.id * $colorStep}'>{$type.name}</span>">{$type.id}</option>
+                <option data-content="<span class='label label-palette-{20 - $type.id * $colorStep}'>{$type.name}</span>">{$type.id}</option>
             {/foreach}
             </select>
         </td>

@@ -112,7 +112,7 @@ function get_ne_entity_tokens_info($start_token_id, $length) {
 
     if ($token_res == NULL) {
         $token_res = sql_prepare("
-            SELECT tf_id, tf_text
+            SELECT tf_id, tf_text, pos
             FROM tokens
             WHERE sent_id = (
                 SELECT sent_id FROM tokens WHERE tf_id = ?
@@ -208,6 +208,11 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
         if (sizeof($entity['tokens']) != $entity['length'])
             throw new Exception();
     }
+
+    // sort entities by position in paragraph (by first token pos)
+    usort($out['entities'], function($e1, $e2) {
+        return $e1['tokens'][0]['pos'] - $e2['tokens'][0]['pos'];
+    });
 
     if ($group_by_mention)
         $out['entities'] = group_entities_by_mention($out['entities']);
