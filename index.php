@@ -86,6 +86,24 @@ if (isset($_GET['page'])) {
             $smarty->assign('manager', $am);
             $smarty->display('achievements/all_achievements.tpl');
             break;
+        case 'achievement':
+            if (!empty($_GET['uid']) && !empty($_GET['type'])) {
+                $uid = (int)$_GET['uid'];
+                $type = $_GET['type'];
+
+                $am = new AchievementsManager($uid);
+                $smarty->assign('user', get_user_info($uid));
+                $smarty->assign('user_id', $uid);
+
+                $all = $am->pull_all();
+
+                if (!empty($all[$type]) && $all[$type]->given) {
+
+                    $smarty->assign('achievement', $all[$type]);
+                    $smarty->display('achievements/one_achievement.tpl');
+                    break;
+                }
+            }
         default:
             header("Location:index.php");
             break;

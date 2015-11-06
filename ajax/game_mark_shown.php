@@ -8,7 +8,6 @@ try {
     if (!$user_id)
         throw new UnexpectedValueException();
 
-    $badge_id = $_POST['badge_id'];
     $am = new AchievementsManager($user_id);
     $am->set_all_seen();
 
