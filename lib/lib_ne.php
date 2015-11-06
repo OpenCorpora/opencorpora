@@ -170,6 +170,8 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
     $res = sql_query("
         SELECT entity_id, start_token, length, mention_id, object_type_id
         FROM ne_entities
+        LEFT JOIN ne_entities_mentions
+            USING (entity_id)
         LEFT JOIN ne_mentions
             USING (mention_id)
         WHERE annot_id=".$out['annot_id']
@@ -445,7 +447,7 @@ function delete_ne_entity($entity_id, $annot_id=0) {
         $annot_id = $res[0]['annot_id'];
     }
 
-    $res = sql_pe("SELECT mention_id FROM ne_entities WHERE entity_id=? LIMIT 1", array($entity_id));
+    $res = sql_pe("SELECT mention_id FROM ne_entities_mentions WHERE entity_id=? LIMIT 1", array($entity_id));
     if ($res[0]['mention_id'] > 0)
         throw new Exception("Cannot delete entity in mention");
 
@@ -496,15 +498,17 @@ function add_mention($entity_ids, $object_type) {
     sql_begin();
     sql_pe("INSERT INTO ne_mentions SET object_type_id = ?", array($object_type));
     $mention_id = sql_insert_id();
-    array_unshift($entity_ids, $mention_id);
-    sql_pe("UPDATE ne_entities SET mention_id = ? WHERE entity_id IN (" . $entities_in . ")", $entity_ids);
+    $vals = array();
+    foreach ($entities as $ent)
+        $vals[] = "(" . $ent["entity_id"] . ", " . $mention_id . ")";
+    sql_query("INSERT INTO ne_entities_mentions VALUES " + implode(", ", $vals));
     sql_commit();
     return $mention_id;
 }
 
 function delete_mention($mention_id) {
     sql_begin();
-    sql_pe("UPDATE ne_entities set mention_id = 0 WHERE mention_id = ?", array($mention_id));
+    sql_pe("DELETE FROM ne_entities_mentions WHERE mention_id = ?", array($mention_id));
     sql_pe("DELETE FROM ne_mentions WHERE mention_id = ?", array($mention_id));
     sql_commit();
 }
@@ -519,9 +523,12 @@ function update_mention($mention_id, $object_type) {
     sql_pe("UPDATE ne_mentions SET object_type_id = ? WHERE mention_id = ? LIMIT 1", array($object_type, $mention_id));
 }
 
-function clear_entity_mention($entity_id) {
+function delete_entity_mention_link($entity_id, $mention_id) {
     $entity = sql_pe("SELECT * FROM ne_entities WHERE entity_id = ? LIMIT 1", array($entity_id));
     if (sizeof($entity) != 1)
         throw new Exception("Entity not found");
-    sql_pe("UPDATE ne_entities SET mention_id = 0 where entity_id = ?", array($entity_id));
+    $mention = sql_pe("SELECT * FROM ne_mentions WHERE mention_id = ? LIMIT 1", array($mention_id));
+    if (sizeof($mention) != 1)
+        throw new Exception("Mention not found");
+    sql_pe("DELETE FROM ne_entities_mentions WHERE entity_id = ? AND mention_id = ?", array($entity_id, $mention_id));
 }
