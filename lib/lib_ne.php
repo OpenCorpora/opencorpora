@@ -137,10 +137,12 @@ function group_entities_by_mention($entities) {
     $new = array();
 
     foreach ($entities as $e) {
-        $mid = $e['mention_id'];
-        if (!isset($new[$mid]))
-            $new[$mid] = array('entities' => array(), 'type' => $e['mention_type']);
-        $new[$mid]['entities'][] = $e;
+        $mids = $e['mention_ids'];
+        foreach ($mids as $i => $mid) {
+            if (!isset($new[$mid]))
+                $new[$mid] = array('entities' => array(), 'type' => $e['mention_types'][$i]);
+            $new[$mid]['entities'][] = $e;
+        }
     }
 
     return $new;
@@ -184,23 +186,30 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
     ");
 
     while ($r = sql_fetch_array($res)) {
+        $eid = $r['entity_id'];
+        if (isset($out['entities'][$eid])) {
+            $out['entities'][$eid]['mention_ids'][] = $r['mention_id'];
+            $out['entities'][$eid]['mention_types'][] = $r['object_type_id'];
+            continue;
+        }
+
         $entity = array(
             'id' => $r['entity_id'],
             'start_token' => $r['start_token'],
             'length' => $r['length'],
             'tokens' => array(),
-            'mention_id' => $r['mention_id'],
-            'mention_type' => $r['object_type_id'],
+            'mention_ids' => array($r['mention_id']),
+            'mention_types' => array($r['object_type_id']),
             'tags' => array()
         );
 
-        sql_execute($tag_res, array($r['entity_id']));
+        sql_execute($tag_res, array($eid));
         while ($r1 = sql_fetch_array($tag_res))
             $entity['tags'][] = array($r1['tag_id'], $r1['tag_name']);
 
         // TODO check that tags belong to the correct tagset
 
-        $out['entities'][] = $entity;
+        $out['entities'][$eid] = $entity;
     }
     $tag_res->closeCursor();
 
@@ -493,8 +502,7 @@ function add_mention($entity_ids, $object_type) {
     $type = sql_pe("SELECT * FROM ne_object_types WHERE object_type_id = ? LIMIT 1", array($object_type));
     if (sizeof($type) != 1)
         throw new Exception("Not valid object type");
-    else
-        $type = $type[0];
+
     sql_begin();
     sql_pe("INSERT INTO ne_mentions SET object_type_id = ?", array($object_type));
     $mention_id = sql_insert_id();
