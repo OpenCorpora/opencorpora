@@ -40,7 +40,7 @@
                         data-yashareTitle="{$desc}"
                         data-yashareDescription="На тебя тоже хватит!"
                         data-yashareImage="http://opencorpora.org/assets/img/badges/share/{$a->css_class}.png"
-                        data-yashareLink="http://opencorpora.org/page=achievement&uid={$smarty.session.user_id}&type={$a->css_class}"></div>
+                        data-yashareLink="http://opencorpora.org/?page=achievement&uid={$smarty.session.user_id}&type={$a->css_class}"></div>
                 </div>
             </div>
         {/foreach}
