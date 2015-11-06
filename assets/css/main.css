@@ -1523,6 +1523,7 @@ tr.valign-top td {
     margin: 10px auto;
     text-align: center;
     color: #444;
+    font-weight: 400;
 }
 
 .lead-medium {
