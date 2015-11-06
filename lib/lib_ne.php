@@ -128,7 +128,7 @@ function get_ne_entity_tokens_info($start_token_id, $length) {
     $out = array();
     sql_execute($token_res, array($start_token_id, $start_token_id, $length));
     while ($r = sql_fetch_array($token_res))
-        $out[] = array($r['tf_id'], $r['tf_text']);
+        $out[] = array($r['tf_id'], $r['tf_text'], 'pos' => $r['pos']);
 
     return $out;
 }
