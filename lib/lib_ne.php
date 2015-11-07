@@ -203,6 +203,11 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
             'tags' => array()
         );
 
+        if (empty($r['mention_id'])) {
+            $entity['mention_ids'] = array();
+            $entity['mention_types'] = array();
+        }
+
         sql_execute($tag_res, array($eid));
         while ($r1 = sql_fetch_array($tag_res))
             $entity['tags'][] = array($r1['tag_id'], $r1['tag_name']);
