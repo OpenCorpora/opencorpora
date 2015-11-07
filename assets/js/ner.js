@@ -450,7 +450,7 @@ $(document).ready(function() {
             });
 
             tr.find('.selectpicker-tpl').removeClass('selectpicker-tpl').addClass('selectpicker').selectpicker();
-            tr.find('td.ner-entity-text').text(selected.text());
+            tr.find('.ner-entity-text-wrap').text(selected.text());
             t.append(tr);
 
             clearHighlight();

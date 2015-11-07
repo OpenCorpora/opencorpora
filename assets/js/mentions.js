@@ -21,12 +21,12 @@ var clearMentionsSelectedTypes = function() {
 };
 
 var highlightMentionTokens = function($table_rows) {
-	$('.ner-token.ner-token-highlighted-m').removeClass('ner-token-highlighted-m');
-	$table_rows.each(function(i, row) {
-		var tokens = $('.ner-token-border').filterByAttr('data-entity-id', $(row).attr('data-entity-id'))
-		  .parents('.ner-token');
-		tokens.addClass('ner-token-highlighted-m');
-	});
+  $('.ner-token.ner-token-highlighted-m').removeClass('ner-token-highlighted-m');
+  $table_rows.each(function(i, row) {
+    var tokens = $('.ner-token-border').filterByAttr('data-entity-id', $(row).attr('data-entity-id'))
+      .parents('.ner-token');
+    tokens.addClass('ner-token-highlighted-m');
+  });
 };
 
 $(document).ready(function() {
@@ -69,7 +69,13 @@ $(document).ready(function() {
          object_type: type
       }, function(response) {
          notify('Упоминание добавлено.', 'success');
-         selected.find('td.ner-entity-text').addClass('in-mentions');
+         selected.each(function() {
+            var text = $(this).find('.ner-entity-text');
+            text.prepend($('<span>')
+               .addClass('ner-entity-mention-link')
+               .addClass('label-palette-' + (20 - type * 2))
+               .attr('data-mention-id', response.id));
+         });
 
          var t = $('table.mentions-table').filterByAttr('data-par-id', paragraph.attr('data-par-id'));
          var tr = $('.templates').find('.m-tr-template').clone().removeClass('m-tr-template');
@@ -118,6 +124,7 @@ $(document).ready(function() {
          function(response) {
             notify("Упоминание удалено.");
             tr.remove();
+            $('.ner-entity-mention-link').filterByAttr('data-mention-id', mentionId).remove();
         });
       }
       e.stopPropagation();
