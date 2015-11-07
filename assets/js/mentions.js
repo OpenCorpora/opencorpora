@@ -56,7 +56,7 @@ $(document).ready(function() {
       var selectedText = '';
 
       selected.each(function() {
-         selectedText += '[' + $(this).find('.ner-entity-text').text() + '] ';
+         selectedText += '[' + $(this).find('.ner-entity-text').text().trim() + '] ';
       });
 
       var type = $(this).attr('data-type-id');

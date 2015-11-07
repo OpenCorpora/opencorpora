@@ -112,7 +112,7 @@ function get_ne_entity_tokens_info($start_token_id, $length) {
 
     if ($token_res == NULL) {
         $token_res = sql_prepare("
-            SELECT tf_id, tf_text, pos
+            SELECT tf_id, tf_text, pos, sent_id
             FROM tokens
             WHERE sent_id = (
                 SELECT sent_id FROM tokens WHERE tf_id = ?
@@ -128,7 +128,8 @@ function get_ne_entity_tokens_info($start_token_id, $length) {
     $out = array();
     sql_execute($token_res, array($start_token_id, $start_token_id, $length));
     while ($r = sql_fetch_array($token_res))
-        $out[] = array($r['tf_id'], $r['tf_text'], 'pos' => $r['pos']);
+        $out[] = array($r['tf_id'], $r['tf_text'],
+            'pos' => $r['pos'], 'sent_id' => $r['sent_id']);
 
     return $out;
 }
@@ -227,7 +228,12 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
 
     // sort entities by position in paragraph (by first token pos)
     usort($out['entities'], function($e1, $e2) {
-        return $e1['tokens'][0]['pos'] - $e2['tokens'][0]['pos'];
+        $s1 = $e1['tokens'][0]['sent_id'];
+        $s2 = $e2['tokens'][0]['sent_id'];
+        $pos1 = $e1['tokens'][0]['pos'];
+        $pos2 = $e2['tokens'][0]['pos'];
+
+        return ($s1 == $s2 ? ($pos1 - $pos2) : ($s1 - $s2));
     });
 
     if ($group_by_mention)

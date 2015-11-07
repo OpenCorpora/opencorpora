@@ -59,7 +59,7 @@
                                     <tr data-entity-id="{$ne.id}">
                                         <td class="ner-entity-actions"><i class="icon icon-remove ner-remove remove-ner" data-entity-id={$ne.id}></i></td>
                                         <td class="ner-entity-text span4 {if count($ne.mention_ids) > 0}in-mentions{/if}">
-                                        {foreach $ne.tokens as $token}{$token[1]} {/foreach}
+                                        {foreach $ne.tokens as $i => $token}{$token[1]} {/foreach}
                                         </td>
                                         <td class="ner-entity-type span3">
                                         {if $paragraph.mine}
@@ -88,7 +88,8 @@
                                     <td class="ner-mention-actions"><i class="icon icon-remove ner-remove remove-mention" data-mention-id={$id}></i></td>
                                     <td class="ner-mention-text span4">
                                         {foreach $mention['entities'] as $ne}
-                                            [{foreach $ne.tokens as $token}{$token[1]} {/foreach}]
+                                            [{foreach $ne.tokens as $i => $token}{$token[1]}{if $i
+                                            < count($ne.tokens)-1} {/if}{/foreach}]
                                         {/foreach}
                                     </td>
                                     <td class="ner-mention-type span3">
@@ -100,7 +101,11 @@
                                         {/foreach}
                                         </select>
                                     {else}
-                                            <span class="label label-palette-{20 - $mention['type'] * $colorStep}">{$mention['type']}</span>
+                                        {foreach $mention_types as $type}
+                                            {if $type['id'] == $mention['type']}
+                                            <span class="label label-palette-{20 - $type['id'] * $colorStep}">{$type['name']}</span>
+                                            {/if}
+                                        {/foreach}
                                     {/if}
                                     </td>
                                 </tr>
