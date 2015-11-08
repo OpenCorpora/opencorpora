@@ -310,7 +310,7 @@ function add_comment_to_paragraph($par_id, $user_id, $comment) {
     // current design allows user to add comments to his own paragraphs only
     // though database allows comments to anyone's paragraphs
     $tres = sql_pe("SELECT annot_id FROM ne_paragraphs WHERE user_id=? and par_id=?", array($user_id, $par_id));
-    if (sizeof($tres) > 1)
+    if (sizeof($tres) > 1 || sizeof($tres) == 0)
         throw new Exception();
     $annot_id = $tres[0]['annot_id'];
     $res = sql_pe("
