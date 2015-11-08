@@ -52,4 +52,5 @@ define('NE_STATUS_MODERATED', 3);
 
 define('NE_ANNOT_TIMEOUT', 24 * 60 * 60);  // 24 hours
 define('NE_ANNOTATORS_PER_TEXT', 4);
+define('NE_ACTIVE_BOOKS', 10);
 ?>

@@ -11,20 +11,22 @@ function get_books_with_ne($tagset_id) {
     $res = sql_pe("
         SELECT book_id, book_name, par_id, status, user_id
         FROM books
+        LEFT JOIN ne_books_tagsets bs
+            USING (book_id)
         LEFT JOIN paragraphs
             USING (book_id)
         LEFT JOIN ne_paragraphs
             USING (par_id)
-        WHERE ne_on = 1
-        AND tagset_id = ?
+        WHERE bs.tagset_id = ?
         ORDER BY book_id, par_id
     ", array($tagset_id));
     $out = array();
     $book = array(
         'num_par' => 0,
         'ready_annot' => 0,
-        'available' => 1,
-        'started' => 0
+        'available' => true,
+        'started' => 0,
+        'all_ready' => false
     );
     $last_book_id = 0;
     $last_par_id = 0;
@@ -39,17 +41,19 @@ function get_books_with_ne($tagset_id) {
             $finished_annot = 0;
         }
         if ($r['book_id'] != $last_book_id && $last_book_id) {
-            if (
-                $finished_by_me == $book['num_par'] ||
-                $book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']
-            )
-                $book['available'] = 0;
-            $out[] = $book;
+            $book['all_ready'] = ($book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']);
+            $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'];
+            if (!$book['all_ready']) {
+                $out[] = $book;
+                if (sizeof($out) >= NE_ACTIVE_BOOKS)
+                    break;
+            }
             $book = array(
                 'num_par' => 0,
                 'ready_annot' => 0,
-                'available' => 1,
-                'started' => 0
+                'available' => true,
+                'started' => 0,
+                'all_ready' => false
             );
             $finished_by_me = 0;
         }
@@ -69,19 +73,17 @@ function get_books_with_ne($tagset_id) {
     }
     $book['num_par'] += 1;
     $book['ready_annot'] += max($finished_annot, NE_ANNOTATORS_PER_TEXT);
-    if (
-        $finished_by_me == $book['num_par'] ||
-        $book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']
-    )
-        $book['available'] = 0;
-    $out[] = $book;
+    $book['all_ready'] = ($book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']);
+    $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'];
+    if (!$book['all_ready'] && sizeof($out) < NE_ACTIVE_BOOKS)
+        $out[] = $book;
 
     // sort so that unavailable texts go last
-    uasort($out, function($a, $b) {
+    /* uasort($out, function($a, $b) {
         if ($a['available'] == $b['available'])
             return $a['started'] < $b['started'] ? 1: -1;
         return $a['available'] < $b['available'] ? 1 : -1;
-    });
+    }); */
     return $out;
 }
 
