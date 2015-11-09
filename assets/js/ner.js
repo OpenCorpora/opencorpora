@@ -139,7 +139,7 @@ function highlightEntitiesInParagraph(data, $paragraph_node) {
   for (i in entities) {
     var entity = entities[i];
     var type = (entity.tags.length > 1 ? 'ner-multiple-types' : 'border-bottom-palette-'
-      + ENTITY_TYPES[entity.tags[0][0]]['color']);
+      + ENTITY_TYPES[entity.tags[0]]['color']);
 
     drawBorder(entity.tokens, type, entity.id);
   }
