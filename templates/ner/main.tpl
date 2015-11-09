@@ -19,19 +19,17 @@
 </h3>
 <table class='table'>
 <tr class='small'>
-    <th></th>
-    <th></th>
+    <th>#</th>
     <th>Абзацев</th>
     <th>Готовность</th>
-    <th></th>
+    <th>Всего готово: {$page.ready}</th>
 </tr>
-{foreach from=$page item=book}
+{foreach from=$page.books item=book}
 <tr class="{if $book.started and $book.available}warning
            {elseif $book.started and !$book.available}success
            {elseif !$book.started and !$book.available}error
            {else}{/if}">
-    <td><a href="/books.php?book_id={$book.id}">{$book.id}</a></td>
-    <td>{$book.name|htmlspecialchars}</td>
+    <td>{$book.queue_num}</td>
     <td>{$book.num_par}</td>
     <td>{(100 * $book.ready_annot / ($book.num_par * $smarty.const.NE_ANNOTATORS_PER_TEXT))|string_format:"%d"} %</td>
     <td>
