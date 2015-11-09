@@ -49,7 +49,7 @@
           <div class="tabbable dragged-up">
             <ul class="nav nav-tabs small-tabs">
               <li class="active"><a href="#tab-entities-{$paragraph.id}" data-toggle="tab">Спаны</a></li>
-              <li><a href="#tab-mentions-{$paragraph.id}" data-toggle="tab">Упоминания</a></li>
+              <li><a href="#tab-mentions-{$paragraph.id}" data-toggle="tab" class="tab-opener">Упоминания</a></li>
             </ul>
             <div class="tab-content">
               <div class="tab-pane active" id="tab-entities-{$paragraph.id}">
@@ -218,8 +218,8 @@
   <script src="/assets/js/bootstrap.select.min.js"></script>
   <script src="/assets/js/rangy-core.js"></script>
   <script src="/assets/js/mousetrap.min.js"></script>
-  <script src="/assets/js/ner.js?3"></script>
-  <script src="/assets/js/mentions.js"></script>
+  <script src="/assets/js/ner.js?4"></script>
+  <script src="/assets/js/mentions.js?4"></script>
   <script src="/assets/js/ne_comments.js"></script>
 {/literal}
 {/block}

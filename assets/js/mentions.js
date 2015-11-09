@@ -132,4 +132,10 @@ $(document).ready(function() {
       }
       e.stopPropagation();
    });
+
+   $('.tab-opener').on('click', function() {
+      clearMentionsHighlight();
+      clearMentionsSelectedTypes();
+      hideMentionsTypeSelector();
+   });
 });
