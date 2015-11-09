@@ -94,6 +94,9 @@ try {
                 case 'entity':
                     log_event("{$_POST['event']} / entity_id: {$_POST['id']} / data: {$_POST['data']}");
                     break;
+                case 'mention':
+                    log_event("{$_POST['event']} / mention_id: {$_POST['id']} / data: {$_POST['data']}");
+                    break;
                 default:
                     break;
             }
