@@ -228,8 +228,9 @@ class DogAchievement extends Achievement implements MonthPassedListenerInterface
                 GROUP BY year, month
                 HAVING month = MONTH(NOW()) AND year = YEAR(NOW())
                 ORDER BY year, month", array($this->user_id));
-
-        return $res[0]['cnt'];
+        if (!empty($res))
+            return $res[0]['cnt'];
+        else return 0;
     }
 
     public function dispatch($args) {

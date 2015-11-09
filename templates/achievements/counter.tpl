@@ -51,6 +51,6 @@
 
     {/if}
 {/if}
-{/capture}{if !$threshold || $threshold > mb_strlen($smarty.capture.text)}
+{/capture}{if empty($threshold) || $threshold > mb_strlen($smarty.capture.text)}
     {$smarty.capture.text}
 {/if}

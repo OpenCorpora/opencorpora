@@ -14,17 +14,17 @@
             <div class="{if !$single}inline-50{/if} a-wrap">
                 <div class="achievement-wrap achievement-{$a->css_class} {if !$single}achievement-small{else}achievement-medium{/if} {if $a->level <= 1}bouncy{/if}"
                 data-tab-name="{$a->css_class}-tab">
-                    {if $a->level}
+                    {if isset($a->level)}
                         <div class="achievement-level achievement-{$a->css_class}-level
                         {if $a->level > 1}bouncy{/if}">{$a->level}</div>
                     {/if}
                 </div>
                 <div class="a-desc">
-                    {if $a->level <= 1}
-                        {$titles[$a->css_class].popup_text}
-                    {else}
+                    {if isset($a->level) && $a->level > 2}
                         {$randomindex=$titles.global.cheers|@array_rand}
                         {$titles.global.cheers.$randomindex}
+                    {else}
+                        {$titles[$a->css_class].popup_text}
                     {/if}
                 </div>
             </div>
