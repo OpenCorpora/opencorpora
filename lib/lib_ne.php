@@ -490,11 +490,15 @@ function add_ne_entity($annot_id, $token_ids, $tags) {
 function delete_ne_entity($entity_id, $annot_id=0) {
     if (!$annot_id) {
         $res = sql_pe("SELECT annot_id FROM ne_entities WHERE entity_id = ?", array($entity_id));
+        if (empty($res)) return FALSE;
+
         $annot_id = $res[0]['annot_id'];
     }
 
     $res = sql_pe("SELECT mention_id FROM ne_entities_mentions WHERE entity_id=? LIMIT 1", array($entity_id));
-    if (!empty($res) || $res[0]['mention_id'] > 0)
+    if (empty($res)) return FALSE;
+
+    if ($res[0]['mention_id'] > 0)
         throw new Exception("Cannot delete entity in mention");
 
     if (!check_ne_paragraph_status($annot_id, $_SESSION['user_id']))
