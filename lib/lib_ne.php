@@ -249,7 +249,7 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
     foreach ($out['entities'] as &$entity) {
         $entity['tokens'] = get_ne_entity_tokens_info($entity['start_token'], $entity['length']);
         if (sizeof($entity['tokens']) != $entity['length'])
-            throw new Exception();
+            throw new Exception("len of entity tokens != entity.length, entity ".$entity['id']);
     }
 
     // sort entities by position in paragraph (by first token pos)
