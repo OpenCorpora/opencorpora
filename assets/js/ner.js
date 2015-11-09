@@ -338,8 +338,10 @@ $(document).ready(function() {
         }
 
         var entityId = $(this).parents('tr').attr('data-entity-id');
+        var par_id = $(this).parents('.ner-table').attr('data-par-id');
+        var types = $(this).val();
 
-        if ($(this).val().length > 1) {
+/*        if ($(this).val().length > 1) {
             $('.ner-token-border').filterByAttr('data-entity-id', entityId)
                 .removeClassRegex(/border-bottom-palette-\d/)
                 .addClass('ner-multiple-types');
@@ -349,15 +351,26 @@ $(document).ready(function() {
                 .removeClass('ner-multiple-types')
             .removeClassRegex(/border-bottom-palette-\d/)
                 .addClass('border-bottom-palette-' + ENTITY_TYPES[$(this).val()[0]]['color']);
-        }
+        }*/
 
         log_event("entity", "updated types", entityId, $(this).val().toString());
         $.post('/ajax/ner.php', {
             act: 'setTypes',
             entity: entityId,
-            types: $(this).val()
+            types: types
         }, function(response) {
             notify("Типы спана сохранены.");
+
+            $.each(PARAGRAPHS, function(i, par) {
+              if (par.id != par_id) return;
+
+              $.each(PARAGRAPHS[i].named_entities, function(j, entity) {
+                if (entity.id != entityId) return;
+                PARAGRAPHS[i].named_entities[j]['tags'] = $.map(types, function(n) { return [[n, ENTITY_TYPES[n]['name']]]; });
+              });
+
+              highlightEntitiesInParagraph(par, $(".ner-paragraph").filterByAttr('data-par-id', par_id));
+            });
         });
         e.stopPropagation();
     });
@@ -386,10 +399,12 @@ $(document).ready(function() {
 
                     $.each(PARAGRAPHS, function(i, par) {
                         if (par.id != par_id) return;
-                        $.each(PARAGRAPHS[i].named_entities, function(j, entity) {
+                        PARAGRAPHS[i].named_entities = $.grep(PARAGRAPHS[i].named_entities,
+                          function(entity, j) {
                             if (entity.id === entityId) {
-                                delete PARAGRAPHS[i].named_entities[j];
+                                return false;
                             }
+                            return true;
                         });
                     });
 
