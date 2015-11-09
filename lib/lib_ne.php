@@ -60,7 +60,7 @@ function get_books_with_ne($tagset_id) {
         if ($r['book_id'] != $last_book_id && $last_book_id) {
             $book['all_ready'] = ($book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']);
             $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'];
-            if (!$book['all_ready']) {
+            if ($book['available']) {
                 $out['books'][] = $book;
                 if (sizeof($out['books']) >= NE_ACTIVE_BOOKS)
                     break;
@@ -94,7 +94,7 @@ function get_books_with_ne($tagset_id) {
     $book['ready_annot'] += max($finished_annot, NE_ANNOTATORS_PER_TEXT);
     $book['all_ready'] = ($book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']);
     $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'];
-    if (!$book['all_ready'] && sizeof($out['books']) < NE_ACTIVE_BOOKS)
+    if ($book['available'] && sizeof($out['books']) < NE_ACTIVE_BOOKS)
         $out['books'][] = $book;
 
     // sort so that unavailable texts go last
