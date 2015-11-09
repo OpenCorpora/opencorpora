@@ -494,7 +494,7 @@ function delete_ne_entity($entity_id, $annot_id=0) {
     }
 
     $res = sql_pe("SELECT mention_id FROM ne_entities_mentions WHERE entity_id=? LIMIT 1", array($entity_id));
-    if ($res[0]['mention_id'] > 0)
+    if (!empty($res) || $res[0]['mention_id'] > 0)
         throw new Exception("Cannot delete entity in mention");
 
     if (!check_ne_paragraph_status($annot_id, $_SESSION['user_id']))
