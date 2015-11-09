@@ -438,7 +438,7 @@ $(document).ready(function() {
               if (par.id != paragraph.attr('data-par-id')) return;
               PARAGRAPHS[i].named_entities.push({
                 tokens: selectedIds,
-                tags: $.map(typesIds, function(n) { return [n]; }),
+                tags: $.map(typesIds, function(n) { return [[n, ENTITY_TYPES[n]['name']]]; }),
                 id: response.id
               });
               highlightEntitiesInParagraph(PARAGRAPHS[i], paragraph);
