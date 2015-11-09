@@ -1,7 +1,6 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-  {assign var=colorStep value=2}
   <h3>{$book.title} (id={$book.id})</h3>
   <div class="buttons-container">
     <a href="/books.php?book_id={$book.id}" class="btn btn-small btn-link">К описанию текста</a>
@@ -62,7 +61,7 @@
                     <td class="ner-entity-text span4">
                       {if count($ne.mention_ids) > 0}
                         {foreach $ne.mention_ids as $i => $id}
-                          <span class="ner-entity-mention-link label-palette-{20 -  $ne.mention_types[$i] * $colorStep}"
+                          <span class="ner-entity-mention-link label-palette-{$mention_types[$id]['color']}"
                           data-mention-id="{$id}"></span>
                         {/foreach}
                       {/if}
@@ -72,16 +71,18 @@
                     </td>
 
                     <td class="ner-entity-type span3">
+                    {$ne.tags|var_dump}
                     {if $paragraph.mine}
                       <select class="selectpicker selectpicker-not-initialized
                       show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-entity-id="{$ne.id}" multiple>
-                      {foreach $types as $type}
-                        <option data-content="<span class='label label-palette-{$type.id * $colorStep}'>{$type.name}</span>" {if in_array(array_values($type), $ne.tags)}selected{/if}>{$type.id}</option>
+
+                      {foreach $entity_types as $type}
+                        <option data-content="<span class='label label-palette-{$type.color}'>{$type.name}</span>" {if in_array($type.id, $ne.tags)}selected{/if}>{$type.id}</option>
                       {/foreach}
                       </select>
                     {else}
                       {foreach $ne.tags as $tag}
-                        <span class="label label-palette-{$tag[0] * $colorStep}">{$tag[1]}</span>
+                        <span class="label label-palette-{$entity_types[$tag[0]].color}">{$tag[1]}</span>
                       {/foreach}
                     {/if}
                     </td>
@@ -107,13 +108,13 @@
                     <select class="selectpicker selectpicker-not-initialized
                     show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-mention-id="{$id}">
                     {foreach $mention_types as $type}
-                      <option data-content="<span class='label label-palette-{20 - $type.id * $colorStep}'>{$type.name}</span>" {if $type['id'] == $mention['type']}selected{/if}>{$type.id}</option>
+                      <option data-content="<span class='label label-palette-{$type.color}'>{$type.name}</span>" {if $type['id'] == $mention['type']}selected{/if}>{$type.id}</option>
                     {/foreach}
                     </select>
                   {else}
                     {foreach $mention_types as $type}
                       {if $type['id'] == $mention['type']}
-                      <span class="label label-palette-{20 - $type['id'] * $colorStep}">{$type['name']}</span>
+                      <span class="label label-palette-{$type['color']}">{$type['name']}</span>
                       {/if}
                     {/foreach}
                   {/if}
@@ -129,6 +130,9 @@
     {/foreach}
     <script type="text/javascript">
       var PARAGRAPHS = {$book.paragraphs|json_encode};
+      var MENTION_TYPES = {$mention_types|json_encode};
+      var ENTITY_TYPES = {$entity_types|json_encode};
+
     </script>
   {else}
     <div class="row">
@@ -150,11 +154,9 @@
   <h3 class="popover-title">Выберите один из типов:</h3>
   <div class="popover-content">
     <div class="btn-group type-selector ner-type-selector" data-toggle="buttons-checkbox">
-      {foreach $types as $type}
-        {if $type.name !== 'phrase'}
-        <button class="btn btn-small btn-palette-{$type.id * $colorStep}" data-type-id="{$type.id}" data-hotkey="{$type.name|substr:0:1}">{$type.name}</button>{/if}
+      {foreach $entity_types as $type}
+        <button class="btn btn-small btn-palette-{$type.color}" data-type-id="{$type.id}" data-hotkey="{$type.name|substr:0:1}">{$type.name}</button>
       {/foreach}
-        <button class="btn btn-small btn-palette-5 composite-type" data-type-ids="2,3" data-hotkey="i">loc-org</button>
     </div>
   </div>
 </div>
@@ -165,7 +167,7 @@
   <div class="popover-content">
     <div class="btn-group type-selector mention-type-selector" data-toggle="buttons-checkbox">
       {foreach $mention_types as $type}
-        <button class="btn btn-small btn-palette-{20 - $type.id * $colorStep}" data-type-id="{$type.id}">{$type.name}</button>
+        <button class="btn btn-small btn-palette-{$type.color}" data-type-id="{$type.id}">{$type.name}</button>
       {/foreach}
     </div>
   </div>
@@ -180,8 +182,8 @@
     </td>
     <td class="ner-entity-type span3">
       <select class="selectpicker-tpl show-menu-arrow pull-right" data-width="140px" data-style="btn-small" multiple>
-      {foreach $types as $type}
-        <option data-content="<span class='label label-palette-{$type.id * $colorStep}'>{$type.name}</span>">{$type.id}</option>
+      {foreach $entity_types as $type}
+        <option data-content="<span class='label label-palette-{$type.color}'>{$type.name}</span>">{$type.id}</option>
       {/foreach}
       </select>
     </td>
@@ -195,7 +197,7 @@
     <td class="ner-mention-type span3">
       <select class="selectpicker-tpl show-menu-arrow pull-right" data-width="140px" data-style="btn-small">
       {foreach $mention_types as $type}
-        <option data-content="<span class='label label-palette-{20 - $type.id * $colorStep}'>{$type.name}</span>">{$type.id}</option>
+        <option data-content="<span class='label label-palette-{$type.color}'>{$type.name}</span>">{$type.id}</option>
       {/foreach}
       </select>
     </td>

@@ -86,23 +86,26 @@ function get_books_with_ne($tagset_id) {
 }
 
 function get_ne_types($tagset_id) {
-    $res = sql_pe("SELECT tag_id, tag_name FROM ne_tags WHERE tagset_id=? ORDER BY tag_id", array($tagset_id));
+    $res = sql_pe("SELECT tag_id, tag_name, color_number
+        FROM ne_tags WHERE tagset_id=? ORDER BY tag_id", array($tagset_id));
     $out = array();
     foreach ($res as $r)
-        $out[] = array(
+        $out[$r['tag_id']] = array(
             'id' => $r['tag_id'],
-            'name' => $r['tag_name']
+            'name' => $r['tag_name'],
+            'color' => $r['color_number']
         );
     return $out;
 }
 
 function get_object_types($tagset_id) {
-    $res = sql_pe("SELECT object_type_id, object_name FROM ne_object_types WHERE tagset_id=? ORDER BY object_type_id", array($tagset_id));
+    $res = sql_pe("SELECT object_type_id, object_name, color_number FROM ne_object_types WHERE tagset_id=? ORDER BY object_type_id", array($tagset_id));
     $out = array();
     foreach ($res as $r)
-        $out[] = array(
+        $out[$r['object_type_id']] = array(
             'id' => $r['object_type_id'],
-            'name' => $r['object_name']
+            'name' => $r['object_name'],
+            'color' => $r['color_number']
         );
     return $out;
 }
