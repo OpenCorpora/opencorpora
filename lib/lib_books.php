@@ -136,7 +136,7 @@ function books_add($name, $parent_id=0) {
     check_permission(PERM_ADDER);
     if ($name === '')
         throw new UnexpectedValueException();
-    sql_pe("INSERT INTO `books` VALUES(NULL, ?, ?, 0, 0, 0)", array($name, $parent_id));
+    sql_pe("INSERT INTO `books` VALUES(NULL, ?, ?, 0, 0)", array($name, $parent_id));
     return sql_insert_id();
 }
 function books_move($book_id, $to_id) {
