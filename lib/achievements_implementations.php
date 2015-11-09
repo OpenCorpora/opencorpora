@@ -296,7 +296,7 @@ class FishAchievement extends Achievement implements JoinedTeamListenerInterface
 
 }
 
-class Ainl2015Achievement extends Achievement implements SignedUpListenerInterface {
+class Ainl2015Achievement extends Achievement {
     use GivenOnTrigger;  // trigger is manual
 
     public $short_title = "AINL 2015";
