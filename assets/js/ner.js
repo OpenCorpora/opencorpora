@@ -1,10 +1,12 @@
 // from syntax_groups.js
 function check_adjacency($token) {
    var $p = $token.prev();
-   if ($p.length && $p.hasClass('ner-token-selected'))
+   if ($p.length && $p.hasClass('ner-token-selected')
+    && $token.attr('data-sentid') == $p.attr('data-sentid'))
       return true;
    $p = $token.next();
-   if ($p.length && $p.hasClass('ner-token-selected'))
+   if ($p.length && $p.hasClass('ner-token-selected')
+    && $token.attr('data-sentid') == $p.attr('data-sentid'))
       return true;
    return false;
 }
@@ -98,6 +100,8 @@ var paragraph__textSelectionHandler = function(e) {
 
     var nodes = range.getNodes();
     var spans = (nodes.length == 1) ? $(nodes[0]).parents('.ner-token') : $(nodes).filter('span.ner-token');
+
+    spans = spans.filterByAttr('data-sentid', spans.first().attr('data-sentid'));
     spans.addClass('ner-token-selected');
     var offset = spans.last().offset();
     var X = offset.left + $(spans.last()).width() / 2;

@@ -24,6 +24,7 @@
                 <span
                   id="t{$token.id}"
                   data-tid="{$token.id}"
+                  data-sentid="{$sentence.id}"
                   class="ner-token">
                   <span class="ner-token-text">{$token.text|htmlspecialchars}</span>
                   <span class="ner-token-borders"></span>
@@ -218,8 +219,8 @@
   <script src="/assets/js/bootstrap.select.min.js"></script>
   <script src="/assets/js/rangy-core.js"></script>
   <script src="/assets/js/mousetrap.min.js"></script>
-  <script src="/assets/js/ner.js?4"></script>
-  <script src="/assets/js/mentions.js?4"></script>
+  <script src="/assets/js/ner.js?5"></script>
+  <script src="/assets/js/mentions.js?5"></script>
   <script src="/assets/js/ne_comments.js"></script>
 {/literal}
 {/block}
