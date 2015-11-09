@@ -1639,3 +1639,11 @@ tr.valign-top td {
     margin-right: 5px;
     vertical-align: middle;
 }
+
+.comment-marker {
+    display: none;
+}
+
+.ner-row-mine .comment-marker {
+    display: block;
+}

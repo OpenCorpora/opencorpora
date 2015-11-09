@@ -29,8 +29,6 @@ function click_handler($target) {
 
 // end from syntax_groups.js
 
-var miscTypeId = 6;
-
 var clearHighlight = function() {
     $(document).find('.ner-token-selected').removeClass('ner-token-selected');
 };
@@ -335,7 +333,8 @@ $(document).ready(function() {
 
     $('.ner-table').on('change', '.selectpicker', function(e) {
         if ($(this).val() == null) {
-            $(this).selectpicker('val', miscTypeId);
+            var first_option = $(this).find('option').first().val();
+            $(this).selectpicker('val', first_option);
         }
 
         var entityId = $(this).parents('tr').attr('data-entity-id');

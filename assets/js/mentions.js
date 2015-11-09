@@ -73,7 +73,7 @@ $(document).ready(function() {
             var text = $(this).find('.ner-entity-text');
             text.prepend($('<span>')
                .addClass('ner-entity-mention-link')
-               .addClass('label-palette-' + (20 - type * 2))
+               .addClass('label-palette-' + (MENTION_TYPES[type]['color']))
                .attr('data-mention-id', response.id));
          });
 
@@ -98,14 +98,17 @@ $(document).ready(function() {
 
    $('.mentions-table').on('change', '.selectpicker', function(e) {
       var mentionId = $(this).parents('tr').attr('data-mention-id');
-
-      log_event("mention", "updated types", mentionId, $(this).val().toString());
+      var type = $(this).val().toString();
+      log_event("mention", "updated types", mentionId, type);
       $.post('/ajax/ner.php', {
          act: 'setMentionType',
          mention: mentionId,
-         object_type: $(this).val()
+         object_type: type
       }, function(response) {
          notify("Тип упоминания сохранен.");
+         $('.ner-entity-mention-link').filterByAttr('data-mention-id', mentionId)
+            .removeClassRegex(/label-palette-\d/)
+            .addClass('label-palette-' + MENTION_TYPES[type]['color']);
       });
       e.stopPropagation();
    });

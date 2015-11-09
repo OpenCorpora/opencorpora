@@ -13,7 +13,8 @@
   </div>
   {if isset($book.paragraphs)}
     {foreach name=b key=num item=paragraph from=$book.paragraphs}
-      <div class="row ner-row">
+      <div class="row ner-row {if $paragraph.disabled }ner-row-disabled{/if}
+      {if $paragraph.mine}ner-row-mine{/if}">
         <div class="span4 my-comments">
         </div>
         <div class="span8">
@@ -31,7 +32,7 @@
             {/foreach}
             </p>
             <div class="ner-paragraph-controls">
-              <button class="btn btn-success ner-btn-finish pull-right" data-par-id="{$paragraph.id}">Сохранить</button>
+              <button class="btn btn-success ner-btn-finish pull-right" data-par-id="{$paragraph.id}">Закончить разметку абзаца</button>
             </div>
             <div class="clearfix"></div>
             <div class="comment-marker" data-paragraph-id="{$paragraph.id}"><span>{if $paragraph.comments|@count>0}{$paragraph.comments|@count}{else}+{/if}</span></div>
@@ -61,7 +62,8 @@
                     <td class="ner-entity-text span4">
                       {if count($ne.mention_ids) > 0}
                         {foreach $ne.mention_ids as $i => $id}
-                          <span class="ner-entity-mention-link label-palette-{$mention_types[$id]['color']}"
+                          <span class="ner-entity-mention-link
+                          label-palette-{$mention_types[$ne.mention_types[$i]]['color']}"
                           data-mention-id="{$id}"></span>
                         {/foreach}
                       {/if}
@@ -71,13 +73,12 @@
                     </td>
 
                     <td class="ner-entity-type span3">
-                    {$ne.tags|var_dump}
                     {if $paragraph.mine}
                       <select class="selectpicker selectpicker-not-initialized
                       show-menu-arrow pull-right" data-width="140px" data-style="btn-small" data-entity-id="{$ne.id}" multiple>
 
                       {foreach $entity_types as $type}
-                        <option data-content="<span class='label label-palette-{$type.color}'>{$type.name}</span>" {if in_array($type.id, $ne.tags)}selected{/if}>{$type.id}</option>
+                        <option data-content="<span class='label label-palette-{$type.color}'>{$type.name}</span>" {if in_array($type.id, $ne.tag_ids)}selected{/if}>{$type.id}</option>
                       {/foreach}
                       </select>
                     {else}

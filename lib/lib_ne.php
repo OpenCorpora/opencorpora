@@ -206,7 +206,8 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
             'tokens' => array(),
             'mention_ids' => array($r['mention_id']),
             'mention_types' => array($r['object_type_id']),
-            'tags' => array()
+            'tags' => array(),
+            'tag_ids' => array()
         );
 
         if (empty($r['mention_id'])) {
@@ -215,9 +216,10 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
         }
 
         sql_execute($tag_res, array($eid));
-        while ($r1 = sql_fetch_array($tag_res))
+        while ($r1 = sql_fetch_array($tag_res)) {
             $entity['tags'][] = array($r1['tag_id'], $r1['tag_name']);
-
+            $entity['tag_ids'][] = $r1['tag_id'];
+        }
         // TODO check that tags belong to the correct tagset
 
         $out['entities'][$eid] = $entity;
