@@ -3,7 +3,6 @@
 {block name=content}
   <h3>{$book.title} (id={$book.id})</h3>
   <div class="buttons-container">
-    <a href="/books.php?book_id={$book.id}" class="btn btn-small btn-link">К описанию текста</a>
     <a href="/ner.php" class="btn btn-link btn-small">Вернуться к текстам</a>
     <div class="btn-group" data-toggle="buttons-radio">
       <button class="ner-mode-basic btn btn-small {if not $use_fast_mode}active{/if}">Разметка кликом</button>
