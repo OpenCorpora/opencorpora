@@ -3,7 +3,7 @@
 {block name=content}
 <h3 class="clearfix">Разметка именованных сущностей
 <div class="btn-group pull-right">
-  <a href="?act=manual&id=1" class="btn btn-primary" target="_blank">
+  <a href="?act=manual&id={$current_guideline}" class="btn btn-primary" target="_blank">
     <i class="icon-info-sign icon-white"></i> Инструкция {$possible_guidelines[$current_guideline]}</a>
   <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
     <span class="caret"></span>
