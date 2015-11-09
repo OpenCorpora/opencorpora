@@ -30,7 +30,6 @@ function click_handler($target) {
 // end from syntax_groups.js
 
 var miscTypeId = 6;
-var colorStep = 2;
 
 var clearHighlight = function() {
     $(document).find('.ner-token-selected').removeClass('ner-token-selected');
@@ -55,6 +54,8 @@ var showTypeSelector = function(x, y) {
 };
 
 var activateHotKeys = function() {
+   // disabled for now because some types start with the same letter (= have the same key)
+   return false;
    $('.type-selector > .btn').each(function(i, btn) {
       var btn = $(btn);
       Mousetrap.bind([btn.attr('data-hotkey') + ' ' + btn.attr('data-hotkey'),
@@ -139,7 +140,8 @@ function highlightEntitiesInParagraph(data, $paragraph_node) {
   });
   for (i in entities) {
     var entity = entities[i];
-    var type = (entity.tags.length > 1 ? 'ner-multiple-types' : 'border-bottom-palette-' + entity.tags[0][0] * colorStep);
+    var type = (entity.tags.length > 1 ? 'ner-multiple-types' : 'border-bottom-palette-'
+      + ENTITY_TYPES[entity.tags[0][0]]['color']);
 
     drawBorder(entity.tokens, type, entity.id);
   }
@@ -347,7 +349,7 @@ $(document).ready(function() {
             $('.ner-token-border').filterByAttr('data-entity-id', entityId)
                 .removeClass('ner-multiple-types')
             .removeClassRegex(/border-bottom-palette-\d/)
-                .addClass('border-bottom-palette-' + $(this).val()[0] * colorStep);
+                .addClass('border-bottom-palette-' + ENTITY_TYPES[$(this).val()[0]]['color']);
         }
 
         log_event("entity", "updated types", entityId, $(this).val().toString());
@@ -428,7 +430,7 @@ $(document).ready(function() {
 
             var typestr;
             if (typesIds.length == 1) {
-                typestr = 'border-bottom-palette-' + typesIds[0] * colorStep;
+                typestr = 'border-bottom-palette-' + ENTITY_TYPES[typesIds[0]]['color'];
             } else {
                 typestr = 'ner-multiple-types';
             }

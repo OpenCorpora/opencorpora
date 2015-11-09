@@ -982,11 +982,11 @@ button.ma_next_pack {
     cursor: pointer;
 }
 
-.ner-token-highlighted {
+.ner-token-highlighted-m {
     background-color: lightblue;
 }
 
-.ner-token-highlighted-m {
+.ner-token-highlighted {
     color: blue !important;
 }
 
