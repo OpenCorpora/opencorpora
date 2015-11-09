@@ -294,3 +294,12 @@ class FishAchievement extends Achievement implements JoinedTeamListenerInterface
     public $css_class = "fish";
 
 }
+
+class Ainl2015Achievement extends Achievement implements SignedUpListenerInterface {
+    use GivenOnTrigger;  // trigger is manual
+
+    public $short_title = "AINL 2015";
+    public $caption = "За разметку именованных сущностей";
+    public $css_class = "ainl2015";
+
+}

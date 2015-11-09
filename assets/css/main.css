@@ -1464,6 +1464,16 @@ tr.valign-top td {
     background-image: url(../img/badges/wantmore-100x100-grayscale.png);
 }
 
+/* ainl еще */
+.achievement-wrap.achievement-ainl2015 {
+    background-image: url(../img/badges/ainl2015-400x400.png);
+    border-color: #59478E; /* цвет обводки снаружи */
+}
+
+.achievement-stub.achievement-ainl2015 {
+    background-image: url(../img/badges/ainl2015-100x100-grayscale.png);
+}
+
 .fs0-fix {
     font-size: 0;
 }
