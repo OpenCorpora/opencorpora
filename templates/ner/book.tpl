@@ -1,7 +1,6 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-  <h3>{$book.title} (id={$book.id})</h3>
   <div class="buttons-container">
     <a href="/ner.php" class="btn btn-link btn-small">Вернуться к текстам</a>
     <div class="btn-group" data-toggle="buttons-radio">
@@ -143,7 +142,6 @@
 <div class="row">
   <div class="span8">
     <div class="buttons-container">
-      <a href="/books.php?book_id={$book.id}" class="btn btn-small btn-link">К описанию текста</a>
       <a href="/ner.php" class="btn btn-link btn-small">Вернуться к текстам</a>
       <button class="btn btn-small btn-success ner-btn-finish-all">Сохранить всё</button>
     </div>
