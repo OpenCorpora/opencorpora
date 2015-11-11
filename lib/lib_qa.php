@@ -65,7 +65,7 @@ function get_empty_books() {
         FROM books
         WHERE book_id NOT IN (SELECT DISTINCT book_id FROM paragraphs)
         AND book_id NOT IN (SELECT DISTINCT parent_id FROM books)
-        AND book_id < ".$config['hidden_books_start_id']
+        AND book_id < ".$config['misc']['hidden_books_start_id']
     );
     $out = array();
     while ($r = sql_fetch_array($res)) {
