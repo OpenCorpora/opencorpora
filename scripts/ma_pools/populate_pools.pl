@@ -72,6 +72,8 @@ sub process_pool {
         FROM tf_revisions tfr
         LEFT JOIN morph_annot_samples s USING (tf_id)
         LEFT JOIN tokens USING (tf_id)
+        LEFT JOIN sentences USING (sent_id)
+        LEFT JOIN paragraphs USING (par_id)
         WHERE is_last = 1
         AND book_id < $HIDDEN_BOOK
         AND s.sample_id IS NULL
@@ -92,6 +94,8 @@ sub process_pool {
         LEFT JOIN morph_annot_moderated_samples ms USING (sample_id)
         LEFT JOIN morph_annot_pools p USING (pool_id)
         LEFT JOIN tokens USING (tf_id)
+        LEFT JOIN sentences USING (sent_id)
+        LEFT JOIN paragraphs USING (par_id)
         WHERE is_last = 1
         AND book_id < $HIDDEN_BOOK
         AND (".join(' OR ', @q).")
