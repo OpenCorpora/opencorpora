@@ -107,24 +107,26 @@ sub get_gram_info {
     $scan1->execute(RESTR_ALLOWED, RESTR_OBLIGATORY);
     my $last_id = 0;
     my @real = ();
-    while(my $ref = $scan1->fetchrow_hashref()) {
-        @real = ($ref->{'then_id'});
+    while (my $ref = $scan1->fetchrow_hashref()) {
+        push @real, $ref->{'then_id'} if $ref->{'then_id'};
         push @real, $ref->{'gram1'} if $ref->{'gram1'};
         push @real, $ref->{'gram2'} if $ref->{'gram2'};
+        my $if_id = $ref->{'if_id'} || '';
+        my $otype = $ref->{'obj_type'};
         if ($ref->{'restr_type'} == RESTR_OBLIGATORY) {
             #grammem must be there in some cases
             if ($ref->{'restr_id'} != $last_id) {
                 my %t;
                 $t{$_} = 1 for (@real);
-                push @{$must{$objtype{$ref->{'obj_type'}}}{$ref->{'if_id'}}}, \%t;
+                push @{$must{$objtype{$otype}}{$if_id}}, \%t;
             }
             else {
-                $must{$objtype{$ref->{'obj_type'}}}{$ref->{'if_id'}}[-1]{$_} = 1 for (@real);
+                $must{$objtype{$otype}}{$if_id}[-1]{$_} = 1 for (@real);
             }
         }
         else {
             #grammem is allowed in some cases
-            $may{swap2($objtype{$ref->{'obj_type'}})}{$_}{$ref->{'if_id'}} = 1 for (@real);
+            $may{swap2($objtype{$otype})}{$_}{$if_id} = 1 for (@real);
         }
         $last_id = $ref->{'restr_id'};
     }
