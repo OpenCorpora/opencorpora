@@ -16,7 +16,7 @@ function get_books_with_ne($tagset_id) {
             SELECT par_id, COUNT(annot_id) as fin
             FROM ne_paragraphs
             WHERE tagset_id = ?
-            AND status >= 2
+            AND status >= ".NE_STATUS_FINISHED."
             GROUP BY par_id
             HAVING fin >= ".NE_ANNOTATORS_PER_TEXT."
         ) T USING (par_id)
@@ -43,23 +43,31 @@ function get_books_with_ne($tagset_id) {
         'ready_annot' => 0,
         'available' => true,
         'started' => 0,
-        'all_ready' => false
+        'all_ready' => false,
+        'unavailable_par' => 0
     );
     $last_book_id = 0;
     $last_par_id = 0;
     $finished_annot = 0;
     $finished_by_me = 0;
+    $started_by_me = 0;
+    $started_not_by_me = 0;
+    $finished_par_by_me = false;
     foreach ($res as $r) {
         if ($r['par_id'] != $last_par_id) {
             if ($last_par_id) {
                 $book['num_par'] += 1;
                 $book['ready_annot'] += min($finished_annot, NE_ANNOTATORS_PER_TEXT);
+                if ($finished_par_by_me || ($finished_annot + $started_not_by_me) >= NE_ANNOTATORS_PER_TEXT)
+                    $book['unavailable_par'] += 1;
             }
             $finished_annot = 0;
+            $started_not_by_me = 0;
+            $finished_par_by_me = false;
         }
         if ($r['book_id'] != $last_book_id && $last_book_id) {
             $book['all_ready'] = ($book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']);
-            $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'];
+            $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'] && $book['unavailable_par'] < $book['num_par'];
             if ($book['available']) {
                 $out['books'][] = $book;
                 if (sizeof($out['books']) >= NE_ACTIVE_BOOKS)
@@ -70,17 +78,29 @@ function get_books_with_ne($tagset_id) {
                 'ready_annot' => 0,
                 'available' => true,
                 'started' => 0,
-                'all_ready' => false
+                'all_ready' => false,
+                'unavailable_par' => 0
             );
             $finished_by_me = 0;
+            $started_by_me = 0;
         }
 
         if ($r['status'] == NE_STATUS_FINISHED) {
             $finished_annot += 1;
             if (is_logged() && $r['user_id'] == $_SESSION['user_id']) {
                 $finished_by_me += 1;
+                $finished_par_by_me = true;
                 $book['started'] = 1;
             }
+        }
+
+        if ($r['status'] == NE_STATUS_IN_PROGRESS) {
+            if (is_logged() && $r['user_id'] == $_SESSION['user_id']) {
+                $started_by_me += 1;
+                $book['started'] = 1;
+            }
+            else
+                $started_not_by_me += 1;
         }
 
         $book['id'] = $r['book_id'];
@@ -92,8 +112,10 @@ function get_books_with_ne($tagset_id) {
     }
     $book['num_par'] += 1;
     $book['ready_annot'] += max($finished_annot, NE_ANNOTATORS_PER_TEXT);
+    if ($finished_par_by_me || ($finished_annot + $started_not_by_me) >= NE_ANNOTATORS_PER_TEXT)
+        $book['unavailable_par'] += 1;
     $book['all_ready'] = ($book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']);
-    $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'];
+    $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'] && $book['unavailable_par'] < $book['num_par'];
     if ($book['available'] && sizeof($out['books']) < NE_ACTIVE_BOOKS)
         $out['books'][] = $book;
 
