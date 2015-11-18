@@ -274,17 +274,19 @@ $(document).ready(function() {
          return false;
       }
 
-        $.post('/ajax/ner.php', {
-            act: 'finishAnnotation',
-            paragraph: btn.parents('.ner-paragraph-wrap').attr('data-annotation-id')
-        }, function(response) {
-            btn.parents('.ner-paragraph-wrap').removeClass('ner-mine').addClass('ner-disabled');
-            btn.parents('.ner-row').find('td.ner-entity-type').each(function(index, td) {
-                var td = $(td);
-                // this is bad
-                td.html(td.find('.bootstrap-select').find('.filter-option').html().replace(',', ''));
-            });
-        });
+      var paragraph = btn.parents('.ner-paragraph-wrap').attr('data-annotation-id');
+      $.post('/ajax/ner.php', {
+          act: 'finishAnnotation',
+          paragraph: paragraph
+      }, function(response) {
+          btn.parents('.ner-paragraph-wrap').removeClass('ner-mine').addClass('ner-disabled');
+          btn.parents('.ner-row').find('td.ner-entity-type')
+            .add('td.ner-mention-type')each(function(index, td) {
+              var td = $(td);
+              // this is bad
+              td.html(td.find('.bootstrap-select').find('.filter-option').html().replace(',', ''));
+          });
+      });
 
     });
 
