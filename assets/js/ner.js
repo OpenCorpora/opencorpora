@@ -281,7 +281,7 @@ $(document).ready(function() {
       }, function(response) {
           btn.parents('.ner-paragraph-wrap').removeClass('ner-mine').addClass('ner-disabled');
           btn.parents('.ner-row').find('td.ner-entity-type')
-            .add('td.ner-mention-type')each(function(index, td) {
+            .add('td.ner-mention-type').each(function(index, td) {
               var td = $(td);
               // this is bad
               td.html(td.find('.bootstrap-select').find('.filter-option').html().replace(',', ''));
