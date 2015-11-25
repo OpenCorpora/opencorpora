@@ -278,7 +278,7 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
     check_permission(PERM_ADDER);
     if (!$text || !$book_id || !$par_num)
         throw new UnexpectedValueException();
-    if (sql_num_rows(sql_query("SELECT book_id FROM books WHERE parent_id=?", array($book_id))) > 0)
+    if (sizeof(sql_pe("SELECT book_id FROM books WHERE parent_id=?", array($book_id))) > 0)
         throw new UnexpectedValueException("Can't add paragraphs to a text having subtexts");
     sql_begin();
     $revset_id = create_revset();
