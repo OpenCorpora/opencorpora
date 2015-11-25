@@ -145,9 +145,20 @@ function books_move($book_id, $to_id) {
     check_permission(PERM_ADMIN);
 
     //to avoid loops
-    $res = sql_pe("SELECT parent_id FROM books WHERE book_id=? LIMIT 1", array($to_id));
-    if ($res[0]['parent_id'] == $book_id)
-        throw new UnexpectedValueException();
+    $tid = $to_id;
+    $res = sql_prepare("SELECT parent_id FROM books WHERE book_id=? AND parent_id>0 LIMIT 1");
+    while ($tid) {
+        sql_execute($res, array($tid));
+        $r = sql_fetch_array($res);
+        if ($r) {
+            $tid = $r['parent_id'];
+            if ($tid == $book_id) {
+                throw new UnexpectedValueException("Error: setting looping parent");
+                break;
+            }
+        } else
+            break;
+    }
 
     sql_pe("UPDATE `books` SET parent_id=? WHERE book_id=? LIMIT 1", array($to_id, $book_id));
 }
