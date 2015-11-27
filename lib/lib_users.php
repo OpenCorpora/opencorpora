@@ -53,13 +53,16 @@ function is_valid_email($string) {
     return preg_match('/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i', $string);
     //we took the regexp from regular-expressions.info
 }
-function check_auth_cookie() {
-    list($user_id, $token) = explode('@', $_COOKIE['auth']);
+function check_auth_token($user_id, $token) {
     $res = sql_pe("SELECT user_id FROM user_tokens WHERE user_id=? AND token=? LIMIT 1", array($user_id, $token));
     if (sizeof($res) > 0) {
         return $res[0]['user_id'];
     }
     return false;
+}
+function check_auth_cookie() {
+    list($user_id, $token) = explode('@', $_COOKIE['auth']);
+    return check_auth_token($user_id, $token);
 }
 function user_login($login, $passwd, $auth_user_id=0, $auth_token=0) {
     if (($user_id=$auth_user_id) || $user_id = user_check_password($login, $passwd)) {

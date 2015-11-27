@@ -966,22 +966,66 @@ function get_current_annotators($exclude_id=0) {
 
     return $out;
 }
-function update_annot_instance($id, $answer) {
-    $user_id = $_SESSION['user_id'];
+function update_annot_instances($user_id, $answers) {
+    // $answers should be: array(array($instance_id, $answer), array($instance_id, $answer), ...)
+    $accepted = 0;
+    sql_begin();
+    foreach ($answers as $a) {
+        try {
+            update_annot_instance($a[0], $a[1], $user_id);
+            ++$accepted;
+        }
+        catch (Exception $e) {
+            // currently do nothing
+        }
+    }
+    sql_commit();
+    return $accepted;
+}
+function reject_annot_instance($id, $user_id) {
+    sql_begin();
+    static $insert = NULL;
+    static $update = NULL;
+
+    if ($insert == NULL) {
+        $insert = sql_prepare("INSERT INTO morph_annot_rejected_samples (SELECT sample_id, ? FROM morph_annot_instances WHERE instance_id=? LIMIT 1)");
+    }
+    sql_execute($insert, array($user_id, $id));
+
+    if ($update == NULL) {
+        $update = sql_prepare("UPDATE morph_annot_instances SET user_id=0, ts_finish=0, answer=0 WHERE instance_id=? LIMIT 1");
+    }
+    sql_execute($update, array($id));
+
+    sql_commit();
+}
+function update_annot_instance($id, $answer, $user_id=0) {
+    if (!$user_id)
+        $user_id = $_SESSION['user_id'];
     if (!$id || !$answer || !$user_id)
         throw new UnexpectedValueException();
 
-    $res = sql_pe("
-        SELECT pool_id, p.status, i.user_id, answer
-        FROM morph_annot_instances i
-        LEFT JOIN morph_annot_samples
-            USING (sample_id)
-        LEFT JOIN morph_annot_pools p
-            USING (pool_id)
-        WHERE instance_id = ?
-        LIMIT 1
-    ", array($id));
-    $r = $res[0];
+    global $config;
+
+    static $res = NULL;
+    if ($res == NULL) {
+        $res = sql_prepare("
+            SELECT pool_id, p.status, i.user_id, answer
+            FROM morph_annot_instances i
+            LEFT JOIN morph_annot_samples
+                USING (sample_id)
+            LEFT JOIN morph_annot_pools p
+                USING (pool_id)
+            WHERE instance_id = ?
+            LIMIT 1
+        ");
+    }
+
+    sql_execute($res, array($id));
+    $inst = sql_fetchall($res);
+    if (!sizeof($inst))
+        throw new Exception("Instance not found");
+    $r = $inst[0];
     // the pool should be editable
     if ($r['status'] != MA_POOLS_STATUS_IN_PROGRESS)
         throw new Exception("Пул недоступен для разметки");
@@ -990,6 +1034,7 @@ function update_annot_instance($id, $answer) {
 
     sql_begin();
 
+    static $res_rejected = NULL;
     // does the instance really belong to this user?
     $previous_answer = $r['answer'] > 0;
     if ($r['user_id'] != $user_id) {
@@ -998,22 +1043,28 @@ function update_annot_instance($id, $answer) {
             throw new Exception();
 
         // or, perhaps, this user has rejected it before but has changed his mind
-        $res = sql_query("SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=$user_id AND sample_id = (SELECT sample_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1) LIMIT 1");
-        if (sql_num_rows($res) > 0) {
-            $r = sql_fetch_array($res);
-            sql_query("DELETE FROM morph_annot_rejected_samples WHERE user_id=$user_id AND sample_id = ".$r['sample_id']." LIMIT 1");
-            sql_query("UPDATE morph_annot_instances SET user_id=$user_id, ts_finish=".(time() + 600)." WHERE instance_id=$id LIMIT 1");
+        if ($res_rejected == NULL) {
+            $res_rejected = sql_prepare("SELECT sample_id FROM morph_annot_rejected_samples WHERE user_id=? AND sample_id = (SELECT sample_id FROM morph_annot_instances WHERE instance_id=? LIMIT 1) LIMIT 1");
+        }
+        sql_execute($res_rejected, array($user_id, $id));
+        if (sql_num_rows($res_rejected) > 0) {
+            $r = sql_fetch_array($res_rejected);
+            sql_pe("DELETE FROM morph_annot_rejected_samples WHERE user_id=? AND sample_id=? LIMIT 1", array($user_id, $r['sample_id']));
+            sql_pe("UPDATE morph_annot_instances SET user_id=?, ts_finish=? WHERE instance_id=? LIMIT 1", array($user_id, time() + $config['misc']['morph_annot_timeout'], $id));
         }
     }
 
     // a valid answer
+    static $update = NULL;
+    if ($update == NULL) {
+        $update = sql_prepare("UPDATE morph_annot_instances SET user_id=?, answer=? WHERE instance_id=? LIMIT 1");
+    }
     if ($answer > 0) {
-        sql_query("UPDATE morph_annot_instances SET user_id=$user_id, answer='$answer' WHERE instance_id=$id LIMIT 1");
+        sql_execute($update, array($user_id, $answer, $id));
     }
     // or a rejected question
     elseif ($answer == -1) {
-        sql_query("INSERT INTO morph_annot_rejected_samples (SELECT sample_id, $user_id FROM morph_annot_instances WHERE instance_id=$id LIMIT 1)");
-        sql_query("UPDATE morph_annot_instances SET user_id='0', ts_finish='0', answer='0' WHERE instance_id=$id LIMIT 1");
+        reject_annot_instance($id, $user_id);
     }
     sql_commit();
 }
