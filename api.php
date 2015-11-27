@@ -1,4 +1,8 @@
 <?php
+
+// test message
+// COW POWER!
+
 require_once('lib/header_ajax.php');
 require_once('lib/lib_annot.php');
 require_once('lib/lib_books.php');
