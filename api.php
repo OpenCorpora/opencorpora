@@ -2,10 +2,12 @@
 require_once('lib/header_ajax.php');
 require_once('lib/lib_annot.php');
 require_once('lib/lib_books.php');
+require_once('lib/lib_users.php');
 header('Content-type: application/json');
 
-define('API_VERSION', '0.3');
+define('API_VERSION', '0.31');
 $action = $_GET['action'];
+$user_id = 0;
 
 $answer = array(
     'api_version' => API_VERSION,
@@ -20,6 +22,15 @@ function json_encode_readable($arr)
     return mb_decode_numericentity(json_encode($arr), array (0x80, 0xffff, 0, 0xffff), 'UTF-8');
 }
 
+
+// check token for most action types
+if (!in_array($action, array('search', 'login'))) {
+    $user_id = check_auth_token($_POST['user_id'], $_POST['token']);
+    if (!$user_id)
+        throw new Exception('Incorrect token');
+}
+
+try {
 switch ($action) {
     case 'search':
         if (isset($_GET['all_forms']))
@@ -37,17 +48,35 @@ switch ($action) {
         }
         break;
     case 'login':
-        include_once('lib/lib_users.php');
         $user_id = user_check_password($_POST['login'], $_POST['password']);
         if ($user_id) {
             $token = remember_user($user_id, false, false);
-            $answer['answer'] = array('token' => $token);
+            $answer['answer'] = array('user_id' => $user_id, 'token' => $token);
         }
         else
             $answer['error'] = 'Incorrect login or password';
         break;
+    case 'get_available_morph_tasks':
+        throw new Exception("Not implemented");
+        // use get_available_tasks() from lib_morph_pools.php
+        break;
+    case 'get_morph_task':
+        throw new Exception("Not implemented");
+        // use get_annotation_packet() from lib_morph_pools.php
+        break;
+    case 'update_morph_task':
+        throw new Exception("Not implemented");
+        // currently no backend
+        break;
+    case 'save_morph_task':
+        throw new Exception("Not implemented");
+        // use update_annot_instances() from lib_morph_pools.php
+        break;
     default:
-        $answer['error'] = 'Unknown action';
+        throw new Exception('Unknown action');
+}
+} catch (Exception $e) {
+    $answer['error'] = $e->getMessage();
 }
 
 log_timing();
