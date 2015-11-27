@@ -25,13 +25,11 @@ function json_encode_readable($arr)
 
 
 // check token for most action types
-//if (!in_array($action, array('search', 'login'))) {
-//    $user_id = check_auth_token($_POST['user_id'], $_POST['token']);
-//    if (!$user_id)
-//        throw new Exception('Incorrect token');
-//}
-
-$user_id = 1;
+if (!in_array($action, array('search', 'login'))) {
+    $user_id = check_auth_token($_POST['user_id'], $_POST['token']);
+    if (!$user_id)
+        throw new Exception('Incorrect token');
+}
 
 try {
 switch ($action) {
