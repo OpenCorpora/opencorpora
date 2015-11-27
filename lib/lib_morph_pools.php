@@ -882,7 +882,7 @@ function get_free_samples($user_id, $pool_id, $limit, $include_owned, $rejected=
         LIMIT $limit
     ");
 }
-function get_annotation_packet($pool_id, $size) {
+function get_annotation_packet($pool_id, $size, $user_id=0, $timeout=0) {
     global $config;
 
     $r = sql_fetch_array(sql_query("SELECT status, t.gram_descr, revision, pool_type, doc_link FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE pool_id=$pool_id"));
@@ -895,7 +895,10 @@ function get_annotation_packet($pool_id, $size) {
         'has_manual' => (bool)$r['doc_link'],
         'gram_descr' => explode('@', $r['gram_descr'])
     );
-    $user_id = $_SESSION['user_id'];
+
+    if (!$user_id)
+        $user_id = $_SESSION['user_id'];
+
     $flag_new = 0;
     $pool_revision = $r['revision'];
 
@@ -914,8 +917,12 @@ function get_annotation_packet($pool_id, $size) {
     }
     if (!sql_num_rows($res)) return false;
 
+    if ($timeout > SEC_PER_DAY)
+        $timeout = SEC_PER_DAY;
+    if (!$timeout)
+        $timeout = $config['misc']['morph_annot_timeout'];
     //when the timeout will be - same for each sample
-    $ts_finish = time() +  $config['misc']['morph_annot_timeout'];
+    $ts_finish = time() + $timeout;
     if ($flag_new) sql_begin();
     $gram_descr = array();
     while ($r = sql_fetch_array($res)) {

@@ -3,6 +3,7 @@ require_once('lib/header_ajax.php');
 require_once('lib/lib_annot.php');
 require_once('lib/lib_books.php');
 require_once('lib/lib_users.php');
+require_once('lib/lib_morph_pools.php');
 header('Content-type: application/json');
 
 define('API_VERSION', '0.31');
@@ -24,11 +25,13 @@ function json_encode_readable($arr)
 
 
 // check token for most action types
-if (!in_array($action, array('search', 'login'))) {
-    $user_id = check_auth_token($_POST['user_id'], $_POST['token']);
-    if (!$user_id)
-        throw new Exception('Incorrect token');
-}
+//if (!in_array($action, array('search', 'login'))) {
+//    $user_id = check_auth_token($_POST['user_id'], $_POST['token']);
+//    if (!$user_id)
+//        throw new Exception('Incorrect token');
+//}
+
+$user_id = 1;
 
 try {
 switch ($action) {
@@ -57,20 +60,21 @@ switch ($action) {
             $answer['error'] = 'Incorrect login or password';
         break;
     case 'get_available_morph_tasks':
-        throw new Exception("Not implemented");
-        // use get_available_tasks() from lib_morph_pools.php
+        $answer['answer'] = array('tasks' => get_available_tasks($user_id, true));
         break;
     case 'get_morph_task':
-        throw new Exception("Not implemented");
-        // use get_annotation_packet() from lib_morph_pools.php
+        if (empty($_POST['pool_id']) || empty($_POST['size']))
+            throw new UnexpectedValueException("Wrong args");
+        // timeout is in seconds
+        $answer['answer'] = get_annotation_packet($_POST['pool_id'], $_POST['size'], $user_id, $_POST['timeout']);
         break;
     case 'update_morph_task':
         throw new Exception("Not implemented");
         // currently no backend
         break;
     case 'save_morph_task':
-        throw new Exception("Not implemented");
-        // use update_annot_instances() from lib_morph_pools.php
+        // answers is expected to be an array(array(id, answer), array(id, answer), ...)
+        update_annot_instances($user_id, $_POST['answers']);
         break;
     default:
         throw new Exception('Unknown action');
