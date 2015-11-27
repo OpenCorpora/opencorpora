@@ -1,43 +1,29 @@
 <?php
 
-// test message
-// COW POWER!
-
 require_once('lib/header_ajax.php');
 require_once('lib/lib_annot.php');
 require_once('lib/lib_books.php');
 require_once('lib/lib_users.php');
 require_once('lib/lib_morph_pools.php');
-header('Content-type: application/json');
 
-define('API_VERSION', '0.31');
-$action = $_GET['action'];
 $user_id = 0;
 
-$answer = array(
-    'api_version' => API_VERSION,
-    'answer' => null,
-    'error' => null
-);
+$action = $_POST['action'];
+$data   = isset($_POST['data']) ? json_decode($_POST['data']) : false;
 
-function json_encode_readable($arr)
-{
-    //convmap since 0x80 char codes so it takes all multibyte codes (above ASCII 127). So such characters are being "hidden" from normal json_encoding
-    array_walk_recursive($arr, function (&$item, $key) { if (is_string($item)) $item = mb_encode_numericentity($item, array (0x80, 0xffff, 0, 0xffff), 'UTF-8'); });
-    return mb_decode_numericentity(json_encode($arr), array (0x80, 0xffff, 0, 0xffff), 'UTF-8');
-}
-
-
-// check token for most action types
+// TODO: token in header. only token for auth
 if (!in_array($action, array('search', 'login'))) {
     $user_id = check_auth_token($_POST['user_id'], $_POST['token']);
-    if (!$user_id)
-        throw new Exception('Incorrect token');
+    if (!$user_id) {
+        log_timing();
+        echo json_encode(['error' => 'Incorrect token']);
+        die();
+    }
 }
 
-try {
-switch ($action) {
-    case 'search':
+// registered actions
+$actions = [
+    'search' = function($data){
         if (isset($_GET['all_forms']))
             $all_forms = (bool)$_GET['all_forms'];
         else
@@ -51,8 +37,8 @@ switch ($action) {
             }
             $res['text_fullname'] = join(': ', array_reverse($parts));
         }
-        break;
-    case 'login':
+    },
+    'login' = function($data){
         $user_id = user_check_password($_POST['login'], $_POST['password']);
         if ($user_id) {
             $token = remember_user($user_id, false, false);
@@ -60,31 +46,33 @@ switch ($action) {
         }
         else
             $answer['error'] = 'Incorrect login or password';
-        break;
-    case 'get_available_morph_tasks':
+    },
+    'get_available_morph_tasks' = function($data){
         $answer['answer'] = array('tasks' => get_available_tasks($user_id, true));
-        break;
-    case 'get_morph_task':
+    },
+    'get_morph_task' = function($data){
         if (empty($_POST['pool_id']) || empty($_POST['size']))
             throw new UnexpectedValueException("Wrong args");
         // timeout is in seconds
         $answer['answer'] = get_annotation_packet($_POST['pool_id'], $_POST['size'], $user_id, $_POST['timeout']);
-        break;
-    case 'update_morph_task':
+    },
+    'update_morph_task' = function($data){
         throw new Exception("Not implemented");
-        // currently no backend
-        break;
-    case 'save_morph_task':
+    },
+    'save_morph_task' = function($data){
         // answers is expected to be an array(array(id, answer), array(id, answer), ...)
         update_annot_instances($user_id, $_POST['answers']);
-        break;
-    default:
-        throw new Exception('Unknown action');
-}
-} catch (Exception $e) {
-    $answer['error'] = $e->getMessage();
-}
+    },
+];
 
+if (isset($actions[$action])) {
+    try {
+        $result = ['success' => $actions[$action]($data)];
+    } catch (\Exception $e) {
+        $result = ['error' => $e->getMessage()];
+    }
+} else {
+    $result = ['error' => 'Unknown action'];
+}
 log_timing();
-die(json_encode_readable($answer));
-?>
+echo json_encode($result);

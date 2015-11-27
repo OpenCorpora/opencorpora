@@ -8,6 +8,13 @@ if (isset($_GET['rand'])) {
     return;
 }
 
+// crutch for api
+if ($_SERVER['REQUEST_URI'] == '/v1.0') {
+    require_once('api.php');
+    log_timing();
+    die();
+}
+
 if (isset($_GET['page'])) {
     $page = $_GET['page'];
     switch ($page) {
