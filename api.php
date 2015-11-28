@@ -2,6 +2,7 @@
 
 require_once('lib/common.php');
 require_once("lib/lib_users.php");
+require_once("lib/lib_annot.php");
 
 function json($data) {
     header('Content-type: application/json');
@@ -9,81 +10,90 @@ function json($data) {
     die();
 }
 
-$config = parse_ini_file(__DIR__ . 'config.ini', true);
+function requireFields($data, $fields)
+{
+    foreach ($fields as $field) {
+        if(!isset($data[$field])){
+            throw new Exception("Action require '$field' field", 1);
+        }
+    }
+}
+
+$config = parse_ini_file(__DIR__ . '/config.ini', true);
 $pdo_db = new PDO(sprintf('mysql:host=%s;dbname=%s;charset=utf8', $config['mysql']['host'], $config['mysql']['dbname']), $config['mysql']['user'], $config['mysql']['passwd']);
 $pdo_db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 $pdo_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
 $pdo_db->query("SET NAMES utf8");
+
+$anonActions = ['search', 'login', 'register', 'welcome'];
 
 /*
  *      ACTIONS
  */
 
 // return is success
-// Exception is error
+// throw Exception is error
 $actions = [
     'welcome' => function($data){
         return 'Welcome to opencorpora API v1.0!';
     },
     'search' => function($data){
-        // if (isset($_GET['all_forms'])) {
-        //     $all_forms = (bool)$_GET['all_forms'];
-        // } else {
-        //     $all_forms = false;
-        // }
-        // $answer['answer'] = get_search_results($_GET['query'], !$all_forms);
-        // foreach ($answer['answer']['results'] as &$res) {
-        //     $parts = array();
-        //     foreach (get_book_parents($res['book_id'], true) as $p) {
-        //         $parts[] = $p['title'];
-        //     }
-        //     $res['text_fullname'] = join(': ', array_reverse($parts));
-        // }
-    },
-    'login_test' => function($data){
-        if (isset($data->login) && isset($data->password)) {
-            if($data->login == 'test' && $data->password == 'test') {
-                return [
-                    'token' => '1234qwer',
-                    'user_id' => 1,
-                ];
-            }
+        requireFields($data, ['query']);
+
+        if (isset($data['all_forms'])) {
+            $all_forms = (bool)$data['all_forms'];
+        } else {
+            $all_forms = false;
         }
-        throw new \Exception("invalid login:pass", 1);
+        $answer['answer'] = get_search_results($data['query'], !$all_forms);
+        foreach ($answer['answer']['results'] as &$res) {
+            $parts = [];
+            foreach (get_book_parents($res['book_id'], true) as $p) {
+                $parts[] = $p['title'];
+            }
+            $res['text_fullname'] = join(': ', array_reverse($parts));
+        }
+        return $answer['answer'];
     },
-
     'login' => function($data){
-        var_dump(pdo());
-        die();
+        requireFields($data, ['login', 'password']);
 
-        $user_id = user_check_password($data->login, $data->password);
+        $user_id = user_check_password($data['login'], $data['password']);
         if ($user_id) {
             $token = remember_user($user_id, false, false);
-            return ['result' => [
-                'token' => $token,
-                'user_id' => $user_id,
-            ]];
+            return [
+                'token' => (string)$token,
+                'user_id' => (int)$user_id,
+            ];
         } else {
-            return ['error' => 'Incorrect login or password'];
+            throw new Exception("Incorrect login or password", 1);
         }
     },
     'register' => function($data){
+        requireFields($data, ['login', 'passwd', 'passwd_re', 'email']);
+
+        $reg_status = user_register($data);
+        if ($reg_status == 1) {
+            return 'User created';
+        }
+        throw new \Exception("User don't create: invalid data. Status:$reg_status", 1);
     },
+
     'get_available_morph_tasks' => function($data){
-        // $answer['answer'] = array('tasks' => get_available_tasks($user_id, true));
+        requireFields($data, ['user_id']);
+
+        return get_available_tasks($data['user_id'], true);
     },
     'get_morph_task' => function($data){
-        // if (empty($_POST['pool_id']) || empty($_POST['size']))
-        //     throw new UnexpectedValueException("Wrong args");
-        // // timeout is in seconds
-        // $answer['answer'] = get_annotation_packet($_POST['pool_id'], $_POST['size'], $user_id, $_POST['timeout']);
-    },
-    'update_morph_task' => function($data){
-        // throw new Exception("Not implemented");
+        requireFields($data, ['pool_id', 'size', 'timeout']);
+
+        return get_annotation_packet($data['pool_id'], $data['size'], $user_id, $data['timeout']);
     },
     'save_morph_task' => function($data){
-        // answers is expected to be an array(array(id, answer), array(id, answer), ...)
-        // update_annot_instances($user_id, $_POST['answers']);
+        requireFields($data, ['user_id', 'answers']);
+
+        update_annot_instances($data['user_id'], $data['answers']);
+        return 'save task success';
     },
 ];
 
@@ -91,10 +101,8 @@ $actions = [
 
 
 /*
- *     CHECKS
+ *     COMMON API CHECKS
  */
-
-$anonActions = ['search', 'login', 'welcome', 'login_test'];
 
 if (!isset($_POST['action'])) {
     json(['error' => 'API required "action" field']);
@@ -113,7 +121,7 @@ if (!in_array($_POST['action'], $anonActions)) {
 
 // action REQUIRE, data OPTIONAL
 $action = $_POST['action'];
-$data   = isset($_POST['data']) ? json_decode($_POST['data']) : false;
+$data   = isset($_POST['data']) ? json_decode($_POST['data'], true) : false;
 
 if (isset($actions[$action])) {
     try {

@@ -112,7 +112,8 @@ function remember_user($user_id, $auth_token=false, $set_cookie=true) {
     return $token;
 }
 function make_new_user($login, $passwd, $email, $shown_name) {
-    sql_pe("INSERT INTO `users` VALUES(NULL, ?, ?, ?, ?, ?, 0, 1, 1, 0)",
+    // fix: add show_game = 0
+    sql_pe("INSERT INTO `users` VALUES(NULL, ?, ?, ?, ?, ?, 0, 1, 1, 0, 0)",
            array($login, $passwd, $email, time(), $shown_name));
     $user_id = sql_insert_id();
 
