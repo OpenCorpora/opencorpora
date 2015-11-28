@@ -460,7 +460,7 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
     $left_c = -1;  //if there is left context to be added
     $right_c = 0;  //same for right context
     $mw_pos = 0;
-    
+
     static $query1 = NULL;
     // prepare the 1st query
     if ($query1 == NULL)
