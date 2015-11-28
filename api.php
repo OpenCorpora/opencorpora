@@ -2,6 +2,7 @@
 
 require_once('lib/common.php');
 require_once("lib/lib_users.php");
+require_once("lib/lib_achievements.php");
 require_once("lib/lib_annot.php");
 
 function json($data) {
@@ -25,7 +26,7 @@ $pdo_db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 $pdo_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
 $pdo_db->query("SET NAMES utf8");
 
-$anonActions = ['search', 'welcome', 'login', 'register'];
+$anonActions = ['search', 'welcome', 'login', 'register', 'all_stat'];
 
 /*
  *      ACTIONS
@@ -78,6 +79,9 @@ $actions = [
         }
         throw new \Exception("User don't create: invalid data. Status:$reg_status", 1);
     },
+    'all_stat' => function($data){
+        return get_user_stats(true, false);
+    },
 
     // require token
     'get_available_morph_tasks' => function($data){
@@ -96,8 +100,80 @@ $actions = [
         update_annot_instances($data['user_id'], $data['answers']);
         return 'save task success';
     },
+
+    'get_user' => function($data){
+        requireFields($data, ['user_id']);
+
+        $mgr = new UserOptionsManager();
+        return [
+            'options' => $mgr->get_all_options(true),
+            'current_email' => get_user_email($data['user_id']),
+            'current_name' => get_user_shown_name($data['user_id']),
+            'user_team' => get_user_team($data['user_id']),
+        ];
+
+    },
+    'save_user' => function($data){
+        // update:
+        // shown_name OR email (+ passwd user_id) OR passwd (+old_passwd user_id)
+        if(isset($data['shown_name'])) {
+            if(user_change_shown_name($data['shown_name']) !== 1){
+                throw new Exception("Error update 'shown_name' field", 1);
+            }
+        }
+
+        if(isset($data['email']) && isset($data['passwd']) && isset($data['user_id'])) {
+            // NOTE: hotpatch
+            $r = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id = ".$data['user_id']." LIMIT 1"));
+            $login = $r['user_name'];
+            $email = strtolower(trim($data['email']));
+            if (is_user_openid($data['user_id']) || user_check_password($login, $data['passwd'])) {
+                if (is_valid_email($email)) {
+                    $res = sql_pe("SELECT user_id FROM users WHERE user_email=? LIMIT 1", array($email));
+                    if (sizeof($res) > 0) {
+                        throw new Exception("Error update 'email' field", 1);
+                    }
+                    sql_pe("UPDATE `users` SET `user_email`=? WHERE `user_id`=? LIMIT 1", array($email, $data['user_id']));
+                } else {
+                    throw new Exception("Error update 'email' field", 1);
+                }
+            } else {
+                throw new Exception("Error update 'email' field", 1);
+            }
+        }
+
+        if(isset($data['user_id']) && isset($data['passwd']) && isset($data['old_passwd'])) {
+            // NOTE: hotpatch
+            $r = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id = ".$data['user_id']." LIMIT 1"));
+            $login = $r['user_name'];
+            if (user_check_password($login, $data['old_passwd'])) {
+                if (!is_valid_password($data['passwd'])){
+                    throw new Exception("Error update 'passwd' field", 1);
+                }
+                $passwd = md5(md5($data['passwd']).substr($login, 0, 2));
+                sql_query("UPDATE `users` SET `user_passwd`='$passwd' WHERE `user_id`=".$data['user_id']." LIMIT 1");
+            } else {
+                throw new Exception("Error update 'passwd' field", 1);
+            }
+        }
+        return 'update user success';
+    },
+
+    'user_stat' => function($data){
+        requireFields($data, ['user_id']);
+
+        return get_user_info($data['user_id']);
+    },
+    'grab_badges' => function($data){
+        requireFields($data, ['user_id']);
+
+        $am2 = new AchievementsManager($data['user_id']);
+        return $am2->pull_all();
+    },
 ];
 
+// action list
+// var_dump(array_keys($actions)); die();
 
 
 
@@ -113,7 +189,7 @@ if (!in_array($_POST['action'], $anonActions)) {
     if (!$token) {
         json(['error' => 'this API action require "token" field']);
     }
-    $user_id = check_auth_token($_POST['token']);
+    $user_id = check_auth_token($token);
     if (!$user_id) {
         json(['error' => 'Incorrect token']);
     }
@@ -121,7 +197,7 @@ if (!in_array($_POST['action'], $anonActions)) {
 
 // action REQUIRE, data OPTIONAL
 $action = $_POST['action'];
-$data   = isset($_POST['data']) ? json_decode($_POST['data'], true) : false;
+$data   = isset($_POST['data']) ? json_decode($_POST['data'], true) : null;
 
 if (isset($actions[$action])) {
     try {

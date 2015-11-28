@@ -1,15 +1,12 @@
 <?php
-
-// for local debug
-
-// require('lib/header.php');
-// require_once('lib/lib_morph_pools.php');
-// require_once('lib/lib_stats.php');
-// if (isset($_GET['rand'])) {
-//     $r = sql_fetch_array(sql_query("SELECT sent_id FROM sentences ORDER BY RAND() LIMIT 1", 0));
-//     header("Location:sentence.php?id=".$r['sent_id']);
-//     return;
-// }
+require('lib/header.php');
+require_once('lib/lib_morph_pools.php');
+require_once('lib/lib_stats.php');
+if (isset($_GET['rand'])) {
+    $r = sql_fetch_array(sql_query("SELECT sent_id FROM sentences ORDER BY RAND() LIMIT 1", 0));
+    header("Location:sentence.php?id=".$r['sent_id']);
+    return;
+}
 
 // crutch for api
 if ($_SERVER['REQUEST_URI'] == '/v1.0') {
@@ -18,7 +15,6 @@ if ($_SERVER['REQUEST_URI'] == '/v1.0') {
     die();
 }
 
-/*
 if (isset($_GET['page'])) {
     $page = $_GET['page'];
     switch ($page) {
@@ -111,4 +107,3 @@ else {
     $smarty->display('index.tpl');
 }
 log_timing();
-*/

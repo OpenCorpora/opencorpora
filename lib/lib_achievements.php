@@ -326,4 +326,3 @@ trait GivenOnTrigger {
         $this->push();
     }
 }
-
