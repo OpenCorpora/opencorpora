@@ -1,13 +1,19 @@
 <?php
 
 require_once('lib/common.php');
-include_once("lib/lib_users.php");
+require_once("lib/lib_users.php");
 
 function json($data) {
     header('Content-type: application/json');
     echo json_encode($data);
     die();
 }
+
+$config = parse_ini_file(__DIR__ . 'config.ini', true);
+$pdo_db = new PDO(sprintf('mysql:host=%s;dbname=%s;charset=utf8', $config['mysql']['host'], $config['mysql']['dbname']), $config['mysql']['user'], $config['mysql']['passwd']);
+$pdo_db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+$pdo_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+$pdo_db->query("SET NAMES utf8");
 
 /*
  *      ACTIONS
@@ -34,17 +40,34 @@ $actions = [
         //     $res['text_fullname'] = join(': ', array_reverse($parts));
         // }
     },
+    'login_test' => function($data){
+        if (isset($data->login) && isset($data->password)) {
+            if($data->login == 'test' && $data->password == 'test') {
+                return [
+                    'token' => '1234qwer',
+                    'user_id' => 1,
+                ];
+            }
+        }
+        throw new \Exception("invalid login:pass", 1);
+    },
+
     'login' => function($data){
-        // $user_id = user_check_password($data->login, $data->password);
-        // if ($user_id) {
-        //     $token = remember_user($user_id, false, false);
-        //     return ['result' => [
-        //         'token' => $token,
-        //         'user_id' => $user_id,
-        //     ]];
-        // } else {
-        //     return ['error' => 'Incorrect login or password'];
-        // }
+        var_dump(pdo());
+        die();
+
+        $user_id = user_check_password($data->login, $data->password);
+        if ($user_id) {
+            $token = remember_user($user_id, false, false);
+            return ['result' => [
+                'token' => $token,
+                'user_id' => $user_id,
+            ]];
+        } else {
+            return ['error' => 'Incorrect login or password'];
+        }
+    },
+    'register' => function($data){
     },
     'get_available_morph_tasks' => function($data){
         // $answer['answer'] = array('tasks' => get_available_tasks($user_id, true));
@@ -71,7 +94,7 @@ $actions = [
  *     CHECKS
  */
 
-$anonActions = ['search', 'login', 'welcome'];
+$anonActions = ['search', 'login', 'welcome', 'login_test'];
 
 if (!isset($_POST['action'])) {
     json(['error' => 'API required "action" field']);
