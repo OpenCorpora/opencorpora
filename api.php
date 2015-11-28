@@ -11,7 +11,7 @@ function json($data) {
     die();
 }
 
-function requireFields($data, $fields)
+function require_fields($data, $fields)
 {
     foreach ($fields as $field) {
         if(!isset($data[$field])){
@@ -39,7 +39,7 @@ $actions = [
         return 'Welcome to opencorpora API v1.0!';
     },
     'search' => function($data){
-        requireFields($data, ['query']);
+        require_fields($data, ['query']);
 
         if (isset($data['all_forms'])) {
             $all_forms = (bool)$data['all_forms'];
@@ -57,7 +57,7 @@ $actions = [
         return $answer['answer'];
     },
     'login' => function($data){
-        requireFields($data, ['login', 'password']);
+        require_fields($data, ['login', 'password']);
 
         $user_id = user_check_password($data['login'], $data['password']);
         if ($user_id) {
@@ -71,7 +71,7 @@ $actions = [
         }
     },
     'register' => function($data){
-        requireFields($data, ['login', 'passwd', 'passwd_re', 'email']);
+        require_fields($data, ['login', 'passwd', 'passwd_re', 'email']);
 
         $reg_status = user_register($data);
         if ($reg_status == 1) {
@@ -85,24 +85,24 @@ $actions = [
 
     // require token
     'get_available_morph_tasks' => function($data){
-        requireFields($data, ['user_id']);
+        require_fields($data, ['user_id']);
 
         return get_available_tasks($data['user_id'], true);
     },
     'get_morph_task' => function($data){
-        requireFields($data, ['user_id', 'pool_id', 'size']);
+        require_fields($data, ['user_id', 'pool_id', 'size']);
 
         return get_annotation_packet($data['pool_id'], $data['size'], $data['user_id']);
     },
     'save_morph_task' => function($data){
-        requireFields($data, ['user_id', 'answers']);
+        require_fields($data, ['user_id', 'answers']);
 
         update_annot_instances($data['user_id'], $data['answers']);
         return 'save task success';
     },
 
     'get_user' => function($data){
-        requireFields($data, ['user_id']);
+        require_fields($data, ['user_id']);
 
         $mgr = new UserOptionsManager();
         return [
@@ -160,12 +160,12 @@ $actions = [
     },
 
     'user_stat' => function($data){
-        requireFields($data, ['user_id']);
+        require_fields($data, ['user_id']);
 
         return get_user_info($data['user_id']);
     },
     'grab_badges' => function($data){
-        requireFields($data, ['user_id']);
+        require_fields($data, ['user_id']);
 
         $am2 = new AchievementsManager($data['user_id']);
         return $am2->pull_all();
