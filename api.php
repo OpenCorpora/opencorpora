@@ -1,41 +1,30 @@
 <?php
 
-/*
- *     CHECKS
- */
+require_once('lib/common.php');
+include_once("lib/lib_users.php");
 
-$anonActions = ['search', 'login'];
-
-if (!isset($_POST['action'])) {
-    echo json_encode(['error' => 'API require "action" field']);
+function json($data) {
+    header('Content-type: application/json');
+    echo json_encode($data);
     die();
 }
-if (!in_array($_POST['action'], $anonActions)) {
-    $token  = isset($_POST['token']) ? $_POST['token'] : false;
-    if (!$token) {
-        echo json_encode(['error' => 'this API action require "token" field']);
-        die();
-    }
-    $user_id = check_auth_token($_POST['token']);
-    if (!$user_id) {
-        echo json_encode(['error' => 'Incorrect token']);
-        die();
-    }
-}
 
-// action REQUIRE, data OPTIONAL
-$action = $_POST['action'];
-$data   = isset($_POST['data']) ? json_decode($_POST['data']) : false;
+/*
+ *      ACTIONS
+ */
 
-
-// registered actions
+// return is success
+// Exception is error
 $actions = [
+    'welcome' => function($data){
+        return 'Welcome to opencorpora API v1.0!';
+    },
     'search' => function($data){
-        // if (isset($_GET['all_forms']))
+        // if (isset($_GET['all_forms'])) {
         //     $all_forms = (bool)$_GET['all_forms'];
-        // else
+        // } else {
         //     $all_forms = false;
-        //
+        // }
         // $answer['answer'] = get_search_results($_GET['query'], !$all_forms);
         // foreach ($answer['answer']['results'] as &$res) {
         //     $parts = array();
@@ -46,13 +35,16 @@ $actions = [
         // }
     },
     'login' => function($data){
-        // $user_id = user_check_password($_POST['login'], $_POST['password']);
+        // $user_id = user_check_password($data->login, $data->password);
         // if ($user_id) {
         //     $token = remember_user($user_id, false, false);
-        //     $answer['answer'] = array('user_id' => $user_id, 'token' => $token);
+        //     return ['result' => [
+        //         'token' => $token,
+        //         'user_id' => $user_id,
+        //     ]];
+        // } else {
+        //     return ['error' => 'Incorrect login or password'];
         // }
-        // else
-        //     $answer['error'] = 'Incorrect login or password';
     },
     'get_available_morph_tasks' => function($data){
         // $answer['answer'] = array('tasks' => get_available_tasks($user_id, true));
@@ -72,13 +64,41 @@ $actions = [
     },
 ];
 
+
+
+
+/*
+ *     CHECKS
+ */
+
+$anonActions = ['search', 'login', 'welcome'];
+
+if (!isset($_POST['action'])) {
+    json(['error' => 'API required "action" field']);
+}
+// TODO: check_auth_token!!!
+if (!in_array($_POST['action'], $anonActions)) {
+    $token  = isset($_POST['token']) ? $_POST['token'] : false;
+    if (!$token) {
+        json(['error' => 'this API action require "token" field']);
+    }
+    $user_id = check_auth_token($_POST['token']);
+    if (!$user_id) {
+        json(['error' => 'Incorrect token']);
+    }
+}
+
+// action REQUIRE, data OPTIONAL
+$action = $_POST['action'];
+$data   = isset($_POST['data']) ? json_decode($_POST['data']) : false;
+
 if (isset($actions[$action])) {
     try {
-        $result = ['success' => $actions[$action]($data)];
+        $answer = ['result' => $actions[$action]($data)];
     } catch (\Exception $e) {
-        $result = ['error' => $e->getMessage()];
+        $answer = ['error' => $e->getMessage()];
     }
 } else {
-    $result = ['error' => 'Unknown action'];
+    $answer = ['error' => 'Unknown action'];
 }
-echo json_encode($result);
+json($answer);
