@@ -14,7 +14,7 @@ function json($data) {
 function require_fields($data, $fields)
 {
     foreach ($fields as $field) {
-        if(!isset($data[$field])){
+        if (!isset($data[$field])) {
             throw new Exception("Action require '$field' field", 1);
         }
     }
@@ -35,10 +35,10 @@ $anonActions = ['search', 'welcome', 'login', 'register', 'all_stat'];
 // return is success
 // throw Exception is error
 $actions = [
-    'welcome' => function($data){
+    'welcome' => function($data) {
         return 'Welcome to opencorpora API v1.0!';
     },
-    'search' => function($data){
+    'search' => function($data) {
         require_fields($data, ['query']);
 
         if (isset($data['all_forms'])) {
@@ -56,7 +56,7 @@ $actions = [
         }
         return $answer['answer'];
     },
-    'login' => function($data){
+    'login' => function($data) {
         require_fields($data, ['login', 'password']);
 
         $user_id = user_check_password($data['login'], $data['password']);
@@ -70,7 +70,7 @@ $actions = [
             throw new Exception("Incorrect login or password", 1);
         }
     },
-    'register' => function($data){
+    'register' => function($data) {
         require_fields($data, ['login', 'passwd', 'passwd_re', 'email']);
 
         $reg_status = user_register($data);
@@ -79,29 +79,29 @@ $actions = [
         }
         throw new \Exception("User don't create: invalid data. Status:$reg_status", 1);
     },
-    'all_stat' => function($data){
+    'all_stat' => function($data) {
         return get_user_stats(true, false);
     },
 
     // require token
-    'get_available_morph_tasks' => function($data){
+    'get_available_morph_tasks' => function($data) {
         require_fields($data, ['user_id']);
 
         return get_available_tasks($data['user_id'], true);
     },
-    'get_morph_task' => function($data){
+    'get_morph_task' => function($data) {
         require_fields($data, ['user_id', 'pool_id', 'size']);
 
         return get_annotation_packet($data['pool_id'], $data['size'], $data['user_id']);
     },
-    'save_morph_task' => function($data){
+    'save_morph_task' => function($data) {
         require_fields($data, ['user_id', 'answers']);
 
         update_annot_instances($data['user_id'], $data['answers']);
         return 'save task success';
     },
 
-    'get_user' => function($data){
+    'get_user' => function($data) {
         require_fields($data, ['user_id']);
 
         $mgr = new UserOptionsManager();
@@ -113,16 +113,16 @@ $actions = [
         ];
 
     },
-    'save_user' => function($data){
+    'save_user' => function($data) {
         // update:
         // shown_name OR email (+ passwd user_id) OR passwd (+old_passwd user_id)
-        if(isset($data['shown_name'])) {
-            if(user_change_shown_name($data['shown_name']) !== 1){
+        if (isset($data['shown_name'])) {
+            if (user_change_shown_name($data['shown_name']) !== 1) {
                 throw new Exception("Error update 'shown_name' field", 1);
             }
         }
 
-        if(isset($data['email']) && isset($data['passwd']) && isset($data['user_id'])) {
+        if (isset($data['email']) && isset($data['passwd']) && isset($data['user_id'])) {
             // NOTE: hotpatch
             $r = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id = ".$data['user_id']." LIMIT 1"));
             $login = $r['user_name'];
@@ -142,12 +142,12 @@ $actions = [
             }
         }
 
-        if(isset($data['user_id']) && isset($data['passwd']) && isset($data['old_passwd'])) {
+        if (isset($data['user_id']) && isset($data['passwd']) && isset($data['old_passwd'])) {
             // NOTE: hotpatch
             $r = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id = ".$data['user_id']." LIMIT 1"));
             $login = $r['user_name'];
             if (user_check_password($login, $data['old_passwd'])) {
-                if (!is_valid_password($data['passwd'])){
+                if (!is_valid_password($data['passwd'])) {
                     throw new Exception("Error update 'passwd' field", 1);
                 }
                 $passwd = md5(md5($data['passwd']).substr($login, 0, 2));
@@ -159,12 +159,12 @@ $actions = [
         return 'update user success';
     },
 
-    'user_stat' => function($data){
+    'user_stat' => function($data) {
         require_fields($data, ['user_id']);
 
         return get_user_info($data['user_id']);
     },
-    'grab_badges' => function($data){
+    'grab_badges' => function($data) {
         require_fields($data, ['user_id']);
 
         $am2 = new AchievementsManager($data['user_id']);
