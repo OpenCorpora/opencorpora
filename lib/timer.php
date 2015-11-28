@@ -1,4 +1,5 @@
 <?php
+
 function log_timing($is_ajax=false) {
     global $config;
     global $total_time;
