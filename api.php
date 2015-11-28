@@ -25,7 +25,7 @@ $pdo_db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 $pdo_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
 $pdo_db->query("SET NAMES utf8");
 
-$anonActions = ['search', 'login', 'register', 'welcome'];
+$anonActions = ['search', 'welcome', 'login', 'register'];
 
 /*
  *      ACTIONS
@@ -79,15 +79,16 @@ $actions = [
         throw new \Exception("User don't create: invalid data. Status:$reg_status", 1);
     },
 
+    // require token
     'get_available_morph_tasks' => function($data){
         requireFields($data, ['user_id']);
 
         return get_available_tasks($data['user_id'], true);
     },
     'get_morph_task' => function($data){
-        requireFields($data, ['pool_id', 'size', 'timeout']);
+        requireFields($data, ['user_id', 'pool_id', 'size']);
 
-        return get_annotation_packet($data['pool_id'], $data['size'], $user_id, $data['timeout']);
+        return get_annotation_packet($data['pool_id'], $data['size'], $data['user_id']);
     },
     'save_morph_task' => function($data){
         requireFields($data, ['user_id', 'answers']);
@@ -107,7 +108,6 @@ $actions = [
 if (!isset($_POST['action'])) {
     json(['error' => 'API required "action" field']);
 }
-// TODO: check_auth_token!!!
 if (!in_array($_POST['action'], $anonActions)) {
     $token  = isset($_POST['token']) ? $_POST['token'] : false;
     if (!$token) {
