@@ -77,7 +77,7 @@ $actions = [
         if ($reg_status == 1) {
             return 'User created';
         }
-        throw new \Exception("User don't create: invalid data. Status:$reg_status", 1);
+        throw new \Exception("Registration failed due to invalid data", 1);
     },
     'all_stat' => function($data) {
         return get_user_stats(true, false);
@@ -122,7 +122,7 @@ $actions = [
             }
         }
 
-        if (isset($data['email']) && isset($data['passwd']) && isset($data['user_id'])) {
+        if (isset($data['email'], $data['passwd'], $data['user_id'])) {
             // NOTE: hotpatch
             $r = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id = ".$data['user_id']." LIMIT 1"));
             $login = $r['user_name'];
@@ -142,7 +142,7 @@ $actions = [
             }
         }
 
-        if (isset($data['user_id']) && isset($data['passwd']) && isset($data['old_passwd'])) {
+        if (isset($data['user_id'], $data['passwd'], $data['old_passwd'])) {
             // NOTE: hotpatch
             $r = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id = ".$data['user_id']." LIMIT 1"));
             $login = $r['user_name'];
@@ -182,7 +182,7 @@ $actions = [
  */
 
 if (!isset($_POST['action'])) {
-    json(['error' => 'API required "action" field']);
+    json(['error' => '"action" field is required']);
 }
 if (!in_array($_POST['action'], $anonActions)) {
     $token  = isset($_POST['token']) ? $_POST['token'] : false;
