@@ -97,8 +97,12 @@ $actions = [
     'save_morph_task' => function($data) {
         require_fields($data, ['user_id', 'answers']);
 
-        update_annot_instances($data['user_id'], $data['answers']);
-        return 'save task success';
+        $accepted = update_annot_instances($data['user_id'], $data['answers']);
+        if ($accepted != 0) {
+            return 'save task success';
+        } else {
+            throw new Exception("Nothing save", 1);
+        }
     },
 
     'get_user' => function($data) {
