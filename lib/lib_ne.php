@@ -601,3 +601,29 @@ function delete_entity_mention_link($entity_id, $mention_id) {
         throw new Exception("Mention not found");
     sql_pe("DELETE FROM ne_entities_mentions WHERE entity_id = ? AND mention_id = ?", array($entity_id, $mention_id));
 }
+
+function set_ne_book_moderator($book_id, $tagset_id) {
+    check_permission(PERM_NE_MODER);
+    $book = sql_pe("SELECT book_id FROM ne_books_tagsets WHERE book_id = ? AND tagset_id = ? LIMIT 1", array($book_id, $tagset_id));
+    if (sizeof($book) < 1)
+        throw new Exception("No NE text found");
+    sql_pe("UPDATE ne_books_tagsets SET moderator_id = ? WHERE book_id = ? AND tagset_id = ?", array($_SESSION["user_id"], $book_id, $tagset_id));
+}
+
+function is_user_book_moderator($book_id, $tagset_id) {
+    check_permission(PERM_NE_MODER);
+    $book = sql_pe("SELECT * FROM ne_books_tagsets WHERE book_id = ? AND tagset_id = ? LIMIT 1", array($book_id, $tagset_id));
+    if (sizeof($book) < 1)
+        throw new Exception("No NE text found");
+    return $book["moderator_id"] == $_SESSION["user_id"];
+}
+
+function get_all_ne_by_paragraph($par_id, $tagset_id, $group_by_mention = false) {
+    $users = sql_pe("SELECT user_id FROM ne_paragraphs WHERE par_id = ? AND tagset_id = ? AND status = ?", array($par_id, $tagset_id, NE_STATUS_FINISHED));
+    $data = [];
+    foreach ($users as $user) {
+        $user_id = $user["user_id"];
+        $data[$user_id] = get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention);
+    }
+    return $data;
+}
