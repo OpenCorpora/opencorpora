@@ -16,6 +16,7 @@ function get_books_with_ne($tagset_id) {
             SELECT par_id, COUNT(annot_id) as fin
             FROM ne_paragraphs
             WHERE tagset_id = ?
+            AND is_moderator = 0
             AND status >= ".NE_STATUS_FINISHED."
             GROUP BY par_id
             HAVING fin >= ".NE_ANNOTATORS_PER_TEXT."
@@ -381,6 +382,7 @@ function get_ne_paragraph_status($book_id, $user_id, $tagset_id) {
         JOIN paragraphs USING (par_id)
         WHERE book_id = ?
         AND tagset_id = ?
+        AND is_moderator = 0
         ORDER BY par_id
     ", array($book_id, $tagset_id));
 
@@ -431,7 +433,7 @@ function get_ne_paragraph_status($book_id, $user_id, $tagset_id) {
     return $out;
 }
 
-function start_ne_annotation($par_id, $tagset_id) {
+function start_ne_annotation($par_id, $tagset_id, $is_moderator = false) {
     if (!$par_id)
         throw new UnexpectedValueException();
 
@@ -450,12 +452,26 @@ function start_ne_annotation($par_id, $tagset_id) {
     ", array($user_id, $par_id, $tagset_id));
 
     if (sizeof($res) > 0)
-        throw new Exception();
+        throw new Exception("Annotation already exists");
+
+    // TODO check that this user is this book's moderator
+    if ($is_moderator) {
+        check_permission(PERM_NE_MODER);
+        $annots = sql_pe("
+            SELECT annot_id
+            FROM ne_paragraphs
+            WHERE par_id = ?
+            AND tagset_id = ?
+            AND status = ?
+        ", array($par_id, $tagset_id, NE_STATUS_FINISHED));
+        if (sizeof($annots) < NE_ANNOTATORS_PER_TEXT)
+            throw new Exception("Annotation is not yet finished");
+    }
 
     sql_pe("
         INSERT INTO ne_paragraphs
-        VALUES (NULL, ?, ?, ?, ?, ?, ?)
-    ", array($par_id, $user_id, NE_STATUS_IN_PROGRESS, time(), 0, $tagset_id));
+        VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)
+    ", array($par_id, $user_id, NE_STATUS_IN_PROGRESS, time(), 0, $tagset_id, $is_moderator));
 
     return sql_insert_id();
 }
@@ -619,11 +635,36 @@ function is_user_book_moderator($book_id, $tagset_id) {
 }
 
 function get_all_ne_by_paragraph($par_id, $tagset_id, $group_by_mention = false) {
-    $users = sql_pe("SELECT user_id FROM ne_paragraphs WHERE par_id = ? AND tagset_id = ? AND status = ?", array($par_id, $tagset_id, NE_STATUS_FINISHED));
+    $users = sql_pe("SELECT user_id FROM ne_paragraphs WHERE is_moderator = 0 AND par_id = ? AND tagset_id = ? AND status = ?", array($par_id, $tagset_id, NE_STATUS_FINISHED));
     $data = [];
     foreach ($users as $user) {
         $user_id = $user["user_id"];
         $data[$user_id] = get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention);
     }
     return $data;
+}
+
+function copy_ne_entity($entity_id, $annot_to) {
+    $ent = sql_pe("SELECT start_token, length FROM ne_entities WHERE entity_id = ? LIMIT 1", array($entity_id));
+    if (sizeof($ent) < 1)
+        throw new Exception("Entity not found");
+    $entity = $ent[0];
+    sql_pe("INSERT INTO ne_entities (annot_id, start_token, length, updated_ts) VALUES (?, ?, ?, ?)", array($annot_to, $entity["start_token"], $entity["length"], time()));
+    return sql_insert_id();
+}
+
+function copy_ne_mention($mention_id, $annot_to) {
+    $men = sql_pe("SELECT * FROM ne_mentions WHERE mention_id = ? LIMIT 1", array($mention_id));
+    if (sizeof($men) < 1)
+        throw new Exception("Mention not found");
+    sql_begin();
+    sql_pe("INSERT INTO ne_mentions (object_id, object_type_id) VALUES (?, ?)", array($men[0]["object_id"], $men[0]["object_type_id"]));
+    $new_mention_id = sql_insert_id();
+    $ent = sql_pe("SELECT entity_id, start_token, length FROM ne_entities_mentions LEFT JOIN ne_entities USING entity_id WHERE mention_id = ?", array($mention_id));
+    foreach ($ent as $entity) {
+        sql_pe("INSERT INTO ne_entities (annot_id, start_token, length, update_ts) VALUES(?, ?, ?, ?)", array($annot_to, $entity["start_token"], $entity["length"], time()));
+        $ent_id = sql_insert_id();
+        sql_pe("INSERT INTO ne_entities_mentions VALUES (?, ?)", array($ent_id, $new_annot_id));
+    }
+    sql_commit();
 }
