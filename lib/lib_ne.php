@@ -471,7 +471,7 @@ function start_ne_annotation($par_id, $tagset_id, $is_moderator = false) {
     sql_pe("
         INSERT INTO ne_paragraphs
         VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)
-    ", array($par_id, $user_id, NE_STATUS_IN_PROGRESS, time(), 0, $tagset_id, $is_moderator));
+    ", array($par_id, $user_id, NE_STATUS_IN_PROGRESS, time(), 0, $tagset_id, (int)$is_moderator));
 
     return sql_insert_id();
 }
@@ -627,7 +627,7 @@ function set_ne_book_moderator($book_id, $tagset_id) {
 }
 
 function is_user_book_moderator($book_id, $tagset_id) {
-    check_permission(PERM_NE_MODER);
+    // check_permission(PERM_NE_MODER);
     $book = sql_pe("SELECT * FROM ne_books_tagsets WHERE book_id = ? AND tagset_id = ? LIMIT 1", array($book_id, $tagset_id));
     if (sizeof($book) < 1)
         throw new Exception("No NE text found");
