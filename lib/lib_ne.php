@@ -660,7 +660,7 @@ function copy_ne_mention($mention_id, $annot_to) {
     sql_begin();
     sql_pe("INSERT INTO ne_mentions (object_id, object_type_id) VALUES (?, ?)", array($men[0]["object_id"], $men[0]["object_type_id"]));
     $new_mention_id = sql_insert_id();
-    $ent = sql_pe("SELECT entity_id, start_token, length FROM ne_entities_mentions LEFT JOIN ne_entities USING entity_id WHERE mention_id = ?", array($mention_id));
+    $ent = sql_pe("SELECT entity_id, start_token, length FROM ne_entities_mentions LEFT JOIN ne_entities USING (entity_id) WHERE mention_id = ?", array($mention_id));
     foreach ($ent as $entity) {
         sql_pe("INSERT INTO ne_entities (annot_id, start_token, length, update_ts) VALUES(?, ?, ?, ?)", array($annot_to, $entity["start_token"], $entity["length"], time()));
         $ent_id = sql_insert_id();
