@@ -631,6 +631,7 @@ function is_user_book_moderator($book_id, $tagset_id) {
     $book = sql_pe("SELECT * FROM ne_books_tagsets WHERE book_id = ? AND tagset_id = ? LIMIT 1", array($book_id, $tagset_id));
     if (sizeof($book) < 1)
         throw new Exception("No NE text found");
+    $book = $book[0];
     return $book["moderator_id"] == $_SESSION["user_id"];
 }
 
