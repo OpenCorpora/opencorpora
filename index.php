@@ -95,13 +95,13 @@ if (isset($_GET['page'])) {
 }
 else {
     if (!is_admin()) {
-        if (is_logged())
+        if (is_logged()) {
             $smarty->assign('available', get_available_tasks($_SESSION['user_id'], true, $config['misc']['mainpage_tasks_limit'], true));
+            $tagset_id = get_current_tagset();
+            $smarty->assign('ner_tagset_id', $tagset_id);
+            $smarty->assign('ner_tasks', get_books_with_NE($tagset_id));
+        }
         $smarty->assign('answer_count', count_all_answers());
-
-        $tagset_id = get_current_tagset();
-        $smarty->assign('ner_tagset_id', $tagset_id);
-        $smarty->assign('ner_tasks', get_books_with_NE($tagset_id));
     }
     $smarty->display('index.tpl');
 }
