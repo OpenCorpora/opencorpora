@@ -25,6 +25,7 @@
     <th>Всего готово: {$page.ready}</th>
 </tr>
 {foreach from=$page.books item=book}
+
 <tr class="{if $book.started and $book.available}warning
            {elseif $book.started and !$book.available}success
            {elseif !$book.started and !$book.available}error
@@ -33,15 +34,15 @@
     <td>{$book.num_par}</td>
     <td>{(100 * $book.ready_annot / ($book.num_par * $smarty.const.NE_ANNOTATORS_PER_TEXT))|string_format:"%d"} %</td>
     <td>
-        {if $book.started and $book.available}
-            <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small btn-primary">Продолжить</a>
-        {elseif $book.available and !$book.started}
-            <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small">Размечать</a>
-        {elseif !$book.available and !$book.started}
-            <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small" disabled>Размечать</a>
-        {else}
-            <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small"><i class="icon-ok"></i> Просмотреть</a>
-        {/if}
+      {if $book.started and $book.available}
+          <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small btn-primary">Продолжить</a>
+      {elseif $book.available and !$book.started}
+          <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small">Размечать</a>
+      {elseif !$book.available and !$book.started}
+          <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small" disabled>Размечать</a>
+      {else}
+          <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small"><i class="icon-ok"></i> Просмотреть</a>
+      {/if}
     </td>
 </tr>
 {/foreach}

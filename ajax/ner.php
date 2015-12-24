@@ -2,13 +2,6 @@
 require_once('../lib/header_ajax.php');
 require_once('../lib/lib_ne.php');
 
-/*
-    Сюда приходит POST'ом следующее:
-    act - что нужно делать
-
-*/
-
-
 try {
 
     switch ($_POST['act']) {
@@ -84,6 +77,14 @@ try {
             $result['id'] = $id;
             $result['time'] = date("M j, G:i");
             break;
+
+        case 'becomeModerator':
+            if (empty($_POST['book_id'])
+                or empty($_POST['tagset_id'])) throw new Exception("book_id or tagset_id missing");
+
+            set_ne_book_moderator((int)$_POST['book_id'], (int)$_POST['tagset_id']);
+            break;
+
 
         case 'logEvent':
             if (empty($_POST['id'])) throw new Exception();

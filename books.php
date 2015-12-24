@@ -48,18 +48,21 @@ elseif ($action == 'ner') {
     if (isset($_GET['book_id']) && $book_id = $_GET['book_id']) {
 
         $tagset_id = get_current_tagset();
+        $is_book_moderator = is_user_book_moderator($book_id, $tagset_id);
 
         $book = get_book_page($book_id, TRUE);
+        // список из статусов => список id параграфов
         $paragraphs_status = get_ne_paragraph_status($book_id, $_SESSION['user_id'], $tagset_id);
 
         foreach ($book['paragraphs'] as &$paragraph) {
+            // и для модератора, и для простого юзера забираем "свою" разметку
             $ne = get_ne_by_paragraph($paragraph['id'], $_SESSION['user_id'], $tagset_id);
             $mentions = get_ne_by_paragraph($paragraph['id'], $_SESSION['user_id'], $tagset_id, TRUE);
 
             $paragraph['named_entities'] = isset($ne['entities']) ? $ne['entities'] : array();
             $paragraph['mentions'] = isset($mentions['entities']) ? $mentions['entities'] : array();
 
-            $paragraph['annotation_id'] = isset($ne['annot_id']) ? $ne['annot_id'] : array();
+            $paragraph['annotation_id'] = isset($ne['annot_id']) ? $ne['annot_id'] : 0;
             $paragraph['ne_by_token'] = get_ne_tokens_by_paragraph($paragraph['id'], $_SESSION['user_id'], $tagset_id);
             $paragraph['comments'] = get_comments_by_paragraph($paragraph['id'], $_SESSION['user_id'], $tagset_id);
 
@@ -71,6 +74,30 @@ elseif ($action == 'ner') {
             elseif (in_array($paragraph['id'], $paragraphs_status['started_by_user'])) {
                 $paragraph['mine'] = true;
             }
+
+            if (in_array($paragraph['id'], $paragraphs_status['done_by_user'])) {
+                $paragraph['done_by_me'] = true;
+            }
+
+            // если текущий пользователь - модератор, забираем разметку других пользователей
+            if (!$is_moderator) continue;
+
+            $annotators = get_paragraph_annotators($paragraph['id'], $tagset_id);
+            $paragraph['all_annotations'] = array();
+
+            foreach ($annotators as $user_id) {
+                $PAR = $paragraph['all_annotations'][$user_id] = array();
+
+                $ne = get_ne_by_paragraph($paragraph['id'], $user_id, $tagset_id);
+                $mentions = get_ne_by_paragraph($paragraph['id'], $user_id, $tagset_id, TRUE);
+
+                $PAR['named_entities'] = isset($ne['entities']) ? $ne['entities'] : array();
+                $PAR['mentions'] = isset($mentions['entities']) ? $mentions['entities'] : array();
+
+                $PAR['annotation_id'] = isset($ne['annot_id']) ? $ne['annot_id'] : 0;
+                $PAR['ne_by_token'] = get_ne_tokens_by_paragraph($paragraph['id'], $_SESSION['user_id'], $tagset_id);
+                $PAR['comments'] = get_comments_by_paragraph($paragraph['id'], $_SESSION['user_id'], $tagset_id);
+            }
         }
 
         $smarty->assign('book', $book);
@@ -81,6 +108,7 @@ elseif ($action == 'ner') {
 
         $smarty->assign('entity_types', get_ne_types($tagset_id));
         $smarty->assign('mention_types', get_object_types($tagset_id));
+        $smarty->assign('is_moderator', $is_book_moderator);
         $smarty->display('ner/book.tpl');
     } else {
         throw new UnexpectedValueException();

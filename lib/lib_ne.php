@@ -7,7 +7,7 @@ function get_current_tagset() {
     return OPTION(OPT_NE_TAGSET);
 }
 
-function get_books_with_ne($tagset_id) {
+function get_books_with_ne($tagset_id, $for_user = TRUE) {
     $total = sql_pe("
         SELECT COUNT(book_id) AS total
         FROM ne_books_tagsets
@@ -27,7 +27,7 @@ function get_books_with_ne($tagset_id) {
     $out = array('books' => array(), 'ready' => sizeof($total));
 
     $res = sql_pe("
-        SELECT book_id, book_name, par_id, status, user_id
+        SELECT book_id, book_name, par_id, status, user_id, moderator_id
         FROM books
         LEFT JOIN ne_books_tagsets bs
             USING (book_id)
@@ -45,7 +45,8 @@ function get_books_with_ne($tagset_id) {
         'available' => true,
         'started' => 0,
         'all_ready' => false,
-        'unavailable_par' => 0
+        'unavailable_par' => 0,
+        'moderator_id' => 0
     );
     $last_book_id = 0;
     $last_par_id = 0;
@@ -69,9 +70,10 @@ function get_books_with_ne($tagset_id) {
         if ($r['book_id'] != $last_book_id && $last_book_id) {
             $book['all_ready'] = ($book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']);
             $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'] && $book['unavailable_par'] < $book['num_par'];
-            if ($book['available']) {
+
+            if ($book['available'] || !$for_user) {
                 $out['books'][] = $book;
-                if (sizeof($out['books']) >= NE_ACTIVE_BOOKS)
+                if ($for_user && sizeof($out['books']) >= NE_ACTIVE_BOOKS)
                     break;
             }
             $book = array(
@@ -106,6 +108,7 @@ function get_books_with_ne($tagset_id) {
 
         $book['id'] = $r['book_id'];
         $book['name'] = $r['book_name'];
+        $book['moderator_id'] = $r['moderator_id'];
         $allbooks[$book['id']] = true;
         $book['queue_num'] = sizeof($allbooks);
         $last_book_id = $r['book_id'];
@@ -117,7 +120,9 @@ function get_books_with_ne($tagset_id) {
         $book['unavailable_par'] += 1;
     $book['all_ready'] = ($book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']);
     $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'] && $book['unavailable_par'] < $book['num_par'];
-    if ($book['available'] && sizeof($out['books']) < NE_ACTIVE_BOOKS)
+
+    if (!$for_user || ($book['available'] && sizeof($out['books']) < NE_ACTIVE_BOOKS))
+        // $for_user is False when get_books_with_ne is called by moderator
         $out['books'][] = $book;
 
     // sort so that unavailable texts go last
@@ -633,6 +638,10 @@ function is_user_book_moderator($book_id, $tagset_id) {
         throw new Exception("No NE text found");
     $book = $book[0];
     return $book["moderator_id"] == $_SESSION["user_id"];
+}
+
+function get_paragraph_annotators($par_id, $tagset_id) {
+    return sql_pe("SELECT user_id FROM ne_paragraphs WHERE is_moderator = 0 AND par_id = ? AND tagset_id = ? AND status = ?", array($par_id, $tagset_id, NE_STATUS_FINISHED));
 }
 
 function get_all_ne_by_paragraph($par_id, $tagset_id, $group_by_mention = false) {
