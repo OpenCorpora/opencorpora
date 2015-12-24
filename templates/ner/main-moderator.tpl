@@ -20,7 +20,8 @@
 
 <div class='alert alert-info'>
   <div class="container">
-    Вы состоите в группе модераторов NE. Вам виден список готовых текстов.
+    Вы состоите в группе модераторов NE. Вам виден список готовых текстов.<br/>
+    Внимание! Можно взять на модерацию только тот текст, который вы еще не размечали.
   </div>
 </div>
 
@@ -28,19 +29,19 @@
 <tr class='small'>
     <th>#</th>
     <th>Абзацев</th>
-    <th>Uid</th>
     <th>Готовность</th>
     <th>Всего готово: {$page.ready}</th>
 </tr>
 {foreach from=$page.books item=book}
-{if $book.all_ready && (!$book.moderator_id || $book.moderator_id == $smarty.session.user_id)}
+{if $book.all_ready &&
+  ((!$book.moderator_id && !$book.started) ||
+  $book.moderator_id == $smarty.session.user_id)}
 <tr>
     <td>{$book.queue_num}</td>
     <td>{$book.num_par}</td>
-    <td>{$book.moderator_id}</td>
     <td>{(100 * $book.ready_annot / ($book.num_par * $smarty.const.NE_ANNOTATORS_PER_TEXT))|string_format:"%d"} %</td>
     <td>
-        {if !$book.moderator_id}
+        {if !$book.moderator_id && !$book.started}
             <button class="btn btn-small become-moderator" data-tagset-id="{$current_guideline}"
             data-book-id="{$book.id}">Стать модератором</button>
         {elseif $book.moderator_id == $smarty.session.user_id}
