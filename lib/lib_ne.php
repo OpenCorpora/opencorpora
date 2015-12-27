@@ -641,7 +641,9 @@ function is_user_book_moderator($book_id, $tagset_id) {
 }
 
 function get_paragraph_annotators($par_id, $tagset_id) {
-    return sql_pe("SELECT user_id FROM ne_paragraphs WHERE is_moderator = 0 AND par_id = ? AND tagset_id = ? AND status = ?", array($par_id, $tagset_id, NE_STATUS_FINISHED));
+    return array_map(function($u) {
+        return $u["user_id"];
+     }, sql_pe("SELECT user_id FROM ne_paragraphs WHERE is_moderator = 0 AND par_id = ? AND tagset_id = ? AND status = ?", array($par_id, $tagset_id, NE_STATUS_FINISHED)));
 }
 
 function get_all_ne_by_paragraph($par_id, $tagset_id, $group_by_mention = false) {

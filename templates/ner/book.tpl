@@ -35,7 +35,9 @@
   <div class="span8">
     <div class="buttons-container">
       <a href="/ner.php" class="btn btn-link btn-small">Вернуться к текстам</a>
-      <button class="btn btn-small btn-success ner-btn-finish-all">Сохранить всё</button>
+      {if !$is_moderator}
+        <button class="btn btn-small btn-success ner-btn-finish-all">Сохранить всё</button>
+      {/if}
     </div>
   </div>
 </div>
@@ -110,6 +112,9 @@
   <script src="/assets/js/rangy-core.js"></script>
   <script src="/assets/js/mousetrap.min.js"></script>
   <script src="/assets/js/ner.js?5"></script>
+  {/literal}{if $is_moderator}
+    <script src="/assets/js/ner-moderator.js"></script>
+  {/if}{literal}
   <script src="/assets/js/mentions.js?5"></script>
   <script src="/assets/js/ne_comments.js"></script>
 {/literal}

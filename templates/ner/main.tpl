@@ -9,8 +9,8 @@
     <span class="caret"></span>
   </button>
   <ul class="dropdown-menu">
-    {foreach $possible_guidelines as $id => $name }
-        <li {if $id == $current_guideline }class="active"{/if}>
+    {foreach $possible_guidelines as $id => $name}
+        <li {if $id == $current_guideline}class="active"{/if}>
             <a class="guideline-switch" data-guideline-id="{$id}">{$name}</a>
         </li>
     {/foreach}

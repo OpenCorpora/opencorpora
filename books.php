@@ -80,19 +80,21 @@ elseif ($action == 'ner') {
             }
 
             // если текущий пользователь - модератор, забираем разметку других пользователей
-            if (!$is_moderator) continue;
+            if (!$is_book_moderator) continue;
 
             $annotators = get_paragraph_annotators($paragraph['id'], $tagset_id);
             $paragraph['all_annotations'] = array();
 
             foreach ($annotators as $user_id) {
-                $PAR = $paragraph['all_annotations'][$user_id] = array();
+                $paragraph['all_annotations'][$user_id] = array();
+                $PAR = &$paragraph['all_annotations'][$user_id];
 
                 $ne = get_ne_by_paragraph($paragraph['id'], $user_id, $tagset_id);
                 $mentions = get_ne_by_paragraph($paragraph['id'], $user_id, $tagset_id, TRUE);
 
                 $PAR['named_entities'] = isset($ne['entities']) ? $ne['entities'] : array();
                 $PAR['mentions'] = isset($mentions['entities']) ? $mentions['entities'] : array();
+                $PAR['user_info'] = get_user_info($user_id);
 
                 $PAR['annotation_id'] = isset($ne['annot_id']) ? $ne['annot_id'] : 0;
                 $PAR['ne_by_token'] = get_ne_tokens_by_paragraph($paragraph['id'], $_SESSION['user_id'], $tagset_id);
