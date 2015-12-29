@@ -7,7 +7,7 @@ function get_current_tagset() {
     return OPTION(OPT_NE_TAGSET);
 }
 
-function get_books_with_ne($tagset_id) {
+function get_books_with_ne($tagset_id, $for_user = TRUE) {
     $total = sql_pe("
         SELECT COUNT(book_id) AS total
         FROM ne_books_tagsets
@@ -16,6 +16,7 @@ function get_books_with_ne($tagset_id) {
             SELECT par_id, COUNT(annot_id) as fin
             FROM ne_paragraphs
             WHERE tagset_id = ?
+            AND is_moderator = 0
             AND status >= ".NE_STATUS_FINISHED."
             GROUP BY par_id
             HAVING fin >= ".NE_ANNOTATORS_PER_TEXT."
@@ -26,7 +27,7 @@ function get_books_with_ne($tagset_id) {
     $out = array('books' => array(), 'ready' => sizeof($total));
 
     $res = sql_pe("
-        SELECT book_id, book_name, par_id, status, user_id
+        SELECT book_id, book_name, par_id, status, user_id, moderator_id
         FROM books
         LEFT JOIN ne_books_tagsets bs
             USING (book_id)
@@ -44,7 +45,8 @@ function get_books_with_ne($tagset_id) {
         'available' => true,
         'started' => 0,
         'all_ready' => false,
-        'unavailable_par' => 0
+        'unavailable_par' => 0,
+        'moderator_id' => 0
     );
     $last_book_id = 0;
     $last_par_id = 0;
@@ -68,9 +70,10 @@ function get_books_with_ne($tagset_id) {
         if ($r['book_id'] != $last_book_id && $last_book_id) {
             $book['all_ready'] = ($book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']);
             $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'] && $book['unavailable_par'] < $book['num_par'];
-            if ($book['available']) {
+
+            if ($book['available'] || !$for_user) {
                 $out['books'][] = $book;
-                if (sizeof($out['books']) >= NE_ACTIVE_BOOKS)
+                if ($for_user && sizeof($out['books']) >= NE_ACTIVE_BOOKS)
                     break;
             }
             $book = array(
@@ -105,6 +108,7 @@ function get_books_with_ne($tagset_id) {
 
         $book['id'] = $r['book_id'];
         $book['name'] = $r['book_name'];
+        $book['moderator_id'] = $r['moderator_id'];
         $allbooks[$book['id']] = true;
         $book['queue_num'] = sizeof($allbooks);
         $last_book_id = $r['book_id'];
@@ -116,7 +120,9 @@ function get_books_with_ne($tagset_id) {
         $book['unavailable_par'] += 1;
     $book['all_ready'] = ($book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']);
     $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'] && $book['unavailable_par'] < $book['num_par'];
-    if ($book['available'] && sizeof($out['books']) < NE_ACTIVE_BOOKS)
+
+    if (!$for_user || ($book['available'] && sizeof($out['books']) < NE_ACTIVE_BOOKS))
+        // $for_user is False when get_books_with_ne is called by moderator
         $out['books'][] = $book;
 
     // sort so that unavailable texts go last
@@ -381,6 +387,7 @@ function get_ne_paragraph_status($book_id, $user_id, $tagset_id) {
         JOIN paragraphs USING (par_id)
         WHERE book_id = ?
         AND tagset_id = ?
+        AND is_moderator = 0
         ORDER BY par_id
     ", array($book_id, $tagset_id));
 
@@ -431,7 +438,7 @@ function get_ne_paragraph_status($book_id, $user_id, $tagset_id) {
     return $out;
 }
 
-function start_ne_annotation($par_id, $tagset_id) {
+function start_ne_annotation($par_id, $tagset_id, $is_moderator = false) {
     if (!$par_id)
         throw new UnexpectedValueException();
 
@@ -450,12 +457,26 @@ function start_ne_annotation($par_id, $tagset_id) {
     ", array($user_id, $par_id, $tagset_id));
 
     if (sizeof($res) > 0)
-        throw new Exception();
+        throw new Exception("Annotation already exists");
+
+    // TODO check that this user is this book's moderator
+    if ($is_moderator) {
+        check_permission(PERM_NE_MODER);
+        $annots = sql_pe("
+            SELECT annot_id
+            FROM ne_paragraphs
+            WHERE par_id = ?
+            AND tagset_id = ?
+            AND status = ?
+        ", array($par_id, $tagset_id, NE_STATUS_FINISHED));
+        if (sizeof($annots) < NE_ANNOTATORS_PER_TEXT)
+            throw new Exception("Annotation is not yet finished");
+    }
 
     sql_pe("
         INSERT INTO ne_paragraphs
-        VALUES (NULL, ?, ?, ?, ?, ?, ?)
-    ", array($par_id, $user_id, NE_STATUS_IN_PROGRESS, time(), 0, $tagset_id));
+        VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)
+    ", array($par_id, $user_id, NE_STATUS_IN_PROGRESS, time(), 0, $tagset_id, (int)$is_moderator));
 
     return sql_insert_id();
 }
@@ -600,4 +621,62 @@ function delete_entity_mention_link($entity_id, $mention_id) {
     if (sizeof($mention) != 1)
         throw new Exception("Mention not found");
     sql_pe("DELETE FROM ne_entities_mentions WHERE entity_id = ? AND mention_id = ?", array($entity_id, $mention_id));
+}
+
+function set_ne_book_moderator($book_id, $tagset_id) {
+    check_permission(PERM_NE_MODER);
+    $book = sql_pe("SELECT book_id FROM ne_books_tagsets WHERE book_id = ? AND tagset_id = ? LIMIT 1", array($book_id, $tagset_id));
+    if (sizeof($book) < 1)
+        throw new Exception("No NE text found");
+    sql_pe("UPDATE ne_books_tagsets SET moderator_id = ? WHERE book_id = ? AND tagset_id = ?", array($_SESSION["user_id"], $book_id, $tagset_id));
+}
+
+function is_user_book_moderator($book_id, $tagset_id) {
+    // check_permission(PERM_NE_MODER);
+    $book = sql_pe("SELECT * FROM ne_books_tagsets WHERE book_id = ? AND tagset_id = ? LIMIT 1", array($book_id, $tagset_id));
+    if (sizeof($book) < 1)
+        throw new Exception("No NE text found");
+    $book = $book[0];
+    return $book["moderator_id"] == $_SESSION["user_id"];
+}
+
+function get_paragraph_annotators($par_id, $tagset_id) {
+    return array_map(function($u) {
+        return $u["user_id"];
+     }, sql_pe("SELECT user_id FROM ne_paragraphs WHERE is_moderator = 0 AND par_id = ? AND tagset_id = ? AND status = ?", array($par_id, $tagset_id, NE_STATUS_FINISHED)));
+}
+
+function get_all_ne_by_paragraph($par_id, $tagset_id, $group_by_mention = false) {
+    $users = sql_pe("SELECT user_id FROM ne_paragraphs WHERE is_moderator = 0 AND par_id = ? AND tagset_id = ? AND status = ?", array($par_id, $tagset_id, NE_STATUS_FINISHED));
+    $data = [];
+    foreach ($users as $user) {
+        $user_id = $user["user_id"];
+        $data[$user_id] = get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention);
+    }
+    return $data;
+}
+
+function copy_ne_entity($entity_id, $annot_to) {
+    $ent = sql_pe("SELECT start_token, length FROM ne_entities WHERE entity_id = ? LIMIT 1", array($entity_id));
+    if (sizeof($ent) < 1)
+        throw new Exception("Entity not found");
+    $entity = $ent[0];
+    sql_pe("INSERT INTO ne_entities (annot_id, start_token, length, updated_ts) VALUES (?, ?, ?, ?)", array($annot_to, $entity["start_token"], $entity["length"], time()));
+    return sql_insert_id();
+}
+
+function copy_ne_mention($mention_id, $annot_to) {
+    $men = sql_pe("SELECT * FROM ne_mentions WHERE mention_id = ? LIMIT 1", array($mention_id));
+    if (sizeof($men) < 1)
+        throw new Exception("Mention not found");
+    sql_begin();
+    sql_pe("INSERT INTO ne_mentions (object_id, object_type_id) VALUES (?, ?)", array($men[0]["object_id"], $men[0]["object_type_id"]));
+    $new_mention_id = sql_insert_id();
+    $ent = sql_pe("SELECT entity_id, start_token, length FROM ne_entities_mentions LEFT JOIN ne_entities USING (entity_id) WHERE mention_id = ?", array($mention_id));
+    foreach ($ent as $entity) {
+        sql_pe("INSERT INTO ne_entities (annot_id, start_token, length, update_ts) VALUES(?, ?, ?, ?)", array($annot_to, $entity["start_token"], $entity["length"], time()));
+        $ent_id = sql_insert_id();
+        sql_pe("INSERT INTO ne_entities_mentions VALUES (?, ?)", array($ent_id, $new_annot_id));
+    }
+    sql_commit();
 }

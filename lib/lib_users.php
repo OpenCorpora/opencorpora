@@ -376,6 +376,10 @@ function get_user_permissions($user_id) {
 
     return $out;
 }
+function get_users_by_permission($group_id) {
+    $users = sql_pe("SELECT user_id, user_shown_name, user_level FROM user_groups LEFT JOIN users USING (user_id) WHERE group_id = ? ORDER BY user_shown_name", array($group_id));
+    return $users;
+}
 function save_user_option($option_id, $value) {
     if (!$option_id)
         throw new UnexpectedValueException();

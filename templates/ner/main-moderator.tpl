@@ -17,6 +17,14 @@
   </ul>
 </div>
 </h3>
+
+<div class='alert alert-info'>
+  <div class="container">
+    Вы состоите в группе модераторов NE. Вам виден список готовых текстов,
+    <b>которые вы еще не размечали</b>.
+  </div>
+</div>
+
 <table class='table'>
 <tr class='small'>
     <th>#</th>
@@ -25,26 +33,23 @@
     <th>Всего готово: {$page.ready}</th>
 </tr>
 {foreach from=$page.books item=book}
-
-<tr class="{if $book.started and $book.available}warning
-           {elseif $book.started and !$book.available}success
-           {elseif !$book.started and !$book.available}error
-           {else}{/if}">
+{if $book.all_ready &&
+  ((!$book.moderator_id && !$book.started) ||
+  $book.moderator_id == $smarty.session.user_id)}
+<tr>
     <td>{$book.queue_num}</td>
     <td>{$book.num_par}</td>
     <td>{(100 * $book.ready_annot / ($book.num_par * $smarty.const.NE_ANNOTATORS_PER_TEXT))|string_format:"%d"} %</td>
     <td>
-      {if $book.started and $book.available}
-          <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small btn-primary">Продолжить</a>
-      {elseif $book.available and !$book.started}
-          <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small">Размечать</a>
-      {elseif !$book.available and !$book.started}
-          <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small" disabled>Размечать</a>
-      {else}
-          <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small"><i class="icon-ok"></i> Просмотреть</a>
-      {/if}
+        {if !$book.moderator_id && !$book.started}
+            <button class="btn btn-small become-moderator" data-tagset-id="{$current_guideline}"
+            data-book-id="{$book.id}">Стать модератором</button>
+        {elseif $book.moderator_id == $smarty.session.user_id}
+            <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small  btn-primary">Модерировать</a>
+        {/if}
     </td>
 </tr>
+{/if}
 {/foreach}
 </table>
 {/block}
@@ -55,9 +60,22 @@
 $(document).ready(function() {
     $(".guideline-switch").click(function() {
         var id = $(this).attr("data-guideline-id");
-        $.post('/ajax/set_option.php', {option: 6, value: id});
-        document.location.reload();
+        $.post('/ajax/set_option.php', {option: 6, value: id}, function() {
+          document.location.reload();
+        });
     });
+
+    $(".become-moderator").click(function() {
+      var tagset_id = $(this).attr("data-tagset-id");
+      var book_id = $(this).attr("data-book-id");
+      $.post('/ajax/ner.php', {
+        act: "becomeModerator",
+        tagset_id: tagset_id,
+        book_id: book_id
+      }, function() {
+        document.location.reload();
+      });
+    })
 });
 </script>
 {/literal}

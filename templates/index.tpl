@@ -11,6 +11,39 @@
 {if !$is_admin}
     <h2>Как я могу помочь прямо сейчас?</h2>
     <ul>
+    <li>принять участие в <a href="./ner.php">разметке именованных сущностей</a>
+        (см. <b><a href="ner.php?act=manual&id={$ner_tagset_id}" target="_blank">инструкцию</a></b>)</li>
+    {if $is_logged}
+    <table class="table"  style="width:800px; margin-top:7px;">
+    <tr>
+        <th>Текст</th>
+        <th>Абзацев</th>
+        <th>Готовность</th>
+        <th>Всего готово: {$ner_tasks.ready}</th>
+    </tr>
+    {foreach from=array_slice($ner_tasks.books, 0, 3) item=book}
+    <tr class="{if $book.started and $book.available}warning
+               {elseif $book.started and !$book.available}success
+               {elseif !$book.started and !$book.available}error
+               {else}{/if}">
+        <td>{$book.queue_num}</td>
+        <td>{$book.num_par}</td>
+        <td>{(100 * $book.ready_annot / ($book.num_par * $smarty.const.NE_ANNOTATORS_PER_TEXT))|string_format:"%d"} %</td>
+        <td>
+            {if $book.started and $book.available}
+                <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small btn-primary">Продолжить</a>
+            {elseif $book.available and !$book.started}
+                <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small">Размечать</a>
+            {elseif !$book.available and !$book.started}
+                <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small" disabled>Размечать</a>
+            {else}
+                <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small"><i class="icon-ok"></i> Просмотреть</a>
+            {/if}
+        </td>
+    </tr>
+    {/foreach}
+    </table>
+    {/if}
     <li>
         принять участие в снятии морфологической неоднозначности {if $is_logged}(см. <b><a href="manual.php">руководство</a></b>, <a href="tasks.php">задания</a>):{else}(<a href="/login.php">зарегистрируйтесь</a>, чтобы получить доступ к заданиям, а также прочтите <a href="/manual.php">руководство</a>){/if}
         <div>(всего мы получили уже <b>больше {($answer_count / 1000000)|string_format:"%.2f"} млн</b> ответов)</div>

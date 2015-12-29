@@ -1619,6 +1619,11 @@ tr.valign-top td {
     top: -18px;
 }
 
+.dragged-upper {
+    position: relative;
+    top: -27px;
+}
+
 .mentions-current-selection {
     background-color: plum;
     color: white;
