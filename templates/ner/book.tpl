@@ -15,9 +15,9 @@
   {if isset($book.paragraphs)}
     {foreach name=b key=num item=paragraph from=$book.paragraphs}
       {if $is_moderator}
-        {include file="ner/_partials/paragraph-moderator.tpl" num=$num paragraph=$paragraph name=$name}
+        {include file="ner/_partials/paragraph-moderator.tpl" num=$num paragraph=$paragraph name=$b}
       {else}
-        {include file="ner/_partials/paragraph.tpl" num=$num paragraph=$paragraph name=$name}
+        {include file="ner/_partials/paragraph.tpl" num=$num paragraph=$paragraph name=$b}
       {/if}
     {/foreach}
     <script type="text/javascript">

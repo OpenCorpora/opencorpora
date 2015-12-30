@@ -94,7 +94,7 @@ elseif ($action == 'ner') {
 
                 $PAR['named_entities'] = isset($ne['entities']) ? $ne['entities'] : array();
                 $PAR['mentions'] = isset($mentions['entities']) ? $mentions['entities'] : array();
-                $PAR['user_info'] = get_user_info($user_id);
+                $PAR['user_shown_name'] = get_user_shown_name($user_id);
 
                 $PAR['annotation_id'] = isset($ne['annot_id']) ? $ne['annot_id'] : 0;
                 $PAR['ne_by_token'] = get_ne_tokens_by_paragraph($paragraph['id'], $_SESSION['user_id'], $tagset_id);
