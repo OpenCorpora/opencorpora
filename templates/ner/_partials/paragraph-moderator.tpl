@@ -2,7 +2,7 @@
   <ul class="nav nav-tabs small-tabs">
     <li class="active"><a href="#annotation-layer-moderator-{$paragraph.id}" data-toggle="tab">Моя разметка</a></li>
     {foreach $paragraph.all_annotations as $uid => $his_annotation}
-    <li><a href="#annotation-layer-{$uid}-{$paragraph.id}" data-toggle="tab" class="tab-opener upper-tab-nav" data-user-id="{$uid}">{$his_annotation.user_info.shown_name}</a></li>
+    <li><a href="#annotation-layer-{$uid}-{$paragraph.id}" data-toggle="tab" class="tab-opener upper-tab-nav" data-user-id="{$uid}">{$his_annotation.user_shown_name}</a></li>
     {/foreach}
   </ul>
   <div class="tab-content">
