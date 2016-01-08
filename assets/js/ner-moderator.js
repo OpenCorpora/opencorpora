@@ -73,7 +73,49 @@ $(document).ready(function() {
       annot_id: annot_id,
       entity_id: btn.attr("data-entity-id")
     }, function(response) {
-      console.log(response);
+      var new_entity_id = response.id;
+      var par_id = response.paragraph_id;
+      var $paragraph = $(".moderator-paragraph-wrap > .ner-paragraph")
+        .filterByAttr("data-par-id", par_id);
+
+      var entity_tag_ids = response.tag_ids;
+      var entity_text = $.map(response.tokens_info, function(t) {
+        return t[1];
+      }).join(" ");
+
+      var token_ids = $.map(response.tokens_info, function(t) {
+        return t[0];
+      });
+
+      // there are many ner-table's, but only one with data-par-id (mine)
+      var t = $('table.ner-table').filterByAttr('data-par-id', par_id);
+
+      var typestr;
+      if (entity_tag_ids.length == 1) {
+          typestr = 'border-bottom-palette-' + ENTITY_TYPES[entity_tag_ids[0]]['color'];
+      } else {
+          typestr = 'ner-multiple-types';
+      }
+
+      $.each(PARAGRAPHS, function(i, par) {
+        if (par.id != par_id) return;
+        PARAGRAPHS[i].named_entities.push({
+          tokens: token_ids,
+          tags: $.map(entity_tag_ids, function(n) { return [[n, ENTITY_TYPES[n]['name']]]; }),
+          id: new_entity_id
+        });
+        highlightEntitiesInParagraph(PARAGRAPHS[i], $paragraph);
+      });
+
+      var tr = $('.templates').find('.tr-template').clone().removeClass('tr-template');
+      tr.add(tr.find('.remove-entity')).add(tr.find('.selectpicker-tpl')).attr('data-entity-id', response.id);
+      tr.find('.selectpicker-tpl').find('option').each(function(i, o) {
+          if (entity_tag_ids.indexOf(parseInt($(o).text())) != -1) $(o).attr('selected', true);
+      });
+
+      tr.find('.selectpicker-tpl').removeClass('selectpicker-tpl').addClass('selectpicker').selectpicker();
+      tr.find('.ner-entity-text-wrap').text(entity_text);
+      t.append(tr);
     });
 
   });
