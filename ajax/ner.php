@@ -92,10 +92,23 @@ try {
             $result = array_merge($result, get_ne_entity_info($result['id']));
             break;
 
+        case 'copyAllEntities':
+            if (empty($_POST['annot_from'])
+                or empty($_POST['annot_to'])) throw new Exception("one of annot ids missing");
+            copy_all_entities($_POST['annot_from'], $_POST['annot_to']);
+            break;
+
         case 'copyMention':
             if (empty($_POST['mention_id'])
                 or empty($_POST['annot_id'])) throw new Exception("mention_id or annot_id missing");
             $result['id'] = copy_ne_mention((int)$_POST['mention_id'], (int)$_POST['annot_id']);
+            break;
+
+        case 'copyAll':
+            // copy mentions and entities not in mentions
+            if (empty($_POST['annot_from'])
+                or empty($_POST['annot_to'])) throw new Exception("one of annot ids missing");
+            copy_all_mentions_and_entities($_POST['annot_from'], $_POST['annot_to']);
             break;
 
         case 'logEvent':

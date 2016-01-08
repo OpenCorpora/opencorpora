@@ -706,6 +706,16 @@ function copy_ne_entity($entity_id, $annot_to) {
     return $new_ent_id;
 }
 
+function copy_all_entities($annot_from, $annot_to) {
+    // doesn't copy mentions!
+    $res = sql_pe("SELECT entity_id FROM ne_entities WHERE annot_id = ?", array($annot_from));
+    sql_begin();
+    foreach ($res as $e) {
+        copy_ne_entity($e['entity_id'], $annot_to);
+    }
+    sql_commit();
+}
+
 function copy_ne_mention($mention_id, $annot_to) {
     $men = sql_pe("SELECT * FROM ne_mentions WHERE mention_id = ? LIMIT 1", array($mention_id));
     if (sizeof($men) < 1)
@@ -713,12 +723,42 @@ function copy_ne_mention($mention_id, $annot_to) {
     sql_begin();
     sql_pe("INSERT INTO ne_mentions (object_id, object_type_id) VALUES (?, ?)", array($men[0]["object_id"], $men[0]["object_type_id"]));
     $new_mention_id = sql_insert_id();
-    $ent = sql_pe("SELECT entity_id, start_token, length FROM ne_entities_mentions LEFT JOIN ne_entities USING (entity_id) WHERE mention_id = ?", array($mention_id));
+    $ent = sql_pe("SELECT entity_id FROM ne_entities_mentions WHERE mention_id = ?", array($mention_id));
     foreach ($ent as $entity) {
-        sql_pe("INSERT INTO ne_entities (annot_id, start_token, length, update_ts) VALUES(?, ?, ?, ?)", array($annot_to, $entity["start_token"], $entity["length"], time()));
-        $ent_id = sql_insert_id();
+        $ent_id = copy_ne_entity($entity['entity_id'], $annot_to);
         sql_pe("INSERT INTO ne_entities_mentions VALUES (?, ?)", array($ent_id, $new_mention_id));
     }
     sql_commit();
     return $new_mention_id;
+}
+
+function copy_all_mentions_and_entities($annot_from, $annot_to) {
+    sql_begin();
+    // copy mentions
+    $res = sql_pe("
+        SELECT DISTINCT mention_id
+        FROM ne_entities_mentions
+        LEFT JOIN ne_entities USING (entity_id)
+        WHERE annot_id = ?
+    ", array($annot_from));
+    foreach ($res as $m) {
+        copy_ne_mention($m['mention_id'], $annot_to);
+    }
+    // copy entities not linked to mentions
+    $res = sql_pe("
+        SELECT entity_id
+        FROM ne_entities
+        WHERE annot_id = ?
+        AND entity_id NOT IN (
+            SELECT entity_id
+            FROM ne_entities_mentions
+            LEFT JOIN ne_entities USING (entity_id)
+            WHERE annot_id = ?
+        )
+    ", array($annot_from, $annot_from));
+    foreach ($res as $e) {
+        copy_ne_entity($e['entity_id'], $annot_to);
+    }
+
+    sql_commit();
 }
