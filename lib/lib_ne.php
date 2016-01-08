@@ -717,7 +717,7 @@ function copy_ne_mention($mention_id, $annot_to) {
     foreach ($ent as $entity) {
         sql_pe("INSERT INTO ne_entities (annot_id, start_token, length, update_ts) VALUES(?, ?, ?, ?)", array($annot_to, $entity["start_token"], $entity["length"], time()));
         $ent_id = sql_insert_id();
-        sql_pe("INSERT INTO ne_entities_mentions VALUES (?, ?)", array($ent_id, $new_annot_id));
+        sql_pe("INSERT INTO ne_entities_mentions VALUES (?, ?)", array($ent_id, $new_mention_id));
     }
     sql_commit();
     return $new_mention_id;
