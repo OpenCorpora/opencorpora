@@ -328,11 +328,13 @@ function get_user_info($user_id) {
         $type['answers_in_ready_pools'] += $r['ready'];
         $last_type = $r['type_id'];
     }
-    $annot[] = $type;
-    $user['total_answers'] += $type['total_answers'];
-    $user['checked_answers'] += $type['checked_answers'];
-    $user['incorrect_answers'] += $type['incorrect_answers'];
-    $user['answers_in_ready_pools'] += $type['answers_in_ready_pools'];
+    if (!empty($type)) {
+        $annot[] = $type;
+        $user['total_answers'] += $type['total_answers'];
+        $user['checked_answers'] += $type['checked_answers'];
+        $user['incorrect_answers'] += $type['incorrect_answers'];
+        $user['answers_in_ready_pools'] += $type['answers_in_ready_pools'];
+    }
 
     $user['annot'] = $annot;
     return $user;
