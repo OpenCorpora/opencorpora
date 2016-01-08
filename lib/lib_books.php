@@ -47,7 +47,7 @@ function check_book_hidden($book_id) {
     if (!$res[0]['ts'])
         return;
     $last_edit = $res[0]['ts'];
-    if (!is_admin() && $book_id >= $config['misc']['hidden_books_start_id'] && (time() - $last_edit > SEC_PER_DAY))
+    if (!user_has_permission(PERM_CHECK_TOKENS) && $book_id >= $config['misc']['hidden_books_start_id'] && (time() - $last_edit > SEC_PER_DAY * 7))
         throw new Exception("Sorry, this book is temporarily hidden");
 }
 function get_book_page($book_id, $full = false) {

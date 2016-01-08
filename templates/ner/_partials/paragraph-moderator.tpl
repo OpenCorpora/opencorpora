@@ -2,7 +2,7 @@
   <ul class="nav nav-tabs small-tabs">
     <li class="active"><a href="#annotation-layer-moderator-{$paragraph.id}" data-toggle="tab">Моя разметка</a></li>
     {foreach $paragraph.all_annotations as $uid => $his_annotation}
-    <li><a href="#annotation-layer-{$uid}-{$paragraph.id}" data-toggle="tab" class="tab-opener upper-tab-nav" data-user-id="{$uid}">{$his_annotation.user_shown_name}
+    <li><a href="#annotation-layer-{$uid}-{$paragraph.id}" data-toggle="tab" class="tab-opener upper-tab-nav" data-user-id="{$uid}">{$his_annotation.user_shown_name|truncate:18:'..':true:true}
         (<b title="спанов">{count($his_annotation.named_entities)}</b> |
         <b title="упоминаний">{count($his_annotation.mentions)}</b>)
       </a></li>
