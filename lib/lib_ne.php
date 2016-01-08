@@ -586,7 +586,7 @@ function add_mention($entity_ids, $object_type) {
         throw new Exception("Not valid object type");
 
     sql_begin();
-    sql_pe("INSERT INTO ne_mentions SET object_type_id = ?", array($object_type));
+    sql_pe("INSERT INTO ne_mentions SET object_id = 0, object_type_id = ?", array($object_type));
     $mention_id = sql_insert_id();
     $vals = array();
     foreach ($entities as $ent)
