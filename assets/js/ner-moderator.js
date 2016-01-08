@@ -78,7 +78,10 @@ $(document).ready(function() {
       var $paragraph = $(".moderator-paragraph-wrap > .ner-paragraph")
         .filterByAttr("data-par-id", par_id);
 
-      var entity_tag_ids = response.tag_ids;
+      var entity_tag_ids = $.map(response.tag_ids, function(id) {
+        return parseInt(id);
+      });
+
       var entity_text = $.map(response.tokens_info, function(t) {
         return t[1];
       }).join(" ");
