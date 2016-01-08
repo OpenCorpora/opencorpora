@@ -85,6 +85,17 @@ try {
             set_ne_book_moderator((int)$_POST['book_id'], (int)$_POST['tagset_id']);
             break;
 
+        case 'copyEntity':
+            if (empty($_POST['entity_id'])
+                or empty($_POST['annot_id'])) throw new Exception("entity_id or annot_id missing");
+            $result['id'] = copy_ne_entity((int)$_POST['entity_id'], (int)$_POST['annot_id']);
+            break;
+
+        case 'copyMention':
+            if (empty($_POST['mention_id'])
+                or empty($_POST['annot_id'])) throw new Exception("mention_id or annot_id missing");
+            $result['id'] = copy_ne_mention((int)$_POST['mention_id'], (int)$_POST['annot_id']);
+            break;
 
         case 'logEvent':
             if (empty($_POST['id'])) throw new Exception();

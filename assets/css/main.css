@@ -1662,3 +1662,7 @@ tr.valign-top td {
 .ner-row-mine .comment-marker {
     display: block;
 }
+
+.icon-magnet:hover {
+    cursor: pointer;
+}

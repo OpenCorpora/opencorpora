@@ -62,4 +62,20 @@ $(document).ready(function() {
     par.data("already-highlighted", true);
   });
 
+  $(".copy-entity").on("click", function() {
+    var btn = $(this);
+    var $mod_paragraph = btn.parents(".tabbable").find(".moderator-paragraph-wrap");
+    var annot_id = $mod_paragraph.attr("data-annotation-id");
+
+    if (!annot_id) return notify("Модераторская разметка абзаца ещё не открыта.", "warning");
+    $.post('/ajax/ner.php', {
+      act: 'copyEntity',
+      annot_id: annot_id,
+      entity_id: btn.attr("data-entity-id")
+    }, function(response) {
+      console.log(response);
+    });
+
+  });
+
 });
