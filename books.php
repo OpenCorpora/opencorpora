@@ -127,6 +127,7 @@ else {
                 header("Location:books.php?book_id=$book_id");
             else
                 header("Location:books.php?book_id=$book_parent");
+            break;
         case 'rename':
             $name = trim($_POST['new_name']);
             $book_id = $_POST['book_id'];

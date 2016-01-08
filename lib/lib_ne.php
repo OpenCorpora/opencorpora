@@ -679,4 +679,5 @@ function copy_ne_mention($mention_id, $annot_to) {
         sql_pe("INSERT INTO ne_entities_mentions VALUES (?, ?)", array($ent_id, $new_annot_id));
     }
     sql_commit();
+    return $new_mention_id;
 }

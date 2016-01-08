@@ -39,7 +39,7 @@
 <tr>
     <td>{$book.queue_num}</td>
     <td>{$book.num_par}</td>
-    <td>{(100 * $book.ready_annot / ($book.num_par * $smarty.const.NE_ANNOTATORS_PER_TEXT))|string_format:"%d"} %</td>
+    <td>{if $book.num_par}{(100 * $book.ready_annot / ($book.num_par * $smarty.const.NE_ANNOTATORS_PER_TEXT))|string_format:"%d"} %{else}EMPTY{/if}</td>
     <td>
         {if !$book.moderator_id && !$book.started}
             <button class="btn btn-small become-moderator" data-tagset-id="{$current_guideline}"
