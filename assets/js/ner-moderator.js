@@ -123,4 +123,17 @@ $(document).ready(function() {
 
   });
 
+$(".copy-mention").on("click", function() {
+  var btn = $(this);
+  var $mod_paragraph = btn.parents(".tabbable").find(".moderator-paragraph-wrap");
+  var annot_id = $mod_paragraph.attr("data-annotation-id");
+
+  if (!annot_id) return notify("Модераторская разметка абзаца ещё не открыта.", "warning");
+  $.post('/ajax/ner.php', {
+    act: 'copyMention',
+    annot_id: annot_id,
+    mention_id: btn.attr("data-mention-id")
+  }, function(response) {
+    if (response.id) window.location.reload();
+  });
 });
