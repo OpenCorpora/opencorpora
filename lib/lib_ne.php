@@ -201,6 +201,50 @@ function group_entities_by_mention($entities) {
     return $new;
 }
 
+function get_ne_entity_tags($entity_id) {
+    static $tag_res = NULL;
+
+    if ($tag_res == NULL) {
+        $tag_res = sql_prepare("
+            SELECT tag_id, tag_name
+            FROM ne_entity_tags
+            JOIN ne_tags USING (tag_id)
+            WHERE entity_id = ?
+        ");
+    }
+
+    sql_execute($tag_res, array($entity_id));
+
+    $out = array();
+    while ($r = sql_fetch_array($tag_res))
+        $out[] = array('id' => $r['tag_id'], 'name' => $r['tag_name']);
+
+    return $out;
+}
+
+function get_ne_entity_info($entity_id) {
+    $out = array('tag_ids' => array());
+
+    foreach (get_ne_entity_tags($entity_id) as $tag)
+        $out['tag_ids'][] = $tag['id'];
+
+    $res = sql_pe("
+        SELECT par_id, start_token, length
+        FROM ne_entities
+            JOIN ne_paragraphs USING (annot_id)
+        WHERE entity_id=? LIMIT 1
+    ", array($entity_id));
+
+    if (!sizeof($res))
+        throw new Exception();
+
+    $out['paragraph_id'] = $res[0]['par_id'];
+
+    $out['tokens_info'] = get_ne_entity_tokens_info($res[0]['start_token'], $res[0]['length']);
+
+    return $out;
+}
+
 function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = false) {
     if (!$user_id)
         throw new UnexpectedValueException();
@@ -231,12 +275,6 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
             USING (mention_id)
         WHERE annot_id=".$out['annot_id']
     );
-    $tag_res = sql_prepare("
-        SELECT tag_id, tag_name
-        FROM ne_entity_tags
-        JOIN ne_tags USING (tag_id)
-        WHERE entity_id = ?
-    ");
 
     while ($r = sql_fetch_array($res)) {
         $eid = $r['entity_id'];
@@ -262,16 +300,15 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
             $entity['mention_types'] = array();
         }
 
-        sql_execute($tag_res, array($eid));
-        while ($r1 = sql_fetch_array($tag_res)) {
-            $entity['tags'][] = array($r1['tag_id'], $r1['tag_name']);
-            $entity['tag_ids'][] = $r1['tag_id'];
+        $tags = get_ne_entity_tags($eid);
+        foreach ($tags as $tag) {
+            $entity['tags'][] = array($tag['id'], $tag['name']);
+            $entity['tag_ids'][] = $tag['id'];
         }
         // TODO check that tags belong to the correct tagset
 
         $out['entities'][$eid] = $entity;
     }
-    $tag_res->closeCursor();
 
     // add token info
     foreach ($out['entities'] as &$entity) {

@@ -89,6 +89,7 @@ try {
             if (empty($_POST['entity_id'])
                 or empty($_POST['annot_id'])) throw new Exception("entity_id or annot_id missing");
             $result['id'] = copy_ne_entity((int)$_POST['entity_id'], (int)$_POST['annot_id']);
+            $result = array_merge($result, get_ne_entity_info($result['id']));
             break;
 
         case 'copyMention':
