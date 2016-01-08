@@ -661,8 +661,12 @@ function copy_ne_entity($entity_id, $annot_to) {
     if (sizeof($ent) < 1)
         throw new Exception("Entity not found");
     $entity = $ent[0];
+    sql_begin();
     sql_pe("INSERT INTO ne_entities (annot_id, start_token, length, updated_ts) VALUES (?, ?, ?, ?)", array($annot_to, $entity["start_token"], $entity["length"], time()));
-    return sql_insert_id();
+    $new_ent_id = sql_insert_id();
+    sql_pe("INSERT INTO ne_entity_tags (SELECT $new_ent_id, tag_id FROM ne_entity_tags WHERE entity_id = ?)", array($entity_id));
+    sql_commit();
+    return $new_ent_id;
 }
 
 function copy_ne_mention($mention_id, $annot_to) {
