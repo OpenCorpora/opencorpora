@@ -138,4 +138,39 @@ $(document).ready(function() {
     });
 
   });
+
+  $(".copy-all-entities").on("click", function() {
+    var btn = $(this);
+    var $mod_paragraph = btn.parents(".tabbable").find(".moderator-paragraph-wrap");
+    var annot_id = $mod_paragraph.attr("data-annotation-id");
+    var his_annot_id = btn.attr("data-his-annot-id");
+
+    if (!annot_id) return notify("Модераторская разметка абзаца ещё не открыта.", "warning");
+    $.post('/ajax/ner.php', {
+      act: 'copyAllEntities',
+      annot_to: annot_id,
+      annot_from: his_annot_id,
+    }, function(response) {
+      if (!response.error) window.location.reload();
+    });
+
+  });
+
+  $(".copy-all").on("click", function() {
+    var btn = $(this);
+    var $mod_paragraph = btn.parents(".tabbable").find(".moderator-paragraph-wrap");
+    var annot_id = $mod_paragraph.attr("data-annotation-id");
+    var his_annot_id = btn.attr("data-his-annot-id");
+
+    if (!annot_id) return notify("Модераторская разметка абзаца ещё не открыта.", "warning");
+    $.post('/ajax/ner.php', {
+      act: 'copyAll',
+      annot_to: annot_id,
+      annot_from: his_annot_id
+    }, function(response) {
+      if (!response.error) window.location.reload();
+    });
+
+  });
+
 });
