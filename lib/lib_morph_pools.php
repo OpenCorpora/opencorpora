@@ -538,8 +538,10 @@ function promote_samples($pool_type, $choice_type, $pool_size, $pools_num, $auth
     sql_commit();
     return $created_pool_ids;
 }
-function publish_pool($pool_id) {
-    check_permission(PERM_MORPH_MODER);
+function publish_pool($pool_id, $skip_perm_check = false) {
+    if (!$skip_perm_check)
+        check_permission(PERM_MORPH_MODER);
+
     if (!$pool_id)
         throw new UnexpectedValueException();
 
@@ -576,7 +578,7 @@ function make_and_publish_pools() {
         // create and publish pools
         $pool_ids = promote_samples($r['pool_type'], 'random', MA_DEFAULT_POOL_SIZE, $n_pools, 0);
         foreach ($pool_ids as $pid)
-            publish_pool($pid);
+            publish_pool($pid, true);
     }
     sql_commit();
 }
