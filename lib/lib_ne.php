@@ -762,3 +762,14 @@ function copy_all_mentions_and_entities($annot_from, $annot_to) {
 
     sql_commit();
 }
+
+function set_object_property($object_id, $prop_id, $prop_val) {
+    if (sizeof(sql_pe("SELECT object_id FROM ne_objects WHERE object_id = ?", array($object_id))) < 1)
+        throw new Exception("Object not found");
+    if (sizeof(sql_pe("SELECT prop_id FROM ne_object_props WHERE prop_id = ?", array($prop_id))) < 1)
+        throw new Exception("Property not found");
+    sql_begin();
+    sql_pe("DELETE FROM ne_object_prop_vals WHERE object_id = ? AND prop_id = ?", array($object_id, $prop_id));
+    sql_pe("INSERT INTO ne_object_prop_vals VALUES (?, ?, ?)", array($object_id, $prop_id, $prop_val));
+    sql_commit();
+}
