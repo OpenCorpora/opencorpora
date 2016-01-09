@@ -77,9 +77,9 @@ ner-row-disabled">
       </div>
     </div>
     <div class="buttons-wrap">
-      <button class="btn btn-mini copy-all-entities" data-his-annot-id="{$paragraph.annotation_id}">
+      <button class="btn btn-mini copy-all-entities" data-his-annot-id="{$his_paragraph.annotation_id}">
         <i class="icon icon-magnet"></i> Все спаны</button>
-      <button class="btn btn-mini copy-all" data-his-annot-id="{$paragraph.annotation_id}">
+      <button class="btn btn-mini copy-all" data-his-annot-id="{$his_paragraph.annotation_id}">
         <i class="icon icon-magnet"></i> Все спаны +  упоминания</button>
     </div>
   </div>
