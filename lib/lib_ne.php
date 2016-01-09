@@ -669,7 +669,6 @@ function set_ne_book_moderator($book_id, $tagset_id) {
 }
 
 function is_user_book_moderator($book_id, $tagset_id) {
-    // check_permission(PERM_NE_MODER);
     $book = sql_pe("SELECT * FROM ne_books_tagsets WHERE book_id = ? AND tagset_id = ? LIMIT 1", array($book_id, $tagset_id));
     if (sizeof($book) < 1)
         throw new Exception("No NE text found");
@@ -761,6 +760,40 @@ function copy_all_mentions_and_entities($annot_from, $annot_to) {
     }
 
     sql_commit();
+}
+
+function link_mention_to_object($mention_id, $object_id) {
+    // note: to unlink pass (mention_id, 0)
+    sql_pe("UPDATE ne_mentions SET object_id = ? WHERE mention_id = ? LIMIT 1", array($object_id, $mention_id));
+}
+
+function create_object_from_mention($mention_id) {
+    $res = sql_pe("
+        SELECT book_id
+        FROM ne_entities_mentions
+        LEFT JOIN ne_entities USING (entity_id)
+        LEFT JOIN ne_paragraphs USING (annot_id)
+        LEFT JOIN paragraphs USING (par_id)
+        WHERE mention_id = ?
+    ", array($mention_id));
+    if (sizeof($res) != 1)
+        throw new Exception("Cannot deduce book id for object");
+
+    sql_begin();
+    sql_pe("INSERT INTO ne_objects VALUES (NULL, ?, '', 0)", array($res[0]['book_id']));
+    $oid = sql_insert_id();
+    link_mention_to_object($mention_id, $oid);
+    sql_commit();
+    return $oid;
+}
+
+function delete_object($object_id) {
+    // note: object with existing mentions will not be deleted
+    $res = sql_pe("SELECT * FROM ne_mentions WHERE object_id = ? LIMIT 1", array($object_id));
+    if (sizeof($res) > 0)
+        throw new Exception("Cannot delete object with mentions");
+
+    sql_pe("DELETE FROM ne_objects WHERE object_id = ? LIMIT 1", array($object_id));
 }
 
 function set_object_property($object_id, $prop_id, $prop_val) {
