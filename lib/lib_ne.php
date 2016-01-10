@@ -201,7 +201,7 @@ function group_entities_by_mention($entities) {
     return $new;
 }
 
-function get_ne_entity_tags($entity_id) {
+function get_ne_entity_tags($entity_id, $only_ids = false) {
     static $tag_res = NULL;
 
     if ($tag_res == NULL) {
@@ -210,23 +210,26 @@ function get_ne_entity_tags($entity_id) {
             FROM ne_entity_tags
             JOIN ne_tags USING (tag_id)
             WHERE entity_id = ?
+            ORDER BY tag_id
         ");
     }
 
     sql_execute($tag_res, array($entity_id));
 
     $out = array();
-    while ($r = sql_fetch_array($tag_res))
-        $out[] = array('id' => $r['tag_id'], 'name' => $r['tag_name']);
+    while ($r = sql_fetch_array($tag_res)) {
+        if ($only_ids)
+            $out[] = $r['tag_id'];
+        else
+            $out[] = array('id' => $r['tag_id'], 'name' => $r['tag_name']);
+    }
 
     return $out;
 }
 
 function get_ne_entity_info($entity_id) {
-    $out = array('tag_ids' => array());
-
-    foreach (get_ne_entity_tags($entity_id) as $tag)
-        $out['tag_ids'][] = $tag['id'];
+    $out = array();
+    $out['tag_ids'] = get_ne_entity_tags($entity_id, true);
 
     $res = sql_pe("
         SELECT par_id, start_token, length
@@ -692,11 +695,43 @@ function get_all_ne_by_paragraph($par_id, $tagset_id, $group_by_mention = false)
     return $data;
 }
 
-function copy_ne_entity($entity_id, $annot_to) {
+function find_ne_entity($annot_id, $e_id, $e_start_token, $e_length) {
+    static $res = null;
+
+    if ($res == null) {
+        $res = sql_prepare("
+            SELECT entity_id
+            FROM ne_entities
+            WHERE annot_id = ?
+            AND start_token = ?
+            AND length = ?
+        ");
+    }
+
+    sql_execute($res, array($annot_id, $e_start_token, $e_length));
+    if (sql_num_rows($res) == 0)
+        return false;
+
+    // check tags
+    $r = sql_fetchall($res);
+    $found_id = $r[0]['entity_id'];
+
+    $tags1 = get_ne_entity_tags($e_id, true);
+    $tags2 = get_ne_entity_tags($found_id, true);
+    if ($tags1 == $tags2)
+        return $found_id;
+    return false;
+}
+
+function try_copy_ne_entity($entity_id, $annot_to) {
+    // if the same entity exists at destination returns its id
     $ent = sql_pe("SELECT start_token, length FROM ne_entities WHERE entity_id = ? LIMIT 1", array($entity_id));
     if (sizeof($ent) < 1)
         throw new Exception("Entity not found");
     $entity = $ent[0];
+    if ($eid = find_ne_entity($annot_to, $entity_id, $entity['start_token'], $entity['length'])) {
+        return $eid;
+    }
     sql_begin();
     sql_pe("INSERT INTO ne_entities (annot_id, start_token, length, updated_ts) VALUES (?, ?, ?, ?)", array($annot_to, $entity["start_token"], $entity["length"], time()));
     $new_ent_id = sql_insert_id();
@@ -710,7 +745,7 @@ function copy_all_entities($annot_from, $annot_to) {
     $res = sql_pe("SELECT entity_id FROM ne_entities WHERE annot_id = ?", array($annot_from));
     sql_begin();
     foreach ($res as $e) {
-        copy_ne_entity($e['entity_id'], $annot_to);
+        try_copy_ne_entity($e['entity_id'], $annot_to);
     }
     sql_commit();
 }
@@ -724,7 +759,7 @@ function copy_ne_mention($mention_id, $annot_to) {
     $new_mention_id = sql_insert_id();
     $ent = sql_pe("SELECT entity_id FROM ne_entities_mentions WHERE mention_id = ?", array($mention_id));
     foreach ($ent as $entity) {
-        $ent_id = copy_ne_entity($entity['entity_id'], $annot_to);
+        $ent_id = try_copy_ne_entity($entity['entity_id'], $annot_to);
         sql_pe("INSERT INTO ne_entities_mentions VALUES (?, ?)", array($ent_id, $new_mention_id));
     }
     sql_commit();
@@ -756,7 +791,7 @@ function copy_all_mentions_and_entities($annot_from, $annot_to) {
         )
     ", array($annot_from, $annot_from));
     foreach ($res as $e) {
-        copy_ne_entity($e['entity_id'], $annot_to);
+        try_copy_ne_entity($e['entity_id'], $annot_to);
     }
 
     sql_commit();
