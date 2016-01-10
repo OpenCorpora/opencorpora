@@ -179,7 +179,7 @@ function get_ne_entity_tokens_info($start_token_id, $length) {
 
     $out = array();
     sql_execute($token_res, array($start_token_id, $start_token_id, $length));
-    while ($r = sql_fetch_array($token_res))
+    foreach (sql_fetchall($token_res) as $r)
         $out[] = array($r['tf_id'], $r['tf_text'],
             'pos' => $r['pos'], 'sent_id' => $r['sent_id']);
 
@@ -217,7 +217,7 @@ function get_ne_entity_tags($entity_id, $only_ids = false) {
     sql_execute($tag_res, array($entity_id));
 
     $out = array();
-    while ($r = sql_fetch_array($tag_res)) {
+    foreach (sql_fetchall($tag_res) as $r) {
         if ($only_ids)
             $out[] = $r['tag_id'];
         else
@@ -607,6 +607,7 @@ function set_ne_tags($entity_id, $tags, $annot_id=0) {
     $res = sql_prepare("INSERT INTO ne_entity_tags VALUES(?, ?)");
     foreach ($tags as $tag)
         sql_execute($res, array($entity_id, $tag));
+    $res->closeCursor();
 
     sql_commit();
 }
@@ -696,9 +697,9 @@ function get_all_ne_by_paragraph($par_id, $tagset_id, $group_by_mention = false)
 }
 
 function find_ne_entity($annot_id, $e_id, $e_start_token, $e_length) {
-    static $res = null;
+    static $res = NULL;
 
-    if ($res == null) {
+    if ($res == NULL) {
         $res = sql_prepare("
             SELECT entity_id
             FROM ne_entities
@@ -709,12 +710,13 @@ function find_ne_entity($annot_id, $e_id, $e_start_token, $e_length) {
     }
 
     sql_execute($res, array($annot_id, $e_start_token, $e_length));
-    if (sql_num_rows($res) == 0)
+    $rows = sql_fetchall($res);
+
+    if (sizeof($rows) == 0)
         return false;
 
     // check tags
-    $r = sql_fetchall($res);
-    $found_id = $r[0]['entity_id'];
+    $found_id = $rows[0]['entity_id'];
 
     $tags1 = get_ne_entity_tags($e_id, true);
     $tags2 = get_ne_entity_tags($found_id, true);

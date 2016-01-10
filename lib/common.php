@@ -91,6 +91,9 @@ function sql_prepare($q, $override_readonly=0) {
         printf("<table class='debug' width='100%%'><tr><td valign='top' width='20'>*</td><td colspan='3'>PREPARE: %s</td></tr></table>\n", htmlspecialchars($q));
     try {
         $q = $pdo_db->prepare($q);
+        if (!$q) {
+            throw new Exception($pdo_db->errorInfo());
+        }
         $time = microtime(true)-$time_start;
         $total_time += $time;
         return $q;
