@@ -360,7 +360,7 @@ function get_user_options($user_id) {
 function OPTION($oid) {
     // returns option value for current user
     // or default value for new options or non-logged users
-    if (empty($_SESSION['options'][$oid])) {
+    if (!isset($_SESSION['options'][$oid])) {
         $mgr = new UserOptionsManager();
         return $mgr->get_default($oid);
     }
