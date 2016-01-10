@@ -817,7 +817,7 @@ function create_object_from_mention($mention_id) {
         throw new Exception("Cannot deduce book id for object");
 
     sql_begin();
-    sql_pe("INSERT INTO ne_objects VALUES (NULL, ?, '', 0)", array($res[0]['book_id']));
+    sql_pe("INSERT INTO ne_objects VALUES (NULL, ?)", array($res[0]['book_id']));
     $oid = sql_insert_id();
     link_mention_to_object($mention_id, $oid);
     sql_commit();
