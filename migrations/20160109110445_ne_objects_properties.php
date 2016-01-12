@@ -8,7 +8,7 @@ class NeObjectsProperties extends AbstractMigration {
      * Migrate Up.
      */
     public function up() {
-        $props = $this->table("ne_object_props", array("id" => "prop_id", "engine" => "InoDB"));
+        $props = $this->table("ne_object_props", array("id" => "prop_id", "engine" => "InnoDB"));
         $props
             ->addColumn("prop_key", "string", array("limit" => 100))
             ->save();
