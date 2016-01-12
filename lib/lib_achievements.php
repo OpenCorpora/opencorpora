@@ -151,30 +151,31 @@ class AchievementsManager {
 
     public function pull_stats() {
         global $config;
-        $res = sql_pe("
+        $res = sql_fetchall(sql_query("
             SELECT *
             FROM user_achievements
             JOIN users USING (user_id)
             ORDER BY achievement_id DESC, updated DESC
-        ", array());
+        "));
 
         $out = array();
         foreach ($res as $record) {
-            $haslevels = isset($this->objects[$record['achievement_type']]->level);
-            if (empty($out[$record['achievement_type']])) {
+            $a = $record['achievement_type'];
+            $haslevels = isset($this->objects[$a]->level);
+            if (empty($out[$a])) {
                 if ($haslevels)
-                    $out[$record['achievement_type']] = array_fill_keys(range(1, $config['achievements']['max_level']), array());
-                else $out[$record['achievement_type']] = array();
+                    $out[$a] = array_fill_keys(range(1, $config['achievements']['max_level']), array());
+                else $out[$a] = array();
             }
 
             if ($haslevels)
-                array_push($out[$record['achievement_type']][$record['level']], $record);
+                array_push($out[$a][$record['level']], $record);
             else
-                array_push($out[$record['achievement_type']], $record);
+                array_push($out[$a], $record);
         }
 
-        $total = sql_pe("SELECT COUNT(*) FROM users", array());
-        $out['total_users'] = $total[0][0];
+        $total = sql_fetch_array(sql_query("SELECT COUNT(*) FROM users"));
+        $out['total_users'] = $total[0];
         return $out;
     }
 
@@ -197,6 +198,8 @@ trait AchievementWithLevels {
     }
 
     public function push() {
+        if (!$this->level)
+            return;
         return sql_pe("INSERT INTO user_achievements
             (achievement_type, level, progress, seen, user_id)
             VALUES (?, ?, ?, ?, ?)
