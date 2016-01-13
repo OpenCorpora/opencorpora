@@ -236,7 +236,6 @@ class DogAchievement extends Achievement implements MonthPassedListenerInterface
     public function dispatch($args) {
         $grades = $this->fetch_grades();
         $next = isset($grades[$this->level]) ? $grades[$this->level] : FALSE;
-        $current = $grades[$this->level - 1];
         $count = $this->_get_count_for_last_month();
 
         if ($args['event_type'] == EventTypes::TASK_DONE) {
