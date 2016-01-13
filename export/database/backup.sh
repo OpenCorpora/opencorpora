@@ -14,6 +14,13 @@ mysqldump --host $DBHOST \
     --ignore-table=opcorpora.form2tf \
     --ignore-table=opcorpora.tokenizer_strange \
     $DBNAME > $TMPFILE || exit 1
+mysqldump --host $DBHOST \
+    --no-data $DBNAME \
+    dict_errata \
+    form2lemma \
+    form2tf \
+    tokenizer_strange \
+    >> $TMPFILE || exit 1
 
 sed -i 's/`users_for_selective_backup`/`users`/g' $TMPFILE
 sed -i 's/`user_tokens_for_selective_backup`/`user_tokens`/g' $TMPFILE

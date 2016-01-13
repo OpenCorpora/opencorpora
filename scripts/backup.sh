@@ -14,6 +14,15 @@ mysqldump \
     --ignore-table=opcorpora.form2tf \
     --ignore-table=opcorpora.tokenizer_strange \
     opcorpora > $TEMP_DUMP
+mysqldump \
+    --host ocdb \
+    --no-data \
+    opcorpora \
+        dict_errata \
+        form2lemma \
+        form2tf \
+        tokenizer_strange \
+    >> $TEMP_DUMP
 rm $RO_FLAG
 nice xz -cze8 $TEMP_DUMP >/backup/`date +%Y%m`/oc$NOW.sql.xz
 rm $TEMP_DUMP
