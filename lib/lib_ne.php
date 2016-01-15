@@ -850,3 +850,61 @@ function set_object_property($object_id, $prop_id, $prop_val) {
 function delete_object_property($object_id, $prop_id) {
     sql_pe("DELETE FROM ne_object_prop_vals WHERE object_id = ? AND prop_id = ?", array($object_id, $prop_id));
 }
+
+function get_book_objects($book_id) {
+    $obj_res = sql_pe("SELECT object_id FROM ne_objects WHERE book_id = ? ORDER BY object_id", array($book_id));
+    $object_ids = array();
+    foreach($obj_res as $r) {
+        $id = $r["object_id"];
+        $object_ids[] = $id;
+        $objects[$id] = array("object_id" => $id, "properties" => array(), "mentions" => array());
+    }
+    if (!empty($object_ids)) {
+        // get properties
+        $prop_res = sql_query("SELECT object_id, prop_id, prop_key, prop_val FROM ne_object_prop_vals LEFT JOIN ne_object_props USING (prop_id) WHERE object_id IN (" . implode(",", $object_ids) . ") ORDER BY object_id");
+        while ($rp = sql_fetch_array($prop_res))
+            $objects[$rp["object_id"]]["properties"][] = $rp;
+        // get mentions
+        $mentions = get_mentions_text_by_objects($object_ids);
+        foreach ($mentions as $oid => $arr)
+            $objects[$oid]["mentions"] = $arr;
+        return $objects;
+    }
+}
+
+// inner function with no escaping and validation
+function get_mentions_text_by_objects($object_ids) {
+    $mentions = array();
+    $men_res = sql_query("
+        SELECT entity_id, mention_id, object_id, start_token, length, object_type_id, tf_text 
+        FROM ne_entities 
+            LEFT JOIN tokens ON start_token = tf_id
+            LEFT JOIN ne_entities_mentions USING (entity_id) 
+            LEFT JOIN ne_mentions USING (mention_id) 
+        WHERE object_id IN (" . implode(",", $object_ids) . ") 
+        ORDER BY object_id, mention_id, start_token");
+    $men_id = 0;
+    $obj_id = 0;
+    $mention = array();
+    while ($rm = sql_fetch_array($men_res)) {
+        if ($rm["mention_id"] != $men_id) {
+            if (!empty($mention)) {
+                $mention["text"] = implode(" ", $mention["entities"]);
+                $mentions[$obj_id][] = $mention;
+            }
+            $men_id = $rm["mention_id"];
+            $obj_id = $rm["object_id"];
+            $mention = array("mention_id" => $men_id, "object_type_id" => $rm["object_type_id"], "entities" => array());
+        }
+        // one-token entities taken simply by join
+        if ($rm["length"] == 1)
+            $mention["entities"][] = $rm["tf_text"];
+        else
+            $mention["entities"][] = implode(" ", array_map(function ($arr) {return $arr[1];}, get_ne_entity_tokens_info($rm["start_token"], $rm["length"])));
+    }
+    if (!empty($mention)) {
+        $mention["text"] = implode(" ", $mention["entities"]);
+        $mentions[$obj_id][] = $mention;
+    }
+    return $mentions;
+}
