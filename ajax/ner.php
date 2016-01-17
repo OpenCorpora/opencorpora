@@ -111,6 +111,21 @@ try {
             copy_all_mentions_and_entities($_POST['annot_from'], $_POST['annot_to']);
             break;
 
+        case 'createObject':
+            if (empty($_POST['mentions']) || !is_array($_POST['mentions']))
+                throw new UnexpectedValueException();
+            $id = create_object_from_mentions($_POST['mentions']);
+            $result['object_id'] = $id;
+            $result['mentions'] = get_mentions_text_by_objects(array($id))[$id];
+            break;
+
+        case 'deleteObject':
+            if (empty($_POST['object_id']))
+                throw new UnexpectedValueException();
+            delete_object($_POST['object_id']);
+            break;
+            
+
         case 'logEvent':
             if (empty($_POST['id'])) throw new Exception();
             switch ($_POST['type']) {

@@ -804,22 +804,25 @@ function link_mention_to_object($mention_id, $object_id) {
     sql_pe("UPDATE ne_mentions SET object_id = ? WHERE mention_id = ? LIMIT 1", array($object_id, $mention_id));
 }
 
-function create_object_from_mention($mention_id) {
+function create_object_from_mentions($mention_ids) {
+    $mentions_in = str_repeat('?,', count($mention_ids) - 1) . '?'; // string of ? to use in IN () clause
     $res = sql_pe("
         SELECT book_id
         FROM ne_entities_mentions
         LEFT JOIN ne_entities USING (entity_id)
         LEFT JOIN ne_paragraphs USING (annot_id)
         LEFT JOIN paragraphs USING (par_id)
-        WHERE mention_id = ?
-    ", array($mention_id));
+        WHERE mention_id = IN (" . $mentions_in . ")
+        GROUP BY book_id
+    ", $mention_ids);
     if (sizeof($res) != 1)
-        throw new Exception("Cannot deduce book id for object");
+        throw new Exception("Cannot deduce one book id for object");
 
     sql_begin();
     sql_pe("INSERT INTO ne_objects VALUES (NULL, ?)", array($res[0]['book_id']));
     $oid = sql_insert_id();
-    link_mention_to_object($mention_id, $oid);
+    array_unshift($mention_ids, $oid); // add new id to the beginning of the array
+    sql_pe("UPDATE ne_mentions SET object_id = ? WHERE mention_id IN (" . $mentions_in . ") LIMIT 1", array($mention_ids));
     sql_commit();
     return $oid;
 }
