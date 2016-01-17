@@ -33,9 +33,10 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
             USING (book_id)
         LEFT JOIN paragraphs
             USING (book_id)
-        LEFT JOIN ne_paragraphs
+        LEFT JOIN ne_paragraphs np
             USING (par_id)
         WHERE bs.tagset_id = ?
+        AND np.tagset_id = bs.tagset_id
         ORDER BY book_id, par_id
     ", array($tagset_id));
     $allbooks = array();
