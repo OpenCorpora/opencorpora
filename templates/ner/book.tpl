@@ -1,6 +1,7 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
+  <input type="hidden" name="book_id" value="{$book.id}"/>
   <div class="buttons-container">
     <a href="/ner.php" class="btn btn-link btn-small">Вернуться к текстам</a>
     <div class="btn-group" data-toggle="buttons-radio">
@@ -66,6 +67,13 @@
   </div>
 </div>
 
+<div class="popover new-object-popover top o-floating-block">
+  <div class="arrow"></div>
+  <div class="popover-content">
+    <button class="btn btn-block btn-small btn-primary new-object">Создать новый объект</button>
+  </div>
+</div>
+
 <div class="templates">
   <table class="table-stub">
   <tr class="tr-template">
@@ -104,6 +112,9 @@
     </div>
   </div>
 </div>
+{if $is_moderator}
+{include file="ner/_partials/objects-modal.tpl"}
+{/if}
 {/block}
 
 {block name="javascripts"}
@@ -114,6 +125,7 @@
   <script src="/assets/js/ner.js?5"></script>
   {/literal}{if $is_moderator}
     <script src="/assets/js/ner-moderator.js"></script>
+    <script src="/assets/js/objects-moderator.js?6"></script>
   {/if}{literal}
   <script src="/assets/js/mentions.js?5"></script>
   <script src="/assets/js/ne_comments.js"></script>

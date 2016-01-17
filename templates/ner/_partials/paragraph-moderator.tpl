@@ -49,6 +49,7 @@
             <ul class="nav nav-tabs small-tabs">
               <li class="active"><a href="#tab-entities-{$paragraph.id}-mine" data-toggle="tab">Спаны</a></li>
               <li><a href="#tab-mentions-{$paragraph.id}-mine" data-toggle="tab" class="tab-opener">Упоминания</a></li>
+              <li><a href="#" class="modal-opener" data-toggle="modal" data-target="#objects-modal">Объекты</a></li>
             </ul>
             <div class="tab-content">
               <div class="tab-pane active" id="tab-entities-{$paragraph.id}-mine">
@@ -91,7 +92,7 @@
               </div>
 
               <div class="tab-pane" id="tab-mentions-{$paragraph.id}-mine">
-              <table class="table mentions-table table-condensed" data-par-id="{$paragraph.id}">
+              <table class="table moderator-mentions mentions-table table-condensed" data-par-id="{$paragraph.id}">
               {foreach $paragraph.mentions as $id => $mention}
                 {if $id == 0}{continue}{/if}
                 <tr data-mention-id="{$id}">

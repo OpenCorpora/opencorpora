@@ -1629,6 +1629,11 @@ tr.valign-top td {
     color: white;
 }
 
+.objects-current-selection {
+    background-color: plum;
+    color: white;
+}
+
 .tab-content {
     overflow: visible;
 }
@@ -1665,4 +1670,9 @@ tr.valign-top td {
 
 .icon-magnet:hover {
     cursor: pointer;
+}
+
+.wide.modal {
+    width: 780px;
+    margin-left: -390px;
 }
