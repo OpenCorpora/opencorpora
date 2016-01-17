@@ -92,7 +92,8 @@ function sql_prepare($q, $override_readonly=0) {
     try {
         $q = $pdo_db->prepare($q);
         if (!$q) {
-            throw new Exception($pdo_db->errorInfo());
+            $einfo = $pdo_db->errorInfo();
+            throw new Exception($einfo[1] . ": " . $einfo[2]);
         }
         $time = microtime(true)-$time_start;
         $total_time += $time;

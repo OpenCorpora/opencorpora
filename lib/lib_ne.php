@@ -812,7 +812,7 @@ function create_object_from_mentions($mention_ids) {
         LEFT JOIN ne_entities USING (entity_id)
         LEFT JOIN ne_paragraphs USING (annot_id)
         LEFT JOIN paragraphs USING (par_id)
-        WHERE mention_id = IN (" . $mentions_in . ")
+        WHERE mention_id IN (" . $mentions_in . ")
         GROUP BY book_id
     ", $mention_ids);
     if (sizeof($res) != 1)
@@ -822,7 +822,7 @@ function create_object_from_mentions($mention_ids) {
     sql_pe("INSERT INTO ne_objects VALUES (NULL, ?)", array($res[0]['book_id']));
     $oid = sql_insert_id();
     array_unshift($mention_ids, $oid); // add new id to the beginning of the array
-    sql_pe("UPDATE ne_mentions SET object_id = ? WHERE mention_id IN (" . $mentions_in . ") LIMIT 1", array($mention_ids));
+    sql_pe("UPDATE ne_mentions SET object_id = ? WHERE mention_id IN (" . $mentions_in . ")", array($mention_ids));
     sql_commit();
     return $oid;
 }
