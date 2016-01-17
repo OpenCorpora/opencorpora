@@ -119,6 +119,18 @@ try {
             $result['mentions'] = get_mentions_text_by_objects(array($id))[$id];
             break;
 
+        case 'setObjectProperty':
+            if (empty($_POST['object_id']) || empty($_POST['prop_id']) || empty($_POST['prop_value']))
+                throw new UnexpectedValueException();
+            set_object_property($_POST['object_id'], $_POST['prop_id'], $_POST['prop_value']);
+            break;
+
+        case 'getObjects':
+            if (empty($_POST['book_id']))
+                throw new UnexpectedValueException();
+            $result['objects'] = get_book_objects($_POST['book_id']);
+            break;
+
         case 'deleteObject':
             if (empty($_POST['object_id']))
                 throw new UnexpectedValueException();

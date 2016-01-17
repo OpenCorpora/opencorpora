@@ -844,6 +844,15 @@ function delete_object($object_id) {
     sql_commit();
 }
 
+function get_possible_properties() {
+    $out = array();
+    $res = sql_query("SELECT prop_id, prop_key FROM ne_object_props ORDER by prop_key");
+    while ($r = sql_fetch_array($res)) {
+        $out[$r['prop_id']] = $r['prop_key'];
+    }
+    return $out;
+}
+
 function set_object_property($object_id, $prop_id, $prop_val) {
     if (sizeof(sql_pe("SELECT object_id FROM ne_objects WHERE object_id = ?", array($object_id))) < 1)
         throw new Exception("Object not found");
