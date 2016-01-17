@@ -638,6 +638,11 @@ function add_mention($entity_ids, $object_type) {
 }
 
 function delete_mention($mention_id) {
+    $res = sql_pe("SELECT object_id FROM ne_mentions WHERE mention_id = ? LIMIT 1", array($mention_id));
+    if (sizeof($res) != 1)
+        throw new Exception("Mention not found");
+    if ($res[0]['object_id'] > 0)
+        throw new Exception("Cannot delete mention with linked object");
     sql_begin();
     sql_pe("DELETE FROM ne_entities_mentions WHERE mention_id = ?", array($mention_id));
     sql_pe("DELETE FROM ne_mentions WHERE mention_id = ?", array($mention_id));
