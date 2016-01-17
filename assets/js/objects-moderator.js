@@ -21,7 +21,7 @@ var response_test = [{
 ];
 
 function loadObjects() {
-    $.get("./ajax/ner.php", {
+    $.post("./ajax/ner.php", {
         "act": "listObjects",
         "book_id": $("[name=book_id]").val()
     }).done(function(response) {
