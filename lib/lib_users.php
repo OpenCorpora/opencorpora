@@ -53,8 +53,8 @@ function is_valid_email($string) {
     return preg_match('/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i', $string);
     //we took the regexp from regular-expressions.info
 }
-function check_auth_token($user_id, $token) {
-    $res = sql_pe("SELECT user_id FROM user_tokens WHERE user_id=? AND token=? LIMIT 1", array($user_id, $token));
+function check_auth_token($token) {
+    $res = sql_pe("SELECT user_id FROM user_tokens WHERE token=? LIMIT 1", [$token]);
     if (sizeof($res) > 0) {
         return $res[0]['user_id'];
     }
@@ -112,6 +112,7 @@ function remember_user($user_id, $auth_token=false, $set_cookie=true) {
     return $token;
 }
 function make_new_user($login, $passwd, $email, $shown_name) {
+    // fix: add show_game = 0
     sql_pe("INSERT INTO `users` VALUES(NULL, ?, ?, ?, ?, ?, 0, 1, 1, 0)",
            array($login, $passwd, $email, time(), $shown_name));
     $user_id = sql_insert_id();

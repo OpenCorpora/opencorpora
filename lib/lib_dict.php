@@ -339,7 +339,7 @@ function smart_update_pending_token($parse_set, $rev_id) {
     // - deleted lemma
     // - lemma text change
     // - lemma gramset change
-    
+
     $res = sql_pe("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=? LIMIT 1", array($rev_id));
     if (!sizeof($res))
         throw new Exception();

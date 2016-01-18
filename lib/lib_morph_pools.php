@@ -889,7 +889,7 @@ function get_annotation_packet($pool_id, $size, $user_id=0, $timeout=0) {
 
     $r = sql_fetch_array(sql_query("SELECT status, t.gram_descr, revision, pool_type, doc_link FROM morph_annot_pools p LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id) WHERE pool_id=$pool_id"));
     if ($r['status'] != MA_POOLS_STATUS_IN_PROGRESS)
-        throw new Exception();
+        throw new Exception('This task is in progress');
     $packet = array(
         'my' => 0,
         'editable' => 1,
@@ -1167,4 +1167,3 @@ function get_pool_manual_page($type_id) {
     $res = sql_pe("SELECT doc_link FROM morph_annot_pool_types WHERE type_id=? LIMIT 1", array($type_id));
     return $res[0]['doc_link'];
 }
-

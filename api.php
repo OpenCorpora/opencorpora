@@ -1,86 +1,215 @@
 <?php
-require_once('lib/header_ajax.php');
-require_once('lib/lib_annot.php');
-require_once('lib/lib_books.php');
-require_once('lib/lib_users.php');
-require_once('lib/lib_morph_pools.php');
-header('Content-type: application/json');
 
-define('API_VERSION', '0.31');
-$action = $_GET['action'];
-$user_id = 0;
+require_once('lib/common.php');
+require_once("lib/lib_users.php");
+require_once("lib/lib_achievements.php");
+require_once("lib/lib_annot.php");
 
-$answer = array(
-    'api_version' => API_VERSION,
-    'answer' => null,
-    'error' => null
-);
+function json($data) {
+    header('Content-type: application/json');
+    echo json_encode($data);
+    die();
+}
 
-function json_encode_readable($arr)
+function require_fields($data, $fields)
 {
-    //convmap since 0x80 char codes so it takes all multibyte codes (above ASCII 127). So such characters are being "hidden" from normal json_encoding
-    array_walk_recursive($arr, function (&$item, $key) { if (is_string($item)) $item = mb_encode_numericentity($item, array (0x80, 0xffff, 0, 0xffff), 'UTF-8'); });
-    return mb_decode_numericentity(json_encode($arr), array (0x80, 0xffff, 0, 0xffff), 'UTF-8');
+    foreach ($fields as $field) {
+        if (!isset($data[$field])) {
+            throw new Exception("Action require '$field' field", 1);
+        }
+    }
 }
 
+$config = parse_ini_file(__DIR__ . '/config.ini', true);
+$pdo_db = new PDO(sprintf('mysql:host=%s;dbname=%s;charset=utf8', $config['mysql']['host'], $config['mysql']['dbname']), $config['mysql']['user'], $config['mysql']['passwd']);
+$pdo_db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+$pdo_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+$pdo_db->query("SET NAMES utf8");
 
-// check token for most action types
-if (!in_array($action, array('search', 'login'))) {
-    $user_id = check_auth_token($_POST['user_id'], $_POST['token']);
-    if (!$user_id)
-        throw new Exception('Incorrect token');
-}
+$anonActions = ['search', 'welcome', 'login', 'register', 'all_stat'];
 
-try {
-switch ($action) {
-    case 'search':
-        if (isset($_GET['all_forms']))
-            $all_forms = (bool)$_GET['all_forms'];
-        else
+/*
+ *      ACTIONS
+ */
+
+// return is success
+// throw Exception is error
+$actions = [
+    'welcome' => function($data) {
+        return 'Welcome to opencorpora API v1.0!';
+    },
+    'search' => function($data) {
+        require_fields($data, ['query']);
+
+        if (isset($data['all_forms'])) {
+            $all_forms = (bool)$data['all_forms'];
+        } else {
             $all_forms = false;
-
-        $answer['answer'] = get_search_results($_GET['query'], !$all_forms);
+        }
+        $answer['answer'] = get_search_results($data['query'], !$all_forms);
         foreach ($answer['answer']['results'] as &$res) {
-            $parts = array();
+            $parts = [];
             foreach (get_book_parents($res['book_id'], true) as $p) {
                 $parts[] = $p['title'];
             }
             $res['text_fullname'] = join(': ', array_reverse($parts));
         }
-        break;
-    case 'login':
-        $user_id = user_check_password($_POST['login'], $_POST['password']);
+        return $answer['answer'];
+    },
+    'login' => function($data) {
+        require_fields($data, ['login', 'password']);
+
+        $user_id = user_check_password($data['login'], $data['password']);
         if ($user_id) {
             $token = remember_user($user_id, false, false);
-            $answer['answer'] = array('user_id' => $user_id, 'token' => $token);
+            return [
+                'token' => (string)$token,
+                'user_id' => (int)$user_id,
+            ];
+        } else {
+            throw new Exception("Incorrect login or password", 1);
         }
-        else
-            $answer['error'] = 'Incorrect login or password';
-        break;
-    case 'get_available_morph_tasks':
-        $answer['answer'] = array('tasks' => get_available_tasks($user_id, true));
-        break;
-    case 'get_morph_task':
-        if (empty($_POST['pool_id']) || empty($_POST['size']))
-            throw new UnexpectedValueException("Wrong args");
-        // timeout is in seconds
-        $answer['answer'] = get_annotation_packet($_POST['pool_id'], $_POST['size'], $user_id, $_POST['timeout']);
-        break;
-    case 'update_morph_task':
-        throw new Exception("Not implemented");
-        // currently no backend
-        break;
-    case 'save_morph_task':
-        // answers is expected to be an array(array(id, answer), array(id, answer), ...)
-        update_annot_instances($user_id, $_POST['answers']);
-        break;
-    default:
-        throw new Exception('Unknown action');
+    },
+    'register' => function($data) {
+        require_fields($data, ['login', 'passwd', 'passwd_re', 'email']);
+
+        $reg_status = user_register($data);
+        if ($reg_status == 1) {
+            return 'User created';
+        }
+        throw new \Exception("Registration failed due to invalid data", 1);
+    },
+    'all_stat' => function($data) {
+        return get_user_stats(true, false);
+    },
+
+    // require token
+    'get_available_morph_tasks' => function($data) {
+        require_fields($data, ['user_id']);
+
+        return get_available_tasks($data['user_id'], true);
+    },
+    'get_morph_task' => function($data) {
+        require_fields($data, ['user_id', 'pool_id', 'size']);
+
+        return get_annotation_packet($data['pool_id'], $data['size'], $data['user_id']);
+    },
+    'save_morph_task' => function($data) {
+        require_fields($data, ['user_id', 'answers']);
+
+        $accepted = update_annot_instances($data['user_id'], $data['answers']);
+        if ($accepted != 0) {
+            return 'save task success';
+        } else {
+            throw new Exception("Nothing save", 1);
+        }
+    },
+
+    'get_user' => function($data) {
+        require_fields($data, ['user_id']);
+
+        $mgr = new UserOptionsManager();
+        return [
+            'options' => $mgr->get_all_options(true),
+            'current_email' => get_user_email($data['user_id']),
+            'current_name' => get_user_shown_name($data['user_id']),
+            'user_team' => get_user_team($data['user_id']),
+        ];
+
+    },
+    'save_user' => function($data) {
+        // update:
+        // shown_name OR email (+ passwd user_id) OR passwd (+old_passwd user_id)
+        if (isset($data['shown_name'])) {
+            if (user_change_shown_name($data['shown_name']) !== 1) {
+                throw new Exception("Error update 'shown_name' field", 1);
+            }
+        }
+
+        if (isset($data['email'], $data['passwd'], $data['user_id'])) {
+            // NOTE: hotpatch
+            $r = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id = ".$data['user_id']." LIMIT 1"));
+            $login = $r['user_name'];
+            $email = strtolower(trim($data['email']));
+            if (is_user_openid($data['user_id']) || user_check_password($login, $data['passwd'])) {
+                if (is_valid_email($email)) {
+                    $res = sql_pe("SELECT user_id FROM users WHERE user_email=? LIMIT 1", array($email));
+                    if (sizeof($res) > 0) {
+                        throw new Exception("Error update 'email' field", 1);
+                    }
+                    sql_pe("UPDATE `users` SET `user_email`=? WHERE `user_id`=? LIMIT 1", array($email, $data['user_id']));
+                } else {
+                    throw new Exception("Error update 'email' field", 1);
+                }
+            } else {
+                throw new Exception("Error update 'email' field", 1);
+            }
+        }
+
+        if (isset($data['user_id'], $data['passwd'], $data['old_passwd'])) {
+            // NOTE: hotpatch
+            $r = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id = ".$data['user_id']." LIMIT 1"));
+            $login = $r['user_name'];
+            if (user_check_password($login, $data['old_passwd'])) {
+                if (!is_valid_password($data['passwd'])) {
+                    throw new Exception("Error update 'passwd' field", 1);
+                }
+                $passwd = md5(md5($data['passwd']).substr($login, 0, 2));
+                sql_query("UPDATE `users` SET `user_passwd`='$passwd' WHERE `user_id`=".$data['user_id']." LIMIT 1");
+            } else {
+                throw new Exception("Error update 'passwd' field", 1);
+            }
+        }
+        return 'update user success';
+    },
+
+    'user_stat' => function($data) {
+        require_fields($data, ['user_id']);
+
+        return get_user_info($data['user_id']);
+    },
+    'grab_badges' => function($data) {
+        require_fields($data, ['user_id']);
+
+        $am2 = new AchievementsManager($data['user_id']);
+        return $am2->pull_all();
+    },
+];
+
+// action list
+// var_dump(array_keys($actions)); die();
+
+
+
+/*
+ *     COMMON API CHECKS
+ */
+
+if (!isset($_POST['action'])) {
+    json(['error' => '"action" field is required']);
 }
-} catch (Exception $e) {
-    $answer['error'] = $e->getMessage();
+if (!in_array($_POST['action'], $anonActions)) {
+    $token  = isset($_POST['token']) ? $_POST['token'] : false;
+    if (!$token) {
+        json(['error' => 'this API action require "token" field']);
+    }
+    $user_id = check_auth_token($token);
+    if (!$user_id) {
+        json(['error' => 'Incorrect token']);
+    }
 }
 
-log_timing();
-die(json_encode_readable($answer));
-?>
+// action REQUIRE, data OPTIONAL
+$action = $_POST['action'];
+$data   = isset($_POST['data']) ? json_decode($_POST['data'], true) : null;
+
+if (isset($actions[$action])) {
+    try {
+        $answer = ['result' => $actions[$action]($data)];
+    } catch (\Exception $e) {
+        $answer = ['error' => $e->getMessage()];
+    }
+} else {
+    $answer = ['error' => 'Unknown action'];
+}
+json($answer);

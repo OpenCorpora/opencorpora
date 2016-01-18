@@ -5,4 +5,5 @@
 /doc/articles/*.pdf
 /doc/presentations/*.pdf
 /yadisk-auth
+/vendor
 *.swp
