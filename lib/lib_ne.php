@@ -934,5 +934,5 @@ function finish_book_moderation($book_id, $tagset_id) {
         UPDATE ne_paragraphs 
             LEFT JOIN paragraphs USING (par_id) 
         SET status = ? 
-        WHERE book_id = ? AND tagset_id = ?", array(NE_STATUS_MODERATED, $book_id, $tagset_id));
+        WHERE book_id = ? AND tagset_id = ?", array(NE_STATUS_FINISHED, $book_id, $tagset_id));
 }

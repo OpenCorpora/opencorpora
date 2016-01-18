@@ -48,7 +48,6 @@ define('MA_TOTAL_TASKS_PLAN', 1333000);
 define('NE_STATUS_NOT_STARTED', 0);
 define('NE_STATUS_IN_PROGRESS', 1);
 define('NE_STATUS_FINISHED', 2);
-define('NE_STATUS_MODERATED', 3);
 
 define('NE_ANNOT_TIMEOUT', 24 * 60 * 60);  // 24 hours
 define('NE_ANNOTATORS_PER_TEXT', 4);
