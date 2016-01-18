@@ -36,8 +36,8 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
         LEFT JOIN ne_paragraphs np
             USING (par_id)
         WHERE bs.tagset_id = ?
-        AND np.tagset_id = bs.tagset_id
-        ORDER BY book_id, par_id
+        AND (bs.tagset_id = np.tagset_id OR np.tagset_id IS NULL)
+        ORDER BY book_id " . ($for_user ? "DESC" : "") . ", par_id
     ", array($tagset_id));
     $allbooks = array();
     $book = array(
