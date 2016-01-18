@@ -927,12 +927,22 @@ function get_mentions_text_by_objects($object_ids) {
     return $mentions;
 }
 
-function finish_book_moderation($book_id, $tagset_id) {
+function set_ne_book_status($book_id, $tagset_id, $status) {
     if (!is_user_book_moderator($book_id, $tagset_id))
         throw new Exception("Permission missing for this book");
+    if (!in_array($status, array(NE_STATUS_IN_PROGRESS, NE_STATUS_FINISHED)))
+        throw new UnexpectedValueException();
     sql_pe("
         UPDATE ne_paragraphs 
             LEFT JOIN paragraphs USING (par_id) 
         SET status = ? 
-        WHERE book_id = ? AND tagset_id = ?", array(NE_STATUS_FINISHED, $book_id, $tagset_id));
+        WHERE book_id = ? AND tagset_id = ?", array($status, $book_id, $tagset_id));
+}
+
+function finish_book_moderation($book_id, $tagset_id) {
+    set_ne_book_status($book_id, $tagset_id, NE_STATUS_FINISHED);
+}
+
+function restart_book_moderation($book_id, $tagset_id) {
+    set_ne_book_status($book_id, $tagset_id, NE_STATUS_IN_PROGRESS);
 }
