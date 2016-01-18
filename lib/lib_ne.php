@@ -926,3 +926,13 @@ function get_mentions_text_by_objects($object_ids) {
     }
     return $mentions;
 }
+
+function finish_book_moderation($book_id, $tagset_id) {
+    if (!is_user_book_moderator($book_id, $tagset_id))
+        throw new Exception("Permission missing for this book");
+    sql_pe("
+        UPDATE ne_paragraphs 
+            LEFT JOIN paragraphs USING (par_id) 
+        SET status = ? 
+        WHERE book_id = ? AND tagset_id = ?", array(NE_STATUS_MODERATED, $book_id, $tagset_id));
+}

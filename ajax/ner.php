@@ -136,6 +136,13 @@ try {
                 throw new UnexpectedValueException();
             delete_object($_POST['object_id']);
             break;
+
+        case 'finishModeration':
+            if (empty($_POST['book_id'])
+                or empty($_POST['tagset_id'])) throw new Exception("book_id or tagset_id missing");
+
+            finish_book_moderation($_POST['book_id'], $_POST['tagset_id']);
+            break;
             
 
         case 'logEvent':
