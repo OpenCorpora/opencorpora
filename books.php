@@ -50,7 +50,7 @@ elseif ($action == 'ner') {
         $tagset_id = get_current_tagset();
         $is_book_moderator = is_user_book_moderator($book_id, $tagset_id);
 
-        $book = get_book_page($book_id, TRUE);
+        $book = get_book_page($book_id, TRUE, TRUE);
         // список из статусов => список id параграфов
         $paragraphs_status = get_ne_paragraph_status($book_id, $_SESSION['user_id'], $tagset_id);
 

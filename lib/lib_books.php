@@ -50,8 +50,9 @@ function check_book_hidden($book_id) {
     if (!user_has_permission(PERM_CHECK_TOKENS) && $book_id >= $config['misc']['hidden_books_start_id'] && (time() - $last_edit > SEC_PER_DAY * 7))
         throw new Exception("Sorry, this book is temporarily hidden");
 }
-function get_book_page($book_id, $full = false) {
-    check_book_hidden($book_id);
+function get_book_page($book_id, $full = false, $override_hidden = false) {
+    if (!$override_hidden)
+        check_book_hidden($book_id);
     $res = sql_pe("SELECT * FROM `books` WHERE `book_id`=? LIMIT 1", array($book_id));
     if (!sizeof($res))
         throw new UnexpectedValueException();
