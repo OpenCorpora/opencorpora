@@ -828,7 +828,7 @@ function create_object_from_mentions($mention_ids) {
     sql_pe("INSERT INTO ne_objects VALUES (NULL, ?)", array($res[0]['book_id']));
     $oid = sql_insert_id();
     array_unshift($mention_ids, $oid); // add new id to the beginning of the array
-    sql_pe("UPDATE ne_mentions SET object_id = ? WHERE mention_id IN (" . $mentions_in . ")", array($mention_ids));
+    sql_pe("UPDATE ne_mentions SET object_id = ? WHERE mention_id IN (" . $mentions_in . ")", $mention_ids);
     sql_commit();
     return $oid;
 }
@@ -872,7 +872,8 @@ function delete_object_property($object_id, $prop_id) {
 function get_book_objects($book_id) {
     $obj_res = sql_pe("SELECT object_id FROM ne_objects WHERE book_id = ? ORDER BY object_id", array($book_id));
     $object_ids = array();
-    foreach($obj_res as $r) {
+    $objects = array();
+    foreach ($obj_res as $r) {
         $id = $r["object_id"];
         $object_ids[] = $id;
         $objects[$id] = array("object_id" => $id, "properties" => array(), "mentions" => array());
@@ -886,8 +887,8 @@ function get_book_objects($book_id) {
         $mentions = get_mentions_text_by_objects($object_ids);
         foreach ($mentions as $oid => $arr)
             $objects[$oid]["mentions"] = $arr;
-        return $objects;
     }
+    return $objects;
 }
 
 // inner function with no escaping and validation
