@@ -194,7 +194,11 @@ function group_entities_by_mention($entities) {
         $mids = $e['mention_ids'];
         foreach ($mids as $i => $mid) {
             if (!isset($new[$mid]))
-                $new[$mid] = array('entities' => array(), 'type' => $e['mention_types'][$i]);
+                $new[$mid] = array(
+                    'entities' => array(),
+                    'type' => $e['mention_types'][$i],
+                    'object_id' => $e['object_ids'][$i]
+                );
             $new[$mid]['entities'][] = $e;
         }
     }
@@ -271,7 +275,7 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
     );
 
     $res = sql_query("
-        SELECT entity_id, start_token, length, mention_id, object_type_id
+        SELECT entity_id, start_token, length, mention_id, object_id, object_type_id
         FROM ne_entities
         LEFT JOIN ne_entities_mentions
             USING (entity_id)
@@ -285,6 +289,7 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
         if (isset($out['entities'][$eid])) {
             $out['entities'][$eid]['mention_ids'][] = $r['mention_id'];
             $out['entities'][$eid]['mention_types'][] = $r['object_type_id'];
+            $out['entities'][$eid]['object_ids'][] = $r['object_id'];
             continue;
         }
 
@@ -295,6 +300,7 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
             'tokens' => array(),
             'mention_ids' => array($r['mention_id']),
             'mention_types' => array($r['object_type_id']),
+            'object_ids' => array($r['object_id']),
             'tags' => array(),
             'tag_ids' => array()
         );
@@ -302,6 +308,7 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
         if (empty($r['mention_id'])) {
             $entity['mention_ids'] = array();
             $entity['mention_types'] = array();
+            $entity['object_ids'] = array();
         }
 
         $tags = get_ne_entity_tags($eid);
@@ -908,7 +915,7 @@ function get_mentions_text_by_objects($object_ids) {
     while ($rm = sql_fetch_array($men_res)) {
         if ($rm["mention_id"] != $men_id) {
             if (!empty($mention)) {
-                $mention["text"] = implode(" ", $mention["entities"]);
+                $mention["text"] = "[" . implode("] [", $mention["entities"]) . "]";
                 $mentions[$obj_id][] = $mention;
             }
             $men_id = $rm["mention_id"];
