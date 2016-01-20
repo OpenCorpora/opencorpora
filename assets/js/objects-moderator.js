@@ -1,31 +1,32 @@
-var response_test = [{
+/*var response_test = [{
     "object_id": 145,
     "mentions": [
-        {"mention_id": 13, "texts": ["text1", "text2", "text3"], "tag_id": 1},
-        {"mention_id": 15, "texts": ["text2-1", "text3-1"], "tag_id": 1}
+        {"mention_id": 13, "text": "[text1] [ext2 text3]", "object_type_id": 1},
+        {"mention_id": 15, "text": "[text2-1] [text3-1]", "object_type_id": 1}
     ],
     "properties": [
-        {"name": "abcd", "value": "abacaba"},
-        {"name": "def", "value": "123"}
+        ["abcd", "abacaba"],
+        ["def", ""]
     ]},
     {
     "object_id": 147,
     "mentions": [
-        {"mention_id": 170, "texts": ["aaa1", "aaa2", "aaa3"], "tag_id": 3},
-        {"mention_id": 190, "texts": ["aaa2-1", "aaa3-1"], "tag_id": 2},
-        {"mention_id": 100, "texts": ["bbb"], "tag_id": 2}
+        {"mention_id": 170, "text": "[aaa1] [aaa2] [aaa3]", "object_type_id": 3},
+        {"mention_id": 190, "text": "[aaa2-1] [aaa3-1]", "object_type_id": 2},
+        {"mention_id": 100, "text": "[bbb]", "object_type_id": 2}
     ],
     "properties": [
-        {"name": "abcd", "value": "abacaba"}
+        ["abcd", "abba"],
+        ["def", ""]
     ]},
-];
+];*/
 
 function loadObjects() {
     $.post("./ajax/ner.php", {
-        "act": "listObjects",
+        "act": "getObjects",
         "book_id": $("[name=book_id]").val()
     }).done(function(response) {
-        var objects = response_test;
+        var objects = response.objects; // response_test;
         renderObjects(objects);
     });
 }
@@ -41,7 +42,7 @@ function renderObjects(objects) {
 }
 
 function $compileTableRow(object) {
-    var tr = $("<tr>").append(
+    var tr = $("<tr>").attr("data-object-id", object.object_id).append(
         $compileDeleteCell(object),
         $compileMentionsCell(object),
         $compilePropertiesCell(object.properties)
@@ -60,18 +61,34 @@ function $compileMentionsCell(object) {
     var cell = $("<td>");
     $.map(object.mentions, function(mention, i) {
         var $span = $("<span>");
-        $.map(mention.texts, function(text, j) {
-            $span.append("[" + text + "] ");
-        });
-        $span.append($("<span>").addClass("label label-palette-4").text("Geo"));
+        $span.append("[" + mention.text + "] ");
+        $span.append($("<span>").addClass(
+            "label label-palette-" + MENTION_TYPES[mention.object_type_id]['color'])
+            .text(MENTION_TYPES[mention.object_type_id]['name']));
+
         cell.append($span);
         cell.append($("<br>"));
     });
     return cell;
 }
 
+function $makeInput(name, value, prop_id) {
+    return $("<div>").addClass("input-prepend inline").append(
+        $("<span>").addClass("add-on").text(name),
+        $("<input>").addClass("span1 object-property-input")
+            .attr("type", "text")
+            .attr("data-prop-id", prop_id)
+            .attr("data-initial-value", value)
+            .val(value)
+    );
+}
+
 function $compilePropertiesCell(properties) {
-    return $("<td>");
+    var cell = $("<td>");
+    $.map(properties, function(property_pair, i) {
+        cell.append($makeInput(property_pair[0], property_pair[1], i));
+    });
+    return cell;
 }
 
 function $compileStubRow() {
@@ -104,33 +121,40 @@ $(document).ready(function() {
     $("#objects-modal").on("show", loadObjects);
 
     $(document).on("click", ".moderator-mentions tr[data-mention-id]", function() {
-       $(this).toggleClass("objects-current-selection");
+        // if ($(this).attr("data-object-id") !== "0") return;
 
-       var current = $(".objects-current-selection");
+        $(this).toggleClass("objects-current-selection");
 
-       if (!current.length) {
-          hideObjectsPopover();
-       }
-       else {
-          var offset = current.first().offset();
-          var X = offset.left + $(this).width() / 2;
-          var Y = offset.top - 10;
-          showObjectsPopover(X, Y);
-       }
+        var current = $(".objects-current-selection");
+
+        if (!current.length) {
+            hideObjectsPopover();
+        }
+        else {
+            var offset = current.first().offset();
+            var X = offset.left + $(this).width() / 2;
+            var Y = offset.top - 10;
+            showObjectsPopover(X, Y);
+        }
     });
 
     $(".new-object").click(function() {
-       var selected = $(".objects-current-selection");
+        var selected = $(".objects-current-selection");
 
-       var selectedIds = selected.mapGetter("data-mention-id");
-       $.post("./ajax/ner.php", {
-          act: "createObject",
-          mentions: selectedIds,
-       }, function(response) {
-          notify("Объект добавлен.", "success");
-          clearObjectsHighlight();
-          hideObjectsPopover();
-       });
+        var selectedIds = selected.mapGetter("data-mention-id");
+        $.post("./ajax/ner.php", {
+            act: "createObject",
+            mentions: selectedIds,
+        }, function(response) {
+            notify("Объект добавлен.", "success");
+
+            $.map(selected, function($tr) {
+                $tr.attr("data-object-id", response.object_id);
+            });
+
+            clearObjectsHighlight();
+            hideObjectsPopover();
+         });
     });
 
     $(document).on("click", ".delete-object", function() {
@@ -138,6 +162,17 @@ $(document).ready(function() {
         $.post("./ajax/ner.php", {
             act: "deleteObject",
             object_id: object_id
+        }, loadObjects);
+    });
+
+    $(document).on("blur", ".object-property-input", function() {
+        var input = $(this);
+        if (input.val() == input.attr("data-initial-value")) return;
+        $.post("./ajax/ner.php", {
+            act: "setObjectProperty",
+            prop_id: input.attr("data-prop-id"),
+            prop_value: input.val(),
+            object_id: input.parents("tr").attr("data-object-id")
         }, loadObjects);
     });
 });

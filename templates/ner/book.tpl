@@ -124,8 +124,8 @@
   <script src="/assets/js/mousetrap.min.js"></script>
   <script src="/assets/js/ner.js?5"></script>
   {/literal}{if $is_moderator}
-    <script src="/assets/js/ner-moderator.js"></script>
-    <script src="/assets/js/objects-moderator.js?6"></script>
+    <script src="/assets/js/ner-moderator.js?5"></script>
+    <script src="/assets/js/objects-moderator.js?7"></script>
   {/if}{literal}
   <script src="/assets/js/mentions.js?5"></script>
   <script src="/assets/js/ne_comments.js"></script>

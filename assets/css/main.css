@@ -1676,3 +1676,8 @@ tr.valign-top td {
     width: 780px;
     margin-left: -390px;
 }
+
+.inline.input-prepend {
+    display: inline-block;
+    margin-right: 5px;
+}

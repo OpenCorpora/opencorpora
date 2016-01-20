@@ -856,7 +856,7 @@ function get_possible_properties() {
     $out = array();
     $res = sql_query("SELECT prop_id, prop_key FROM ne_object_props ORDER by prop_key");
     while ($r = sql_fetch_array($res)) {
-        $out[$r['prop_id']] = $r['prop_key'];
+        $out[$r['prop_id']] = array($r['prop_key'], "");
     }
     return $out;
 }
@@ -883,13 +883,14 @@ function get_book_objects($book_id) {
     foreach ($obj_res as $r) {
         $id = $r["object_id"];
         $object_ids[] = $id;
-        $objects[$id] = array("object_id" => $id, "properties" => array(), "mentions" => array());
+        $objects[$id] = array("object_id" => $id, "properties" => get_possible_properties(), "mentions" => array());
     }
     if (!empty($object_ids)) {
         // get properties
         $prop_res = sql_query("SELECT object_id, prop_id, prop_key, prop_val FROM ne_object_prop_vals LEFT JOIN ne_object_props USING (prop_id) WHERE object_id IN (" . implode(",", $object_ids) . ") ORDER BY object_id");
         while ($rp = sql_fetch_array($prop_res))
-            $objects[$rp["object_id"]]["properties"][] = $rp;
+            $objects[$rp["object_id"]]["properties"][$rp["prop_id"]] =
+                array($rp["prop_key"], $rp["prop_val"]);
         // get mentions
         $mentions = get_mentions_text_by_objects($object_ids);
         foreach ($mentions as $oid => $arr)
@@ -902,12 +903,12 @@ function get_book_objects($book_id) {
 function get_mentions_text_by_objects($object_ids) {
     $mentions = array();
     $men_res = sql_query("
-        SELECT entity_id, mention_id, object_id, start_token, length, object_type_id, tf_text 
-        FROM ne_entities 
+        SELECT entity_id, mention_id, object_id, start_token, length, object_type_id, tf_text
+        FROM ne_entities
             LEFT JOIN tokens ON start_token = tf_id
-            LEFT JOIN ne_entities_mentions USING (entity_id) 
-            LEFT JOIN ne_mentions USING (mention_id) 
-        WHERE object_id IN (" . implode(",", $object_ids) . ") 
+            LEFT JOIN ne_entities_mentions USING (entity_id)
+            LEFT JOIN ne_mentions USING (mention_id)
+        WHERE object_id IN (" . implode(",", $object_ids) . ")
         ORDER BY object_id, mention_id, start_token");
     $men_id = 0;
     $obj_id = 0;
@@ -941,9 +942,9 @@ function set_ne_book_status($book_id, $tagset_id, $status) {
     if (!in_array($status, array(NE_STATUS_IN_PROGRESS, NE_STATUS_FINISHED)))
         throw new UnexpectedValueException();
     sql_pe("
-        UPDATE ne_paragraphs 
-            LEFT JOIN paragraphs USING (par_id) 
-        SET status = ? 
+        UPDATE ne_paragraphs
+            LEFT JOIN paragraphs USING (par_id)
+        SET status = ?
         WHERE book_id = ? AND tagset_id = ?", array($status, $book_id, $tagset_id));
 }
 
