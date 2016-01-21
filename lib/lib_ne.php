@@ -1003,7 +1003,22 @@ function set_ne_book_status($book_id, $tagset_id, $status) {
 }
 
 function finish_book_moderation($book_id, $tagset_id) {
+    check_permission(PERM_NE_MODER);
+    // create absent annotations
+    $res = sql_pe("
+        SELECT par_id FROM paragraphs
+        LEFT JOIN ne_paragraphs USING (par_id)
+        WHERE book_id = ?
+        AND tagset_id = ?
+        GROUP BY par_id
+        HAVING COUNT(annot_id) = 0
+    ", array($book_id, $tagset_id));
+    sql_begin();
+    foreach ($res as $r) {
+        start_ne_annotation($r['par_id'], $tagset_id, true);
+    }
     set_ne_book_status($book_id, $tagset_id, NE_STATUS_FINISHED);
+    sql_commit();
 }
 
 function restart_book_moderation($book_id, $tagset_id) {
