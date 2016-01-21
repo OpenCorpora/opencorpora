@@ -682,7 +682,14 @@ function set_ne_book_moderator($book_id, $tagset_id) {
     $book = sql_pe("SELECT book_id FROM ne_books_tagsets WHERE book_id = ? AND tagset_id = ? LIMIT 1", array($book_id, $tagset_id));
     if (sizeof($book) < 1)
         throw new Exception("No NE text found");
+    sql_begin();
     sql_pe("UPDATE ne_books_tagsets SET moderator_id = ? WHERE book_id = ? AND tagset_id = ?", array($_SESSION["user_id"], $book_id, $tagset_id));
+    // create (empty) annotation for every paragraph
+    $res = sql_pe("SELECT par_id FROM paragraphs WHERE book_id = ?", array($book_id));
+    foreach ($res as $r) {
+        start_ne_annotation($r['par_id'], $tagset_id, true);
+    }
+    sql_commit();
 }
 
 function is_user_book_moderator($book_id, $tagset_id) {
