@@ -841,12 +841,8 @@ function create_object_from_mentions($mention_ids) {
 }
 
 function delete_object($object_id) {
-    // note: object with existing mentions will not be deleted
-    $res = sql_pe("SELECT * FROM ne_mentions WHERE object_id = ? LIMIT 1", array($object_id));
-    if (sizeof($res) > 0)
-        throw new Exception("Cannot delete object with mentions");
-
     sql_begin();
+    sql_pe("UPDATE ne_mentions SET object_id = 0 WHERE object_id = ?", array($object_id));
     sql_pe("DELETE FROM ne_object_prop_vals WHERE object_id = ?", array($object_id));
     sql_pe("DELETE FROM ne_objects WHERE object_id = ? LIMIT 1", array($object_id));
     sql_commit();
