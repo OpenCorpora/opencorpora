@@ -71,6 +71,7 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
         if ($r['book_id'] != $last_book_id && $last_book_id) {
             $book['all_ready'] = ($book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']);
             $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'] && $book['unavailable_par'] < $book['num_par'];
+            $book['finished_par_by_me'] = $finished_by_me;
 
             if ($book['available'] || !$for_user) {
                 $out['books'][] = $book;
@@ -83,7 +84,8 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
                 'available' => true,
                 'started' => 0,
                 'all_ready' => false,
-                'unavailable_par' => 0
+                'unavailable_par' => 0,
+                'finished_par_by_me' => 0
             );
             $finished_by_me = 0;
             $started_by_me = 0;
@@ -121,17 +123,12 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
         $book['unavailable_par'] += 1;
     $book['all_ready'] = ($book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']);
     $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'] && $book['unavailable_par'] < $book['num_par'];
+    $book['finished_par_by_me'] = $finished_by_me;
 
     if (!$for_user || ($book['available'] && sizeof($out['books']) < NE_ACTIVE_BOOKS))
         // $for_user is False when get_books_with_ne is called by moderator
         $out['books'][] = $book;
 
-    // sort so that unavailable texts go last
-    /* uasort($out, function($a, $b) {
-        if ($a['available'] == $b['available'])
-            return $a['started'] < $b['started'] ? 1: -1;
-        return $a['available'] < $b['available'] ? 1 : -1;
-    }); */
     return $out;
 }
 
