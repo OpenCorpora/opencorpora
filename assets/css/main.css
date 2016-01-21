@@ -1673,11 +1673,15 @@ tr.valign-top td {
 }
 
 .wide.modal {
-    width: 780px;
-    margin-left: -390px;
+    width: 1000px;
+    margin-left: -500px;
 }
 
 .inline.input-prepend {
     display: inline-block;
     margin-right: 5px;
+}
+
+tr.is-in-object {
+    font-style: italic;
 }

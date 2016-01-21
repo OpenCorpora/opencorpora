@@ -95,7 +95,7 @@
               <table class="table moderator-mentions mentions-table table-condensed" data-par-id="{$paragraph.id}">
               {foreach $paragraph.mentions as $id => $mention}
                 {if $id == 0}{continue}{/if}
-                <tr data-mention-id="{$id}" data-object-id="{$mention.object_id}">
+                <tr data-mention-id="{$id}" data-object-id="{$mention.object_id}" {if $mention.object_id}class="is-in-object"{/if}>
                   <td class="ner-mention-actions"><i class="icon icon-remove ner-remove remove-mention" data-mention-id={$id}></i></td>
                   <td class="ner-mention-text span4">
                     {foreach $mention['entities'] as $ne}

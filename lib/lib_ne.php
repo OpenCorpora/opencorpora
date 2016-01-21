@@ -843,8 +843,52 @@ function create_object_from_mentions($mention_ids) {
     $oid = sql_insert_id();
     array_unshift($mention_ids, $oid); // add new id to the beginning of the array
     sql_pe("UPDATE ne_mentions SET object_id = ? WHERE mention_id IN (" . $mentions_in . ")", $mention_ids);
+
+    $res = sql_pe("
+        SELECT object_type_id, object_name
+        FROM ne_mentions
+        LEFT JOIN ne_object_types USING (object_type_id)
+        WHERE mention_id IN (" . $mentions_in . ")
+        ", array());
+    $types = array();
+    foreach ($res as $r) {
+        $types[] = $r["object_name"];
+    }
+    $types = array_unique($types);
+
+    if ($types == array("Person"))
+        add_person_properties($oid);
+    elseif (!in_array("Person", $types))
+        add_non_person_properties($oid);
+    else
+        add_mixed_properties($oid);
+
     sql_commit();
     return $oid;
+}
+
+function add_person_properties($object_id) {
+    $DEFAULT_PROPS = unserialize(NE_OBJECT_DEFAULT_PROPS);
+    $props = $DEFAULT_PROPS["ONLY_PERSON"];
+    foreach ($props as $prop_name) {
+        set_object_property($object_id, get_prop_id_by_name($prop_name), "");
+    }
+}
+
+function add_non_person_properties($object_id) {
+    $DEFAULT_PROPS = unserialize(NE_OBJECT_DEFAULT_PROPS);
+    $props = $DEFAULT_PROPS["NOT_PERSON"];
+    foreach ($props as $prop_name) {
+        set_object_property($object_id, get_prop_id_by_name($prop_name), "");
+    }
+}
+
+function add_mixed_properties($object_id) {
+    $DEFAULT_PROPS = unserialize(NE_OBJECT_DEFAULT_PROPS);
+    $props = $DEFAULT_PROPS["MIXED"];
+    foreach ($props as $prop_name) {
+        set_object_property($object_id, get_prop_id_by_name($prop_name), "");
+    }
 }
 
 function delete_object($object_id) {
@@ -853,6 +897,13 @@ function delete_object($object_id) {
     sql_pe("DELETE FROM ne_object_prop_vals WHERE object_id = ?", array($object_id));
     sql_pe("DELETE FROM ne_objects WHERE object_id = ? LIMIT 1", array($object_id));
     sql_commit();
+}
+
+function get_prop_id_by_name($name) {
+    $res = sql_pe("SELECT prop_id FROM ne_object_props WHERE prop_key=?", array($name));
+    if ($res)
+        return $res[0]["prop_id"];
+    throw new Exception("Invalid prop name (" . $name . ")");
 }
 
 function get_possible_properties() {
@@ -886,7 +937,7 @@ function get_book_objects($book_id) {
     foreach ($obj_res as $r) {
         $id = $r["object_id"];
         $object_ids[] = $id;
-        $objects[$id] = array("object_id" => $id, "properties" => get_possible_properties(), "mentions" => array());
+        $objects[$id] = array("object_id" => $id, "properties" => array(), "mentions" => array());
     }
     if (!empty($object_ids)) {
         // get properties

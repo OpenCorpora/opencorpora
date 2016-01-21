@@ -115,6 +115,7 @@ try {
             if (empty($_POST['mentions']) || !is_array($_POST['mentions']))
                 throw new UnexpectedValueException();
             $id = create_object_from_mentions($_POST['mentions']);
+
             $result['object_id'] = $id;
             $result['mentions'] = get_mentions_text_by_objects(array($id))[$id];
             break;
@@ -125,10 +126,17 @@ try {
             set_object_property($_POST['object_id'], $_POST['prop_id'], $_POST['prop_value']);
             break;
 
+        case 'deleteProperty':
+            if (empty($_POST['object_id']) || empty($_POST['prop_id']))
+                throw new UnexpectedValueException();
+            delete_object_property($_POST['object_id'], $_POST['prop_id']);
+            break;
+
         case 'getObjects':
             if (empty($_POST['book_id']))
                 throw new UnexpectedValueException();
             $result['objects'] = get_book_objects($_POST['book_id']);
+            $result['possible_props'] = get_possible_properties();
             break;
 
         case 'deleteObject':
@@ -150,7 +158,7 @@ try {
 
             restart_book_moderation($_POST['book_id'], $_POST['tagset_id']);
             break;
-            
+
 
         case 'logEvent':
             if (empty($_POST['id'])) throw new Exception();

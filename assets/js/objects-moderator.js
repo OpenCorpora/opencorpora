@@ -21,12 +21,15 @@
     ]},
 ];*/
 
+var OBJECT_PROPS = [];
+
 function loadObjects() {
     $.post("./ajax/ner.php", {
         "act": "getObjects",
         "book_id": $("[name=book_id]").val()
     }).done(function(response) {
         var objects = response.objects; // response_test;
+        OBJECT_PROPS = response.possible_props;
         renderObjects(objects);
     });
 }
@@ -73,13 +76,29 @@ function $compileMentionsCell(object) {
 }
 
 function $makeInput(name, value, prop_id) {
-    return $("<div>").addClass("input-prepend inline").append(
+    return $("<div>").addClass("input-prepend input-append inline").append(
         $("<span>").addClass("add-on").text(name),
         $("<input>").addClass("span1 object-property-input")
             .attr("type", "text")
             .attr("data-prop-id", prop_id)
             .attr("data-initial-value", value)
-            .val(value)
+            .val(value),
+        $("<span>").addClass("add-on delete-prop")
+            .attr("data-prop-id", prop_id).html("&times;")
+    );
+}
+
+function $makeNewPropInput() {
+    var $select = $("<select>").addClass("new-prop-select span2");
+
+    $.map(OBJECT_PROPS, function(prop, prop_id) {
+        $select.append($("<option>").attr("value", prop_id)
+            .text(prop[0]));
+    });
+
+    return $("<div>").addClass("input-append inline").append(
+        $select,
+        $("<span>").addClass("add-on add-prop").html("&plus;")
     );
 }
 
@@ -88,6 +107,7 @@ function $compilePropertiesCell(properties) {
     $.map(properties, function(property_pair, i) {
         cell.append($makeInput(property_pair[0], property_pair[1], i));
     });
+    cell.append($("<br/>"), $makeNewPropInput());
     return cell;
 }
 
@@ -150,6 +170,7 @@ $(document).ready(function() {
 
             $.map(selected, function($tr) {
                 $tr.attr("data-object-id", response.object_id);
+                $tr.addClass("is-in-object");
             });
 
             clearObjectsHighlight();
@@ -175,4 +196,26 @@ $(document).ready(function() {
             object_id: input.parents("tr").attr("data-object-id")
         }, loadObjects);
     });
+
+    $(document).on("click", ".add-prop", function() {
+        var el = $(this);
+        var tr = el.parents("tr");
+        $.post("./ajax/ner.php", {
+            act: "setObjectProperty",
+            prop_id: el.parent().find(".new-prop-select").val(),
+            prop_value: "...",
+            object_id: tr.attr("data-object-id")
+        }, loadObjects);
+    });
+
+    $(document).on("click", ".delete-prop", function() {
+        var el = $(this);
+        var tr = el.parents("tr");
+        $.post("./ajax/ner.php", {
+            act: "deleteProperty",
+            prop_id: el.attr("data-prop-id"),
+            object_id: tr.attr("data-object-id")
+        }, loadObjects);
+    });
+
 });
