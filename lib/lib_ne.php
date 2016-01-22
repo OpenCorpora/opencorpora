@@ -868,7 +868,7 @@ function add_person_properties($object_id) {
     $DEFAULT_PROPS = unserialize(NE_OBJECT_DEFAULT_PROPS);
     $props = $DEFAULT_PROPS["ONLY_PERSON"];
     foreach ($props as $prop_name) {
-        set_object_property($object_id, get_prop_id_by_name($prop_name), "");
+        add_object_property($object_id, get_prop_id_by_name($prop_name), "");
     }
 }
 
@@ -876,7 +876,7 @@ function add_non_person_properties($object_id) {
     $DEFAULT_PROPS = unserialize(NE_OBJECT_DEFAULT_PROPS);
     $props = $DEFAULT_PROPS["NOT_PERSON"];
     foreach ($props as $prop_name) {
-        set_object_property($object_id, get_prop_id_by_name($prop_name), "");
+        add_object_property($object_id, get_prop_id_by_name($prop_name), "");
     }
 }
 
@@ -884,7 +884,7 @@ function add_mixed_properties($object_id) {
     $DEFAULT_PROPS = unserialize(NE_OBJECT_DEFAULT_PROPS);
     $props = $DEFAULT_PROPS["MIXED"];
     foreach ($props as $prop_name) {
-        set_object_property($object_id, get_prop_id_by_name($prop_name), "");
+        add_object_property($object_id, get_prop_id_by_name($prop_name), "");
     }
 }
 
@@ -912,19 +912,22 @@ function get_possible_properties() {
     return $out;
 }
 
-function set_object_property($object_id, $prop_id, $prop_val) {
+function add_object_property($object_id, $prop_id, $prop_val) {
     if (sizeof(sql_pe("SELECT object_id FROM ne_objects WHERE object_id = ?", array($object_id))) < 1)
         throw new Exception("Object not found");
     if (sizeof(sql_pe("SELECT prop_id FROM ne_object_props WHERE prop_id = ?", array($prop_id))) < 1)
         throw new Exception("Property not found");
-    sql_begin();
-    delete_object_property($object_id, $prop_id);
-    sql_pe("INSERT INTO ne_object_prop_vals VALUES (?, ?, ?)", array($object_id, $prop_id, $prop_val));
-    sql_commit();
+    sql_pe("INSERT INTO ne_object_prop_vals VALUES (NULL, ?, ?, ?)", array($object_id, $prop_id, $prop_val));
 }
 
-function delete_object_property($object_id, $prop_id) {
-    sql_pe("DELETE FROM ne_object_prop_vals WHERE object_id = ? AND prop_id = ?", array($object_id, $prop_id));
+function update_object_property($val_id, $prop_val) {
+    if (sizeof(sql_pe("SELECT val_id FROM ne_object_prop_vals WHERE val_id = ?", array($val_id))) < 1)
+        throw new Exception("Property value not found");
+    sql_pe("UPDATE ne_object_prop_vals SET prop_val = ? WHERE val_id = ?", array($prop_val, $val_id));
+}
+
+function delete_object_prop_val($object_id, $val_id) {
+    sql_pe("DELETE FROM ne_object_prop_vals WHERE val_id = ?", array($val_id));
 }
 
 function get_book_objects($book_id) {
@@ -938,10 +941,9 @@ function get_book_objects($book_id) {
     }
     if (!empty($object_ids)) {
         // get properties
-        $prop_res = sql_query("SELECT object_id, prop_id, prop_key, prop_val FROM ne_object_prop_vals LEFT JOIN ne_object_props USING (prop_id) WHERE object_id IN (" . implode(",", $object_ids) . ") ORDER BY object_id");
+        $prop_res = sql_query("SELECT object_id, val_id, prop_id, prop_key, prop_val FROM ne_object_prop_vals LEFT JOIN ne_object_props USING (prop_id) WHERE object_id IN (" . implode(",", $object_ids) . ") ORDER BY object_id, prop_id");
         while ($rp = sql_fetch_array($prop_res))
-            $objects[$rp["object_id"]]["properties"][$rp["prop_id"]] =
-                array($rp["prop_key"], $rp["prop_val"]);
+            $objects[$rp["object_id"]]["properties"][] = $rp;
         // get mentions
         $mentions = get_mentions_text_by_objects($object_ids);
         foreach ($mentions as $oid => $arr)
