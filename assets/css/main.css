@@ -1675,6 +1675,12 @@ tr.valign-top td {
 .wide.modal {
     width: 1000px;
     margin-left: -500px;
+    top: 80px !important;
+    margin-top: 0;
+}
+
+.wide.modal .modal-body {
+    max-height: 80%;
 }
 
 .inline.input-prepend {
