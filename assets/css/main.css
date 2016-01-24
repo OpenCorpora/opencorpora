@@ -1680,7 +1680,7 @@ tr.valign-top td {
 }
 
 .wide.modal .modal-body {
-    max-height: 80%;
+    max-height: 800px;
 }
 
 .inline.input-prepend {
