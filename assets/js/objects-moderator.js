@@ -91,8 +91,8 @@ function $makeInput(name, value, val_id) {
 function $makeNewPropInput() {
     var $select = $("<select>").addClass("new-prop-select span3 inline");
 
-    $.map(OBJECT_PROPS, function(prop, prop_id) {
-        $select.append($("<option>").attr("value", prop_id)
+    $.map(OBJECT_PROPS, function(prop) {
+        $select.append($("<option>").attr("value", prop[1])
             .text(prop[0]));
     });
 
