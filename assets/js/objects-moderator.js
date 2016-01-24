@@ -75,21 +75,21 @@ function $compileMentionsCell(object) {
     return cell;
 }
 
-function $makeInput(name, value, prop_id) {
-    return $("<div>").addClass("input-prepend input-append inline").append(
+function $makeInput(name, value, val_id) {
+    return $("<div>").addClass("input-prepend input-append").append(
         $("<span>").addClass("add-on").text(name),
-        $("<input>").addClass("span1 object-property-input")
+        $("<input>").addClass("span4 object-property-input")
             .attr("type", "text")
-            .attr("data-prop-id", prop_id)
+            .attr("data-val-id", val_id)
             .attr("data-initial-value", value)
             .val(value),
         $("<span>").addClass("add-on delete-prop")
-            .attr("data-prop-id", prop_id).html("&times;")
+            .attr("data-val-id", val_id).html("&times;")
     );
 }
 
 function $makeNewPropInput() {
-    var $select = $("<select>").addClass("new-prop-select span2");
+    var $select = $("<select>").addClass("new-prop-select span3 inline");
 
     $.map(OBJECT_PROPS, function(prop, prop_id) {
         $select.append($("<option>").attr("value", prop_id)
@@ -104,10 +104,10 @@ function $makeNewPropInput() {
 
 function $compilePropertiesCell(properties) {
     var cell = $("<td>");
-    $.map(properties, function(property_pair, i) {
-        cell.append($makeInput(property_pair[0], property_pair[1], i));
+    $.map(properties, function(property, val_id) {
+        cell.append($makeInput(property[1], property[2], val_id));
     });
-    cell.append($("<br/>"), $makeNewPropInput());
+    cell.append($makeNewPropInput());
     return cell;
 }
 
@@ -190,8 +190,8 @@ $(document).ready(function() {
         var input = $(this);
         if (input.val() == input.attr("data-initial-value")) return;
         $.post("./ajax/ner.php", {
-            act: "setObjectProperty",
-            prop_id: input.attr("data-prop-id"),
+            act: "updateObjectProperty",
+            val_id: input.attr("data-val-id"),
             prop_value: input.val(),
             object_id: input.parents("tr").attr("data-object-id")
         }, loadObjects);
@@ -201,9 +201,8 @@ $(document).ready(function() {
         var el = $(this);
         var tr = el.parents("tr");
         $.post("./ajax/ner.php", {
-            act: "setObjectProperty",
+            act: "addObjectProperty",
             prop_id: el.parent().find(".new-prop-select").val(),
-            prop_value: "...",
             object_id: tr.attr("data-object-id")
         }, loadObjects);
     });
@@ -213,8 +212,7 @@ $(document).ready(function() {
         var tr = el.parents("tr");
         $.post("./ajax/ner.php", {
             act: "deleteProperty",
-            prop_id: el.attr("data-prop-id"),
-            object_id: tr.attr("data-object-id")
+            val_id: el.attr("data-val-id")
         }, loadObjects);
     });
 

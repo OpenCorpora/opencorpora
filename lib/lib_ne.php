@@ -926,7 +926,7 @@ function update_object_property($val_id, $prop_val) {
     sql_pe("UPDATE ne_object_prop_vals SET prop_val = ? WHERE val_id = ?", array($prop_val, $val_id));
 }
 
-function delete_object_prop_val($object_id, $val_id) {
+function delete_object_prop_val($val_id) {
     sql_pe("DELETE FROM ne_object_prop_vals WHERE val_id = ?", array($val_id));
 }
 
@@ -943,7 +943,8 @@ function get_book_objects($book_id) {
         // get properties
         $prop_res = sql_query("SELECT object_id, val_id, prop_id, prop_key, prop_val FROM ne_object_prop_vals LEFT JOIN ne_object_props USING (prop_id) WHERE object_id IN (" . implode(",", $object_ids) . ") ORDER BY object_id, prop_id");
         while ($rp = sql_fetch_array($prop_res))
-            $objects[$rp["object_id"]]["properties"][] = $rp;
+            $objects[$rp["object_id"]]["properties"][$rp["val_id"]] =
+                array($rp["prop_id"], $rp["prop_key"], $rp["prop_val"]);
         // get mentions
         $mentions = get_mentions_text_by_objects($object_ids);
         foreach ($mentions as $oid => $arr)

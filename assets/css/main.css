@@ -1682,6 +1682,14 @@ tr.valign-top td {
     margin-right: 5px;
 }
 
+select.inline {
+    display: inline-block;
+}
+
 tr.is-in-object {
     font-style: italic;
+}
+
+.objects-table .input-prepend .add-on:first-child {
+    width: 80px;
 }

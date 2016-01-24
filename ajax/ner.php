@@ -120,16 +120,22 @@ try {
             $result['mentions'] = get_mentions_text_by_objects(array($id))[$id];
             break;
 
-        case 'setObjectProperty':
-            if (empty($_POST['object_id']) || empty($_POST['prop_id']) || empty($_POST['prop_value']))
+        case 'updateObjectProperty':
+            if (empty($_POST['val_id']) || empty($_POST['prop_value']))
                 throw new UnexpectedValueException();
-            set_object_property($_POST['object_id'], $_POST['prop_id'], $_POST['prop_value']);
+            update_object_property($_POST['val_id'], $_POST['prop_value']);
+            break;
+
+        case 'addObjectProperty':
+            if (empty($_POST['object_id']) || empty($_POST['prop_id']))
+                throw new UnexpectedValueException();
+            add_object_property($_POST['object_id'], $_POST['prop_id'], "");
             break;
 
         case 'deleteProperty':
-            if (empty($_POST['object_id']) || empty($_POST['prop_id']))
+            if (empty($_POST['val_id']))
                 throw new UnexpectedValueException();
-            delete_object_property($_POST['object_id'], $_POST['prop_id']);
+            delete_object_prop_val($_POST['val_id']);
             break;
 
         case 'getObjects':
