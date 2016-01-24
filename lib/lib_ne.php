@@ -907,7 +907,7 @@ function get_possible_properties() {
     $out = array();
     $res = sql_query("SELECT prop_id, prop_key FROM ne_object_props ORDER by `order` ASC");
     while ($r = sql_fetch_array($res)) {
-        $out[$r['prop_id']] = array($r['prop_key'], "");
+        $out[] = array($r['prop_id'], $r['prop_key']);
     }
     return $out;
 }
