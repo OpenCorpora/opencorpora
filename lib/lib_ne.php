@@ -905,7 +905,7 @@ function get_prop_id_by_name($name) {
 
 function get_possible_properties() {
     $out = array();
-    $res = sql_query("SELECT prop_id, prop_key FROM ne_object_props ORDER by prop_key");
+    $res = sql_query("SELECT prop_id, prop_key FROM ne_object_props ORDER by `order` ASC");
     while ($r = sql_fetch_array($res)) {
         $out[$r['prop_id']] = array($r['prop_key'], "");
     }
