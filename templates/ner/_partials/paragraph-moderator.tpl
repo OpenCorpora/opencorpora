@@ -48,7 +48,7 @@
           <div class="tabbable dragged-upper">
             <ul class="nav nav-tabs small-tabs">
               <li class="active"><a href="#tab-entities-{$paragraph.id}-mine" data-toggle="tab">Спаны</a></li>
-              <li><a href="#tab-mentions-{$paragraph.id}-mine" data-toggle="tab" class="tab-opener">Упоминания</a></li>
+              <li><a href="#tab-mentions-{$paragraph.id}-mine" data-toggle="tab" class="tab-opener mentions-tab-opener">Упоминания</a></li>
               <li><a href="#" class="modal-opener" data-toggle="modal" data-target="#objects-modal">Объекты</a></li>
             </ul>
             <div class="tab-content">

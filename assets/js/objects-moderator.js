@@ -158,6 +158,11 @@ $(document).ready(function() {
         }
     });
 
+    $(".mentions-tab-opener").dblclick(function(e) {
+        e.preventDefault();
+        $(".mentions-tab-opener").tab("show");
+    });
+
     $(".new-object").click(function() {
         var selected = $(".objects-current-selection");
 

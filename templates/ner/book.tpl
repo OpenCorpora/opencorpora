@@ -125,7 +125,7 @@
   <script src="/assets/js/ner.js?10"></script>
   {/literal}{if $is_moderator}
     <script src="/assets/js/ner-moderator.js?10"></script>
-    <script src="/assets/js/objects-moderator.js?10"></script>
+    <script src="/assets/js/objects-moderator.js?11"></script>
   {/if}{literal}
   <script src="/assets/js/mentions.js?10"></script>
   <script src="/assets/js/ne_comments.js"></script>
