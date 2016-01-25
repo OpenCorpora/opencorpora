@@ -11,6 +11,7 @@ Disallow: /revert
 Disallow: /scripts
 Disallow: /sentence
 Disallow: /tasks
+Disallow: /user.php
 Disallow: /w/
 Disallow: /wiki/Special:Search
 Disallow: /wiki/Special:Random
