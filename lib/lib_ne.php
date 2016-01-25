@@ -341,7 +341,7 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
     return $out;
 }
 
-function get_all_ne_by_sentence($sent_id) {
+function get_all_ne_entities_by_sentence($sent_id) {
     return sql_pe("
         SELECT entity_id, start_token, length
         FROM ne_entities

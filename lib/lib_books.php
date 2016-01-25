@@ -337,7 +337,7 @@ function merge_paragraphs($par_id) {
     return array($book_id, $res[0]['sent_id']);
 }
 function sentence_has_ne_markup($sent_id) {
-    return sizeof(get_all_ne_by_sentence($sent_id)) > 0;
+    return sizeof(get_all_ne_entities_by_sentence($sent_id)) > 0;
 }
 function sentence_has_syntax_markup($sent_id) {
     $res = sql_pe("SELECT parse_id FROM syntax_parses WHERE sent_id = ? LIMIT 1", array($sent_id));
@@ -345,7 +345,7 @@ function sentence_has_syntax_markup($sent_id) {
 }
 function is_token_covered_by_ne_markup($tf_id) {
     $res = sql_pe("SELECT sent_id FROM tokens WHERE tf_id=? LIMIT 1", array($tf_id));
-    $entities = get_all_ne_by_sentence($res[0]['sent_id']);
+    $entities = get_all_ne_entities_by_sentence($res[0]['sent_id']);
 
     $tokres = sql_prepare("
         SELECT tf_id
