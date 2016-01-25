@@ -10,7 +10,7 @@
 $(document).ready(function() {
     var options1 = {
         xaxis: {mode:"time", timeformat: "%d %b", monthNames: ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"]},
-        yaxis: {max: 1400000},
+        yaxis: {max: 1750000},
         legend: {position: "nw"},
         series: {lines: {fill: true}},
         selection: {mode: "x"}
