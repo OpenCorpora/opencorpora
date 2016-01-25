@@ -867,25 +867,31 @@ function create_object_from_mentions($mention_ids) {
 function add_person_properties($object_id) {
     $DEFAULT_PROPS = unserialize(NE_OBJECT_DEFAULT_PROPS);
     $props = $DEFAULT_PROPS["ONLY_PERSON"];
+    sql_begin();
     foreach ($props as $prop_name) {
         add_object_property($object_id, get_prop_id_by_name($prop_name), "");
     }
+    sql_commit();
 }
 
 function add_non_person_properties($object_id) {
     $DEFAULT_PROPS = unserialize(NE_OBJECT_DEFAULT_PROPS);
+    sql_begin();
     $props = $DEFAULT_PROPS["NOT_PERSON"];
     foreach ($props as $prop_name) {
         add_object_property($object_id, get_prop_id_by_name($prop_name), "");
     }
+    sql_commit();
 }
 
 function add_mixed_properties($object_id) {
     $DEFAULT_PROPS = unserialize(NE_OBJECT_DEFAULT_PROPS);
+    sql_begin();
     $props = $DEFAULT_PROPS["MIXED"];
     foreach ($props as $prop_name) {
         add_object_property($object_id, get_prop_id_by_name($prop_name), "");
     }
+    sql_commit();
 }
 
 function delete_object($object_id) {
