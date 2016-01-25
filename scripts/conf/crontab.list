@@ -1,7 +1,7 @@
 # m h  dom mon dow   command
 # less than once a day
 0 6 1 * * php /corpus/scripts/check_dog_achievement.php >> /home/madfriend/error.log 2&>1
-30 3 * * 1 /corpus/export/database/backup.sh 2>>/home/grand/error.log
+#30 3 * * 1 /corpus/export/database/backup.sh 2>>/home/grand/error.log
 # once a day
 30 2 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/run_validators.sh" 2>>/home/grand/error.log
 #0 3 * * * nice /corpus/scripts/tokenizer/collect_data.pl /corpus/config.ini --dry-run >/dev/null 2>/home/grand/tokenizer.log
