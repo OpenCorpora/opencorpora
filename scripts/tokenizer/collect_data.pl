@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use utf8;
+use v5.10;
 use DBI;
 use Encode;
 use Unicode::Normalize;
@@ -60,7 +61,7 @@ read_instances("$root_path/scripts/tokenizer/bad_sentences.txt", \%bad_sentences
 $sent->execute();
 while(my $ref = $sent->fetchrow_hashref()) {
     next if exists $bad_sentences{$ref->{'sent_id'}};
-    $str = decode('utf8', $ref->{'source'}).'  ';
+    $str = NFC(decode('utf8', $ref->{'source'})).'  ';
     $crossval_id = $ref->{'sent_id'} % CROSSVAL_FOLDS;
 
     $border = get_borders_from_tokens($str, get_tokens_by_sent_id($ref->{'sent_id'}), $ref->{'sent_id'});
@@ -177,8 +178,6 @@ sub calc {
     my $str = shift;
     my $i = shift;
 
-    $str = NFC($str);
-
     my $previous = ($i > 0 ? substr($str, $i-1, 1) : '');
     my $current = substr($str, $i, 1);
     my $next = substr($str, $i+1, 1);
@@ -241,20 +240,26 @@ sub calc {
 }
 sub char_class {
     my $char = shift;
-    my $ret = 
-        is_cyr($char)          ? '0001' :
-        is_space($char)        ? '0010' :
-        is_dot($char)          ? '0011' :
-        is_pmark($char)        ? '0100' :
-        is_hyphen($char)       ? '0101' :
-        is_number($char)       ? '0110' :
-        is_latin($char)        ? '0111' :
-        is_bracket1($char)     ? '1000' :
-        is_bracket2($char)     ? '1001' :
-        is_single_quote($char) ? '1010' :
-        is_slash($char)        ? '1011' :
-        is_colon($char)        ? '1100' : '0000';
-    return split //, $ret;
+
+    state %cache;
+
+    unless (defined $cache{$char}) {
+        my $ret =
+            is_cyr($char)          ? '0001' :
+            is_space($char)        ? '0010' :
+            is_dot($char)          ? '0011' :
+            is_pmark($char)        ? '0100' :
+            is_hyphen($char)       ? '0101' :
+            is_number($char)       ? '0110' :
+            is_latin($char)        ? '0111' :
+            is_bracket1($char)     ? '1000' :
+            is_bracket2($char)     ? '1001' :
+            is_single_quote($char) ? '1010' :
+            is_slash($char)        ? '1011' :
+            is_colon($char)        ? '1100' : '0000';
+        $cache{$char} = [split //, $ret];
+    }
+    return @{$cache{$char}};
 }
 sub is_pmark {
     my $char = shift;
@@ -306,10 +311,13 @@ sub is_colon {
 }
 sub is_number {
     my $char = shift;
-    if ($char =~ /^\d$/) {
-        return 1;
+
+    state %cache;
+
+    unless (defined $cache{$char}) {
+        $cache{$char} = ($char =~ /^\d$/) ? 1 : 0;
     }
-    return 0;
+    return $cache{$char};
 }
 sub is_bracket1 {
     my $char = shift;
