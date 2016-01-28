@@ -80,6 +80,7 @@ function $makeInput(name, value, val_id) {
         $("<span>").addClass("add-on").text(name),
         $("<input>").addClass("span4 object-property-input")
             .attr("type", "text")
+            .attr("list", "spans-datalist")
             .attr("data-val-id", val_id)
             .attr("data-initial-value", value)
             .val(value),
@@ -199,7 +200,7 @@ $(document).ready(function() {
             val_id: input.attr("data-val-id"),
             prop_value: input.val(),
             object_id: input.parents("tr").attr("data-object-id")
-        }, loadObjects);
+        }); //, loadObjects);
     });
 
     $(document).on("click", ".add-prop", function() {

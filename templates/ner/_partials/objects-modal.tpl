@@ -18,5 +18,7 @@
         </tr>
       </tbody>
     </table>
+    <datalist id="spans-datalist">
+    </datalist>
   </div>
 </div>
