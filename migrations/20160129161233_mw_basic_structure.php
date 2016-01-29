@@ -17,7 +17,7 @@ class MwBasicStructure extends AbstractMigration {
         $tokens = $this->table("mw_tokens", array("id" => false, "primary_key" => array("mw_id", "tf_id"), "engine" => "InnoDB"));
         $tokens
             ->addColumn("mw_id", "integer")
-            ->addColumn("tf_id", "integer")
+            ->addColumn("tf_id", "integer", array("signed" => false))
             ->addIndex("mw_id")
             ->addIndex("tf_id")
             ->save();
