@@ -4,8 +4,12 @@ require_once('lib_mail.php');
 require_once('lib_achievements.php');
 require_once('lib_options.php');
 
+function make_pwd_hash($login, $raw_password) {
+    return md5(md5(trim($raw_password)).substr(trim($login), 0, 2));
+}
+
 function user_check_password($login, $password) {
-    $password = md5(md5($password).substr($login, 0, 2));
+    $password = make_pwd_hash($login, $password);
     $res = sql_pe("SELECT `user_id` FROM `users` WHERE `user_name`=? AND `user_passwd`=? LIMIT 1", array($login, $password));
     if (!sizeof($res)) return false;
     return $res[0]['user_id'];
@@ -23,7 +27,7 @@ function user_generate_password($email) {
     $pwd = gen_password();
     //send email
     if (send_email($email, 'Восстановление пароля на opencorpora.org', "Добрый день,\n\nВаш новый пароль для входа на opencorpora.org:\n\n$pwd\n\nРекомендуем как можно быстрее изменить его через интерфейс сайта.\n\nНапоминаем, ваш логин - $username\n\nOpenCorpora")) {
-        $md5 = md5(md5($pwd).substr($r['user_name'], 0, 2));
+        $md5 = make_pwd_hash($r['user_name'], $pwd);
         sql_query("UPDATE `users` SET `user_passwd`='$md5' WHERE user_id=".$r['user_id']." LIMIT 1");
         return 1;
     } else {
@@ -192,7 +196,7 @@ function user_register($post) {
     if ($email && !is_valid_email($email))
         return 8;
     //so far they are ok
-    $passwd = md5(md5($post['passwd']).substr($name, 0, 2));
+    $passwd = make_pwd_hash($name, $post['passwd']);
     if (sizeof(sql_pe("SELECT user_id FROM `users` WHERE user_name=? LIMIT 1", array($name))) > 0) {
         return 3;
     }
@@ -226,7 +230,7 @@ function user_change_password($post) {
             return 3;
         if (!is_valid_password($post['new_pw']))
             return 4;
-        $passwd = md5(md5($post['new_pw']).substr($login, 0, 2));
+        $passwd = make_pwd_hash($login, $post['new_pw']);
         sql_query("UPDATE `users` SET `user_passwd`='$passwd' WHERE `user_id`=".$_SESSION['user_id']." LIMIT 1");
         return 1;
     }
