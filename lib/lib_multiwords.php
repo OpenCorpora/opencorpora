@@ -13,6 +13,10 @@ class MultiWordTask {
     const APPROVED_MANUAL  = 4;
     const REJECTED_MANUAL  = 5;
 
+    const NOT_APPLIED    = 0;
+    const APPLIED_AUTO   = 1;
+    const APPLIED_MANUAL = 2;
+
     const ANSWER_YES  = 1;
     const ANSWER_NO   = 2;
     const ANSWER_SKIP = 3;
@@ -77,6 +81,68 @@ class MultiWordTask {
 
         if ($res[0]['cnt'] >= ANSWERS_PER_TASK)
             sql_pe("UPDATE mw_main SET status = ? WHERE mw_id = ? LIMIT 1", array(READY, $mw_id));
+    }
+}
+
+class MultiWordSearchRule {
+    
+    const EXACT_FORM = 0;
+
+    private $tokens;
+
+    public function __construct($line) {
+        echo "$line\n";
+        // TODO
+    }
+
+    // returns array of arrays of token ids
+    public function do_search() {
+        // TODO
+        return array();
+    }
+}
+
+class MultiWordFinder {
+    private $rules;
+
+    public function __construct($rules_file) {
+        $this->_parse_rules(file($rules_file));
+    }
+
+    public function find() {
+        $found = array();
+        foreach ($this->rules as $rule) {
+            $found = array_merge($found, $rule->do_search());
+        }
+        $found = $this->_remove_existing_token_sets($found);
+        $this->_save_found_tokens($found);
+    }
+
+    private function _parse_rules($lines) {
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (!$line || $line[0] == '#')
+                continue;
+            $this->rules[] = new MultiWordSearchRule($line);
+        }
+    }
+
+    private function _remove_existing_token_sets($token_sets) {
+        // TODO
+        return $token_sets;
+    }
+
+    private function _save_found_tokens($token_sets) {
+        sql_begin();
+        foreach ($token_sets as $tset) {
+            sql_pe("INSERT INTO mw_main (status, applied) VALUES (?, ?)",
+                   array(MultiWordTask::NOT_READY, MultiWordTask::NOT_APPLIED));
+            $mw_id = sql_insert_id();
+            foreach ($tset as $tf_id) {
+                sql_pe("INSERT INTO mw_tokens (mw_id, tf_id) VALUES (?, ?)", array($mw_id, $tf_id));
+            }
+        }
+        sql_commit();
     }
 }
 
