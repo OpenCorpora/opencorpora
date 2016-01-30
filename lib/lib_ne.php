@@ -47,7 +47,8 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
         'started' => 0,
         'all_ready' => false,
         'unavailable_par' => 0,
-        'moderator_id' => 0
+        'moderator_id' => 0,
+        'objects_count' => 0
     );
     $last_book_id = 0;
     $last_par_id = 0;
@@ -85,7 +86,8 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
                 'started' => 0,
                 'all_ready' => false,
                 'unavailable_par' => 0,
-                'finished_par_by_me' => 0
+                'finished_par_by_me' => 0,
+                'objects_count' => 0
             );
             $finished_by_me = 0;
             $started_by_me = 0;
@@ -112,6 +114,7 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
         $book['id'] = $r['book_id'];
         $book['name'] = $r['book_name'];
         $book['moderator_id'] = $r['moderator_id'];
+        $book['objects_count'] = get_book_objects_count($book['id']);
         $allbooks[$book['id']] = true;
         $book['queue_num'] = sizeof($allbooks);
         $last_book_id = $r['book_id'];
@@ -957,6 +960,11 @@ function get_book_objects($book_id) {
             $objects[$oid]["mentions"] = $arr;
     }
     return $objects;
+}
+
+function get_book_objects_count($book_id) {
+    $res = sql_pe("SELECT COUNT(*) AS cnt FROM ne_objects WHERE book_id = ?", array($book_id));
+    return $res[0]["cnt"];
 }
 
 // inner function with no escaping and validation
