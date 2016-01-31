@@ -22,7 +22,7 @@ class MultiWordTask {
     const ANSWER_SKIP = 3;
     
 
-    public static function get_task($user_id) {
+    public static function get_tasks($user_id, $num=1) {
         $res = sql_pe("
             SELECT mw_id, token_id, sent_id
             FROM mw_main
@@ -32,34 +32,45 @@ class MultiWordTask {
             AND mw_id NOT IN (
                 SELECT DISTINCT mw_id
                 FROM mw_answers
+                LEFT JOIN mw_main USING (mw_id)
                 WHERE user_id = ?
+                AND status = ". NOT_READY ."
             )
             ORDER BY mw_id
-            LIMIT 10
-        ", array($user_id));
+            LIMIT ?
+        ", array($user_id, $num * 10));
 
         if (!sizeof($res))
             return false;
+
+        $out = array();
 
         $sent_id = $res[0]['sent_id'];
         $mw_id = $res[0]['mw_id'];
         $token_ids = array();
         foreach ($res as $row) {
-            if ($mw_id != $row['mw_id'])
-                break;
+            if ($mw_id != $row['mw_id']) {
+                if (sizeof($token_ids) < 2)
+                    throw new Exception("Too few tokens");
+
+                $out[] = array(
+                    'id' => $mw_id,
+                    'token_ids' => $token_ids,
+                    'context' => get_context_for_word($token_ids[0], sizeof($token_ids) + CONTEXT_WIDTH)
+                );
+                if (sizeof($out) == $num)
+                    break;
+
+                $token_ids = array();
+                $sent_id = $row['sent_id'];
+                $mw_id = $row['mw_id'];
+            }
             if ($sent_id != $row['sent_id'])
                 throw new Exception("Inconsistent sentence id");
             $token_ids[] = $row['tf_id'];
         }
 
-        if (sizeof($token_ids) < 2)
-            throw new Exception("Too few tokens");
-
-        return array(
-            'id' => $mw_id,
-            'token_ids' => $token_ids,
-            'context' => get_context_for_word($token_ids[0], sizeof($token_ids) + CONTEXT_WIDTH)
-        );
+        return $out;
     }
 
     public static function register_answer($mw_id, $user_id, $answer) {
@@ -91,8 +102,9 @@ class MultiWordSearchRule {
     private $tokens;
 
     public function __construct($line) {
-        echo "$line\n";
-        // TODO
+        foreach (explode(' ', $line) as $t) {
+            $tokens[] = array($t, $this::EXACT_FORM);
+        }
     }
 
     // returns array of arrays of token ids
