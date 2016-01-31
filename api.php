@@ -6,7 +6,7 @@ require_once('lib/lib_users.php');
 require_once('lib/lib_morph_pools.php');
 header('Content-type: application/json');
 
-define('API_VERSION', '0.31');
+define('API_VERSION', '0.32');
 $action = $_GET['action'];
 $user_id = 0;
 

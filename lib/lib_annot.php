@@ -525,15 +525,14 @@ function get_context_for_word($tf_id, $delta, $dir=0, $include_self=1) {
         }
 
         if ($include_self || $r['tf_id'] != $tf_id)
-            $t[] = $r['tf_text'];
+            $t[$r['tf_id']] = $r['tf_text'];
         if ($include_self && $r['tf_id'] == $tf_id) {
-            $tw = sizeof($t) - 1;
             $mw_pos = $r['pos'];
         }
     }
     return array(
         'context' => $t,
-        'mainword' => $tw,
+        'mainword' => $tf_id,
         'has_left_context' => $left_c,
         'has_right_context' => $right_c,
         'sentence_id' => $sent_id,

@@ -16,8 +16,8 @@
 <table border="1" cellspacing='0' cellpadding='2'>
 {foreach from=$data.samples item=c}
 <tr><td>{strip}
-    {foreach from=$c.context item=word name=x}
-        {if $smarty.foreach.x.index == $c.mainword}<b class='bggreen'>{$word|htmlspecialchars}</b>
+    {foreach from=$c.context item=word key=tf_id}
+        {if $tf_id == $c.mainword}<b class='bggreen'>{$word|htmlspecialchars}</b>
         {else}{$word|htmlspecialchars}{/if}
         &nbsp;
     {/foreach}
