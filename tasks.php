@@ -3,6 +3,7 @@ require('lib/header.php');
 require_once('lib/constants.php');
 require_once('lib/lib_xml.php');
 require_once('lib/lib_morph_pools.php');
+require_once('lib/lib_multiwords.php');
 
 $smarty->assign('active_page','tasks');
 
@@ -64,6 +65,25 @@ switch ($action) {
             $smarty->assign('achievement', $am2->get_closest());
         }
         $smarty->display('qa/morph_annot_thanks.tpl');
+        break;
+    case 'mwords':
+        check_permission(PERM_MULTITOKENS);
+        $pool_size = 5;
+        $opt = OPTION(OPT_SAMPLES_PER_PAGE);
+        switch ($opt) {
+            case 2:
+                $pool_size = 10;
+                break;
+            case 3:
+                $pool_size = 20;
+                break;
+            case 4:
+                $pool_size = 50;
+        }
+
+        $smarty->assign('mwords', MultiWordTask::get_tasks($_SESSION['user_id'], $pool_size));
+        $smarty->assign('answers', array("ANSWER_YES" => MultiWordTask::ANSWER_YES, "ANSWER_NO" => MultiWordTask::ANSWER_NO, "ANSWER_SKIP" => MultiWordTask::ANSWER_SKIP));
+        $smarty->display('mwords_annot.tpl');
         break;
     default:
         $smarty->assign('available', get_available_tasks($_SESSION['user_id']));

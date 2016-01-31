@@ -78,7 +78,7 @@ class MultiWordTask {
             throw new UnexpectedValueException();
         sql_begin();
         sql_pe("INSERT INTO mw_answers (mw_id, user_id, answer) VALUES (?, ?, ?)", array($mw_id, $user_id, $answer));
-        _check_mw_status($mw_id);
+        self::_check_mw_status($mw_id);
         sql_commit();
     }
 
@@ -193,6 +193,7 @@ class MultiWordSearchRule {
             else {
                 // continue searching
                 $tnum = 0;
+                $mword = array();
             }
         }
         return $mwords;
