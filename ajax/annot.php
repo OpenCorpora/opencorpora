@@ -11,7 +11,12 @@ try {
     $id = (int)$_POST['id'];
     $answer = isset($_POST['answer']) ? (int)$_POST['answer'] : (int)$_POST['status'];
 
-    if (isset($_POST['moder'])) {
+    if (isset($_POST['mw']) && $_POST['mw'] == 1) {
+        require_once('../lib/lib_multiwords.php');
+        check_permission(PERM_MULTITOKENS);
+        MultiWordTask::register_answer($id, $_SESSION['user_id'], $answer);
+    }
+    else if (isset($_POST['moder'])) {
         if (isset($_POST['status']))
             $result['status'] = save_moderated_status($id, $answer);
         else

@@ -158,8 +158,8 @@ $(document).ready(function() {
 <div class='ma_instance ma_not_ready' rel='{$instance.id}' rev='{$instance.sample_id}'>
     <div class="ma_instance_words">
         {if $instance.has_left_context}<a class='expand' href="#" rel='{$instance.has_left_context}' rev='-1'>...</a>{/if}
-        {foreach from=$instance.context item=word name=x}
-        {if $smarty.foreach.x.index == $instance.mainword}
+        {foreach from=$instance.context item=word key=tf_id}
+        {if $tf_id == $instance.mainword}
         <b class='ma_instance_word' title='{$instance.lemmata}'>{$word|htmlspecialchars}</b>
         {else}
         {$word|htmlspecialchars}
