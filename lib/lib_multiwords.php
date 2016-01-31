@@ -100,17 +100,94 @@ class MultiWordSearchRule {
     const EXACT_FORM = 0;
 
     private $tokens;
+    private $t_index;
 
     public function __construct($line) {
-        foreach (explode(' ', $line) as $t) {
+        /*foreach (explode(' ', $line) as $t) {
             $tokens[] = array($t, $this::EXACT_FORM);
+        }*/
+        $this->tokens = explode(" ", $line);
+        $this->t_index = array_unique($this->tokens);
+        usort($this->t_index, array("MultiWordSearchRule", "cmp_tokens"));
+    }
+    
+    public static function cmp_tokens($a, $b) {
+        if (mb_strlen($a) == mb_strlen($b)) {
+            $punct_a = ctype_punct($a);
+            $punct_b = ctype_punct($b);
+            if ($punct_a == $punct_b)
+                return 0;
+            else
+                return $punct_a > $punct_b ? -1 : 1;
         }
+        else
+            return mb_strlen($a) > mb_strlen($b) ? -1 : 1;
     }
 
     // returns array of arrays of token ids
     public function do_search() {
-        // TODO
-        return array();
+        $found = array();
+        // get candidates = all tokens from sentences, containing all required tokens
+        $res = sql_query($this->_construct_query());
+        $sent_id = 0;
+        $sentence = array();
+        $sents = array();
+        while ($row = sql_fetch_array($res)) {
+            if ($row["sent_id"] != $sent_id ) {
+                if (!empty($sentence)) {
+                    $found = array_merge($found, $this->_filter_sentence($sentence));
+                    $sentence = array();
+                }
+                $sent_id = $row["sent_id"];
+            }
+            $sentence[] = $row;
+        }
+        $found = array_merge($found, $this->_filter_sentence($sentence));
+        #print_r($found);
+        return $found;
+    }
+
+    private function _construct_query() {
+        $query = "SELECT * FROM tokens WHERE sent_id IN (";
+        $cnt = 0;
+        foreach ($this->t_index as $token) {
+            $cnt += 1;
+            $query .= 'SELECT sent_id FROM tokens WHERE tf_text = "' . $token . '"';
+            if ($cnt < sizeof($this->t_index)) {
+                $query .= " AND sent_id IN (";
+            }
+        }
+        $query .= str_repeat(")", sizeof($this->t_index));
+        $query .= " ORDER BY sent_id, pos";
+        #$query .= " LIMIT 100";
+        return $query;
+    }
+
+    // gets array of arrays of matching tokens in a sentence
+    private function _filter_sentence($sent) {
+        $mwords = array();
+        $mword = array();
+        $tnum = 0;
+        foreach ($sent as $token) {
+            if (mb_convert_case($token["tf_text"], MB_CASE_LOWER, "UTF-8") == $this->tokens[$tnum]) {
+                $mword[] = $token["tf_id"];
+                if ($tnum == sizeof($this->tokens) - 1) {
+                    // match - last token found
+                    $mwords[] = $mword;
+                    $mword = array();
+                    $tnum = 0;
+                }
+                else {
+                    // continue matching
+                    $tnum += 1;
+                }
+            }
+            else {
+                // continue searching
+                $tnum = 0;
+            }
+        }
+        return $mwords;
     }
 }
 
