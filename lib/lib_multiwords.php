@@ -24,17 +24,17 @@ class MultiWordTask {
 
     public static function get_tasks($user_id, $num=1) {
         $res = sql_pe("
-            SELECT mw_id, token_id, sent_id
+            SELECT mw_id, tf_id, sent_id
             FROM mw_main
             JOIN mw_tokens mwt USING (mw_id)
             LEFT JOIN tokens t USING (tf_id)
-            WHERE status = ". NOT_READY ."
+            WHERE status = ". self::NOT_READY ."
             AND mw_id NOT IN (
                 SELECT DISTINCT mw_id
                 FROM mw_answers
                 LEFT JOIN mw_main USING (mw_id)
                 WHERE user_id = ?
-                AND status = ". NOT_READY ."
+                AND status = ". self::NOT_READY ."
             )
             ORDER BY mw_id
             LIMIT ?
@@ -56,7 +56,7 @@ class MultiWordTask {
                 $out[] = array(
                     'id' => $mw_id,
                     'token_ids' => $token_ids,
-                    'context' => get_context_for_word($token_ids[0], sizeof($token_ids) + CONTEXT_WIDTH)
+                    'context' => get_context_for_word($token_ids[0], sizeof($token_ids) + self::CONTEXT_WIDTH)
                 );
                 if (sizeof($out) == $num)
                     break;
@@ -74,7 +74,7 @@ class MultiWordTask {
     }
 
     public static function register_answer($mw_id, $user_id, $answer) {
-        if (!$mw_id || !$user_id || !in_array($answer, array(ANSWER_YES, ANSWER_NO, ANSWER_SKIP)))
+        if (!$mw_id || !$user_id || !in_array($answer, array(self::ANSWER_YES, self::ANSWER_NO, self::ANSWER_SKIP)))
             throw new UnexpectedValueException();
         sql_begin();
         sql_pe("INSERT INTO mw_answers (mw_id, user_id, answer) VALUES (?, ?, ?)", array($mw_id, $user_id, $answer));
@@ -87,11 +87,11 @@ class MultiWordTask {
             SELECT COUNT(DISTINCT user_id) As cnt
             FROM mw_answers
             WHERE mw_id = ?
-            AND answer in (".ANSWER_YES.", ".ANSWER_NO.")
+            AND answer in (".self::ANSWER_YES.", ".self::ANSWER_NO.")
         ", array($mw_id));
 
-        if ($res[0]['cnt'] >= ANSWERS_PER_TASK)
-            sql_pe("UPDATE mw_main SET status = ? WHERE mw_id = ? LIMIT 1", array(READY, $mw_id));
+        if ($res[0]['cnt'] >= self::ANSWERS_PER_TASK)
+            sql_pe("UPDATE mw_main SET status = ? WHERE mw_id = ? LIMIT 1", array(self::READY, $mw_id));
     }
 }
 
@@ -103,11 +103,10 @@ class MultiWordSearchRule {
     private $t_index;
 
     public function __construct($line) {
-        /*foreach (explode(' ', $line) as $t) {
-            $tokens[] = array($t, $this::EXACT_FORM);
-        }*/
-        $this->tokens = explode(" ", $line);
-        $this->t_index = array_unique($this->tokens);
+        foreach (explode(' ', $line) as $t) {
+            $this->tokens[] = array($t, self::EXACT_FORM);
+        }
+        $this->t_index = array_unique(array_map(function($e) {return $e[0];}, $this->tokens));
         usort($this->t_index, array("MultiWordSearchRule", "cmp_tokens"));
     }
     
@@ -163,13 +162,22 @@ class MultiWordSearchRule {
         return $query;
     }
 
+    private function _match_token($token, $idx) {
+        switch ($this->tokens[$idx][1]) {
+            case self::EXACT_FORM:
+                return mb_convert_case($token["tf_text"], MB_CASE_LOWER, "UTF-8") == $this->tokens[$idx][0];
+            default:
+                throw new UnexpectedValueException("Unknown matching type");
+        }
+    }
+
     // gets array of arrays of matching tokens in a sentence
     private function _filter_sentence($sent) {
         $mwords = array();
         $mword = array();
         $tnum = 0;
         foreach ($sent as $token) {
-            if (mb_convert_case($token["tf_text"], MB_CASE_LOWER, "UTF-8") == $this->tokens[$tnum]) {
+            if ($this->_match_token($token, $tnum)) {
                 $mword[] = $token["tf_id"];
                 if ($tnum == sizeof($this->tokens) - 1) {
                     // match - last token found
