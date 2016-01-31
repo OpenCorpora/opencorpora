@@ -12,6 +12,7 @@ define('PERM_MORPH_SUPERMODER', 7);
 define('PERM_SYNTAX', 8);
 define('PERM_SYNTAX_MODER', 9);
 define('PERM_NE_MODER', 10);
+define('PERM_MULTITOKENS', 11);
 
 define('OPT_GRAMNAMES', 1);
 define('OPT_ILANG', 2);
