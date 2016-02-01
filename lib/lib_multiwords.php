@@ -41,7 +41,7 @@ class MultiWordTask {
         ", array($user_id, $num * 10));
 
         if (!sizeof($res))
-            return false;
+            return array();
 
         $out = array();
 
@@ -125,6 +125,7 @@ class MultiWordSearchRule {
 
     // returns array of arrays of token ids
     public function do_search() {
+        echo "searching for " . implode(" ", array_map(function($e) {return $e[0];}, $this->tokens)) . "\n";
         $found = array();
         // get candidates = all tokens from sentences, containing all required tokens
         $res = sql_query($this->_construct_query());
@@ -143,6 +144,7 @@ class MultiWordSearchRule {
         }
         $found = array_merge($found, $this->_filter_sentence($sentence));
         #print_r($found);
+        echo sizeof($found) . " candidates found\n";
         return $found;
     }
 
@@ -203,11 +205,13 @@ class MultiWordSearchRule {
 class MultiWordFinder {
     private $rules;
 
-    public function __construct($rules_file) {
-        $this->_parse_rules(file($rules_file));
+    public function __construct($rules_file, $limit = array()) {
+        $this->_parse_rules(file($rules_file), $limit);
     }
 
     public function find() {
+        if (empty($this->rules))
+            die("No rules passed\n");
         $found = array();
         foreach ($this->rules as $rule) {
             $found = array_merge($found, $rule->do_search());
@@ -216,8 +220,10 @@ class MultiWordFinder {
         $this->_save_found_tokens($found);
     }
 
-    private function _parse_rules($lines) {
-        foreach ($lines as $line) {
+    private function _parse_rules($lines, $limit) {
+        foreach ($lines as $i => $line) {
+            if (!empty($limit) && !in_array($i, $limit))
+                continue;
             $line = trim($line);
             if (!$line || $line[0] == '#')
                 continue;

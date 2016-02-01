@@ -63,7 +63,7 @@ $(document).ready(function() {
 </ul>
 <div class="ma_annot_top_block clearfix">
     <div class="ma_thanx_block">
-        Спасибо, что помогаете нам. Не торопитесь, будьте внимательны. Если вы не уверены,  пропускайте пример.
+        {if $mwords}Спасибо, что помогаете нам. Не торопитесь, будьте внимательны. Если вы не уверены,  пропускайте пример.{else}В данный момент доступных заданий нет! Загляните к нам позже.{/if}
     </div>
 </div>
 {foreach from=$mwords item=instance}
@@ -84,5 +84,5 @@ $(document).ready(function() {
     <button rev='{$answers.ANSWER_SKIP}' class='btn reject btn-danger'>Пропустить</button>
 </div>
 {/foreach}
-<button class='btn btn-primary btn-large ma_next_pack disabled'>Хочу ещё примеров!</button> <button onclick='location.href="/' class="btn btn-large">Спасибо, достаточно</button>
+{if $mwords}<button class='btn btn-primary btn-large ma_next_pack disabled'>Хочу ещё примеров!</button> <button onclick='location.href="/' class="btn btn-large">Спасибо, достаточно</button>{/if}
 {/block}
