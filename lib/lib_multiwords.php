@@ -77,7 +77,7 @@ class MultiWordTask {
         if (!$mw_id || !$user_id || !in_array($answer, array(self::ANSWER_YES, self::ANSWER_NO, self::ANSWER_SKIP)))
             throw new UnexpectedValueException();
         sql_begin();
-        sql_pe("INSERT INTO mw_answers (mw_id, user_id, answer) VALUES (?, ?, ?)", array($mw_id, $user_id, $answer));
+        sql_pe("REPLACE INTO mw_answers (mw_id, user_id, answer) VALUES (?, ?, ?)", array($mw_id, $user_id, $answer));
         self::_check_mw_status($mw_id);
         sql_commit();
     }
