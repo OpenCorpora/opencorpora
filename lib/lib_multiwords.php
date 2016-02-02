@@ -232,7 +232,38 @@ class MultiWordFinder {
     }
 
     private function _remove_existing_token_sets($token_sets) {
-        // TODO
+        // create an index of existing multiwords (sets indexed by the first token)
+        echo "searching for duplicates... ";
+        $res = sql_query("SELECT * FROM mw_tokens LEFT JOIN tokens USING (tf_id) ORDER BY mw_id, pos");
+        $mw_index = array();
+        $mw = array();
+        $mw_id = 0;
+        while ($row = sql_fetch_array($res)) {
+            if ($row["mw_id"] != $mw_id) {
+                if (!empty($mw)) {
+                    if (!array_key_exists($mw[0], $mw_index))
+                        $mw_index[$mw[0]] = array();
+                    $mw_index[$mw[0]][] = $mw;
+                    $mw = array();
+                }
+                $mw_id = $row["mw_id"];
+            }
+            $mw[] = $row["tf_id"];
+        }
+        if (!array_key_exists($mw[0], $mw_index))
+            $mw_index[$mw[0]] = array();
+        $mw_index[$mw[0]][] = $mw;
+        // filter found multiwords
+        $cnt = 0;
+        foreach ($token_sets as $i => $set) {
+            if (array_key_exists($set[0], $mw_index)) {
+                if (in_array($set, $mw_index[$set[0]])) {
+                    $cnt += 1;
+                    unset($token_sets[$i]);
+                }
+            }
+        }
+        echo $cnt . " duplicates skipped\n";
         return $token_sets;
     }
 
