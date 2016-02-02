@@ -11,9 +11,9 @@ if ($argc > 1) {
         $str = $argv[1];
         $borders = explode("-", $str);
         if (sizeof($borders) > 1)
-            $limit = range((int)$borders[0], (int)$borders[1]);
+            $limit = range((int)$borders[0]-1, (int)$borders[1]-1);
         else
-            $limit = array((int)$str);
+            $limit = array((int)$str-1);
     }
 }
 

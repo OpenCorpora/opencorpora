@@ -254,16 +254,14 @@ class MultiWordFinder {
             $mw_index[$mw[0]] = array();
         $mw_index[$mw[0]][] = $mw;
         // filter found multiwords
-        $cnt = 0;
         foreach ($token_sets as $i => $set) {
             if (array_key_exists($set[0], $mw_index)) {
                 if (in_array($set, $mw_index[$set[0]])) {
-                    $cnt += 1;
                     unset($token_sets[$i]);
                 }
             }
         }
-        echo $cnt . " duplicates skipped\n";
+        echo sizeof($token_sets) . " candidates left\n";
         return $token_sets;
     }
 

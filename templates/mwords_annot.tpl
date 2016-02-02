@@ -84,5 +84,5 @@ $(document).ready(function() {
     <button rev='{$answers.ANSWER_SKIP}' class='btn reject btn-danger'>Пропустить</button>
 </div>
 {/foreach}
-{if $mwords}<button class='btn btn-primary btn-large ma_next_pack disabled'>Хочу ещё примеров!</button> <button onclick='location.href="/' class="btn btn-large">Спасибо, достаточно</button>{/if}
+{if $mwords}<button class='btn btn-primary btn-large ma_next_pack disabled'>Хочу ещё примеров!</button> <button onclick='location.href="/"' class="btn btn-large">Спасибо, достаточно</button>{/if}
 {/block}
