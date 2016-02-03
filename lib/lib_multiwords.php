@@ -20,11 +20,17 @@ class MultiWordTask {
     const ANSWER_YES  = 1;
     const ANSWER_NO   = 2;
     const ANSWER_SKIP = 3;
+
+    public static $CAPTIONS = array(
+        0 => 'Мультитокен',
+        1 => 'Сложный предлог',
+        2 => 'Сложный союз'
+    );
     
 
     public static function get_tasks($user_id, $num=1) {
         $res = sql_pe("
-            SELECT mw_id, tf_id, sent_id
+            SELECT mw_id, tf_id, sent_id, mw_type
             FROM mw_main
             JOIN mw_tokens mwt USING (mw_id)
             LEFT JOIN tokens t USING (tf_id)
@@ -46,6 +52,7 @@ class MultiWordTask {
         $out = array();
 
         $sent_id = $res[0]['sent_id'];
+        $mw_type = $res[0]['mw_type'];
         $mw_id = $res[0]['mw_id'];
         $token_ids = array();
         foreach ($res as $row) {
@@ -56,7 +63,8 @@ class MultiWordTask {
                 $out[] = array(
                     'id' => $mw_id,
                     'token_ids' => $token_ids,
-                    'context' => get_context_for_word($token_ids[0], sizeof($token_ids) + self::CONTEXT_WIDTH)
+                    'context' => get_context_for_word($token_ids[0], sizeof($token_ids) + self::CONTEXT_WIDTH),
+                    'caption' => self::$CAPTIONS[$mw_type]
                 );
                 if (sizeof($out) == $num)
                     break;
@@ -64,6 +72,7 @@ class MultiWordTask {
                 $token_ids = array();
                 $sent_id = $row['sent_id'];
                 $mw_id = $row['mw_id'];
+                $mw_type = $row['mw_type'];
             }
             if ($sent_id != $row['sent_id'])
                 throw new Exception("Inconsistent sentence id");
@@ -95,15 +104,31 @@ class MultiWordTask {
     }
 }
 
+class FoundTokens {
+    public $tokens;
+    public $type;
+
+    public function __construct($type, $tokens) {
+        $this->type = $type;
+        $this->tokens = $tokens;
+    }
+}
+
 class MultiWordSearchRule {
     
     const EXACT_FORM = 0;
 
-    private $tokens;
+    private $tokens = array();
     private $t_index;
+    private $mw_type = 0;
 
     public function __construct($line) {
-        foreach (explode(' ', $line) as $t) {
+        $parts = explode('@', $line);
+        if (sizeof($parts) > 1) {
+            $this->mw_type = intval(trim($parts[1]));
+        }
+
+        foreach (explode(' ', trim($parts[0])) as $t) {
             $this->tokens[] = array($t, self::EXACT_FORM);
         }
         $this->t_index = array_unique(array_map(function($e) {return $e[0];}, $this->tokens));
@@ -123,7 +148,7 @@ class MultiWordSearchRule {
             return mb_strlen($a) > mb_strlen($b) ? -1 : 1;
     }
 
-    // returns array of arrays of token ids
+    // returns array of FoundTokens() objects
     public function do_search() {
         echo "searching for " . implode(" ", array_map(function($e) {return $e[0];}, $this->tokens)) . "\n";
         $found = array();
@@ -135,15 +160,22 @@ class MultiWordSearchRule {
         while ($row = sql_fetch_array($res)) {
             if ($row["sent_id"] != $sent_id ) {
                 if (!empty($sentence)) {
-                    $found = array_merge($found, $this->_filter_sentence($sentence));
+                    $sets = $this->_filter_sentence($sentence);
+                    foreach ($sets as $set) {
+                        $found[] = new FoundTokens($this->mw_type, $set);
+                    }
                     $sentence = array();
                 }
                 $sent_id = $row["sent_id"];
             }
             $sentence[] = $row;
         }
-        $found = array_merge($found, $this->_filter_sentence($sentence));
-        #print_r($found);
+
+        $sets = $this->_filter_sentence($sentence);
+        foreach ($sets as $set) {
+            $found[] = new FoundTokens($this->mw_type, $set);
+        }
+
         echo sizeof($found) . " candidates found\n";
         return $found;
     }
@@ -255,8 +287,10 @@ class MultiWordFinder {
         $mw_index[$mw[0]][] = $mw;
         // filter found multiwords
         foreach ($token_sets as $i => $set) {
-            if (array_key_exists($set[0], $mw_index)) {
-                if (in_array($set, $mw_index[$set[0]])) {
+            if (!$set instanceof FoundTokens)
+                throw new Exception();
+            if (array_key_exists($set->tokens[0], $mw_index)) {
+                if (in_array($set->tokens, $mw_index[$set->tokens[0]])) {
                     unset($token_sets[$i]);
                 }
             }
@@ -268,8 +302,10 @@ class MultiWordFinder {
     private function _save_found_tokens($token_sets) {
         sql_begin();
         foreach ($token_sets as $tset) {
-            sql_pe("INSERT INTO mw_main (status, applied) VALUES (?, ?)",
-                   array(MultiWordTask::NOT_READY, MultiWordTask::NOT_APPLIED));
+            if (!$tset instanceof FoundTokens)
+                throw new Exception();
+            sql_pe("INSERT INTO mw_main (status, applied, mw_type) VALUES (?, ?, ?)",
+                   array(MultiWordTask::NOT_READY, MultiWordTask::NOT_APPLIED, $tset->type));
             $mw_id = sql_insert_id();
             foreach ($tset as $tf_id) {
                 sql_pe("INSERT INTO mw_tokens (mw_id, tf_id) VALUES (?, ?)", array($mw_id, $tf_id));

@@ -79,7 +79,7 @@ $(document).ready(function() {
         {/foreach}
         {if $instance.context.has_right_context}<a class='expand' href="#" rel='{$instance.context.has_right_context}' rev='1'>...</a>{/if}
     </div>
-    <button rev='{$answers.ANSWER_YES}' class='btn'>Мультитокен</button>
+    <button rev='{$answers.ANSWER_YES}' class='btn'>{$instance.caption}</button>
     <button rev='{$answers.ANSWER_NO}' class='btn'>НЕ мультитокен</button>
     <button rev='{$answers.ANSWER_SKIP}' class='btn reject btn-danger'>Пропустить</button>
 </div>
