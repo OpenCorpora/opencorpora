@@ -36,7 +36,7 @@ class MultiWordTask {
                 WHERE user_id = ?
                 AND status = ". self::NOT_READY ."
             )
-            ORDER BY mw_id
+            ORDER BY sent_id
             LIMIT ?
         ", array($user_id, $num * 10));
 
