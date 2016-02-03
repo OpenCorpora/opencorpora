@@ -5,6 +5,8 @@ require_once('lib/lib_users.php');
 
 // TODO: permissions?
 
+$smarty->assign('active_page', 'tasks');
+
 check_logged();
 
 $action = isset($_GET['act']) ? $_GET['act'] : '';

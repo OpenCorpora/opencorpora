@@ -11,11 +11,15 @@
             <div class="nav-collapse">
                 <ul class="nav">
                     {if !isset($active_page)}{$active_page=''}{/if}
-                    <li {if $active_page=="tasks"}class="active"{/if}><a href="/tasks.php">Разметка</a></li>
+                    <li class="dropdown {if $active_page=="tasks"}active{/if}">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Разметка <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/tasks.php">Морфология</a></li>
+                            <li><a href="/ner.php">Сущности</a></li>
+                        </ul>
+                    </li>
                     <li {if $active_page=="dict"}class="active"{/if}><a href="/dict.php">Словарь</a></li>
                     <li {if $active_page=="stats"}class="active"{/if}><a href="/?page=stats&weekly">Статистика</a></li>
-                    {*<li><a href="#">Свежие правки</a></li>
-                    <li><a href="#">Downloads</a></li>*}
                     <li {if $active_page=="downloads"}class="active"{/if}><a href="/?page=downloads">Скачать</a></li>
                     <li {if $active_page=="about"}class="active"{/if}><a href="/?page=about">О проекте</a></li>
                     {if $game_is_on || !isset($smarty.session.user_id)}
