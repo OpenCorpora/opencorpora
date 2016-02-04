@@ -120,6 +120,18 @@ try {
             $result['mentions'] = get_mentions_text_by_objects(array($id))[$id];
             break;
 
+        case 'linkMentionToObject':
+            if (empty($_POST['mention_id']) || empty($_POST['object_id']))
+                throw new UnexpectedValueException();
+            link_mention_to_object($_POST['mention_id'], $_POST['object_id']);
+            break;
+
+        case 'deleteMentionFromObject':
+            if (empty($_POST['mention_id']))
+                throw new UnexpectedValueException();
+            link_mention_to_object($_POST['mention_id'], 0);
+            break;
+
         case 'updateObjectProperty':
             if (empty($_POST['val_id']) || empty($_POST['prop_value']))
                 throw new UnexpectedValueException();
