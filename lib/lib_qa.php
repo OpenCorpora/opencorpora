@@ -84,7 +84,7 @@ function get_downloaded_urls() {
         LEFT JOIN downloaded_urls u
         ON (SUBSTR(t.tag_name, 5) = u.url)
         WHERE t.tag_name LIKE 'url:%'
-        AND t.book_id < ".$config['hidden_books_start_id']."
+        AND t.book_id < ".$config['misc']['hidden_books_start_id']."
         ORDER BY b.book_id DESC
     ");
     $out = array();
