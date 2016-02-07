@@ -4,13 +4,10 @@
 import xml.sax
 from xml.sax.saxutils import escape
 
-
-import no_homonymy_constants
-
+"""utilities for parsing opencorpora with sax and copying it"""
 class OpcorpBasicParser(xml.sax.ContentHandler):
     def __init__(self, id_set):
         super().__init__()
-        
         
         #track the tokenIds
         self.id_set = id_set

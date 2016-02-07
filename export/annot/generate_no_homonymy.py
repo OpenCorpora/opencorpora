@@ -13,7 +13,6 @@ import no_homonymy_constants
 
 
 STRATEGY_ALL = 'a'
-STRATEGY_MAJORITY = 'm'
 
 POOL_FILENAME = 'pools.txt'
 POOL_FILE_PREFIX = 'pool_'
@@ -29,8 +28,9 @@ POOL_DECSRIPTION_TYPE_INDEX = 1
 
 POOL_MODERATED_STATUS = 9
 
-
-
+"""https://github.com/OpenCorpora/opencorpora/issues/537
+deletes the variants which the annotators have agreed on
+"""
 def generate_no_homonymy_dump(poolFolder, homonymyCorpusFilename, strategy, is_to_print_time):
     start = datetime.datetime.now()
     
@@ -43,10 +43,12 @@ def generate_no_homonymy_dump(poolFolder, homonymyCorpusFilename, strategy, is_t
         print('no tokens in unmoderated pools which annotators agreed on')
         return  
     remove_homonymy_for_tokens(homonymyCorpusFilename, tokensWithAgreement, is_to_print_time)
-    
-    
-    
-    
+
+"""finds the tokens which the annotators have agreed on"""
+def findTokensWithAgreement(poolFolder, strategy):
+    return getTokensWithAgreementFromPools(getUnmoderatedPools(poolFolder), poolFolder, strategy)
+
+"""generates a dump filtered from the variants which the annotators haven't chosen"""
 def remove_homonymy_for_tokens(homonymyCorpusFilename, tokensWithAgreement, is_to_print_time):
     start = datetime.datetime.now()
     removedVariantsFilename, tokens_max_variant_arrays = copy_xml_removing_variants(homonymyCorpusFilename, tokensWithAgreement)
@@ -54,14 +56,23 @@ def remove_homonymy_for_tokens(homonymyCorpusFilename, tokensWithAgreement, is_t
     if is_to_print_time:
         print('time elapsed for remove_homonymy_for_tokens:{0}'.format(datetime.datetime.now() - start))
     
+    print('non-normalized file exported to: %s' % removedVariantsFilename)
     
     start = datetime.datetime.now()
+    
     normalizedFilename = homonymyCorpusFilename + '_removed.xml'
+    
+    
     normalize_corpus_file(removedVariantsFilename, normalizedFilename, tokens_max_variant_arrays)
     
     if is_to_print_time:
         print('time elapsed for normalize_corpus_file:{0}'.format(datetime.datetime.now() - start))
-    
+        
+    print('normalized file exported to: %s' % normalizedFilename)
+   
+"""removes the grammemes filtered by the annotators
+saves the resulting xml into a new file
+""" 
 def copy_xml_removing_variants(homonymyCorpusFilename, tokensWithAgreement):
     removedVariantsFilename = homonymyCorpusFilename + '_removed_temp.xml'
     
@@ -69,13 +80,13 @@ def copy_xml_removing_variants(homonymyCorpusFilename, tokensWithAgreement):
     xml.sax.parse(homonymyCorpusFilename, handler)
     return removedVariantsFilename, handler.tokens_max_variant_arrays
     
+"""
+deletes the variants which are subsets of other variants
+"""
 def normalize_corpus_file(removedVariantsFilename, normalizedFilename, tokens_max_variant_arrays):
     handler = opcorp_parsers.OpcorpTokenNormalizer(normalizedFilename, tokens_max_variant_arrays, 'utf-8')
     xml.sax.parse(removedVariantsFilename, handler)
 
-
-def findTokensWithAgreement(poolFolder, strategy):
-    return getTokensWithAgreementFromPools(getUnmoderatedPools(poolFolder), poolFolder, strategy)
 
 def getTokensWithAgreementFromPools(unmoderatedPools, poolFolder, strategy):
     tokens = {}
@@ -96,18 +107,7 @@ def gatherTokensFromPool(unmoderatedPool, poolFolder, tokens,strategy):
             
             
             
-            tokenDecisions, moderatorsComment = getTokenDecisions(tokenDescriptionParts)
-            
-            #TODO: remove
-            """if tokenId in [u"403727", u"473357", u"847270", u"848625", 
-                           u"847340", u"846865", u"849749", u"684039", 
-                           u"753426", u"604393", u"390802", u"23892", u"23897", 
-                           u"322743", u"315855", u"539789", u"540572", u"214773", 
-                           u"109581", u"109547", u"170191", u"499013", u"543749", 
-                           u"161537", u"541098", u"296850", u"242804", u"437096", 
-                           u"847324", u"23120", u"479986", u"473305", u"701841"]:
-                print(tokenId + ' in ' + poolFilename + ' with ' + ','.join(tokenDecisions))"""
-            
+            tokenDecisions, moderatorsComment = getTokenDecisions(tokenDescriptionParts)            
             if not isSuitableAccordingToStrategy(tokenDecisions, moderatorsComment, strategy):
                 continue
             
@@ -231,12 +231,6 @@ def main():
     args = process_args()
     
     strategy = {'strategy_type':args.strategy, 'min_number':args.min_number}
-    
-    
-    #corpusFilename = 'D:\\Opencorpora\\annot.opcorpora.xml.byfile\\2942.xml'
-    #corpusFilename = 'D:\\Opencorpora\\annot.opcorpora.xml.byfile\\224.xml'
-    
-    #corpusFilename = 'D:\\Opencorpora\\annot.opcorpora.xml\\annot.opcorpora.xml'
     generate_no_homonymy_dump(args.pool_folder, args.corpus_dump, strategy, args.time)
     
     

@@ -8,6 +8,9 @@ from xml.sax.xmlreader import AttributesImpl
 import no_homonymy_constants
 import opcorp_basic_parsers
 
+"""
+methods for removing extra grammemes from tokens
+"""
 class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
     def __init__(self, out_filepath, tokensWithAgreement, encoding):
         super().__init__(tokensWithAgreement.keys())
@@ -25,7 +28,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
         # the flag showing if we've written the starting tag
         #if we've skipped the starting tag, we'll also skip the ending tag
         self.is_start_tag_written = False
-        
+        #tracks if the <v> or <l> tags have been started
         self.is_start_variant_tag_written = False
         
         #the flag showing if the <g> tag is the first for the lexeme
@@ -57,7 +60,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
     def startElement(self, name, attrs):
         self.is_start_tag_written = True
         
-                
+        #check if the token has annotators' decisions     
         if name == 'token' \
                 and not self._areAllTokensFound():
             
@@ -76,6 +79,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
             self.is_start_variant_tag_written = False
             self.current_set = None
         
+        #we skip the <v> or <l> tags because we may write them lat
         elif self.current_token and name == 'l':
             self.is_doubtful_variant = True
             self.lexeme_attrs = attrs
@@ -91,6 +95,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
                 poolVariants = set(re.split('\\s*[&@]\\s*', poolType))
                 decisions = set(re.split('\\s*&\\s*', decision))
                 
+                #if the annotators have chosen the Other variant
                 #we write UNKNOWN grammemes instead of all grammemes
                 if (no_homonymy_constants.DECISION_UNKNOWN in decisions):
                     self._add_to_current_grammeme_set(no_homonymy_constants.DECISION_UNKNOWN, self.is_first_grammeme)
@@ -101,15 +106,16 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
                     
                     self._write_grammeme_tag(name, newAttrs, self.is_first_grammeme)
                     self.is_first_grammeme = False
+                    
                 #the grammeme should be written in two cases:
-                #-there are no doubts about it
+                #-there are no doubts about it and it hasn't been in a pool
                 #-it has been chosen by the annotators  
                 elif (grammemeValue not in poolVariants) or (grammemeValue in decisions):
                     self._add_to_current_grammeme_set(grammemeValue, self.is_first_grammeme)
                     
                     self._write_grammeme_tag(name, attrs, self.is_first_grammeme)
                     self.is_first_grammeme = False
-                #the gramme
+                #the grammeme won't be written
                 else:
                     self.is_start_tag_written = False
                     
@@ -126,24 +132,23 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
             
             self.file.write(self._gen_end_tag(name))
     
-            
+            #if the <v> tag ends, we collect all the grammemes from this variant
+            #to use it later for normalizing
             if name == 'v' and self.is_start_variant_tag_written:
-                
-                
-                if self.current_token == u"1284320":
-                    aaa = 9
-                
                 if not self.current_token in self.tokens_max_variant_arrays:
                     self.tokens_max_variant_arrays[self.current_token] = dict()
  
                 
                 currentGrammemeSet = frozenset(self.current_set.copy())
-
                 currentLexemeAttrs = tuple(self.lexeme_attrs.items())
+                
+                #we create an array of maximum sets of grammemes
+                #to delete the grammeme sets which are comprised by larger sets
                 
                 isSubset = False
                 otherSubsetsToRemove = []
                 for anotherSet, anotherLexemeAttrs in self.tokens_max_variant_arrays[self.current_token].items():
+                    #this grammeme set is comprised by another set
                     if currentGrammemeSet.issubset(anotherSet):
                         isSubset = True
                         break
@@ -153,7 +158,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
                 if not isSubset:
                     self.tokens_max_variant_arrays[self.current_token][currentGrammemeSet] = set()
                     self.tokens_max_variant_arrays[self.current_token][currentGrammemeSet].add(currentLexemeAttrs)
-                    
+                #the grammemes may be the same but the lexeme may be different
                 elif currentGrammemeSet in self.tokens_max_variant_arrays[self.current_token]:
                     self.tokens_max_variant_arrays[self.current_token][currentGrammemeSet].add(currentLexemeAttrs)
                     
@@ -171,6 +176,9 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
         elif name == 'annotation':
             self._close_file()
 
+"""
+methods for normalizing variants whose grammemes are in other sets
+"""
 class OpcorpTokenNormalizer(opcorp_basic_parsers.OpcorpBasicParser):
     def __init__(self, out_filepath, tokens_max_variant_arrays, encoding):
         super().__init__(tokens_max_variant_arrays.keys())
@@ -254,20 +262,17 @@ class OpcorpTokenNormalizer(opcorp_basic_parsers.OpcorpBasicParser):
             
         elif name == 'v':
             allMaxGrammemeSets = self.tokens_max_variant_arrays.get(self.current_token).keys()
-            
-            if self.current_token == u"1284320":
-                aaa = 9
-            
+
             currentGrammemesFrozen = frozenset(self.current_grammemes)
+            
+            #if the current set of grammemes is max, write it down
             if currentGrammemesFrozen in allMaxGrammemeSets:
                 setOfCurrentLexAttrs = self.tokens_max_variant_arrays.get(self.current_token).get(currentGrammemesFrozen)
                 self._write_grammeme_set(setOfCurrentLexAttrs, currentGrammemesFrozen)
                 self.tokens_max_variant_arrays.get(self.current_token).pop(currentGrammemesFrozen, None)
-                
-            
+ 
+        if name == 'token' and self.current_token:
+            self.current_token = None
             
         if name == 'annotation':
             self._close_file()
-            
-        if name == 'token' and self.current_token:
-            self.current_token = None

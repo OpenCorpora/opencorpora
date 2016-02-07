@@ -6,3 +6,7 @@
 /doc/presentations/*.pdf
 /yadisk-auth
 *.swp
+*.project
+*.prefs
+*.pydevproject
+*.pyc
