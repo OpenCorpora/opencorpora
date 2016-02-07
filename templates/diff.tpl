@@ -4,7 +4,7 @@
 <h3><a href='sentence.php?id={$diff.sent_id}'>Предложение {$diff.sent_id}</a>, изменил {$diff.user_name|default:'Робот'} {$diff.timestamp|date_format:"%d.%m.%Y, %H:%M"}</h3>
 <p>
 {if $diff.comment}
-<b>Комментарий:</b> {$diff.comment}
+<b>Комментарий:</b> {$diff.comment|htmlspecialchars}
 {else}
 Без комментария.
 {/if}
