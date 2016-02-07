@@ -1699,3 +1699,7 @@ tr.is-in-object {
 .objects-table .input-prepend .add-on:first-child {
     width: 80px;
 }
+
+.margined-top {
+    margin-top: 5px;
+}

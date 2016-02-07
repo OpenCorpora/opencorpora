@@ -70,7 +70,11 @@
 <div class="popover new-object-popover top o-floating-block">
   <div class="arrow"></div>
   <div class="popover-content">
-    <button class="btn btn-block btn-small btn-primary new-object">Создать новый объект</button>
+    <button class="btn btn-block btn-primary new-object">Создать новый объект</button>
+    <div class="input-append margined-top">
+      <input class="input-small add-to-object-id" type="text" placeholder="ID">
+      <button class="btn add-to-object" type="button">Добавить</button>
+    </div>
   </div>
 </div>
 
