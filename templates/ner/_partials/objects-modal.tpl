@@ -7,6 +7,7 @@
     <table class="objects-table table">
       <thead>
         <tr>
+          <th>ID</th>
           <th></th>
           <th>Упоминания</th>
           <th colspan="10">Свойства</th>

@@ -46,6 +46,7 @@ function renderObjects(objects) {
 
 function $compileTableRow(object) {
     var tr = $("<tr>").attr("data-object-id", object.object_id).append(
+        $compileIdCell(object),
         $compileDeleteCell(object),
         $compileMentionsCell(object),
         $compilePropertiesCell(object.properties)
@@ -58,6 +59,10 @@ function $compileDeleteCell(object) {
         $("<button>").addClass("btn small btn-danger delete-object")
         .attr("data-object-id", object.object_id).text("Удалить")
     );
+}
+
+function $compileIdCell(object) {
+    return $("<td>").text(object.object_id);
 }
 
 function $compileMentionsCell(object) {
