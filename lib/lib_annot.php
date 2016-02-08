@@ -53,6 +53,8 @@ class MorphParseSet {
     public $token_text;
     public $parses;
     private static $gram_descr = array();
+    private static $RE_CYR_TOKEN = '/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u';
+    private static $RE_MIXED_TOKEN = '/^[0-9]+\-[А-Яа-яЁё]+$/u';  // like '2-ого'
 
     public function __construct($xml="", $token_text="", $force_unknown=false, $force_include_init=false) {
         if ($xml)
@@ -174,7 +176,7 @@ class MorphParseSet {
         $cyrillic = false;
         if ($force_unknown) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'UNKN')));
-        } elseif (preg_match('/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u', $token)) {
+        } elseif (preg_match(self::$RE_CYR_TOKEN, $token) || preg_match(self::$RE_MIXED_TOKEN, $token)) {
             $cyrillic = true;
             $res = sql_pe("
                 SELECT lemma_id, lemma_text, grammems
@@ -196,8 +198,10 @@ class MorphParseSet {
                         $require_uc = false;
                         foreach ($matches[1] as $gr) {
                             $gramlist[] = array('inner' => $gr);
-                            if ($gr == 'Init')
+                            if ($gr == 'Init') {
                                 $require_uc = true;
+                                break;
+                            }
                         }
                     }
                     if (!$require_uc || $force_include_init || preg_match('/^[А-ЯЁ]+$/u', $token))
