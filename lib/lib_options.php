@@ -103,7 +103,7 @@ class UserOptionsManager {
         return $this->options[$option_id]->default_value;
     }
 
-    private function _add($opt) {
+    private function _add(UserOption $opt) {
         $this->options[$opt->id] = $opt;
     }
 }
