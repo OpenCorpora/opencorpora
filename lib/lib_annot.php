@@ -49,6 +49,12 @@ class MorphParse {
     }
 }
 
+class MorphParseUnknown extends MorphParse {
+    public function __construct($lemma_text) {
+        parent::__construct($lemma_text, array(array('inner' => 'UNKN')));
+    }
+}
+
 class MorphParseSet {
     public $token_text;
     public $parses;
@@ -175,7 +181,7 @@ class MorphParseSet {
         $this->token_text = $token;
         $cyrillic = false;
         if ($force_unknown) {
-            $this->parses[] = new MorphParse($token, array(array('inner' => 'UNKN')));
+            $this->parses[] = new MorphParseUnknown($token);
         } elseif (preg_match(self::$RE_CYR_TOKEN, $token) || preg_match(self::$RE_MIXED_TOKEN, $token)) {
             $cyrillic = true;
             $res = sql_pe("
@@ -222,7 +228,7 @@ class MorphParseSet {
         if (sizeof($this->parses) == 0) {
             if ($cyrillic)
                 $token = mb_strtolower($token, 'UTF-8');
-            $this->parses[] = new MorphParse($token, array(array('inner' => 'UNKN')));
+            $this->parses[] = new MorphParseUnknown($token);
         }
 
         foreach ($this->parses as $parse)
