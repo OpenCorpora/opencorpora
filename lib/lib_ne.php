@@ -841,15 +841,16 @@ function create_object_from_mentions($mention_ids) {
     sql_begin();
     sql_pe("INSERT INTO ne_objects VALUES (NULL, ?)", array($res[0]['book_id']));
     $oid = sql_insert_id();
-    array_unshift($mention_ids, $oid); // add new id to the beginning of the array
-    sql_pe("UPDATE ne_mentions SET object_id = ? WHERE mention_id IN (" . $mentions_in . ")", $mention_ids);
+
+    sql_pe("UPDATE ne_mentions SET object_id = ? WHERE mention_id IN (" . $mentions_in . ")", array_merge(array($oid), $mention_ids));
 
     $res = sql_pe("
         SELECT object_type_id, object_name
         FROM ne_mentions
         LEFT JOIN ne_object_types USING (object_type_id)
-        WHERE mention_id IN (" . $mentions_in . ")
-        ", array());
+        WHERE mention_id IN (" . $mentions_in . ")",
+        $mention_ids);
+
     $types = array();
     foreach ($res as $r) {
         $types[] = $r["object_name"];
