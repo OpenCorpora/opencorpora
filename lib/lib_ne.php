@@ -344,6 +344,15 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
     return $out;
 }
 
+function get_ne_entities_by_book($book_id, $user_id, $tagset_id, $group_by_mention = false) {
+    $out = array();
+    foreach (sql_pe("SELECT par_id FROM paragraphs WHERE book_id = ?", array($book_id)) as $pid) {
+        $data = get_ne_by_paragraph($pid, $user_id, $tagset_id, $group_by_mention);
+        $out[$data['annot_id']] = $data['entities'];
+    }
+    return $out;
+}
+
 function get_all_ne_entities_by_sentence($sent_id) {
     return sql_pe("
         SELECT entity_id, start_token, length
