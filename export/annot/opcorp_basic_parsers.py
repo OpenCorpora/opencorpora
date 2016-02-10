@@ -6,10 +6,15 @@ from xml.sax.saxutils import escape
 
 """utilities for parsing opencorpora with sax and copying it"""
 class OpcorpBasicParser(xml.sax.ContentHandler):
+    TAG_VARIANT = 'v'
+    TAG_LEXEME = 'l'
+    TAG_GRAMMEME = 'g'
+    
+    
     def __init__(self, id_set):
         super().__init__()
         
-        #track the tokenIds
+        #track the token_ids
         self.id_set = id_set
         self.ids_left = len(self.id_set)
         
@@ -39,5 +44,5 @@ class OpcorpBasicParser(xml.sax.ContentHandler):
         if content.strip():
             self.file.write(escape(content.strip()).encode(self.encoding))
             
-    def _areAllTokensFound(self):
+    def _are_tokens_found(self):
         return self.ids_left <= 0
