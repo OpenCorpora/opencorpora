@@ -6,6 +6,7 @@ from xml.sax.saxutils import escape
 
 """utilities for parsing opencorpora with sax and copying it"""
 class OpcorpBasicParser(xml.sax.ContentHandler):
+    TAG_TOKEN = 'token'
     TAG_VARIANT = 'v'
     TAG_LEXEME = 'l'
     TAG_GRAMMEME = 'g'
