@@ -55,7 +55,7 @@ define('NE_ANNOTATORS_PER_TEXT', 4);
 define('NE_ACTIVE_BOOKS', 10);
 
 define('NE_OBJECT_DEFAULT_PROPS', serialize(
-	array('ONLY_PERSON' => array('name', 'surname', 'patronymic', 'nickname'),
+	array('ONLY_PERSON' => array('firstname', 'surname', 'patronymic', 'nickname'),
 		  'NOT_PERSON'  => array('name', 'wikidata'),
 		  'MIXED' => array('wikidata'))
 ));

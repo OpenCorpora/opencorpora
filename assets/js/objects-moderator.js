@@ -46,6 +46,7 @@ function renderObjects(objects) {
 
 function $compileTableRow(object) {
     var tr = $("<tr>").attr("data-object-id", object.object_id).append(
+        $compileIdCell(object),
         $compileDeleteCell(object),
         $compileMentionsCell(object),
         $compilePropertiesCell(object.properties)
@@ -60,11 +61,20 @@ function $compileDeleteCell(object) {
     );
 }
 
+function $compileIdCell(object) {
+    return $("<td>").text(object.object_id);
+}
+
 function $compileMentionsCell(object) {
     var cell = $("<td>");
     $.map(object.mentions, function(mention, i) {
         var $span = $("<span>");
-        $span.append("[" + mention.text + "] ");
+        $span.append(
+            $("<span>").addClass("label label-inverse unlink-mention")
+                .text("Удалить")
+                .attr("data-mention-id", mention.mention_id));
+
+        $span.append(" [" + mention.text + "] ");
         $span.append($("<span>").addClass(
             "label label-palette-" + MENTION_TYPES[mention.object_type_id]['color'])
             .text(MENTION_TYPES[mention.object_type_id]['name']));
@@ -166,7 +176,6 @@ $(document).ready(function() {
 
     $(".new-object").click(function() {
         var selected = $(".objects-current-selection");
-
         var selectedIds = selected.mapGetter("data-mention-id");
         $.post("./ajax/ner.php", {
             act: "createObject",
@@ -174,9 +183,9 @@ $(document).ready(function() {
         }, function(response) {
             notify("Объект добавлен.", "success");
 
-            $.map(selected, function($tr) {
-                $tr.attr("data-object-id", response.object_id);
-                $tr.addClass("is-in-object");
+            $.map(selected, function(tr) {
+                $(tr).attr("data-object-id", response.object_id);
+                $(tr).addClass("is-in-object");
             });
 
             clearObjectsHighlight();
@@ -184,11 +193,43 @@ $(document).ready(function() {
          });
     });
 
+    $(".add-to-object").click(function() {
+        var selected = $(".objects-current-selection");
+        var selectedIds = selected.mapGetter("data-mention-id");
+
+        var object_id = $(".add-to-object-id").val();
+        if (!object_id) return false;
+
+        $.map(selectedIds, function(id) {
+            $.post("./ajax/ner.php", {
+                act: "linkMentionToObject",
+                mention_id: id,
+                object_id: object_id,
+            });
+        });
+
+        $.map(selected, function(tr) {
+            $(tr).attr("data-object-id", object_id);
+            $(tr).addClass("is-in-object");
+        });
+
+        clearObjectsHighlight();
+        hideObjectsPopover();
+    });
+
     $(document).on("click", ".delete-object", function() {
         var object_id = $(this).attr("data-object-id");
         $.post("./ajax/ner.php", {
             act: "deleteObject",
             object_id: object_id
+        }, loadObjects);
+    });
+
+    $(document).on("click", ".unlink-mention", function() {
+        var mention_id = $(this).attr("data-mention-id");
+        $.post("./ajax/ner.php", {
+            act: "deleteMentionFromObject",
+            mention_id: mention_id
         }, loadObjects);
     });
 

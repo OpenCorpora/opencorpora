@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<annotation version="0.12" revision="4148102">
+<text id="81" parent="1" name="17152 Аборигенский рок. Часть I. Истоки">
+  <paragraphs>
+    <paragraph id="2024">
+      <sentence id="6436">
+        <tokens>
+          <token id="124015" text="аборигенов"><tfr rev_id="958846" t="аборигенов"><v><l id="1629" t="абориген"><g v="NOUN"/><g v="anim"/><g v="masc"/><g v="plur"/><g v="gent"/></l></v></tfr></token>
+        </tokens>
+      </sentence>
+    </paragraph>
+  </paragraphs>
+</text>
+<text id="404" parent="56" name="Выборы в Италии — полная неясность">
+  <paragraphs>
+    <paragraph id="5867">
+      <sentence id="17949">
+        <tokens>
+          <token id="332515" text="депутатов"><tfr rev_id="1166019" t="депутатов"><v><l id="81561" t="депутат"><g v="NOUN"/><g v="anim"/><g v="masc"/><g v="plur"/><g v="gent"/></l></v><v><l id="81561" t="депутат"><g v="NOUN"/><g v="anim"/><g v="masc"/><g v="plur"/><g v="accs"/></l></v></tfr></token>
+        </tokens>
+      </sentence>
+    </paragraph>
+  </paragraphs>
+</text>
+<text id="768" parent="56" name="Президент Башкортстана Муртаза Рахимов ушёл в отставку">
+  <paragraphs>
+    <paragraph id="8312">
+      <sentence id="26191">
+        <tokens>
+          <token id="473525" text="Хамитов"><tfr rev_id="1306800" t="Хамитов"><v><l id="0" t="хамитов"><g v="UNKN"/></l></v></tfr></token>
+        </tokens>
+      </sentence>
+    </paragraph>
+  </paragraphs>
+</text>
+</annotation>

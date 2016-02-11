@@ -334,7 +334,7 @@ function update_pending_tokens($rev_id, $smart=false) {
         update_pending_token($r['token_id'], $rev_id, $revset_id, $smart);
     sql_commit();
 }
-function smart_update_pending_token($parse_set, $rev_id) {
+function smart_update_pending_token(MorphParseSet $parse_set, $rev_id) {
     // currently works only for
     // - deleted lemma
     // - lemma text change

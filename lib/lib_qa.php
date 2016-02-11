@@ -84,7 +84,7 @@ function get_downloaded_urls() {
         LEFT JOIN downloaded_urls u
         ON (SUBSTR(t.tag_name, 5) = u.url)
         WHERE t.tag_name LIKE 'url:%'
-        AND t.book_id < ".$config['hidden_books_start_id']."
+        AND t.book_id < ".$config['misc']['hidden_books_start_id']."
         ORDER BY b.book_id DESC
     ");
     $out = array();
@@ -129,7 +129,7 @@ function get_merge_fails() {
         LEFT JOIN morph_annot_merge_comments c USING (sample_id)
         WHERE p.status = ".MA_POOLS_STATUS_ARCHIVED."
         AND merge_status in (0, 2)
-        ORDER BY sample_id
+        ORDER BY merge_status, sample_id
     ");
             
     $res1 = sql_prepare("
