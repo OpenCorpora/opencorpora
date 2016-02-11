@@ -246,7 +246,6 @@ def check_args(args):
     if os.path.exists(args.resulting_corpus_dump):
         return _ask_for_overwrite(args.resulting_corpus_dump)
     
-    os.makedirs(args.resulting_corpus_dump)
     
     return True
 
