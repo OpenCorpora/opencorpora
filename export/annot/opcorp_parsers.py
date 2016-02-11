@@ -26,6 +26,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
 
         #save the id of the token we've found
         self.current_token = None
+        self.current_token_text = None
         
         # the flag showing if we've written the starting tag
         #if we've skipped the starting tag, we'll also skip the ending tag
@@ -63,7 +64,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
         self.is_start_tag_written = True
         
         #check if the token has annotators' decisions     
-        if name == 'token' \
+        if name == self.TAG_TOKEN \
                 and not self._are_tokens_found():
             
             self.file.write(self._gen_start_tag(name, attrs))
@@ -72,6 +73,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
 
             if self.tokens_with_agreement.get(fid):
                 self.current_token = fid
+                self.current_token_text = attrs.get('text')
                 self.ids_left -= 1
             
         #we skip the <v> or <l> tags because we may write them later
@@ -103,7 +105,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
                     self._add_to_current_grammeme_set(no_homonymy_constants.DECISION_UNKNOWN, self.is_first_grammeme)
                     
                     new_attrs = AttributesImpl({self.TAG_VARIANT:no_homonymy_constants.DECISION_UNKNOWN})
-                    new_lexeme_attrs = AttributesImpl({'t':self.lexeme_attrs.get('t'), 'id':'0'})
+                    new_lexeme_attrs = AttributesImpl({'t':self.current_token_text.lower(), 'id':'0'})
                     self.lexeme_attrs = new_lexeme_attrs
                     
                     self._write_grammeme_tag(name, new_attrs, self.is_first_grammeme)
@@ -169,7 +171,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
                     self.tokens_max_variant_arrays[self.current_token].pop(another_subset_to_remove, None)
                 
             
-        if name == 'token' and self.current_token:
+        if name == self.TAG_TOKEN and self.current_token:
             self.current_token = None    
             
         elif name == self.TAG_VARIANT and self.is_doubtful_variant:
@@ -198,6 +200,7 @@ class OpcorpTokenNormalizer(opcorp_basic_parsers.OpcorpBasicParser):
 
 
         self.current_token = None
+		
         
         self.is_start_variant_tag_written = False
         
@@ -232,7 +235,7 @@ class OpcorpTokenNormalizer(opcorp_basic_parsers.OpcorpBasicParser):
     def startElement(self, name, attrs):
         self.is_start_tag_written = True
         
-        if name == 'token' \
+        if name == self.TAG_TOKEN \
                 and not self._are_tokens_found():
             
             self.file.write(self._gen_start_tag(name, attrs))
@@ -273,7 +276,7 @@ class OpcorpTokenNormalizer(opcorp_basic_parsers.OpcorpBasicParser):
                 self._write_grammeme_set(set_of_current_lex_attrs, current_grammemes_frozen)
                 self.tokens_max_variant_arrays.get(self.current_token).pop(current_grammemes_frozen, None)
  
-        if name == 'token' and self.current_token:
+        if name == self.TAG_TOKEN and self.current_token:
             self.current_token = None
             
         if name == 'annotation':
