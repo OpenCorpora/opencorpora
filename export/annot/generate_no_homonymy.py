@@ -7,7 +7,8 @@ import argparse
 import xml.sax
 import datetime
 
-import opcorp_parsers
+from opcorp_parsers import OpcorpTokenVariantRemover
+from opcorp_parsers import OpcorpTokenNormalizer
 import no_homonymy_constants
 
 
@@ -31,7 +32,7 @@ POOL_MODERATED_STATUS = 9
 """https://github.com/OpenCorpora/opencorpora/issues/537
 deletes the variants which the annotators have agreed on
 """
-def generate_no_homonymy_dump(pool_folder, corpus_filename, resulting_file_name, strategy, is_to_print_time):
+def generate_no_homonymy_dump(pool_folder, corpus_filename, resulting_file_name, strategy, is_to_print_time, grammeme_file):
     start = datetime.datetime.now()
     
     tokens_with_agreement = find_tokens_with_agreement(pool_folder, strategy)
@@ -42,14 +43,14 @@ def generate_no_homonymy_dump(pool_folder, corpus_filename, resulting_file_name,
     if not tokens_with_agreement:
         print('no tokens in unmoderated pools which annotators agreed on')
         return  
-    remove_homonymy_for_tokens(corpus_filename, resulting_file_name, tokens_with_agreement, is_to_print_time)
+    remove_homonymy_for_tokens(corpus_filename, resulting_file_name, tokens_with_agreement, is_to_print_time, grammeme_file)
 
 """finds the tokens which the annotators have agreed on"""
 def find_tokens_with_agreement(pool_folder, strategy):
     return get_tokens_with_agreement_from_pools(get_unmoderated_pools(pool_folder), pool_folder, strategy)
 
 """generates a dump filtered from the variants which the annotators haven't chosen"""
-def remove_homonymy_for_tokens(corpus_filename, resulting_filename, tokens_with_agreement, is_to_print_time):
+def remove_homonymy_for_tokens(corpus_filename, resulting_filename, tokens_with_agreement, is_to_print_time, grammeme_file):
     start = datetime.datetime.now()
     removed_vars_filename, tokens_max_variant_arrays = copy_xml_removing_variants(corpus_filename, tokens_with_agreement)
     
@@ -61,7 +62,7 @@ def remove_homonymy_for_tokens(corpus_filename, resulting_filename, tokens_with_
     start = datetime.datetime.now()
     
     
-    normalize_corpus_file(removed_vars_filename, resulting_filename, tokens_max_variant_arrays)
+    normalize_corpus_file(removed_vars_filename, resulting_filename, tokens_max_variant_arrays, grammeme_file)
     
     if is_to_print_time:
         print('time elapsed for normalize_corpus_file:{0}'.format(datetime.datetime.now() - start))
@@ -74,15 +75,15 @@ saves the resulting xml into a new file
 def copy_xml_removing_variants(corpus_filename, tokens_with_agreement):
     removed_vars_filename = corpus_filename + '_removed_temp.xml'
     
-    handler = opcorp_parsers.OpcorpTokenVariantRemover(removed_vars_filename, tokens_with_agreement, 'utf-8')
+    handler = OpcorpTokenVariantRemover(removed_vars_filename, tokens_with_agreement, 'utf-8')
     xml.sax.parse(corpus_filename, handler)
     return removed_vars_filename, handler.tokens_max_variant_arrays
     
 """
 deletes the variants which are subsets of other variants
 """
-def normalize_corpus_file(removed_vars_filename, normalized_filename, tokens_max_variant_arrays):
-    handler = opcorp_parsers.OpcorpTokenNormalizer(normalized_filename, tokens_max_variant_arrays, 'utf-8')
+def normalize_corpus_file(removed_vars_filename, normalized_filename, tokens_max_variant_arrays, grammeme_file):
+    handler = OpcorpTokenNormalizer(normalized_filename, tokens_max_variant_arrays, 'utf-8', grammeme_file)
     xml.sax.parse(removed_vars_filename, handler)
 
 
@@ -214,6 +215,9 @@ def process_args():
     
     parser.add_argument('resulting_corpus_dump',
                             help='path to the resulting file')
+
+    parser.add_argument('grammeme_list',
+                            help='path to the grammeme list (tab-delimited, format: parent\tgrammeme_name\talias\tdescription)')
    
     parser.add_argument('-s', '--strategy',
                             help='strategy to use: a=all answers',
@@ -242,6 +246,9 @@ def check_args(args):
     
     if not os.path.exists(args.pool_folder):
         raise Exception('pool folder does not exist:%s' % args.pool_folder)
+
+    if not os.path.exists(args.grammeme_list):
+        raise Exception('pool grammeme_list does not exist:%s' % args.grammeme_list)
     
     if os.path.exists(args.resulting_corpus_dump):
         return _ask_for_overwrite(args.resulting_corpus_dump)
@@ -256,7 +263,7 @@ def main():
         return
     
     strategy = {'strategy_type':args.strategy, 'min_number':args.min_number}
-    generate_no_homonymy_dump(args.pool_folder, args.corpus_dump, args.resulting_corpus_dump, strategy, args.time)
+    generate_no_homonymy_dump(args.pool_folder, args.corpus_dump, args.resulting_corpus_dump, strategy, args.time, args.grammeme_list)
     
     
 if __name__ == "__main__":

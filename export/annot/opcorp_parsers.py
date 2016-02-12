@@ -3,7 +3,8 @@
 
 import re
 from xml.sax.xmlreader import AttributesImpl
-
+import codecs
+import os
 
 import no_homonymy_constants
 import opcorp_basic_parsers
@@ -183,8 +184,8 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
 """
 methods for normalizing variants whose grammemes are in other sets
 """
-class OpcorpTokenNormalizer(opcorp_basic_parsers.OpcorpBasicParser):
-    def __init__(self, out_filepath, tokens_max_variant_arrays, encoding):
+class OpcorpTokenNormalizer(opcorp_basic_parsers.OpcorpBasicParser):    
+    def __init__(self, out_filepath, tokens_max_variant_arrays, encoding, grammeme_file):
         super().__init__(tokens_max_variant_arrays.keys())
 
         self.file = None
@@ -209,9 +210,22 @@ class OpcorpTokenNormalizer(opcorp_basic_parsers.OpcorpBasicParser):
 
 
         self.current_set = None
+
+        self.grammeme_list = self._initialize_grammeme_list(grammeme_file)
         
         self._new_file()
-        
+
+    def _initialize_grammeme_list(self, grammeme_file):
+        grammeme_list = []
+        with codecs.open(grammeme_file, 'r', 'utf-8') as fin:
+            for line in fin:
+                grammeme_list.append(line.split('\t')[1])
+        return grammeme_list
+
+    def _grammeme_sort(self, grammeme):
+        if grammeme in self.grammeme_list:
+            return self.grammeme_list.index(grammeme)
+        return -1
         
     def _write_grammeme_set(self, lex_attrs_set, current_grammemes):
         for lexeme_attrs_tuple in lex_attrs_set:
@@ -224,7 +238,10 @@ class OpcorpTokenNormalizer(opcorp_basic_parsers.OpcorpBasicParser):
             lexeme_attrs = AttributesImpl(lexeme_dict)
             
             self.file.write(self._gen_start_tag(self.TAG_LEXEME, lexeme_attrs))
-            for grammeme in current_grammemes:
+            
+            current_grammemes_sorted = sorted(list(current_grammemes), key = self._grammeme_sort)
+            #current_grammemes_sorted = list(current_grammemes)
+            for grammeme in current_grammemes_sorted:
                 new_attrs = AttributesImpl({self.TAG_VARIANT : grammeme})
                 self.file.write(self._gen_start_tag(self.TAG_GRAMMEME, new_attrs))
                 self.file.write(self._gen_end_tag(self.TAG_GRAMMEME))
@@ -281,3 +298,42 @@ class OpcorpTokenNormalizer(opcorp_basic_parsers.OpcorpBasicParser):
             
         if name == 'annotation':
             self._close_file()
+
+"""utilities for parsing the dictionary file and exporting grammemes"""
+class OpcorpDictionaryGrammemeHandler(opcorp_basic_parsers.OpcorpDictionaryHandler):
+    DELIMITER = '\t'
+    
+    def __init__(self, out_path, encoding):
+        super().__init__()
+        self.file = None
+        self.out_path = out_path
+        self.encoding = encoding
+
+        self._new_file()
+        self.current_grammeme = ''
+        
+    def _new_file(self):
+        self.file = codecs.open(self.out_path, 'w', self.encoding)
+
+    def _close_file(self):
+        self.file.close()
+
+    def startElement(self, name, attrs):
+        if name == self.TAG_DICT_GRAMMEME:
+            current_parent = attrs.get('parent')
+            if current_parent is None or current_parent == "":
+                current_parent = "None"
+            self.current_grammeme += current_parent
+
+    def endElement(self, name):
+        if name == self.TAG_DICT_GRAMMEME:
+            self.file.write(self.current_grammeme + os.linesep)
+            self.current_grammeme = ''
+        elif name == self.TAG_DICT_GRAMMEME_LIST:
+            self._close_file()
+            raise opcorp_basic_parsers.DictionaryEndParseException("stop parsing")
+        
+
+    def characters(self, content):
+        if content.strip():
+            self.current_grammeme += self.DELIMITER + content.strip()

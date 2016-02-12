@@ -47,3 +47,19 @@ class OpcorpBasicParser(xml.sax.ContentHandler):
             
     def _are_tokens_found(self):
         return self.ids_left <= 0
+
+
+class OpcorpDictionaryHandler(xml.sax.ContentHandler):
+    TAG_DICT_GRAMMEME = 'grammeme'
+    TAG_DICT_GRAMMEME_LIST = 'grammemes'
+    
+    def __init__(self):
+        super().__init__()
+        
+   
+
+
+
+"""a custom Exception class to stop parsing when necessary"""		
+class DictionaryEndParseException(Exception):
+    pass
