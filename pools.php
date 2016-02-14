@@ -72,7 +72,7 @@ switch ($action) {
         break;
     case 'publish':
         publish_pool($_GET['pool_id']);
-        header("Location:pools.php?act=samples&pool_id=".$_GET['pool_id']);
+        header("Location:pools.php?type=2");
         break;
     case 'unpublish':
         unpublish_pool($_GET['pool_id']);
