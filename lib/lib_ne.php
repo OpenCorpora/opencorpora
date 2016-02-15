@@ -346,9 +346,9 @@ function get_ne_by_paragraph($par_id, $user_id, $tagset_id, $group_by_mention = 
 
 function get_ne_entities_by_book($book_id, $user_id, $tagset_id, $group_by_mention = false) {
     $out = array();
-    foreach (sql_pe("SELECT par_id FROM paragraphs WHERE book_id = ?", array($book_id)) as $pid) {
-        $data = get_ne_by_paragraph($pid, $user_id, $tagset_id, $group_by_mention);
-        $out = array_merge($out, $data['entities']);
+    foreach (sql_pe("SELECT par_id FROM paragraphs WHERE book_id = ?", array($book_id)) as $res) {
+        $data = get_ne_by_paragraph($res['par_id'], $user_id, $tagset_id, $group_by_mention);
+        $out = array_merge($out, $data['entities'] ?: array());
     }
     return $out;
 }

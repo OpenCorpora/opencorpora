@@ -117,7 +117,7 @@
   </div>
 </div>
 {if $is_moderator}
-{include file="ner/_partials/objects-modal.tpl"}
+{include file="ner/_partials/objects-modal.tpl" spans=$book.all_spans}
 {/if}
 {/block}
 
