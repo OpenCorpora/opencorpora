@@ -22,7 +22,7 @@ function get_morph_pool_types($filter=false) {
             'doc_link' => $r['doc_link'],
             'last_search' => $r['last_auto_search'],
             'found_samples' => $r['found_samples'],
-            'is_auto_mode' => $r['complexity'] > 0 && $r['doc_link'] != '',
+            'is_auto_mode' => ($r['complexity'] > 0 && $r['doc_link'] != '') || $r['complexity'] == 1,
             'pool_proto_name' => $r['pool_proto_name']
         );
     return $types;
@@ -565,8 +565,9 @@ function make_and_publish_pools() {
         FROM morph_annot_candidate_samples cs
         JOIN morph_annot_pool_types t
             ON (cs.pool_type = t.type_id)
-        WHERE t.complexity > 0
-        AND t.doc_link != ''
+        WHERE
+            (t.complexity > 0 AND t.doc_link != '')
+            or t.complexity = 1
         GROUP BY pool_type
     ");
     sql_begin();
