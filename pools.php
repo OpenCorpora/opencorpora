@@ -90,6 +90,12 @@ switch ($action) {
         finish_moderate_pool($_GET['pool_id']);
         header("Location:index.php?page=pool_charts");
         break;
+    case 'finish_and_merge':
+        $pool_id = $_GET['pool_id'];
+        finish_moderate_pool($pool_id);
+        begin_pool_merge($pool_id);
+        header("Location:index.php?page=pool_charts");
+        break;
     case 'begin_merge':
         begin_pool_merge($_GET['pool_id']);
         header("Location:index.php?page=pool_charts");
