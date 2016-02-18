@@ -29,11 +29,11 @@ class OpcorpBasicParser(xml.sax.ContentHandler):
 
     def _gen_start_tag(self, name, attrs):
         if not attrs:
-            st_u = '<{}>'.format(name)
+            st_u = '\n<{}>'.format(name)
         else:
             attributes = ' '.join('{}="{}"'.format(k, escape(v, {'"': '&quot;'})) \
             for k, v in attrs.items())
-            st_u = '<{} {}>'.format(name, attributes)
+            st_u = '\n<{} {}>'.format(name, attributes)
 
         return st_u.encode(self.encoding)
     
