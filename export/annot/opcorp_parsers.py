@@ -148,6 +148,8 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
 
     def endElement(self, name): 
         #the decisions and the original values have no intersection
+        #(an unambiguous token has been disambiguated)
+        #then we use the annotators' decisions
         if (name == self.TAG_TFR) and (not self.is_start_tag_written):
 
             pool_types = self.tokens_with_agreement[self.current_token]
@@ -160,7 +162,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
             
             
                 if self.current_token_grammemes.isdisjoint(decisions):
-                    print("token id:%s" % (self.current_token))
+                    print("unambiguous token has been disambiguated: id:%s" % (self.current_token))
                         
                         
                         
