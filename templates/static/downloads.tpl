@@ -54,6 +54,13 @@
 <li><a href="/files/export/annot/annot.opcorpora.no_ambig_strict.xml.bz2">архив .bz2</a> ({$dl.annot.disamb_xml_strict.bz2.size} Мб)</li>
 <li><a href="/files/export/annot/annot.opcorpora.no_ambig_strict.xml.zip">архив .zip</a> ({$dl.annot.disamb_xml_strict.zip.size} Мб)</li>
 </ul>
+<p><b>Подкорпус со снятой омонимией (без модерации)</b><sup>*</sup>, XML <span class="small muted">обновлён {$dl.annot.disamb_xml_nonmod.updated}</span><br/>
+<span class='small'>предложений: {$stats.dump_nonmod_disamb_sentences.value}, токенов: {$stats.dump_nonmod_disamb_tokens.value}, слов: {$stats.dump_nonmod_disamb_words.value}</span></p>
+<ul>
+<li><a href="/files/export/annot/annot.opcorpora.no_ambig.nonmod.xml.bz2">архив .bz2</a> ({$dl.annot.disamb_xml_nonmod.bz2.size} Мб)</li>
+<li><a href="/files/export/annot/annot.opcorpora.no_ambig.nonmod.xml.zip">архив .zip</a> ({$dl.annot.disamb_xml_nonmod.zip.size} Мб)</li>
+</ul>
+<p class='small'><sup>*</sup> В подкорпус включены предложения, где неоднозначность снята по ответам пользователей, в том числе не проверенным модераторами.</p>
 <h2>Частотные списки</h2>
 <div class="row space-after">
     <div class="span3">

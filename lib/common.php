@@ -237,6 +237,7 @@ function get_downloads_info() {
     $annot['xml'] = get_file_info('files/export/annot/annot.opcorpora.xml');
     $annot['disamb_xml'] = get_file_info('files/export/annot/annot.opcorpora.no_ambig.xml');
     $annot['disamb_xml_strict'] = get_file_info('files/export/annot/annot.opcorpora.no_ambig_strict.xml');
+    $annot['disamb_xml_nonmod'] = get_file_info('files/export/annot/annot.opcorpora.no_ambig.nonmod.xml');
 
     $types1 = array('exact', 'exact_lc', 'exact_cyr', 'exact_cyr_lc');
     $types2 = array('exact', 'exact_lc', 'exact_cyrA', 'exact_cyrB', 'exact_cyrA_lc', 'exact_cyrB_lc');
