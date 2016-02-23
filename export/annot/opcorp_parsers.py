@@ -149,7 +149,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
     def endElement(self, name): 
         #the decisions and the original values have no intersection
         #(an unambiguous token has been disambiguated)
-        #then we use the annotators' decisions
+        #then we use the decisions from the file
         if (name == self.TAG_TFR) and (not self.is_start_tag_written):
 
             pool_types = self.tokens_with_agreement[self.current_token]
@@ -166,10 +166,10 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
                         
                         
                         
-                    for alternative_value in decisions:
-                        self._add_to_current_grammeme_set(alternative_value, self.is_first_grammeme)
+                    for current_value in self.current_token_grammemes:
+                        self._add_to_current_grammeme_set(current_value, self.is_first_grammeme)
                             
-                        new_attrs = AttributesImpl({"v" : alternative_value})
+                        new_attrs = AttributesImpl({"v" : current_value})
                         self._write_grammeme_tag(self.TAG_GRAMMEME, new_attrs, self.is_first_grammeme)
                             
                         self.is_first_grammeme = False
