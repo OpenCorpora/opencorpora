@@ -52,10 +52,13 @@ $(document).ready(function(){
 {foreach from=$pools.pools item=pool}
 <tr>
     <td>{$pool.pool_id}</td>
-    <td>{strip}
+    <td>
         <a href="?act=samples&amp;pool_id={$pool.pool_id}">{$pool.pool_name|htmlspecialchars}</a>
-        {if $user_permission_check_morph}<br/><a href="?act=delete&amp;pool_id={$pool.pool_id}" class='del'>удалить</a>{/if}
-    {/strip}</td>
+        {if $user_permission_check_morph}
+            {if $type == $smarty.const.MA_POOLS_STATUS_NOT_STARTED}<a href="?act=publish&amp;pool_id={$pool.pool_id}"><i class="icon-play"></i></a>{/if}
+            <a href="?act=delete&amp;pool_id={$pool.pool_id}" class='del'><i class="icon-remove"></i></a>
+        {/if}
+    </td>
     <td>{$pool.grammemes|htmlspecialchars}<br/><span class='small'>{$pool.gram_descr|htmlspecialchars}</span><br/>Оценок: {$pool.users_needed}</td>
     <td>{$pool.updated_ts|date_format:"%a %d.%m.%Y, %H:%M"}</td>
     <td>{$pool.author_name|htmlspecialchars|default:"Робот"}</td>

@@ -102,6 +102,18 @@ elseif ($action == 'ner') {
             }
         }
 
+        if ($is_book_moderator) {
+            $spans = get_ne_entities_by_book($book_id, $_SESSION['user_id'], $tagset_id);
+            $spans = array_unique(array_map(function($span) {
+                $tokens = '';
+                foreach ($span['tokens'] as $t)
+                    $tokens .= $t[1] . ' ';
+                return trim($tokens);
+            }, $spans));
+
+            $book['all_spans'] = $spans;
+        }
+
         $smarty->assign('book', $book);
         $smarty->assign('use_fast_mode', OPTION(OPT_NE_QUICK));
         $smarty->assign('possible_guidelines',

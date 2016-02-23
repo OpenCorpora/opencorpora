@@ -20,6 +20,9 @@
       </tbody>
     </table>
     <datalist id="spans-datalist">
+    {foreach $spans as $tokens}
+      <option>{$tokens}</option>
+    {/foreach}
     </datalist>
   </div>
 </div>
