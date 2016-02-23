@@ -45,6 +45,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
         
         
         self.is_doubtful_variant = False
+        self.current_token_grammemes = set()
     
     #generates the <g> tag and the <v><l> structure if necessary
     def _write_grammeme_tag(self, name, attrs, is_to_generate_wrapper):
@@ -64,6 +65,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
     def startElement(self, name, attrs):
         self.is_start_tag_written = True
         
+        
         #check if the token has annotators' decisions     
         if name == self.TAG_TOKEN \
                 and not self._are_tokens_found():
@@ -71,6 +73,8 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
             self.file.write(self._gen_start_tag(name, attrs))
             fid = attrs.get('id')
 
+            self.current_token_grammemes = set()
+            
 
             if self.tokens_with_agreement.get(fid):
                 self.current_token = fid
@@ -83,22 +87,34 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
             self.is_first_grammeme = True
             self.is_start_variant_tag_written = False
             self.current_set = None
+            
+            
         
-        #we skip the <v> or <l> tags because we may write them lat
+        #we skip the <v> or <l> tags because we may write them later
         elif self.current_token and name == self.TAG_LEXEME:
             self.is_doubtful_variant = True
             self.lexeme_attrs = attrs
             self.is_start_variant_tag_written = False
+            
+            
                 
         elif self.current_token and (name == self.TAG_GRAMMEME):
-            grammeme_value = attrs.get(self.TAG_VARIANT)
-            pool_types = self.tokens_with_agreement[self.current_token]
+            grammeme_value = attrs.get("v")
             
+  
+            self.current_token_grammemes.add(grammeme_value)
+            
+          
+            
+            pool_types = self.tokens_with_agreement[self.current_token]
+  
             for pool_type, decision in pool_types.items():
                 if pool_type is None:
                     continue
                 pool_variants = set(re.split('\\s*[&@]\\s*', pool_type))
                 decisions = set(re.split('\\s*&\\s*', decision))
+                
+                
                 
                 #if the annotators have chosen the Other variant
                 #we write UNKNOWN grammemes instead of all grammemes
@@ -120,6 +136,7 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
                     
                     self._write_grammeme_tag(name, attrs, self.is_first_grammeme)
                     self.is_first_grammeme = False
+                    
                 #the grammeme won't be written
                 else:
                     self.is_start_tag_written = False
@@ -130,6 +147,37 @@ class OpcorpTokenVariantRemover(opcorp_basic_parsers.OpcorpBasicParser):
             
 
     def endElement(self, name): 
+        #the decisions and the original values have no intersection
+        #(an unambiguous token has been disambiguated)
+        #then we use the decisions from the file
+        if (name == self.TAG_TFR) and (not self.is_start_tag_written):
+
+            pool_types = self.tokens_with_agreement[self.current_token]
+  
+            for pool_type, decision in pool_types.items():
+                if pool_type is None:
+                    continue
+                pool_variants = set(re.split('\\s*[&@]\\s*', pool_type))
+                decisions = set(re.split('\\s*&\\s*', decision))
+            
+            
+                if self.current_token_grammemes.isdisjoint(decisions):
+                    print("unambiguous token has been disambiguated: id:%s" % (self.current_token))
+                        
+                        
+                        
+                    for current_value in self.current_token_grammemes:
+                        self._add_to_current_grammeme_set(current_value, self.is_first_grammeme)
+                            
+                        new_attrs = AttributesImpl({"v" : current_value})
+                        self._write_grammeme_tag(self.TAG_GRAMMEME, new_attrs, self.is_first_grammeme)
+                            
+                        self.is_first_grammeme = False
+                            
+                        self.file.write(self._gen_end_tag(self.TAG_GRAMMEME))
+                     
+                    self.file.write(self._gen_end_tag(self.TAG_LEXEME))   
+                    self.file.write(self._gen_end_tag(self.TAG_VARIANT))
   
         if not name in [self.TAG_VARIANT, self.TAG_LEXEME, self.TAG_GRAMMEME] \
             or (name == self.TAG_GRAMMEME and self.is_start_tag_written) \
@@ -242,7 +290,7 @@ class OpcorpTokenNormalizer(opcorp_basic_parsers.OpcorpBasicParser):
             current_grammemes_sorted = sorted(list(current_grammemes), key = self._grammeme_sort)
             #current_grammemes_sorted = list(current_grammemes)
             for grammeme in current_grammemes_sorted:
-                new_attrs = AttributesImpl({self.TAG_VARIANT : grammeme})
+                new_attrs = AttributesImpl({"v" : grammeme})
                 self.file.write(self._gen_start_tag(self.TAG_GRAMMEME, new_attrs))
                 self.file.write(self._gen_end_tag(self.TAG_GRAMMEME))
                 

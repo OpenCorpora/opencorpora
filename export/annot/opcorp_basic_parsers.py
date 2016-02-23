@@ -6,7 +6,12 @@ from xml.sax.saxutils import escape
 
 """utilities for parsing opencorpora with sax and copying it"""
 class OpcorpBasicParser(xml.sax.ContentHandler):
+    TAG_PARAGRAPH = 'paragraph'
+    TAG_SENTENCE = 'sentence'
+    TAG_SOURCE = 'source'
+    TAG_TOKENS = 'tokens'
     TAG_TOKEN = 'token'
+    TAG_TFR = 'tfr'
     TAG_VARIANT = 'v'
     TAG_LEXEME = 'l'
     TAG_GRAMMEME = 'g'
@@ -29,11 +34,11 @@ class OpcorpBasicParser(xml.sax.ContentHandler):
 
     def _gen_start_tag(self, name, attrs):
         if not attrs:
-            st_u = '<{}>'.format(name)
+            st_u = '\n<{}>'.format(name)
         else:
             attributes = ' '.join('{}="{}"'.format(k, escape(v, {'"': '&quot;'})) \
             for k, v in attrs.items())
-            st_u = '<{} {}>'.format(name, attributes)
+            st_u = '\n<{} {}>'.format(name, attributes)
 
         return st_u.encode(self.encoding)
     
