@@ -6,6 +6,8 @@ import os
 import argparse
 import xml.sax
 import datetime
+import zipfile
+import io
 
 from opcorp_parsers import OpcorpTokenVariantRemover
 from opcorp_parsers import OpcorpTokenNormalizer
@@ -95,12 +97,17 @@ def get_tokens_with_agreement_from_pools(unmoderated_pools, pool_folder, strateg
     return tokens
 
 def gather_tokens_from_pool(unmoderated_pool, pool_folder, tokens,strategy):
-    pool_filename = os.path.join(pool_folder, POOL_FILE_PREFIX + unmoderated_pool[0] + POOL_FILE_EXT)
-    if not os.path.exists(pool_filename):
-        raise Exception('No pool file found %s ' % pool_filename)
+    fname = POOL_FILE_PREFIX + unmoderated_pool[0] + POOL_FILE_EXT
+    if pool_folder.endswith('.zip'):
+        cmgr = zipfile.ZipFile(pool_folder).open(fname)
+    else:
+        pool_filename = os.path.join(pool_folder, fname)
+        if not os.path.exists(pool_filename):
+            raise Exception('No pool file found %s ' % pool_filename)
+        cmgr = codecs.open(pool_filename, 'r', 'utf-8')
 
-    with codecs.open(pool_filename, 'r', 'utf-8') as fin:
-        for line in fin:
+    with cmgr as fin:
+        for line in io.TextIOWrapper(fin, 'utf-8'):
             token_desc_parts = line.strip().split(POOL_FILE_DELIMITER)
             token_id = get_token_id(token_desc_parts)
             
@@ -162,20 +169,25 @@ def check_decisions(token_decisions, moderators_comment, strategy):
 
                 
 def get_unmoderated_pools(pool_folder):
-    pool_description_path = os.path.join(pool_folder, POOL_FILENAME)
-    if not os.path.exists(pool_description_path):
-        raise Exception('No pool description file found %s ' % pool_description_path)
-    
-    pools = set()
-    
-    with codecs.open(pool_description_path, 'r', 'utf-8') as fin:
+    def get_pool_list(fin):
+        pools = set()
         for line in fin:
             line_parts = line.strip().split(POOL_FILE_DELIMITER)
             pool_status = get_pool_status(line_parts)
             if is_unmoderated_pool(pool_status):
                 pools.add((get_pool_id(line_parts), get_pool_type(line_parts)))
-                
-    return pools
+        return pools
+
+
+    if pool_folder.endswith('.zip'):
+        with zipfile.ZipFile(pool_folder).open(POOL_FILENAME) as fin:
+            return get_pool_list(io.TextIOWrapper(fin, 'utf-8'))
+    else:
+        pool_description_path = os.path.join(pool_folder, POOL_FILENAME)
+        if not os.path.exists(pool_description_path):
+            raise Exception('No pool description file found %s ' % pool_description_path)
+        with codecs.open(pool_description_path, 'r', 'utf-8') as fin:
+            return get_pool_list(fin)
 
 def is_unmoderated_pool(pool_status):
     return int(pool_status) < POOL_MODERATED_STATUS
@@ -229,6 +241,9 @@ def process_args():
  
     parser.add_argument('-t', '--time', action='store_true', default=False,
                             help='print execution time in the end')
+
+    parser.add_argument('-y', dest='overwrite', action='store_true', help='overwrite destination file without prompting')
+
     return parser.parse_args()
 
 def _ask_for_overwrite(filename):
@@ -250,7 +265,7 @@ def check_args(args):
     if not os.path.exists(args.grammeme_list):
         raise Exception('pool grammeme_list does not exist:%s' % args.grammeme_list)
     
-    if os.path.exists(args.resulting_corpus_dump):
+    if os.path.exists(args.resulting_corpus_dump) and not args.overwrite:
         return _ask_for_overwrite(args.resulting_corpus_dump)
     
     

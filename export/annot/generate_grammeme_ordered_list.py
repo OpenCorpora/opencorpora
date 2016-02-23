@@ -2,6 +2,7 @@
 import os
 import argparse
 import xml.sax
+import zipfile
 
 
 from opcorp_basic_parsers import DictionaryEndParseException
@@ -27,6 +28,8 @@ def _process_args():
     
     parser.add_argument('output_file',
                             help='path to the resulting tsv file')
+
+    parser.add_argument('-y', dest='overwrite', action='store_true', help='overwrite destination file without prompting')
    
     return parser.parse_args()
 
@@ -43,7 +46,7 @@ def _check_args(args):
     if not os.path.exists(args.dictionary_dump):
         raise Exception('corpus dictionary_dump does not exist:%s' % args.dictionary_dump)
     
-    if os.path.exists(args.output_file):
+    if os.path.exists(args.output_file) and not args.overwrite:
         return _ask_for_overwrite(args.output_file)
     
     
@@ -53,7 +56,10 @@ def main():
     args = _process_args()
     if not _check_args(args):
         return
-    export_grammeme_list(args.dictionary_dump, args.output_file)
+    if args.dictionary_dump.endswith('.zip'):
+        export_grammeme_list(zipfile.ZipFile(args.dictionary_dump).open(os.path.basename(args.dictionary_dump[:-4])), args.output_file)
+    else:
+        export_grammeme_list(open(args.dictionary_dump), args.output_file)
     print('exported to %s' % args.output_file)
     
     

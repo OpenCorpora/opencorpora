@@ -30,7 +30,7 @@ def _ask_for_overwrite(filename):
     return not answer.lower() in ['', 'n']
 
 def check_args(args):    
-    if os.path.exists(args.resulting_corpus_dump):
+    if os.path.exists(args.resulting_corpus_dump) and not args.overwrite:
         return _ask_for_overwrite(args.resulting_corpus_dump)
 
     return True
@@ -48,6 +48,8 @@ def process_args():
  
     parser.add_argument('-t', '--time', action='store_true', default=False,
                             help='print execution time in the end')
+
+    parser.add_argument('-y', dest='overwrite', action='store_true', help='overwrite destination file without prompting')
     return parser.parse_args()
 
 def main():
