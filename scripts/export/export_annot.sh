@@ -37,7 +37,7 @@ rm $TMPFILE
 rm $EXPORT_PATH.xml_removed_temp.xml
 
 # make archives
-for f in $EXPORT_PATH $EXPORT_PATH.no_ambig $EXPORT_PATH.no_ambig_strict EXPORT_PATH.no_ambig.nonmod; do
+for f in $EXPORT_PATH $EXPORT_PATH.no_ambig $EXPORT_PATH.no_ambig_strict $EXPORT_PATH.no_ambig.nonmod; do
     bzip2 -c9 $f.xml >$f.xml.bz2.new
     mv $f.xml.bz2.new $f.xml.bz2
     zip -jq9 $f.xml.zip.new $f.xml
