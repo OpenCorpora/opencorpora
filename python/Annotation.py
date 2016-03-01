@@ -77,6 +77,47 @@ class AnnotationEditor(object):
             if l.has_all_gram(grammemes):
                 lexemes.append(l)
         return lexemes
+    
+    
+    def add_link(self, from_id, to_id, link_type, revset_id = None, comment = ""):
+        #TODO: permissions?
+        if not self.is_correct_id(from_id) or not self.is_correct_id(to_id):
+            raise Exception('Negative ids specified: %s %s' % (from_id, to_id))
+        if not revset_id:
+            revset_id = self.get_revset_id(comment + '#add_link')
+            
+        print(revset_id)
+            
+        self.db_cursor.execute("INSERT INTO dict_links VALUES(NULL, {0}, {1}, {2})".
+                               format(from_id, to_id, link_type))
+        self.db_cursor.execute("INSERT INTO dict_links_revisions VALUES(NULL, {0}, {1}, {2}, {3}, 1)".
+                               format(revset_id, from_id, to_id, link_type))  
+        
+        self.commit()
+        
+    def del_link(self, link_id, revset_id = None, comment = ""):
+        #TODO: permissions?
+        existing_link = self.find_link_by_id(link_id)
+        if existing_link is None:
+            raise Exception('No such link found: %s' % (link_id))
+        if not revset_id:
+            revset_id = self.get_revset_id(comment + '#del_link')
+        self.db_cursor.execute("INSERT INTO dict_links_revisions VALUES(NULL, {0}, {1}, {2}, {3}, 0)".
+                                format(revset_id, existing_link['lemma1_id'], 
+                                       existing_link['lemma2_id'],
+                                       existing_link['link_type']))
+        self.db_cursor.execute("DELETE FROM dict_links WHERE link_id={0} LIMIT 1".
+                                format(link_id)  )             
+        self.commit()
+        
+        
+    def find_link_by_id(self, link_id):
+        self.db_cursor.execute("SELECT * FROM dict_links WHERE link_id={0} LIMIT 1".format(link_id))
+        return self.db_cursor.fetchone()
+        
+        
+    def is_correct_id(self, id_to_check):
+        return id_to_check > 0
 
 
 class ParsingVariant(object):
