@@ -64,6 +64,7 @@ class AnnotationEditor(object):
         """.format(lemma))
         rows = self.db_cursor.fetchall()
         lexemes = []
+        #TODO: the is_last field is lacking
         for row in rows:
             self.db_cursor.execute("""
                 SELECT rev_text
@@ -80,13 +81,10 @@ class AnnotationEditor(object):
     
     
     def add_link(self, from_id, to_id, link_type, revset_id = None, comment = ""):
-        #TODO: permissions?
         if not self.is_correct_id(from_id) or not self.is_correct_id(to_id):
             raise Exception('Negative ids specified: %s %s' % (from_id, to_id))
         if not revset_id:
             revset_id = self.get_revset_id(comment + '#add_link')
-            
-        print(revset_id)
             
         self.db_cursor.execute("INSERT INTO dict_links VALUES(NULL, {0}, {1}, {2})".
                                format(from_id, to_id, link_type))
@@ -96,7 +94,6 @@ class AnnotationEditor(object):
         self.commit()
         
     def del_link(self, link_id, revset_id = None, comment = ""):
-        #TODO: permissions?
         existing_link = self.find_link_by_id(link_id)
         if existing_link is None:
             raise Exception('No such link found: %s' % (link_id))
