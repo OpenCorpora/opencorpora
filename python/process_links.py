@@ -10,16 +10,33 @@ import argparse
 
 
 DELIMITER_LEMMA_GR = '\t'
+DELIMITER_LEMMA_GR_SINGLE_LINE = ' '
+DELIMITER_LEMMATA = '\t'
 DELIMITER_GR_LIST = ','
+
+
+"""
+a file which has the following structure:
+lemma1\tgrammmemes
+lemma2\tgrammmemes
+empty line
+"""
+TYPE_SEPARATE_LINES = 1
+
+"""
+a file which has the following structure:
+lemma1 grammmemes\tlemma2
+"""
+TYPE_ONE_LINE = 2
 
 """
 parses a file with links and inserts them into the database
 """
-def add_links_from_file(filename, link_type, config_file, is_to_print_time, revset_id=None, comment=""):
+def add_links_from_file(filename, link_type, file_type, config_file, is_to_print_time, revset_id=None, comment=""):
     start = datetime.datetime.now()
         
     annotation_editor = AnnotationEditor(config_file)
-    link_list = parse_links_from_file(filename, link_type)
+    link_list = parse_links_from_file(filename, link_type, file_type)
 
     if comment == "":
         comment = os.path.basename(filename)
@@ -29,12 +46,16 @@ def add_links_from_file(filename, link_type, config_file, is_to_print_time, revs
         print('time elapsed for add_links_from_file:{0}'.format(datetime.datetime.now() - start))
 
 """
-parses a file which has the following structure:
-lemma1\tgrammmemes
-lemma2\tgrammmemes
-empty line
+parses 
 """
-def parse_links_from_file(filename, link_type):
+def parse_links_from_file(filename, link_type, file_type):
+    if file_type == TYPE_SEPARATE_LINES:
+        return parse_links_two_lines(filename, link_type)
+    if file_type == TYPE_ONE_LINE:
+        return parse_links_one_line(filename, link_type)
+    raise Exception('unknown file type: %s' % file_type)
+
+def parse_links_two_lines(filename, link_type):
     link_list = []
     lemma1 = None
     grammemes1 = None
@@ -56,6 +77,15 @@ def parse_links_from_file(filename, link_type):
     if not has_been_added:
         link_list.append(((lemma1, grammemes1), (lemma2, grammemes2), link_type))         
         
+    return link_list
+    
+    
+def parse_links_one_line(filename, link_type):
+    link_list = []
+    with codecs.open(filename, 'r', 'utf-8') as fin:
+        for line in fin:
+            lemma1, grammemes, lemma2 = get_lemmata_grammemes(line)
+            link_list.append(((lemma1, grammemes), (lemma2, grammemes), link_type))
     return link_list
 
 """
@@ -96,6 +126,15 @@ def get_lemma_grammemes(line_from_file):
     line_parts = line_from_file.strip().split(DELIMITER_LEMMA_GR)
     return line_parts[0], tuple([grammeme.encode('utf-8') for grammeme in line_parts[1].split(DELIMITER_GR_LIST)])
 
+def get_lemmata_grammemes(line_from_file):
+    line_parts = line_from_file.strip().split(DELIMITER_LEMMATA)
+    lemma1_parts = line_parts[0].split(DELIMITER_LEMMA_GR_SINGLE_LINE)
+    lemma1 = lemma1_parts[0]
+    lemma2 = line_parts[1]
+    
+    grammemes = tuple([grammeme.encode('utf-8') for grammeme in lemma1_parts[1].split(DELIMITER_GR_LIST)])
+    return lemma1, grammemes, lemma2
+
 def process_args():
     parser = argparse.ArgumentParser(description="Add links for the lexemes from the file")
     
@@ -108,6 +147,9 @@ def process_args():
 
     parser.add_argument('link_type',
                             help='the type of the link')
+    
+    parser.add_argument('file_type',
+                            help='the type of the file: 1=different lines; 2=single line', choices=[1, 2], type=int)
     
     parser.add_argument('-r', '--revset_id',
                             help='the revision id', type=int, default=None)
@@ -136,7 +178,7 @@ def main():
         return
 
     
-    add_links_from_file(args.link_filename, args.link_type, args.config_filename, args.time, args.revset_id, args.comment)
+    add_links_from_file(args.link_filename, args.link_type, args.file_type, args.config_filename, args.time, args.revset_id, args.comment)
     
     
 if __name__ == "__main__":
