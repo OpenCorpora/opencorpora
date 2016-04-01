@@ -2,6 +2,12 @@
 {extends file="common.tpl"}
 {block name=content}
 {$activepage='index'}
+
+{assign var=x value=1|rand:2}
+<a href="/manual.php">
+    <img src="/assets/img/appeal{$x}.png"/>
+</a>
+
 <h1>Открытый корпус</h1>
 {if !$is_logged}
     <p>Здравствуйте!</p>
