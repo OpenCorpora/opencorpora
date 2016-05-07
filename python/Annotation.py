@@ -65,6 +65,7 @@ class AnnotationEditor(object):
         rows = self.db_cursor.fetchall()
         lexemes = []
         #TODO: the is_last field is lacking
+       
         for row in rows:
             self.db_cursor.execute("""
                 SELECT rev_text
@@ -79,6 +80,74 @@ class AnnotationEditor(object):
                 lexemes.append(l)
         return lexemes
     
+    #finds a lexeme by its lemma and using a regular expression for its grammemes
+    def find_lexeme_by_lemma_gr_regex(self, lemma, grammemes):
+       
+        self.db_cursor.execute("""
+            SELECT lemma_id AS lid, lemma_text AS ltext
+            FROM dict_lemmata
+            WHERE lemma_text = '{0}'
+            AND deleted = 0
+        """.format(lemma))
+        rows = self.db_cursor.fetchall()
+        lexemes = []
+ 
+        for row in rows:
+            self.db_cursor.execute("""
+                SELECT rev_text
+                FROM dict_revisions
+                WHERE lemma_id = {0}
+                AND rev_text like '{1}'
+                AND is_last = 1
+                LIMIT 1
+            """.format(row['lid'], grammemes))
+            lrow = self.db_cursor.fetchone()
+            l = Lexeme(row['ltext'].encode('utf-8'), row['lid'], lrow['rev_text'].encode('utf-8'), editor=self)
+            lexemes.append(l)
+        return lexemes
+    
+    #tried to combine all the conditions in a single query but it doesn't work faster
+    def find_lexeme_by_lemma_gr_regex_single_query(self, lemma, grammemes):
+        lexemes = []
+        
+        self.db_cursor.execute("""
+            SELECT lem.lemma_id AS lid, lem.lemma_text AS ltext, rev.rev_text AS rev_text
+            FROM dict_lemmata lem join dict_revisions rev on lem.lemma_id = rev.lemma_id
+            WHERE lem.lemma_text = '{0}'
+            AND rev.is_last = 1
+            AND rev.rev_text like '{1}'
+            AND lem.deleted = 0
+        """.format(lemma, grammemes))
+        rows = self.db_cursor.fetchall()
+        
+        for row in rows:
+            l = Lexeme(row['ltext'].encode('utf-8'), row['lid'], row['rev_text'].encode('utf-8'), editor=self)
+            lexemes.append(l)
+            
+        return lexemes
+    
+    #finds a lexeme with regular expressions for its lemma and grammemes
+    def find_lexeme_by_lemma_regex_gr_regex(self, lemma, grammemes):
+        #TODO: the is_last field is lacking
+        req = """
+            SELECT lem.lemma_id AS lid, lem.lemma_text AS ltext, revs.rev_text AS rev_text
+            FROM dict_lemmata lem join dict_revisions revs on lem.lemma_id = revs.lemma_id
+            WHERE lem.lemma_text like '{0}'
+            AND lem.deleted = 0
+            AND revs.rev_text like '{1}'
+            AND revs.is_last = 1
+        """.format(lemma, grammemes)
+        
+        self.db_cursor.execute(req)
+
+        
+        rows = self.db_cursor.fetchall()
+        lexemes = []
+        
+        for row in rows:
+            l = Lexeme(row['ltext'].encode('utf-8'), row['lid'], row['rev_text'].encode('utf-8'), editor=self)
+            lexemes.append(l)
+        return lexemes
     
     def add_link(self, from_id, to_id, link_type, revset_id = None, comment = ""):
         if not self.is_correct_id(from_id) or not self.is_correct_id(to_id):
