@@ -7,7 +7,18 @@ function get_current_tagset() {
     return OPTION(OPT_NE_TAGSET);
 }
 
+function get_tagset_options($tagset_id) {
+    $res = sql_pe("SELECT * FROM ne_tagsets WHERE tagset_id = ? LIMIT 1", array($tagset_id));
+    if (!sizeof($res))
+        throw new Exception("Unknown tagset");
+    return array(
+        'active_books' => $res[0]['active_texts'],
+        'annots_per_text' => $res[0]['annots_per_text']
+    );
+}
+
 function get_books_with_ne($tagset_id, $for_user = TRUE) {
+    $tagset_opt = get_tagset_options($tagset_id);
     $total = sql_pe("
         SELECT COUNT(book_id) AS total
         FROM ne_books_tagsets
@@ -19,7 +30,7 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
             AND is_moderator = 0
             AND status >= ".NE_STATUS_FINISHED."
             GROUP BY par_id
-            HAVING fin >= ".NE_ANNOTATORS_PER_TEXT."
+            HAVING fin >= ".$tagset_opt['annots_per_text']."
         ) T USING (par_id)
         GROUP BY book_id
         HAVING COUNT(par_id) = COUNT(fin)
@@ -48,7 +59,8 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
         'all_ready' => false,
         'unavailable_par' => 0,
         'moderator_id' => 0,
-        'objects_count' => 0
+        'objects_count' => 0,
+        'required_annots' => $tagset_opt['annots_per_text']
     );
     $last_book_id = 0;
     $last_par_id = 0;
@@ -61,8 +73,8 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
         if ($r['par_id'] != $last_par_id) {
             if ($last_par_id) {
                 $book['num_par'] += 1;
-                $book['ready_annot'] += min($finished_annot, NE_ANNOTATORS_PER_TEXT);
-                if ($finished_par_by_me || ($finished_annot + $started_not_by_me) >= NE_ANNOTATORS_PER_TEXT)
+                $book['ready_annot'] += min($finished_annot, $tagset_opt['annots_per_text']);
+                if ($finished_par_by_me || ($finished_annot + $started_not_by_me) >= $tagset_opt['annots_per_text'])
                     $book['unavailable_par'] += 1;
             }
             $finished_annot = 0;
@@ -70,13 +82,13 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
             $finished_par_by_me = false;
         }
         if ($r['book_id'] != $last_book_id && $last_book_id) {
-            $book['all_ready'] = ($book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']);
+            $book['all_ready'] = ($book['ready_annot'] >= $tagset_opt['annots_per_text'] * $book['num_par']);
             $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'] && $book['unavailable_par'] < $book['num_par'];
             $book['finished_par_by_me'] = $finished_by_me;
 
             if ($book['available'] || !$for_user) {
                 $out['books'][] = $book;
-                if ($for_user && sizeof($out['books']) >= NE_ACTIVE_BOOKS)
+                if ($for_user && sizeof($out['books']) >= $tagset_opt['active_books'])
                     break;
             }
             $book = array(
@@ -121,14 +133,14 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
         $last_par_id = $r['par_id'];
     }
     $book['num_par'] += 1;
-    $book['ready_annot'] += max($finished_annot, NE_ANNOTATORS_PER_TEXT);
-    if ($finished_par_by_me || ($finished_annot + $started_not_by_me) >= NE_ANNOTATORS_PER_TEXT)
+    $book['ready_annot'] += max($finished_annot, $tagset_opt['annots_per_text']);
+    if ($finished_par_by_me || ($finished_annot + $started_not_by_me) >= $tagset_opt['annots_per_text'])
         $book['unavailable_par'] += 1;
-    $book['all_ready'] = ($book['ready_annot'] >= NE_ANNOTATORS_PER_TEXT * $book['num_par']);
+    $book['all_ready'] = ($book['ready_annot'] >= $tagset_opt['annots_per_text'] * $book['num_par']);
     $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'] && $book['unavailable_par'] < $book['num_par'];
     $book['finished_par_by_me'] = $finished_by_me;
 
-    if (!$for_user || ($book['available'] && sizeof($out['books']) < NE_ACTIVE_BOOKS))
+    if (!$for_user || ($book['available'] && sizeof($out['books']) < $tagset_opt['active_books']))
         // $for_user is False when get_books_with_ne is called by moderator
         $out['books'][] = $book;
 
@@ -454,9 +466,11 @@ function get_ne_paragraph_status($book_id, $user_id, $tagset_id) {
     $done = false;
     $now = time();
 
+    $tagset_opt = get_tagset_options($tagset_id);
+
     foreach ($res as $r) {
         if ($cur_pid && $cur_pid != $r['par_id']) {
-            if ($occupied_num >= NE_ANNOTATORS_PER_TEXT && !$done)
+            if ($occupied_num >= $tagset_opt['annots_per_text'] && !$done)
                 $out['unavailable'][] = $cur_pid;
             elseif ($started)
                 $out['started_by_user'][] = $cur_pid;
@@ -484,7 +498,7 @@ function get_ne_paragraph_status($book_id, $user_id, $tagset_id) {
 
     // last row
     if ($cur_pid) {
-        if ($occupied_num >= NE_ANNOTATORS_PER_TEXT && !$done)
+        if ($occupied_num >= $tagset_opt['annots_per_text'] && !$done)
             $out['unavailable'][] = $cur_pid;
         elseif ($started)
             $out['started_by_user'][] = $cur_pid;
@@ -516,6 +530,8 @@ function start_ne_annotation($par_id, $tagset_id, $is_moderator = false) {
     if (sizeof($res) > 0)
         throw new Exception("Annotation already exists");
 
+    $tagset_opt = get_tagset_options($tagset_id);
+
     // TODO check that this user is this book's moderator
     if ($is_moderator) {
         check_permission(PERM_NE_MODER);
@@ -526,7 +542,7 @@ function start_ne_annotation($par_id, $tagset_id, $is_moderator = false) {
             AND tagset_id = ?
             AND status = ?
         ", array($par_id, $tagset_id, NE_STATUS_FINISHED));
-        if (sizeof($annots) < NE_ANNOTATORS_PER_TEXT)
+        if (sizeof($annots) < $tagset_opt['annots_per_text'])
             throw new Exception("Annotation is not yet finished");
     }
 

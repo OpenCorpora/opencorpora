@@ -40,7 +40,7 @@
 <tr>
     <td>{$book.queue_num}</td>
     <td>{$book.num_par}</td>
-    <td>{if $book.num_par}{(100 * $book.ready_annot / ($book.num_par * $smarty.const.NE_ANNOTATORS_PER_TEXT))|string_format:"%d"} %{else}EMPTY{/if}
+    <td>{if $book.num_par}{(100 * $book.ready_annot / ($book.num_par * $book.required_annots))|string_format:"%d"} %{else}EMPTY{/if}
     </td>
     <td>{$book.objects_count}</td>
     <td>

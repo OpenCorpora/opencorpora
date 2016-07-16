@@ -51,8 +51,6 @@ define('NE_STATUS_IN_PROGRESS', 1);
 define('NE_STATUS_FINISHED', 2);
 
 define('NE_ANNOT_TIMEOUT', 24 * 60 * 60);  // 24 hours
-define('NE_ANNOTATORS_PER_TEXT', 4);
-define('NE_ACTIVE_BOOKS', 10);
 
 define('NE_OBJECT_DEFAULT_PROPS', serialize(
 	array('ONLY_PERSON' => array('firstname', 'surname', 'patronymic', 'nickname'),

@@ -32,7 +32,7 @@
            {else}{/if}">
     <td>{$book.queue_num}</td>
     <td>{$book.num_par}</td>
-    <td>{(100 * $book.ready_annot / ($book.num_par * $smarty.const.NE_ANNOTATORS_PER_TEXT))|string_format:"%d"} %</td>
+    <td>{(100 * $book.ready_annot / ($book.num_par * $book.required_annots))|string_format:"%d"} %</td>
     <td>
       {if $book.started and $book.available}
           <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small btn-primary">Продолжить</a>
