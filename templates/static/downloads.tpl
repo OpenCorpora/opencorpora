@@ -41,26 +41,32 @@
 <li>один текст на файл: <a href="/files/export/annot/annot.opcorpora.xml.byfile.bz2">архив .bz2</a>, <a href="/files/export/annot/annot.opcorpora.xml.byfile.zip">архив .zip</a></li>
 </ul>
 <h3>Со снятой омонимией</h3>
-<p><b>Подкорпус со снятой омонимией</b><sup>*</sup>, XML <span class="small muted">обновлён {$dl.annot.disamb_xml.updated}</span><br/>
+<p><b>Подкорпус со снятой омонимией</b><sup>*</sup>, XML
+    | <a href="/files/export/annot/annot.opcorpora.no_ambig.xml.bz2">.bz2</a>
+        <span class='small muted'>({$dl.annot.disamb_xml.bz2.size} Мб)</span>
+    | <a href="/files/export/annot/annot.opcorpora.no_ambig.xml.zip">.zip</a>
+        <span class='small muted'>({$dl.annot.disamb_xml.zip.size} Мб)</span>
+    <span class="small">обновлён {$dl.annot.disamb_xml.updated}</span><br/>
 <span class='small'>предложений: {$stats.dump_disamb_sentences.value}, токенов: {$stats.dump_disamb_tokens.value}, слов: {$stats.dump_disamb_words.value}</span></p>
-<ul>
-<li><a href="/files/export/annot/annot.opcorpora.no_ambig.xml.bz2">архив .bz2</a> ({$dl.annot.disamb_xml.bz2.size} Мб)</li>
-<li><a href="/files/export/annot/annot.opcorpora.no_ambig.xml.zip">архив .zip</a> ({$dl.annot.disamb_xml.zip.size} Мб)</li>
-</ul>
 <p class='small'><sup>*</sup> В подкорпус включены целые предложения, не имеющие в своём составе ни одного неоднозначно разобранного слова &mdash; как изначально однозначные предложения, так и те, в которых неоднозначность была снята вручную.</p>
-<p><b>Подкорпус со снятой омонимией без UNKN</b>, XML <span class="small muted">обновлён {$dl.annot.disamb_xml_strict.updated}</span><br/>
+
+<p><b>Подкорпус со снятой омонимией без UNKN</b>, XML
+    | <a href="/files/export/annot/annot.opcorpora.no_ambig_strict.xml.bz2">.bz2</a>
+        <span class='small muted'>({$dl.annot.disamb_xml_strict.bz2.size} Мб)</span>
+    | <a href="/files/export/annot/annot.opcorpora.no_ambig_strict.xml.zip">.zip</a>
+        <span class='small muted'>({$dl.annot.disamb_xml_strict.zip.size} Мб)</span>
+    <span class="small">обновлён {$dl.annot.disamb_xml_strict.updated}</span><br/>
 <span class='small'>предложений: {$stats.dump_strict_disamb_sentences.value}, токенов: {$stats.dump_strict_disamb_tokens.value}, слов: {$stats.dump_strict_disamb_words.value}</span></p>
-<ul>
-<li><a href="/files/export/annot/annot.opcorpora.no_ambig_strict.xml.bz2">архив .bz2</a> ({$dl.annot.disamb_xml_strict.bz2.size} Мб)</li>
-<li><a href="/files/export/annot/annot.opcorpora.no_ambig_strict.xml.zip">архив .zip</a> ({$dl.annot.disamb_xml_strict.zip.size} Мб)</li>
-</ul>
-<p><b>Подкорпус со снятой омонимией (без модерации)</b><sup>*</sup>, XML <span class="small muted">обновлён {$dl.annot.disamb_xml_nonmod.updated}</span><br/>
+
+<p><b>Подкорпус со снятой омонимией (без модерации)</b><sup>*</sup>, XML
+    | <a href="/files/export/annot/annot.opcorpora.no_ambig.nonmod.xml.bz2">.bz2</a>
+        <span class='small muted'>({$dl.annot.disamb_xml_nonmod.bz2.size} Мб)</span>
+    | <a href="/files/export/annot/annot.opcorpora.no_ambig.nonmod.xml.zip">.zip</a>
+        <span class='small muted'>({$dl.annot.disamb_xml_nonmod.zip.size} Мб)</span>
+    <span class="small">обновлён {$dl.annot.disamb_xml_nonmod.updated}</span><br/>
 <span class='small'>предложений: {$stats.dump_nonmod_disamb_sentences.value}, токенов: {$stats.dump_nonmod_disamb_tokens.value}, слов: {$stats.dump_nonmod_disamb_words.value}</span></p>
-<ul>
-<li><a href="/files/export/annot/annot.opcorpora.no_ambig.nonmod.xml.bz2">архив .bz2</a> ({$dl.annot.disamb_xml_nonmod.bz2.size} Мб)</li>
-<li><a href="/files/export/annot/annot.opcorpora.no_ambig.nonmod.xml.zip">архив .zip</a> ({$dl.annot.disamb_xml_nonmod.zip.size} Мб)</li>
-</ul>
 <p class='small'><sup>*</sup> В подкорпус включены предложения, где неоднозначность снята по ответам пользователей, в том числе не проверенным модераторами.</p>
+
 <h2>Частотные списки</h2>
 <div class="row space-after">
     <div class="span3">
