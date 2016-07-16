@@ -1,5 +1,6 @@
 <?php
 require_once('constants.php');
+require_once('lib_ne.php');
 
 class OptionTypes {
     const BINARY = 1;
@@ -50,7 +51,7 @@ class UserOptionsManager {
         $this->_add($opt);
 
         $opt = new UserOption(OPT_NE_TAGSET, OptionTypes::KEY_VALUE);
-        $opt->values = array(1 => "Default (2014)", 2 => "Dialogue Eval (2016)");
+        $opt->values = get_ne_guidelines();
         $opt->default_value = 2;
         $opt->caption = "Инструкция (tagset) разметки NER";
         $this->_add($opt);

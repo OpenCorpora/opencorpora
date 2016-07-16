@@ -23,7 +23,7 @@ switch ($action) {
         $is_ner_mod = user_has_permission(PERM_NE_MODER);
 
         $smarty->assign('possible_guidelines',
-            array(1 => "Default (2014)", 2 => "Dialogue Eval (2016)"));  // TODO read from db
+            get_ne_guidelines());  // TODO read from db
         $smarty->assign('is_ner_mod', $is_ner_mod);
         $smarty->assign('current_guideline', $tagset_id);
         $smarty->assign('page', get_books_with_NE($tagset_id, !$is_ner_mod));

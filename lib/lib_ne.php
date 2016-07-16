@@ -1048,3 +1048,10 @@ function finish_book_moderation($book_id, $tagset_id) {
 function restart_book_moderation($book_id, $tagset_id) {
     set_ne_book_status($book_id, $tagset_id, NE_STATUS_IN_PROGRESS);
 }
+
+function get_ne_guidelines() {
+    $out = array();
+    foreach(sql_pe("SELECT * FROM ne_tagsets", array()) as $tagset_row)
+        $out[(int)$tagset_row["tagset_id"]] = $tagset_row["tagset_name"];
+    return $out;
+}
