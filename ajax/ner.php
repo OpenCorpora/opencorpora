@@ -177,6 +177,12 @@ try {
             restart_book_moderation($_POST['book_id'], $_POST['tagset_id']);
             break;
 
+        case 'resumeModeration':
+            if (empty($_POST['book_id'])
+                or empty($_POST['tagset_id'])) throw new Exception("book_id or tagset_id missing");
+
+            resume_book_moderation($_POST['book_id'], $_POST['tagset_id']);
+            break;
 
         case 'logEvent':
             if (empty($_POST['id'])) throw new Exception();

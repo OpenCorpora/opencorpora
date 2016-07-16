@@ -37,21 +37,36 @@
 {if $book.all_ready &&
   ((!$book.moderator_id && !$book.started) ||
   $book.moderator_id == $smarty.session.user_id)}
-<tr>
+
+  {$book_was_moderated = moderated_book_is_finished($book.id, $current_guideline)}
+
+  {if $book_was_moderated}
+  <tr class="book-was-moderated">
     <td>{$book.queue_num}</td>
     <td>{$book.num_par}</td>
     <td>{if $book.num_par}{(100 * $book.ready_annot / ($book.num_par * $book.required_annots))|string_format:"%d"} %{else}EMPTY{/if}
     </td>
     <td>{$book.objects_count}</td>
-    <td>
-        {if !$book.moderator_id && !$book.started}
-            <button class="btn btn-small become-moderator" data-tagset-id="{$current_guideline}"
-            data-book-id="{$book.id}">Стать модератором</button>
-        {elseif $book.moderator_id == $smarty.session.user_id}
-            <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small  btn-primary">Модерировать</a>
-        {/if}
-    </td>
-</tr>
+    <td><a class="btn btn-small btn-warning resume-moderation" data-book-id="{$book.id}" data-tagset-id="{$current_guideline}" href="#">Возобновить модерацию</a></td>
+  </tr>
+  {else}
+  <tr>
+      <td>{$book.queue_num}</td>
+      <td>{$book.num_par}</td>
+      <td>{if $book.num_par}{(100 * $book.ready_annot / ($book.num_par * $smarty.const.NE_ANNOTATORS_PER_TEXT))|string_format:"%d"} %{else}EMPTY{/if}
+      </td>
+      <td>{$book.objects_count}</td>
+      <td>
+          {if !$book.moderator_id && !$book.started}
+              <button class="btn btn-small become-moderator" data-tagset-id="{$current_guideline}"
+              data-book-id="{$book.id}">Стать модератором</button>
+          {elseif $book.moderator_id == $smarty.session.user_id}
+              <a href="/books.php?book_id={$book.id}&amp;act=ner" class="btn btn-small  btn-primary">Модерировать</a>
+              <a class="btn btn-small btn-inverse finish-moderation" data-book-id="{$book.id}" data-tagset-id="{$current_guideline}" href="#">Завершить модерацию</a>
+          {/if}
+      </td>
+  </tr>
+  {/if}
 {/if}
 {/foreach}
 </table>
@@ -78,7 +93,37 @@ $(document).ready(function() {
       }, function() {
         document.location.reload();
       });
-    })
+    });
+
+    $(".finish-moderation").click(function() {
+      var tagset_id = $(this).attr("data-tagset-id");
+      var book_id = $(this).attr("data-book-id");
+
+      $.post('/ajax/ner.php', {
+        act: "finishModeration",
+        tagset_id: tagset_id,
+        book_id: book_id
+      }, function() {
+        document.location.reload();
+      });
+    });
+
+    $(".resume-moderation").click(function() {
+      var tagset_id = $(this).attr("data-tagset-id");
+      var book_id = $(this).attr("data-book-id");
+
+      if (!window.confirm("При возобновлении модераторская разметка этой книги " +
+        "полностью переписывается на вас. Вы уверены?")) return false;
+
+      $.post('/ajax/ner.php', {
+        act: "resumeModeration",
+        tagset_id: tagset_id,
+        book_id: book_id
+      }, function() {
+        document.location.reload();
+      });
+    });
+
 });
 </script>
 {/literal}

@@ -702,7 +702,7 @@ function delete_entity_mention_link($entity_id, $mention_id) {
     sql_pe("DELETE FROM ne_entities_mentions WHERE entity_id = ? AND mention_id = ?", array($entity_id, $mention_id));
 }
 
-function set_ne_book_moderator($book_id, $tagset_id) {
+function set_ne_book_moderator($book_id, $tagset_id, $start_ne_annotation=TRUE) {
     check_permission(PERM_NE_MODER);
     $book = sql_pe("SELECT book_id FROM ne_books_tagsets WHERE book_id = ? AND tagset_id = ? LIMIT 1", array($book_id, $tagset_id));
     if (sizeof($book) < 1)
@@ -711,18 +711,23 @@ function set_ne_book_moderator($book_id, $tagset_id) {
     sql_pe("UPDATE ne_books_tagsets SET moderator_id = ? WHERE book_id = ? AND tagset_id = ?", array($_SESSION["user_id"], $book_id, $tagset_id));
     // create (empty) annotation for every paragraph
     $res = sql_pe("SELECT par_id FROM paragraphs WHERE book_id = ?", array($book_id));
-    foreach ($res as $r) {
-        start_ne_annotation($r['par_id'], $tagset_id, true);
+    if ($start_ne_annotation) {
+        foreach ($res as $r) {
+            start_ne_annotation($r['par_id'], $tagset_id, true);
+        }
     }
     sql_commit();
 }
 
-function is_user_book_moderator($book_id, $tagset_id) {
+function get_book_moderator($book_id, $tagset_id) {
     $book = sql_pe("SELECT * FROM ne_books_tagsets WHERE book_id = ? AND tagset_id = ? LIMIT 1", array($book_id, $tagset_id));
     if (sizeof($book) < 1)
         throw new Exception("No NE text found");
-    $book = $book[0];
-    return $book["moderator_id"] == $_SESSION["user_id"];
+    return (int)$book[0]["moderator_id"];
+}
+
+function is_user_book_moderator($book_id, $tagset_id) {
+    return get_book_moderator($book_id, $tagset_id) == $_SESSION["user_id"];
 }
 
 function get_paragraph_annotators($par_id, $tagset_id) {
@@ -1039,7 +1044,8 @@ function set_ne_book_status($book_id, $tagset_id, $status) {
         UPDATE ne_paragraphs
             LEFT JOIN paragraphs USING (par_id)
         SET status = ?
-        WHERE book_id = ? AND tagset_id = ?", array($status, $book_id, $tagset_id));
+        WHERE book_id = ? AND tagset_id = ? AND user_id = ?",
+        array($status, $book_id, $tagset_id, $_SESSION["user_id"]));
 }
 
 function finish_book_moderation($book_id, $tagset_id) {
@@ -1061,8 +1067,56 @@ function finish_book_moderation($book_id, $tagset_id) {
     sql_commit();
 }
 
+function moderated_book_is_finished($book_id, $tagset_id) {
+    $book = sql_pe("SELECT * FROM ne_books_tagsets WHERE book_id = ? AND tagset_id = ? LIMIT 1", array($book_id, $tagset_id));
+    if ((int)$book[0]["moderator_id"] == 0) return false;
+
+    // book has moderator, let's check the status of all paragraphs
+    $res = sql_pe("
+        SELECT p1.par_id, p2.annot_id as annotation, p2.status FROM paragraphs p1
+        LEFT JOIN ne_paragraphs p2
+        ON p1.par_id = p2.par_id
+        AND p2.tagset_id = ?
+        AND p2.user_id = ?
+        AND p2.status = ?
+        WHERE p1.book_id = ?
+    ", array($tagset_id, (int)$book[0]["moderator_id"], NE_STATUS_FINISHED, $book_id));
+
+    foreach ($res as $row) {
+        if ((int)$row["annotation"] == 0) return false;
+    }
+    return true;
+}
+
 function restart_book_moderation($book_id, $tagset_id) {
     set_ne_book_status($book_id, $tagset_id, NE_STATUS_IN_PROGRESS);
+}
+
+function steal_book_moderator_annotation($book_id, $tagset_id, $new_uid) {
+    $query = "
+        UPDATE ne_paragraphs LEFT JOIN paragraphs USING (par_id)
+        SET user_id = ?
+        WHERE book_id = ?
+        AND tagset_id = ?
+        AND is_moderator = 1";
+    return sql_pe($query, array($new_uid, $book_id, $tagset_id));
+}
+
+function resume_book_moderation($book_id, $tagset_id) {
+    // here we need to:
+    // 1. save old book moderator id, set a new one
+    // 2. set a new user_id for each paragraph annotation done by old moderator
+    // 3. restart_book_moderation() - open all paragraphs
+
+    // $old_moderator = get_book_moderator($book_id, $tagset_id);
+
+    // we don't need to create empty
+    // annotations for each paragraph in a book, thus FALSE
+    set_ne_book_moderator($book_id, $tagset_id, FALSE);
+    get_book_moderator($book_id, $tagset_id);
+    steal_book_moderator_annotation($book_id, $tagset_id, $_SESSION["user_id"]);
+    // opening all paragraphs
+    restart_book_moderation($book_id, $tagset_id);
 }
 
 function get_ne_guidelines() {
