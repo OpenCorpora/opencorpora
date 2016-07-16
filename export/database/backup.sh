@@ -4,7 +4,7 @@ DESTFILE=/corpus/files/export/database/database-dev.sql
 DBHOST=`cat /corpus/config.ini | grep -A4 '\[mysql\]' | grep host   | cut -d'=' -f2 | sed 's/ //g'`
 DBNAME=`cat /corpus/config.ini | grep -A4 '\[mysql\]' | grep dbname | cut -d'=' -f2 | sed 's/ //g'`
 
-mysql --host $DBHOST $DBNAME < copy_nulled_tables.sql || exit 1
+mysql --host $DBHOST $DBNAME < $(dirname $0)"/copy_nulled_tables.sql" || exit 1
 
 mysqldump --host $DBHOST \
     --ignore-table=opcorpora.users \
