@@ -172,12 +172,12 @@ function get_word_paradigm($lemma) {
         $pseudo_stem = get_common_prefix($form['text'], $pseudo_stem);
     }
 
-    $out['lemma_suffix_len'] = mb_strlen($arr['lemma']['text'], 'UTF-8') - mb_strlen($pseudo_stem, 'UTF-8');
+    $out['lemma_suffix_len'] = mb_strlen($arr['lemma']['text']) - mb_strlen($pseudo_stem);
 
     foreach ($arr['forms'] as $form) {
-        $suffix_len = mb_strlen($form['text'], 'UTF-8') - mb_strlen($pseudo_stem, 'UTF-8');
+        $suffix_len = mb_strlen($form['text']) - mb_strlen($pseudo_stem);
         $out['forms'][] = array(
-            'suffix' => $suffix_len ? mb_substr($form['text'], -$suffix_len, $suffix_len, 'UTF-8') : '',
+            'suffix' => $suffix_len ? mb_substr($form['text'], -$suffix_len, $suffix_len) : '',
             'grm' => $form['grm']
         );
     }
@@ -187,13 +187,13 @@ function get_word_paradigm($lemma) {
 function get_common_prefix($word1, $word2) {
     if ($word1 == $word2)
         return $word1;
-    $len1 = mb_strlen($word1, 'UTF-8');
-    $len2 = mb_strlen($word2, 'UTF-8');
+    $len1 = mb_strlen($word1);
+    $len2 = mb_strlen($word2);
     $prefix = '';
 
     for ($i = 0; $i < min($len1, $len2); ++$i) {
-        $char1 = mb_substr($word1, $i, 1, 'UTF-8');
-        $char2 = mb_substr($word2, $i, 1, 'UTF-8');
+        $char1 = mb_substr($word1, $i, 1);
+        $char2 = mb_substr($word2, $i, 1);
         if ($char1 == $char2)
             $prefix .= $char1;
         else
@@ -202,7 +202,7 @@ function get_common_prefix($word1, $word2) {
     return $prefix;
 }
 function form_exists($f) {
-    $f = mb_strtolower($f, 'UTF-8');
+    $f = mb_strtolower($f);
     if (!preg_match('/^[а-яё]/u', $f)) {
         return -1;
     }

@@ -18,5 +18,8 @@ $pdo_db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 $pdo_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
 $pdo_db->query("SET NAMES utf8");
 
+mb_internal_encoding('UTF-8');
+mb_regex_encoding('UTF-8');
+
 $result = array('error' => 0);  // this will end up being json-encoded and returned
 ?>

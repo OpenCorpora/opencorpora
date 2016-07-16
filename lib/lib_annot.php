@@ -227,7 +227,7 @@ class MorphParseSet {
 
         if (sizeof($this->parses) == 0) {
             if ($cyrillic)
-                $token = mb_strtolower($token, 'UTF-8');
+                $token = mb_strtolower($token);
             $this->parses[] = new MorphParseUnknown($token);
         }
 

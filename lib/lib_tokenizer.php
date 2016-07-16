@@ -26,11 +26,11 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
 
     $txt .= '  ';
 
-    for ($i = 0; $i < mb_strlen($txt, 'UTF-8'); ++$i) {
-        $prevchar  = ($i > 0 ? mb_substr($txt, $i-1, 1, 'UTF-8') : '');
-        $char      =           mb_substr($txt, $i+0, 1, 'UTF-8');
-        $nextchar  =           mb_substr($txt, $i+1, 1, 'UTF-8');
-        $nnextchar =           mb_substr($txt, $i+2, 1, 'UTF-8');
+    for ($i = 0; $i < mb_strlen($txt); ++$i) {
+        $prevchar  = ($i > 0 ? mb_substr($txt, $i-1, 1) : '');
+        $char      =           mb_substr($txt, $i+0, 1);
+        $nextchar  =           mb_substr($txt, $i+1, 1);
+        $nnextchar =           mb_substr($txt, $i+2, 1);
 
         //$chain is the current word which we will perhaps need to check in the dictionary
 
@@ -44,7 +44,7 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
         }
         if ($odd_symbol) {
             for ($j = $i; $j >= 0; --$j) {
-                $t = mb_substr($txt, $j, 1, 'UTF-8');
+                $t = mb_substr($txt, $j, 1);
                 if (($odd_symbol == '-' && (is_cyr($t) || is_hyphen($t) || $t === "'")) ||
                     ($odd_symbol != '-' && !is_space($t))) {
                     $chain_left = $t.$chain_left;
@@ -55,8 +55,8 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
                     $chain_left = mb_substr($chain_left, 0, -1);
                 }
             }
-            for ($j = $i+1; $j < mb_strlen($txt, 'UTF-8'); ++$j) {
-                $t = mb_substr($txt, $j, 1, 'UTF-8');
+            for ($j = $i+1; $j < mb_strlen($txt); ++$j) {
+                $t = mb_substr($txt, $j, 1);
                 if (($odd_symbol == '-' && (is_cyr($t) || is_hyphen($t) || $t === "'")) ||
                     ($odd_symbol != '-' && !is_space($t))) {
                     $chain_right .= $t;
@@ -167,7 +167,7 @@ function is_bracket2($char) {
 }
 function is_dict_chain($chain) {
     if (!$chain) return 0;
-    return (int)(form_exists(mb_strtolower($chain, 'UTF-8')) > 0);
+    return (int)(form_exists(mb_strtolower($chain)) > 0);
 }
 function is_suffix($s) {
     return (int)in_array($s, array('то', 'таки', 'с', 'ка', 'де'));
@@ -212,7 +212,7 @@ function is_exception($s, $exc) {
     return 0;
 }
 function is_prefix($s, $prefixes) {
-    if (in_array(mb_strtolower($s, 'UTF-8'), $prefixes))
+    if (in_array(mb_strtolower($s), $prefixes))
         return 1;
     return 0;
 }
@@ -226,8 +226,8 @@ function addtext_check($array) {
 
     //removing bad symbols
     $clear_text = '';
-    for ($i = 0; $i < mb_strlen($array['txt'], 'UTF-8'); ++$i) {
-        $char = mb_substr($array['txt'], $i, 1, 'UTF-8');
+    for ($i = 0; $i < mb_strlen($array['txt']); ++$i) {
+        $char = mb_substr($array['txt'], $i, 1);
         $code = uniord($char);
         if (
             //remove diacritic modifier

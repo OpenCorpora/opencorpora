@@ -395,15 +395,15 @@ function split_sentence($token_id) {
     $res = sql_query("SELECT tf_text FROM tokens WHERE sent_id=$sent_id AND pos<=$tpos ORDER BY pos");
     $t = 0;
     while ($r = sql_fetch_array($res)) {
-       while (mb_substr($source, $t, mb_strlen($r['tf_text'], 'UTF-8'), 'UTF-8') !== $r['tf_text']) {
+       while (mb_substr($source, $t, mb_strlen($r['tf_text'])) !== $r['tf_text']) {
            $t++;
-           if ($t > mb_strlen($source, 'UTF-8'))
+           if ($t > mb_strlen($source))
                throw new Exception();
        }
-       $t += mb_strlen($r['tf_text'], 'UTF-8');
+       $t += mb_strlen($r['tf_text']);
     }
-    $source_left = trim(mb_substr($source, 0, $t, 'UTF-8'));
-    $source_right = trim(mb_substr($source, $t, mb_strlen($source, 'UTF-8')-1, 'UTF-8'));
+    $source_left = trim(mb_substr($source, 0, $t));
+    $source_right = trim(mb_substr($source, $t, mb_strlen($source)-1));
     sql_begin();
     //shift the following sentences
     sql_query("UPDATE sentences SET pos=pos+1 WHERE par_id=$par_id AND pos > $spos");

@@ -199,7 +199,7 @@ class MultiWordSearchRule {
     private function _match_token($token, $idx) {
         switch ($this->tokens[$idx][1]) {
             case self::EXACT_FORM:
-                return mb_convert_case($token["tf_text"], MB_CASE_LOWER, "UTF-8") == $this->tokens[$idx][0];
+                return mb_convert_case($token["tf_text"], MB_CASE_LOWER) == $this->tokens[$idx][0];
             default:
                 throw new UnexpectedValueException("Unknown matching type");
         }
