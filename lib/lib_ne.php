@@ -59,8 +59,7 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
         'all_ready' => false,
         'unavailable_par' => 0,
         'moderator_id' => 0,
-        'objects_count' => 0,
-        'required_annots' => $tagset_opt['annots_per_text']
+        'objects_count' => 0
     );
     $last_book_id = 0;
     $last_par_id = 0;
@@ -127,6 +126,7 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
         $book['name'] = $r['book_name'];
         $book['moderator_id'] = $r['moderator_id'];
         $book['objects_count'] = get_book_objects_count($book['id']);
+        $book['required_annots'] = $tagset_opt['annots_per_text'];
         $allbooks[$book['id']] = true;
         $book['queue_num'] = sizeof($allbooks);
         $last_book_id = $r['book_id'];
