@@ -5,6 +5,7 @@ import ConfigParser
 import MySQLdb
 from MySQLdb.cursors import DictCursor 
 
+
 class AnnotationEditor(object):
     
     def __init__(self, config_path):
@@ -12,7 +13,7 @@ class AnnotationEditor(object):
         config.read(config_path)
 
         hostname = config.get('mysql', 'host')
-        dbname   = config.get('mysql', 'dbname')
+        dbname = config.get('mysql', 'dbname')
         username = config.get('mysql', 'user')
         password = config.get('mysql', 'passwd')
 
