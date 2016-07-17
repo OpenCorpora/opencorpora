@@ -1,4 +1,5 @@
 <?php
+require_once('constants.php');
 require_once('lib_annot.php');
 require_once('lib_books.php');
 
@@ -12,6 +13,193 @@ function split2paragraphs($txt) {
 function split2sentences($txt) {
     return preg_split('/[\r\n]+/', $txt);
 }
+
+class Tokenizer {
+    private $files_dir;
+    private $exceptions;
+    private $bad_sentences;
+    private $prefixes;
+
+    private $stats;  // dict `feat vector' => [cases_with_border, total_cases, ratio]
+    private $oddity;  // dict `feat_vector'#{0,1} => ratio
+
+    public function __construct($aux_files_dir) {
+        $this->files_dir = $aux_files_dir;
+        $this->exceptions = array_map('mb_strtolower', $this->_readfile('tokenizer_exceptions.txt'));
+        $this->prefixes = $this->_readfile('tokenizer_prefixes.txt');
+        $this->bad_sentences = array_map('intval', preg_grep('/^[0-9]+$/', $this->_readfile('bad_sentences.txt')));
+
+        $this->stats = array();
+        $this->oddity = array();
+    }
+
+    public function train() {
+        sql_begin();
+        $this->_clear_db();
+        $this->_train(1);
+        $this->_train(2);
+        sql_commit();
+    }
+
+    public static function get_features_vector($text, $pos) {
+        // returns vector of 0's and 1's
+        return array();
+        // TODO
+    }
+
+    private function _train($pass) {
+        // 2 passes: 1st pass: calculate stats, 2nd pass: save strange cases
+        foreach ($this->_get_training_sentences() as $sentence) {
+            $text = $this->_prepare_text($sentence['text']);
+            $border_pos = $this->_get_border_positions($text, $sentence['tokens'], $pass == 2);
+            if (!sizeof($border_pos))
+                continue;
+            for ($i = 0; $i < mb_strlen($text); ++$i) {
+                $fs = $this->get_features_vector($text, $i);
+                $is_border = in_array($i, $border_pos);
+                switch ($pass) {
+                case 1:
+                    $this->_update_stats($fs, $is_border);
+                    break;
+                case 2:
+                    if ($oddity = $this->_get_oddity($fs, $is_border)) {
+                        $this->_save_odd_case($sentence['id'], $i, $is_border, $oddity);
+                    }
+                    break;
+                default:
+                    throw new Exception("Incorrect pass number");
+                }
+            }
+        }
+        if ($pass == 1) {
+            $this->_save_stats();
+            $this->_calculate_oddity();
+        }
+    }
+
+    private function _readfile($name) {
+        return file($this->files_dir . '/' . $name, FILE_IGNORE_NEW_LINES);
+    }
+
+    private function _clear_db() {
+        sql_query("TRUNCATE TABLE tokenizer_coeff");
+        sql_query("TRUNCATE TABLE tokenizer_strange");
+        sql_query("DELETE FROM stats_values WHERE param_id = " . STATS_BROKEN_TOKEN_IDS);
+    }
+
+    private function _get_training_sentences() {
+        $res = sql_query("
+            SELECT sent_id, source, tf_id, tf_text
+            FROM sentences
+            LEFT JOIN tokens USING (sent_id)
+            WHERE par_id < 20
+            ORDER BY sent_id, tokens.pos
+        ");
+        $sentence = array('tokens' => array(), 'id' => 0, 'text' => '');
+        while ($r = sql_fetch_array($res)) {
+            if ($r['sent_id'] != $sentence['id']) {
+                if ($sentence['id']) {
+                    if (!in_array($r['sent_id'], $this->bad_sentences)) {
+                        yield $sentence;
+                    }
+                    $sentence['tokens'] = array();
+                }
+                $sentence['id'] = $r['sent_id'];
+                $sentence['text'] = $r['source'];
+            }
+            $sentence['tokens'][] = array('id' => $r['tf_id'], 'text' => $r['tf_text']);
+        }
+
+        if (sizeof($sentence['tokens']) && !in_array($sentence['id'], $this->bad_sentences)) {
+            yield $sentence;
+        }
+    }
+
+    private static function _prepare_text($text) {
+        return Normalizer::normalize($text, Normalizer::FORM_C);
+    }
+
+    private static function _get_border_positions($text, $tokens, $save_broken_tokens=true) {
+        // returns list of positions (0-based int)
+        $borders = array();
+        $pos = 0;
+        foreach ($tokens as $token) {
+            $token_len = mb_strlen($token['text']);
+            while (mb_substr($text, $pos, $token_len) !== $token['text']) {
+                if (++$pos > mb_strlen($text)) {
+                    if ($save_broken_tokens)
+                        $this->_save_broken_token($token['id']);
+                    return array();
+                }
+            }
+            $borders[] = $pos + $token_len - 1;
+            $pos += $token_len;
+        }
+
+        return $borders;
+    }
+
+    private static function _save_broken_token($token_id) {
+        $this->_add_stats_value(STATS_BROKEN_TOKEN_IDS, $token_id);
+    }
+
+    private function _update_stats($feat_vector, $is_border) {
+        $key = $this->_feats_as_string($feat_vector);
+        if (!isset($this->stats[$key])) {
+            $this->stats[$key] = array(0, 0, 0);
+        }
+        $this->stats[$key][1] += 1;
+        if ($is_border)
+            $this->stats[$key][0] += 1;
+    }
+
+    private function _calculate_oddity() {
+        $sure_cases = 0;
+        $all_cases = 0;
+        foreach ($this->stats as $feat_str => $data) {
+            $ratio = $data[2];
+
+            $all_cases += $data[1];
+            if ($ratio == 0 || $ratio == 1) {
+                $sure_cases += $data[1];
+            } else {
+                $key = $feat_str . '#' . ($ratio > 0.5 ? '0' : '1');
+                $this->oddity[$key] = $ratio > 0.5 ? $ratio : (1 - $ratio);
+            }
+        }
+        $this->_add_stats_value(STATS_TOKENIZER_SURE_RATIO, intval($sure_cases / $all_cases * 100000));
+    }
+
+    private static function _add_stats_value($param, $value) {
+        sql_pe("INSERT INTO stats_values (timestamp, param_id, param_value) VALUES (?, ?, ?)",
+            array(time(), $param, $value));
+    }
+
+    private function _save_stats() {
+        foreach ($this->stats as $feat_str => &$data) {
+            $data[2] = $data[0] / $data[1];
+            sql_pe("INSERT INTO tokenizer_coeff VALUES (?, ?)", array($feat_str, $data[2]));
+        }
+    }
+
+    private function _get_oddity($feat_vector, $is_border) {
+        $key = $this->_feats_as_string($feat_vector) . '#' . (int)$is_border;
+        if (isset($this->oddity[$key])) {
+            return $this->oddity[$key];
+        }
+    }
+
+    private function _save_odd_case($sent_id, $pos, $is_border, $oddity) {
+        sql_pe("INSERT INTO tokenizer_strange VALUES (?, ?, ?, ?)",
+            array($sent_id, $pos, $is_border ? 1 : 0, $oddity));
+    }
+
+    private function _feats_as_string($feat_vector) {
+        assert(sizeof(array_unique($feat_vector)) <= 2);
+        return bindec(implode('', $feat_vector));
+    }
+}
+
 function tokenize_ml($txt, $exceptions, $prefixes) {
     $coeff = array();
     $out = array();
