@@ -5,6 +5,7 @@ if (!headers_sent()) {
 }
 
 $config = parse_ini_file(__DIR__ . '/../config.ini', true);
+require_once(__DIR__.'/../vendor/autoload.php'); // Smarty, something else which was installed via Composer
 
 require_once('common.php');
 require_once('constants.php');

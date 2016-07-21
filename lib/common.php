@@ -1,6 +1,10 @@
 <?php
 require_once('lib_users.php');
 
+// For logger, see log() below
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
 //sql wrappers
 function sql_fetch_array($q) {
     return $q->fetch();
@@ -62,6 +66,7 @@ function sql_query($q, $debug=1, $override_readonly=0) {
         }
     }
     catch (PDOException $e) {
+        log_data($q, $e);
         if ($debug) {
             printf("<td width='100'>%.4f сек.</td><td width='100'>%.4f сек.</td></tr></table>\n", $time, $total_time);
             print "<table class='debug_error' width='100%'><tr><td colspan='3'>".htmlspecialchars($e->getMessage())."</td></tr></table>\n";
@@ -100,6 +105,7 @@ function sql_prepare($q, $override_readonly=0) {
         return $q;
     }
     catch (PDOException $e) {
+        log_data($q, $e);
         if ($debug)
             print "<table class='debug_error' width='100%'><tr><td colspan='3'>".htmlspecialchars($e->getMessage())."</td></tr></table>\n";
         throw new Exception("DB Error");
@@ -130,6 +136,7 @@ function sql_execute($res, $params) {
 function sql_pe($query, $params) {
     // prepares and executes query, closes cursor
     // returns all the rows
+    // log_data($query, $params);
     $res = sql_prepare($query);
     sql_execute($res, $params);
     try {
@@ -168,7 +175,18 @@ function show_error($text = "Произошла ошибка.") {
 class PermissionError extends Exception {}
 class NotLoggedError extends Exception {}
 
+function log_data($str, $context=array()) {
+    static $logger = NULL;
+    if (!$logger) {
+        // create a log channel
+        $logger = new Logger('general');
+        $logger->pushHandler(new StreamHandler(__DIR__.'/../logs/general.log'));
+    }
+    $logger->debug($str, $context);
+}
+
 function oc_exception_handler($exception) {
+    log_data("exception:", $exception);
     if ($exception instanceof PermissionError)
         show_error("У вас недостаточно прав для просмотра этой страницы.");
     elseif ($exception instanceof NotLoggedError)

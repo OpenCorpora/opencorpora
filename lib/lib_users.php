@@ -406,7 +406,7 @@ function save_user_options($post) {
     sql_begin();
     $upd = sql_prepare("UPDATE user_options_values SET option_value=? WHERE option_id=? AND user_id=? LIMIT 1");
     foreach ($post['options'] as $id=>$value) {
-        if ($_SESSION['options'][$id]['value'] != $value) {
+        if ($_SESSION['options'][$id] != $value) {
             sql_execute($upd, array($value, $id, $_SESSION['user_id']));
             $_SESSION['options'][$id] = $value;
         }

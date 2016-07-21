@@ -1052,16 +1052,18 @@ function finish_book_moderation($book_id, $tagset_id) {
     check_permission(PERM_NE_MODER);
     // create absent annotations
     $res = sql_pe("
-        SELECT par_id FROM paragraphs
-        LEFT JOIN ne_paragraphs USING (par_id)
-        WHERE book_id = ?
-        AND tagset_id = ?
-        GROUP BY par_id
-        HAVING COUNT(annot_id) = 0
-    ", array($book_id, $tagset_id));
+        SELECT p1.par_id, p2.annot_id as annotation, p2.status FROM paragraphs p1
+        LEFT JOIN ne_paragraphs p2
+        ON p1.par_id = p2.par_id
+        AND p2.tagset_id = ?
+        AND p2.user_id = ?
+        WHERE p1.book_id = ?
+    ", array($tagset_id, $_SESSION['user_id'], $book_id));
+
     sql_begin();
-    foreach ($res as $r) {
-        start_ne_annotation($r['par_id'], $tagset_id, true);
+    foreach ($res as $row) {
+        if ((int)$row["annotation"] !== 0) continue;
+        start_ne_annotation($row['par_id'], $tagset_id, true);
     }
     set_ne_book_status($book_id, $tagset_id, NE_STATUS_FINISHED);
     sql_commit();
