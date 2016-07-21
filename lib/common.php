@@ -182,7 +182,7 @@ function log_data($str, $context=array()) {
         $logger = new Logger('general');
         $logger->pushHandler(new StreamHandler(__DIR__.'/../logs/general.log'));
     }
-    $logger->debug($str, $context);
+    $logger->debug($str, (array)$context);
 }
 
 function oc_exception_handler($exception) {
