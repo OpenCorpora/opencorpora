@@ -211,7 +211,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         elseif ($filter == 'focus' && (
                     $t['disagreed'] ||
                     sizeof($t['comments']) > 0 ||
-                    filter_sample_for_moderation($out['type'], $t, $out['has_focus'])
+                    sample_needs_moderation($out['type'], $t, $out['has_focus'])
                 ))
             $add = true;
         elseif (
@@ -238,7 +238,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     $out['pages']['total'] = $samples_by_page ? ceil($out['pages']['total'] / $samples_by_page) : 1;
     return $out;
 }
-function filter_sample_for_moderation($pool_type, $sample, $has_focus) {
+function sample_needs_moderation($pool_type, $sample, $has_focus) {
     $mainword = $sample['context'][$sample['mainword']];
 
     // check all focus words beginning with a capital letter
@@ -311,30 +311,31 @@ function filter_sample_for_moderation($pool_type, $sample, $has_focus) {
         return false;
     }
 
-    // therefore it is 12 (NOUN sing/plur)
+    // NOUN sing/plur
+    if ($pool_type == 12)
+        // focus word with Fixd or Pltm
+        foreach ($sample['parses'] as $parse) {
+            foreach ($parse->gramlist as $gram) {
+                if (in_array($gram['inner'], array('Fixd', 'Pltm')))
+                    return true;
+            }
+        }
 
-    // focus word with Fixd or Pltm
-    foreach ($sample['parses'] as $parse) {
-        foreach ($parse->gramlist as $gram) {
-            if (in_array($gram['inner'], array('Fixd', 'Pltm')))
+        // left or right context with numbers
+        // except 'NNNN goda'
+        if (
+            preg_match('/^года$/iu', $mainword) &&
+            isset($sample['context'][$sample['mainword'] - 1]) &&
+            preg_match('/^[0-9]{4}$/', $sample['context'][$sample['mainword'] - 1])
+        )
+            return false;
+
+        for ($i = max(0, $sample['mainword'] - 3); $i < min($sample['mainword'] + 3, sizeof($sample['context'])); ++$i) {
+            if ($i == $sample['mainword'])
+                continue;
+            if (preg_match('/^(?:\d+|полтор[аы]|дв[ае]|об[ае]|три|четыре)$/iu', $sample['context'][$i]))
                 return true;
         }
-    }
-
-    // left or right context with numbers
-    // except 'NNNN goda'
-    if (
-        preg_match('/^года$/iu', $mainword) &&
-        isset($sample['context'][$sample['mainword'] - 1]) &&
-        preg_match('/^[0-9]{4}$/', $sample['context'][$sample['mainword'] - 1])
-    )
-        return false;
-
-    for ($i = max(0, $sample['mainword'] - 3); $i < min($sample['mainword'] + 3, sizeof($sample['context'])); ++$i) {
-        if ($i == $sample['mainword'])
-            continue;
-        if (preg_match('/^(?:\d+|полтор[аы]|дв[ае]|об[ае]|три|четыре)$/iu', $sample['context'][$i]))
-            return true;
     }
 
     // nothing suspicious, ok
