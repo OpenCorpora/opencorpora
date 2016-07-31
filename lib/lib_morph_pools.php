@@ -312,7 +312,7 @@ function sample_needs_moderation($pool_type, $sample, $has_focus) {
     }
 
     // NOUN sing/plur
-    if ($pool_type == 12)
+    if ($pool_type == 12) {
         // focus word with Fixd or Pltm
         foreach ($sample['parses'] as $parse) {
             foreach ($parse->gramlist as $gram) {
