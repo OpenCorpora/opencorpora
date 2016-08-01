@@ -448,7 +448,7 @@
         },
         {
             "name": "smarty/smarty",
-            "version": "v3.1.29",
+            "version": "v3.1.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/smarty-php/smarty.git",
