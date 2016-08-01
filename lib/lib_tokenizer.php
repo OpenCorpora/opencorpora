@@ -14,23 +14,197 @@ function split2sentences($txt) {
     return preg_split('/[\r\n]+/', $txt);
 }
 
+class Features {
+    const CURRENT_CHAR_CLASS_1 = 0;
+    const CURRENT_CHAR_CLASS_2 = 1;
+    const CURRENT_CHAR_CLASS_3 = 2;
+    const CURRENT_CHAR_CLASS_4 = 3;
+    const NEXT_CHAR_CLASS_1 = 4;
+    const NEXT_CHAR_CLASS_2 = 5;
+    const NEXT_CHAR_CLASS_3 = 6;
+    const NEXT_CHAR_CLASS_4 = 7;
+    const PREV_CHAR_NUMBER = 8;
+    const NEXT2_CHAR_NUMBER = 9;
+    const WORD_FROM_DICT = 10;
+    const HAS_SUFFIX = 11;
+    const SAME_CHAR_AS_NEXT = 12;
+    const LOOKS_LIKE_URL = 13;
+    const IS_EXCEPTION = 14;
+    const HAS_PREFIX = 15;
+    const LOOKS_LIKE_TIME = 16;
+
+    const MAX = self::LOOKS_LIKE_TIME;
+}
+
+class FeatureCalculator {
+    private $prefixes;
+    private $exceptions;
+
+    private $values;
+
+    public function __construct($prefix_list, $exception_list) {
+        $this->prefixes = $prefix_list;
+        $this->exceptions = $exception_list;
+    }
+
+    public function calc($text, $pos) {
+        $this->values = array_fill(0, Features::MAX + 1, 0);
+        $chars = array(
+            -1 => $pos > 0 ? mb_substr($text, $pos-1, 1) : '',
+            0 => mb_substr($text, $pos, 1),
+            1 => mb_substr($text, $pos+1, 1),
+            2 => mb_substr($text, $pos+2, 1)
+        );
+
+        $this->_calc_char_classes($chars);
+
+        $seq = $this->get_current_sequences($text, $pos, $chars);
+        if ($seq['delimiter'] == '-') {
+            $this->values[Features::WORD_FROM_DICT] = $this->is_dictionary_word($seq['full']);
+            $this->values[Features::HAS_PREFIX] = $this->is_prefix($seq['left']);
+            $this->values[Features::HAS_SUFFIX] = $this->is_suffix($seq['right']);
+        }
+        elseif ($seq['delimiter'] !== '') {
+            $this->values[Features::LOOKS_LIKE_URL] = looks_like_url($seq['full'], $seq['right']);
+            $this->values[Features::IS_EXCEPTION] = $this->is_exception($seq['full']);
+        }
+
+        if ($seq['delimiter'] == ':') {
+            $this->values[Features::LOOKS_LIKE_TIME] = looks_like_time($seq['left'], $seq['right']);
+        }
+
+        return $this->values;
+    }
+
+    private function _calc_char_classes($chars) {
+        list(
+            $this->values[Features::CURRENT_CHAR_CLASS_1],
+            $this->values[Features::CURRENT_CHAR_CLASS_2],
+            $this->values[Features::CURRENT_CHAR_CLASS_3],
+            $this->values[Features::CURRENT_CHAR_CLASS_4]
+        ) = $this->char_class($chars[0]);
+
+        list(
+            $this->values[Features::NEXT_CHAR_CLASS_1],
+            $this->values[Features::NEXT_CHAR_CLASS_2],
+            $this->values[Features::NEXT_CHAR_CLASS_3],
+            $this->values[Features::NEXT_CHAR_CLASS_4]
+        ) = $this->char_class($chars[1]);
+
+        $this->values[Features::PREV_CHAR_NUMBER] = is_number($chars[-1]);
+        $this->values[Features::NEXT2_CHAR_NUMBER] = is_number($chars[2]);
+        $this->values[Features::SAME_CHAR_AS_NEXT] = is_same_char($chars[0], $chars[1]);
+    }
+
+    /*private*/ public static function char_class($char) {
+        $ret =
+            is_cyr($char)           ? '0001' :
+            (is_space($char)        ? '0010' :
+            (is_dot($char)          ? '0011' :
+            (is_pmark($char)        ? '0100' :
+            (is_hyphen($char)       ? '0101' :
+            (is_number($char)       ? '0110' :
+            (is_latin($char)        ? '0111' :
+            (is_bracket1($char)     ? '1000' :
+            (is_bracket2($char)     ? '1001' :
+            (is_single_quote($char) ? '1010' :
+            (is_slash($char)        ? '1011' :
+            (is_colon($char)        ? '1100' : '0000')))))))))));
+        return array_map('intval', str_split($ret));
+    }
+
+    /*private*/ public static function is_dictionary_word($word) {
+        if ($word === "") return 0;
+        return (int)(form_exists(mb_strtolower($word)) > 0);
+    }
+
+    /*private*/ public static function is_suffix($s) {
+        return (int)in_array($s, array('то', 'таки', 'с', 'ка', 'де'));
+    }
+
+    /*private*/ public function is_exception($s) {
+        $s = mb_strtolower($s);
+        if (in_array($s, $this->exceptions))
+            return 1;
+        if (!preg_match('/^\W|\W$/u', $s))
+            return 0;
+        $s = preg_replace('/^[^A-Za-zА-ЯЁа-яё0-9]+/u', '', $s);
+        if (in_array($s, $this->exceptions))
+            return 1;
+        while (preg_match('/[^A-Za-zА-Яа-яЁё0-9]$/u', $s)) {
+            $s = preg_replace('/[^A-Za-zА-ЯЁа-яё0-9]$/u', '', $s);
+            if (in_array($s, $this->exceptions))
+                return 1;
+        }
+        return 0;
+    }
+    /*private*/ public function is_prefix($s) {
+        return in_array(mb_strtolower($s), $this->prefixes) ? 1 : 0;
+    }
+
+    /*private*/ public static function get_current_sequences($text, $pos, $chars) {
+        $chain_left = $chain_right = '';
+        $odd_symbol = '';
+        if (is_hyphen($chars[0]) || is_hyphen($chars[1])) {
+            $odd_symbol = '-';
+        }
+        elseif (preg_match('/([\.\/\?\=\:&"!\+\(\)])/u', $chars[0], $match) || preg_match('/([\.\/\?\=\:&"!\+\(\)])/u', $chars[1], $match)) {
+            $odd_symbol = $match[1];
+        }
+        if ($odd_symbol) {
+            for ($j = $pos; $j >= 0; --$j) {
+                $t = mb_substr($text, $j, 1);
+                if (($odd_symbol == '-' && (is_cyr($t) || is_hyphen($t) || $t === "'")) ||
+                    ($odd_symbol != '-' && !is_space($t))) {
+                    $chain_left = $t.$chain_left;
+                } else {
+                    break;
+                }
+                if (mb_substr($chain_left, -1) === $odd_symbol) {
+                    $chain_left = mb_substr($chain_left, 0, -1);
+                }
+            }
+            for ($j = $pos+1; $j < mb_strlen($text); ++$j) {
+                $t = mb_substr($text, $j, 1);
+                if (($odd_symbol == '-' && (is_cyr($t) || is_hyphen($t) || $t === "'")) ||
+                    ($odd_symbol != '-' && !is_space($t))) {
+                    $chain_right .= $t;
+                } else {
+                    break;
+                }
+                if (mb_substr($chain_right, 0, 1) === $odd_symbol) {
+                    $chain_right = mb_substr($chain_right, 1);
+                }
+            }
+        }
+        return array(
+            'left' => $chain_left,
+            'right' => $chain_right,
+            'delimiter' => $odd_symbol,
+            'full' => $chain_left.$odd_symbol.$chain_right
+        );
+    }
+}
+
 class Tokenizer {
     private $files_dir;
-    private $exceptions;
     private $bad_sentences;
-    private $prefixes;
 
     private $stats;  // dict `feat vector' => [cases_with_border, total_cases, ratio]
     private $oddity;  // dict `feat_vector'#{0,1} => ratio
 
+    private $feat_calcer;
+
     public function __construct($aux_files_dir) {
         $this->files_dir = $aux_files_dir;
-        $this->exceptions = array_map('mb_strtolower', $this->_readfile('tokenizer_exceptions.txt'));
-        $this->prefixes = $this->_readfile('tokenizer_prefixes.txt');
+        $exceptions = array_map('mb_strtolower', $this->_readfile('tokenizer_exceptions.txt'));
+        $prefixes = $this->_readfile('tokenizer_prefixes.txt');
         $this->bad_sentences = array_map('intval', preg_grep('/^[0-9]+$/', $this->_readfile('bad_sentences.txt')));
 
         $this->stats = array();
         $this->oddity = array();
+
+        $this->feat_calcer = new FeatureCalculator($prefixes, $exceptions);
     }
 
     public function train() {
@@ -38,13 +212,12 @@ class Tokenizer {
         $this->_clear_db();
         $this->_train(1);
         $this->_train(2);
-        sql_commit();
+        //sql_commit();
     }
 
-    public static function get_features_vector($text, $pos) {
+    public function get_features_vector($text, $pos) {
         // returns vector of 0's and 1's
-        return array();
-        // TODO
+        return $this->feat_calcer->calc($text, $pos);
     }
 
     private function _train($pass) {
@@ -82,12 +255,13 @@ class Tokenizer {
     }
 
     private function _clear_db() {
-        sql_query("TRUNCATE TABLE tokenizer_coeff");
-        sql_query("TRUNCATE TABLE tokenizer_strange");
+        sql_query("DELETE FROM tokenizer_coeff");
+        sql_query("DELETE FROM tokenizer_strange");  // DELETE instead of TRUNCATE for atomicity
         sql_query("DELETE FROM stats_values WHERE param_id = " . STATS_BROKEN_TOKEN_IDS);
     }
 
     private function _get_training_sentences() {
+        // TODO remove < 20
         $res = sql_query("
             SELECT sent_id, source, tf_id, tf_text
             FROM sentences
@@ -195,7 +369,8 @@ class Tokenizer {
     }
 
     private function _feats_as_string($feat_vector) {
-        assert(sizeof(array_unique($feat_vector)) <= 2);
+        if (sizeof(array_unique($feat_vector)) > 2)
+            throw new Exception("expected a binary vector");
         return bindec(implode('', $feat_vector));
     }
 }
@@ -206,6 +381,7 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
     $token = '';
 
     $txt = Normalizer::normalize($txt, Normalizer::FORM_C);
+    $calcer = new FeatureCalculator($prefixes, $exceptions);
 
     $res = sql_query("SELECT * FROM tokenizer_coeff");
     while ($r = sql_fetch_array($res)) {
@@ -215,61 +391,7 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
     $txt .= '  ';
 
     for ($i = 0; $i < mb_strlen($txt); ++$i) {
-        $prevchar  = ($i > 0 ? mb_substr($txt, $i-1, 1) : '');
-        $char      =           mb_substr($txt, $i+0, 1);
-        $nextchar  =           mb_substr($txt, $i+1, 1);
-        $nnextchar =           mb_substr($txt, $i+2, 1);
-
-        //$chain is the current word which we will perhaps need to check in the dictionary
-
-        $chain = $chain_left = $chain_right = '';
-        $odd_symbol = '';
-        if (is_hyphen($char) || is_hyphen($nextchar)) {
-            $odd_symbol = '-';
-        }
-        elseif (preg_match('/([\.\/\?\=\:&"!\+\(\)])/u', $char, $match) || preg_match('/([\.\/\?\=\:&"!\+\(\)])/u', $nextchar, $match)) {
-            $odd_symbol = $match[1];
-        }
-        if ($odd_symbol) {
-            for ($j = $i; $j >= 0; --$j) {
-                $t = mb_substr($txt, $j, 1);
-                if (($odd_symbol == '-' && (is_cyr($t) || is_hyphen($t) || $t === "'")) ||
-                    ($odd_symbol != '-' && !is_space($t))) {
-                    $chain_left = $t.$chain_left;
-                } else {
-                    break;
-                }
-                if (mb_substr($chain_left, -1) === $odd_symbol) {
-                    $chain_left = mb_substr($chain_left, 0, -1);
-                }
-            }
-            for ($j = $i+1; $j < mb_strlen($txt); ++$j) {
-                $t = mb_substr($txt, $j, 1);
-                if (($odd_symbol == '-' && (is_cyr($t) || is_hyphen($t) || $t === "'")) ||
-                    ($odd_symbol != '-' && !is_space($t))) {
-                    $chain_right .= $t;
-                } else {
-                    break;
-                }
-                if (mb_substr($chain_right, 0, 1) === $odd_symbol) {
-                    $chain_right = mb_substr($chain_right, 1);
-                }
-            }
-            $chain = $chain_left.$odd_symbol.$chain_right;
-        }
-
-        $vector = array_merge(char_class($char), char_class($nextchar),
-            array(
-                is_number($prevchar),
-                is_number($nnextchar),
-                ($odd_symbol == '-' ? is_dict_chain($chain): 0),
-                ($odd_symbol == '-' ? is_suffix($chain_right) : 0),
-                is_same_pm($char, $nextchar),
-                (($odd_symbol && $odd_symbol != '-') ? looks_like_url($chain, $chain_right) : 0),
-                (($odd_symbol && $odd_symbol != '-') ? is_exception($chain, $exceptions) : 0),
-                ($odd_symbol == '-' ? is_prefix($chain_left, $prefixes) : 0),
-                (($odd_symbol == ':' && $chain_right !== '') ? looks_like_time($chain_left, $chain_right) : 0)
-        ));
+        $vector = $calcer->calc($txt, $i);
         $vector = implode('', $vector);
 
         if (isset($coeff[bindec($vector)])) {
@@ -278,7 +400,7 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
             $sum = 0.5;
         }
 
-        $token .= $char;
+        $token .= mb_substr($txt, $i, 1);
 
         if ($sum > 0) {
             $token = trim($token);
@@ -292,22 +414,6 @@ function tokenize_ml($txt, $exceptions, $prefixes) {
 function uniord($u) {
     $c = unpack("N", mb_convert_encoding($u, 'UCS-4BE', 'UTF-8'));
     return $c[1];
-}
-function char_class($char) {
-    $ret = 
-        is_cyr($char)           ? '0001' :
-        (is_space($char)        ? '0010' :
-        (is_dot($char)          ? '0011' :
-        (is_pmark($char)        ? '0100' :
-        (is_hyphen($char)       ? '0101' :
-        (is_number($char)       ? '0110' :
-        (is_latin($char)        ? '0111' :
-        (is_bracket1($char)     ? '1000' :
-        (is_bracket2($char)     ? '1001' :
-        (is_single_quote($char) ? '1010' :
-        (is_slash($char)        ? '1011' :
-        (is_colon($char)        ? '1100' : '0000')))))))))));
-    return str_split($ret);
 }
 function is_space($char) {
     return preg_match('/^\s$/u', $char);
@@ -327,7 +433,7 @@ function is_colon($char) {
 function is_single_quote($char) {
     return (int)($char == "'");
 }
-function is_same_pm($char1, $char2) {
+function is_same_char($char1, $char2) {
     return (int)($char1===$char2);
 }
 function is_cyr($char) {
@@ -353,13 +459,6 @@ function is_bracket2($char) {
     $re_bracket = '/[\)\]\}\>]/u';
     return preg_match($re_bracket, $char);
 }
-function is_dict_chain($chain) {
-    if (!$chain) return 0;
-    return (int)(form_exists(mb_strtolower($chain)) > 0);
-}
-function is_suffix($s) {
-    return (int)in_array($s, array('то', 'таки', 'с', 'ка', 'де'));
-}
 function looks_like_url($s, $suffix) {
     if (!$suffix || substr($s, 0, 1) === '.' || mb_strlen($s) < 5)
         return 0;
@@ -372,6 +471,8 @@ function looks_like_url($s, $suffix) {
     return 0;
 }
 function looks_like_time($left, $right) {
+    if ($right === '')
+        return 0;
     $left = preg_replace('/^[^0-9]+/u', '', $left);
     $right = preg_replace('/[^0-9]+$/u', '', $right);
 
@@ -381,27 +482,6 @@ function looks_like_time($left, $right) {
     if ($left < 24 && $right < 60)
         return 1;
 
-    return 0;
-}
-function is_exception($s, $exc) {
-    $s = mb_strtolower($s);
-    if (in_array($s, $exc))
-        return 1;
-    if (!preg_match('/^\W|\W$/u', $s))
-        return 0;
-    $s = preg_replace('/^[^A-Za-zА-ЯЁа-яё0-9]+/u', '', $s);
-    if (in_array($s, $exc))
-        return 1;
-    while (preg_match('/[^A-Za-zА-Яа-яЁё0-9]$/u', $s)) {
-        $s = preg_replace('/[^A-Za-zА-ЯЁа-яё0-9]$/u', '', $s);
-        if (in_array($s, $exc))
-            return 1;
-    }
-    return 0;
-}
-function is_prefix($s, $prefixes) {
-    if (in_array(mb_strtolower($s), $prefixes))
-        return 1;
     return 0;
 }
 function addtext_check($array) {
