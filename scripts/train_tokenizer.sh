@@ -1,1 +1,1 @@
-/corpus/scripts/tokenizer/collect_data.pl /corpus/config.ini
+php /corpus/scripts/tokenizer/train.php
