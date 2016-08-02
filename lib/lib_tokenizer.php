@@ -58,15 +58,15 @@ class FeatureCalculator {
 
         $this->_calc_char_classes($chars);
 
-        $seq = $this->get_current_sequences($text, $pos, $chars);
+        $seq = $this->_get_current_sequences($text, $pos, $chars);
         if ($seq['delimiter'] == '-') {
-            $this->values[Features::WORD_FROM_DICT] = $this->is_dictionary_word($seq['full']);
-            $this->values[Features::HAS_PREFIX] = $this->is_prefix($seq['left']);
-            $this->values[Features::HAS_SUFFIX] = $this->is_suffix($seq['right']);
+            $this->values[Features::WORD_FROM_DICT] = $this->_is_dictionary_word($seq['full']);
+            $this->values[Features::HAS_PREFIX] = $this->_is_prefix($seq['left']);
+            $this->values[Features::HAS_SUFFIX] = $this->_is_suffix($seq['right']);
         }
         elseif ($seq['delimiter'] !== '') {
             $this->values[Features::LOOKS_LIKE_URL] = looks_like_url($seq['full'], $seq['right']);
-            $this->values[Features::IS_EXCEPTION] = $this->is_exception($seq['full']);
+            $this->values[Features::IS_EXCEPTION] = $this->_is_exception($seq['full']);
         }
 
         if ($seq['delimiter'] == ':') {
@@ -82,21 +82,21 @@ class FeatureCalculator {
             $this->values[Features::CURRENT_CHAR_CLASS_2],
             $this->values[Features::CURRENT_CHAR_CLASS_3],
             $this->values[Features::CURRENT_CHAR_CLASS_4]
-        ) = $this->char_class($chars[0]);
+        ) = $this->_char_class($chars[0]);
 
         list(
             $this->values[Features::NEXT_CHAR_CLASS_1],
             $this->values[Features::NEXT_CHAR_CLASS_2],
             $this->values[Features::NEXT_CHAR_CLASS_3],
             $this->values[Features::NEXT_CHAR_CLASS_4]
-        ) = $this->char_class($chars[1]);
+        ) = $this->_char_class($chars[1]);
 
         $this->values[Features::PREV_CHAR_NUMBER] = is_number($chars[-1]);
         $this->values[Features::NEXT2_CHAR_NUMBER] = is_number($chars[2]);
         $this->values[Features::SAME_CHAR_AS_NEXT] = is_same_char($chars[0], $chars[1]);
     }
 
-    /*private*/ public static function char_class($char) {
+    private static function _char_class($char) {
         $ret =
             is_cyr($char)           ? '0001' :
             (is_space($char)        ? '0010' :
@@ -113,16 +113,16 @@ class FeatureCalculator {
         return array_map('intval', str_split($ret));
     }
 
-    /*private*/ public static function is_dictionary_word($word) {
+    private static function _is_dictionary_word($word) {
         if ($word === "") return 0;
         return (int)(form_exists(mb_strtolower($word)) > 0);
     }
 
-    /*private*/ public static function is_suffix($s) {
+    private static function _is_suffix($s) {
         return (int)in_array($s, array('то', 'таки', 'с', 'ка', 'де'));
     }
 
-    /*private*/ public function is_exception($s) {
+    private function _is_exception($s) {
         $s = mb_strtolower($s);
         if (in_array($s, $this->exceptions))
             return 1;
@@ -138,11 +138,11 @@ class FeatureCalculator {
         }
         return 0;
     }
-    /*private*/ public function is_prefix($s) {
+    private function _is_prefix($s) {
         return in_array(mb_strtolower($s), $this->prefixes) ? 1 : 0;
     }
 
-    /*private*/ public static function get_current_sequences($text, $pos, $chars) {
+    private static function _get_current_sequences($text, $pos, $chars) {
         $chain_left = $chain_right = '';
         $odd_symbol = '';
         if (is_hyphen($chars[0]) || is_hyphen($chars[1])) {
@@ -199,23 +199,62 @@ class Tokenizer {
         $this->files_dir = $aux_files_dir;
         $exceptions = array_map('mb_strtolower', $this->_readfile('tokenizer_exceptions.txt'));
         $prefixes = $this->_readfile('tokenizer_prefixes.txt');
-        $this->bad_sentences = array_map('intval', preg_grep('/^[0-9]+$/', $this->_readfile('bad_sentences.txt')));
+        $this->bad_sentences = array_map('intval', array_values(preg_grep('/^[0-9]+$/', $this->_readfile('bad_sentences.txt'))));
 
         $this->stats = array();
+        $this->_read_stats();
+
         $this->oddity = array();
 
         $this->feat_calcer = new FeatureCalculator($prefixes, $exceptions);
     }
 
     public function train() {
+        $this->stats = array();  // forget what was read
         sql_begin();
         $this->_clear_db();
         $this->_train(1);
         $this->_train(2);
-        //sql_commit();
+        sql_commit();
     }
 
-    public function get_features_vector($text, $pos) {
+    public function tokenize($text) {
+        $out = array();
+        $token = '';
+
+        $text = $this->_prepare_text($text);
+
+        $text .= '  ';  // for features about following characters to work at end
+
+        for ($i = 0; $i < mb_strlen($text); ++$i) {
+            $vector = $this->feat_calcer->calc($text, $i);
+            $key = $this->_feats_as_string($vector);
+
+            if (isset($this->stats[$key])) {
+                $sum = $this->stats[$key][2];
+            } else {
+                $sum = 0.5;
+            }
+
+            $token .= mb_substr($text, $i, 1);
+
+            if ($sum > 0) {
+                $token = trim($token);
+                if ($token !== '') $out[] = array($token, $sum, $key.'='.implode('', $vector));
+                $token = '';
+            }
+        }
+        return $out;
+    }
+
+    private function _read_stats() {
+        $res = sql_query("SELECT * FROM tokenizer_coeff");
+        while ($r = sql_fetch_array($res)) {
+            $this->stats[$r[0]] = array(0, 0, $r[1]);
+        }
+    }
+
+    private function _get_features_vector($text, $pos) {
         // returns vector of 0's and 1's
         return $this->feat_calcer->calc($text, $pos);
     }
@@ -228,7 +267,7 @@ class Tokenizer {
             if (!sizeof($border_pos))
                 continue;
             for ($i = 0; $i < mb_strlen($text); ++$i) {
-                $fs = $this->get_features_vector($text, $i);
+                $fs = $this->_get_features_vector($text, $i);
                 $is_border = in_array($i, $border_pos);
                 switch ($pass) {
                 case 1:
@@ -261,19 +300,17 @@ class Tokenizer {
     }
 
     private function _get_training_sentences() {
-        // TODO remove < 20
         $res = sql_query("
             SELECT sent_id, source, tf_id, tf_text
             FROM sentences
             LEFT JOIN tokens USING (sent_id)
-            WHERE par_id < 20
             ORDER BY sent_id, tokens.pos
         ");
         $sentence = array('tokens' => array(), 'id' => 0, 'text' => '');
         while ($r = sql_fetch_array($res)) {
             if ($r['sent_id'] != $sentence['id']) {
                 if ($sentence['id']) {
-                    if (!in_array($r['sent_id'], $this->bad_sentences)) {
+                    if (!in_array((int)$sentence['id'], $this->bad_sentences)) {
                         yield $sentence;
                     }
                     $sentence['tokens'] = array();
@@ -284,7 +321,7 @@ class Tokenizer {
             $sentence['tokens'][] = array('id' => $r['tf_id'], 'text' => $r['tf_text']);
         }
 
-        if (sizeof($sentence['tokens']) && !in_array($sentence['id'], $this->bad_sentences)) {
+        if (sizeof($sentence['tokens']) && !in_array((int)$sentence['id'], $this->bad_sentences)) {
             yield $sentence;
         }
     }
@@ -302,7 +339,7 @@ class Tokenizer {
             while (mb_substr($text, $pos, $token_len) !== $token['text']) {
                 if (++$pos > mb_strlen($text)) {
                     if ($save_broken_tokens)
-                        $this->_save_broken_token($token['id']);
+                        self::_save_broken_token($token['id']);
                     return array();
                 }
             }
@@ -314,7 +351,7 @@ class Tokenizer {
     }
 
     private static function _save_broken_token($token_id) {
-        $this->_add_stats_value(STATS_BROKEN_TOKEN_IDS, $token_id);
+        self::_add_stats_value(STATS_BROKEN_TOKEN_IDS, $token_id);
     }
 
     private function _update_stats($feat_vector, $is_border) {
@@ -341,7 +378,7 @@ class Tokenizer {
                 $this->oddity[$key] = $ratio > 0.5 ? $ratio : (1 - $ratio);
             }
         }
-        $this->_add_stats_value(STATS_TOKENIZER_SURE_RATIO, intval($sure_cases / $all_cases * 100000));
+        self::_add_stats_value(STATS_TOKENIZER_SURE_RATIO, intval($sure_cases / $all_cases * 100000));
     }
 
     private static function _add_stats_value($param, $value) {
@@ -375,42 +412,7 @@ class Tokenizer {
     }
 }
 
-function tokenize_ml($txt, $exceptions, $prefixes) {
-    $coeff = array();
-    $out = array();
-    $token = '';
 
-    $txt = Normalizer::normalize($txt, Normalizer::FORM_C);
-    $calcer = new FeatureCalculator($prefixes, $exceptions);
-
-    $res = sql_query("SELECT * FROM tokenizer_coeff");
-    while ($r = sql_fetch_array($res)) {
-        $coeff[$r[0]] = $r[1];
-    }
-
-    $txt .= '  ';
-
-    for ($i = 0; $i < mb_strlen($txt); ++$i) {
-        $vector = $calcer->calc($txt, $i);
-        $vector = implode('', $vector);
-
-        if (isset($coeff[bindec($vector)])) {
-            $sum = $coeff[bindec($vector)];
-        } else {
-            $sum = 0.5;
-        }
-
-        $token .= mb_substr($txt, $i, 1);
-
-        if ($sum > 0) {
-            $token = trim($token);
-            if ($token !== '') $out[] = array($token, $sum, bindec($vector).'='.$vector);
-            $token = '';
-        }
-    }
-    return $out;
-
-}
 function uniord($u) {
     $c = unpack("N", mb_convert_encoding($u, 'UCS-4BE', 'UTF-8'));
     return $c[1];
@@ -488,9 +490,6 @@ function addtext_check($array) {
     global $config;
 
     check_permission(PERM_ADDER);
-    //read file for tokenizer
-    $tok_exc = array_map('mb_strtolower', file($config['project']['root'] . '/scripts/tokenizer/tokenizer_exceptions.txt', FILE_IGNORE_NEW_LINES));
-    $tok_prefixes = file($config['project']['root'] . '/scripts/tokenizer/tokenizer_prefixes.txt', FILE_IGNORE_NEW_LINES);
 
     //removing bad symbols
     $clear_text = '';
@@ -513,6 +512,7 @@ function addtext_check($array) {
     }
 
     $out = array('full' => $clear_text, 'select0' => get_books_for_select(0));
+    $tokenizer = new Tokenizer(__DIR__ . '/../scripts/tokenizer');
     $pars = split2paragraphs($clear_text);
     foreach ($pars as $par) {
         $par_array = array();
@@ -520,7 +520,7 @@ function addtext_check($array) {
         foreach ($sents as $sent) {
             if (!preg_match('/\S/', $sent)) continue;
             $sent_array = array('src' => $sent);
-            $tokens = tokenize_ml($sent, $tok_exc, $tok_prefixes);
+            $tokens = $tokenizer->tokenize($sent);
             foreach ($tokens as $token) {
                 $sent_array['tokens'][] = array('text' => $token[0], 'class' => form_exists($token[0]), 'border' => $token[1], 'vector' => $token[2]);
             }
