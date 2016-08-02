@@ -186,6 +186,30 @@ class FeatureCalculator {
     }
 }
 
+class TokenInfo {
+    public $text;
+    public $start_pos;
+    public $end_pos;
+    public $border_weight;
+    private $features;
+
+    public function __construct($text, $start_pos, $end_pos, $weight, $fs) {
+        $this->text = $text;
+        $this->start_pos = $start_pos;
+        $this->end_pos = $end_pos;
+        $this->border_weight = $weight;
+        $this->features = $fs;
+    }
+
+    public function get_feats_str_binary() {
+        return implode('', $this->features);
+    }
+
+    public function get_feats_str_decimal() {
+        return bindec($this->get_feats_str_binary());
+    }
+}
+
 class Tokenizer {
     private $files_dir;
     private $bad_sentences;
@@ -240,7 +264,8 @@ class Tokenizer {
 
             if ($sum > 0) {
                 $token = trim($token);
-                if ($token !== '') $out[] = array($token, $sum, $key.'='.implode('', $vector));
+                $start_pos = $i - mb_strlen($token) + 1;
+                if ($token !== '') $out[] = new TokenInfo($token, $start_pos, $i, $sum, $vector);
                 $token = '';
             }
         }
@@ -522,7 +547,11 @@ function addtext_check($array) {
             $sent_array = array('src' => $sent);
             $tokens = $tokenizer->tokenize($sent);
             foreach ($tokens as $token) {
-                $sent_array['tokens'][] = array('text' => $token[0], 'class' => form_exists($token[0]), 'border' => $token[1], 'vector' => $token[2]);
+                $sent_array['tokens'][] = array(
+                    'text' => $token->text,
+                    'class' => form_exists($token->text),
+                    'border' => $token->border_weight,
+                    'vector' => $token->get_feats_str_binary() . '=' . $token->get_feats_str_decimal());
             }
             $par_array['sentences'][] = $sent_array;
         }
