@@ -87,7 +87,7 @@ $(document).ready(function() {
 <h2>Модерация</h2>
 <div class='progress'>
     <div class="bar bar-info" style="width: 33%">модерируется</div>
-    <div class="bar bar-warning" style="width: 34%">отмодерировано</div>
+    <div class="bar bar-warning" style="width: 34%"><a href="/pools.php?type=6&amp;moder_id=0">отмодерировано</a></div>
     <div class="bar bar-success" style="width: 33%">в архиве</div>
 </div>
 <table class='table'>
