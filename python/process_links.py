@@ -32,7 +32,7 @@ TYPE_ONE_LINE = 2
 """
 parses a file with links and inserts them into the database
 """
-def add_links_from_file(filename, link_type, file_type, config_file, is_to_print_time, revset_id=None, comment=""):
+def add_links_from_file(filename, link_type, file_type, config_file, is_to_print_time, revset_id=None, comment="", is_to_add_several_lexemes=False):
     start = datetime.datetime.now()
         
     annotation_editor = AnnotationEditor(config_file)
@@ -40,7 +40,7 @@ def add_links_from_file(filename, link_type, file_type, config_file, is_to_print
 
     if comment == "":
         comment = os.path.basename(filename)
-    add_links(annotation_editor, link_list, revset_id, comment)
+    add_links(annotation_editor, link_list, revset_id, comment, is_to_add_several_lexemes)
     
     if is_to_print_time:
         print('time elapsed for add_links_from_file:{0}'.format(datetime.datetime.now() - start))
@@ -92,34 +92,36 @@ def parse_links_one_line(filename, link_type):
 finds the lexemes in the database for the lexemes from the file
 and ands the links
 """
-def add_links(annotation_editor, link_list, revset_id, comment):
+def add_links(annotation_editor, link_list, revset_id, comment, is_to_add_several_lexemes):
     #first we check that we have all lexemes
-    link_list_with_ids = find_lexemes_for_list(annotation_editor, link_list)
+    link_list_with_ids = find_lexemes_for_list(annotation_editor, link_list, is_to_add_several_lexemes)
     #then we add the links
-    for (from_id, to_id, link_type) in link_list_with_ids:
+    for (from_id, to_id, link_type) in link_list_with_ids:        
         annotation_editor.add_link(from_id, to_id, link_type, revset_id, comment)
         
-def find_lexemes_for_list(annotation_editor, link_list):
+def find_lexemes_for_list(annotation_editor, link_list, is_to_add_several_lexemes):
     link_list_with_ids = []
 
     for (from_lemma_grammemes, to_lemma_grammemes, link_type) in link_list:
-        from_id = find_lexeme(annotation_editor, from_lemma_grammemes)  
-        to_id = find_lexeme(annotation_editor, to_lemma_grammemes)
-        link_list_with_ids.append((from_id, to_id, link_type))
-            
-    return link_list_with_ids
+        from_ids = find_lexemes(annotation_editor, from_lemma_grammemes, is_to_add_several_lexemes)  
+        to_ids = find_lexemes(annotation_editor, to_lemma_grammemes, is_to_add_several_lexemes)
+
+        for from_id in from_ids:
+            for to_id in to_ids:
+                link_list_with_ids.append((from_id, to_id, link_type))
+    return list(set(link_list_with_ids))
         
         
-def find_lexeme(annotation_editor, lemma_grammemes):
+def find_lexemes(annotation_editor, lemma_grammemes, is_to_add_several_lexemes = False):
     lemma = lemma_grammemes[0].encode('utf-8')
     grammemes = lemma_grammemes[1]
     
     lexemes = annotation_editor.find_lexeme_by_lemma(lemma, grammemes)
     if not lexemes:
         raise LexemeException('no lexemes with lemma=%s, grammemes=%s found:' % (lemma, grammemes)) 
-    if len(lexemes) != 1:
-        raise LexemeException('several lexemes with lemma=%s, grammemes=%s found:' % (lemma, grammemes)) 
-    return lexemes[0]._id
+    if not is_to_add_several_lexemes and len(lexemes) != 1:
+        raise LexemeException('several lexemes with lemma=%s, grammemes=%s found:' % (lemma, grammemes))
+    return list(set([lexeme._id for lexeme in lexemes]))
             
 
 def get_lemma_grammemes(line_from_file):
@@ -159,6 +161,10 @@ def process_args():
  
     parser.add_argument('-t', '--time', action='store_true', default=False,
                             help='print execution time in the end')
+    
+    parser.add_argument('-s', '--is_to_add_several_lexemes',
+                            help='True if several lexemes with identical properties can exist', type=bool, default=False)
+    
     return parser.parse_args()
 
 def check_args(args):
@@ -178,7 +184,8 @@ def main():
         return
 
     
-    add_links_from_file(args.link_filename, args.link_type, args.file_type, args.config_filename, args.time, args.revset_id, args.comment)
+    add_links_from_file(args.link_filename, args.link_type, args.file_type, args.config_filename, args.time, args.revset_id, args.comment,
+                        args.is_to_add_several_lexemes)
     
     
 if __name__ == "__main__":
