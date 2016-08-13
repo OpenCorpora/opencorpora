@@ -32,7 +32,7 @@ TYPE_ONE_LINE = 2
 """
 parses a file with links and inserts them into the database
 """
-def add_links_from_file(filename, link_type, file_type, config_file, is_to_print_time, revset_id=None, comment="", is_to_add_several_lexemes=False):
+def add_links_from_file(filename, link_type, file_type, config_file, is_to_print_time, is_to_add_several_lexemes, is_dry_run, revset_id=None, comment=""):
     start = datetime.datetime.now()
         
     annotation_editor = AnnotationEditor(config_file)
@@ -40,7 +40,7 @@ def add_links_from_file(filename, link_type, file_type, config_file, is_to_print
 
     if comment == "":
         comment = os.path.basename(filename)
-    add_links(annotation_editor, link_list, revset_id, comment, is_to_add_several_lexemes)
+    add_links(annotation_editor, link_list, revset_id, comment, is_to_add_several_lexemes, is_dry_run)
     
     if is_to_print_time:
         print('time elapsed for add_links_from_file:{0}'.format(datetime.datetime.now() - start))
@@ -92,12 +92,12 @@ def parse_links_one_line(filename, link_type):
 finds the lexemes in the database for the lexemes from the file
 and ands the links
 """
-def add_links(annotation_editor, link_list, revset_id, comment, is_to_add_several_lexemes):
+def add_links(annotation_editor, link_list, revset_id, comment, is_to_add_several_lexemes, is_dry_run):
     #first we check that we have all lexemes
     link_list_with_ids = find_lexemes_for_list(annotation_editor, link_list, is_to_add_several_lexemes)
     #then we add the links
     for (from_id, to_id, link_type) in link_list_with_ids:        
-        annotation_editor.add_link(from_id, to_id, link_type, revset_id, comment)
+        annotation_editor.add_link(from_id, to_id, link_type, revset_id, comment, is_dry_run)
         
 def find_lexemes_for_list(annotation_editor, link_list, is_to_add_several_lexemes):
     link_list_with_ids = []
@@ -163,7 +163,11 @@ def process_args():
                             help='print execution time in the end')
     
     parser.add_argument('-s', '--is_to_add_several_lexemes',
-                            help='True if several lexemes with identical properties can exist', type=bool, default=False)
+                            help='True if several lexemes with identical properties can exist', action='store_true', default=False)
+    
+    parser.add_argument('-d', '--is_dry_run',
+                            help='True if you do not want to make any changes to the database', action='store_true', default=False)
+ 
     
     return parser.parse_args()
 
@@ -184,8 +188,11 @@ def main():
         return
 
     
-    add_links_from_file(args.link_filename, args.link_type, args.file_type, args.config_filename, args.time, args.revset_id, args.comment,
-                        args.is_to_add_several_lexemes)
+    add_links_from_file(args.link_filename, args.link_type, args.file_type, args.config_filename,
+                       args.time, 
+                        args.is_to_add_several_lexemes,
+                        args.is_dry_run,
+                        args.revset_id, args.comment)
     
     
 if __name__ == "__main__":
