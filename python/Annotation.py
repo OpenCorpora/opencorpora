@@ -65,6 +65,8 @@ class AnnotationEditor(object):
         """.format(lemma))
         rows = self.db_cursor.fetchall()
         lexemes = []
+        #TODO: the is_last field is lacking
+       
         for row in rows:
             self.db_cursor.execute("""
                 SELECT rev_text
@@ -78,6 +80,137 @@ class AnnotationEditor(object):
             if l.has_all_gram(grammemes):
                 lexemes.append(l)
         return lexemes
+    
+    #finds a lexeme by its lemma and using a regular expression for its grammemes
+    def find_lexeme_by_lemma_gr_regex(self, lemma, grammemes):
+       
+        self.db_cursor.execute("""
+            SELECT lemma_id AS lid, lemma_text AS ltext
+            FROM dict_lemmata
+            WHERE lemma_text = '{0}'
+            AND deleted = 0
+        """.format(lemma))
+        rows = self.db_cursor.fetchall()
+        lexemes = []
+ 
+        for row in rows:
+            self.db_cursor.execute("""
+                SELECT rev_text
+                FROM dict_revisions
+                WHERE lemma_id = {0}
+                AND rev_text like '{1}'
+                AND is_last = 1
+                LIMIT 1
+            """.format(row['lid'], grammemes))
+            lrow = self.db_cursor.fetchone()
+            l = Lexeme(row['ltext'].encode('utf-8'), row['lid'], lrow['rev_text'].encode('utf-8'), editor=self)
+            lexemes.append(l)
+        return lexemes
+    
+    #tried to combine all the conditions in a single query but it doesn't work faster
+    def find_lexeme_by_lemma_gr_regex_single_query(self, lemma, grammemes):
+        lexemes = []
+        
+        self.db_cursor.execute("""
+            SELECT lem.lemma_id AS lid, lem.lemma_text AS ltext, rev.rev_text AS rev_text
+            FROM dict_lemmata lem join dict_revisions rev on lem.lemma_id = rev.lemma_id
+            WHERE lem.lemma_text = '{0}'
+            AND rev.is_last = 1
+            AND rev.rev_text like '{1}'
+            AND lem.deleted = 0
+        """.format(lemma, grammemes))
+        rows = self.db_cursor.fetchall()
+        
+        for row in rows:
+            l = Lexeme(row['ltext'].encode('utf-8'), row['lid'], row['rev_text'].encode('utf-8'), editor=self)
+            lexemes.append(l)
+            
+        return lexemes
+    
+    #finds a lexeme with regular expressions for its lemma and grammemes
+    def find_lexeme_by_lemma_regex_gr_regex(self, lemma, grammemes):
+        #TODO: the is_last field is lacking
+        req = """
+            SELECT lem.lemma_id AS lid, lem.lemma_text AS ltext, revs.rev_text AS rev_text
+            FROM dict_lemmata lem join dict_revisions revs on lem.lemma_id = revs.lemma_id
+            WHERE lem.lemma_text like '{0}'
+            AND lem.deleted = 0
+            AND revs.rev_text like '{1}'
+            AND revs.is_last = 1
+        """.format(lemma, grammemes)
+        
+        self.db_cursor.execute(req)
+
+        
+        rows = self.db_cursor.fetchall()
+        lexemes = []
+        
+        for row in rows:
+            l = Lexeme(row['ltext'].encode('utf-8'), row['lid'], row['rev_text'].encode('utf-8'), editor=self)
+            lexemes.append(l)
+        return lexemes
+    
+    def add_link(self, from_id, to_id, link_type, revset_id = None, comment = "", is_dry_run = False):
+        if not self.is_correct_id(from_id) or not self.is_correct_id(to_id):
+            raise Exception('Negative ids specified: %s %s' % (from_id, to_id))
+        if not revset_id:
+            revset_id = self.get_revset_id(comment + '#add_link')
+        
+        insert_dict_links = "INSERT INTO dict_links VALUES(NULL, {0}, {1}, {2})".format(from_id, to_id, link_type)
+        
+        if not is_dry_run: 
+            self.db_cursor.execute(insert_dict_links)
+        else:
+            print(insert_dict_links)
+        
+        insert_dict_links_revisions = "INSERT INTO dict_links_revisions VALUES(NULL, {0}, {1}, {2}, {3}, 1)".format(revset_id, from_id, to_id, link_type)
+        
+        if not is_dry_run:  
+            self.db_cursor.execute(insert_dict_links_revisions)
+        else:
+            print(insert_dict_links_revisions)
+        
+        self.db_cursor.execute(insert_dict_links_revisions)  
+        
+        
+        if not is_dry_run:
+            self.commit()
+        
+    def del_link(self, link_id, revset_id = None, comment = "", is_dry_run = False):
+        existing_link = self.find_link_by_id(link_id)
+        if existing_link is None:
+            raise Exception('No such link found: %s' % (link_id))
+        if not revset_id:
+            revset_id = self.get_revset_id(comment + '#del_link')
+        
+        insert_dict_links_revisions = "INSERT INTO dict_links_revisions VALUES(NULL, {0}, {1}, {2}, {3}, 0)".\
+                                format(revset_id, existing_link['lemma1_id'], 
+                                       existing_link['lemma2_id'],
+                                       existing_link['link_type'])
+        
+        if not is_dry_run:
+            self.db_cursor.execute(insert_dict_links_revisions)
+        else:
+            print(insert_dict_links_revisions)  
+            
+        delete_links = "DELETE FROM dict_links WHERE link_id={0} LIMIT 1".format(link_id)
+        
+        if not is_dry_run:
+            self.db_cursor.execute(delete_links)  
+        else:
+            print(delete_links)    
+        
+        if not is_dry_run:         
+            self.commit()
+        
+        
+    def find_link_by_id(self, link_id):
+        self.db_cursor.execute("SELECT * FROM dict_links WHERE link_id={0} LIMIT 1".format(link_id))
+        return self.db_cursor.fetchone()
+        
+        
+    def is_correct_id(self, id_to_check):
+        return id_to_check > 0
 
 
 class ParsingVariant(object):
