@@ -242,7 +242,7 @@ class Tokenizer {
         sql_commit();
     }
 
-    public function tokenize($text) {
+    public function tokenize($text, $min_weight=0.0) {
         $out = array();
         $token = '';
 
@@ -262,7 +262,7 @@ class Tokenizer {
 
             $token .= mb_substr($text, $i, 1);
 
-            if ($sum > 0) {
+            if ($sum > $min_weight) {
                 $token = trim($token);
                 $start_pos = $i - mb_strlen($token) + 1;
                 if ($token !== '') $out[] = new TokenInfo($token, $start_pos, $i, $sum, $vector);
@@ -511,15 +511,11 @@ function looks_like_time($left, $right) {
 
     return 0;
 }
-function addtext_check($array) {
-    global $config;
 
-    check_permission(PERM_ADDER);
-
-    //removing bad symbols
+function remove_bad_symbols($text) {
     $clear_text = '';
-    for ($i = 0; $i < mb_strlen($array['txt']); ++$i) {
-        $char = mb_substr($array['txt'], $i, 1);
+    for ($i = 0; $i < mb_strlen($text); ++$i) {
+        $char = mb_substr($text, $i, 1);
         $code = uniord($char);
         if (
             //remove diacritic modifier
@@ -535,11 +531,21 @@ function addtext_check($array) {
             //the numbers are decimal unicode codes
         ) $clear_text .= $char;
     }
+    return $clear_text;
+}
+
+function addtext_check($array) {
+    global $config;
+
+    check_permission(PERM_ADDER);
+
+    $clear_text = remove_bad_symbols($array['txt']);
 
     $out = array('full' => $clear_text, 'select0' => get_books_for_select(0));
     $tokenizer = new Tokenizer(__DIR__ . '/../scripts/tokenizer');
     $pars = split2paragraphs($clear_text);
     foreach ($pars as $par) {
+        if (!preg_match('/\S/', $par)) continue;
         $par_array = array();
         $sents = split2sentences($par);
         foreach ($sents as $sent) {

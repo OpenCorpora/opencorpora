@@ -431,6 +431,8 @@ function user_has_permission($group) {
     );
 }
 function check_permission($group) {
+    if (php_sapi_name() == 'cli')
+        return;
     if (!user_has_permission($group))
         throw new PermissionError();
 }

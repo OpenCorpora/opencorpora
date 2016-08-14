@@ -194,9 +194,12 @@ function oc_exception_handler($exception) {
     else
         show_error("Произошла ошибка.<br/><br/>" . $exception->getMessage());
 }
-function create_revset($comment = '') {
-    if (!isset($_SESSION['user_id']) || !$_SESSION['user_id'])
-        throw new Exception();
+function create_revset($comment = '', $user_id=0) {
+    if (!$user_id) {
+        if (!isset($_SESSION['user_id']) || !$_SESSION['user_id'])
+            throw new Exception();
+        $user_id = $_SESSION['user_id'];
+    }
 
     $now = time();
     global $config;
@@ -210,14 +213,14 @@ function create_revset($comment = '') {
         AND comment = ?
         ORDER BY set_id DESC
         LIMIT 1
-    ", array($_SESSION['user_id'], $timeout, $comment));
+    ", array($user_id, $timeout, $comment));
     if (sizeof($res) > 0) {
         sql_query("UPDATE rev_sets SET timestamp=$now WHERE set_id=".$res[0]['set_id']." LIMIT 1");
         return $res[0]['set_id'];
     }
 
     $q = "INSERT INTO `rev_sets` VALUES(NULL, ?, ?, ?)";
-    sql_pe($q, array($now, $_SESSION['user_id'], $comment));
+    sql_pe($q, array($now, $user_id, $comment));
     return sql_insert_id();
 }
 function typo_spaces($str, $with_tags = 0) {
