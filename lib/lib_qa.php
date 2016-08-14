@@ -129,7 +129,7 @@ function get_merge_fails() {
         LEFT JOIN morph_annot_merge_comments c USING (sample_id)
         WHERE p.status = ".MA_POOLS_STATUS_ARCHIVED."
         AND merge_status in (0, 2)
-        ORDER BY merge_status, sample_id
+        ORDER BY merge_status, p.pool_type, sample_id
     ");
             
     $res1 = sql_prepare("
