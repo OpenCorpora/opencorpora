@@ -265,7 +265,6 @@ function get_sentence($sent_id) {
         )
     "));
     $out['book_id'] = $book_id = $r['book_id'];
-    check_book_hidden($book_id);
     $out['syntax_moder_id'] = $r['old_syntax_moder_id'];
     $r = sql_fetch_array(sql_query("
         SELECT book_name

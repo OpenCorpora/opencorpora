@@ -59,14 +59,12 @@ function get_page_sent_strange() {
 }
 function get_empty_books() {
     check_permission(PERM_ADDER);
-    global $config;
     $res = sql_query("
         SELECT book_id, book_name
         FROM books
         WHERE book_id NOT IN (SELECT DISTINCT book_id FROM paragraphs)
         AND book_id NOT IN (SELECT DISTINCT parent_id FROM books)
-        AND book_id < ".$config['misc']['hidden_books_start_id']
-    );
+    ");
     $out = array();
     while ($r = sql_fetch_array($res)) {
         $out[] = array('id' => $r['book_id'], 'name' => $r['book_name']);
@@ -75,7 +73,6 @@ function get_empty_books() {
 }
 function get_downloaded_urls() {
     check_permission(PERM_ADDER);
-    global $config;
     $res = sql_query("
         SELECT b.book_id, b.book_name, SUBSTR(t.tag_name, 5) url, u.filename
         FROM book_tags t
@@ -84,7 +81,6 @@ function get_downloaded_urls() {
         LEFT JOIN downloaded_urls u
         ON (SUBSTR(t.tag_name, 5) = u.url)
         WHERE t.tag_name LIKE 'url:%'
-        AND t.book_id < ".$config['misc']['hidden_books_start_id']."
         ORDER BY b.book_id DESC
     ");
     $out = array();

@@ -4,10 +4,10 @@ use DBI;
 use Config::INI::Reader;
 
 use constant PROCESS_TYPES_PER_RUN => 10;
+use constant HIDDEN_BOOK => 3528;
 
 #reading config
 my $conf = Config::INI::Reader->read_file($ARGV[0]);
-my $HIDDEN_BOOK = $conf->{misc}->{'hidden_books_start_id'};
 $conf = $conf->{mysql};
 
 my $dbh = DBI->connect('DBI:mysql:'.$conf->{'dbname'}.':'.$conf->{'host'}, $conf->{'user'}, $conf->{'passwd'}) or die $DBI::errstr;
@@ -75,7 +75,7 @@ sub process_pool {
         LEFT JOIN sentences USING (sent_id)
         LEFT JOIN paragraphs USING (par_id)
         WHERE is_last = 1
-        AND book_id < $HIDDEN_BOOK
+        AND book_id < " . HIDDEN_BOOK . "
         AND s.sample_id IS NULL
         AND (".join(' OR ', @q).")
     ";
@@ -97,7 +97,7 @@ sub process_pool {
         LEFT JOIN sentences USING (sent_id)
         LEFT JOIN paragraphs USING (par_id)
         WHERE is_last = 1
-        AND book_id < $HIDDEN_BOOK
+        AND book_id < " . HIDDEN_BOOK . "
         AND (".join(' OR ', @q).")
         ORDER BY tfr.tf_id
     ";

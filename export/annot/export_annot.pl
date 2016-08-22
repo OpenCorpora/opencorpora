@@ -8,7 +8,6 @@ use Config::INI::Reader;
 
 # reading config
 my $conf = Config::INI::Reader->read_file($ARGV[0]);
-my $HIDDEN_BOOK = $conf->{misc}->{'hidden_books_start_id'};
 $conf = $conf->{mysql};
 
 # main
@@ -20,7 +19,7 @@ $dbh->do("SET NAMES utf8");
 binmode(STDOUT, ':encoding(utf8)');
 
 my $rev = $dbh->prepare("SELECT MAX(rev_id) AS m FROM tf_revisions");
-my $books = $dbh->prepare("SELECT * FROM books WHERE book_id < $HIDDEN_BOOK");
+my $books = $dbh->prepare("SELECT * FROM books");
 my $tags = $dbh->prepare("SELECT tag_name FROM book_tags WHERE book_id=?");
 my $par = $dbh->prepare("SELECT par_id FROM paragraphs WHERE book_id=? ORDER BY pos");
 my $sent = $dbh->prepare("SELECT sent_id, source FROM sentences WHERE par_id=? ORDER BY pos");
