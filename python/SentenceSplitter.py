@@ -27,6 +27,7 @@ class FeatureCollector(object):
             self.feature_vector.append(self.is_openning_bracket(tok))
             self.feature_vector.append(self.is_closing_bracket(tok))
             self.feature_vector.append(self.is_titul(tok))
+            self.feature_vector.append(self.is_all_upper(tok))
             # self.feature_vector.append(self.is_in_dict(tok))
             self.feature_vector.extend(self.get_token_class(tok))
 
@@ -46,6 +47,9 @@ class FeatureCollector(object):
     def is_titul(self, token):
         return 1 if token and token[0].isupper() else 0
 
+    def is_all_upper(self, token):
+        return 1 if token and token.isupper() else 0
+
     def is_in_dict(self, token):
         return 1 if token in self.abbr_dict else 0
 
@@ -58,6 +62,8 @@ class FeatureCollector(object):
         punct_num = 0
         other_num = 0
         digit_num = 0
+        # basic punctuation: !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~
+        full_punct_marks = string.punctuation + u'«»–'
         if token:
             for i in token:
                 # кириллица, включая всю ту, что используется в языках народов России (надо бы проверить)
@@ -68,7 +74,7 @@ class FeatureCollector(object):
                     cyr_num += 1
                 elif i.isdigit():
                     digit_num += 1
-                elif i in string.punctuation:
+                elif i in full_punct_marks:
                     punct_num += 1
                 elif 65 <= ord(i) <= 122:
                     lat_num += 1
@@ -108,25 +114,14 @@ class LearnModel(object):
         self.get_data_from_db()
 
     def is_sent_border(self, row_id, sent_id):
-        # должна определять, является ли токен граничным
-        # здесь тоже иногда вылетает + по результатам работы этой фукнции,
-        # у меня получается 108701 предложений, а в дампе базы их 109663
+        # определяет, является ли токен граничным
         if (row_id + 1) == len(self.rows) or self.rows[row_id + 1]['sent_id'] != sent_id:
             return 1
         return 0
 
-        # self.db_cursor.execute("""SELECT sent_id FROM tokens WHERE tf_id={0}""".format(token_id))
-        # sent_id = self.db_cursor.fetchone()['sent_id']
-        # self.db_cursor.execute("""SELECT sent_id FROM tokens WHERE tf_id={0}""".format(token_id + 1))
-        # next_tok_sent_id = self.db_cursor.fetchone()['sent_id']
-        #
-        # if sent_id != next_tok_sent_id:
-        #     return 1
-        # return 0
-
     def get_data_from_db(self):
         # вытаскиваем айди текста, предложения, токена и сам текст токена,
-        #  упорядоченные по тому, как токены следуют в предложениях в тексте
+        # упорядоченные по тому, как токены следуют в предложениях в тексте
         self.db_cursor.execute("""
                         SELECT book_id, par_id, sent_id, tf_id, tf_text
                         FROM tokens
@@ -143,58 +138,59 @@ class LearnModel(object):
         for row_id, row in enumerate(self.rows):
             left, current, right = self.get_context(row_id, row)
             feature_obj = FeatureCollector(left, current, right, {})
-            # print row['tf_id'], row['tf_text'], '\t'.join(str(f) for f in feature_obj.get_feature_vector())
             feature_vector = feature_obj.get_feature_vector()
             if tuple(feature_vector) not in vectors_dict:
                 vectors_dict[tuple(feature_vector)] = [0] * 2
+
+            # всего таких векторов встретилось в базе
             vectors_dict[tuple(feature_vector)][0] += 1
+
+            # векторов, для которых current token является границей предложения
             if self.is_sent_border(row_id, row['sent_id']):
                 vectors_dict[tuple(feature_vector)][1] += 1
 
         vectors_dict_final = dict()
-        # sum_sent = 0
-        # sum_tok = 0
         for feat_vect, val in vectors_dict.items():
             # отладка
             # print feat_vect, val[1], val[0], float(val[1]) / val[0]
-            # sum_sent += val[1]
-            # sum_tok += val[0]
             vectors_dict_final[feat_vect] = float(val[1]) / val[0]
-        # отладка
-        # print sum_sent, sum_tok
 
         self.model = vectors_dict_final
 
     def get_context(self, row_id, row):
-        # None нужно передавать для всех токенов, для которых сменился абзац
+        """
+        Возвращает контекстные тройки токенов.
+        (примеры с границей предложения)
+        'формате . В' для предложений внутри абзаца,
+        'None « Школа' - для первого предложения в абзаце и тексте,
+        'сезоне ? None' - для последнего предложения в абзаце и тексте.
+        """
         if row_id == 0 or self.rows[row_id - 1]['par_id'] < row['par_id']:
             left = None
         else:
             left = self.rows[row_id - 1]['tf_text']
         current = row['tf_text']
-        # здесь почему-то иногда вылетает, проблема в том, что действительно не всегда
-        try:
-            if (row_id + 1) == len(self.rows) or self.rows[row_id + 1]['par_id'] > row['par_id']:
-                right = None
-            else:
-                right = self.rows[row_id + 1]['tf_text']
-        except KeyError:
-            print(row_id, row_id + 1, len(self.rows), row['par_id'])
-            exit()
+
+        if (row_id + 1) == len(self.rows) or self.rows[row_id + 1]['par_id'] > row['par_id']:
+            right = None
+        else:
+            right = self.rows[row_id + 1]['tf_text']
         return left, current, right
 
-    def evaluate(self, folds=10, threshold=0.5):
+    def evaluate(self, folds=10, fold_size=10, threshold=0.8):
         # фэйковая кросс-валидация (оцениваемся на подвыборке тех текстов, на которых обучались)
         test_book_ids = list()
-        all_test_book_ids = list()
+        all_test_book_ids = set()
         for fold in range(folds):
-            book_ids = random.sample(range(0, 4000), 10)
+            # hardcoded book id limit
+            book_ids = random.sample(range(0, 4000), fold_size)
             test_book_ids.append(book_ids)
-            all_test_book_ids.extend(book_ids)
+            all_test_book_ids.update(set(book_ids))
 
-        eval_res = [0.0] * folds  # list of accuracies
-        eval_stats = defaultdict(list)  # dict for true pos and other res
-        # hardcoded book id limit
+        # eval_res = [0.0, 0.0] * folds  # list of accuracies and precisions
+        eval_stats = defaultdict(list)  # dict for true pos, true neg and overall
+        prec_stats = defaultdict(list)
+
         for row_id, row in enumerate(self.rows):
 
             if row['book_id'] not in all_test_book_ids:
@@ -203,25 +199,47 @@ class LearnModel(object):
             left, current, right = self.get_context(row_id, row)
             feature_obj = FeatureCollector(left, current, right, {})
             feature_vector = feature_obj.get_feature_vector()
+
             true_pos = 0
+            true_neg = 0
             if self.model[tuple(feature_vector)] > threshold and self.is_sent_border(row_id, row['sent_id']):
                 true_pos = 1
+            if self.model[tuple(feature_vector)] <= threshold and not self.is_sent_border(row_id, row['sent_id']):
+                true_neg = 1
+
+            # if (true_pos + true_neg) == 0:
+            #     print(row)
+
             for fold_id, el in enumerate(test_book_ids):
                 if row['book_id'] in el:
                     if fold_id not in eval_stats:
                         eval_stats[fold_id] = [0] * 2
-                    eval_stats[fold_id][0] += true_pos  # true pos
-                    eval_stats[fold_id][1] += 1  # overall
+                        prec_stats[fold_id] = [0] * 2
+                    eval_stats[fold_id][0] += true_pos + true_neg  # true pos
+                    prec_stats[fold_id][0] += true_pos
+                    eval_stats[fold_id][1] += 1
+                    if self.is_sent_border(row_id, row['sent_id']):
+                        prec_stats[fold_id][1] += 1  # всего токенов в этом fold'e
 
-        for fold_id, results in eval_stats.items():
-            eval_res[fold_id] = float(results[0]) / results[1]
+        # Debug
+        # print test_book_ids
+        # print eval_stats
+        # print prec_stats
 
+        sum_acc = 0
+        sum_prec = 0
         # печатаем результаты каждого фолда
-        for fold_id, acc in enumerate(eval_res):
-            print fold_id, acc
+        for fold_id, acc_res in sorted(eval_stats.items()):
+            acc = round(float(acc_res[0]) / acc_res[1], 4)
+            sum_acc += acc
+            prec = round(float(prec_stats[fold_id][0]) / prec_stats[fold_id][1], 4)
+            sum_prec += prec
+            print fold_id, acc, prec
 
         # усреднённый результат на 10 фолдов
-        print sum(eval_res) / len(eval_res)
+        # print sum(eval_res) / len(eval_res)
+        print 'Overall accuracy', sum_acc / folds
+        print 'Overall precision', sum_prec / folds
 
 
 # Пример запуска с подсчётом времени работы и оценки
@@ -230,6 +248,6 @@ class LearnModel(object):
 # model = LearnModel('/home/irinfox/opencorpora/trunk/config.ini')
 # model.collect_data()
 # model.evaluate()
-#
-# # работает 47 секунд
+
+# работает 47-60 секунд
 # print datetime.now() - startTime
