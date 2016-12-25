@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import datetime
 import codecs
 from Annotation import AnnotationEditor
@@ -103,8 +104,12 @@ def find_lexemes_for_list(annotation_editor, link_list, is_to_add_several_lexeme
     link_list_with_ids = []
 
     for (from_lemma_grammemes, to_lemma_grammemes, link_type) in link_list:
-        from_ids = find_lexemes(annotation_editor, from_lemma_grammemes, is_to_add_several_lexemes)  
-        to_ids = find_lexemes(annotation_editor, to_lemma_grammemes, is_to_add_several_lexemes)
+        try:
+            from_ids = find_lexemes(annotation_editor, from_lemma_grammemes, is_to_add_several_lexemes)  
+            to_ids = find_lexemes(annotation_editor, to_lemma_grammemes, is_to_add_several_lexemes)
+        except LexemeException as e:
+            sys.stderr.write("Exception: {}\n".format(e))
+            continue
 
         for from_id in from_ids:
             for to_id in to_ids:
