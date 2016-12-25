@@ -47,6 +47,10 @@ class MorphParse {
         $out .= '</l></v>';
         return $out;
     }
+
+    public function is_unknown() {
+        return sizeof($this->gramlist) == 1 && $this->gramlist[0]['inner'] == 'UNKN';
+    }
 }
 
 class MorphParseUnknown extends MorphParse {
@@ -62,11 +66,11 @@ class MorphParseSet {
     private static $RE_CYR_TOKEN = '/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u';
     private static $RE_MIXED_TOKEN = '/^[0-9]+\-[А-Яа-яЁё]+$/u';  // like '2-ого'
 
-    public function __construct($xml="", $token_text="", $force_unknown=false, $force_include_init=false) {
+    public function __construct($xml="", $token_text="", $force_unknown=false, $force_include_init=false, $restrict_lemma_id=0) {
         if ($xml)
             $this->_from_xml($xml);
         elseif ($token_text)
-            $this->_from_token($token_text, $force_unknown, $force_include_init);
+            $this->_from_token($token_text, $force_unknown, $force_include_init, $restrict_lemma_id);
         else
             throw new Exception();
     }
@@ -113,6 +117,18 @@ class MorphParseSet {
         foreach ($this->parses as $parse)
             if ($parse->lemma_id == $lemma_id)
                 $parse->replace_gram_subset($gram_find, $gram_replace);
+    }
+
+    public function merge_with(MorphParseSet $other) {
+        // does not check for unique-ness
+        if (sizeof($other->parses) > 0) {
+            if (sizeof($this->parses) == 1 && $this->parses[0]->is_unknown())
+                $this->parses = array();
+        }
+
+        foreach ($other->parses as $parse) {
+            $this->parses[] = $parse;
+        }
     }
 
     private static function _fill_gram_info($gram_list) {
@@ -177,7 +193,7 @@ class MorphParseSet {
             throw new Exception();
     }
 
-    private function _from_token($token, $force_unknown, $force_include_init) {
+    private function _from_token($token, $force_unknown, $force_include_init, $restrict_lemma_id=0) {
         $this->token_text = $token;
         $cyrillic = false;
         if ($force_unknown) {
@@ -188,6 +204,7 @@ class MorphParseSet {
                 SELECT lemma_id, lemma_text, grammems
                 FROM form2lemma
                 WHERE form_text=?
+                ". ($restrict_lemma_id ? "AND lemma_id = $restrict_lemma_id" : "") ."
                 ORDER BY lemma_id, grammems
             ", array($token));
             if (sizeof($res) > 0) {
@@ -222,7 +239,7 @@ class MorphParseSet {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'LATN')));
         }
 
-        if (preg_match('/^[IVXLCMDivxlcmdХх]+$/u', $token))
+        if (!$force_unknown && preg_match('/^[IVXLCMDivxlcmdХх]+$/u', $token))
             $this->parses[] = new MorphParse($token, array(array('inner' => 'ROMN')));
 
         if (sizeof($this->parses) == 0) {

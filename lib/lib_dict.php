@@ -337,8 +337,10 @@ function update_pending_tokens($rev_id, $smart=false) {
 function smart_update_pending_token(MorphParseSet $parse_set, $rev_id) {
     // currently works only for
     // - deleted lemma
+    // - added lemma (only this lemma's forms are added)
     // - lemma text change
     // - lemma gramset change
+    // - added form(s): adds all forms of this lemma homonynous to the added one(s)
     
     $res = sql_pe("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=? LIMIT 1", array($rev_id));
     if (!sizeof($res))
@@ -354,27 +356,41 @@ function smart_update_pending_token(MorphParseSet $parse_set, $rev_id) {
 
     // get previous revision
     $res = sql_pe("SELECT rev_text FROM dict_revisions WHERE lemma_id=? ORDER BY rev_id DESC LIMIT 1,1", array($lemma_id));
-    if (!sizeof($res))
-        throw new Exception();
+    if (!sizeof($res)) {
+        // the revision adds a lemma
+        $new_parses = new MorphParseSet(false, $parse_set->token_text, false, false, $lemma_id);
+        $parse_set->merge_with($new_parses);
+        return;
+    }
     $prev_rev_text = $res[0]['rev_text'];
 
     $prev_rev_parsed = parse_dict_rev($prev_rev_text);
     $new_rev_parsed = parse_dict_rev($rev_text);
 
     // cannot work if smth changed in the paradigm, not lemma
+    // unless the change is addition of new forms
     $prev_forms = $prev_rev_parsed['forms'];
     $new_forms = $new_rev_parsed['forms'];
 
-    if (sizeof($prev_forms) != sizeof($new_forms))
+    if (sizeof($prev_forms) > sizeof($new_forms))
         throw new Exception("Smart mode unavailable");
-    foreach ($prev_forms as $i => $pf) {
-        if (
-            $pf['text'] != $new_forms[$i]['text']
-            || $pf['grm'] != $new_forms[$i]['grm']
-        )
+    foreach ($prev_forms as $pf) {
+        if (!in_array($pf, $new_forms))
             throw new Exception("Smart mode unavailable");
     }
 
+    // use only newly added forms (for cases when both forms were added and smth changed in lemma)
+    $new_forms_texts = array();
+    foreach ($new_forms as $nf) {
+        if (!in_array($nf, $prev_forms))
+            $new_forms_texts[] = $nf['text'];
+    }
+    foreach (array_unique($new_forms_texts) as $ftext) {
+        $new_parses = new MorphParseSet(false, $ftext, false, false, $lemma_id);
+        $parse_set->merge_with($new_parses);
+    }
+
+    // process lemma changes
     $parse_set->set_lemma_text($lemma_id, $new_rev_parsed['lemma']['text']);
     $parse_set->replace_gram_subset($lemma_id, $prev_rev_parsed['lemma']['grm'], $new_rev_parsed['lemma']['grm']);
 }
