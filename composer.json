@@ -12,7 +12,7 @@
         "components/jquery": "1.10",
         "opencorpora/bootstrap": "dev-master",
         "components/bootstrap-notify": "dev-master",
-        "smarty/smarty": "3.1.29"
+        "smarty/smarty": "3.1.24"
 
     },
 
