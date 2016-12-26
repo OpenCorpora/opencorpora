@@ -46,7 +46,7 @@ function get_sentence_adders_stats($last_week=false, $team=0) {
     }
     return $out;
 }
-function get_word_stats_for_chart() {
+function get_word_stats_for_chart($days) {
     $chart = array();
     $t = array();
     $tchart = array();
@@ -56,7 +56,7 @@ function get_word_stats_for_chart() {
 
     $res = sql_prepare("SELECT timestamp, param_value FROM stats_values WHERE timestamp > ? AND param_id = ? ORDER BY timestamp");
     foreach ($param_set as $param_id) {
-        sql_execute($res, array($time - 90 * SEC_PER_DAY, $param_id));
+        sql_execute($res, array($time - $days * SEC_PER_DAY, $param_id));
         while ($r = sql_fetch_array($res)) {
             $day = intval($r['timestamp'] / SEC_PER_DAY);
             $t[$day][$param_id] = $r['param_value'];
@@ -88,17 +88,17 @@ function get_word_stats_for_chart() {
 
     return $chart;
 }
-function get_ambiguity_stats_for_chart() {
+function get_ambiguity_stats_for_chart($days) {
     $chart = array();
     $t = array();
     $tchart=  array();
     $time = time();
-    
+
     $param_set = array(5, 35, 36, 37, 41, 45, 62, 64);
 
     $res = sql_prepare("SELECT timestamp, param_value FROM stats_values WHERE timestamp > ? AND param_id = ? ORDER BY timestamp");
     foreach ($param_set as $param_id) {
-        sql_execute($res, array($time - (90 * SEC_PER_DAY), $param_id));
+        sql_execute($res, array($time - ($days * SEC_PER_DAY), $param_id));
         while ($r = sql_fetch_array($res)) {
             $day = intval($r['timestamp'] / SEC_PER_DAY);
             $t[$day][$param_id] = $r['param_value'];
@@ -148,7 +148,7 @@ function get_pools_stats() {
     
     return $stats;
 }
-function get_annot_stats_for_chart() {
+function get_annot_stats_for_chart($days) {
     $stats = array();
 
     $res = sql_query("
@@ -158,7 +158,7 @@ function get_annot_stats_for_chart() {
             COUNT(sample_id) AS samples
         FROM morph_annot_click_log
         WHERE clck_type < 10
-        AND FLOOR(timestamp / ".SEC_PER_DAY.") > FLOOR(UNIX_TIMESTAMP() / ".SEC_PER_DAY.") - 30
+        AND FLOOR(timestamp / ".SEC_PER_DAY.") > FLOOR(UNIX_TIMESTAMP() / ".SEC_PER_DAY.") - $days
         GROUP BY FLOOR(timestamp / ".SEC_PER_DAY.")
     ");
     

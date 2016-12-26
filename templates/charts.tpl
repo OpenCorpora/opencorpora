@@ -91,18 +91,18 @@ $(document).ready(function() {
     <li class="active"><a href="?page=charts">Графики</a></li>
 </ul>
 <h2>Состав корпуса</h2>
-<div id="words_chart" style="width:700px; height: 400px"></div>
+<div id="words_chart" style="width:1000px; height: 400px"></div>
 <h2>Неоднозначность</h2>
 <h3>Среднее количество разборов</h3>
-<div id="ambig_chart1" style="width:700px; height: 400px"></div>
+<div id="ambig_chart1" style="width:1000px; height: 400px"></div>
 <h3>% однозначно разобранных слов</h3>
-<div id="ambig_chart2" style="width:700px; height: 400px"></div>
+<div id="ambig_chart2" style="width:1000px; height: 400px"></div>
 <h3>Однозначные разборы</h3>
-<div id="ambig_chart4" style="width:700px; height: 400px"></div>
+<div id="ambig_chart4" style="width:1000px; height: 400px"></div>
 <h3>% неизвестных слов</h3>
-<div id="ambig_chart3" style="width:700px; height: 400px"></div>
+<div id="ambig_chart3" style="width:1000px; height: 400px"></div>
 <h2>Задания на разметку</h2>
-<div id="pools_chart" style="width:700px; height: 400px"></div>
+<div id="pools_chart" style="width:1000px; height: 400px"></div>
 <h3>Ответов и участников в день</h3>
-<div id="users_chart" style="width:700px; height: 400px"></div>
+<div id="users_chart" style="width:1000px; height: 400px"></div>
 {/block}
