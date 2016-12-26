@@ -30,7 +30,6 @@
             <a href="pools.php?act=samples&amp;pool_id={$pool.id}">{$pool.name|htmlspecialchars}</a>
             {if $pool.moderator} (модератор &ndash; {$pool.moderator|htmlspecialchars}){/if}
     <td>{$pool.count}
-    <td>{$pool.count2}
 </tr>
 {/foreach}
 </table>
