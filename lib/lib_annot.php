@@ -119,8 +119,7 @@ class MorphParseSet {
                 $parse->replace_gram_subset($gram_find, $gram_replace);
     }
 
-    public function merge_with(MorphParseSet $other) {
-        // does not check for unique-ness
+    public function merge_from(MorphParseSet $other) {
         if (sizeof($other->parses) > 0) {
             if (sizeof($this->parses) == 1 && $this->parses[0]->is_unknown())
                 $this->parses = array();
@@ -129,6 +128,7 @@ class MorphParseSet {
         foreach ($other->parses as $parse) {
             $this->parses[] = $parse;
         }
+        $this->_make_parses_unique();
     }
 
     private static function _fill_gram_info($gram_list) {
@@ -250,6 +250,21 @@ class MorphParseSet {
 
         foreach ($this->parses as $parse)
             $parse->gramlist = self::_fill_gram_info($parse->gramlist);
+    }
+
+    private function _make_parses_unique() {
+        // yes, this looks terrible
+        // but array_unique doesn't work here, both with map(serialize) or without
+        $seen_str = array();
+        $uniq = array();
+        foreach ($this->parses as $parse) {
+            $as_xml = $parse->to_xml();
+            if (!in_array($as_xml, $seen_str)) {
+                $seen_str[] = $as_xml;
+                $uniq[] = $parse;
+            }
+        }
+        $this->parses = $uniq;
     }
 }
 

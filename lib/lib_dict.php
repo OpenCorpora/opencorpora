@@ -359,7 +359,7 @@ function smart_update_pending_token(MorphParseSet $parse_set, $rev_id) {
     if (!sizeof($res)) {
         // the revision adds a lemma
         $new_parses = new MorphParseSet(false, $parse_set->token_text, false, false, $lemma_id);
-        $parse_set->merge_with($new_parses);
+        $parse_set->merge_from($new_parses);
         return;
     }
     $prev_rev_text = $res[0]['rev_text'];
@@ -387,7 +387,7 @@ function smart_update_pending_token(MorphParseSet $parse_set, $rev_id) {
     }
     foreach (array_unique($new_forms_texts) as $ftext) {
         $new_parses = new MorphParseSet(false, $ftext, false, false, $lemma_id);
-        $parse_set->merge_with($new_parses);
+        $parse_set->merge_from($new_parses);
     }
 
     // process lemma changes
