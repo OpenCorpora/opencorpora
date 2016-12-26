@@ -101,7 +101,7 @@ switch ($action) {
         header("Location:index.php?page=pool_charts");
         break;
     default:
-        $smarty->assign('moder_id', isset($GET['moder_id']) ? $_GET['moder_id'] : 0);
+        $smarty->assign('moder_id', isset($_GET['moder_id']) ? $_GET['moder_id'] : 0);
         $type = isset($_GET['type']) ? $_GET['type'] : 0;
         $smarty->assign('type', $type);
         if ($type == MA_POOLS_STATUS_FOUND_CANDIDATES) {
