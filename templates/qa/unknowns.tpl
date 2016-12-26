@@ -1,7 +1,7 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-<h1>Токены из словаря, но с разбором UNKN</h1>
+<h1>Токены из словаря, но с разбором UNKN ({$tokens|sizeof})</h1>
 <table class="table">
 {foreach item=token from=$tokens}
 <tr>
