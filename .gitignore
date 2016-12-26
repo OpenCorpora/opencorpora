@@ -4,7 +4,11 @@
 /config.ini
 /doc/articles/*.pdf
 /doc/presentations/*.pdf
+/files
+/vendor
 /yadisk-auth
+/yandex_*.html
+/yandex_*.txt
 *.swp
 *.project
 *.prefs
