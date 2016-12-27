@@ -420,12 +420,12 @@ function prepare_parse_indices($flag_array) {
     }
     return $ret;
 }
-function sentence_save($sent_id) {
+function sentence_save($sent_id, $comment, $flag, $dict) {
+    // $flag = what morphovariants are checked as possible (array of arrays)
+    // $dict = whether this token has been reloaded from the dictionary (array)
     check_permission(PERM_DISAMB);
     if (!$sent_id)
         throw new UnexpectedValueException();
-    $flag = $_POST['var_flag'];  //what morphovariants are checked as possible (array of arrays)
-    $dict = $_POST['dict_flag']; //whether this token has been reloaded from the dictionary (array)
 
     $res = sql_query("
         SELECT tf_id, tf_text, rev_text
@@ -472,7 +472,7 @@ function sentence_save($sent_id) {
         }
     }
     if (count($all_changes) > 0) {
-        $revset_id = create_revset($_POST['comment']);
+        $revset_id = create_revset($comment);
         foreach ($all_changes as $v)
             create_tf_revision($revset_id, $v[0], $v[1]);
     }

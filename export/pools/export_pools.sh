@@ -12,7 +12,7 @@ perl $WORK_DIR/../pools.pl /corpus/config.ini | grep -E "[45679]$" > $TMPDIR/poo
 
 for id in $( cat $TMPDIR/pools.txt | gawk '{ print $1 }' )
 do
-  wget -q "http://localhost/pools.php?act=samples&pool_id=$id&tabs&mod_ans" --output-document=$TMPDIR/pool_$id.tab 
+  wget -q "http://localhost/pools.php?act=samples&pool_id=$id&tabs=1&mod_ans" --output-document=$TMPDIR/pool_$id.tab 
 done
 
 cd $TMPDIR

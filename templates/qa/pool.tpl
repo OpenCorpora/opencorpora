@@ -125,20 +125,20 @@
 {/if}
 {if $pool.status > $smarty.const.MA_POOLS_STATUS_NOT_STARTED}
 
-<p>{if !isset($smarty.get.ext)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext">к расширенному виду</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}">к обычному виду</a>{/if} |
+<p>{if !isset($smarty.get.ext)}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1">к расширенному виду</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}">к обычному виду</a>{/if} |
 {if !$sortby || $sortby == 'answer'}
-    <a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter={$pool.filter}&amp;sortby=text">отсортировать по ключевому слову</a>
+    <a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter={$pool.filter}&amp;sortby=text">отсортировать по ключевому слову</a>
 {else}
-    <a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter={$pool.filter}&amp;sortby=answer">отсортировать по ответу</a>
+    <a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter={$pool.filter}&amp;sortby=answer">отсортировать по ответу</a>
 {/if}
 </p>
 
 <p>
-{if $pool.filter != 'focus'}<a class="{if $pool.has_focus}bggreen{else}bgpink{/if}" href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=focus&amp;sortby={$sortby}">список для модерации</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;sortby={$sortby}">показать все</a>{/if} |
-{if $pool.filter != 'disagreed'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=disagreed&amp;sortby={$sortby}">несогласованные ответы</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;sortby={$sortby}">показать все</a>{/if} |
-{if $pool.filter != 'comments'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=comments&amp;sortby={$sortby}">примеры с комментариями</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;sortby={$sortby}">показать все</a>{/if} |
-{if $pool.filter != 'not_ok'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=not_ok&amp;sortby={$sortby}">примеры с опечатками и т.п.</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;sortby={$sortby}">показать все</a>{/if} |
-{if $pool.filter != 'not_moderated'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;filter=not_moderated&amp;sortby={$sortby}">непроверенные</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext&amp;sortby={$sortby}">показать все</a>{/if}</p>
+{if $pool.filter != 'focus'}<a class="{if $pool.has_focus}bggreen{else}bgpink{/if}" href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter=focus&amp;sortby={$sortby}">список для модерации</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}">показать все</a>{/if} |
+{if $pool.filter != 'disagreed'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter=disagreed&amp;sortby={$sortby}">несогласованные ответы</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}">показать все</a>{/if} |
+{if $pool.filter != 'comments'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter=comments&amp;sortby={$sortby}">примеры с комментариями</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}">показать все</a>{/if} |
+{if $pool.filter != 'not_ok'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter=not_ok&amp;sortby={$sortby}">примеры с опечатками и т.п.</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}">показать все</a>{/if} |
+{if $pool.filter != 'not_moderated'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter=not_moderated&amp;sortby={$sortby}">непроверенные</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}">показать все</a>{/if}</p>
 {if $is_admin}<p><a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs">в виде tab-separated файла</a> (<a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs&amp;mod_ans">с ответами модератора</a>)</p>{/if}
 {/if}
 <div class="pagination pagination-centered"><ul>
@@ -172,7 +172,7 @@
 {/if}
     <td>{$sample.id}</td>
     <td>
-        <a href="/books.php?book_id={$sample.book_id}&amp;full#sen{$sample.sentence_id}" target="_blank">контекст</a>
+        <a href="/books.php?book_id={$sample.book_id}&amp;full=1#sen{$sample.sentence_id}" target="_blank">контекст</a>
         <span>{if $sample.has_left_context}<a class='expand' href="#" data-context='{$sample.has_left_context}' data-dir='-1'>...</a>{/if}
         {foreach from=$sample.context item=word key=tf_id}{if $tf_id == $sample.mainword}<b class='bggreen'>{$word|htmlspecialchars}</b>{else}{$word|htmlspecialchars}{/if} {/foreach}
         {if $sample.has_right_context}<a class='expand' href="#" data-context='{$sample.has_right_context}' data-dir='1'>...</a>{/if}</span>

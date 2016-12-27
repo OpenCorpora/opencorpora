@@ -45,7 +45,7 @@ if (!is_logged() && !isset($_SESSION['user_pending']) && isset($_COOKIE['auth'])
 }
 
 //debug mode
-if (is_admin() && isset($_GET['debug']) && $debug = $_GET['debug']) {
+if (is_admin() && ($debug = GET('debug', false))) {
     if ($debug == 'on' && !isset($_SESSION['debug_mode'])) {
         $_SESSION['debug_mode'] = 1;
     } elseif ($debug == 'off' && $_SESSION['debug_mode']) {
@@ -59,8 +59,7 @@ if (is_admin() && isset($_GET['debug']) && $debug = $_GET['debug']) {
 if (
     is_logged()
     && in_array(PERM_ADMIN, $_SESSION['user_groups'])
-    && isset($_GET['pretend'])
-    && $pretend = $_GET['pretend']
+    && ($pretend = GET('pretend', false))
 ) {
     if ($pretend == 'on')
         $_SESSION['noadmin'] = 1;

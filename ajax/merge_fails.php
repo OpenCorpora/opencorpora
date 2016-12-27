@@ -4,13 +4,13 @@ require_once('../lib/header_ajax.php');
 require_once('../lib/lib_qa.php');
 
 try {
-    switch ($_POST['act']) {
+    switch (POST('act', '')) {
         case 'approve':
-            save_merge_fail_status($_POST['id'], $_POST['value']);
+            save_merge_fail_status(POST('id'), POST('value'));
             $result['error'] = 0;
             break;
         case 'comment':
-            save_merge_fail_comment($_POST['id'], $_POST['text']);
+            save_merge_fail_comment(POST('id'), POST('text'));
             $result['error'] = 0;
             break;
         default:

@@ -121,25 +121,17 @@ function books_add($name, $parent_id=0) {
     return sql_insert_id();
 }
 function books_move($book_id, $to_id) {
-    if ($book_id == $to_id)
-        throw new UnexpectedValueException();
     check_permission(PERM_ADMIN);
 
-    //to avoid loops
-    $tid = $to_id;
-    $res = sql_prepare("SELECT parent_id FROM books WHERE book_id=? AND parent_id>0 LIMIT 1");
-    while ($tid) {
-        sql_execute($res, array($tid));
-        $r = sql_fetch_array($res);
-        if ($r) {
-            $tid = $r['parent_id'];
-            if ($tid == $book_id) {
-                throw new UnexpectedValueException("Error: setting looping parent");
-                break;
-            }
-        } else
-            break;
+    // to avoid loops
+    foreach (get_book_parents($to_id, true) as $parent) {
+        if ($book_id == $parent['id'])
+            throw new UnexpectedValueException();
     }
+
+    // forbid moving to a book which has paragraphs
+    if (sizeof(sql_pe("SELECT par_id FROM paragraphs WHERE book_id = ?", array($to_id))) > 0)
+        throw new Exception("Target book has paragraphs");
 
     sql_pe("UPDATE `books` SET parent_id=? WHERE book_id=? LIMIT 1", array($to_id, $book_id));
 }
@@ -523,7 +515,7 @@ function delete_token($tf_id, $delete_history=true) {
 
     sql_commit();
 }
-function merge_tokens_ii($id_array) {
+function merge_tokens_ii(array $id_array) {
     //ii stands for "id insensitive"
     if (sizeof($id_array) < 2)
         throw new UnexpectedValueException();

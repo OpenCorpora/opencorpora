@@ -9,13 +9,13 @@ $smarty->assign('active_page', 'tasks');
 
 check_logged();
 
-$action = isset($_GET['act']) ? $_GET['act'] : '';
+$action = GET('act', '');
 $tagset_id = get_current_tagset();
 
 switch ($action) {
 
     case 'manual':
-        $smarty->assign('content', get_wiki_page("nermanual/" . (int)$_GET['id']));
+        $smarty->assign('content', get_wiki_page("nermanual/" . (int)GET('id')));
         $smarty->display('static/doc/annotation.tpl');
         break;
 

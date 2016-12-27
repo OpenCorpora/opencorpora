@@ -624,7 +624,7 @@ function delete_ne_entity($entity_id, $annot_id=0) {
     sql_commit();
 }
 
-function set_ne_tags($entity_id, $tags, $annot_id=0) {
+function set_ne_tags($entity_id, array $tags, $annot_id=0) {
     // overwrites old set of tags
     // TODO check that tags and annotation belong to the same tagset
     if (!$annot_id) {
@@ -650,7 +650,7 @@ function log_event($message) {
             VALUES (?, ?)", array($_SESSION['user_id'], $message));
 }
 
-function add_mention($entity_ids, $object_type) {
+function add_mention(array $entity_ids, $object_type) {
     $entities_in = str_repeat('?,', count($entity_ids) - 1) . '?';
     $entities = sql_pe("SELECT entity_id FROM ne_entities WHERE entity_id IN (" .$entities_in . ")", $entity_ids);
     if (sizeof($entities) != sizeof($entity_ids))
@@ -854,7 +854,7 @@ function link_mention_to_object($mention_id, $object_id) {
     sql_pe("UPDATE ne_mentions SET object_id = ? WHERE mention_id = ? LIMIT 1", array($object_id, $mention_id));
 }
 
-function create_object_from_mentions($mention_ids) {
+function create_object_from_mentions(array $mention_ids) {
     $mentions_in = str_repeat('?,', count($mention_ids) - 1) . '?'; // string of ? to use in IN () clause
     $res = sql_pe("
         SELECT book_id

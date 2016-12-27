@@ -9,7 +9,7 @@
 <tr>
     <td><a href="/sentence.php?id={$s.id}">{$s.id}</a></td>
     <td>{$s.text|htmlspecialchars}</td>
-    <td><a href='/books.php?book_id={$s.book_id}&amp;full#sen{$s.id}'>исправить</a></td>
+    <td><a href='/books.php?book_id={$s.book_id}&amp;full=1#sen{$s.id}'>исправить</a></td>
 </tr>
 {/foreach}
 </table>

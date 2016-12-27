@@ -1,6 +1,7 @@
 <?php
 require_once('../lib/header_ajax.php');
 require_once('../lib/lib_anaphora_syntax.php');
+require_once('../lib/lib_diff.php');
 
 /*
     Сюда приходит POST'ом следующее:
@@ -10,17 +11,18 @@ require_once('../lib/lib_anaphora_syntax.php');
 */
 
 try {
-    switch ($_POST['act']) {
+    $action = POST('act', '');
+    switch ($action) {
         case 'newGroup':
-            $result['gid'] = add_group($_POST['tokens'], (int)$_POST['type']);
+            $result['gid'] = add_group(POST('tokens'), (int)POST('type'));
             break;
 
         case 'copyGroup':
-            $old_groups = get_groups_by_sentence((int)$_POST['sentence_id'],
+            $old_groups = get_groups_by_sentence((int)POST('sentence_id'),
               (int)$_SESSION['user_id']);
 
-            $new_group_id = copy_group((int)$_POST['gid'], (int)$_SESSION['user_id']);
-            $new_groups = get_groups_by_sentence((int)$_POST['sentence_id'],
+            $new_group_id = copy_group((int)POST('gid'), (int)$_SESSION['user_id']);
+            $new_groups = get_groups_by_sentence((int)POST('sentence_id'),
               (int)$_SESSION['user_id']);
 
             $result['new_groups'] = array();
@@ -32,15 +34,15 @@ try {
             break;
 
         case 'deleteGroup':
-            delete_group($_POST['gid']);
+            delete_group(POST('gid'));
             break;
 
         case 'setGroupHead':
-            set_group_head($_POST['gid'], $_POST['head_id']);
+            set_group_head(POST('gid'), POST('head_id'));
             break;
 
         case 'setGroupType':
-            set_group_type($_POST['gid'], $_POST['type']);
+            set_group_type(POST('gid'), POST('type'));
             break;
 
         case 'getGroupsTable':
@@ -57,14 +59,14 @@ try {
             $smarty->cache_dir    = $config['smarty']['cache_dir'];
 
             $smarty->assign('group_types', get_syntax_group_types());
-            $smarty->assign('groups', get_groups_by_sentence((int)$_POST['sentence_id'],
+            $smarty->assign('groups', get_groups_by_sentence((int)POST('sentence_id'),
               $_SESSION['user_id']));
 
             $result['table'] = $smarty->fetch('sentence_syntax_groups.tpl');
             break;
 
         default:
-            $result['message'] = "Action not implemented: {$_POST['act']}";
+            $result['message'] = "Action not implemented: $action";
             throw new Exception();
 
     }

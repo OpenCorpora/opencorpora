@@ -1,21 +1,12 @@
 <?php
 require('lib/header.php');
 require('lib/lib_history.php');
-if (isset($_GET['sent_id']))
-    $sent_id = (int)$_GET['sent_id'];
-    else $sent_id = 0;
-if (isset($_GET['set_id']))
-    $set_id = (int)$_GET['set_id'];
-    else $set_id = 0;
-if (isset($_GET['skip']))
-    $skip = (int)$_GET['skip'];
-    else $skip = 0;
-if (isset ($_GET['maa']))
-    $maa = $_GET['maa'] ? 1 : 0;
-    else $maa = 0;
-if (isset($_GET['user_id']))
-    $user_id = (int)$_GET['user_id'];
-    else $user_id = 0;
+
+$sent_id = GET('sent_id', 0);
+$set_id = GET('set_id', 0);
+$skip = (int)GET('skip', 0);
+$maa = GET('maa', 0) ? 1 : 0;
+$user_id = (int)GET('user_id', 0);
 
 $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
 $smarty->setCacheLifetime(90);

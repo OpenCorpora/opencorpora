@@ -4,197 +4,143 @@ require_once('../lib/lib_ne.php');
 
 try {
 
-    switch ($_POST['act']) {
+    switch (POST('act', '')) {
         case 'newAnnotation':
 
             $tagset_id = get_current_tagset();
 
-            if (empty($_POST['paragraph'])) throw new Exception();
-            $id = start_ne_annotation($_POST['paragraph'], $tagset_id);
+            $id = start_ne_annotation(POST('paragraph'), $tagset_id);
             $result['id'] = $id;
             break;
 
         case 'finishAnnotation':
 
-            if (empty($_POST['paragraph'])) throw new Exception();
-            finish_ne_annotation($_POST['paragraph']);
+            finish_ne_annotation(POST('paragraph'));
             break;
 
         case 'newEntity':
-            if (empty($_POST['paragraph'])
-             or empty($_POST['tokens'])
-             or empty($_POST['types'])) throw new Exception();
-
-            list($par_id, $token_ids, $tags) = array($_POST['paragraph'], $_POST['tokens'],
-                                                     $_POST['types']);
+            list($par_id, $token_ids, $tags) = array(POST('paragraph'), POST('tokens'),
+                                                     POST('types'));
 
             $id = add_ne_entity($par_id, $token_ids, $tags);
             $result['id'] = $id;
             break;
 
         case 'deleteEntity':
-            if (empty($_POST['entity'])) throw new Exception();
-            delete_ne_entity($_POST['entity']);
+            delete_ne_entity(POST('entity'));
             break;
 
         case 'setTypes':
-            if (empty($_POST['entity'])
-             or empty($_POST['types'])) throw new Exception();
-
-            list($entity_id, $tags) = array($_POST['entity'], $_POST['types']);
+            list($entity_id, $tags) = array(POST('entity'), POST('types'));
             set_ne_tags($entity_id, $tags);
             break;
 
         case 'newMention':
-            if (empty($_POST['entities']) || empty($_POST['object_type']))
-                throw new UnexpectedValueException();
-            $result['id'] = add_mention($_POST['entities'], $_POST['object_type']);
+            $result['id'] = add_mention(POST('entities'), POST('object_type'));
             break;
 
         case 'deleteMention':
-            if (empty($_POST['mention']))
-                throw new UnexpectedValueException();
-            delete_mention($_POST['mention']);
+            delete_mention(POST('mention'));
             break;
 
         case 'deleteEntityFromMention':
-            if (empty($_POST['entity']))
-                throw new UnexpectedValueException();
-            clear_entity_mention($_POST['entity']);
+            clear_entity_mention(POST('entity'));
             break;
 
         case 'setMentionType':
-            if (empty($_POST['mention']) || empty($_POST['object_type']))
-                throw new UnexpectedValueException();
-            update_mention($_POST['mention'], $_POST['object_type']);
+            update_mention(POST('mention'), POST('object_type'));
             break;
 
         case 'addComment':
-            if (empty($_POST['paragraph'])
-             or empty($_POST['comment'])) throw new Exception();
-
-            $id = add_comment_to_paragraph($_POST['paragraph'], $_SESSION['user_id'], $_POST['comment']);
+            $id = add_comment_to_paragraph(POST('paragraph'), $_SESSION['user_id'], POST('comment'));
             $result['id'] = $id;
             $result['time'] = date("M j, G:i");
             break;
 
         case 'becomeModerator':
-            if (empty($_POST['book_id'])
-                or empty($_POST['tagset_id'])) throw new Exception("book_id or tagset_id missing");
-
-            set_ne_book_moderator((int)$_POST['book_id'], (int)$_POST['tagset_id']);
+            set_ne_book_moderator((int)POST('book_id'), (int)POST('tagset_id'));
             break;
 
         case 'copyEntity':
-            if (empty($_POST['entity_id'])
-                or empty($_POST['annot_id'])) throw new Exception("entity_id or annot_id missing");
-            $result['id'] = try_copy_ne_entity((int)$_POST['entity_id'], (int)$_POST['annot_id']);
+            $result['id'] = try_copy_ne_entity((int)POST('entity_id'), (int)POST('annot_id'));
             $result = array_merge($result, get_ne_entity_info($result['id']));
             break;
 
         case 'copyAllEntities':
-            if (empty($_POST['annot_from'])
-                or empty($_POST['annot_to'])) throw new Exception("one of annot ids missing");
-            copy_all_entities($_POST['annot_from'], $_POST['annot_to']);
+            copy_all_entities(POST('annot_from'), POST('annot_to'));
             break;
 
         case 'copyMention':
-            if (empty($_POST['mention_id'])
-                or empty($_POST['annot_id'])) throw new Exception("mention_id or annot_id missing");
-            $result['id'] = copy_ne_mention((int)$_POST['mention_id'], (int)$_POST['annot_id']);
+            $result['id'] = copy_ne_mention((int)POST('mention_id'), (int)POST('annot_id'));
             break;
 
         case 'copyAll':
             // copy mentions and entities not in mentions
-            if (empty($_POST['annot_from'])
-                or empty($_POST['annot_to'])) throw new Exception("one of annot ids missing");
-            copy_all_mentions_and_entities($_POST['annot_from'], $_POST['annot_to']);
+            copy_all_mentions_and_entities(POST('annot_from'), POST('annot_to'));
             break;
 
         case 'createObject':
-            if (empty($_POST['mentions']) || !is_array($_POST['mentions']))
-                throw new UnexpectedValueException();
-            $id = create_object_from_mentions($_POST['mentions']);
+            $id = create_object_from_mentions(POST('mentions'));
 
             $result['object_id'] = $id;
             $result['mentions'] = get_mentions_text_by_objects(array($id))[$id];
             break;
 
         case 'linkMentionToObject':
-            if (empty($_POST['mention_id']) || empty($_POST['object_id']))
-                throw new UnexpectedValueException();
-            link_mention_to_object($_POST['mention_id'], $_POST['object_id']);
+            link_mention_to_object(POST('mention_id'), POST('object_id'));
             break;
 
         case 'deleteMentionFromObject':
-            if (empty($_POST['mention_id']))
-                throw new UnexpectedValueException();
-            link_mention_to_object($_POST['mention_id'], 0);
+            link_mention_to_object(POST('mention_id'), 0);
             break;
 
         case 'updateObjectProperty':
-            if (empty($_POST['val_id']) || empty($_POST['prop_value']))
-                throw new UnexpectedValueException();
-            update_object_property($_POST['val_id'], $_POST['prop_value']);
+            update_object_property(POST('val_id'), POST('prop_value'));
             break;
 
         case 'addObjectProperty':
-            if (empty($_POST['object_id']) || empty($_POST['prop_id']))
-                throw new UnexpectedValueException();
-            add_object_property($_POST['object_id'], $_POST['prop_id'], "");
+            add_object_property(POST('object_id'), POST('prop_id'), "");
             break;
 
         case 'deleteProperty':
-            if (empty($_POST['val_id']))
-                throw new UnexpectedValueException();
-            delete_object_prop_val($_POST['val_id']);
+            delete_object_prop_val(POST('val_id'));
             break;
 
         case 'getObjects':
-            if (empty($_POST['book_id']))
-                throw new UnexpectedValueException();
-            $result['objects'] = get_book_objects($_POST['book_id']);
+            $result['objects'] = get_book_objects(POST('book_id'));
             $result['possible_props'] = get_possible_properties();
             break;
 
         case 'deleteObject':
-            if (empty($_POST['object_id']))
-                throw new UnexpectedValueException();
-            delete_object($_POST['object_id']);
+            delete_object(POST('object_id'));
             break;
 
         case 'finishModeration':
-            if (empty($_POST['book_id'])
-                or empty($_POST['tagset_id'])) throw new Exception("book_id or tagset_id missing");
-
-            finish_book_moderation($_POST['book_id'], $_POST['tagset_id']);
+            finish_book_moderation(POST('book_id'), POST('tagset_id'));
             break;
 
         case 'restartModeration':
-            if (empty($_POST['book_id'])
-                or empty($_POST['tagset_id'])) throw new Exception("book_id or tagset_id missing");
-
-            restart_book_moderation($_POST['book_id'], $_POST['tagset_id']);
+            restart_book_moderation(POST('book_id'), POST('tagset_id'));
             break;
 
         case 'resumeModeration':
-            if (empty($_POST['book_id'])
-                or empty($_POST['tagset_id'])) throw new Exception("book_id or tagset_id missing");
-
-            resume_book_moderation($_POST['book_id'], $_POST['tagset_id']);
+            resume_book_moderation(POST('book_id'), POST('tagset_id'));
             break;
 
         case 'logEvent':
-            if (empty($_POST['id'])) throw new Exception();
-            switch ($_POST['type']) {
+            $event = POST('event');
+            $id = POST('id');
+            $data = POST('data');
+
+            switch (POST('type')) {
                 case 'selection':
-                    log_event("{$_POST['event']} / par_id: {$_POST['id']} / data: {$_POST['data']}");
+                    log_event("$event / par_id: $id / data: $data");
                     break;
                 case 'entity':
-                    log_event("{$_POST['event']} / entity_id: {$_POST['id']} / data: {$_POST['data']}");
+                    log_event("$event / entity_id: $id / data: $data");
                     break;
                 case 'mention':
-                    log_event("{$_POST['event']} / mention_id: {$_POST['id']} / data: {$_POST['data']}");
+                    log_event("$event / mention_id: $id / data: $data");
                     break;
                 default:
                     break;
@@ -202,7 +148,7 @@ try {
             break;
 
         default:
-            $result['message'] = "Action not implemented: {$_POST['act']}";
+            $result['message'] = "Action not implemented: " . POST('act', '');
             $result['error'] = 1;
             break;
 

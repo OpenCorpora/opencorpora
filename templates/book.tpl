@@ -142,7 +142,7 @@
         <input name='book_name' size='30' maxlength='100' value='&lt;Название&gt;'/>
         <input type='hidden' name='book_parent' value='{$book.id}'/>
         <input type='submit' value='Добавить'/>
-        <label><input type='checkbox' name='goto' checked='checked'/> и перейти в этот раздел</label>
+        <label><input type='checkbox' name='goto' checked='checked' value='1'/> и перейти в этот раздел</label>
     </form>
     {/if}
     {if isset($book.children[0])}
@@ -162,7 +162,7 @@
         {if isset($smarty.get.full)}
             <a href="?book_id={$book.id}">к сокращённому виду</a>
         {else}
-            <a href="?book_id={$book.id}&amp;full">к расширенному виду</a>
+            <a href="?book_id={$book.id}&amp;full=1">к расширенному виду</a>
         {/if}
         </p>
         {if isset($smarty.get.full)}

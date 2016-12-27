@@ -89,7 +89,7 @@
 {/literal}
 <h1>Заливаемые тексты</h1>
 {if $is_admin}
-<form action="?act=add" method="post" class="form-inline">Добавать новый: <input type="text" name='url' value='http://' size='50' maxlength='255'/> название (опц.): <input type="text" name='title' value=''> <select name='parent'><option value='0'>N/A</option></select> <button class="btn" type="submit">Добавить</button></form>
+<form action="?act=add" method="post" class="form-inline">Добавить новый: <input type="text" name='url' value='http://' size='50' maxlength='255'/> название (опц.): <input type="text" name='title' value=''> <select name='parent'><option value='0'>N/A</option></select> <button class="btn" type="submit">Добавить</button></form>
 <br/>
 {/if}
 <ul class="nav nav-tabs">

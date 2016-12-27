@@ -85,7 +85,7 @@ $(document).ready(function() {
 </script>
 <h1>Статистика</h1>
 <ul class="nav nav-tabs">
-    <li><a href="?page=stats&weekly">Активность за неделю</a></li>
+    <li><a href="?page=stats&weekly=1">Активность за неделю</a></li>
     <li><a href="?page=genre_stats">Состав корпуса</a></li>
     <li><a href="?page=tag_stats">По тегам</a></li>
     <li class="active"><a href="?page=charts">Графики</a></li>

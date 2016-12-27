@@ -3,7 +3,7 @@
 require_once('lib/header.php');
 require_once('lib/lib_generator.php');
 
-$action = isset($_GET['act']) ? $_GET['act'] : '';
+$action = GET('act', '');
 
 $current = get_generator_status();
 $smarty->assign('status', $current['status']);

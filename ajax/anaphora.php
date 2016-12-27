@@ -11,19 +11,20 @@ require_once('../lib/lib_anaphora_syntax.php');
 
 try {
     // TODO: проверка на модератора книги
-    switch ($_POST['act']) {
+    $action = POST('act', '');
+    switch ($action) {
         case 'new':
-            $result['aid'] = add_anaphora($_POST['anph_id'], $_POST['group_id']);
-            $result['token_ids'] = json_encode(get_group_tokens((int)$_POST['group_id']));
+            $result['aid'] = add_anaphora(POST('anph_id'), POST('group_id'));
+            $result['token_ids'] = json_encode(get_group_tokens((int)POST('group_id')));
             break;
 
         case 'delete':
-            delete_anaphora($_POST['aid']);
+            delete_anaphora(POST('aid'));
             break;
 
         default:
             $result['error'] = 1;
-            $result['message'] = "Action not implemented: {$_POST['act']}";
+            $result['message'] = "Action not implemented: $action";
             break;
 
     }

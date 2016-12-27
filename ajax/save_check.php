@@ -1,8 +1,8 @@
 <?php
 require_once('../lib/header_ajax.php');
-$type = $_POST['type'];
-$id = (int)$_POST['id'];
-$value = $_POST['value'];
+$type = POST('type');
+$id = (int)POST('id');
+$value = POST('value');
 
 try {
     switch($type) {

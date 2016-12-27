@@ -2,7 +2,7 @@
 require_once('../lib/header_ajax.php');
 require_once('../lib/lib_books.php');
 
-$id = (int)$_POST['id'];
+$id = (int)POST('id');
 $t = get_books_for_select($id);
 
 $result['books'] = array();

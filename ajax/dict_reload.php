@@ -4,13 +4,13 @@ require_once('../lib/lib_dict.php');
 require_once('../lib/lib_annot.php');
 require_once('../lib/lib_users.php');
 
-if (isset($_POST['tf_id'])) {
-    $res = sql_pe("SELECT tf_text FROM tokens WHERE tf_id=? LIMIT 1", array($_POST['tf_id']));
+try {
+    $res = sql_pe("SELECT tf_text FROM tokens WHERE tf_id=? LIMIT 1", array(POST('tf_id')));
     $r = $res[0];
     $pset = new MorphParseSet(false, $r['tf_text'], false, true);
 
     $result['xml'] = "<tfr>";
-    foreach($pset->parses as $parse) {
+    foreach ($pset->parses as $parse) {
         $result['xml'] .= '<v><l id="'.$parse->lemma_id.'" t="'.htmlspecialchars($parse->lemma_text).'">';
         foreach($parse->gramlist as $gram) {
             if (OPTION(OPT_GRAMNAMES) == 1) {
@@ -23,6 +23,10 @@ if (isset($_POST['tf_id'])) {
     }
     $result['xml'] .= '</tfr>';
 }
+catch (Exception $e) {
+    $result['error'] = 1;
+}
+
 log_timing(true);
 die(json_encode($result));
 ?>

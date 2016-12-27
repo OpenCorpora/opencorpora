@@ -4,7 +4,7 @@ require_once('lib/lib_users.php');
 require_once('lib/lib_awards.php');
 require_once('lib/lib_achievements.php');
 
-$id = $_GET['id'] ?: $_SESSION['user_id'];
+$id = GET('id', 0) ?: $_SESSION['user_id'];
 
 $smarty->assign('user', get_user_info($id));
 $smarty->assign('user_id', $id);

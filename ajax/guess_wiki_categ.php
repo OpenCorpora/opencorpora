@@ -2,8 +2,9 @@
 require_once('../lib/header_ajax.php');
 
 $result['cats'] = array('geo' => array(), 'topic' => array());
-if (isset($_POST['cat'])) {
-    $categ = explode('|', $_POST['cat']);
+$cat_str = trim(POST('cat', ''));
+if ($cat_str) {
+    $categ = explode('|', $cat_str);
     foreach ($categ as $cat) {
         $cat = str_replace('Категория:', '', $cat);
         if (in_array($cat, array('Опубликовано'))) {

@@ -119,7 +119,7 @@
     <div id="source_text"><b>Весь текст:</b> {$sentence.fulltext}</div>
     <p class='small'><a href='#' class='hint' id="show_src">Показать исходный текст</a></p>
     <div class='small' style='display:none' id='source_orig'><span>{$sentence.source|htmlspecialchars}</span>{if $is_admin}<button class='btn btn-small' id='btn_show_src_edit'>Исправить</button>{/if}</div>
-    <p class='small' align='right'>Источник: <a href="{$sentence.url}">{$sentence.book_name}</a> (<a href="/books.php?book_id={$sentence.book_id}&amp;full">весь текст</a>)</p>
+    <p class='small' align='right'>Источник: <a href="{$sentence.url}">{$sentence.book_name}</a> (<a href="/books.php?book_id={$sentence.book_id}&amp;full=1">весь текст</a>)</p>
     <button id="a_parse" class="hidden-block">Вернуться к разбору</button>
     <form method="post" action="?id={$sentence.id}&amp;act=save" class='oc_tabs' id="form_annot">
         <div id="main_scroller">

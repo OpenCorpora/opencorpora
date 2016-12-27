@@ -27,14 +27,14 @@ function get_morph_pool_types($filter=false) {
         );
     return $types;
 }
-function save_morph_pool_types($data) {
+function save_morph_pool_types($complexity, $doc) {
     check_permission(PERM_MORPH_MODER);
     sql_begin();
     $upd = sql_prepare("UPDATE morph_annot_pool_types SET complexity=?, doc_link=? WHERE type_id=? LIMIT 1");
-    foreach ($data['complexity'] as $id => $level) {
-        if ($id <= 0 || $level < 0 || $level > 4 || !isset($data['doc'][$id]))
+    foreach ($complexity as $id => $level) {
+        if ($id <= 0 || $level < 0 || $level > 4 || !isset($doc[$id]))
             throw new UnexpectedValueException();
-        sql_execute($upd, array($level, $data['doc'][$id], $id));
+        sql_execute($upd, array($level, $doc[$id], $id));
     }
     sql_commit();
 }
@@ -384,7 +384,7 @@ function add_morph_pool_type($post_gram, $post_descr, $pool_name) {
         if (strpos($gr, '@') !== false)
             throw new UnexpectedValueException();
         $gram_sets[] = str_replace(' ', '', trim($gr));
-        $gram_descr[] = trim($_POST['descr'][$i]);
+        $gram_descr[] = trim($post_descr[$i]);
     }
 
     if (sizeof($gram_sets) < 2 || sizeof($gram_sets) != sizeof($gram_descr))

@@ -2,8 +2,8 @@
 require('lib/header.php');
 require_once('lib/lib_morph_pools.php');
 
-$pool_type = isset($_GET['pool_type']) ? $_GET['pool_type'] : 0;
-$what = isset($_GET['what']) ? $_GET['what'] : '';
+$pool_type = GET('pool_type', 0);
+$what = GET('what', '');
 
 switch ($what) {
     case 'morph_moderation':

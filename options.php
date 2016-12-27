@@ -2,20 +2,19 @@
 require('lib/header.php');
 require_once('lib/lib_achievements.php');
 
-if (isset($_GET['act'])) {
-    $action = $_GET['act'];
-} else
-    $action = '';
+$action = GET('act', '');
 
 switch ($action) {
     case 'save':
-        save_user_options($_POST);
+        save_user_options(POST('options'));
         alert_set('success','Настройки сохранены');
         header('Location:options.php');
         break;
     case 'save_team':
-        save_user_team($_POST['team_id'], $_POST['new_team_name']);
-        if ($_POST['team_id'] || $_POST['new_team_name']) {
+        $team_id = POST('team_id', 0);
+        $team_name = POST('new_team_name', false);
+        save_user_team($team_id, $team_name);
+        if ($team_id || $team_name) {
             $am = new AchievementsManager((int)$_SESSION['user_id']);
             $am->emit(EventTypes::JOINED_TEAM);
         }

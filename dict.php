@@ -1,43 +1,42 @@
 <?php
 require('lib/header.php');
 require('lib/lib_dict.php');
-if (isset($_GET['act']))
-    $action = $_GET['act'];
-else $action = '';
+
+$action = GET('act', '');
 
 $smarty->assign('active_page', 'dict');
 
 switch ($action) {
     case 'add_gram':
-        add_grammem($_POST['g_name'], $_POST['parent_gram'], $_POST['outer_id'], $_POST['descr']);
+        add_grammem(POST('g_name'), POST('parent_gram'), POST('outer_id'), POST('descr'));
         header("Location:dict.php?act=gram");
         break;
     case 'del_gram':
-        del_grammem($_GET['id']);
+        del_grammem(GET('id'));
         header("Location:dict.php?act=gram");
         break;
     case 'edit_gram':
-        $id = $_POST['id'];
-        $inner_id = $_POST['inner_id'];
-        $outer_id = $_POST['outer_id'];
-        $descr = $_POST['descr'];
+        $id = POST('id');
+        $inner_id = POST('inner_id');
+        $outer_id = POST('outer_id');
+        $descr = POST('descr');
         edit_grammem($id, $inner_id, $outer_id, $descr);
         header('Location:dict.php?act=gram');
         break;
     case 'clear_errata':
-        clear_dict_errata(isset($_GET['old']));
+        clear_dict_errata(GET('old', 0));
         header("Location:dict.php?act=errata");
         break;
     case 'not_error':
-        mark_dict_error_ok($_GET['error_id'], $_POST['comm']);
+        mark_dict_error_ok(GET('error_id'), POST('comm'));
         header("Location:dict.php?act=errata");
         break;
     case 'add_restr':
-        add_dict_restriction($_POST);
+        add_dict_restriction(POST('if'), POST('then'), POST('rtype'), POST('if_type'), POST('then_type'));
         header("Location:dict.php?act=gram_restr");
         break;
     case 'del_restr':
-        del_dict_restriction($_GET['id']);
+        del_dict_restriction(GET('id'));
         header("Location:dict.php?act=gram_restr");
         break;
     case 'update_restr':
@@ -45,66 +44,57 @@ switch ($action) {
         header("Location:dict.php?act=gram_restr");
         break;
     case 'save':
-        // update after selectpicker (lemma_edit.tpl)
-        // now we have to implode the arrays
-        if (!empty($_POST['form_gram']))
-            foreach ($_POST['form_gram'] as &$grams) {
-                $grams = implode(', ', $grams);
-            }
-        if (!empty($_POST['lemma_gram']))
-            $_POST['lemma_gram'] = implode(', ', $_POST['lemma_gram']);
-
-        $lemma_id = dict_save($_POST);
+        $lemma_id = dict_save(POST('lemma_id'), trim(POST('lemma_text')), POST('lemma_gram'), POST('form_text'), POST('form_gram'), POST('comment'));
         header("Location:dict.php?act=edit&saved&id=$lemma_id");
         break;
     case 'add_link':
-        add_link($_POST['from_id'], $_POST['lemma_id'], $_POST['link_type']);
-        header("Location:dict.php?act=edit&id=".$_POST['from_id']);
+        add_link(POST('from_id'), POST('lemma_id'), POST('link_type'));
+        header("Location:dict.php?act=edit&id=".POST('from_id'));
         break;
     case 'del_link':
-        del_link($_GET['id']);
-        header("Location:dict.php?act=edit&id=".$_GET['lemma_id']);
+        del_link(GET('id'));
+        header("Location:dict.php?act=edit&id=".GET('lemma_id'));
         break;
     case 'change_link_dir':
-        change_link_direction($_GET['id']);
-        header("Location:dict.php?act=edit&id=".$_GET['lemma_id']);
+        change_link_direction(GET('id'));
+        header("Location:dict.php?act=edit&id=".GET('lemma_id'));
         break;
     case 'del_lemma':
-        del_lemma($_GET['lemma_id']);
+        del_lemma(GET('lemma_id'));
         header("Location:dict.php");
         break;
     case 'lemmata':
-        $smarty->assign('search', get_dict_search_results($_GET));
+        $smarty->assign('search', get_dict_search_results(GET('search_lemma', false), GET('search_form', false)));
         $smarty->display('dict/lemmata.tpl');
         break;
     case 'gram':
-        $order = isset($_GET['order']) ? $_GET['order'] : '';
+        $order = GET('order', '');
         $smarty->assign('grammems', get_grammem_editor($order));
         $smarty->assign('order', $order);
         $smarty->assign('select', dict_get_select_gram());
         $smarty->display('dict/gram.tpl');
         break;
     case 'gram_restr':
-        $smarty->assign('restrictions', get_gram_restrictions(isset($_GET['hide_auto'])));
+        $smarty->assign('restrictions', get_gram_restrictions(GET('hide_auto', 0)));
         $smarty->display('dict/restrictions.tpl');
         break;
     case 'edit':
-        $smarty->assign('editor', get_lemma_editor($_GET['id']));
+        $smarty->assign('editor', get_lemma_editor(GET('id')));
         $smarty->assign('link_types', get_link_types());
         $smarty->assign('possible_grammems', dict_get_select_gram());
         $smarty->display('dict/lemma_edit.tpl');
         break;
     case 'errata':
-        $smarty->assign('errata', get_dict_errata(isset($_GET['all']), isset($_GET['rand'])));
+        $smarty->assign('errata', get_dict_errata(GET('all', 0), GET('rand', 0)));
         $smarty->display('dict/errata.tpl');
         break;
     case 'pending':
-        $skip = isset($_GET['skip']) ? $_GET['skip'] : 0;
+        $skip = GET('skip', 0);
         $smarty->assign('data', get_pending_updates($skip));
         $smarty->display('dict/pending.tpl');
         break;
     case 'reannot':
-        update_pending_tokens($_POST['rev_id'], isset($_POST['smart_mode']) && $_POST['smart_mode'] == 'on');
+        update_pending_tokens(POST('rev_id'), POST('smart_mode', 0) == 'on');
         header("Location:dict.php?act=pending");
         break;
     case 'absent':

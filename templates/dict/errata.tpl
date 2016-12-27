@@ -14,14 +14,14 @@
     {if isset($smarty.get.all)}
     (<a href="?act=errata">Показать только первые 200</a>.)
     {elseif isset($smarty.get.rand)}
-    (Показаны 200 случайных. <a href="?act=errata&amp;all">Показать все</a>, <a href="?act=errata">показать первые 200</a>.)
+    (Показаны 200 случайных. <a href="?act=errata&amp;all=1">Показать все</a>, <a href="?act=errata">показать первые 200</a>.)
     {else}
-    (Показаны первые 200. <a href="?act=errata&amp;all">Показать все</a>, <a href="?act=errata&amp;rand">показать 200 случайных</a>.)
+    (Показаны первые 200. <a href="?act=errata&amp;all=1">Показать все</a>, <a href="?act=errata&amp;rand=1">показать 200 случайных</a>.)
     {/if}
 {/if}
 </p>
 {if $user_permission_dict}
-<p>Сбросить флаг проверки <a href="?act=clear_errata&amp;old" onclick="return confirm('Вы уверены?')">у всех ревизий</a>, <a href="?act=clear_errata" onclick="return confirm('Вы уверены?')">у текущих ревизий</a>.</p>
+<p>Сбросить флаг проверки <a href="?act=clear_errata&amp;old=1" onclick="return confirm('Вы уверены?')">у всех ревизий</a>, <a href="?act=clear_errata" onclick="return confirm('Вы уверены?')">у текущих ревизий</a>.</p>
 {/if}
 <table border='1' cellspacing='0' cellpadding='2'>
 <tr>

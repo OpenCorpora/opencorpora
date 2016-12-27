@@ -108,4 +108,24 @@ function diff($old, $new){
         diff(array_slice($old, $omax + $maxlen), array_slice($new, $nmax + $maxlen)));
 }
 
+// substitutes array_diff, this returns real difference
+function arr_diff($a1, $a2) {
+    $diff = array();
+    foreach ($a1 as $k => $v) {
+        $dv = array();
+        if (is_int($k)) {
+            // Compare values
+            if (array_search($v, $a2) === false) $dv = $v;
+            else if (is_array($v)) $dv = arr_diff($v, $a2[$k]);
+            if ($dv) $diff[] = $dv;
+        }
+        else {
+        // Compare noninteger keys
+            if (!$a2[$k]) $dv = $v;
+            else if (is_array($v)) $dv = arr_diff($v, $a2[$k]);
+            if ($dv) $diff[$k] = $dv;
+        }
+    }
+    return $diff;
+}
 ?>

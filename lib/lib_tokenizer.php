@@ -534,12 +534,12 @@ function remove_bad_symbols($text) {
     return $clear_text;
 }
 
-function addtext_check($array) {
+function addtext_check($txt, $book_id) {
     global $config;
 
     check_permission(PERM_ADDER);
 
-    $clear_text = remove_bad_symbols($array['txt']);
+    $clear_text = remove_bad_symbols($txt);
 
     $out = array('full' => $clear_text, 'select0' => get_books_for_select(0));
     $tokenizer = new Tokenizer(__DIR__ . '/../scripts/tokenizer');
@@ -564,8 +564,8 @@ function addtext_check($array) {
         $out['paragraphs'][] = $par_array;
     }
     //book
-    if (isset($array['book_id'])) {
-        $book_id = (int)$array['book_id'];
+    if ($book_id) {
+        $book_id = (int)$book_id;
         $r = sql_fetch_array(sql_query("SELECT parent_id FROM books WHERE book_id=$book_id LIMIT 1"));
         if ($r['parent_id'] > 0) {
             $out['selected0'] = $r['parent_id'];

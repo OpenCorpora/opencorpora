@@ -10,7 +10,7 @@
 {if isset($smarty.get.newest)}
 <a href="?act=tokenizer">важные сверху</a>
 {else}
-<a href="?act=tokenizer&amp;newest">новые сверху</a>
+<a href="?act=tokenizer&amp;newest=1">новые сверху</a>
 {/if}
 </p>
 <table border='1' cellspacing='0' cellpadding='3'>
@@ -29,7 +29,7 @@
     {if $i.border}<span class='doubt_border'>&nbsp;&nbsp;</span>{/if}
     {$i.rcontext|htmlspecialchars}
     {/strip}</td>
-    <td><a href='/books.php?book_id={$i.book_id}&amp;full#sen{$i.sent_id}'>исправить</a></td>
+    <td><a href='/books.php?book_id={$i.book_id}&amp;full=1#sen{$i.sent_id}'>исправить</a></td>
 </tr>
 {/foreach}
 </table>

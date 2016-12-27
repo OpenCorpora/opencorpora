@@ -3,12 +3,12 @@ require_once('../lib/header_ajax.php');
 require_once('../lib/lib_dict.php');
 
 try {
-    switch ($_POST['act']) {
+    switch (POST('act')) {
         case 'forget':
-            forget_pending_token($_POST['token_id'], $_POST['rev_id']);
+            forget_pending_token(POST('token_id'), POST('rev_id'));
             break;
         case 'update':
-            update_pending_token($_POST['token_id'], $_POST['rev_id'], 0, (bool)$_POST['smart']);
+            update_pending_token(POST('token_id'), POST('rev_id'), 0, (bool)POST('smart'));
             break;
         default:
             $result['error'] = 1;

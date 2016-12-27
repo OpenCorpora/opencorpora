@@ -165,32 +165,25 @@ function user_login_openid_agree($agree) {
 function user_logout() {
     setcookie('auth', '', time()-1);
     sql_query("DELETE FROM user_tokens WHERE user_id=".$_SESSION['user_id']." AND token='".$_SESSION['token']."'");
-    unset($_SESSION['user_id']);
-    unset($_SESSION['user_name']);
-    unset($_SESSION['user_level']);
-    unset($_SESSION['debug_mode']);
-    unset($_SESSION['options']);
-    unset($_SESSION['user_groups']);
-    unset($_SESSION['token']);
-    unset($_SESSION['user_pending']);
-    unset($_SESSION['noadmin']);
+    foreach (array('user_id', 'user_name', 'user_level', 'debug_mode', 'options', 'user_groups', 'token', 'user_pending', 'noadmin') as $key) {
+        unset($_SESSION[$key]);
+    }
 }
-function user_register($post) {
-    $name = trim($post['login']);
-    $email = strtolower(trim($post['email']));
+function user_register($name, $email, $passwd, $passwd_re, $subscribe) {
+    $email = strtolower($email);
     //testing if all fields are ok
-    if ($post['passwd'] != $post['passwd_re'])
+    if ($passwd != $passwd_re)
         return 2;
-    if ($post['passwd'] == '' || $name == '')
+    if ($passwd == '' || $name == '')
         return 5;
     if (!preg_match('/^[a-z0-9_-]+$/i', $name))
         return 6;
-    if (!is_valid_password($post['passwd']))
+    if (!is_valid_password($passwd))
         return 7;
     if ($email && !is_valid_email($email))
         return 8;
     //so far they are ok
-    $passwd = make_pwd_hash($name, $post['passwd']);
+    $passwd = make_pwd_hash($name, $passwd);
     if (sizeof(sql_pe("SELECT user_id FROM `users` WHERE user_name=? LIMIT 1", array($name))) > 0) {
         return 3;
     }
@@ -199,7 +192,7 @@ function user_register($post) {
     }
     sql_begin();
     $user_id = make_new_user($name, $passwd, $email, $name);
-    if (isset($post['subscribe']) && $email) {
+    if ($subscribe && $email) {
         //perhaps we should subscribe the user
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -210,32 +203,32 @@ function user_register($post) {
 
     sql_commit();
     user_award_for_signup($user_id);
-    if (!user_login($name, $post['passwd']))
+    if (!user_login($name, $passwd))
         return 0;
     return 1;
 }
-function user_change_password($post) {
+function user_change_password($old_pw, $new_pw, $new_pw_re) {
     //testing if the old password is correct
     $r = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id = ".$_SESSION['user_id']." LIMIT 1"));
     $login = $r['user_name'];
-    if (user_check_password($login, $post['old_pw'])) {
+    if (user_check_password($login, $old_pw)) {
         //testing if the two new passwords coincide
-        if ($post['new_pw'] != $post['new_pw_re'])
+        if ($new_pw != $new_pw_re)
             return 3;
-        if (!is_valid_password($post['new_pw']))
+        if (!is_valid_password($new_pw))
             return 4;
-        $passwd = make_pwd_hash($login, $post['new_pw']);
+        $passwd = make_pwd_hash($login, $new_pw);
         sql_query("UPDATE `users` SET `user_passwd`='$passwd' WHERE `user_id`=".$_SESSION['user_id']." LIMIT 1");
         return 1;
     }
     else
         return 2;
 }
-function user_change_email($post) {
+function user_change_email($email, $passwd) {
     $r = sql_fetch_array(sql_query("SELECT user_name FROM users WHERE user_id = ".$_SESSION['user_id']." LIMIT 1"));
     $login = $r['user_name'];
-    $email = strtolower(trim($post['email']));
-    if (is_user_openid($_SESSION['user_id']) || user_check_password($login, $post['passwd'])) {
+    $email = strtolower($email);
+    if (is_user_openid($_SESSION['user_id']) || user_check_password($login, $passwd)) {
         if (is_valid_email($email)) {
             $res = sql_pe("SELECT user_id FROM users WHERE user_email=? LIMIT 1", array($email));
             if (sizeof($res) > 0) {
@@ -393,13 +386,11 @@ function save_user_option($option_id, $value) {
     ", array($value, $option_id, $_SESSION['user_id']));
     $_SESSION['options'][$option_id] = $value;
 }
-function save_user_options($post) {
-    if (!isset($post['options']))
-        throw new UnexpectedValueException();
+function save_user_options($options) {
     check_logged();
     sql_begin();
     $upd = sql_prepare("UPDATE user_options_values SET option_value=? WHERE option_id=? AND user_id=? LIMIT 1");
-    foreach ($post['options'] as $id=>$value) {
+    foreach ($options as $id => $value) {
         if ($_SESSION['options'][$id] != $value) {
             sql_execute($upd, array($value, $id, $_SESSION['user_id']));
             $_SESSION['options'][$id] = $value;

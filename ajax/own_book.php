@@ -2,12 +2,9 @@
 require_once('../lib/header_ajax.php');
 
 try {
-    if (!isset($_POST['sid']) || !isset($_POST['status']))
-        throw new UnexpectedValueException();
     check_permission(PERM_ADDER);
-
-    $sid = $_POST['sid'];
-    $status = $_POST['status'];
+    $sid = POST('sid');
+    $status = POST('status');
 
     if ($status == 0) {
         $res = sql_pe("SELECT user_id FROM sources WHERE source_id=? LIMIT 1", array($sid));

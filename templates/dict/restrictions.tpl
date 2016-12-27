@@ -44,7 +44,7 @@
     {if isset($smarty.get.hide_auto)}
         <a href="?act=gram_restr" class="btn">Показать выведенные</a>
     {else}
-        <a href="?act=gram_restr&amp;hide_auto" class="btn">Скрыть выведенные</a>
+        <a href="?act=gram_restr&amp;hide_auto=1" class="btn">Скрыть выведенные</a>
     {/if}
 </p>
 <table class="table">

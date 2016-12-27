@@ -19,11 +19,11 @@ function get_dict_stats() {
     $out['cnt_v'] = $r['cnt_v'];
     return $out;
 }
-function get_dict_search_results($get) {
+function get_dict_search_results($search_lemma, $search_form=false) {
     $out = array();
     $find_pos = sql_prepare("SELECT SUBSTR(grammems, 7, 4) AS gr FROM form2lemma WHERE lemma_id = ? LIMIT 1");
-    if (isset($get['search_lemma'])) {
-        $res = sql_pe("SELECT lemma_id, deleted FROM `dict_lemmata` WHERE `lemma_text`= ?", array($get['search_lemma']));
+    if ($search_lemma) {
+        $res = sql_pe("SELECT lemma_id, deleted FROM `dict_lemmata` WHERE `lemma_text`= ?", array($search_lemma));
         $count = sizeof($res);
         $out['lemma']['count'] = $count;
         if ($count == 0)
@@ -33,14 +33,14 @@ function get_dict_search_results($get) {
             $r1 = sql_fetch_array($find_pos);
             $out['lemma']['found'][] = array(
                 'id' => $r['lemma_id'],
-                'text' => $get['search_lemma'],
+                'text' => $search_lemma,
                 'pos' => $r1['gr'],
                 'is_deleted' => $r['deleted']
             );
         }
     }
-    elseif (isset($get['search_form'])) {
-        $res = sql_pe("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE fl.`form_text`= ?", array($get['search_form']));
+    elseif ($search_form) {
+        $res = sql_pe("SELECT DISTINCT dl.lemma_id, dl.lemma_text FROM `form2lemma` fl LEFT JOIN `dict_lemmata` dl ON (fl.lemma_id=dl.lemma_id) WHERE fl.`form_text`= ?", array($search_form));
         $count = sizeof($res);
         $out['form']['count'] = $count;
         if ($count == 0)
@@ -62,7 +62,7 @@ function get_all_forms_by_lemma_id($lid) {
     return array_unique($forms);
 }
 function get_all_forms_by_lemma_text($lemma) {
-    $lemmata = get_dict_search_results(array('search_lemma' => $lemma));
+    $lemmata = get_dict_search_results($lemma);
     $forms = array($lemma);
     foreach ($lemmata['lemma']['found'] as $l)
         $forms = array_merge($forms, get_all_forms_by_lemma_id($l['id']));
@@ -80,8 +80,10 @@ function sort_grammemes(&$gram_array, $gram_order) {
         return array_search($a, $gram_order) < array_search($b, $gram_order) ? -1 : 1;
     });
 }
-function prepare_gram_array($gram_string, $gram_order) {
-    $grams = array_filter(array_map("trim", explode(',', $gram_string)), "strlen");
+function prepare_gram_array($raw_grams, $gram_order) {
+    if (!is_array($raw_grams))
+        $raw_grams = explode(',', $raw_grams);
+    $grams = array_filter(array_map("trim", $raw_grams), "strlen");
     sort_grammemes($grams, $gram_order);
     return $grams;
 }
@@ -506,14 +508,11 @@ function get_lemma_editor($id) {
     }
     return $out;
 }
-function dict_add_lemma($array) {
-    $ltext = $array['form_text'];
-    $lgram = $array['form_gram'];
+function dict_add_lemma($lemma_text, $lemma_gram, $form_text, $form_gram, $comment) {
     $gram_order = dict_get_grammemes_by_order();
-    $lemma_gram_new = prepare_gram_array($array['lemma_gram'], $gram_order);
-    $lemma_text = $array['lemma_text'];
+    $lemma_gram_new = prepare_gram_array($lemma_gram, $gram_order);
     $new_paradigm = array();
-    foreach ($ltext as $i=>$text) {
+    foreach ($form_text as $i => $text) {
         $text = trim($text);
         if ($text == '') {
             //the form is to be deleted, so we do nothing
@@ -521,7 +520,7 @@ function dict_add_lemma($array) {
             throw new UnexpectedValueException();
         } else {
             //TODO: perhaps some data validity check?
-            array_push($new_paradigm, array($text, prepare_gram_array($lgram[$i], $gram_order)));
+            array_push($new_paradigm, array($text, prepare_gram_array($form_gram[$i], $gram_order)));
         }
     }
     $upd_forms = array();
@@ -534,7 +533,7 @@ function dict_add_lemma($array) {
     $lemma_id = sql_insert_id();
     //array -> xml
     $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
-    $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $array['comment']);
+    $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $comment);
 
     enqueue_updated_forms($upd_forms, $rev_id);
 
@@ -575,32 +574,29 @@ function calculate_updated_forms($old_rev, $new_rev) {
     }
     return $upd_forms;
 }
-function dict_save($array) {
+function dict_save($lemma_id, $lemma_text, $lemma_gram, $form_text, $form_gram, $comment) {
     check_permission(PERM_DICT);
     //it may be a totally new lemma
-    if ($array['lemma_id'] == -1) {
-        return dict_add_lemma($array);
+    if ($lemma_id == -1) {
+        return dict_add_lemma($lemma_text, $lemma_gram, $form_text, $form_gram, $comment);
     }
 
     // lemma might have been deleted, it is not editable then
-    $r = sql_fetch_array(sql_query("SELECT deleted FROM dict_lemmata WHERE lemma_id = ".$array['lemma_id']." LIMIT 1"));
+    $r = sql_fetch_array(sql_query("SELECT deleted FROM dict_lemmata WHERE lemma_id = $lemma_id LIMIT 1"));
     if ($r['deleted'])
         throw new Exception("This lemma is not editable");
 
-    $lemma_text = trim($array['lemma_text']);
     if (!$lemma_text)
         throw new UnexpectedValueException();
-    $ltext = $array['form_text'];
-    $lgram = $array['form_gram'];
     $gram_order = dict_get_grammemes_by_order();
-    $lemma_gram_new = prepare_gram_array($array['lemma_gram'], $gram_order);
+    $lemma_gram_new = prepare_gram_array($lemma_gram, $gram_order);
 
-    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=".$array['lemma_id']." AND is_last=1 LIMIT 1"));
+    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$lemma_id AND is_last=1 LIMIT 1"));
     $old_rev_parsed = parse_dict_rev($old_xml = $r['rev_text']);
     $old_lemma_text = $old_rev_parsed['lemma']['text'];
 
     $new_paradigm = array();
-    foreach ($ltext as $i=>$text) {
+    foreach ($form_text as $i => $text) {
         $text = trim($text);
         if ($text == '') {
             //the form is to be deleted, so we do nothing
@@ -608,7 +604,7 @@ function dict_save($array) {
             throw new UnexpectedValueException();
         } else {
             //TODO: perhaps some data validity check?
-            array_push($new_paradigm, array($text, prepare_gram_array($lgram[$i], $gram_order)));
+            array_push($new_paradigm, array($text, prepare_gram_array($form_gram[$i], $gram_order)));
         }
     }
 
@@ -620,13 +616,13 @@ function dict_save($array) {
         if ($lemma_text != $old_lemma_text)
             sql_pe(
                 "UPDATE dict_lemmata SET lemma_text=? WHERE lemma_id=?",
-                array($lemma_text, $array['lemma_id'])
+                array($lemma_text, $lemma_id)
             );
-        $rev_id = new_dict_rev($array['lemma_id'], $new_xml, 0, $array['comment']);
+        $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $comment);
         enqueue_updated_forms(calculate_updated_forms($old_rev_parsed, parse_dict_rev($new_xml)), $rev_id);
         sql_commit();
     }
-    return $array['lemma_id'];
+    return $lemma_id;
 }
 function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
     $new_xml = '<dr><l t="'.htmlspecialchars(mb_strtolower($lemma_text)).'">';
@@ -859,10 +855,12 @@ function get_gram_restrictions($hide_auto) {
     }
     return $out;
 }
-function add_dict_restriction($post) {
+function add_dict_restriction($if, $then, $rtype, $if_type, $then_type) {
     check_permission(PERM_DICT);
     sql_begin();
-    sql_query("INSERT INTO gram_restrictions VALUES(NULL, '".(int)$post['if']."', '".(int)$post['then']."', '".(int)$post['rtype']."', '".((int)$post['if_type'] + (int)$post['then_type'])."', '0')");
+    sql_pe("
+        INSERT INTO gram_restrictions VALUES(NULL, ?, ?, ?, ?, 0)
+    ", array($if, $then, $rtype, $if_type + $then_type));
     calculate_gram_restrictions();
     sql_commit();
 }

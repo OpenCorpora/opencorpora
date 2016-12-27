@@ -2,21 +2,21 @@
 require('lib/header.php');
 require_once('lib/lib_history.php');
 
-if (isset($_POST['comment']))
-    $comment = $_POST['comment'];
-else
-    $comment = '';
+$set_id = GET('set_id', 0);
+$comment = POST('comment', '');
+$rev_id = GET('tf_rev', 0);
+$dict_rev_id = GET('dict_rev', 0);
 
-if (isset($_GET['set_id']) && $set_id = $_GET['set_id']) {
+if ($set_id) {
     $r = revert_changeset($set_id, $comment);
     header("Location:$r");
 }
-elseif (isset($_GET['tf_rev']) && $rev_id = $_GET['tf_rev']) {
+elseif ($rev_id) {
     revert_token($rev_id);
     header("Location:history.php");
 }
-elseif (isset($_GET['dict_rev']) && $rev_id = $_GET['dict_rev']) {
-    revert_dict($rev_id);
+elseif ($dict_rev_id) {
+    revert_dict($dict_rev_id);
     header("Location:dict_history.php");
 }
 log_timing();

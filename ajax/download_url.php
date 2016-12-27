@@ -3,7 +3,7 @@ require_once('../lib/header_ajax.php');
 require_once('../lib/lib_books.php');
 
 try {
-    $filename = download_url($_POST['url'], isset($_POST['force']));
+    $filename = download_url(POST('url'), POST('force'));
     $result['filename'] = $filename;
 }
 catch (Exception $e) {

@@ -3,9 +3,7 @@ require('lib/header.php');
 require('lib/lib_qa.php');
 require('lib/lib_morph_pools.php');
 
-$action = '';
-if (isset($_GET['act']))
-    $action = $_GET['act'];
+$action = GET('act', '');
 
 switch ($action) {
     case 'sent_split':
@@ -13,7 +11,7 @@ switch ($action) {
         $smarty->display('qa/sent_split.tpl');
         break;
     case 'tokenizer':
-        $smarty->assign('obj', get_page_tok_strange(isset($_GET['newest'])));
+        $smarty->assign('obj', get_page_tok_strange(GET('newest', 0)));
         $smarty->display('qa/tokenizer.tpl');
         break;
     case 'empty_books':
@@ -33,11 +31,11 @@ switch ($action) {
         $smarty->display('qa/merge_fails.tpl');
         break;
     case 'good_sentences':
-        $smarty->assign('sentences', get_good_sentences(isset($_GET['no_zero'])));
+        $smarty->assign('sentences', get_good_sentences(GET('no_zero', 0)));
         $smarty->display('qa/good_sentences.tpl');
         break;
     case 'useful_pools':
-        $smarty->assign('pools', get_most_useful_pools(isset($_GET['type']) ? $_GET['type'] : 0));
+        $smarty->assign('pools', get_most_useful_pools(GET('type', 0)));
         $smarty->assign('types', get_morph_pool_types());
         $smarty->display('qa/useful_pools.tpl');
         break;

@@ -2,24 +2,18 @@
 require_once('../lib/header_ajax.php');
 
 try {
-    if (
-        !isset($_POST['type']) ||
-        !isset($_POST['id']) ||
-        !$_POST['id'] ||
-        !isset($_POST['text']) ||
-        !trim($_POST['text']) ||
-        !isset($_SESSION['user_id'])
-    )
+
+    $id = POST('id');
+    $text = trim(POST('text'));
+    if (!$id || !$text || !isset($_SESSION['user_id']))
         throw new UnexpectedValueException();
 
-    $id = $_POST['id'];
-    $text = trim($_POST['text']);
-    $reply_to = isset($_POST['reply_to']) ? $_POST['reply_to'] : 0;
+    $reply_to = POST('reply_to', 0);
     $user_id = $_SESSION['user_id'];
 
     $time = time();
 
-    switch($_POST['type']) {
+    switch (POST('type')) {
         case 'sentence':
             sql_pe("INSERT INTO sentence_comments VALUES(NULL, ?, ?, ?, ?, ?)", array($reply_to, $id, $user_id, $text, $time));
             break;

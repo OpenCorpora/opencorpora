@@ -4,20 +4,18 @@ require_once('../lib/lib_books.php');
 
 try {
     check_permission(PERM_ADDER);
-    if (!isset($_POST['sid']) || !isset($_POST['book_id']))
-        throw new UnexpectedValueException();
-    $sid = $_POST['sid'];
-    $book_id = $_POST['book_id'];
+    $sid = POST('sid');
+    $book_id = POST('book_id');
 
     sql_begin();
     //creating book if necessary
     if ($book_id == -1) {
         //find the parent id
         $res = sql_pe("SELECT book_id, url FROM sources WHERE source_id = (SELECT parent_id FROM sources WHERE source_id=? LIMIT 1) LIMIT 1", array($sid));
-        if (!isset($_POST['book_name']) || !$res[0]['book_id'])
+        if (!$res[0]['book_id'])
             throw new UnexpectedValueException();
 
-        $book_id = books_add($_POST['book_name'], $res[0]['book_id']);
+        $book_id = books_add(POST('book_name'), $res[0]['book_id']);
 
         $res = sql_pe("SELECT url FROM sources WHERE source_id=? LIMIT 1", array($sid));
         books_add_tag($book_id, 'url:'.$res[0]['url']);

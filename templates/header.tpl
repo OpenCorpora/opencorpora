@@ -19,7 +19,7 @@
                         </ul>
                     </li>
                     <li {if $active_page=="dict"}class="active"{/if}><a href="/dict.php">Словарь</a></li>
-                    <li {if $active_page=="stats"}class="active"{/if}><a href="/?page=stats&weekly">Статистика</a></li>
+                    <li {if $active_page=="stats"}class="active"{/if}><a href="/?page=stats&weekly=1">Статистика</a></li>
                     <li {if $active_page=="downloads"}class="active"{/if}><a href="/?page=downloads">Скачать</a></li>
                     <li {if $active_page=="about"}class="active"{/if}><a href="/?page=about">О проекте</a></li>
                     {if $game_is_on || !isset($smarty.session.user_id)}

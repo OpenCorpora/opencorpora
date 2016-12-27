@@ -7,7 +7,7 @@ require_once('lib/lib_morph_pools.php');
 header('Content-type: application/json');
 
 define('API_VERSION', '0.32');
-$action = $_GET['action'];
+$action = GET('action', '');
 $user_id = 0;
 
 $answer = array(
@@ -26,7 +26,7 @@ function json_encode_readable($arr)
 
 // check token for most action types
 if (!in_array($action, array('search', 'login'))) {
-    $user_id = check_auth_token($_POST['user_id'], $_POST['token']);
+    $user_id = check_auth_token(POST('user_id'), POST('token'));
     if (!$user_id)
         throw new Exception('Incorrect token');
 }
@@ -34,12 +34,9 @@ if (!in_array($action, array('search', 'login'))) {
 try {
 switch ($action) {
     case 'search':
-        if (isset($_GET['all_forms']))
-            $all_forms = (bool)$_GET['all_forms'];
-        else
-            $all_forms = false;
+        $all_forms = (bool)GET('all_forms', false);
 
-        $answer['answer'] = get_search_results($_GET['query'], !$all_forms);
+        $answer['answer'] = get_search_results(GET('query'), !$all_forms);
         foreach ($answer['answer']['results'] as &$res) {
             $parts = array();
             foreach (get_book_parents($res['book_id'], true) as $p) {
@@ -49,7 +46,7 @@ switch ($action) {
         }
         break;
     case 'login':
-        $user_id = user_check_password($_POST['login'], $_POST['password']);
+        $user_id = user_check_password(POST('login'), POST('password'));
         if ($user_id) {
             $token = remember_user($user_id, false, false);
             $answer['answer'] = array('user_id' => $user_id, 'token' => $token);
@@ -61,10 +58,8 @@ switch ($action) {
         $answer['answer'] = array('tasks' => get_available_tasks($user_id, true));
         break;
     case 'get_morph_task':
-        if (empty($_POST['pool_id']) || empty($_POST['size']))
-            throw new UnexpectedValueException("Wrong args");
         // timeout is in seconds
-        $answer['answer'] = get_annotation_packet($_POST['pool_id'], $_POST['size'], $user_id, $_POST['timeout']);
+        $answer['answer'] = get_annotation_packet(POST('pool_id'), POST('size'), $user_id, POST('timeout'));
         break;
     case 'update_morph_task':
         throw new Exception("Not implemented");
@@ -72,7 +67,7 @@ switch ($action) {
         break;
     case 'save_morph_task':
         // answers is expected to be an array(array(id, answer), array(id, answer), ...)
-        update_annot_instances($user_id, $_POST['answers']);
+        update_annot_instances($user_id, POST('answers'));
         break;
     default:
         throw new Exception('Unknown action');

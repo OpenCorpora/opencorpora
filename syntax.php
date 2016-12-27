@@ -3,19 +3,19 @@ require_once('lib/header.php');
 require_once('lib/lib_anaphora_syntax.php');
 
 
-$action = isset($_GET['act']) ? $_GET['act'] : '';
+$action = GET('act', '');
 
 switch ($action) {
     case 'finish_moder':
-        finish_syntax_moderation($_GET['book_id']);
+        finish_syntax_moderation(GET('book_id'));
         header("Location:syntax.php");
         break;
     case 'set_status':
-        set_syntax_annot_status($_GET['book_id'], $_GET['status']);
+        set_syntax_annot_status(GET('book_id'), GET('status'));
         header("Location:syntax.php");
         break;
     case 'set_moderated':
-        become_syntax_moderator($_GET['book_id']);
+        become_syntax_moderator(GET('book_id'));
         header("Location:syntax.php");
         break;
 

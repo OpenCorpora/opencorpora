@@ -5,22 +5,22 @@ require_once('../lib/lib_achievements.php');
 
 $result['status'] = 1;
 try {
-    if (!isset($_POST['id']) || (!isset($_POST['answer']) && !isset($_POST['status'])))
-        throw new UnexpectedValueException();
+    $id = (int)POST('id');
+    $answer = POST('answer', false);
+    if ($answer === false)
+        $answer = POST('status');
+    $answer = (int)$answer;
 
-    $id = (int)$_POST['id'];
-    $answer = isset($_POST['answer']) ? (int)$_POST['answer'] : (int)$_POST['status'];
-
-    if (isset($_POST['mw']) && $_POST['mw'] == 1) {
+    if (POST('mw', 0)) {
         require_once('../lib/lib_multiwords.php');
         check_permission(PERM_MULTITOKENS);
         MultiWordTask::register_answer($id, $_SESSION['user_id'], $answer);
     }
-    else if (isset($_POST['moder'])) {
-        if (isset($_POST['status']))
+    else if (POST('moder', 0)) {
+        if (POST('status', false) !== false)
             $result['status'] = save_moderated_status($id, $answer);
         else
-            $result['status'] = save_moderated_answer($id, $answer, (int)$_POST['manual']);
+            $result['status'] = save_moderated_answer($id, $answer, (int)POST('manual'));
     } else {
         check_logged();
         update_annot_instance($id, $answer);
