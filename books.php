@@ -127,7 +127,7 @@ elseif ($action == 'ner') {
 else {
     switch ($action) {
         case 'add':
-            $book_name = trim(POST('book_name'));
+            $book_name = POST('book_name');
             $book_parent = POST('book_parent');
             $book_id = books_add($book_name, $book_parent);
             if (POST('goto', false))
@@ -136,7 +136,7 @@ else {
                 header("Location:books.php?book_id=$book_parent");
             break;
         case 'rename':
-            $name = trim(POST('new_name'));
+            $name = POST('new_name');
             $book_id = POST('book_id');
             books_rename($book_id, $name);
             header("Location:books.php?book_id=$book_id");

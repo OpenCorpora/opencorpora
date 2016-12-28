@@ -243,7 +243,6 @@ function user_change_email($email, $passwd) {
         return 2;
 }
 function user_change_shown_name($new_name) {
-    $new_name = trim($new_name);
     if (!preg_match('/^[a-zа-я0-9ё_\-\s\.]{2,}$/ui', $new_name))
         return 2;
     sql_pe("UPDATE users SET user_shown_name = ? WHERE user_id = ? LIMIT 1", array($new_name, $_SESSION['user_id']));
@@ -448,7 +447,7 @@ function save_user_team($team_id, $new_team_name=false) {
     sql_begin();
     // create new team if necessary
     if ($new_team_name) {
-        sql_pe("INSERT INTO user_teams VALUES(NULL, ?, ?)", array(trim($new_team_name), $_SESSION['user_id']));
+        sql_pe("INSERT INTO user_teams VALUES(NULL, ?, ?)", array($new_team_name, $_SESSION['user_id']));
         $team_id = sql_insert_id();
     }
 

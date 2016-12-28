@@ -481,7 +481,7 @@ function sentence_save($sent_id, $comment, $flag, $dict) {
 }
 function sentence_save_source($sent_id, $text) {
     check_permission(PERM_ADMIN);
-    sql_pe("UPDATE sentences SET source = ? WHERE sent_id=? LIMIT 1", array(trim($text), $sent_id));
+    sql_pe("UPDATE sentences SET source = ? WHERE sent_id=? LIMIT 1", array($text, $sent_id));
 }
 function create_tf_revision($revset_id, $token_id, $rev_xml) {
     $res = sql_pe("SELECT rev_text FROM tf_revisions WHERE tf_id=? ORDER BY rev_id DESC LIMIT 1", array($token_id));

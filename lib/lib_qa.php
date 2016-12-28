@@ -185,7 +185,7 @@ function save_merge_fail_status($sample_id, $is_checked) {
 }
 function save_merge_fail_comment($sample_id, $comment_text) {
     check_permission(PERM_MORPH_SUPERMODER);
-    $comment_text = trim($comment_text);
+    $comment_text = $comment_text;
     sql_pe("
         DELETE FROM morph_annot_merge_comments
         WHERE sample_id = ?

@@ -52,7 +52,7 @@ switch($action) {
         log_timing();
         exit();
     case 'reg_done':
-        $reg_status = user_register(trim(POST('login')), trim(POST('email')), POST('passwd'), POST('passwd_re'), POST('subscribe', 0));
+        $reg_status = user_register(POST('login'), POST('email'), POST('passwd'), POST('passwd_re'), POST('subscribe', 0));
         if ($reg_status == 1) {
             header("Location:index.php");
             exit();
@@ -64,7 +64,7 @@ switch($action) {
         $smarty->assign('change_status', user_change_password(POST('old_pw'), POST('new_pw'), POST('new_pw_re')));
         break;
     case 'change_email':
-        $smarty->assign('change_status', user_change_email(trim(POST('email')), POST('passwd')));
+        $smarty->assign('change_status', user_change_email(POST('email'), POST('passwd')));
         break;
     case 'generate_passwd':
         $smarty->assign('gen_status', user_generate_password(POST('email')));

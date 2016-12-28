@@ -49,12 +49,19 @@ function ENSURE($array, $param_name, $default_val) {
     throw new UnexpectedValueException("Wrong args: missing $param_name");
 }
 
+function XGET($glob, $param_name, $value_if_not_set) {
+    $ret = ENSURE($glob, $param_name, $value_if_not_set);
+    if (is_string($ret))
+        $ret = trim($ret);
+    return $ret;
+}
+
 function POST($param_name, $value_if_not_set = NULL) {
-    return ENSURE($_POST, $param_name, $value_if_not_set);
+    return XGET($_POST, $param_name, $value_if_not_set);
 }
 
 function GET($param_name, $value_if_not_set = NULL) {
-    return ENSURE($_GET, $param_name, $value_if_not_set);
+    return XGET($_GET, $param_name, $value_if_not_set);
 }
 
 function create_revset($comment = '', $user_id=0) {

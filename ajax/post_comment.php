@@ -4,7 +4,7 @@ require_once('../lib/header_ajax.php');
 try {
 
     $id = POST('id');
-    $text = trim(POST('text'));
+    $text = POST('text');
     if (!$id || !$text || !isset($_SESSION['user_id']))
         throw new UnexpectedValueException();
 

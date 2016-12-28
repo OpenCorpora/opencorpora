@@ -178,7 +178,7 @@ function get_book_tags($book_id, &$out) {
 }
 function books_add_tag($book_id, $tag_name) {
     check_permission(PERM_ADDER);
-    $tag_name = preg_replace('/\:\s+/', ':', trim($tag_name), 1);
+    $tag_name = preg_replace('/\:\s+/', ':', $tag_name, 1);
     sql_begin();
     books_del_tag($book_id, $tag_name);
     sql_pe("INSERT INTO `book_tags` VALUES(?, ?)", array($book_id, $tag_name));
@@ -474,7 +474,6 @@ function delete_paragraph($pid) {
     sql_commit();
 }
 function save_token_text($tf_id, $tf_text) {
-    $tf_text = trim($tf_text);
     if (!$tf_id || !$tf_text)
         throw new UnexpectedValueException();
 

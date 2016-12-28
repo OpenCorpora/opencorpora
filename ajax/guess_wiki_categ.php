@@ -2,7 +2,7 @@
 require_once('../lib/header_ajax.php');
 
 $result['cats'] = array('geo' => array(), 'topic' => array());
-$cat_str = trim(POST('cat', ''));
+$cat_str = POST('cat', '');
 if ($cat_str) {
     $categ = explode('|', $cat_str);
     foreach ($categ as $cat) {
