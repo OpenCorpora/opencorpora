@@ -106,7 +106,7 @@ switch ($action) {
         $type = GET('type', 0);
         $smarty->assign('type', $type);
         if ($type == MA_POOLS_STATUS_FOUND_CANDIDATES) {
-            $types = get_morph_pool_types(GET('filter'));
+            $types = get_morph_pool_types(GET('filter', ''));
             uasort($types, function ($a, $b) {
                 return $a['found_samples'] < $b['found_samples'] ? 1 : -1;
             });
