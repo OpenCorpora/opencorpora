@@ -113,7 +113,7 @@ switch ($action) {
             $smarty->assign('types', $types);
             $smarty->display('qa/pools_notready.tpl');
         } else {
-            $smarty->assign('pools', get_morph_pools_page($type, (int)GET('moder_id'), GET('filter')));
+            $smarty->assign('pools', get_morph_pools_page($type, (int)GET('moder_id', 0), GET('filter', '')));
             $smarty->display('qa/pools.tpl');
         }
 }
