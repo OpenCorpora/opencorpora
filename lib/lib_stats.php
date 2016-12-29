@@ -94,7 +94,7 @@ function get_ambiguity_stats_for_chart($days) {
     $tchart=  array();
     $time = time();
 
-    $param_set = array(5, 35, 36, 37, 41, 45, 62, 64);
+    $param_set = array(3, 5, 35, 36, 37, 41, 45, 62, 64);
 
     $res = sql_prepare("SELECT timestamp, param_value FROM stats_values WHERE timestamp > ? AND param_id = ? ORDER BY timestamp");
     foreach ($param_set as $param_id) {
@@ -117,7 +117,7 @@ function get_ambiguity_stats_for_chart($days) {
             continue;
         $tchart['avg_parses'][] = '['.($day * MSEC_PER_DAY).','.sprintf("%.3f", $ar[35] / $ar[5]).']';
         $tchart['non_ambig'][] = '['.($day * MSEC_PER_DAY).','.sprintf("%.3f", $ar[37] / $ar[5] * 100).']';
-        $tchart['unknown'][] = '['.($day * MSEC_PER_DAY).','.sprintf("%.3f", $ar[36] / $ar[5] * 100).']';
+        $tchart['unknown'][] = '['.($day * MSEC_PER_DAY).','.sprintf("%.3f", $ar[36] / $ar[3] * 100).']';
         $tchart['total_words'][] = '['.($day * MSEC_PER_DAY).','.$ar[5].']';
     }
 
