@@ -438,7 +438,6 @@ function get_top_absent_words() {
         WHERE is_last = 1
             AND LENGTH(tf_text) > 2
             AND rev_text LIKE '%\"UNKN\"%'
-            AND tf_text NOT REGEXP '[0-9]'
         GROUP BY LOWER(tf_text)
         ORDER BY COUNT(tf_id) DESC
         LIMIT 500
