@@ -8,7 +8,7 @@ if [ ! -e $TMPDIR ]; then
     mkdir $TMPDIR
 fi
 
-perl $WORK_DIR/../pools.pl /corpus/config.ini | grep -E "[45679]$" > $TMPDIR/pools.txt
+perl $WORK_DIR/../pools.pl /corpus/config.ini | grep -E "[345679]$" > $TMPDIR/pools.txt
 
 for id in $( cat $TMPDIR/pools.txt | gawk '{ print $1 }' )
 do
