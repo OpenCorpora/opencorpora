@@ -1,7 +1,7 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
-    <script src='/js/jquery.autocomplete.min.js'></script>
+    <script src='/assets/js/jquery.autocomplete.min.js'></script>
     {literal}
     <script type="text/javascript">
         $(document).ready(function(){
