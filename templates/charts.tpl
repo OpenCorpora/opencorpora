@@ -60,7 +60,7 @@ $(document).ready(function() {
                     show: true,
                     radius: 5/6,
                     formatter: function(label, series) {
-                        return '<div style="text-align: center; padding: 2px; color: white">' + Math.round(series.percent) + '%</div>'
+                        return '<div style="text-align: center; padding: 2px; color: white">' + Math.round(series.percent) + '%<br/>' + series.data[0][1] +'</div>'
                     },
                     threshold: 0.02,
                     background: {

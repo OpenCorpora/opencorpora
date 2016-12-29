@@ -33,7 +33,7 @@ $(document).ready(function() {
                     show: true,
                     radius: 5/6,
                     formatter: function(label, series) {
-                        return '<div style="text-align: center; padding: 2px; color: white">' + Math.round(series.percent * 100) / 100 + '%</div>'
+                        return '<div style="text-align: center; padding: 2px; color: white">' + Math.round(series.percent * 100) / 100 + '%<br/>' + series.data[0][1] + '</div>'
                     },
                     background: {
                         opacity: 0.5,
