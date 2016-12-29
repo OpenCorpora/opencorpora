@@ -139,6 +139,10 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         'query' => preg_replace('/&skip=\d+/', '', $_SERVER['QUERY_STRING']),
         'total' => 0
     );
+
+    require_once('ModerationFilter.php');
+    $mod_filter = new ModerationFilter();
+
     foreach ($res as $r) {
         $t = get_context_for_word($r['tf_id'], $context_width);
         $t['id'] = $r['sample_id'];
@@ -211,7 +215,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         elseif ($filter == 'focus' && (
                     $t['disagreed'] ||
                     sizeof($t['comments']) > 0 ||
-                    sample_needs_moderation($out['type'], $t, $out['has_focus'])
+                    $mod_filter->sample_needs_moderation($out['type'], $t, $out['has_focus'])
                 ))
             $add = true;
         elseif (
@@ -237,109 +241,6 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     $out['filter'] = $filter;
     $out['pages']['total'] = $samples_by_page ? ceil($out['pages']['total'] / $samples_by_page) : 1;
     return $out;
-}
-function sample_needs_moderation($pool_type, $sample, $has_focus) {
-    $mainword = $sample['context'][$sample['mainword']];
-
-    // check all focus words beginning with a capital letter
-    $first_letter = mb_substr($mainword, 0, 1);
-    if (mb_strtoupper($first_letter) === $first_letter)
-        return true;
-
-    // check all one-symbol focus words except aux parts of speech
-    if (
-        !in_array($pool_type, array(35, 36, 44, 70)) &&
-        mb_strlen($mainword) == 1
-    )
-        return true;
-
-    // disregard context in any pools except the following
-    if (!$has_focus)
-        return false;
-
-    // ADJF masc/neut
-    if ($pool_type == 2) {
-        if (preg_match('/^общем$/iu', $mainword))
-            return true;
-        if (isset($sample['context'][$sample['mainword'] + 1]) &&
-            mb_strlen($sample['context'][$sample['mainword'] + 1]) == 1)
-            return true;
-        return false;
-    }
-
-    // NOUN/PREP
-    if ($pool_type == 35) {
-        if (preg_match('/^(?:посредством|типа)$/iu', $mainword))
-            return true;
-        if (isset($sample['context'][$sample['mainword'] - 1]) &&
-            (
-                preg_match('/^только$/iu', $sample['context'][$sample['mainword'] - 1]) ||
-                mb_strlen($sample['context'][$sample['mainword'] - 1]) == 2
-            ))
-            return true;
-        return false;
-    }
-
-    // GRND/PREP
-    if ($pool_type == 36) {
-        if (preg_match('/^(?:включая|благодаря)$/iu', $mainword))
-            return true;
-        if (isset($sample['context'][$sample['mainword'] - 1]) &&
-            mb_strlen($sample['context'][$sample['mainword'] - 1]) == 1)
-            return true;
-        return false;
-    }
-
-    // CONJ/INTJ
-    if ($pool_type == 44) {
-        if (preg_match('/^однако$/iu', $mainword))
-            return true;
-        if (isset($sample['context'][$sample['mainword'] + 1]) &&
-            mb_strlen($sample['context'][$sample['mainword'] + 1]) == 1)
-            return true;
-        return false;
-    }
-
-    // INTJ/PREP
-    if ($pool_type == 70) {
-        if (isset($sample['context'][$sample['mainword'] - 1]) &&
-            $sample['context'][$sample['mainword'] - 1] == '-')
-            return true;
-        if (isset($sample['context'][$sample['mainword'] + 1]) &&
-            mb_strlen($sample['context'][$sample['mainword'] + 1]) == 1)
-            return true;
-        return false;
-    }
-
-    // NOUN sing/plur
-    if ($pool_type == 12) {
-        // focus word with Fixd or Pltm
-        foreach ($sample['parses'] as $parse) {
-            foreach ($parse->gramlist as $gram) {
-                if (in_array($gram['inner'], array('Fixd', 'Pltm')))
-                    return true;
-            }
-        }
-
-        // left or right context with numbers
-        // except 'NNNN goda'
-        if (
-            preg_match('/^года$/iu', $mainword) &&
-            isset($sample['context'][$sample['mainword'] - 1]) &&
-            preg_match('/^[0-9]{4}$/', $sample['context'][$sample['mainword'] - 1])
-        )
-            return false;
-
-        for ($i = max(0, $sample['mainword'] - 3); $i < min($sample['mainword'] + 3, sizeof($sample['context'])); ++$i) {
-            if ($i == $sample['mainword'])
-                continue;
-            if (preg_match('/^(?:\d+|полтор[аы]|дв[ае]|об[ае]|три|четыре)$/iu', $sample['context'][$i]))
-                return true;
-        }
-    }
-
-    // nothing suspicious, ok
-    return false;
 }
 function get_pool_candidates_page($type_id) {
     $pool = array('id' => $type_id);
