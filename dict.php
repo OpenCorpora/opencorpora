@@ -44,7 +44,7 @@ switch ($action) {
         header("Location:dict.php?act=gram_restr");
         break;
     case 'save':
-        $lemma_id = dict_save(POST('lemma_id'), POST('lemma_text'), POST('lemma_gram'), POST('form_text'), POST('form_gram'), POST('comment'));
+        $lemma_id = dict_save(POST('lemma_id'), POST('lemma_text'), POST('lemma_gram'), POST('form_text'), POST('form_gram', array()), POST('comment'));
         header("Location:dict.php?act=edit&saved&id=$lemma_id");
         break;
     case 'add_link':
