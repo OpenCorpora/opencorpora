@@ -212,7 +212,7 @@ function form_exists($f) {
     return sizeof($res);
 }
 function get_pending_updates($skip=0, $limit=500) {
-    check_permission(PERM_DICT);
+    check_permission(PERM_DISAMB);
     $out = array('revisions' => array(), 'header' => array());
 
     $r = sql_fetch_array(sql_query("SELECT COUNT(*) cnt FROM updated_tokens"));
@@ -324,11 +324,11 @@ function check_safe_token_update($token_id, $rev_id) {
     return sizeof($res) == 0;
 }
 function forget_pending_token($token_id, $rev_id) {
-    check_permission(PERM_DICT);
+    check_permission(PERM_DISAMB);
     sql_pe("DELETE FROM updated_tokens WHERE token_id=? AND dict_revision=?", array($token_id, $rev_id));
 }
 function update_pending_tokens($rev_id, $smart=false) {
-    check_permission(PERM_DICT);
+    check_permission(PERM_DISAMB);
     $res = sql_pe("SELECT token_id FROM updated_tokens WHERE dict_revision=?", array($rev_id));
     sql_begin();
     $revset_id = create_revset("Update tokens from dictionary");
@@ -397,7 +397,7 @@ function smart_update_pending_token(MorphParseSet $parse_set, $rev_id) {
     $parse_set->replace_gram_subset($lemma_id, $prev_rev_parsed['lemma']['grm'], $new_rev_parsed['lemma']['grm']);
 }
 function update_pending_token($token_id, $rev_id, $revset_id=0, $smart=false) {
-    check_permission(PERM_DICT);
+    check_permission(PERM_DISAMB);
     if (!check_safe_token_update($token_id, $rev_id))
         throw new Exception("Update forbidden");
 
