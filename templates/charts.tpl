@@ -99,7 +99,7 @@ $(document).ready(function() {
 <div id="ambig_chart2" style="width:1000px; height: 400px"></div>
 <h3>Однозначные разборы</h3>
 <div id="ambig_chart4" style="width:1000px; height: 400px"></div>
-<h3>% неизвестных слов</h3>
+<h3>% неизвестных токенов</h3>
 <div id="ambig_chart3" style="width:1000px; height: 400px"></div>
 <h2>Задания на разметку</h2>
 <div id="pools_chart" style="width:1000px; height: 400px"></div>
