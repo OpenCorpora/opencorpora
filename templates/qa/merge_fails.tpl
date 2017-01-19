@@ -14,6 +14,7 @@
 <thead>
     <tr>
         <th>#</th>
+        <th></th>
         <th>Название</th>
         <th>Статус</th>
         <th></th>
@@ -24,12 +25,14 @@
         <col></col>
         <col></col>
         <col></col>
+        <col></col>
         <col width="20%"></col>
     </tr>
 </thead>
 {foreach from=$data.samples item=sample}
 <tr>
     <td><a href='pools.php?act=samples&amp;pool_id={$sample.pool_id}&amp;ext=1'>{$sample.id}</a></td>
+    <td>{$sample.token_text|htmlspecialchars}</td>
     <td>{$sample.pool_name}</td>
     <td>{strip}
         {if     $sample.mod_status == $smarty.const.MA_SAMPLES_STATUS_MISPRINT}опечатка

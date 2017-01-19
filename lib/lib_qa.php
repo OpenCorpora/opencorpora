@@ -118,14 +118,16 @@ function get_good_sentences($no_zero = false) {
 }
 function get_merge_fails() {
     $res = sql_query("
-        SELECT sample_id, p.pool_name, p.pool_id, p.revision AS pool_revision, ms.status, s.tf_id, c.comment, merge_status
+        SELECT sample_id, p.pool_name, p.pool_id, p.revision AS pool_revision,
+            ms.status, s.tf_id, tokens.tf_text, c.comment, merge_status
         FROM morph_annot_moderated_samples ms
         LEFT JOIN morph_annot_samples s USING (sample_id)
         LEFT JOIN morph_annot_pools p USING (pool_id)
         LEFT JOIN morph_annot_merge_comments c USING (sample_id)
+        LEFT JOIN tokens USING (tf_id)
         WHERE p.status = ".MA_POOLS_STATUS_ARCHIVED."
         AND merge_status in (0, 2)
-        ORDER BY merge_status, p.pool_type, sample_id
+        ORDER BY merge_status, p.pool_type, status, tf_text, sample_id
     ");
             
     $res1 = sql_prepare("
@@ -162,7 +164,8 @@ function get_merge_fails() {
             'pool_name' => $r['pool_name'],
             'revision' => $r1['rev_id'],
             'comment' => $r['comment'],
-            'merge_status' => $r['merge_status']
+            'merge_status' => $r['merge_status'],
+            'token_text' => $r['tf_text']
         );
         if (!isset($data['total'][$r['status']])) {
             $data['total'][$r['status']] = 0;
@@ -245,7 +248,7 @@ function get_unknowns() {
         AND rev_text LIKE '%UNKN%'
         AND f.lemma_id IS NOT NULL
         GROUP BY tf_id
-        ORDER BY tf_id
+        ORDER BY t.tf_text, tf_id
     ");
 
     $res1 = sql_prepare("
