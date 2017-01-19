@@ -88,7 +88,7 @@ function $compileMentionsCell(object) {
 function $makeInput(name, value, val_id) {
     return $("<div>").addClass("input-prepend input-append").append(
         $("<span>").addClass("add-on").text(name),
-        $("<input>").addClass("span4 object-property-input")
+        $("<input>").addClass("span4 object-property-input object-property-" + name)
             .attr("type", "text")
             .attr("list", "spans-datalist")
             .attr("data-val-id", val_id)
@@ -242,6 +242,48 @@ $(document).ready(function() {
             prop_value: input.val(),
             object_id: input.parents("tr").attr("data-object-id")
         }); //, loadObjects);
+    });
+
+    $(document).on("blur", ".object-property-name", function() {
+        var input = $(this);
+        var wd_name = $(this).val();
+        console.log("property [name] blurred, value", wd_name);
+
+        if (!wd_name) return true;
+
+        var wd_input = $("#objects-modal").find(".object-property-wikidata");
+        if (!wd_input.length) return true;
+        console.log("property [wikidata] found");
+
+        var id = guidGenerator();
+        var datalist = $("<datalist>").attr("id", id);
+        $("body").append(datalist);
+
+        wd_input.attr("list", id);
+        console.log("created datalist with id", id);
+
+        $.getJSON("./ajax/ner.php", {
+            act: "searchWikidata",
+            search_query: wd_name
+        }, function(response) {
+            console.log("got response from searchWikidata", response);
+            if (response["error"]) return false;
+            for (var i = 0; i < response["api_response"]["search"].length; i++) {
+                var item = response["api_response"]["search"][i];
+                var opt = $("<option>")
+                    .attr("value", item["id"])
+                    .text(item["label"] + " / " + item["id"] + " / " + item["description"]);
+
+                datalist.append(opt);
+            };
+        })
+    });
+
+    $(document).on("keyup", ".object-property-wikidata", function(e) {
+        if (e.keyCode == 13 && e.shiftKey) {
+            var wd_input = $(".object-property-wikidata");
+            window.open("http://www.wikidata.org/wiki/" + wd_input.val());
+        }
     });
 
     $(document).on("click", ".add-prop", function() {

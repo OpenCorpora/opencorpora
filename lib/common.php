@@ -64,6 +64,9 @@ function GET($param_name, $value_if_not_set = NULL) {
     return XGET($_GET, $param_name, $value_if_not_set);
 }
 
+function REQUEST($param_name, $value_if_not_set = NULL) {
+    return XGET($_REQUEST, $param_name, $value_if_not_set);
+}
 function create_revset($comment = '', $user_id=0) {
     if (!$user_id) {
         if (!isset($_SESSION['user_id']) || !$_SESSION['user_id'])

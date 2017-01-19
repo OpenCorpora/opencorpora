@@ -4,7 +4,7 @@ require_once('../lib/lib_ne.php');
 
 try {
 
-    switch (POST('act', '')) {
+    switch (REQUEST('act', '')) {
         case 'newAnnotation':
 
             $tagset_id = get_current_tagset();
@@ -109,6 +109,10 @@ try {
         case 'getObjects':
             $result['objects'] = get_book_objects(POST('book_id'));
             $result['possible_props'] = get_possible_properties();
+            break;
+
+        case 'searchWikidata':
+            $result['api_response'] = search_wikidata(GET('search_query'));
             break;
 
         case 'deleteObject':

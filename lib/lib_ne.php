@@ -1127,3 +1127,23 @@ function get_ne_guidelines() {
         $out[(int)$tagset_row["tagset_id"]] = $tagset_row["tagset_name"];
     return $out;
 }
+
+function fetch_wikidata_results($term, $lang="ru") {
+    $url = "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=$term&language=$lang&format=json";
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    $contents = curl_exec($ch);
+    curl_close($ch);
+    return json_decode($contents, TRUE);
+}
+
+function search_wikidata($entity_name) {
+    $entity_name = urlencode($entity_name);
+    $results = fetch_wikidata_results($entity_name, "ru");
+    if (count($results["search"]) == 0) {
+        $results = fetch_wikidata_results($entity_name, "en");
+    }
+    return $results;
+}
