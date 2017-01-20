@@ -51,56 +51,30 @@ class AnnotationEditor(object):
         row = self.db_cursor.fetchone()
         return AnnotatedToken(token_id, row['rev_text'].encode('utf-8'), editor=self)
 
-    def find_lexeme_by_lemma(self, lemma, grammemes=None):
+    def find_lexeme_by_lemma(self, lemma, grammemes=None, lemma_is_regex=False):
+        """
+            if lemma_is_regex is True, value of `lemma' is treated as value for sql LIKE operator
+        """
         if grammemes is None:
             grammemes = tuple()
         elif isinstance(grammemes, str):
             grammemes = grammemes,
 
         self.db_cursor.execute("""
-            SELECT lemma_id AS lid, lemma_text AS ltext
+            SELECT lemma_id AS lid, lemma_text AS ltext, rev_text
             FROM dict_lemmata
-            WHERE lemma_text = '{0}'
+            JOIN dict_revisions USING (lemma_id)
+            WHERE lemma_text {1} '{0}'
             AND deleted = 0
-        """.format(lemma))
+            AND is_last = 1
+        """.format(lemma, ('LIKE' if lemma_is_regex else '=')))
         rows = self.db_cursor.fetchall()
         lexemes = []
        
         for row in rows:
-            self.db_cursor.execute("""
-                SELECT rev_text
-                FROM dict_revisions
-                WHERE lemma_id = {0}
-                AND is_last = 1
-                LIMIT 1
-            """.format(row['lid']))
-            lrow = self.db_cursor.fetchone()
-            l = Lexeme(row['ltext'].encode('utf-8'), row['lid'], lrow['rev_text'].encode('utf-8'), editor=self)
+            l = Lexeme(row['ltext'].encode('utf-8'), row['lid'], row['rev_text'].encode('utf-8'), editor=self)
             if l.has_all_gram(grammemes):
                 lexemes.append(l)
-        return lexemes
-    
-    #finds a lexeme with regular expressions for its lemma and grammemes
-    def find_lexeme_by_lemma_regex_gr_regex(self, lemma, grammemes):
-        #TODO: the is_last field is lacking
-        req = """
-            SELECT lem.lemma_id AS lid, lem.lemma_text AS ltext, revs.rev_text AS rev_text
-            FROM dict_lemmata lem join dict_revisions revs on lem.lemma_id = revs.lemma_id
-            WHERE lem.lemma_text like '{0}'
-            AND lem.deleted = 0
-            AND revs.rev_text like '{1}'
-            AND revs.is_last = 1
-        """.format(lemma, grammemes)
-        
-        self.db_cursor.execute(req)
-
-        
-        rows = self.db_cursor.fetchall()
-        lexemes = []
-        
-        for row in rows:
-            l = Lexeme(row['ltext'].encode('utf-8'), row['lid'], row['rev_text'].encode('utf-8'), editor=self)
-            lexemes.append(l)
         return lexemes
     
     def add_link(self, from_id, to_id, link_type, revset_id = None, comment = ""):
