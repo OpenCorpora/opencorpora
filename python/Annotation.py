@@ -124,33 +124,19 @@ class AnnotationEditor(object):
             lexemes.append(l)
         return lexemes
     
-    def add_link(self, from_id, to_id, link_type, revset_id = None, comment = "", is_dry_run = False):
+    def add_link(self, from_id, to_id, link_type, revset_id = None, comment = ""):
         if not self.is_correct_id(from_id) or not self.is_correct_id(to_id):
             raise Exception('Negative ids specified: %s %s' % (from_id, to_id))
         if not revset_id:
             revset_id = self.get_revset_id(comment + '#add_link')
         
         insert_dict_links = "INSERT INTO dict_links VALUES(NULL, {0}, {1}, {2})".format(from_id, to_id, link_type)
-        
-        if not is_dry_run: 
-            self.db_cursor.execute(insert_dict_links)
-        else:
-            print(insert_dict_links)
+        self.db_cursor.execute(insert_dict_links)
         
         insert_dict_links_revisions = "INSERT INTO dict_links_revisions VALUES(NULL, {0}, {1}, {2}, {3}, 1)".format(revset_id, from_id, to_id, link_type)
-        
-        if not is_dry_run:  
-            self.db_cursor.execute(insert_dict_links_revisions)
-        else:
-            print(insert_dict_links_revisions)
-        
         self.db_cursor.execute(insert_dict_links_revisions)  
-        
-        
-        if not is_dry_run:
-            self.commit()
-        
-    def del_link(self, link_id, revset_id = None, comment = "", is_dry_run = False):
+
+    def del_link(self, link_id, revset_id = None, comment = ""):
         existing_link = self.find_link_by_id(link_id)
         if existing_link is None:
             raise Exception('No such link found: %s' % (link_id))
@@ -161,27 +147,14 @@ class AnnotationEditor(object):
                                 format(revset_id, existing_link['lemma1_id'], 
                                        existing_link['lemma2_id'],
                                        existing_link['link_type'])
-        
-        if not is_dry_run:
-            self.db_cursor.execute(insert_dict_links_revisions)
-        else:
-            print(insert_dict_links_revisions)  
-            
+        self.db_cursor.execute(insert_dict_links_revisions)
+
         delete_links = "DELETE FROM dict_links WHERE link_id={0} LIMIT 1".format(link_id)
-        
-        if not is_dry_run:
-            self.db_cursor.execute(delete_links)  
-        else:
-            print(delete_links)    
-        
-        if not is_dry_run:         
-            self.commit()
-        
-        
+        self.db_cursor.execute(delete_links)
+
     def find_link_by_id(self, link_id):
         self.db_cursor.execute("SELECT * FROM dict_links WHERE link_id={0} LIMIT 1".format(link_id))
         return self.db_cursor.fetchone()
-        
         
     def is_correct_id(self, id_to_check):
         return id_to_check > 0
