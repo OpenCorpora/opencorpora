@@ -65,7 +65,6 @@ class AnnotationEditor(object):
         """.format(lemma))
         rows = self.db_cursor.fetchall()
         lexemes = []
-        #TODO: the is_last field is lacking
        
         for row in rows:
             self.db_cursor.execute("""
@@ -79,26 +78,6 @@ class AnnotationEditor(object):
             l = Lexeme(row['ltext'].encode('utf-8'), row['lid'], lrow['rev_text'].encode('utf-8'), editor=self)
             if l.has_all_gram(grammemes):
                 lexemes.append(l)
-        return lexemes
-    
-    #finds a lexeme by its lemma and using a regular expression for its grammemes
-    def find_lexeme_by_lemma_gr_regex(self, lemma, grammemes):
-        lexemes = []
-        
-        self.db_cursor.execute("""
-            SELECT lem.lemma_id AS lid, lem.lemma_text AS ltext, rev.rev_text AS rev_text
-            FROM dict_lemmata lem join dict_revisions rev USING(lemma_id)
-            WHERE lem.lemma_text = '{0}'
-            AND rev.is_last = 1
-            AND rev.rev_text like '{1}'
-            AND lem.deleted = 0
-        """.format(lemma, grammemes))
-        rows = self.db_cursor.fetchall()
-        
-        for row in rows:
-            l = Lexeme(row['ltext'].encode('utf-8'), row['lid'], row['rev_text'].encode('utf-8'), editor=self)
-            lexemes.append(l)
-            
         return lexemes
     
     #finds a lexeme with regular expressions for its lemma and grammemes

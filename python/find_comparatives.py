@@ -10,7 +10,7 @@ import argparse
 ENDING_COMPARATIVE = u'ее'
 ENDING_ADVERB = u'о'
 COMPARATIVE_GLOSS = u'%"COMP"%'
-ADVERB_GLOSS = u'%ADVB%'
+ADVERB_GLOSS = 'ADVB'
 
 def get_adv_comp_pairs(output_filename, config_file, is_to_print_time):
     start = datetime.datetime.now()
@@ -32,7 +32,7 @@ def find_adv_comp_pairs(config_file):
         lexeme_text = lexeme.lemma['text'].decode('utf-8')
         adv_stem = get_adverb_stem(lexeme_text)
         
-        adverbs_positive_forms =  annotation_editor.find_lexeme_by_lemma_gr_regex(adv_stem, ADVERB_GLOSS)
+        adverbs_positive_forms =  annotation_editor.find_lexeme_by_lemma(adv_stem, [ADVERB_GLOSS])
         
         
         for adverbs_positive_form in adverbs_positive_forms:
