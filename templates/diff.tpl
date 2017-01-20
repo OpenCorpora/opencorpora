@@ -4,9 +4,13 @@
 <h3><a href='sentence.php?id={$diff.sent_id}'>Предложение {$diff.sent_id}</a>, изменил {$diff.user_name|default:'Робот'} {$diff.timestamp|date_format:"%d.%m.%Y, %H:%M"}</h3>
 <p>
 {if $diff.comment}
-<b>Комментарий:</b> {$diff.comment|htmlspecialchars}
+    {if $diff.merge_pool_id}
+    Обнвление данных после модерации пула <a href="/pools.php?act=samples&pool_id={$diff.merge_pool_id}&ext=1">#{$diff.merge_pool_id}</a>
+    {else}
+    <b>Комментарий:</b> {$diff.comment|htmlspecialchars}
+    {/if}
 {else}
-Без комментария.
+    Без комментария.
 {/if}
 </p>
 {if $is_logged && $diff.prev_set && !$diff.next_set}

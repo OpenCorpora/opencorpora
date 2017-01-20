@@ -138,6 +138,7 @@ function main_diff($sentence_id, $set_id, $rev_id) {
         'user_name' => $r['user_name'],
         'timestamp' => $r['timestamp'],
         'comment'   => $r['comment'],
+        'merge_pool_id' => (preg_match('/ pool #(\d+)$/', $r['comment'], $ms) ? $ms[1] : false),
         'prev_set'  => 0,
         'next_set'  => 0,
         'tokens'    => array()
