@@ -83,37 +83,11 @@ class AnnotationEditor(object):
     
     #finds a lexeme by its lemma and using a regular expression for its grammemes
     def find_lexeme_by_lemma_gr_regex(self, lemma, grammemes):
-       
-        self.db_cursor.execute("""
-            SELECT lemma_id AS lid, lemma_text AS ltext
-            FROM dict_lemmata
-            WHERE lemma_text = '{0}'
-            AND deleted = 0
-        """.format(lemma))
-        rows = self.db_cursor.fetchall()
-        lexemes = []
- 
-        for row in rows:
-            self.db_cursor.execute("""
-                SELECT rev_text
-                FROM dict_revisions
-                WHERE lemma_id = {0}
-                AND rev_text like '{1}'
-                AND is_last = 1
-                LIMIT 1
-            """.format(row['lid'], grammemes))
-            lrow = self.db_cursor.fetchone()
-            l = Lexeme(row['ltext'].encode('utf-8'), row['lid'], lrow['rev_text'].encode('utf-8'), editor=self)
-            lexemes.append(l)
-        return lexemes
-    
-    #tried to combine all the conditions in a single query but it doesn't work faster
-    def find_lexeme_by_lemma_gr_regex_single_query(self, lemma, grammemes):
         lexemes = []
         
         self.db_cursor.execute("""
             SELECT lem.lemma_id AS lid, lem.lemma_text AS ltext, rev.rev_text AS rev_text
-            FROM dict_lemmata lem join dict_revisions rev on lem.lemma_id = rev.lemma_id
+            FROM dict_lemmata lem join dict_revisions rev USING(lemma_id)
             WHERE lem.lemma_text = '{0}'
             AND rev.is_last = 1
             AND rev.rev_text like '{1}'
