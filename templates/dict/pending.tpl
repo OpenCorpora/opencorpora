@@ -54,7 +54,8 @@ $(document).ready(function(){
 {foreach from=$data.revisions item=revision}
 <tr>
     <td>{$revision.id}<br/>
-    <form class='form-inline' action="?act=reannot" method="post"><input type='hidden' name='rev_id' value='{$revision.id}'><input type='button' class='btn btn-primary btn-small' value='Обновить все'/> <label><input type="checkbox" name='smart_mode'/> smart mode</label></form>
+    <form class='form-inline' action="?act=reannot_update" method="post"><input type='hidden' name='rev_id' value='{$revision.id}'><input type='button' class='btn btn-primary btn-small' value='Обновить все'/> <label><input type="checkbox" name='smart_mode'/> smart mode</label></form>
+    <form class='form-inline' action="?act=reannot_forget" method="post"><input type='hidden' name='rev_id' value='{$revision.id}'><input type='button' class='btn btn-danger btn-small' value='Забыть все'/></form>
     </td>
     <td><pre>
 {foreach from=$revision.diff.diff[0] item=str}

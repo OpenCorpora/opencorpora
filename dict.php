@@ -93,8 +93,12 @@ switch ($action) {
         $smarty->assign('data', get_pending_updates($skip));
         $smarty->display('dict/pending.tpl');
         break;
-    case 'reannot':
-        update_pending_tokens(POST('rev_id'), POST('smart_mode', 0) == 'on');
+    case 'reannot_update':
+        update_pending_tokens(POST('rev_id'), POST('smart_mode', false) == 'on');
+        header("Location:dict.php?act=pending");
+        break;
+    case 'reannot_forget':
+        forget_pending_tokens(POST('rev_id'));
         header("Location:dict.php?act=pending");
         break;
     case 'absent':

@@ -323,6 +323,10 @@ function check_safe_token_update($token_id, $rev_id) {
     ", array($token_id, $rev_id));
     return sizeof($res) == 0;
 }
+function forget_pending_tokens($rev_id) {
+    check_permission(PERM_DISAMB);
+    sql_pe("DELETE FROM updated_tokens WHERE dict_revision=?", array($rev_id));
+}
 function forget_pending_token($token_id, $rev_id) {
     check_permission(PERM_DISAMB);
     sql_pe("DELETE FROM updated_tokens WHERE token_id=? AND dict_revision=?", array($token_id, $rev_id));
