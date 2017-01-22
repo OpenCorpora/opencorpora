@@ -116,7 +116,7 @@ function get_good_sentences($no_zero = false) {
         $out[] = array('id' => $r['sent_id'], 'total' => $r['num_words'], 'homonymous' => $r['num_homonymous']);
     return $out;
 }
-function get_merge_fails() {
+function get_merge_fails($status=0) {
     $res = sql_query("
         SELECT sample_id, p.pool_name, p.pool_id, p.revision AS pool_revision,
             ms.status, s.tf_id, tokens.tf_text, c.comment, merge_status
@@ -142,7 +142,7 @@ function get_merge_fails() {
 
     $data = array(
         'samples' => array(),
-        'total' => array(),
+        'total' => array('0' => 0),
         'checked' => array()
     );
 
@@ -157,21 +157,25 @@ function get_merge_fails() {
                 $r['status'] = -1; // smth strange
         }
 
-        $data['samples'][] = array(
-            'id' => $r['sample_id'],
-            'mod_status' => $r['status'],
-            'pool_id' => $r['pool_id'],
-            'pool_name' => $r['pool_name'],
-            'revision' => $r1['rev_id'],
-            'comment' => $r['comment'],
-            'merge_status' => $r['merge_status'],
-            'token_text' => $r['tf_text']
-        );
+        if ($status == 0 || $status == $r['status']) {
+            $data['samples'][] = array(
+                'id' => $r['sample_id'],
+                'mod_status' => $r['status'],
+                'pool_id' => $r['pool_id'],
+                'pool_name' => $r['pool_name'],
+                'revision' => $r1['rev_id'],
+                'comment' => $r['comment'],
+                'merge_status' => $r['merge_status'],
+                'token_text' => $r['tf_text']
+            );
+        }
+
         if (!isset($data['total'][$r['status']])) {
             $data['total'][$r['status']] = 0;
             $data['checked'][$r['status']] = 0;
         }
         ++$data['total'][$r['status']];
+        ++$data['total'][0];
         if ($r['merge_status'])
             ++$data['checked'][$r['status']];
     }

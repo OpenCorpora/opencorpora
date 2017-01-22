@@ -1,13 +1,16 @@
 {* Smarty *}
 {extends file='common.tpl'}
 {block name=content}
+{$MISPRINT = $smarty.const.MA_SAMPLES_STATUS_MISPRINT}
+{$HOMONYMY = $smarty.const.MA_SAMPLES_STATUS_HOMONYMOUS}
+{$EDIT = $smarty.const.MA_SAMPLES_STATUS_MANUAL_EDIT}
 <h1>Отмодерированные примеры, которые не изменили корпус</h1>
 Общая статистика:
 <ul>
-<li>Всего: {count($data.samples)}
-<li>Опечатка: {$data.checked[$smarty.const.MA_SAMPLES_STATUS_MISPRINT]}/{$data.total[$smarty.const.MA_SAMPLES_STATUS_MISPRINT]}</li>
-<li>Неснимаемая омонимия: {$data.checked[$smarty.const.MA_SAMPLES_STATUS_HOMONYMOUS]}/{$data.total[$smarty.const.MA_SAMPLES_STATUS_HOMONYMOUS]}</li>
-<li>Ручная правка: {$data.checked[$smarty.const.MA_SAMPLES_STATUS_MANUAL_EDIT]}/{$data.total[$smarty.const.MA_SAMPLES_STATUS_MANUAL_EDIT]}</li>
+<li>Всего: <a href="?act=merge_fails&status=0">{$data.total[0]}</a>
+<li>Опечатка: <a href="?act=merge_fails&status={$MISPRINT}">{$data.checked[$MISPRINT]}/{$data.total[$MISPRINT]}</a></li>
+<li>Неснимаемая омонимия: <a href="?act=merge_fails&status={$HOMONYMY}">{$data.checked[$HOMONYMY]}/{$data.total[$HOMONYMY]}</a></li>
+<li>Ручная правка: <a href="?act=merge_fails&status={$EDIT}">{$data.checked[$EDIT]}/{$data.total[$EDIT]}</a></li>
 <li>???: {$data.total[-1]|default:0}</li>
 </ul>
 <table class='table'>
