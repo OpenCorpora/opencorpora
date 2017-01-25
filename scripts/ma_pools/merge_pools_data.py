@@ -130,6 +130,7 @@ def check_for_manual_changes(dbh, tf_revision, pool_revision):
         )
         AND rev_id > {1}
         AND user_id > 0
+        AND rev_sets.comment != 'Update tokens from dictionary'
         LIMIT 1
     """.format(tf_revision, pool_revision))
     return bool(dbh.fetchone())
