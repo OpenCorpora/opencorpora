@@ -61,7 +61,9 @@ sub process_pool {
     for my $v(@$var) {
         @qt = ();
         for my $g(@$v) {
-            push @qt, "rev_text LIKE '%v=\"$g\"%'";
+            unless ($g =~ s/^!//) {
+                push @qt, "rev_text LIKE '%v=\"$g\"%'";
+            }
         }
         push @q, "(".join(' AND ', @qt).")";
     }
@@ -77,6 +79,7 @@ sub process_pool {
         WHERE is_last = 1
         AND book_id < $HIDDEN_BOOK
         AND s.sample_id IS NULL
+        AND rev_text LIKE '%</v><v>%'
         AND (".join(' OR ', @q).")
     ";
     #print STDERR $q."\n";
@@ -98,6 +101,7 @@ sub process_pool {
         LEFT JOIN paragraphs USING (par_id)
         WHERE is_last = 1
         AND book_id < $HIDDEN_BOOK
+        AND rev_text LIKE '%</v><v>%'
         AND (".join(' OR ', @q).")
         ORDER BY tfr.tf_id
     ";
@@ -198,6 +202,10 @@ sub check_revision {
     #print STDERR "ok\n";
     $add->execute($pool_type, $tf_id);
 }
+sub grammeme_match {
+    my ($var_xml, $gram) = @_;
+    return ($gram =~ s/^!//) == ($var_xml !~ /g v="$gram"/);
+}
 sub var_has_all_gram {
     my ($rev_text, $aref) = @_;
 
@@ -209,7 +217,7 @@ sub var_has_all_gram {
         $cnt = 0;
         $v = $1;
         for my $gr(@$aref) {
-            if ($v =~ /g v="$gr"/) {
+            if (grammeme_match($v, $gr)) {
                 ++$cnt;
             }
         }
@@ -230,7 +238,7 @@ sub has_extra_variants {
                 #all grammemes must be there
                 my $flag_ok = 1;
                 for my $gg(@{$gram_sets->[$i]}) {
-                    if ($v !~ /g v="$gg"/) {
+                    if (!grammeme_match($v, $gg)) {
                         $flag_ok = 0;
                         last;
                     }
@@ -243,7 +251,7 @@ sub has_extra_variants {
             else {
                 #any grammeme will suffice
                 for my $gg(@{$gram_sets->[$i]}) {
-                    if ($v =~ /g v="$gg"/) {
+                    if (grammeme_match($v, $gg)) {
                         #found grammeme, check next variant
                         next MW;
                     }
