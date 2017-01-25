@@ -347,6 +347,7 @@ function smart_update_pending_token(MorphParseSet $parse_set, $rev_id) {
     // - lemma text change
     // - lemma gramset change
     // - added form(s): adds all forms of this lemma homonynous to the added one(s)
+    // - deleted form(s): deletes all forms of this lemma HOMONYNOUS to the deleted one(s)
     
     $res = sql_pe("SELECT lemma_id, rev_text FROM dict_revisions WHERE rev_id=? LIMIT 1", array($rev_id));
     if (!sizeof($res))
@@ -374,26 +375,30 @@ function smart_update_pending_token(MorphParseSet $parse_set, $rev_id) {
     $new_rev_parsed = parse_dict_rev($rev_text);
 
     // cannot work if smth changed in the paradigm, not lemma
-    // unless the change is addition of new forms
+    // unless the change is addition/deletion of new forms
     $prev_forms = $prev_rev_parsed['forms'];
     $new_forms = $new_rev_parsed['forms'];
 
-    if (sizeof($prev_forms) > sizeof($new_forms))
-        throw new Exception("Smart mode unavailable");
+    $deleted_forms_gramsets = array();
     foreach ($prev_forms as $pf) {
         if (!in_array($pf, $new_forms))
-            throw new Exception("Smart mode unavailable");
+            $deleted_forms_gramsets[] = $pf['grm'];
     }
-
-    // use only newly added forms (for cases when both forms were added and smth changed in lemma)
     $new_forms_texts = array();
     foreach ($new_forms as $nf) {
         if (!in_array($nf, $prev_forms))
             $new_forms_texts[] = $nf['text'];
     }
+
+    if (sizeof($deleted_forms_gramsets) > 0 && sizeof($new_forms_texts) > 0)
+        throw new Exception("Smart mode unavailable");
+
     foreach (array_unique($new_forms_texts) as $ftext) {
         $new_parses = new MorphParseSet(false, $ftext, false, false, $lemma_id);
         $parse_set->merge_from($new_parses);
+    }
+    foreach ($deleted_forms_gramsets as $grams) {
+        $parse_set->remove_parse($lemma_id, array_merge($prev_rev_parsed['lemma']['grm'], $grams));
     }
 
     // process lemma changes

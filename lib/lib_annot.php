@@ -5,7 +5,7 @@ class MorphParse {
     public $lemma_id = 0;
     public $lemma_text;
     public $gramlist = array();
-    // $gramlist is array with keys 'inner', 'outer', 'descr'
+    // $gramlist is array of arrays with keys 'inner', 'outer', 'descr'
 
     public function __construct($lemma_text = "", $gramlist = array(), $lemma_id = 0) {
         $this->lemma_id = $lemma_id;
@@ -50,6 +50,10 @@ class MorphParse {
 
     public function is_unknown() {
         return sizeof($this->gramlist) == 1 && $this->gramlist[0]['inner'] == 'UNKN';
+    }
+
+    public function get_inner_gramlist() {
+        return array_map(function($e) {return $e['inner'];}, $this->gramlist);
     }
 }
 
@@ -101,6 +105,18 @@ class MorphParseSet {
         $this->parses = $newparses;
         if (sizeof($this->parses) == 0)
             $this->_from_token($this->token_text, true, false);
+    }
+
+    public function remove_parse($lemma_id, $grams) {
+        $new_parses = array();
+        foreach ($this->parses as $parse) {
+            if ($parse->lemma_id != $lemma_id || $parse->get_inner_gramlist() != $grams)
+                $new_parses[] = $parse;
+        }
+        $this->parses = $new_parses;
+
+        if (sizeof($this->parses) == 0)
+            $this->parses[] = new MorphParseUnknown($this->token_text);
     }
 
     public function set_lemma_text($lemma_id, $lemma_text) {
