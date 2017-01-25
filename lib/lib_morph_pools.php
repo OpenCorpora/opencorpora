@@ -541,9 +541,19 @@ function begin_pool_merge($pool_id) {
         throw new UnexpectedValueException();
 
     // we can perform this only if pool has been moderated
-    $res = sql_pe("SELECT status FROM morph_annot_pools WHERE pool_id=? LIMIT 1", array($pool_id));
+    $res = sql_pe("
+        SELECT status, grammemes
+        FROM morph_annot_pools p
+        LEFT JOIN morph_annot_pool_types t
+            ON (p.pool_type = t.type_id)
+        WHERE pool_id=? LIMIT 1
+    ", array($pool_id));
+
     if ($res[0]['status'] != MA_POOLS_STATUS_MODERATED)
         throw new Exception("Пул не отмодерирован");
+    // currently cannot merge pools with grammeme negation
+    if (strpos($res[0]['grammemes'], '!') !== false)
+        throw new Exception("Переливка пулов такого типа (с отрицанием) не реализована.");
 
     sql_pe("UPDATE morph_annot_pools SET status=".MA_POOLS_STATUS_TO_MERGE.", updated_ts=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
