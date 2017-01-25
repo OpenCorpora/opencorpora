@@ -44,6 +44,7 @@ $(document).ready(function() {
         }
     };
     var totals = [
+        {label: 'никогда не были в пулах', data: {/literal}{$main.total[-1]}{literal}, color: 'gray'},
         {label: 'не опубликованы', data: {/literal}{$main.total[2]}{literal}},
         {label: 'размечаются', data: {/literal}{$main.total[3]}{literal}},
         {label: 'размечены', data: {/literal}{$main.total[4]}{literal}},
@@ -81,7 +82,7 @@ $(document).ready(function() {
 </ul>
 <h2>Распределение пулов</h2>
 <p><a href="#" id="toggle_chart" class="pseudo" data-status="0">привести все к 100%</a></p>
-<div id="words_chart" style="width:100%; height: 1000px"></div>
+<div id="words_chart" style="width:100%; height: 1500px"></div>
 <h3>Всего</h3>
 <div id="totals_chart" style="width:700px; height: 400px"></div>
 <h2>Модерация</h2>

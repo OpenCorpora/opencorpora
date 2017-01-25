@@ -331,6 +331,7 @@ function get_error_rate($num_moderated, $num_correct) {
     return $num_moderated == 0 ? 0 : (1 - $num_correct / $num_moderated) * 100;
 }
 function get_extended_pools_stats() {
+    global $config;
     $status_text = array(
         MA_POOLS_STATUS_NOT_STARTED => 'Не опубликованы',
         MA_POOLS_STATUS_IN_PROGRESS => 'Размечаются',
@@ -363,6 +364,30 @@ function get_extended_pools_stats() {
             $total_by_status[$r['status']] = 0;
         $total_by_status[$r['status']] += $r['cnt'];
     }
+
+    // add data from candidate samples (only total, for pie chart)
+    $res = sql_pe("
+        SELECT COUNT(DISTINCT tf_id) as cnt
+        FROM morph_annot_candidate_samples
+    ");
+    $total_by_status[MA_POOLS_STATUS_NOT_STARTED] += $res[0]['cnt'];
+
+    // add data about ambiguous tokens that have never been in pools
+    $res = sql_pe("
+        SELECT COUNT(tf_id) AS cnt
+        FROM tf_revisions tfr
+            LEFT JOIN tokens USING (tf_id)
+            LEFT JOIN sentences USING (sent_id)
+            LEFT JOIN paragraphs USING (par_id)
+            LEFT JOIN morph_annot_samples mas USING (tf_id)
+            LEFT JOIN morph_annot_candidate_samples macs USING (tf_id)
+        WHERE is_last=1
+            AND book_id < ".$config['misc']['books_no_morph_annot_start_id']."
+            AND mas.sample_id IS NULL
+            AND macs.pool_type IS NULL
+            AND rev_text like '%</v><v>%'
+    ");
+    $total_by_status[-1] = $res[0]['cnt'];
 
     // sort in ascending order (and renumber)
     asort($total);
