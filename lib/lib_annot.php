@@ -253,6 +253,8 @@ class MorphParseSet {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'NUMB')));
         } elseif (preg_match('/^[\p{Latin}\.-]+$/u', $token)) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'LATN')));
+        } elseif (preg_match('/^\p{S}+$/u', $token)) {
+            $this->parses[] = new MorphParse($token, array(array('inner' => 'SYMB')));
         }
 
         if (!$force_unknown && preg_match('/^[IVXLCMDivxlcmdХх]+$/u', $token))
