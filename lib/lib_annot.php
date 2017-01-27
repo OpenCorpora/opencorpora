@@ -247,7 +247,7 @@ class MorphParseSet {
                         $this->parses[] = new MorphParse($r['lemma_text'], $gramlist, $r['lemma_id']);
                 }
             }
-        } elseif (preg_match('/^\p{P}+$/u', $token)) {
+        } elseif (preg_match('/^(\p{P}+|=\)+|=\(+)$/u', $token)) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'PNCT')));
         } elseif (preg_match('/^\p{Nd}+[\.,]?\p{Nd}*$/u', $token)) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'NUMB')));
