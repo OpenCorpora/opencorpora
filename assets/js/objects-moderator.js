@@ -244,30 +244,50 @@ $(document).ready(function() {
         }); //, loadObjects);
     });
 
-    $(document).on("blur", ".object-property-name", function() {
+    $(document).on("blur", ".object-property-input", function() {
         var input = $(this);
-        var wd_name = $(this).val();
-        console.log("property [name] blurred, value", wd_name);
+        var td = input.parents("td");
+        if (input.hasClass("object-property-wikidata")) return true;
 
-        if (!wd_name) return true;
+        // lets make a search query.
+        var query = "";
+        if (td.find(".object-property-name").length > 0) {
+            query = td.find(".object-property-name").val();
+        }
+        else if (td.find(".object-property-surname").length > 0
+            && td.find(".object-property-firstname").length > 0) {
+            var f = td.find(".object-property-firstname").val();
+            var s = td.find(".object-property-surname").val();
+            query = f + " " + s;
+        }
+        else {
+            var all = td.find(".object-property-input").not(".object-property-wikidata");
+            all.each(function(i, element) {
+                query += " " + $(element).val();
+            });
+        }
 
-        var wd_input = $("#objects-modal").find(".object-property-wikidata");
+        // console.log(query);
+
+        if (!query) return true;
+
+        var wd_input = input.parents("td").find(".object-property-wikidata");
         if (!wd_input.length) return true;
-        console.log("property [wikidata] found");
+        // console.log("property [wikidata] found");
 
         var id = guidGenerator();
         var datalist = $("<datalist>").attr("id", id);
         $("body").append(datalist);
 
         wd_input.attr("list", id);
-        console.log("created datalist with id", id);
+        // console.log("created datalist with id", id);
 
         $.getJSON("./ajax/ner.php", {
             act: "searchWikidata",
-            search_query: wd_name
+            search_query: query.trim()
         }, function(response) {
-            console.log("got response from searchWikidata", response);
-            if (response["error"]) return false;
+            // console.log("got response from searchWikidata", response);
+            if (response["error"] || !response["api_response"]["search"]) return false;
             for (var i = 0; i < response["api_response"]["search"].length; i++) {
                 var item = response["api_response"]["search"][i];
                 var opt = $("<option>")
