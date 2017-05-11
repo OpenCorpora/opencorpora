@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 use strict;
 use utf8;
 use Getopt::Long;
@@ -9,11 +11,14 @@ use Digest::MD5;
 use Data::Dumper;
 
 my ($pools_fn, $dump_fn, $dict_fn) = ("pools.zip", "annot.opcorpora.xml.zip", "dict.opcorpora.txt");
+my ($left_ctx, $right_ctx) = (1, 1);
 my ($verbose) = ( 1 );
 
 GetOptions("pools-fn=s"   => \$pools_fn,
            "dump-fn=s"    => \$dump_fn,
            "dict-fn=s"    => \$dict_fn,
+           "left-ctx=i"   => \$left_ctx,
+           "right-ctx=i"  => \$right_ctx,
            "verbose!"     => \$verbose)
 or die <<'HELP_MESSAGE';
 
@@ -124,23 +129,70 @@ sub grammems_as_bits {
 
   return join(" ", @all_gramms);
 }
-  
+
+sub collect_token_features {
+  my ($rel_pos, $focus_pos, $focus_token_id, $rsent, $rtokens, $rforms, $rgrams) = @_;
+
+  my $rfocus_token = $rtokens->{$rsent->[$focus_pos]->{id}};
+  if (! defined($rfocus_token)) {
+    die "ERROR: can't find token with id $rsent->[$focus_pos]->{id}";
+  }
+
+  #print "\n" . Dumper($rtoken) . "\n";
+  #print Dumper($rsent) . "\n";
+  if ($rfocus_token->{id} != $focus_token_id) {
+    die "ERROR: focus token id missmatch: $rfocus_token->{id} , $focus_token_id";
+  }
+
+  my $token_pos = $focus_pos + $rel_pos;
+  #print "$token_pos = $focus_pos + $rel_pos\n";
+
+  my ($token_id, $rtoken, $text_uc, $rdict_item) = (undef, undef, "", undef);
+
+  if ($token_pos >= 0 && $token_pos <= $#{$rsent}) {
+    $token_id = $rsent->[$token_pos]->{id};
+    if (! exists($rtokens->{$token_id})) {
+      die "ERROR: can't find token with id = $token_id";
+    }
+    $rtoken = $rtokens->{$token_id};
+
+    $text_uc = uc($rtoken->{text});
+
+    if (exists $rforms->{$text_uc}) {
+      $rdict_item = $rforms->{$text_uc};
+    }
+  }
+
+  my $line = join(" ", (length($text_uc),                                           # token length
+                        $token_pos,                                                 # token position in sentence (token number)
+                        $#{$rsent} + 1 - $token_pos,                                # reverse token position in sentence
+                        defined($rdict_item) ? $#{$rdict_item} : 0,                 # total number of homonyms according to the dictionary
+                        grammems_as_bits($rdict_item, $rgrams)                      # grammems of focus token
+                 ));
+
+  return $line; 
+} 
 
 sub merge_pools {
   my ($rpools, $rtypes, $rsents, $rtokens, $rgrams, $rforms, $min_state, $output_fn) = @_;
   my @lines;
 
-  print "Merging pools ...\n";
+  if ($verbose) {
+    print "Merging pools ...\n";
+  }
 
   foreach my $pool_id (sort {$a <=> $b} keys %{$rpools}) {
     my $rpool = $rpools->{$pool_id};
-    print "Pool id: $pool_id, pool state: $rpool->{state}\r";
+
+    if ($verbose) {
+      print "Pool id: $pool_id, pool state: $rpool->{state}\r";
+    }
 
     if ($rpool->{state} < $min_state) {
       next;
     }
 
-    print "Pool id: $pool_id\r";
+    #print "Pool id: $pool_id\r";
 
     foreach my $task_id (sort {$a <=> $b} keys %{$rpool->{tasks}}) {
       my $rtask = $rpool->{tasks}->{$task_id};
@@ -154,23 +206,45 @@ sub merge_pools {
 
       my $line = join(" ", ($task_id, $pool_id,                                         
                             $rtask->{token_id}, $rtoken->{sent_id},
-                            length($text_uc),                                           # token length
                             $#{$rsent} + 1,                                             # sentence length
-                            $rtoken->{pos},                                             # token position in sentence (token number)
-                            $#{$rsent} + 1 - $rtoken->{pos},                            # reverse token position in sentence
                             calc_agreement($rtask->{answers}, $task_id, $pool_id),      # agreement
-                            calc_correctness($rtask->{answers}, $rtask->{correct}),     # percent of correct answers
-                            defined($rdict_item) ? $#{$rdict_item} : 0,                 # total number of homonyms according to the dictionary
-                            grammems_as_bits($rdict_item, $rgrams)                      # grammems of focus token
+                            calc_correctness($rtask->{answers}, $rtask->{correct})      # percent of correct answers
                      ));
+      for (my $i = (-1) * $left_ctx; $i < 0; $i++) {
+        $line .= " " . collect_token_features($i, $rtoken->{pos}, $rtask->{token_id}, $rsent, $rtokens, $rforms, $rgrams);
+      }
+
+      $line .= " " . collect_token_features(0, $rtoken->{pos}, $rtask->{token_id}, $rsent, $rtokens, $rforms, $rgrams);
+
+      for (my $i = 1; $i <= $right_ctx; $i++) {
+        $line .= " " . collect_token_features($i, $rtoken->{pos}, $rtask->{token_id}, $rsent, $rtokens, $rforms, $rgrams);
+      }
+
       push @lines, $line;
     }
     #last;
   }
 
+  if ($verbose) {
+    print("\n");
+  }
+
   open(F, "> $output_fn") || die "ERROR: can't open \"$output_fn\"";
   binmode(F, ":encoding(utf-8)");
+  my $nfeatures = 0;
   foreach my $line (@lines) {
+    my @features = split(/\s+/, $line);
+    if ($nfeatures == 0) {
+      $nfeatures = $#features + 1;
+      if ($verbose) {
+        print("$nfeatures features in output vectors\n");
+      }
+    } else {
+      if ($nfeatures != $#features + 1) {
+        die "ERROR: incorrect number of features: " . ($#features + 1) . " instead of $nfeatures\n";
+      }
+    }
+    
     print F $line . "\n";
   }
   close(F);
@@ -194,7 +268,7 @@ sub handle_corpus_dump_start_tag {
       die "ERROR: \$current_sent_id isn't defined in \"handle_corpus_dump_start_tag\"";
     }
     my %token;
-    ($token{id}, $token{text}, $token{pos}, $token{sent_id}) = ($attr{id}, $attr{text}, $#{$sents{$current_sent_id}}, $current_sent_id);
+    ($token{id}, $token{text}, $token{pos}, $token{sent_id}) = ($attr{id}, $attr{text}, $#{$sents{$current_sent_id}} + 1, $current_sent_id);
     push @{$sents{$current_sent_id}}, \%token;
     $tokens{$token{id}} = \%token; 
   }
