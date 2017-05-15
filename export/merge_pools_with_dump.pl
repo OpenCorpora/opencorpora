@@ -51,7 +51,7 @@ my ($rpool_types, $rpools) = read_pools($pools_fn);
 my ($rgram, $rforms) = read_dict($dict_fn);
 my @all_grams = sort(keys %{$rgram});
 
-merge_pools($rpools, $rpool_types, \%sents, \%tokens, \@all_grams, $rforms, 9, $output_fn);
+merge_pools($rpools, $rpool_types, \%sents, \%tokens, \@all_grams, $rforms, 6, $output_fn);
 
 #
 # Merge pools
@@ -105,9 +105,6 @@ sub grammems_as_bits {
   my %hash_gramms;
 
   if (defined($rdict_item)) {
-    #if (! exists $rdict_item->{stem_gram}) {
-    #  die "rdict_item: " . Dumper($rdict_item); 
-    #}
     foreach my $rform (@{$rdict_item}) {
       foreach my $grm (@{$rform->{stem_gram}}) {
         $hash_gramms{$grm} += 1;
@@ -173,6 +170,25 @@ sub collect_token_features {
   return $line; 
 } 
 
+sub get_pool_type_features_vector {
+  my ($pool_type_no, $max_pool_type) = @_;
+  my $line; 
+
+  for (my $i = 0; $i <= $max_pool_type; $i++) {
+    if (length($line) > 0) {
+      $line .= " ";
+    }
+ 
+    if ($pool_type_no == $i) {
+      $line .= "1";
+    } else {
+      $line .= "0";
+    }
+  }
+
+  return $line;
+}
+
 sub merge_pools {
   my ($rpools, $rtypes, $rsents, $rtokens, $rgrams, $rforms, $min_state, $output_fn) = @_;
   my @lines;
@@ -180,6 +196,8 @@ sub merge_pools {
   if ($verbose) {
     print "Merging pools ...\n";
   }
+
+  my @all_pool_types = sort keys %{$rtypes};
 
   foreach my $pool_id (sort {$a <=> $b} keys %{$rpools}) {
     my $rpool = $rpools->{$pool_id};
@@ -194,6 +212,17 @@ sub merge_pools {
 
     #print "Pool id: $pool_id\r";
 
+    my $pool_type_no = undef;
+    for (my $i = 0; $i <= $#all_pool_types; $i++) {
+      if ($rpool->{type} == $all_pool_types[$i]) {
+        $pool_type_no = $i;
+        last;
+      }
+    }
+    if (! defined($pool_type_no)) {
+      die "ERROR: can't find pool type \"$rpool->{type}\"";
+    }
+
     foreach my $task_id (sort {$a <=> $b} keys %{$rpool->{tasks}}) {
       my $rtask = $rpool->{tasks}->{$task_id};
       my $rtoken = $rtokens->{$rtask->{token_id}};
@@ -206,9 +235,11 @@ sub merge_pools {
 
       my $line = join(" ", ($task_id, $pool_id,                                         
                             $rtask->{token_id}, $rtoken->{sent_id},
-                            $#{$rsent} + 1,                                             # sentence length
-                            calc_agreement($rtask->{answers}, $task_id, $pool_id),      # agreement
-                            calc_correctness($rtask->{answers}, $rtask->{correct})      # percent of correct answers
+                            $#{$rsent} + 1,                                                  # sentence length
+                            calc_agreement($rtask->{answers}, $task_id, $pool_id),           # agreement
+                            calc_correctness($rtask->{answers}, $rtask->{correct}),          # percent of correct answers
+                            $rpool->{type},                                                  # pool type as string
+                            get_pool_type_features_vector($pool_type_no, $#all_pool_types)   # pool type in "one hot" encoding
                      ));
       for (my $i = (-1) * $left_ctx; $i < 0; $i++) {
         $line .= " " . collect_token_features($i, $rtoken->{pos}, $rtask->{token_id}, $rsent, $rtokens, $rforms, $rgrams);
@@ -363,6 +394,7 @@ sub read_pools() {
     if ($id =~ /\d+/) {
       push @{$pool_types{$type}}, $id;
       $pools{$id}->{state} = $state;
+      $pools{$id}->{type} = $type;
     }
   }
 
