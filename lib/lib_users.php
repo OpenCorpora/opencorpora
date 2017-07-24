@@ -203,7 +203,7 @@ function user_register($name, $email, $passwd, $passwd_re, $subscribe) {
 
     sql_commit();
     user_award_for_signup($user_id);
-    if (!user_login($name, $passwd))
+    if (!user_login(NULL, NULL, $user_id))
         return 0;
     return 1;
 }

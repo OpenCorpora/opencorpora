@@ -52,7 +52,7 @@ switch($action) {
         log_timing();
         exit();
     case 'reg_done':
-        $reg_status = user_register(POST('login'), POST('email'), POST('passwd'), POST('passwd_re'), POST('subscribe', 0));
+        $reg_status = user_register(POST('login'), POST('email', ''), POST('passwd'), POST('passwd_re'), POST('subscribe', 0));
         if ($reg_status == 1) {
             header("Location:index.php");
             exit();
