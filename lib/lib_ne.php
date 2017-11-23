@@ -970,23 +970,31 @@ function delete_object_prop_val($val_id) {
     sql_pe("DELETE FROM ne_object_prop_vals WHERE val_id = ?", array($val_id));
 }
 
-function get_book_objects($book_id) {
-    $obj_res = sql_pe("SELECT object_id FROM ne_objects WHERE book_id = ? ORDER BY object_id", array($book_id));
-    $object_ids = array();
+function get_book_objects($book_id, $tagset_id=0) {
+    $obj_res = sql_pe("
+        SELECT DISTINCT object_id
+        FROM ne_mentions
+        LEFT JOIN ne_objects
+            USING (object_id)
+        LEFT JOIN ne_object_types
+            USING (object_type_id)
+        WHERE book_id = ?
+        ".($tagset_id ? " AND tagset_id = ?" : "")."
+        ORDER BY object_id
+    ", $tagset_id ? array($book_id, $tagset_id) : array($book_id));
     $objects = array();
     foreach ($obj_res as $r) {
         $id = $r["object_id"];
-        $object_ids[] = $id;
         $objects[$id] = array("object_id" => $id, "properties" => array(), "mentions" => array());
     }
-    if (!empty($object_ids)) {
+    if (!empty($objects)) {
         // get properties
-        $prop_res = sql_query("SELECT object_id, val_id, prop_id, prop_key, prop_val FROM ne_object_prop_vals LEFT JOIN ne_object_props USING (prop_id) WHERE object_id IN (" . implode(",", $object_ids) . ") ORDER BY object_id, prop_id");
+        $prop_res = sql_query("SELECT object_id, val_id, prop_id, prop_key, prop_val FROM ne_object_prop_vals LEFT JOIN ne_object_props USING (prop_id) WHERE object_id IN (" . implode(",", array_keys($objects)) . ") ORDER BY object_id, prop_id");
         while ($rp = sql_fetch_array($prop_res))
             $objects[$rp["object_id"]]["properties"][$rp["val_id"]] =
                 array($rp["prop_id"], $rp["prop_key"], $rp["prop_val"]);
         // get mentions
-        $mentions = get_mentions_text_by_objects($object_ids);
+        $mentions = get_mentions_text_by_objects(array_keys($objects));
         foreach ($mentions as $oid => $arr)
             $objects[$oid]["mentions"] = $arr;
     }
