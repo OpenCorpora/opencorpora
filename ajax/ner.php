@@ -107,7 +107,8 @@ try {
             break;
 
         case 'getObjects':
-            $result['objects'] = get_book_objects(POST('book_id'));
+            $tagset_id = get_current_tagset();
+            $result['objects'] = get_book_objects(POST('book_id'), $tagset_id);
             $result['possible_props'] = get_possible_properties();
             break;
 

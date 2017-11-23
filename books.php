@@ -114,8 +114,7 @@ elseif ($action == 'ner') {
 
     $smarty->assign('book', $book);
     $smarty->assign('use_fast_mode', OPTION(OPT_NE_QUICK));
-    $smarty->assign('possible_guidelines',
-        array(1 => "Default (2014)", 2 => "Dialogue Eval (2016)"));
+    $smarty->assign('possible_guidelines', get_ne_guidelines());
     $smarty->assign('current_guideline', OPTION(OPT_NE_TAGSET));
 
     $smarty->assign('entity_types', get_ne_types($tagset_id));
