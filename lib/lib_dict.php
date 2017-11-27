@@ -362,7 +362,7 @@ function smart_update_pending_token(MorphParseSet $parse_set, $rev_id) {
     }
 
     // get previous revision
-    $res = sql_pe("SELECT rev_text FROM dict_revisions WHERE lemma_id=? ORDER BY rev_id DESC LIMIT 1,1", array($lemma_id));
+    $res = sql_pe("SELECT rev_text FROM dict_revisions WHERE lemma_id=? AND rev_id<? ORDER BY rev_id DESC LIMIT 1", array($lemma_id, $rev_id));
     if (!sizeof($res)) {
         // the revision adds a lemma
         $new_parses = new MorphParseSet(false, $parse_set->token_text, false, false, $lemma_id);
