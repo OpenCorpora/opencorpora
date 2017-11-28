@@ -87,6 +87,11 @@ def filter_variants(variants, grammemes, bind_type):
 
     return out_variants
 def check_for_grammeme(var_xml, gram):
+    if gram.startswith('!'):
+        return not check_for_grammeme_base(var_xml, gram[1:])
+    else:
+        return check_for_grammeme_base(var_xml, gram)
+def check_for_grammeme_base(var_xml, gram):
     # check for equivalence class
     equiv = None
     for cl in EQUIVALENT_GRAM:

@@ -551,9 +551,6 @@ function begin_pool_merge($pool_id) {
 
     if ($res[0]['status'] != MA_POOLS_STATUS_MODERATED)
         throw new Exception("Пул не отмодерирован");
-    // currently cannot merge pools with grammeme negation
-    if (strpos($res[0]['grammemes'], '!') !== false)
-        throw new Exception("Переливка пулов такого типа (с отрицанием) не реализована.");
 
     sql_pe("UPDATE morph_annot_pools SET status=".MA_POOLS_STATUS_TO_MERGE.", updated_ts=? WHERE pool_id=? LIMIT 1", array(time(), $pool_id));
 }
