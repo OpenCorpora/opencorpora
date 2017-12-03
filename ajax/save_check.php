@@ -6,15 +6,6 @@ $value = POST('value');
 
 try {
     switch($type) {
-        case 'token':
-            check_permission(PERM_CHECK_TOKENS);
-            sql_begin();
-            sql_query("DELETE FROM sentence_check WHERE sent_id=$id AND user_id=".$_SESSION['user_id']." AND `status`=1 LIMIT 1");
-            if ($value === 'true') {
-                sql_query("INSERT INTO sentence_check VALUES('$id', '".$_SESSION['user_id']."', '1', '".time()."')");
-                sql_commit();
-            }
-            break;
         case 'source':
             check_permission(PERM_ADDER);
             if ($value === '0' || $value === '1')

@@ -79,7 +79,6 @@ if (is_logged()) {
 $smarty->assign('user_permission_dict', user_has_permission(PERM_DICT) ? 1 : 0);
 $smarty->assign('user_permission_disamb', user_has_permission(PERM_DISAMB) ? 1 : 0);
 $smarty->assign('user_permission_adder', user_has_permission(PERM_ADDER) ? 1 : 0);
-$smarty->assign('user_permission_check_tokens', user_has_permission(PERM_CHECK_TOKENS) ? 1 : 0);
 $smarty->assign('user_permission_check_morph', user_has_permission(PERM_MORPH_MODER) ? 1 : 0);
 $smarty->assign('user_permission_merge', user_has_permission(PERM_MORPH_SUPERMODER) ? 1 : 0);
 $smarty->assign('user_permission_syntax', user_has_permission(PERM_SYNTAX) ? 1 : 0);

@@ -52,14 +52,11 @@ function get_book_page($book_id, $full = false) {
     $out['parents'] = array_reverse(get_book_parents($book_id));
     //sentences
     if ($full) {
-        $q = "SELECT p.`pos` ppos, par_id, s.sent_id, s.`pos` spos";
-        if (user_has_permission(PERM_ADDER)) $q .= ", ss.status";
-        $q .= "\nFROM paragraphs p
+        $q = "SELECT p.`pos` ppos, par_id, s.sent_id, s.`pos` spos
+            FROM paragraphs p
             LEFT JOIN sentences s
-            USING (par_id)\n";
-
-        if (user_has_permission(PERM_ADDER)) $q .= "LEFT JOIN sentence_check ss ON (s.sent_id = ss.sent_id AND ss.status=1 AND ss.user_id=".$_SESSION['user_id'].")\n";
-        $q .= "WHERE p.book_id = ?
+            USING (par_id)
+            WHERE p.book_id = ?
             ORDER BY p.`pos`, s.`pos`";
         $res = sql_pe($q, array($book_id));
         $res1 = sql_prepare("SELECT tf_id, tf_text FROM tokens WHERE sent_id=? ORDER BY pos");
@@ -70,8 +67,6 @@ function get_book_page($book_id, $full = false) {
                 $tokens[] = array('text' => $r1['tf_text'], 'id' => $r1['tf_id']);
             }
             $new_a = array('id' => $r['sent_id'], 'pos' => $r['spos'], 'tokens' => $tokens);
-            if (user_has_permission(PERM_ADDER))
-                $new_a['checked'] = $r['status'];
             $out['paragraphs'][$r['ppos']]['sentences'][] = $new_a;
             $out['paragraphs'][$r['ppos']]['id'] = $r['par_id'];
         }
@@ -386,8 +381,6 @@ function split_sentence($token_id) {
     sql_query("UPDATE tokens SET sent_id=$new_sent_id, pos=pos-$tpos WHERE sent_id=$sent_id AND pos>$tpos");
     //change source in the original sentence
     sql_pe("UPDATE sentences SET check_status=0, source=? WHERE sent_id=? LIMIT 1", array($source_left, $sent_id));
-    //drop status
-    sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id");
     //delete from strange splitting
     sql_query("DELETE FROM sentences_strange WHERE sent_id=$sent_id LIMIT 1");
 
@@ -427,7 +420,6 @@ function merge_sentences($id1, $id2) {
     //dropping status, moving comments
     sql_pe("UPDATE sentences SET check_status=0 WHERE sent_id=? LIMIT 1", array($id1));
     sql_pe("UPDATE sentence_comments SET sent_id=? WHERE sent_id=?", array($id1, $id2));
-    sql_pe("DELETE FROM sentence_check WHERE sent_id=? OR sent_id=?", array($id1, $id2));
 
     // change syntax markup accordingly
     sql_pe("UPDATE syntax_parses SET sent_id = ? WHERE sent_id = ?", array($id1, $id2));
@@ -448,7 +440,6 @@ function delete_sentence($sid) {
 
     sql_begin();
     sql_pe("DELETE FROM sentence_authors WHERE sent_id=? LIMIT 1", array($sid));
-    sql_pe("DELETE FROM sentence_check WHERE sent_id=?", array($sid));
     sql_pe("DELETE FROM sentence_comments WHERE sent_id=?", array($sid));
 
     foreach (sql_pe("SELECT tf_id FROM tokens WHERE sent_id=?", array($sid)) as $r)
@@ -560,7 +551,6 @@ function merge_tokens_ii(array $id_array) {
     create_tf_revision($revset_id, $new_id, $parse->to_xml());
     //drop sentence status
     sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$sent_id LIMIT 1");
-    sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id");
     sql_commit();
 }
 function split_token($token_id, $num) {
@@ -607,7 +597,6 @@ function split_token($token_id, $num) {
     $sent_id = $res[0]['sent_id'];
 
     sql_query("UPDATE sentences SET check_status='0' WHERE sent_id=$sent_id LIMIT 1");
-    sql_query("DELETE FROM sentence_check WHERE sent_id=$sent_id");
 
     sql_commit();
     

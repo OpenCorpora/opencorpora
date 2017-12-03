@@ -262,19 +262,6 @@ function dict_add_exc_prepare($btn) {
         $(this).closest('form').submit()
     })
 }
-function save_check_tokens($el) {
-    $el.attr('disabled', 'disabled');
-    $.post('ajax/save_check.php', {'type':'token', 'id':$el.attr('id').substr(1), 'value':$el.is(':checked')},
-        function(res) {
-            if (res.error) {
-                alert('Check failed');
-            } else {
-                $el.closest('tr').fadeTo("normal", 0.4);
-            }
-        }
-    )
-    $el.removeAttr('disabled');
-}
 function show_edit_token($el) {
     var tid = parseInt($el.attr('id').substr(1));
     var $e = $("#edit_tok");

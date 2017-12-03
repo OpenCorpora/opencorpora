@@ -30,7 +30,6 @@ def merge(dbh, id1_, id2_):
         "UPDATE ne_paragraph_comments SET user_id = {} WHERE user_id = {}",
         "UPDATE rev_sets SET user_id = {} WHERE user_id = {}",
         "UPDATE sentence_authors SET user_id = {} WHERE user_id = {}",
-        "UPDATE sentence_check SET user_id = {} WHERE user_id = {}",
         "UPDATE sentence_comments SET user_id = {} WHERE user_id = {}",
         "UPDATE sources SET user_id = {} WHERE user_id = {}",
         "UPDATE sources_comments SET user_id = {} WHERE user_id = {}",

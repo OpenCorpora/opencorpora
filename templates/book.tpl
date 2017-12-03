@@ -14,9 +14,6 @@
             }
             {/literal}{if $user_permission_adder}{literal}
 
-            $("input.tok").click(function(){
-                save_check_tokens($(this));
-            });
             $(".tok_c").click(function(){
                 show_edit_token($(this));
             });
@@ -189,9 +186,6 @@
                             <a href="?act=del_sentence&amp;sid={$sentence.id}&amp;book_id={$book.id}" title="Удалить предложение" class="dls">X</a>
                         {/if}
                         </td><td>
-                        {if $user_permission_check_tokens}
-                            <span><input type="checkbox" {if $sentence.checked}checked="checked"{/if} class="tok" id="s{$sentence.id}"/></span>&nbsp;
-                        {/if}
                         {foreach name=t item=token from=$sentence.tokens}
                             {if $user_permission_adder}
                             <span class="tok_c" id="t{$token.id}">{$token.text|htmlspecialchars}</span>

@@ -6,7 +6,7 @@ define('PERM_ADMIN', 1);
 define('PERM_DICT', 2);
 define('PERM_ADDER', 3);
 define('PERM_DISAMB', 4);
-define('PERM_CHECK_TOKENS', 5);
+//define('PERM_CHECK_TOKENS', 5);
 define('PERM_MORPH_MODER', 6);
 define('PERM_MORPH_SUPERMODER', 7);
 define('PERM_SYNTAX', 8);
