@@ -109,7 +109,8 @@ class FeatureCalculator {
             (is_bracket2($char)     ? '1001' :
             (is_single_quote($char) ? '1010' :
             (is_slash($char)        ? '1011' :
-            (is_colon($char)        ? '1100' : '0000')))))))))));
+            (is_colon($char)        ? '1100' :
+            (is_pmark2($char)       ? '1101' : '0000'))))))))))));
         return array_map('intval', str_split($ret));
     }
 
@@ -475,8 +476,11 @@ function is_number($char) {
     return (int)is_numeric($char);
 }
 function is_pmark($char) {
-    $re_punctuation = '/[,!\?;"\xAB\xBB]/u';
+    $re_punctuation = '/[,;"\xAB\xBB]/u';
     return preg_match($re_punctuation, $char);
+}
+function is_pmark2($char) {
+    return (int)($char == '?' || $char == '!');
 }
 function is_bracket1($char) {
     $re_bracket = '/[\(\[\{\<]/u';
