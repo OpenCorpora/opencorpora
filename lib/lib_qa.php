@@ -3,15 +3,15 @@ require_once('constants.php');
 
 function get_page_tok_strange($newest = false) {
     check_permission(PERM_ADDER);
-    $res = sql_query("SELECT timestamp, param_value FROM stats_values WHERE param_id=7 ORDER BY timestamp DESC LIMIT 1");
-    $r = sql_fetch_array($res);
+    global $config;
+    $stats_file = $config['project']['root'] . '/scripts/tokenizer/sure.txt';
     $out = array(
-        'timestamp' => $r['timestamp'],
-        'coeff' => $r['param_value'] / 1000,
+        'timestamp' => stat($stats_file)[9],
+        'coeff' => trim(file($stats_file)[0]) / 1000,
         'broken' => array(),
         'items' => array()
     );
-    $res = sql_fetchall(sql_query("SELECT param_value FROM stats_values WHERE param_id=28 ORDER BY param_value"));
+    $res = sql_fetchall(sql_query("SELECT param_value FROM stats_values WHERE param_id=".STATS_BROKEN_TOKEN_IDS." ORDER BY param_value"));
     $res1 = sql_prepare("SELECT tf_text, sent_id FROM tokens WHERE tf_id=? LIMIT 1");
     foreach ($res as $r) {
         sql_execute($res1, array($r['param_value']));

@@ -22,7 +22,7 @@ define('OPT_NE_QUICK', 5);
 define('OPT_NE_TAGSET', 6);
 define('OPT_GAME_ON', 7);
 
-define('STATS_TOKENIZER_SURE_RATIO', 7);
+//define('STATS_TOKENIZER_SURE_RATIO', 7);
 define('STATS_BROKEN_TOKEN_IDS', 28);
 define('STATS_ANNOTATOR_DIVERGENCE_TOTAL', 34);
 

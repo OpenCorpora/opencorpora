@@ -404,7 +404,8 @@ class Tokenizer {
                 $this->oddity[$key] = $ratio > 0.5 ? $ratio : (1 - $ratio);
             }
         }
-        self::_add_stats_value(STATS_TOKENIZER_SURE_RATIO, intval($sure_cases / $all_cases * 100000));
+
+        safe_write($this->files_dir . '/' . 'sure.txt', 'w', intval($sure_cases / $all_cases * 100000));
     }
 
     private static function _add_stats_value($param, $value) {
