@@ -47,13 +47,13 @@ class FeatureCalculator {
         $this->exceptions = $exception_list;
     }
 
-    public function calc($text, $pos) {
+    public function calc($text, $all_chars, $pos) {
         $this->values = array_fill(0, Features::MAX + 1, 0);
         $chars = array(
-            -1 => $pos > 0 ? mb_substr($text, $pos-1, 1) : '',
-            0 => mb_substr($text, $pos, 1),
-            1 => mb_substr($text, $pos+1, 1),
-            2 => mb_substr($text, $pos+2, 1)
+            -1 => $pos > 0 ? $all_chars[$pos-1] : '',
+            0 => $all_chars[$pos],
+            1 => sizeof($all_chars) > $pos+1 ? $all_chars[$pos+1] : ' ',
+            2 => sizeof($all_chars) > ($pos+2) ? $all_chars[$pos+2] : ' '
         );
 
         $this->_calc_char_classes($chars);
@@ -72,7 +72,7 @@ class FeatureCalculator {
             $this->values[Features::LOOKS_LIKE_TIME] = looks_like_time($seq['left'], $seq['right']);
         }
 
-        $tok = $this->_get_current_token($text, $pos);
+        $tok = $this->_get_current_token($text, $all_chars, $pos);
         $this->values[Features::IS_EXCEPTION] = $this->_is_exception($tok);
 
         return $this->values;
@@ -145,14 +145,14 @@ class FeatureCalculator {
         return in_array(mb_strtolower($s), $this->prefixes) ? 1 : 0;
     }
 
-    private static function _get_current_token($text, $pos) {
-        if (is_space(mb_substr($text, $pos, 1)))
+    private static function _get_current_token($text, $chars, $pos) {
+        if ($chars[$pos] === ' ')
             return "";
         $left = $pos;
         $right = $pos;
-        while ($left > 0 && !is_space(mb_substr($text, $left-1, 1)))
+        while ($left > 0 && $chars[$left-1] !== ' ')
             --$left;
-        while ($right < mb_strlen($text) && !is_space(mb_substr($text, $right, 1)))
+        while ($right < sizeof($chars) && $chars[$right] !== ' ')
             ++$right;
 
         return mb_substr($text, $left, ($right - $left));
@@ -252,12 +252,12 @@ class Tokenizer {
         $this->feat_calcer = new FeatureCalculator($prefixes, $exceptions);
     }
 
-    public function train() {
+    public function train($limit = 0) {
         $this->stats = array();  // forget what was read
         sql_begin();
         $this->_clear_db();
-        $this->_train(1);
-        $this->_train(2);
+        $this->_train(1, $limit);
+        $this->_train(2, $limit);
         sql_commit();
     }
 
@@ -265,12 +265,10 @@ class Tokenizer {
         $out = array();
         $token = '';
 
-        $text = $this->_prepare_text($text);
-
-        $text .= '  ';  // for features about following characters to work at end
+        list($text, $chars) = $this->_prepare_text($text);
 
         for ($i = 0; $i < mb_strlen($text); ++$i) {
-            $vector = $this->feat_calcer->calc($text, $i);
+            $vector = $this->feat_calcer->calc($text, $chars, $i);
             $key = $this->_feats_as_string($vector);
 
             if (isset($this->stats[$key])) {
@@ -298,20 +296,20 @@ class Tokenizer {
         }
     }
 
-    private function _get_features_vector($text, $pos) {
+    private function _get_features_vector($text, $chars, $pos) {
         // returns vector of 0's and 1's
-        return $this->feat_calcer->calc($text, $pos);
+        return $this->feat_calcer->calc($text, $chars, $pos);
     }
 
-    private function _train($pass) {
+    private function _train($pass, $limit) {
         // 2 passes: 1st pass: calculate stats, 2nd pass: save strange cases
-        foreach ($this->_get_training_sentences() as $sentence) {
-            $text = $this->_prepare_text($sentence['text']);
+        foreach ($this->_get_training_sentences($limit) as $sentence) {
+            list($text, $chars) = $this->_prepare_text($sentence['text']);
             $border_pos = $this->_get_border_positions($text, $sentence['tokens'], $pass == 2);
             if (!sizeof($border_pos))
                 continue;
             for ($i = 0; $i < mb_strlen($text); ++$i) {
-                $fs = $this->_get_features_vector($text, $i);
+                $fs = $this->_get_features_vector($text, $chars, $i);
                 $is_border = in_array($i, $border_pos);
                 switch ($pass) {
                 case 1:
@@ -343,11 +341,12 @@ class Tokenizer {
         sql_query("DELETE FROM stats_values WHERE param_id = " . STATS_BROKEN_TOKEN_IDS);
     }
 
-    private function _get_training_sentences() {
+    private function _get_training_sentences($limit = 0) {
         $res = sql_query("
             SELECT sent_id, source, tf_id, tf_text
             FROM sentences
             LEFT JOIN tokens USING (sent_id)
+            " . ($limit > 0 ? " WHERE sent_id <= $limit" : "") . "
             ORDER BY sent_id, tokens.pos
         ");
         $sentence = array('tokens' => array(), 'id' => 0, 'text' => '');
@@ -371,7 +370,13 @@ class Tokenizer {
     }
 
     private static function _prepare_text($text) {
-        return Normalizer::normalize($text, Normalizer::FORM_C);
+        $ntext = Normalizer::normalize($text, Normalizer::FORM_C);
+        //$chars = preg_split('//u', $ntext, null);
+        $chars = array_map(function ($i) use ($ntext) {
+            return mb_substr($ntext, $i, 1);
+        }, range(0, mb_strlen($ntext) -1));
+
+        return array($ntext, $chars);
     }
 
     private static function _get_border_positions($text, $tokens, $save_broken_tokens=true) {
