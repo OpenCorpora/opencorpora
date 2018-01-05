@@ -144,18 +144,21 @@ class FeatureCalculator {
     }
 
     private static function _get_current_sequences($text, $pos, $chars) {
+        static $SYMBOLS = '/([\.\/\?\=\:&"!\+\(\)`])/u';
         $chain_left = $chain_right = '';
         $odd_symbol = '';
+
         if (is_hyphen($chars[0]) || is_hyphen($chars[1])) {
             $odd_symbol = '-';
         }
-        elseif (preg_match('/([\.\/\?\=\:&"!\+\(\)])/u', $chars[0], $match) || preg_match('/([\.\/\?\=\:&"!\+\(\)])/u', $chars[1], $match)) {
+        elseif (preg_match($SYMBOLS, $chars[0], $match) || preg_match($SYMBOLS, $chars[1], $match)) {
             $odd_symbol = $match[1];
         }
+
         if ($odd_symbol) {
             for ($j = $pos; $j >= 0; --$j) {
                 $t = mb_substr($text, $j, 1);
-                if (($odd_symbol == '-' && (is_cyr($t) || is_hyphen($t) || $t === "'")) ||
+                if (($odd_symbol == '-' && is_word_char($t)) ||
                     ($odd_symbol != '-' && !is_space($t))) {
                     $chain_left = $t.$chain_left;
                 } else {
@@ -167,7 +170,7 @@ class FeatureCalculator {
             }
             for ($j = $pos+1; $j < mb_strlen($text); ++$j) {
                 $t = mb_substr($text, $j, 1);
-                if (($odd_symbol == '-' && (is_cyr($t) || is_hyphen($t) || $t === "'")) ||
+                if (($odd_symbol == '-' && is_word_char($t)) ||
                     ($odd_symbol != '-' && !is_space($t))) {
                     $chain_right .= $t;
                 } else {
@@ -472,6 +475,9 @@ function is_cyr($char) {
 function is_latin($char) {
     $re_lat = '/\p{Latin}/u';
     return preg_match($re_lat, $char);
+}
+function is_word_char($char) {
+    return is_cyr($char) || is_hyphen($char) || $char === "'";
 }
 function is_number($char) {
     return (int)is_numeric($char);
