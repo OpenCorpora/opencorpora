@@ -66,12 +66,14 @@ class FeatureCalculator {
         }
         elseif ($seq['delimiter'] !== '') {
             $this->values[Features::LOOKS_LIKE_URL] = looks_like_url($seq['full'], $seq['right']);
-            $this->values[Features::IS_EXCEPTION] = $this->_is_exception($seq['full']);
         }
 
         if ($seq['delimiter'] == ':') {
             $this->values[Features::LOOKS_LIKE_TIME] = looks_like_time($seq['left'], $seq['right']);
         }
+
+        $tok = $this->_get_current_token($text, $pos);
+        $this->values[Features::IS_EXCEPTION] = $this->_is_exception($tok);
 
         return $this->values;
     }
@@ -141,6 +143,19 @@ class FeatureCalculator {
     }
     private function _is_prefix($s) {
         return in_array(mb_strtolower($s), $this->prefixes) ? 1 : 0;
+    }
+
+    private static function _get_current_token($text, $pos) {
+        if (is_space(mb_substr($text, $pos, 1)))
+            return "";
+        $left = $pos;
+        $right = $pos;
+        while ($left > 0 && !is_space(mb_substr($text, $left-1, 1)))
+            --$left;
+        while ($right < mb_strlen($text) && !is_space(mb_substr($text, $right, 1)))
+            ++$right;
+
+        return mb_substr($text, $left, ($right - $left));
     }
 
     private static function _get_current_sequences($text, $pos, $chars) {
