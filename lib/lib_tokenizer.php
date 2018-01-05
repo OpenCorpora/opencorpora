@@ -99,21 +99,20 @@ class FeatureCalculator {
     }
 
     private static function _char_class($char) {
-        $ret =
-            is_cyr($char)           ? '0001' :
-            (is_space($char)        ? '0010' :
-            (is_dot($char)          ? '0011' :
-            (is_pmark($char)        ? '0100' :
-            (is_hyphen($char)       ? '0101' :
-            (is_number($char)       ? '0110' :
-            (is_latin($char)        ? '0111' :
-            (is_bracket1($char)     ? '1000' :
-            (is_bracket2($char)     ? '1001' :
-            (is_single_quote($char) ? '1010' :
-            (is_slash($char)        ? '1011' :
-            (is_colon($char)        ? '1100' :
-            (is_pmark2($char)       ? '1101' : '0000'))))))))))));
-        return array_map('intval', str_split($ret));
+        if (is_cyr($char))          return [0,0,0,1];
+        if (is_space($char))        return [0,0,1,0];
+        if (is_dot($char))          return [0,0,1,1];
+        if (is_pmark($char))        return [0,1,0,0];
+        if (is_hyphen($char))       return [0,1,0,1];
+        if (is_number($char))       return [0,1,1,0];
+        if (is_latin($char))        return [0,1,1,1];
+        if (is_bracket1($char))     return [1,0,0,0];
+        if (is_bracket2($char))     return [1,0,0,1];
+        if (is_single_quote($char)) return [1,0,1,0];
+        if (is_slash($char))        return [1,0,1,1];
+        if (is_colon($char))        return [1,1,0,0];
+        if (is_pmark2($char))       return [1,1,0,1];
+        return [0,0,0,0];
     }
 
     private static function _is_dictionary_word($word) {
