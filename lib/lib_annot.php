@@ -32,7 +32,7 @@ class MorphParse {
         // bad but quick
         $gram_find_str = join(':', $gram_find);
         $gram_replace_str = join(':', $gram_replace);
-        $old_gram_str = join(':', array_map(function($a) { return $a['inner']; }, $this->gramlist));
+        $old_gram_str = join(':', $this->get_inner_gramlist());
         $gramlist_inner = explode(':', str_replace($gram_find_str, $gram_replace_str, $old_gram_str));
         // additional info (outer, descr) is lost, seems ok
         $this->gramlist = array();
@@ -53,7 +53,7 @@ class MorphParse {
     }
 
     public function get_inner_gramlist() {
-        return array_map(function($e) {return $e['inner'];}, $this->gramlist);
+        return array_column($this->gramlist, 'inner');
     }
 }
 
