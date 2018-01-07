@@ -358,7 +358,9 @@ class Tokenizer {
     }
 
     private function _readfile($name) {
-        return file($this->files_dir . '/' . $name, FILE_IGNORE_NEW_LINES);
+        return preg_grep('/^#/',
+                         file($this->files_dir . '/' . $name, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES),
+                         PREG_GREP_INVERT);
     }
 
     private function _clear_db() {
