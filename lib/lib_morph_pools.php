@@ -181,7 +181,6 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
                 );
             }
             $t['disagreed'] = $disagreement_flag;
-            $t['comments'] = get_sample_comments($r['sample_id']);
             //for moderators
             if ($out['status'] > MA_POOLS_STATUS_ANSWERED) {
                 $r1 = sql_fetch_array(sql_query("SELECT answer, status FROM morph_annot_moderated_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
@@ -240,6 +239,14 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     $out['user_colors'] = $distinct_users;
     $out['filter'] = $filter;
     $out['pages']['total'] = $samples_by_page ? ceil($out['pages']['total'] / $samples_by_page) : 1;
+
+    // add comments
+    $sample_ids = array_column($out['samples'], 'id');
+    $comments = get_comments_for_samples($sample_ids);
+    foreach ($out['samples'] as &$sample) {
+        $sample['comments'] = isset($comments[$sample['id']]) ? $comments[$sample['id']] : array();
+    }
+
     return $out;
 }
 function get_pool_candidates_page($type_id) {
@@ -1044,11 +1051,19 @@ function save_moderated_answer($id, $answer, $manual, $field_name='answer') {
 function save_moderated_status($id, $status) {
     return save_moderated_answer($id, $status, 1, 'status');
 }
-function get_sample_comments($sample_id) {
-    $res = sql_query("SELECT comment_id, user_shown_name AS user_name, timestamp, text FROM morph_annot_comments LEFT JOIN users USING(user_id) WHERE sample_id=$sample_id ORDER BY timestamp");
+function get_comments_for_samples(array $sample_ids) {
+    $res = sql_pe("
+        SELECT sample_id, comment_id, user_shown_name AS user_name, timestamp, text
+        FROM morph_annot_comments
+            LEFT JOIN users USING(user_id)
+        WHERE sample_id IN (".join(',', $sample_ids).")
+        ORDER BY timestamp
+    ");
     $out = array();
-    while ($r = sql_fetch_array($res)) {
-        $out[] = array(
+    foreach ($res as $r) {
+        $sample_id = $r['sample_id'];
+        if (!isset($out[$sample_id])) $out[$sample_id] = array();
+        $out[$sample_id][] = array(
             'id' => $r['comment_id'],
             'author' => $r['user_name'],
             'timestamp' => $r['timestamp'],
