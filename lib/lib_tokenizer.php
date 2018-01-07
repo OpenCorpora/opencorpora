@@ -32,8 +32,10 @@ class Features {
     const IS_EXCEPTION = 14;
     const HAS_PREFIX = 15;
     const LOOKS_LIKE_TIME = 16;
+    const SPECIAL = 17;
 
-    const MAX = self::LOOKS_LIKE_TIME;
+
+    const MAX = self::SPECIAL;
 }
 
 class FeatureCalculator {
@@ -47,8 +49,22 @@ class FeatureCalculator {
         $this->exceptions = $exception_list;
     }
 
-    public function calc($text, $all_chars, $pos) {
+    public function calc($all_chars, $pos) {
         $this->values = array_fill(0, Features::MAX + 1, 0);
+        if ($pos+1 < sizeof($all_chars)) {
+            // special basic case between two cyr chars
+            if (is_cyr($all_chars[$pos]) && is_cyr($all_chars[$pos+1])) {
+                $this->values[Features::SPECIAL] = 1;
+                return $this->values;
+            }
+            // another basic case before a space
+            if (is_space($all_chars[$pos+1]) && !is_space($all_chars[$pos])) {
+                $this->values[Features::SPECIAL] = 1;
+                $this->values[0] = 1;
+                return $this->values;
+            }
+        }
+
         $chars = array(
             -1 => $pos > 0 ? $all_chars[$pos-1] : '',
             0 => $all_chars[$pos],
@@ -58,21 +74,22 @@ class FeatureCalculator {
 
         $this->_calc_char_classes($chars);
 
-        $seq = $this->_get_current_sequences($text, $pos, $chars);
-        if ($seq['delimiter'] == '-') {
+        $seq = $this->_get_current_sequences($all_chars, $pos, $chars);
+        $delim = $seq['delimiter'];
+        if ($delim == '-') {
             $this->values[Features::WORD_FROM_DICT] = $this->_is_dictionary_word($seq['full']);
             $this->values[Features::HAS_PREFIX] = $this->_is_prefix($seq['left']);
             $this->values[Features::HAS_SUFFIX] = $this->_is_suffix($seq['right']);
         }
-        elseif ($seq['delimiter'] !== '') {
+        elseif ($delim !== '') {
             $this->values[Features::LOOKS_LIKE_URL] = looks_like_url($seq['full'], $seq['right']);
         }
 
-        if ($seq['delimiter'] == ':') {
+        if ($delim == ':') {
             $this->values[Features::LOOKS_LIKE_TIME] = looks_like_time($seq['left'], $seq['right']);
         }
 
-        $tok = $this->_get_current_token($text, $all_chars, $pos);
+        $tok = $this->_get_current_token($all_chars, $pos);
         $this->values[Features::IS_EXCEPTION] = $this->_is_exception($tok);
 
         return $this->values;
@@ -144,20 +161,21 @@ class FeatureCalculator {
         return in_array(mb_strtolower($s), $this->prefixes) ? 1 : 0;
     }
 
-    private static function _get_current_token($text, $chars, $pos) {
+    private static function _get_current_token($chars, $pos) {
         if ($chars[$pos] === ' ')
             return "";
+        $text_size = sizeof($chars);
         $left = $pos;
         $right = $pos;
         while ($left > 0 && $chars[$left-1] !== ' ')
             --$left;
-        while ($right < sizeof($chars) && $chars[$right] !== ' ')
+        while ($right < $text_size && $chars[$right] !== ' ')
             ++$right;
 
-        return mb_substr($text, $left, ($right - $left));
+        return implode('', array_slice($chars, $left, ($right - $left)));
     }
 
-    private static function _get_current_sequences($text, $pos, $chars) {
+    private static function _get_current_sequences($all_chars, $pos, $chars) {
         static $SYMBOLS = '/([\.\/\?\=\:&"!\+\(\)`])/u';
         $chain_left = $chain_right = '';
         $odd_symbol = '';
@@ -171,7 +189,7 @@ class FeatureCalculator {
 
         if ($odd_symbol) {
             for ($j = $pos; $j >= 0; --$j) {
-                $t = mb_substr($text, $j, 1);
+                $t = $all_chars[$j];
                 if (($odd_symbol == '-' && is_word_char($t)) ||
                     ($odd_symbol != '-' && !is_space($t))) {
                     $chain_left = $t.$chain_left;
@@ -182,8 +200,8 @@ class FeatureCalculator {
                     $chain_left = mb_substr($chain_left, 0, -1);
                 }
             }
-            for ($j = $pos+1; $j < mb_strlen($text); ++$j) {
-                $t = mb_substr($text, $j, 1);
+            for ($j = $pos+1; $j < sizeof($all_chars); ++$j) {
+                $t = $all_chars[$j];
                 if (($odd_symbol == '-' && is_word_char($t)) ||
                     ($odd_symbol != '-' && !is_space($t))) {
                     $chain_right .= $t;
@@ -266,8 +284,8 @@ class Tokenizer {
 
         list($text, $chars) = $this->_prepare_text($text);
 
-        for ($i = 0; $i < mb_strlen($text); ++$i) {
-            $vector = $this->feat_calcer->calc($text, $chars, $i);
+        for ($i = 0; $i < sizeof($chars); ++$i) {
+            $vector = $this->feat_calcer->calc($chars, $i);
             $key = $this->_feats_as_string($vector);
 
             if (isset($this->stats[$key])) {
@@ -295,11 +313,6 @@ class Tokenizer {
         }
     }
 
-    private function _get_features_vector($text, $chars, $pos) {
-        // returns vector of 0's and 1's
-        return $this->feat_calcer->calc($text, $chars, $pos);
-    }
-
     private function _train($pass, $limit) {
         // 2 passes: 1st pass: calculate stats, 2nd pass: save strange cases
         foreach ($this->_get_training_sentences($limit) as $sentence) {
@@ -307,9 +320,11 @@ class Tokenizer {
             $border_pos = $this->_get_border_positions($text, $sentence['tokens'], $pass == 2);
             if (!sizeof($border_pos))
                 continue;
-            for ($i = 0; $i < mb_strlen($text); ++$i) {
-                $fs = $this->_get_features_vector($text, $chars, $i);
+
+            for ($i = 0; $i < sizeof($chars); ++$i) {
+                $fs = $this->feat_calcer->calc($chars, $i);
                 $is_border = in_array($i, $border_pos);
+
                 switch ($pass) {
                 case 1:
                     $this->_update_stats($fs, $is_border);
@@ -488,11 +503,11 @@ function is_same_char($char1, $char2) {
     return (int)($char1===$char2);
 }
 function is_cyr($char) {
-    $re_cyr = '/\p{Cyrillic}/u';
+    static $re_cyr = '/\p{Cyrillic}/u';
     return preg_match($re_cyr, $char);
 }
 function is_latin($char) {
-    $re_lat = '/\p{Latin}/u';
+    static $re_lat = '/\p{Latin}/u';
     return preg_match($re_lat, $char);
 }
 function is_word_char($char) {
@@ -502,26 +517,26 @@ function is_number($char) {
     return (int)is_numeric($char);
 }
 function is_pmark($char) {
-    $re_punctuation = '/[,;"\xAB\xBB]/u';
+    static $re_punctuation = '/[,;"\xAB\xBB]/u';
     return preg_match($re_punctuation, $char);
 }
 function is_pmark2($char) {
     return (int)($char == '?' || $char == '!');
 }
 function is_bracket1($char) {
-    $re_bracket = '/[\(\[\{\<]/u';
+    static $re_bracket = '/[\(\[\{\<]/u';
     return preg_match($re_bracket, $char);
 }
 function is_bracket2($char) {
-    $re_bracket = '/[\)\]\}\>]/u';
+    static $re_bracket = '/[\)\]\}\>]/u';
     return preg_match($re_bracket, $char);
 }
 function looks_like_url($s, $suffix) {
     if (!$suffix || substr($s, 0, 1) === '.' || mb_strlen($s) < 5)
         return 0;
-    $re1 = '/^\W*https?\:\/\/?/u';
-    $re2 = '/^\W*www\./u';
-    $re3 = '/.\.(?:[a-z]{2,3}|ру|рф)\W*$/iu';
+    static $re1 = '/^\W*https?\:\/\/?/u';
+    static $re2 = '/^\W*www\./u';
+    static $re3 = '/.\.(?:[a-z]{2,3}|ру|рф)\W*$/iu';
     if (preg_match($re1, $s) || preg_match($re2, $s) || preg_match($re3, $s)) {
         return 1;
     }
