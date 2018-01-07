@@ -118,16 +118,32 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     $orderby_str =
         $orderby == "text"
             ? "tf_text"
-            : "COUNT(DISTINCT(i.answer)) DESC, answer, tf_text";
+            : "COUNT(DISTINCT(i.answer)) DESC, i.answer, tf_text";
 
     $res = sql_pe("
-        SELECT sample_id, s.tf_id
+        SELECT sample_id, tf_id, book_id,
+            ".($extended ? "
+                rev_text AS current_revision,
+                ms.answer AS mod_answer,
+                ms.status AS mod_status,
+            " : "")."
+            COUNT(i.instance_id) AS answered
         FROM morph_annot_samples s
         LEFT JOIN tokens f
             USING (tf_id)
+        LEFT JOIN tf_revisions
+            USING (tf_id)
         LEFT JOIN morph_annot_instances i
             USING (sample_id)
+        LEFT JOIN sentences
+            USING (sent_id)
+        LEFT JOIN paragraphs
+            USING (par_id)
+        LEFT JOIN morph_annot_moderated_samples ms
+            USING (sample_id)
         WHERE pool_id=?
+            AND i.answer > 0
+            ".($extended ? " AND is_last=1" : "")."
         GROUP BY sample_id
         ORDER BY $orderby_str, sample_id
     ", array($pool_id));
@@ -140,6 +156,10 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         'total' => 0
     );
 
+    // experimental, see issue 743
+    if ($extended)
+        $context_width = 1000;
+
     require_once('ModerationFilter.php');
     $mod_filter = new ModerationFilter();
 
@@ -147,13 +167,10 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         $t = get_context_for_word($r['tf_id'], $context_width);
         $t['id'] = $r['sample_id'];
         $t['token_id'] = $r['tf_id'];
-        $r1 = sql_fetch_array(sql_query("SELECT book_id FROM paragraphs WHERE par_id = (SELECT par_id FROM sentences WHERE sent_id = ".$t['sentence_id']." LIMIT 1) LIMIT 1"));
-        $t['book_id'] = $r1['book_id'];
-        $r1 = sql_fetch_array(sql_query("SELECT COUNT(*) FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." AND answer>0"));
-        $t['answered'] = $r1[0];
+        $t['book_id'] = $r['book_id'];
+        $t['answered'] = $r['answered'];
         if ($extended) {
-            $r1 = sql_fetch_array(sql_query("SELECT rev_text FROM tf_revisions WHERE tf_id = ".$r['tf_id']." AND is_last=1 LIMIT 1"));
-            $pset = new MorphParseSet($r1['rev_text']);
+            $pset = new MorphParseSet($r['current_revision']);
             $t['parses'] = $pset->parses;
             $res1 = sql_query("SELECT instance_id, user_id, answer FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." ORDER BY instance_id");
             $disagreement_flag = 0;
@@ -183,15 +200,14 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
             $t['disagreed'] = $disagreement_flag;
             //for moderators
             if ($out['status'] > MA_POOLS_STATUS_ANSWERED) {
-                $r1 = sql_fetch_array(sql_query("SELECT answer, status FROM morph_annot_moderated_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1"));
-                $t['moder_answer_num'] = $r1['answer'];
-                $t['moder_status_num'] = $r1['status'];
-                if ($r1['status'] != MA_SAMPLES_STATUS_OK)
+                $t['moder_answer_num'] = $r['mod_answer'];
+                $t['moder_status_num'] = $r['mod_status'];
+                if ($r['mod_status'] != MA_SAMPLES_STATUS_OK)
                     $not_ok_flag = true;
                 if ($t['moder_answer_num'] == 0)
                     $out['all_moderated'] = false;
                 else {
-                    $t['moder_answer_gram'] = ($r1['answer'] == MA_ANSWER_OTHER ? 'Other' : $pool_gram[$r1['answer']-1]);
+                    $t['moder_answer_gram'] = ($r['mod_answer'] == MA_ANSWER_OTHER ? 'Other' : $pool_gram[$r['mod_answer']-1]);
                     // highlight samples where the moderator disagreed with all the annotators
                     if (!$t['disagreed'] && $t['moder_answer_num'] != $t['instances'][0]['answer_num'])
                         $t['disagreed'] = 2;
