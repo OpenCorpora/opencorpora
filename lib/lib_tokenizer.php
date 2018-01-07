@@ -295,7 +295,7 @@ class Tokenizer {
         $out = array();
         $token = '';
 
-        list($text, $chars) = $this->_prepare_text($text);
+        $chars = $this->_prepare_text($text);
 
         for ($i = 0; $i < sizeof($chars); ++$i) {
             $key = $this->feat_calcer->calc($chars, $i);
@@ -306,7 +306,7 @@ class Tokenizer {
                 $sum = 0.5;
             }
 
-            $token .= mb_substr($text, $i, 1);
+            $token .= $chars[$i];
 
             if ($sum > $min_weight) {
                 $token = trim($token);
@@ -328,8 +328,8 @@ class Tokenizer {
     private function _train($pass, $limit) {
         // 2 passes: 1st pass: calculate stats, 2nd pass: save strange cases
         foreach ($this->_get_training_sentences($limit) as $sentence) {
-            list($text, $chars) = $this->_prepare_text($sentence['text']);
-            $border_pos = $this->_get_border_positions($text, $sentence['tokens'], $pass == 2);
+            $chars = $this->_prepare_text($sentence['text']);
+            $border_pos = $this->_get_border_positions($chars, $sentence['tokens'], $pass == 2);
             if (!sizeof($border_pos))
                 continue;
 
@@ -397,22 +397,17 @@ class Tokenizer {
 
     private static function _prepare_text($text) {
         $ntext = Normalizer::normalize($text, Normalizer::FORM_C);
-        //$chars = preg_split('//u', $ntext, null);
-        $chars = array_map(function ($i) use ($ntext) {
-            return mb_substr($ntext, $i, 1);
-        }, range(0, mb_strlen($ntext) -1));
-
-        return array($ntext, $chars);
+        return mb_char_split($ntext);
     }
 
-    private static function _get_border_positions($text, $tokens, $save_broken_tokens=true) {
+    private static function _get_border_positions($chars, $tokens, $save_broken_tokens=true) {
         // returns list of positions (0-based int)
         $borders = array();
         $pos = 0;
         foreach ($tokens as $token) {
             $token_len = mb_strlen($token['text']);
-            while (mb_substr($text, $pos, $token_len) !== $token['text']) {
-                if (++$pos > mb_strlen($text)) {
+            while (implode('', array_slice($chars, $pos, $token_len)) !== $token['text']) {
+                if (++$pos > sizeof($chars)) {
                     if ($save_broken_tokens)
                         self::_save_broken_token($token['id']);
                     return array();
@@ -482,6 +477,11 @@ class Tokenizer {
 }
 
 
+function mb_char_split($s) {
+    return array_map(function ($i) use ($s) {
+        return mb_substr($s, $i, 1);
+    }, range(0, mb_strlen($s) -1));
+}
 function uniord($u) {
     $c = unpack("N", mb_convert_encoding($u, 'UCS-4BE', 'UTF-8'));
     return $c[1];
