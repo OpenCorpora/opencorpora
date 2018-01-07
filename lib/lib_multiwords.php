@@ -131,7 +131,7 @@ class MultiWordSearchRule {
         foreach (explode(' ', trim($parts[0])) as $t) {
             $this->tokens[] = array($t, self::EXACT_FORM);
         }
-        $this->t_index = array_unique(array_map(function($e) {return $e[0];}, $this->tokens));
+        $this->t_index = array_unique(array_column($this->tokens, 0));
         usort($this->t_index, array("MultiWordSearchRule", "cmp_tokens"));
     }
     
@@ -150,7 +150,7 @@ class MultiWordSearchRule {
 
     // returns array of FoundTokens() objects
     public function do_search() {
-        echo "searching for " . implode(" ", array_map(function($e) {return $e[0];}, $this->tokens)) . "\n";
+        echo "searching for " . implode(" ", array_column($this->tokens, 0)) . "\n";
         $found = array();
         // get candidates = all tokens from sentences, containing all required tokens
         $res = sql_query($this->_construct_query());
