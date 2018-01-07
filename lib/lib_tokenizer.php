@@ -16,24 +16,26 @@ function split2sentences($txt) {
 
 // Features
 // XXX these should be class constants but this is not available until PHP 5.6
-    define('CURRENT_CHAR_CLASS_1', 1 << 0);
-    define('CURRENT_CHAR_CLASS_2', 1 << 1);
-    define('CURRENT_CHAR_CLASS_3', 1 << 2);
-    define('CURRENT_CHAR_CLASS_4', 1 << 3);
-    define('NEXT_CHAR_CLASS_1',    1 << 4);
-    define('NEXT_CHAR_CLASS_2',    1 << 5);
-    define('NEXT_CHAR_CLASS_3',    1 << 6);
-    define('NEXT_CHAR_CLASS_4',    1 << 7);
-    define('PREV_CHAR_NUMBER',     1 << 8);
-    define('NEXT2_CHAR_NUMBER',    1 << 9);
-    define('WORD_FROM_DICT',       1 << 10);
-    define('HAS_SUFFIX',           1 << 11);
-    define('SAME_CHAR_AS_NEXT',    1 << 12);
-    define('LOOKS_LIKE_URL',       1 << 13);
-    define('IS_EXCEPTION',         1 << 14);
-    define('HAS_PREFIX',           1 << 15);
-    define('LOOKS_LIKE_TIME',      1 << 16);
-    define('SPECIAL',              1 << 17);
+    define('FT_CURRENT_CHAR_CLASS_1', 1 << 0);
+    define('FT_CURRENT_CHAR_CLASS_2', 1 << 1);
+    define('FT_CURRENT_CHAR_CLASS_3', 1 << 2);
+    define('FT_CURRENT_CHAR_CLASS_4', 1 << 3);
+    define('FT_NEXT_CHAR_CLASS_1',    1 << 4);
+    define('FT_NEXT_CHAR_CLASS_2',    1 << 5);
+    define('FT_NEXT_CHAR_CLASS_3',    1 << 6);
+    define('FT_NEXT_CHAR_CLASS_4',    1 << 7);
+    define('FT_PREV_CHAR_NUMBER',     1 << 8);
+    define('FT_NEXT2_CHAR_NUMBER',    1 << 9);
+    define('FT_WORD_FROM_DICT',       1 << 10);
+    define('FT_HAS_SUFFIX',           1 << 11);
+    define('FT_SAME_CHAR_AS_NEXT',    1 << 12);
+    define('FT_LOOKS_LIKE_URL',       1 << 13);
+    define('FT_IS_EXCEPTION',         1 << 14);
+    define('FT_HAS_PREFIX',           1 << 15);
+    define('FT_LOOKS_LIKE_TIME',      1 << 16);
+    define('FT_SPECIAL',              1 << 17);
+
+    define('FT_MAX', 18);
 // end Features
 
 class FeatureCalculator {
@@ -52,12 +54,12 @@ class FeatureCalculator {
         if ($pos+1 < sizeof($all_chars)) {
             // special basic case between two cyr chars
             if (is_cyr($all_chars[$pos]) && is_cyr($all_chars[$pos+1])) {
-                $this->value |= SPECIAL;
+                $this->value |= FT_SPECIAL;
                 return $this->value;
             }
             // another basic case before a space
             if (is_space($all_chars[$pos+1]) && !is_space($all_chars[$pos])) {
-                $this->value |= SPECIAL;
+                $this->value |= FT_SPECIAL;
                 $this->value |= 1;  // whichever, really
                 return $this->value;
             }
@@ -76,23 +78,23 @@ class FeatureCalculator {
         $delim = $seq['delimiter'];
         if ($delim == '-') {
             if ($this->_is_dictionary_word($seq['full']))
-                $this->value |= WORD_FROM_DICT;
+                $this->value |= FT_WORD_FROM_DICT;
             if ($this->_is_prefix($seq['left']))
-                $this->value |= HAS_PREFIX;
+                $this->value |= FT_HAS_PREFIX;
             if ($this->_is_suffix($seq['right']))
-                $this->value |= HAS_SUFFIX;
+                $this->value |= FT_HAS_SUFFIX;
         }
         elseif ($delim !== '' && looks_like_url($seq['full'], $seq['right'])) {
-            $this->value |= LOOKS_LIKE_URL;
+            $this->value |= FT_LOOKS_LIKE_URL;
         }
 
         if ($delim == ':' && looks_like_time($seq['left'], $seq['right'])) {
-            $this->value |= LOOKS_LIKE_TIME;
+            $this->value |= FT_LOOKS_LIKE_TIME;
         }
 
         $tok = $this->_get_current_token($all_chars, $pos);
         if ($this->_is_exception($tok))
-            $this->value |= IS_EXCEPTION;
+            $this->value |= FT_IS_EXCEPTION;
 
         return $this->value;
     }
@@ -100,30 +102,30 @@ class FeatureCalculator {
     private function _calc_char_classes($chars) {
         $cc = $this->_char_class($chars[0]);
         if ($cc[0])
-            $this->value |= CURRENT_CHAR_CLASS_1;
+            $this->value |= FT_CURRENT_CHAR_CLASS_1;
         if ($cc[1])
-            $this->value |= CURRENT_CHAR_CLASS_2;
+            $this->value |= FT_CURRENT_CHAR_CLASS_2;
         if ($cc[2])
-            $this->value |= CURRENT_CHAR_CLASS_3;
+            $this->value |= FT_CURRENT_CHAR_CLASS_3;
         if ($cc[3])
-            $this->value |= CURRENT_CHAR_CLASS_4;
+            $this->value |= FT_CURRENT_CHAR_CLASS_4;
 
         $cc = $this->_char_class($chars[1]);
         if ($cc[0])
-            $this->value |= NEXT_CHAR_CLASS_1;
+            $this->value |= FT_NEXT_CHAR_CLASS_1;
         if ($cc[1])
-            $this->value |= NEXT_CHAR_CLASS_2;
+            $this->value |= FT_NEXT_CHAR_CLASS_2;
         if ($cc[2])
-            $this->value |= NEXT_CHAR_CLASS_3;
+            $this->value |= FT_NEXT_CHAR_CLASS_3;
         if ($cc[3])
-            $this->value |= NEXT_CHAR_CLASS_4;
+            $this->value |= FT_NEXT_CHAR_CLASS_4;
 
         if (is_number($chars[-1]))
-            $this->value |= PREV_CHAR_NUMBER;
+            $this->value |= FT_PREV_CHAR_NUMBER;
         if (is_number($chars[2]))
-            $this->value |= NEXT2_CHAR_NUMBER;
+            $this->value |= FT_NEXT2_CHAR_NUMBER;
         if (is_same_char($chars[0], $chars[1]))
-            $this->value |= SAME_CHAR_AS_NEXT;
+            $this->value |= FT_SAME_CHAR_AS_NEXT;
     }
 
     private static function _char_class($char) {
@@ -249,7 +251,7 @@ class TokenInfo {
     }
 
     public function get_feats_str_binary() {
-        return sprintf("%018b", $this->features);
+        return sprintf("%0" . FT_MAX . "b", $this->features);
     }
 
     public function get_feats_str_decimal() {
