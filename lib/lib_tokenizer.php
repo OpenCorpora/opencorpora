@@ -14,35 +14,33 @@ function split2sentences($txt) {
     return preg_split('/[\r\n]+/', $txt);
 }
 
-class Features {
-    const CURRENT_CHAR_CLASS_1 = 0;
-    const CURRENT_CHAR_CLASS_2 = 1;
-    const CURRENT_CHAR_CLASS_3 = 2;
-    const CURRENT_CHAR_CLASS_4 = 3;
-    const NEXT_CHAR_CLASS_1 = 4;
-    const NEXT_CHAR_CLASS_2 = 5;
-    const NEXT_CHAR_CLASS_3 = 6;
-    const NEXT_CHAR_CLASS_4 = 7;
-    const PREV_CHAR_NUMBER = 8;
-    const NEXT2_CHAR_NUMBER = 9;
-    const WORD_FROM_DICT = 10;
-    const HAS_SUFFIX = 11;
-    const SAME_CHAR_AS_NEXT = 12;
-    const LOOKS_LIKE_URL = 13;
-    const IS_EXCEPTION = 14;
-    const HAS_PREFIX = 15;
-    const LOOKS_LIKE_TIME = 16;
-    const SPECIAL = 17;
-
-
-    const MAX = self::SPECIAL;
-}
+// Features
+// XXX these should be class constants but this is not available until PHP 5.6
+    define('CURRENT_CHAR_CLASS_1', 1 << 0);
+    define('CURRENT_CHAR_CLASS_2', 1 << 1);
+    define('CURRENT_CHAR_CLASS_3', 1 << 2);
+    define('CURRENT_CHAR_CLASS_4', 1 << 3);
+    define('NEXT_CHAR_CLASS_1',    1 << 4);
+    define('NEXT_CHAR_CLASS_2',    1 << 5);
+    define('NEXT_CHAR_CLASS_3',    1 << 6);
+    define('NEXT_CHAR_CLASS_4',    1 << 7);
+    define('PREV_CHAR_NUMBER',     1 << 8);
+    define('NEXT2_CHAR_NUMBER',    1 << 9);
+    define('WORD_FROM_DICT',       1 << 10);
+    define('HAS_SUFFIX',           1 << 11);
+    define('SAME_CHAR_AS_NEXT',    1 << 12);
+    define('LOOKS_LIKE_URL',       1 << 13);
+    define('IS_EXCEPTION',         1 << 14);
+    define('HAS_PREFIX',           1 << 15);
+    define('LOOKS_LIKE_TIME',      1 << 16);
+    define('SPECIAL',              1 << 17);
+// end Features
 
 class FeatureCalculator {
     private $prefixes;
     private $exceptions;
 
-    private $values;
+    private $value;
 
     public function __construct($prefix_list, $exception_list) {
         $this->prefixes = $prefix_list;
@@ -50,18 +48,18 @@ class FeatureCalculator {
     }
 
     public function calc($all_chars, $pos) {
-        $this->values = array_fill(0, Features::MAX + 1, 0);
+        $this->value = 0;
         if ($pos+1 < sizeof($all_chars)) {
             // special basic case between two cyr chars
             if (is_cyr($all_chars[$pos]) && is_cyr($all_chars[$pos+1])) {
-                $this->values[Features::SPECIAL] = 1;
-                return $this->values;
+                $this->value |= SPECIAL;
+                return $this->value;
             }
             // another basic case before a space
             if (is_space($all_chars[$pos+1]) && !is_space($all_chars[$pos])) {
-                $this->values[Features::SPECIAL] = 1;
-                $this->values[0] = 1;
-                return $this->values;
+                $this->value |= SPECIAL;
+                $this->value |= 1;  // whichever, really
+                return $this->value;
             }
         }
 
@@ -77,42 +75,55 @@ class FeatureCalculator {
         $seq = $this->_get_current_sequences($all_chars, $pos, $chars);
         $delim = $seq['delimiter'];
         if ($delim == '-') {
-            $this->values[Features::WORD_FROM_DICT] = $this->_is_dictionary_word($seq['full']);
-            $this->values[Features::HAS_PREFIX] = $this->_is_prefix($seq['left']);
-            $this->values[Features::HAS_SUFFIX] = $this->_is_suffix($seq['right']);
+            if ($this->_is_dictionary_word($seq['full']))
+                $this->value |= WORD_FROM_DICT;
+            if ($this->_is_prefix($seq['left']))
+                $this->value |= HAS_PREFIX;
+            if ($this->_is_suffix($seq['right']))
+                $this->value |= HAS_SUFFIX;
         }
-        elseif ($delim !== '') {
-            $this->values[Features::LOOKS_LIKE_URL] = looks_like_url($seq['full'], $seq['right']);
+        elseif ($delim !== '' && looks_like_url($seq['full'], $seq['right'])) {
+            $this->value |= LOOKS_LIKE_URL;
         }
 
-        if ($delim == ':') {
-            $this->values[Features::LOOKS_LIKE_TIME] = looks_like_time($seq['left'], $seq['right']);
+        if ($delim == ':' && looks_like_time($seq['left'], $seq['right'])) {
+            $this->value |= LOOKS_LIKE_TIME;
         }
 
         $tok = $this->_get_current_token($all_chars, $pos);
-        $this->values[Features::IS_EXCEPTION] = $this->_is_exception($tok);
+        if ($this->_is_exception($tok))
+            $this->value |= IS_EXCEPTION;
 
-        return $this->values;
+        return $this->value;
     }
 
     private function _calc_char_classes($chars) {
-        list(
-            $this->values[Features::CURRENT_CHAR_CLASS_1],
-            $this->values[Features::CURRENT_CHAR_CLASS_2],
-            $this->values[Features::CURRENT_CHAR_CLASS_3],
-            $this->values[Features::CURRENT_CHAR_CLASS_4]
-        ) = $this->_char_class($chars[0]);
+        $cc = $this->_char_class($chars[0]);
+        if ($cc[0])
+            $this->value |= CURRENT_CHAR_CLASS_1;
+        if ($cc[1])
+            $this->value |= CURRENT_CHAR_CLASS_2;
+        if ($cc[2])
+            $this->value |= CURRENT_CHAR_CLASS_3;
+        if ($cc[3])
+            $this->value |= CURRENT_CHAR_CLASS_4;
 
-        list(
-            $this->values[Features::NEXT_CHAR_CLASS_1],
-            $this->values[Features::NEXT_CHAR_CLASS_2],
-            $this->values[Features::NEXT_CHAR_CLASS_3],
-            $this->values[Features::NEXT_CHAR_CLASS_4]
-        ) = $this->_char_class($chars[1]);
+        $cc = $this->_char_class($chars[1]);
+        if ($cc[0])
+            $this->value |= NEXT_CHAR_CLASS_1;
+        if ($cc[1])
+            $this->value |= NEXT_CHAR_CLASS_2;
+        if ($cc[2])
+            $this->value |= NEXT_CHAR_CLASS_3;
+        if ($cc[3])
+            $this->value |= NEXT_CHAR_CLASS_4;
 
-        $this->values[Features::PREV_CHAR_NUMBER] = is_number($chars[-1]);
-        $this->values[Features::NEXT2_CHAR_NUMBER] = is_number($chars[2]);
-        $this->values[Features::SAME_CHAR_AS_NEXT] = is_same_char($chars[0], $chars[1]);
+        if (is_number($chars[-1]))
+            $this->value |= PREV_CHAR_NUMBER;
+        if (is_number($chars[2]))
+            $this->value |= NEXT2_CHAR_NUMBER;
+        if (is_same_char($chars[0], $chars[1]))
+            $this->value |= SAME_CHAR_AS_NEXT;
     }
 
     private static function _char_class($char) {
@@ -229,20 +240,20 @@ class TokenInfo {
     public $border_weight;
     private $features;
 
-    public function __construct($text, $start_pos, $end_pos, $weight, $fs) {
+    public function __construct($text, $start_pos, $end_pos, $weight, $fs_as_decimal) {
         $this->text = $text;
         $this->start_pos = $start_pos;
         $this->end_pos = $end_pos;
         $this->border_weight = $weight;
-        $this->features = $fs;
+        $this->features = $fs_as_decimal;
     }
 
     public function get_feats_str_binary() {
-        return implode('', $this->features);
+        return sprintf("%018b", $this->features);
     }
 
     public function get_feats_str_decimal() {
-        return bindec($this->get_feats_str_binary());
+        return $this->features;
     }
 }
 
@@ -285,8 +296,7 @@ class Tokenizer {
         list($text, $chars) = $this->_prepare_text($text);
 
         for ($i = 0; $i < sizeof($chars); ++$i) {
-            $vector = $this->feat_calcer->calc($chars, $i);
-            $key = $this->_feats_as_string($vector);
+            $key = $this->feat_calcer->calc($chars, $i);
 
             if (isset($this->stats[$key])) {
                 $sum = $this->stats[$key][2];
@@ -299,7 +309,7 @@ class Tokenizer {
             if ($sum > $min_weight) {
                 $token = trim($token);
                 $start_pos = $i - mb_strlen($token) + 1;
-                if ($token !== '') $out[] = new TokenInfo($token, $start_pos, $i, $sum, $vector);
+                if ($token !== '') $out[] = new TokenInfo($token, $start_pos, $i, $sum, $key);
                 $token = '';
             }
         }
@@ -417,8 +427,7 @@ class Tokenizer {
         self::_add_stats_value(STATS_BROKEN_TOKEN_IDS, $token_id);
     }
 
-    private function _update_stats($feat_vector, $is_border) {
-        $key = $this->_feats_as_string($feat_vector);
+    private function _update_stats($key, $is_border) {
         if (!isset($this->stats[$key])) {
             $this->stats[$key] = array(0, 0, 0);
         }
@@ -457,8 +466,8 @@ class Tokenizer {
         }
     }
 
-    private function _get_oddity($feat_vector, $is_border) {
-        $key = $this->_feats_as_string($feat_vector) . '#' . (int)$is_border;
+    private function _get_oddity($feats, $is_border) {
+        $key = $feats . '#' . (int)$is_border;
         if (isset($this->oddity[$key])) {
             return $this->oddity[$key];
         }
@@ -467,12 +476,6 @@ class Tokenizer {
     private function _save_odd_case($sent_id, $pos, $is_border, $oddity) {
         sql_pe("INSERT INTO tokenizer_strange VALUES (?, ?, ?, ?)",
             array($sent_id, $pos, $is_border ? 1 : 0, $oddity));
-    }
-
-    private function _feats_as_string($feat_vector) {
-        if (sizeof(array_unique($feat_vector)) > 2)
-            throw new Exception("expected a binary vector");
-        return bindec(implode('', $feat_vector));
     }
 }
 
