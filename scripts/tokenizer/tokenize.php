@@ -10,7 +10,7 @@ require_once('lib/lib_tokenizer.php');
 $tokenizer = new Tokenizer(__DIR__);
 while (false !== ($line = fgets(STDIN))) {
     foreach ($tokenizer->tokenize($line) as $token) {
-        echo implode(' ', array($token->start_pos, $token->end_pos, $token->get_feats_str_binary(), $token->border_weight)) . "\n";
+        echo implode("\t", array($token->start_pos, $token->end_pos, $token->get_feats_str_binary(), $token->border_weight)) . "\n";
     }
 }
 
