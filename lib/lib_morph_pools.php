@@ -645,30 +645,21 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     while ($available_samples = sql_fetch_array($r_available_samples)) {
         $pools[$available_samples['pool_id']]['num'] = $available_samples['cnt'];
     }
-    // gather count of all samples with started instances with empty answer grouped by pool
+    // gather count of all samples with started instances grouped by pool
     $r_started_samples = sql_query('
-        SELECT pool_id, count(*) as cnt
-        FROM morph_annot_instances
+        SELECT pool_id, count(*) AS cnt, i.answer > 0 AS done
+        FROM morph_annot_instances i
         LEFT JOIN morph_annot_samples USING(sample_id)
         WHERE user_id=' . $user_id . '
-            AND morph_annot_instances.answer=0
             AND pool_id IN (' . implode(',',$pool_ids) . ')
-        GROUP BY pool_id');
-    while ($started_samples = sql_fetch_array($r_started_samples)) {
-        $pools[$started_samples['pool_id']]['num_started'] = $started_samples['cnt'];
+        GROUP BY pool_id, i.answer > 0');
+    while ($r = sql_fetch_array($r_started_samples)) {
+        if ($r['done'])
+            $pools[$r['pool_id']]['num_done'] = $r['cnt'];
+        else
+            $pools[$r['pool_id']]['num_started'] = $r['cnt'];
     }
-    // gather count of all samples with instance & answer grouped by pool
-    $r_done_samples = sql_query('
-        SELECT pool_id, count(*) as cnt
-        FROM morph_annot_instances
-        LEFT JOIN morph_annot_samples USING(sample_id)
-        WHERE user_id=' . $user_id . '
-            AND morph_annot_instances.answer>0
-            AND pool_id IN (' . implode(',', $pool_ids) . ')
-        GROUP BY pool_id');
-    while ($done_samples = sql_fetch_array($r_done_samples)) {
-        $pools[$done_samples['pool_id']]['num_done'] = $done_samples['cnt'];
-    }
+
     foreach ($pools as $pool) {
         if (
             // we are not interested in not available & not started pools
