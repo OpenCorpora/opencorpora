@@ -852,11 +852,21 @@ function get_annotation_packet($pool_id, $size, $user_id=0, $timeout=0) {
     $ts_finish = time() + $timeout;
     if ($flag_new) sql_begin();
     $gram_descr = array();
+    $sql_rev = sql_prepare("
+        SELECT tf_id, rev_text
+        FROM morph_annot_samples
+        LEFT JOIN tf_revisions
+            USING (tf_id)
+        WHERE sample_id = ?
+        AND rev_id <= $pool_revision
+        ORDER BY rev_id DESC LIMIT 1
+    ");
     while ($r = sql_fetch_array($res)) {
-        $r1 = sql_fetch_array(sql_query("SELECT tf_id, rev_text FROM tf_revisions WHERE tf_id = (SELECT tf_id FROM morph_annot_samples WHERE sample_id = ".$r['sample_id']." LIMIT 1) AND rev_id <= $pool_revision ORDER BY rev_id DESC LIMIT 1"));
-        $instance = get_context_for_word($r1['tf_id'], $config['misc']['morph_annot_user_context_size']);
+        sql_execute($sql_rev, array($r['sample_id']));
+        $rev = sql_fetchall($sql_rev);
+        $instance = get_context_for_word($rev[0]['tf_id'], $config['misc']['morph_annot_user_context_size']);
         try {
-            $pset = new MorphParseSet($r1['rev_text']);
+            $pset = new MorphParseSet($rev[0]['rev_text']);
             $lemmata = array();
             foreach ($pset->parses as $p) {
                 $lemmata[] = $p->lemma_text;
