@@ -1076,6 +1076,9 @@ function save_moderated_status($id, $status) {
     return save_moderated_answer($id, $status, 1, 'status');
 }
 function get_comments_for_samples(array $sample_ids) {
+    if (!$sample_ids)
+        return array();
+
     $res = sql_pe("
         SELECT sample_id, comment_id, user_shown_name AS user_name, timestamp, text
         FROM morph_annot_comments
