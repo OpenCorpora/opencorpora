@@ -163,6 +163,12 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     require_once('ModerationFilter.php');
     $mod_filter = new ModerationFilter();
 
+    $inst = sql_prepare("
+        SELECT instance_id, user_id, answer
+        FROM morph_annot_instances
+        WHERE sample_id=?
+        ORDER BY instance_id
+    ");
     foreach ($res as $r) {
         $t = get_context_for_word($r['tf_id'], $context_width);
         $t['id'] = $r['sample_id'];
@@ -172,11 +178,12 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         if ($extended) {
             $pset = new MorphParseSet($r['current_revision']);
             $t['parses'] = $pset->parses;
-            $res1 = sql_query("SELECT instance_id, user_id, answer FROM morph_annot_instances WHERE sample_id=".$r['sample_id']." ORDER BY instance_id");
+            sql_execute($inst, array($r['sample_id']));
+            $res1 = sql_fetchall($inst);
             $disagreement_flag = 0;
             $not_ok_flag = false;
             $vars = '';
-            while ($r1 = sql_fetch_array($res1)) {
+            foreach ($res1 as $r1) {
                 if ($r1['answer'] == MA_ANSWER_OTHER)
                     $disagreement_flag = 1;
                 elseif (!$vars)
