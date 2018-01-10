@@ -94,7 +94,7 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
                 (!$book['moderator_id'] && !$book['started'])
                 || $book['moderator_id'] == $_SESSION['user_id']
             )) {
-                $book['was_moderated'] = moderated_book_is_finished();
+                $book['was_moderated'] = moderated_book_is_finished($book['id'], $tagset_id, $book['moderator_id']);
             }
 
             if ($book['available'] || !$for_user) {
@@ -1084,9 +1084,8 @@ function finish_book_moderation($book_id, $tagset_id) {
     sql_commit();
 }
 
-function moderated_book_is_finished($book_id, $tagset_id) {
-    $book = sql_pe("SELECT * FROM ne_books_tagsets WHERE book_id = ? AND tagset_id = ? LIMIT 1", array($book_id, $tagset_id));
-    if ((int)$book[0]["moderator_id"] == 0) return false;
+function moderated_book_is_finished($book_id, $tagset_id, $moderator_id) {
+    if (!$moderator_id) return false;
 
     // book has moderator, let's check the status of all paragraphs
     $res = sql_pe("
@@ -1097,7 +1096,7 @@ function moderated_book_is_finished($book_id, $tagset_id) {
         AND p2.user_id = ?
         AND p2.status = ?
         WHERE p1.book_id = ?
-    ", array($tagset_id, (int)$book[0]["moderator_id"], NE_STATUS_FINISHED, $book_id));
+    ", array($tagset_id, $moderator_id, NE_STATUS_FINISHED, $book_id));
 
     foreach ($res as $row) {
         if ((int)$row["annotation"] == 0) return false;
