@@ -38,9 +38,7 @@
   ((!$book.moderator_id && !$book.started) ||
   $book.moderator_id == $smarty.session.user_id)}
 
-  {$book_was_moderated = moderated_book_is_finished($book.id, $current_guideline)}
-
-  {if $book_was_moderated}
+  {if $book.was_moderated}
   <tr class="book-was-moderated">
     <td>{$book.queue_num}</td>
     <td>{$book.num_par}</td>

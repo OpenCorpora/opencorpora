@@ -90,6 +90,13 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
             $book['available'] = ($finished_by_me < $book['num_par']) && !$book['all_ready'] && $book['unavailable_par'] < $book['num_par'];
             $book['finished_par_by_me'] = $finished_by_me;
 
+            if ($book['all_ready'] && (
+                (!$book['moderator_id'] && !$book['started'])
+                || $book['moderator_id'] == $_SESSION['user_id']
+            )) {
+                $book['was_moderated'] = moderated_book_is_finished();
+            }
+
             if ($book['available'] || !$for_user) {
                 $out['books'][] = $book;
                 if ($for_user && sizeof($out['books']) >= $tagset_opt['active_books'])
