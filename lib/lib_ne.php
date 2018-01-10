@@ -38,7 +38,7 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
     $out = array('books' => array(), 'ready' => sizeof($total));
 
     $res = sql_pe("
-        SELECT book_id, book_name, par_id, status, user_id, moderator_id
+        SELECT book_id, book_name, par_id, status, user_id, moderator_id, obj_count
         FROM books
         LEFT JOIN ne_books_tagsets bs
             USING (book_id)
@@ -46,6 +46,11 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
             USING (book_id)
         LEFT JOIN ne_paragraphs np
             USING (par_id)
+        LEFT JOIN (
+            SELECT book_id, COUNT(*) as obj_count
+            FROM ne_objects
+            GROUP BY book_id
+        ) T USING (book_id)
         WHERE bs.tagset_id = ?
         AND (bs.tagset_id = np.tagset_id OR np.tagset_id IS NULL)
         ORDER BY book_id " . ($for_user ? "DESC" : "") . ", par_id
@@ -125,7 +130,7 @@ function get_books_with_ne($tagset_id, $for_user = TRUE) {
         $book['id'] = $r['book_id'];
         $book['name'] = $r['book_name'];
         $book['moderator_id'] = $r['moderator_id'];
-        $book['objects_count'] = get_book_objects_count($book['id']);
+        $book['objects_count'] = $r['obj_count'];
         $book['required_annots'] = $tagset_opt['annots_per_text'];
         $allbooks[$book['id']] = true;
         $book['queue_num'] = sizeof($allbooks);
@@ -999,11 +1004,6 @@ function get_book_objects($book_id, $tagset_id=0) {
             $objects[$oid]["mentions"] = $arr;
     }
     return $objects;
-}
-
-function get_book_objects_count($book_id) {
-    $res = sql_pe("SELECT COUNT(*) AS cnt FROM ne_objects WHERE book_id = ?", array($book_id));
-    return $res[0]["cnt"];
 }
 
 // inner function with no escaping and validation
