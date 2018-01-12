@@ -139,7 +139,7 @@
 {if $pool.filter != 'comments'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter=comments&amp;sortby={$sortby}">примеры с комментариями</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}">показать все</a>{/if} |
 {if $pool.filter != 'not_ok'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter=not_ok&amp;sortby={$sortby}">примеры с опечатками и т.п.</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}">показать все</a>{/if} |
 {if $pool.filter != 'not_moderated'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter=not_moderated&amp;sortby={$sortby}">непроверенные</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}">показать все</a>{/if}</p>
-{if $is_admin}<p><a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs">в виде tab-separated файла</a> (<a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs&amp;mod_ans">с ответами модератора</a>)</p>{/if}
+{if $is_admin}<p><a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs=1">в виде tab-separated файла</a> (<a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs=1&amp;mod_ans">с ответами модератора</a>)</p>{/if}
 {/if}
 <div class="pagination pagination-centered"><ul>
 <li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * 15}">&lt;</a></li>
