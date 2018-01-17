@@ -127,7 +127,8 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
                 ms.answer AS mod_answer,
                 ms.status AS mod_status,
             " : "")."
-            COUNT(i.instance_id) AS answered
+            COUNT(i.instance_id) AS answered,
+            COUNT(morph_annot_comments.comment_id) AS comment_count
         FROM morph_annot_samples s
         LEFT JOIN tokens f
             USING (tf_id)
@@ -140,6 +141,8 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         LEFT JOIN paragraphs
             USING (par_id)
         LEFT JOIN morph_annot_moderated_samples ms
+            USING (sample_id)
+        LEFT JOIN morph_annot_comments
             USING (sample_id)
         WHERE pool_id=?
             AND i.answer > 0
@@ -175,6 +178,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         $t['token_id'] = $r['tf_id'];
         $t['book_id'] = $r['book_id'];
         $t['answered'] = $r['answered'];
+        $t['comment_count'] = $r['comment_count'];
         if ($extended) {
             $pset = new MorphParseSet($r['current_revision']);
             $t['parses'] = $pset->parses;
@@ -236,7 +240,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         }
         elseif ($filter == 'focus' && (
                     $t['disagreed'] ||
-                    sizeof($t['comments']) > 0 ||
+                    $t['comment_count'] > 0 ||
                     $mod_filter->sample_needs_moderation($out['type'], $t, $out['has_focus'])
                 ))
             $add = true;
@@ -244,7 +248,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
             ($filter != 'focus' && (
             ($t['disagreed'] && $filter == 'disagreed') ||
             ($out['status'] > MA_POOLS_STATUS_ANSWERED && $t['moder_answer_num'] == 0 && $filter == 'not_moderated') ||
-            (sizeof($t['comments']) > 0 && $filter == 'comments') ||
+            ($t['comment_count'] > 0 && $filter == 'comments') ||
             ($not_ok_flag && $filter == 'not_ok')
             ))
         )
