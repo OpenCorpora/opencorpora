@@ -1,6 +1,6 @@
 {foreach from=$pool.samples item=sample}
 {$sample.id}	{$sample.token_id}	{strip}
-{foreach from=$sample.context item=word name=x}{if $smarty.foreach.x.index == $sample.mainword}[[{$word}]]{else}{$word}{/if} {/foreach}
+{foreach $sample.context as $token_id => $word}{if $token_id == $sample.mainword}[[{$word}]]{else}{$word}{/if} {/foreach}
 {/strip}	{strip}
 {foreach from=$sample.comments item=comment}
     {$comment.text|replace:"\n":'\n'} ({$comment.author}, {$comment.timestamp|date_format:"%d.%m.%Y, %H:%M"});
