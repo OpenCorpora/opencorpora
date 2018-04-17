@@ -26,17 +26,6 @@ $(document).ready(function() {
 		});
 	});
 
-
-	// Уведомление в уголке
-	function notify(text) {
-	    $('.notifications').notify({
-	        message: {
-	            text: text
-	        },
-	        type: 'info'
-	    }).show();
-	}
-
 	// Создает HTML всплывающего окна над токеном
 	function compile_content(token_id) {
 		content = $('<ol>');

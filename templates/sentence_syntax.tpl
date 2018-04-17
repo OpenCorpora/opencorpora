@@ -1,12 +1,7 @@
 {* Smarty *}
 {extends file='common.tpl'}
 
-{block name=styles}
-    <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap-notify.css" />
-{/block}
-
 {block name=javascripts}
-    <script src="/assets/js/bootstrap-notify.js"></script>
     <script type="text/javascript" src="/assets/js/syntax_groups.js"></script>
     {block name=inject_groups_json}
     {literal}

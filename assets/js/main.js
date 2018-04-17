@@ -514,12 +514,15 @@ function getQueryVariable(variable) {
 
 // Уведомление в уголке
 function notify(text, type) {
-    $('.notifications').notify({
-        message: {
-            text: text
+    $.notify({
+        message: text
+        }, {
+        type: (type ? type : 'info'),
+        placement: {
+            from: 'bottom',
+            align: 'right'
         },
-        type: (type ? type : 'info')
-    }).show();
+    });
 }
 
 function guidGenerator() {

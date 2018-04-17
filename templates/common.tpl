@@ -15,19 +15,18 @@
         <link href="/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
         <link href="/assets/css/btn-palette.css" rel="stylesheet">
 
-        <link rel='stylesheet' type='text/css' href='/assets/css/main.css?12'/>
-        <link rel="stylesheet" type="text/css" href="/assets/vendor/bootstrap-notify/css/bootstrap-notify.css" />
+        <link rel="stylesheet" type="text/css" href="/assets/css/main.css?12"/>
 
         <!-- Open Sans for headers -->
-        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,800,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+        <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,800,700&subset=latin,cyrillic" rel="stylesheet" type="text/css">
 
         {block name=styles}{/block}
 
         <script src="/assets/vendor/jquery/jquery.min.js"></script>
-        <script src='/assets/js/main.js?3' type='text/javascript'></script>
-        <script src='/assets/js/jquery.mousewheel.js' type='text/javascript'></script>
+        <script src="/assets/js/main.js?3" type="text/javascript"></script>
+        <script src="/assets/js/jquery.mousewheel.js" type="text/javascript"></script>
         <script src="/assets/vendor/bootstrap/js/bootstrap.min.js"></script>
-        <script src="/assets/vendor/bootstrap-notify/js/bootstrap-notify.js"></script>
+        <script src="/assets/vendor/mouse0270/bootstrap-growl/dist/bootstrap-notify.min.js"></script>
 
     </head>
 {block name=nojs}<noscript><meta http-equiv="refresh" content="0; URL=/no_js.php"></noscript>{/block}
