@@ -137,7 +137,7 @@ class MorphParseSet {
 
     public function merge_from(MorphParseSet $other) {
         if (sizeof($other->parses) > 0) {
-            if (sizeof($this->parses) == 1 && $this->parses[0]->is_unknown())
+            if ($this->is_unknown())
                 $this->parses = array();
         }
 
@@ -145,6 +145,10 @@ class MorphParseSet {
             $this->parses[] = $parse;
         }
         $this->_make_parses_unique();
+    }
+
+    public function is_unknown() {
+        return sizeof($this->parses) == 1 && $this->parses[0]->is_unknown();
     }
 
     private static function _fill_gram_info($gram_list) {

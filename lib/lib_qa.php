@@ -116,17 +116,20 @@ function get_good_sentences($no_zero = false) {
         $out[] = array('id' => $r['sent_id'], 'total' => $r['num_words'], 'homonymous' => $r['num_homonymous']);
     return $out;
 }
-function get_merge_fails($status=0) {
+function get_merge_fails($status=0, $show_checked=false) {
+    require_once('lib_annot.php');
     $res = sql_query("
-        SELECT sample_id, p.pool_name, p.pool_id, p.revision AS pool_revision,
-            ms.status, s.tf_id, tokens.tf_text, c.comment, merge_status
+        SELECT sample_id, p.pool_name, p.pool_id, p.revision AS pool_revision, pt.grammemes,
+            ms.status, ms.answer, s.tf_id, tokens.tf_text, c.comment, merge_status, tfr.rev_text as cur_rev
         FROM morph_annot_moderated_samples ms
         LEFT JOIN morph_annot_samples s USING (sample_id)
         LEFT JOIN morph_annot_pools p USING (pool_id)
+        LEFT JOIN morph_annot_pool_types pt ON (p.pool_type = pt.type_id)
         LEFT JOIN morph_annot_merge_comments c USING (sample_id)
         LEFT JOIN tokens USING (tf_id)
+        LEFT JOIN tf_revisions tfr ON (tokens.tf_id = tfr.tf_id AND is_last = 1)
         WHERE p.status = ".MA_POOLS_STATUS_ARCHIVED."
-        AND merge_status in (0, 2)
+        AND merge_status in (0".($show_checked ? ", 2" : "").")
         ORDER BY merge_status, p.pool_type, status, tf_text, sample_id
     ");
             
@@ -148,7 +151,7 @@ function get_merge_fails($status=0) {
 
     while ($r = sql_fetch_array($res)) {
         sql_execute($res1, array($r['tf_id'], $r['pool_revision']));
-        $r1 = sql_fetch_array($res1);
+        $r1 = sql_fetchall($res1)[0];
 
         if (!in_array($r['status'], array(MA_SAMPLES_STATUS_MISPRINT, MA_SAMPLES_STATUS_HOMONYMOUS))) {
             if ($r1)
@@ -158,9 +161,12 @@ function get_merge_fails($status=0) {
         }
 
         if ($status == 0 || $status == $r['status']) {
+            $pset = new MorphParseSet($r['cur_rev']);
             $data['samples'][] = array(
                 'id' => $r['sample_id'],
                 'mod_status' => $r['status'],
+                'mod_answer' => $r['answer'] == MA_ANSWER_OTHER ? 'Other' : explode('@', $r['grammemes'])[$r['answer']-1],
+                'prod_answer' => $pset->is_unknown() ? "UNKN" : sizeof($pset->parses),
                 'pool_id' => $r['pool_id'],
                 'pool_name' => $r['pool_name'],
                 'revision' => $r1['rev_id'],

@@ -27,7 +27,7 @@ switch ($action) {
         $smarty->display('qa/book_tags.tpl');
         break;
     case 'merge_fails':
-        $smarty->assign('data', get_merge_fails(GET('status', 0)));
+        $smarty->assign('data', get_merge_fails(GET('status', 0), GET('show_checked', false)));
         $smarty->display('qa/merge_fails.tpl');
         break;
     case 'good_sentences':

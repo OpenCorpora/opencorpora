@@ -5,7 +5,14 @@
 {$HOMONYMY = $smarty.const.MA_SAMPLES_STATUS_HOMONYMOUS}
 {$EDIT = $smarty.const.MA_SAMPLES_STATUS_MANUAL_EDIT}
 <h1>Отмодерированные примеры, которые не изменили корпус</h1>
-Общая статистика:
+<div>
+    {if empty($smarty.get.show_checked)}
+    <a href="?act=merge_fails&status={$smarty.get.status|default:0}&show_checked=1">показать проверенные</a>
+    {else}
+    <a href="?act=merge_fails&status={$smarty.get.status|default:0}&show_checked=0">скрыть проверенные</a>
+    {/if}
+</div>
+<h3>Общая статистика:</h3>
 <ul>
 <li>Всего: <a href="?act=merge_fails&status=0">{$data.total[0]}</a>
 <li>Опечатка: <a href="?act=merge_fails&status={$MISPRINT}">{$data.checked[$MISPRINT]}/{$data.total[$MISPRINT]}</a></li>
@@ -16,14 +23,17 @@
 <table class='table'>
 <thead>
     <tr>
-        <th>#</th>
-        <th></th>
-        <th>Название</th>
-        <th>Статус</th>
-        <th></th>
-        <th>Комментарий<br/>(можно редактировать)</th>
-    </tr>
+        <th rowspan='2'>#</th>
+        <th rowspan='2'></th>
+        <th rowspan='2'>Название</th>
+        <th rowspan='2'>Статус</th>
+        <th colspan='2'>Ответы</th>
+        <th rowspan='2'></th>
+        <th rowspan='2'>Комментарий<br/>(можно редактировать)</th>
+    <tr><th>mod<th>prod</tr>
     <tr>
+        <col></col>
+        <col></col>
         <col></col>
         <col></col>
         <col></col>
@@ -38,13 +48,15 @@
     <td>{$sample.token_text|htmlspecialchars}</td>
     <td>{$sample.pool_name}</td>
     <td>{strip}
-        {if     $sample.mod_status == $smarty.const.MA_SAMPLES_STATUS_MISPRINT}опечатка
-        {elseif $sample.mod_status == $smarty.const.MA_SAMPLES_STATUS_HOMONYMOUS}неснимаемая омонимия
-        {elseif $sample.mod_status == $smarty.const.MA_SAMPLES_STATUS_MANUAL_EDIT}<a href="/diff.php?rev_id={$sample.revision}">ручная правка</a>
+        {if     $sample.mod_status == $MISPRINT}опечатка
+        {elseif $sample.mod_status == $HOMONYMY}неснимаемая омонимия
+        {elseif $sample.mod_status == $EDIT}<a href="/diff.php?rev_id={$sample.revision}">ручная правка</a>
         {else}???
         {/if}
         {/strip}
     </td>
+    <td>{$sample.mod_answer}</td>
+    <td>{$sample.prod_answer}</td>
     <td><input type="checkbox" {if $sample.merge_status == 2}checked="checked"{/if} class="approve-sample" data-id="{$sample.id}"/></td>
     <td class="comment-cell" data-id="{$sample.id}" contenteditable>{$sample.comment}</td>
 </tr>
