@@ -127,7 +127,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
                 ms.answer AS mod_answer,
                 ms.status AS mod_status,
             " : "")."
-            COUNT(i.instance_id) AS answered,
+            SUM(i.answer > 0) AS answered,
             COUNT(morph_annot_comments.comment_id) AS comment_count
         FROM morph_annot_samples s
         LEFT JOIN tokens f
@@ -145,8 +145,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
         LEFT JOIN morph_annot_comments
             USING (sample_id)
         WHERE pool_id=?
-            AND i.answer > 0
-            ".($extended ? " AND is_last=1" : "")."
+            AND is_last=1
         GROUP BY sample_id
         ORDER BY $orderby_str, sample_id
     ", array($pool_id));
