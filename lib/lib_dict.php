@@ -833,16 +833,11 @@ function get_dict_errata($all, $rand) {
 }
 function clear_dict_errata($old) {
     check_permission(PERM_DICT);
-    if ($old) {
-        sql_query("UPDATE dict_revisions SET dict_check='0'");
-        return true;
+    $q = "UPDATE dict_revisions SET dict_check=0";
+    if (!$old) {
+        $q .= " WHERE is_last=1";
     }
-
-    $res = sql_query("SELECT MAX(rev_id) AS m FROM dict_revisions GROUP BY lemma_id");
-    sql_begin();
-    while ($r = sql_fetch_array($res))
-        sql_query("UPDATE dict_revisions SET dict_check='0' WHERE rev_id=".$r['m']." LIMIT 1");
-    sql_commit();
+    sql_query($q);
 }
 function mark_dict_error_ok($id, $comment) {
     check_permission(PERM_DICT);
