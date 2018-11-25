@@ -2,8 +2,8 @@
 require('lib/header.php');
 require('lib/lib_history.php');
 
-$sent_id = GET('sent_id', 0);
-$set_id = GET('set_id', 0);
+$sent_id = (int)GET('sent_id', 0);
+$set_id = (int)GET('set_id', 0);
 $skip = (int)GET('skip', 0);
 $maa = GET('maa', 0) ? 1 : 0;
 $user_id = (int)GET('user_id', 0);
