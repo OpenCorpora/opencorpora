@@ -32,13 +32,14 @@ function log_data($str, $context=array()) {
 }
 
 function oc_exception_handler($exception) {
-    log_data("exception:", $exception);
     if ($exception instanceof PermissionError)
         show_error("У вас недостаточно прав для просмотра этой страницы.");
     elseif ($exception instanceof NotLoggedError)
         show_error("Для выполнения этого действия нужно <a href='/login.php'>войти</a> в свою учётную запись.");
-    else
+    else {
+        log_data("exception:", $exception);
         show_error("Произошла ошибка.<br/><br/>" . $exception->getMessage());
+    }
 }
 
 function ENSURE($array, $param_name, $default_val) {
