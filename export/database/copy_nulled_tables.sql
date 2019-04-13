@@ -2,7 +2,8 @@ SET NAMES utf8;
 
 -- table `users` --> `users_for_selective_backup`
 
-TRUNCATE TABLE `users_for_selective_backup`;
+DROP TABLE `users_for_selective_backup`;
+CREATE TABLE `users_for_selective_backup` LIKE `users`;
 
 INSERT INTO `users_for_selective_backup` (
     `user_id`,
@@ -31,7 +32,8 @@ WHERE 1 = 1;
 
 -- table `user_tokens` --> `user_tokens_for_selective_backup`
 
-TRUNCATE TABLE `user_tokens_for_selective_backup`;
+DROP TABLE `user_tokens_for_selective_backup`;
+CREATE TABLE `user_tokens_for_selective_backup` LIKE `user_tokens`;
 
 INSERT INTO `user_tokens_for_selective_backup` (
     `user_id`,
