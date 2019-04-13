@@ -22,6 +22,8 @@ class AnnotationEditor(object):
         self.db_cursor.execute('START TRANSACTION')
         self._revset_id = None
 
+        self._all_grammemes = None
+
     def create_revset(self, comment=""):
         timestamp = int(time.time())
         self.db_cursor.execute("INSERT INTO rev_sets VALUES(NULL, {0}, 0, '{1}')".format(timestamp, comment))
@@ -76,6 +78,19 @@ class AnnotationEditor(object):
             if l.has_all_gram(grammemes):
                 lexemes.append(l)
         return lexemes
+
+    def get_grammemes_order(self):
+        if self._all_grammemes is None:
+            grams = {}
+            self.db_cursor.execute("SELECT inner_id FROM gram ORDER BY orderby")
+            for row in self.db_cursor.fetchall():
+                grams[row['inner_id']] = len(grams)
+            self._all_grammemes = grams
+        return self._all_grammemes
+
+    def sort_grammemes(self, grams):
+        order = self.get_grammemes_order()
+        return sorted(grams, key=order.get)
     
     def add_link(self, from_id, to_id, link_type, revset_id = None, comment = ""):
         if not self.is_correct_id(from_id) or not self.is_correct_id(to_id):
@@ -141,7 +156,11 @@ class ParsingVariant(object):
         for gr in replace:
             replace_seq.append('<g v="' + gr + '"/>')
 
-        self.xml = self.xml.replace(''.join(search_seq), ''.join(replace_seq))
+        new_xml = self.xml.replace(''.join(search_seq), ''.join(replace_seq))
+        if new_xml != self.xml:
+            self.xml = new_xml
+            return True
+        return False
 
     def replace_lemma(self, search, replace):
         assert isinstance(search, str)
@@ -202,8 +221,11 @@ class AnnotatedToken(object):
         if isinstance(replace_gram, str):
             search_gram = replace_gram,
 
+        ret = False
         for parse in self.parses:
-            parse.replace_gramset(search_gram, replace_gram)
+            if parse.replace_gramset(search_gram, replace_gram):
+                ret = True
+        return ret
 
     def replace_lemma(self, search, replace, gram_restriction=None):
         if gram_restriction and isinstance(gram_restriction, str):
@@ -238,6 +260,11 @@ class Lexeme(object):
         if xml:
             self._parse_rev_xml(xml, lemma)
         self._editor = editor
+
+    def _sort_grammemes(self):
+        """ currently applies only to lemma grammemes
+        """
+        self.lemma['gram'] = self._editor.sort_grammemes(self.lemma['gram'])
 
     def _parse_rev_xml(self, xml, lemma):
         lemma_info = re.findall('<l t="([^"]+)">(.+)<\/l>', xml)
@@ -296,6 +323,14 @@ class Lexeme(object):
                 return False
         return True
 
+    def replace_lemma_gram(self, search_gram, replace_gram):
+        if search_gram is None:
+            search_gram = tuple()
+        if replace_gram is None:
+            replace_gram = tuple()
+        self.remove_lemma_gram(search_gram)
+        self.add_lemma_gram(replace_gram)
+
     def add_form(self, form_text, grammemes):
         assert isinstance(form_text, str)
         assert hasattr(grammemes, '__iter__')
@@ -309,6 +344,7 @@ class Lexeme(object):
         for gram in grammemes:
             if gram not in self.lemma['gram']:
                 self.lemma['gram'].append(gram)
+        self._sort_grammemes()
 
         self.updated_forms.update(set([x['text'] for x in self.forms]))
 
@@ -334,7 +370,7 @@ class Lexeme(object):
             self._id = self._editor.get_insert_id()
 
         self._editor.sql("""
-            UPDATE dict_revisions SET is_last=0 WHERE lemma_id = ?
+            UPDATE dict_revisions SET is_last=0 WHERE lemma_id = {}
         """.format(self._id))
         self._editor.sql("""
             INSERT INTO dict_revisions VALUES(NULL, {0}, {1}, '{2}', 0, 0, 1)
