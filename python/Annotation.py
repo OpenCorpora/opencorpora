@@ -53,6 +53,19 @@ class AnnotationEditor(object):
         row = self.db_cursor.fetchone()
         return AnnotatedToken(token_id, row['rev_text'].encode('utf-8'), editor=self)
 
+    def find_lexeme_by_id(self, lid):
+        self.db_cursor.execute("""
+            SELECT lemma_text AS ltext, rev_text
+            FROM dict_lemmata
+            JOIN dict_revisions USING (lemma_id)
+            WHERE lemma_id = {}
+            AND is_last = 1
+        """.format(lid))
+        rows = self.db_cursor.fetchall()
+        assert len(rows) <= 1
+        if rows:
+            return Lexeme(rows[0]['ltext'].encode('utf-8'), lid, rows[0]['rev_text'].encode('utf-8'), editor=self)
+
     def find_lexeme_by_lemma(self, lemma, grammemes=None, lemma_is_regex=False):
         """
             if lemma_is_regex is True, value of `lemma' is treated as value for sql LIKE operator
@@ -79,7 +92,7 @@ class AnnotationEditor(object):
                 lexemes.append(l)
         return lexemes
 
-    def get_grammemes_order(self):
+    def _get_grammemes_order(self):
         if self._all_grammemes is None:
             grams = {}
             self.db_cursor.execute("SELECT inner_id FROM gram ORDER BY orderby")
@@ -89,8 +102,9 @@ class AnnotationEditor(object):
         return self._all_grammemes
 
     def sort_grammemes(self, grams):
-        order = self.get_grammemes_order()
-        return sorted(grams, key=order.get)
+        """ also deduplicates """
+        order = self._get_grammemes_order()
+        return sorted(list(set(grams)), key=order.get)
     
     def add_link(self, from_id, to_id, link_type, revset_id = None, comment = ""):
         if not self.is_correct_id(from_id) or not self.is_correct_id(to_id):
@@ -130,43 +144,37 @@ class AnnotationEditor(object):
 
 class ParsingVariant(object):
     
-    def __init__(self, xml):
+    def __init__(self, xml, editor=None):
         assert isinstance(xml, str)
-        self.xml = xml
-        self.lemma_id = int(re.search('<l id="([0-9]+)"', self.xml).group(1))
+        header = re.search('<l id="([0-9]+)" t="([^"]+)"', xml)
+        self.lemma_id = int(header.group(1))
+        self.lemma_text = header.group(2)
+        self.grammemes = []
+        for gram in re.findall('<g v="([^"]+)"/?>', xml):
+            self.grammemes.append(gram)
+        self._editor = editor
 
     def to_xml(self):
-        return self.xml
+        uniq_grammemes = []
+        for g in self.grammemes:
+            if g not in uniq_grammemes:
+                uniq_grammemes.append(g)
+            else:
+                print(g)
+        grammemes_xml = "".join('<g v="{}"/>'.format(g) for g in uniq_grammemes)
+        return '<l id="{}" t="{}">{}</l>'.format(self.lemma_id, self.lemma_text, grammemes_xml)
 
     def has_all_grams(self, gramset):
-        assert hasattr(gramset, '__iter__')
-        for g in gramset:
-            if self.xml.find('<g v="' + g + '"/>') == -1:
-                return False
-        return True
+        assert isinstance(gramset, (list, tuple))
+        return all(g in self.grammemes for g in gramset)
 
     def replace_gramset(self, search, replace):
-        assert hasattr(search, '__iter__')
-        assert hasattr(replace, '__iter__')
+        assert isinstance(search, (list, tuple))
+        assert isinstance(replace, (list, tuple))
 
-        search_seq = []
-        replace_seq = []
-        for gr in search:
-            search_seq.append('<g v="' + gr + '"/>')
-        for gr in replace:
-            replace_seq.append('<g v="' + gr + '"/>')
-
-        new_xml = self.xml.replace(''.join(search_seq), ''.join(replace_seq))
-        if new_xml != self.xml:
-            self.xml = new_xml
-            return True
-        return False
-
-    def replace_lemma(self, search, replace):
-        assert isinstance(search, str)
-        assert isinstance(replace, str)
-
-        self.xml = self.xml.replace('t="' + search + '"', 't="' + replace + '"')
+        self.grammemes = (
+            [g for g in self.grammemes if g not in search] + list(replace)
+        )
 
 
 class AnnotatedToken(object):
@@ -179,7 +187,7 @@ class AnnotatedToken(object):
         self._id = tid
         variants = re.split('(?:<\/?v>)+', xml)
         for v in variants[1:-1]:
-            self.parses.append(ParsingVariant(v))
+            self.parses.append(ParsingVariant(v, editor))
         self._editor = editor
 
     def to_xml(self):
