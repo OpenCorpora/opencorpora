@@ -585,7 +585,7 @@ function calculate_updated_forms($old_rev, $new_rev) {
     return $upd_forms;
 }
 function dict_save($lemma_id, $lemma_text, $lemma_gram, $form_text, $form_gram, $comment) {
-    check_permission(PERM_DICT);
+    $do_save = user_has_permission(PERM_DICT);
     $rev_id = 0;
     $updated_forms = array();
     if (!$lemma_text)
@@ -600,9 +600,13 @@ function dict_save($lemma_id, $lemma_text, $lemma_gram, $form_text, $form_gram, 
         foreach ($new_paradigm as $form) {
             $updated_forms[] = $form[0];
         }
-        sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?, 0)", array(mb_strtolower($lemma_text)));
-        $lemma_id = sql_insert_id();
-        $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $comment);
+        if ($do_save) {
+            sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?, 0)", array(mb_strtolower($lemma_text)));
+            $lemma_id = sql_insert_id();
+        } else {
+            $lemma_id = 0;
+        }
+        $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $comment, !$do_save);
     } else {
         // lemma might have been deleted, it is not editable then
         $r = sql_fetch_array(sql_query("SELECT deleted FROM dict_lemmata WHERE lemma_id = $lemma_id LIMIT 1"));
@@ -617,16 +621,16 @@ function dict_save($lemma_id, $lemma_text, $lemma_gram, $form_text, $form_gram, 
             // nothing changed
             return $lemma_id;
         }
-        if ($lemma_text != $old_lemma_text) {
+        if ($do_save && $lemma_text != $old_lemma_text) {
             sql_pe(
                 "UPDATE dict_lemmata SET lemma_text=? WHERE lemma_id=?",
                 array($lemma_text, $lemma_id)
             );
         }
-        $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $comment);
+        $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $comment, !$do_save);
         $updated_forms = calculate_updated_forms($old_rev_parsed, parse_dict_rev($new_xml));
     }
-    if (sizeof($updated_forms) > 0) {
+    if ($do_save && sizeof($updated_forms) > 0) {
         enqueue_updated_forms($updated_forms, $rev_id);
     }
     sql_commit();
@@ -655,15 +659,27 @@ function enqueue_updated_forms($forms, $revision_id) {
     foreach (array_unique($forms) as $upd_form)
         sql_execute($ins, array($upd_form, $revision_id));
 }
-function new_dict_rev($lemma_id, $new_xml, $revset_id=0, $comment = '') {
-    if (!$lemma_id || !$new_xml)
+function new_dict_rev($lemma_id, $new_xml, $revset_id = 0, $comment = '', $pending = false) {
+    if (!$new_xml)
         throw new UnexpectedValueException();
     sql_begin();
-    if (!$revset_id)
-        $revset_id = create_revset($comment);
-    sql_pe("UPDATE dict_revisions SET is_last=0 WHERE lemma_id=?", array($lemma_id));
-    sql_pe("INSERT INTO `dict_revisions` VALUES(NULL, ?, ?, ?, 0, 0, 1)", array($revset_id, $lemma_id, $new_xml));
-    $new_id = sql_insert_id();
+    $new_id = -1;
+
+    if ($pending) {
+        sql_pe(
+            "INSERT INTO dict_revisions_ugc SET user_id = ?, lemma_id = ?, rev_text = ?, comment = ?",
+            array($_SESSION['user_id'], $lemma_id, $new_xml, $comment)
+        );
+    } else {
+        if (!$lemma_id)
+            throw new UnexpectedValueException();
+        if (!$revset_id)
+            $revset_id = create_revset($comment);
+        sql_pe("UPDATE dict_revisions SET is_last=0 WHERE lemma_id=?", array($lemma_id));
+        sql_pe("INSERT INTO `dict_revisions` VALUES(NULL, ?, ?, ?, 0, 0, 1)", array($revset_id, $lemma_id, $new_xml));
+        $new_id = sql_insert_id();
+    }
+
     sql_commit();
     return $new_id;
 }
