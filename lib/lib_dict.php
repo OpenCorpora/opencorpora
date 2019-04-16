@@ -535,11 +535,9 @@ function get_lemma_editor($id) {
     }
     return $out;
 }
-function dict_add_lemma($lemma_text, $lemma_gram, $form_text, $form_gram, $comment) {
-    $gram_order = dict_get_grammemes_by_order();
-    $lemma_gram_new = prepare_gram_array($lemma_gram, $gram_order);
-    $new_paradigm = array();
-    foreach ($form_text as $i => $text) {
+function prepare_paradigm(array $forms_text, array $forms_gram, array $gram_order) {
+    $paradigm = array();
+    foreach ($forms_text as $i => $text) {
         $text = trim($text);
         if ($text == '') {
             //the form is to be deleted, so we do nothing
@@ -547,9 +545,15 @@ function dict_add_lemma($lemma_text, $lemma_gram, $form_text, $form_gram, $comme
             throw new UnexpectedValueException();
         } else {
             //TODO: perhaps some data validity check?
-            array_push($new_paradigm, array($text, prepare_gram_array($form_gram[$i], $gram_order)));
+            array_push($paradigm, array($text, prepare_gram_array($forms_gram[$i], $gram_order)));
         }
     }
+    return $paradigm;
+}
+function dict_add_lemma($lemma_text, $lemma_gram, $form_text, $form_gram, $comment) {
+    $gram_order = dict_get_grammemes_by_order();
+    $lemma_gram_new = prepare_gram_array($lemma_gram, $gram_order);
+    $new_paradigm = prepare_paradigm($form_text, $form_gram, $gram_order);
     $upd_forms = array();
     foreach ($new_paradigm as $form) {
         $upd_forms[] = $form[0];
@@ -622,18 +626,7 @@ function dict_save($lemma_id, $lemma_text, $lemma_gram, $form_text, $form_gram, 
     $old_rev_parsed = parse_dict_rev($old_xml = $r['rev_text']);
     $old_lemma_text = $old_rev_parsed['lemma']['text'];
 
-    $new_paradigm = array();
-    foreach ($form_text as $i => $text) {
-        $text = trim($text);
-        if ($text == '') {
-            //the form is to be deleted, so we do nothing
-        } elseif (strpos($text, ' ') !== false) {
-            throw new UnexpectedValueException();
-        } else {
-            //TODO: perhaps some data validity check?
-            array_push($new_paradigm, array($text, prepare_gram_array($form_gram[$i], $gram_order)));
-        }
-    }
+    $new_paradigm = prepare_paradigm($form_text, $form_gram, $gram_order);
 
     sql_begin();
     //array -> xml
