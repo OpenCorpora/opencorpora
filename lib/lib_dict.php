@@ -550,27 +550,6 @@ function prepare_paradigm(array $forms_text, array $forms_gram, array $gram_orde
     }
     return $paradigm;
 }
-function dict_add_lemma($lemma_text, $lemma_gram, $form_text, $form_gram, $comment) {
-    $gram_order = dict_get_grammemes_by_order();
-    $lemma_gram_new = prepare_gram_array($lemma_gram, $gram_order);
-    $new_paradigm = prepare_paradigm($form_text, $form_gram, $gram_order);
-    $upd_forms = array();
-    foreach ($new_paradigm as $form) {
-        $upd_forms[] = $form[0];
-    }
-    sql_begin();
-    //new lemma in dict_lemmata
-    sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?, 0)", array(mb_strtolower($lemma_text)));
-    $lemma_id = sql_insert_id();
-    //array -> xml
-    $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
-    $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $comment);
-
-    enqueue_updated_forms($upd_forms, $rev_id);
-
-    sql_commit();
-    return $lemma_id;
-}
 function calculate_updated_forms($old_rev, $new_rev) {
     // presume that $old_rev and $new_rev come from parse_dict_rev()
     $upd_forms = array();
@@ -607,41 +586,50 @@ function calculate_updated_forms($old_rev, $new_rev) {
 }
 function dict_save($lemma_id, $lemma_text, $lemma_gram, $form_text, $form_gram, $comment) {
     check_permission(PERM_DICT);
-    //it may be a totally new lemma
-    if ($lemma_id == -1) {
-        return dict_add_lemma($lemma_text, $lemma_gram, $form_text, $form_gram, $comment);
-    }
-
-    // lemma might have been deleted, it is not editable then
-    $r = sql_fetch_array(sql_query("SELECT deleted FROM dict_lemmata WHERE lemma_id = $lemma_id LIMIT 1"));
-    if ($r['deleted'])
-        throw new Exception("This lemma is not editable");
-
+    $rev_id = 0;
+    $updated_forms = array();
     if (!$lemma_text)
         throw new UnexpectedValueException();
     $gram_order = dict_get_grammemes_by_order();
     $lemma_gram_new = prepare_gram_array($lemma_gram, $gram_order);
-
-    $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$lemma_id AND is_last=1 LIMIT 1"));
-    $old_rev_parsed = parse_dict_rev($old_xml = $r['rev_text']);
-    $old_lemma_text = $old_rev_parsed['lemma']['text'];
-
     $new_paradigm = prepare_paradigm($form_text, $form_gram, $gram_order);
-
-    sql_begin();
-    //array -> xml
     $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
-    if ($lemma_text != $old_lemma_text || $new_xml != $old_xml) {
-        //something's really changed
-        if ($lemma_text != $old_lemma_text)
+    sql_begin();
+    //it may be a totally new lemma
+    if ($lemma_id == -1) {
+        foreach ($new_paradigm as $form) {
+            $updated_forms[] = $form[0];
+        }
+        sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?, 0)", array(mb_strtolower($lemma_text)));
+        $lemma_id = sql_insert_id();
+        $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $comment);
+    } else {
+        // lemma might have been deleted, it is not editable then
+        $r = sql_fetch_array(sql_query("SELECT deleted FROM dict_lemmata WHERE lemma_id = $lemma_id LIMIT 1"));
+        if ($r['deleted'])
+            throw new Exception("This lemma is not editable");
+
+        $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$lemma_id AND is_last=1 LIMIT 1"));
+        $old_rev_parsed = parse_dict_rev($old_xml = $r['rev_text']);
+        $old_lemma_text = $old_rev_parsed['lemma']['text'];
+
+        if ($lemma_text == $old_lemma_text && $new_xml == $old_xml) {
+            // nothing changed
+            return $lemma_id;
+        }
+        if ($lemma_text != $old_lemma_text) {
             sql_pe(
                 "UPDATE dict_lemmata SET lemma_text=? WHERE lemma_id=?",
                 array($lemma_text, $lemma_id)
             );
+        }
         $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $comment);
-        enqueue_updated_forms(calculate_updated_forms($old_rev_parsed, parse_dict_rev($new_xml)), $rev_id);
-        sql_commit();
+        $updated_forms = calculate_updated_forms($old_rev_parsed, parse_dict_rev($new_xml));
     }
+    if (sizeof($updated_forms) > 0) {
+        enqueue_updated_forms($updated_forms, $rev_id);
+    }
+    sql_commit();
     return $lemma_id;
 }
 function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
