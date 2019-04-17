@@ -29,7 +29,9 @@
     <td rowspan='2'><a href="/user.php?id={$edit.user_id}">{$edit.user_name}</a></td>
     <td rowspan='2'>{$edit.comment|htmlspecialchars|default:"&nbsp;"}</td>
     <td colspan='2'><a href="#" class='toggle-diff'>показать/скрыть</a></td>
-    <td rowspan='2' valign='top'><a class="btn btn-small" href="?act=approve&id={$edit.rev_id}">Одобрить</button></td>
+    <td rowspan='2' valign='top'>
+        <a class="btn btn-small btn-success" href="?act=approve&id={$edit.rev_id}">Одобрить</a>
+    </td>
 </tr>
 <tr><td><pre style='display: none'>
 {foreach from=$edit.diff[0] item=str}

@@ -676,7 +676,7 @@ function new_dict_rev($lemma_id, $new_xml, $revset_id = 0, $comment = '', $pendi
         if (!$revset_id)
             $revset_id = create_revset($comment);
         sql_pe("UPDATE dict_revisions SET is_last=0 WHERE lemma_id=?", array($lemma_id));
-        sql_pe("INSERT INTO `dict_revisions` VALUES(NULL, ?, ?, ?, 0, 0, 1)", array($revset_id, $lemma_id, $new_xml));
+        sql_pe("INSERT INTO `dict_revisions` VALUES(NULL, ?, ?, ?, 0, 0, 1, 0)", array($revset_id, $lemma_id, $new_xml));
         $new_id = sql_insert_id();
     }
 
@@ -706,7 +706,7 @@ function del_lemma($id) {
 
     // create empty revision
     sql_pe("UPDATE dict_revisions SET is_last=0 WHERE lemma_id=?", array($id));
-    sql_pe("INSERT INTO dict_revisions VALUES (NULL, ?, ?, '', 1, 1, 1)", array($revset_id, $id));
+    sql_pe("INSERT INTO dict_revisions VALUES (NULL, ?, ?, '', 1, 1, 1, 0)", array($revset_id, $id));
     $rev_id = sql_insert_id();
 
     //update `updated_forms`
@@ -738,6 +738,23 @@ function get_pending_dict_edits() {
         $r['diff'] = php_diff(format_xml($r['rev_text_old']), format_xml($r['rev_text_new']));
     }
     return $res;
+}
+function dict_approve_edit($rev_id) {
+    check_permission(PERM_DICT);
+    $res = sql_pe("
+        SELECT lemma_id, rev_text, status, comment
+        FROM dict_revisions_ugc
+        WHERE rev_id = ?
+        LIMIT 1
+    ", array($rev_id));
+    if (!sizeof($res) || $res[0]['status'] != 0)
+        throw new Exception();
+    $row = $res[0];
+    sql_begin();
+    $new_rev_id = new_dict_rev($row['lemma_id'], $row['rev_text'], 0, "Merge edit #$rev_id", false);
+    sql_pe("UPDATE dict_revisions_ugc SET status = 1 WHERE rev_id = ? LIMIT 1", array($rev_id));
+    sql_pe("UPDATE dict_revisions SET ugc_rev_id = ? WHERE rev_id = ? LIMIT 1", array($rev_id, $new_rev_id));
+    sql_commit();
 }
 function del_link($link_id, $revset_id=0) {
     check_permission(PERM_DICT);

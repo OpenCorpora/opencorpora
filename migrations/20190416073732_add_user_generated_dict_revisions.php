@@ -16,5 +16,9 @@ class AddUserGeneratedDictRevisions extends AbstractMigration
                  ->addColumn('status', 'integer', array('signed' => false, 'limit' => MysqlAdapter::INT_TINY, 'default' => 0))
                  ->addIndex(['user_id'])
                  ->create();
+
+        $revs_main = $this->table('dict_revisions');
+        $revs_main->addColumn('ugc_rev_id', 'integer', array('signed' => false, 'default' => 0))
+                  ->update();
     }
 }
