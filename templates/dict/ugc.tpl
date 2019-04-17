@@ -30,7 +30,8 @@
     <td rowspan='2'>{$edit.comment|htmlspecialchars|default:"&nbsp;"}</td>
     <td colspan='2'><a href="#" class='toggle-diff'>показать/скрыть</a></td>
     <td rowspan='2' valign='top'>
-        <a class="btn btn-small btn-success" href="?act=approve&id={$edit.rev_id}">Одобрить</a>
+        <a class="btn btn-small btn-success" href="?act=ugc_approve&id={$edit.rev_id}">Одобрить</a>
+        <a class="btn btn-small btn-danger" href="?act=ugc_reject&id={$edit.rev_id}">Отклонить</a>
     </td>
 </tr>
 <tr><td><pre style='display: none'>

@@ -1,4 +1,5 @@
 <?php
+require_once('constants.php');
 require_once('lib_annot.php');
 require_once('lib_history.php');
 require_once('lib_xml.php');
@@ -747,14 +748,26 @@ function dict_approve_edit($rev_id) {
         WHERE rev_id = ?
         LIMIT 1
     ", array($rev_id));
-    if (!sizeof($res) || $res[0]['status'] != 0)
+    if (!sizeof($res) || $res[0]['status'] != DICT_UGC_PENDING)
         throw new Exception();
     $row = $res[0];
     sql_begin();
     $new_rev_id = new_dict_rev($row['lemma_id'], $row['rev_text'], 0, "Merge edit #$rev_id", false);
-    sql_pe("UPDATE dict_revisions_ugc SET status = 1 WHERE rev_id = ? LIMIT 1", array($rev_id));
+    sql_pe("UPDATE dict_revisions_ugc SET status = ".DICT_UGC_APPROVED.", moder_id = ? WHERE rev_id = ? LIMIT 1", array($_SESSION['user_id'], $rev_id));
     sql_pe("UPDATE dict_revisions SET ugc_rev_id = ? WHERE rev_id = ? LIMIT 1", array($rev_id, $new_rev_id));
     sql_commit();
+}
+function dict_reject_edit($rev_id) {
+    check_permission(PERM_DICT);
+    $res = sql_pe("
+        SELECT status
+        FROM dict_revisions_ugc
+        WHERE rev_id = ?
+        LIMIT 1
+    ", array($rev_id));
+    if (!sizeof($res) || $res[0]['status'] != DICT_UGC_PENDING)
+        throw new Exception();
+    sql_pe("UPDATE dict_revisions_ugc SET status = ".DICT_UGC_REJECTED.", moder_id = ? WHERE rev_id = ? LIMIT 1", array($_SESSION['user_id'], $rev_id));
 }
 function del_link($link_id, $revset_id=0) {
     check_permission(PERM_DICT);

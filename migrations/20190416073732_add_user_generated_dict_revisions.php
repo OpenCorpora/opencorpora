@@ -14,6 +14,7 @@ class AddUserGeneratedDictRevisions extends AbstractMigration
                  ->addColumn('rev_text', 'text')
                  ->addColumn('comment', 'text')
                  ->addColumn('status', 'integer', array('signed' => false, 'limit' => MysqlAdapter::INT_TINY, 'default' => 0))
+                 ->addColumn('moder_id', 'integer', array('signed' => false, 'default' => 0))
                  ->addIndex(['user_id'])
                  ->create();
 

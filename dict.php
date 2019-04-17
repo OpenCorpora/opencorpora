@@ -112,8 +112,12 @@ switch ($action) {
         $smarty->assign('data', get_pending_dict_edits());
         $smarty->display('dict/ugc.tpl');
         break;
-    case 'approve':
+    case 'ugc_approve':
         dict_approve_edit(GET('id'));
+        header("Location:dict.php?act=pending_edits");
+        break;
+    case 'ugc_reject':
+        dict_reject_edit(GET('id'));
         header("Location:dict.php?act=pending_edits");
         break;
     default:
