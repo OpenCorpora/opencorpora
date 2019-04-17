@@ -724,7 +724,7 @@ function del_lemma($id) {
     sql_commit();
 }
 function get_pending_dict_edits() {
-    $res = sql_pe("
+    $res = sql_fetchall(sql_query("
         SELECT ugc.rev_id, ugc.user_id, u.user_shown_name AS user_name, created_ts, lemma_id, ugc.rev_text AS rev_text_new, dr.rev_text AS rev_text_old, comment
         FROM dict_revisions_ugc AS ugc
         LEFT JOIN dict_revisions dr
@@ -734,7 +734,7 @@ function get_pending_dict_edits() {
         WHERE ugc.status = 0
             AND (dr.is_last = 1 OR lemma_id = 0)
         ORDER BY ugc.rev_id
-    ");
+    "));
     foreach ($res as &$r) {
         $r['diff'] = php_diff(format_xml($r['rev_text_old']), format_xml($r['rev_text_new']));
     }
@@ -752,7 +752,13 @@ function dict_approve_edit($rev_id) {
         throw new Exception();
     $row = $res[0];
     sql_begin();
-    $new_rev_id = new_dict_rev($row['lemma_id'], $row['rev_text'], 0, "Merge edit #$rev_id", false);
+    $lemma_id = $row['lemma_id'];
+    if ($lemma_id == 0) {
+        $lemma_text = parse_dict_rev($row['rev_text'])['lemma']['text'];
+        sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?, 0)", array(mb_strtolower($lemma_text)));
+        $lemma_id = sql_insert_id();
+    }
+    $new_rev_id = new_dict_rev($lemma_id, $row['rev_text'], 0, "Merge edit #$rev_id", false);
     sql_pe("UPDATE dict_revisions_ugc SET status = ".DICT_UGC_APPROVED.", moder_id = ? WHERE rev_id = ? LIMIT 1", array($_SESSION['user_id'], $rev_id));
     sql_pe("UPDATE dict_revisions SET ugc_rev_id = ? WHERE rev_id = ? LIMIT 1", array($rev_id, $new_rev_id));
     sql_commit();

@@ -29,7 +29,7 @@
         <a href="dict_diff.php?lemma_id={$h.lemma_id}&amp;set_id={$h.set_id}">Изменения</a>
         {/if}
     </td>
-    <td>{if $h.comment}{$h.comment}{else}(без комментария){/if}</td>
+    <td>{if $h.comment}{$h.comment}{else}(без комментария){/if}{if $h.ugc_user_name}<br/><p class='small'>предложил(а) {$h.ugc_user_name}</p>{/if}</td>
 </tr>
 {/foreach}
 </table>

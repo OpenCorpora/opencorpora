@@ -81,15 +81,21 @@ function dict_history($lemma_id, $skip = 0) {
         $out['total'] += $res[0];
     }
     $res = sql_query("SELECT * FROM (
-                        (SELECT s.*, u.user_shown_name AS user_name, dl.*, '0' lemma2_id, '0' lemma2_text, '0' is_link
+                        (SELECT s.*, u.user_shown_name AS user_name, dl.*,
+                         '0' AS lemma2_id, '0' AS lemma2_text, '0' AS is_link, users_ugc.user_shown_name AS ugc_user_name
                             FROM dict_revisions dr
                             LEFT JOIN rev_sets s ON (dr.set_id=s.set_id)
                             LEFT JOIN users u ON (s.user_id=u.user_id)
                             LEFT JOIN dict_lemmata dl ON (dr.lemma_id=dl.lemma_id)
                             ".($lemma_id?" WHERE dr.lemma_id=$lemma_id":"")." 
+                            LEFT JOIN dict_revisions_ugc ugc
+                                ON (dr.ugc_rev_id = ugc.rev_id)
+                            LEFT JOIN users users_ugc
+                                ON (ugc.user_id = users_ugc.user_id)
                             ORDER BY dr.rev_id DESC LIMIT ".($skip+20).")
                         UNION
-                        (SELECT s.*, u.user_shown_name AS user_name, dl.*, dl2.lemma_id lemma2_id, dl2.lemma_text lemma2_text, '1' is_link
+                        (SELECT s.*, u.user_shown_name AS user_name, dl.*,
+                         dl2.lemma_id AS lemma2_id, dl2.lemma_text AS lemma2_text, '1' AS is_link, '' AS ugc_user_name
                             FROM dict_links_revisions dr
                             LEFT JOIN rev_sets s ON (dr.set_id=s.set_id)
                             LEFT JOIN users u ON (s.user_id=u.user_id)
@@ -111,7 +117,8 @@ function dict_history($lemma_id, $skip = 0) {
             'lemma2_id'   => $r['lemma2_id'],
             'lemma2_text' => $r['lemma2_text'],
             'is_link'    => $r['is_link'],
-            'is_lemma_deleted' => $r['deleted']
+            'is_lemma_deleted' => $r['deleted'],
+            'ugc_user_name' => $r['ugc_user_name']
         );
     }
     return $out;
