@@ -722,6 +722,23 @@ function del_lemma($id) {
     sql_pe("UPDATE dict_lemmata SET deleted=1 WHERE lemma_id=? LIMIT 1", array($id));
     sql_commit();
 }
+function get_pending_dict_edits() {
+    $res = sql_pe("
+        SELECT ugc.rev_id, ugc.user_id, u.user_shown_name AS user_name, created_ts, lemma_id, ugc.rev_text AS rev_text_new, dr.rev_text AS rev_text_old, comment
+        FROM dict_revisions_ugc AS ugc
+        LEFT JOIN dict_revisions dr
+            USING (lemma_id)
+        LEFT JOIN users u
+            USING (user_id)
+        WHERE ugc.status = 0
+            AND (dr.is_last = 1 OR lemma_id = 0)
+        ORDER BY ugc.rev_id
+    ");
+    foreach ($res as &$r) {
+        $r['diff'] = php_diff(format_xml($r['rev_text_old']), format_xml($r['rev_text_new']));
+    }
+    return $res;
+}
 function del_link($link_id, $revset_id=0) {
     check_permission(PERM_DICT);
     $res = sql_pe("SELECT * FROM dict_links WHERE link_id=? LIMIT 1", array($link_id));
