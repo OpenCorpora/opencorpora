@@ -5,7 +5,7 @@
         "symfony/config": "2.6.0",
         "symfony/console": "2.6.0",
         "symfony/yaml": "2.6.0",
-        "swiftmailer/swiftmailer": "@stable",
+        "swiftmailer/swiftmailer": "5.4.12",
         "robloach/component-installer": "@stable",
         "monolog/monolog": "@stable",
 
