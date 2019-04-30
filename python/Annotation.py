@@ -341,7 +341,7 @@ class Lexeme(object):
 
     def add_form(self, form_text, grammemes):
         assert isinstance(form_text, str)
-        assert hasattr(grammemes, '__iter__')
+        assert isinstance(grammemes, (tuple, list))
         self.forms.append({'text': form_text, 'gram': grammemes})
         self.updated_forms.add(form_text)
 
