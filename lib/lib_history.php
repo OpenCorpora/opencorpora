@@ -186,9 +186,18 @@ function main_diff($sentence_id, $set_id, $rev_id) {
     return $out;
 }
 function dict_diff($lemma_id, $set_id) {
-    $res = sql_query("SELECT dr.rev_id, dr.rev_text, s.timestamp, s.comment, u.user_shown_name AS user_name FROM dict_revisions dr LEFT JOIN rev_sets s ON (dr.set_id=s.set_id) LEFT JOIN `users` u ON (s.user_id=u.user_id) WHERE dr.set_id<=$set_id AND dr.lemma_id=$lemma_id ORDER BY dr.rev_id DESC LIMIT 2");
-    $r1 = sql_fetch_array($res);
-    $r2 = sql_fetch_array($res);
+    $res = sql_pe("
+        SELECT dr.rev_id, dr.rev_text, s.timestamp, s.comment, u.user_shown_name AS user_name
+        FROM dict_revisions dr
+        LEFT JOIN rev_sets s ON (dr.set_id=s.set_id)
+        LEFT JOIN `users` u ON (s.user_id=u.user_id)
+        WHERE dr.set_id <= ?
+            AND dr.lemma_id = ?
+        ORDER BY dr.rev_id DESC
+        LIMIT 2
+    ", array($set_id, $lemma_id));
+    $r1 = $res[0];
+    $r2 = $res[1];
     $old_rev = format_xml($r2['rev_text']);
     $new_rev = format_xml($r1['rev_text']);
     $out = array(
@@ -205,15 +214,27 @@ function dict_diff($lemma_id, $set_id) {
         'prev_set'      => 0,
         'next_set'      => 0
     );
-    $res = sql_query("SELECT set_id FROM dict_revisions WHERE lemma_id=$lemma_id AND set_id<$set_id ORDER BY set_id DESC LIMIT 1");
-    if (sql_num_rows($res) > 0) {
-        $r = sql_fetch_array($res);
-        $out['prev_set'] = $r[0];
+    $res = sql_pe("
+        SELECT set_id
+        FROM dict_revisions
+        WHERE lemma_id = ?
+            AND set_id < ?
+        ORDER BY set_id DESC
+        LIMIT 1
+    ", array($lemma_id, $set_id));
+    if (sizeof($res) > 0) {
+        $out['prev_set'] = $res[0]['set_id'];
     }
-    $res = sql_query("SELECT set_id FROM dict_revisions WHERE lemma_id=$lemma_id AND set_id>$set_id ORDER BY set_id ASC LIMIT 1");
-    if (sql_num_rows($res) > 0) {
-        $r = sql_fetch_array($res);
-        $out['next_set'] = $r[0];
+    $res = sql_pe("
+        SELECT set_id
+        FROM dict_revisions
+        WHERE lemma_id = ?
+            AND set_id > ?
+        ORDER BY set_id ASC
+        LIMIT 1
+    ", array($lemma_id, $set_id));
+    if (sizeof($res) > 0) {
+        $out['next_set'] = $res[0]['set_id'];
     }
     return $out;
 }
