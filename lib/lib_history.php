@@ -2,6 +2,7 @@
 require_once('lib_annot.php');
 require_once('lib_dict.php');
 require_once('lib_diff.php');
+require_once('Lexeme.php');
 
 function main_history($sentence_id, $set_id = 0, $skip = 0, $maa = 0, $user_id = 0) {
     $out = array();
@@ -303,8 +304,9 @@ function revert_dict($rev_id) {
     $new_rev_id = new_dict_rev($lemma_id, $res[0]['rev_text'], $new_set_id);
 
     // updated forms
-    $pdr = parse_dict_rev($old_rev[0]['rev_text']);
-    enqueue_updated_forms(calculate_updated_forms($pdr, parse_dict_rev($res[0]['rev_text'])), $new_rev_id);
+    $old_lex = new Lexeme($old_rev[0]['rev_text']);
+    $new_lex = new Lexeme($res[0]['rev_text']);
+    enqueue_updated_forms(calculate_updated_forms($old_lex, $new_lex), $new_rev_id);
 
     sql_commit();
 }

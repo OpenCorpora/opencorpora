@@ -4,6 +4,7 @@ require_once('lib_annot.php');
 require_once('lib_history.php');
 require_once('lib_xml.php');
 require_once('lib_morph_pools.php');
+require_once('Lexeme.php');
 
 // GENERAL
 function get_dict_stats() {
@@ -56,11 +57,8 @@ function get_dict_search_results($search_lemma, $search_form=false) {
 }
 function get_all_forms_by_lemma_id($lid) {
     $res = sql_pe("SELECT rev_text FROM dict_revisions WHERE lemma_id=? AND is_last=1 LIMIT 1", array($lid));
-    $parsed = parse_dict_rev($res[0]['rev_text']);
-    $forms = array();
-    foreach ($parsed['forms'] as $form)
-        $forms[] = $form['text'];
-    return array_unique($forms);
+    $lex = new Lexeme($res[0]['rev_text']);
+    return array_unique($lex->get_all_forms_texts());
 }
 function get_all_forms_by_lemma_text($lemma) {
     $lemmata = get_dict_search_results($lemma);
@@ -104,65 +102,29 @@ function get_link_types() {
     }
     return $out;
 }
-function parse_dict_rev_gram(array $src) {
-    $t = array();
-    foreach ($src as $garr) {
-        if (isset($garr['v'])) {
-            // if there is only one grammeme
-            $t[] = $garr['v'];
-            break;
-        }
-        $t[] = $garr['_a']['v'];
-    }
-    return $t;
-}
-function parse_dict_rev($text) {
-    // output has the following structure:
-    // lemma => array (text => lemma_text, grm => array (grm1, grm2, ...)),
-    // forms => array (
-    //     [0] => array (text => form_text, grm => array (grm1, grm2, ...)),
-    //     [1] => ...
-    // )
-    $arr = xml2ary($text);
-    $arr = $arr['dr']['_c'];
-    $parsed = array();
-    $parsed['lemma']['text'] = $arr['l']['_a']['t'];
-    $parsed['lemma']['grm'] = parse_dict_rev_gram($arr['l']['_c']['g']);
-    if (isset($arr['f']['_a'])) {
-        //if there is only one form
-        $parsed['forms'][0]['text'] = $arr['f']['_a']['t'];
-        $parsed['forms'][0]['grm'] = parse_dict_rev_gram($arr['f']['_c']['g']);
-    } else {
-        foreach ($arr['f'] as $k=>$farr) {
-            $parsed['forms'][$k]['text'] = $farr['_a']['t'];
-            $parsed['forms'][$k]['grm'] = parse_dict_rev_gram($farr['_c']['g']);
-        }
-    }
-    return $parsed;
-}
 function get_word_paradigm($lemma) {
     $res = sql_pe("SELECT rev_text FROM dict_revisions LEFT JOIN dict_lemmata USING (lemma_id) WHERE deleted=0 AND lemma_text=? AND is_last=1 LIMIT 1", array($lemma));
     if (sizeof($res) == 0)
         return false;
     $r = $res[0];
-    $arr = parse_dict_rev($r['rev_text']);
+    $lex = new Lexeme($r['rev_text']);
     $out = array(
-        'lemma_gram' => $arr['lemma']['grm'],
+        'lemma_gram' => $lex->lemma->grammemes,
         'forms' => array()
     );
 
-    $pseudo_stem = $arr['lemma']['text'];
-    foreach ($arr['forms'] as $form) {
-        $pseudo_stem = get_common_prefix($form['text'], $pseudo_stem);
+    $pseudo_stem = $lex->lemma->text;
+    foreach ($lex->get_all_forms_texts() as $form) {
+        $pseudo_stem = get_common_prefix($form, $pseudo_stem);
     }
 
-    $out['lemma_suffix_len'] = mb_strlen($arr['lemma']['text']) - mb_strlen($pseudo_stem);
+    $out['lemma_suffix_len'] = mb_strlen($lex->lemma->text) - mb_strlen($pseudo_stem);
 
-    foreach ($arr['forms'] as $form) {
-        $suffix_len = mb_strlen($form['text']) - mb_strlen($pseudo_stem);
+    foreach ($lex->forms as $form) {
+        $suffix_len = mb_strlen($form->text) - mb_strlen($pseudo_stem);
         $out['forms'][] = array(
-            'suffix' => $suffix_len ? mb_substr($form['text'], -$suffix_len, $suffix_len) : '',
-            'grm' => $form['grm']
+            'suffix' => $suffix_len ? mb_substr($form->text, -$suffix_len, $suffix_len) : '',
+            'grm' => $form->grammemes
         );
     }
 
@@ -326,7 +288,7 @@ function can_smart_update($deleted_forms, $added_forms_texts) {
     return sizeof($deleted_forms) == 0 || sizeof($added_forms_texts) == 0;
 }
 function discard_yo($form) {
-    return array('text' => strtr($form['text'], array('ё' => 'е')), 'grm' => $form['grm']);
+    return array('text' => strtr($form->text, array('ё' => 'е')), 'grm' => $form->grammemes);
 }
 function discard_yo_all($forms) {
     $ret = array();
@@ -344,7 +306,7 @@ function get_added_and_deleted_forms($prev_forms, $new_forms) {
     $added_forms_texts = array();
     foreach ($new_forms as $nf) {
         if (!in_array(discard_yo($nf), discard_yo_all($prev_forms))) {
-            $added_forms_texts[] = $nf['text'];
+            $added_forms_texts[] = $nf->text;
         }
     }
     return array($added_forms_texts, $deleted_forms);
@@ -380,15 +342,13 @@ function smart_update_pending_token(MorphParseSet $parse_set, $rev_id) {
     }
     $prev_rev_text = $res[0]['rev_text'];
 
-    $prev_rev_parsed = parse_dict_rev($prev_rev_text);
-    $new_rev_parsed = parse_dict_rev($rev_text);
+    $lex_prev = new Lexeme($prev_rev_text);
+    $lex_new = new Lexeme($rev_text);
 
     // cannot work if smth changed in the paradigm, not lemma
     // unless the change is addition/deletion of new forms and/or pure text changes
-    $prev_forms = $prev_rev_parsed['forms'];
-    $new_forms = $new_rev_parsed['forms'];
 
-    list($added_forms_texts, $deleted_forms) = get_added_and_deleted_forms($prev_forms, $new_forms);
+    list($added_forms_texts, $deleted_forms) = get_added_and_deleted_forms($lex_prev->forms, $lex_new->forms);
 
     if (!can_smart_update($deleted_forms, $added_forms_texts)) {
         throw new Exception("Smart mode unavailable");
@@ -399,12 +359,12 @@ function smart_update_pending_token(MorphParseSet $parse_set, $rev_id) {
         $parse_set->merge_from($new_parses);
     }
     foreach ($deleted_forms as $df) {
-        $parse_set->remove_parse($lemma_id, array_merge($prev_rev_parsed['lemma']['grm'], $df['grm']));
+        $parse_set->remove_parse($lemma_id, array_merge($lex_prev->lemma->grammemes, $df->grammemes));
     }
 
     // process lemma changes
-    $parse_set->set_lemma_text($lemma_id, $new_rev_parsed['lemma']['text']);
-    $parse_set->replace_gram_subset($lemma_id, $prev_rev_parsed['lemma']['grm'], $new_rev_parsed['lemma']['grm']);
+    $parse_set->set_lemma_text($lemma_id, $lex_new->lemma->text);
+    $parse_set->replace_gram_subset($lemma_id, $lex_prev->lemma->grammemes, $lex_new->lemma->grammemes);
 }
 function update_pending_token($token_id, $rev_id, $revset_id=0, $smart=false) {
     check_permission(PERM_DISAMB);
@@ -471,13 +431,13 @@ function get_lemma_editor($id) {
         AND d.is_last=1
         LIMIT 1
     ", array($id));
-    $arr = parse_dict_rev($res[0]['rev_text']);
+    $lex = new Lexeme($res[0]['rev_text']);
     $out['deleted'] = $res[0]['deleted'];
     $out['lemma']['text'] = $res[0]['lemma_text'];
-    $out['lemma']['grms'] = implode(', ', $arr['lemma']['grm']);
-    $out['lemma']['grms_raw'] = $arr['lemma']['grm'];
-    foreach ($arr['forms'] as $farr) {
-        $out['forms'][] = array('text' => $farr['text'], 'grms' => implode(', ', $farr['grm']), 'grms_raw' => $farr['grm']);
+    $out['lemma']['grms'] = implode(', ', $lex->lemma->grammemes);
+    $out['lemma']['grms_raw'] = $lex->lemma->grammemes;
+    foreach ($lex->forms as $form) {
+        $out['forms'][] = array('text' => $form->text, 'grms' => implode(', ', $form->grammemes), 'grms_raw' => $form->grammemes);
     }
     //links
     $res = sql_pe("
@@ -532,22 +492,21 @@ function prepare_paradigm(array $forms_text, array $forms_gram, array $gram_orde
     }
     return $paradigm;
 }
-function calculate_updated_forms($old_rev, $new_rev) {
-    // presume that $old_rev and $new_rev come from parse_dict_rev()
+function calculate_updated_forms(Lexeme $old_lex, Lexeme $new_lex) {
     $upd_forms = array();
 
-    $old_lemma_text = $old_rev['lemma']['text'];
-    $old_lemma_gram = implode(', ', $old_rev['lemma']['grm']);
+    $old_lemma_text = $old_lex->lemma->text;
+    $old_lemma_gram = implode(', ', $old_lex->lemma->grammemes);
     $old_paradigm = array();
-    foreach ($old_rev['forms'] as $form_arr) {
-        array_push($old_paradigm, array($form_arr['text'], implode(', ', $form_arr['grm'])));
+    foreach ($old_lex->forms as $form) {
+        array_push($old_paradigm, array($form->text, implode(', ', $form->grammemes)));
     }
 
-    $new_lemma_text = $new_rev['lemma']['text'];
-    $new_lemma_gram = implode(', ', $new_rev['lemma']['grm']);
+    $new_lemma_text = $new_lex->lemma->text;
+    $new_lemma_gram = implode(', ', $new_lex->lemma->grammemes);
     $new_paradigm = array();
-    foreach ($new_rev['forms'] as $form_arr) {
-        array_push($new_paradigm, array($form_arr['text'], implode(', ', $form_arr['grm'])));
+    foreach ($new_lex->forms as $form) {
+        array_push($new_paradigm, array($form->text, implode(', ', $form->grammemes)));
     }
     //if lemma's grammems or lemma text have changed then all forms have changed
     if ($new_lemma_gram != $old_lemma_gram || $new_lemma_text != $old_lemma_text) {
@@ -596,8 +555,8 @@ function dict_save($lemma_id, $lemma_text, $lemma_gram, $form_text, $form_gram, 
             throw new Exception("This lemma is not editable");
 
         $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$lemma_id AND is_last=1 LIMIT 1"));
-        $old_rev_parsed = parse_dict_rev($old_xml = $r['rev_text']);
-        $old_lemma_text = $old_rev_parsed['lemma']['text'];
+        $old_lex = new Lexeme($old_xml = $r['rev_text']);
+        $old_lemma_text = $old_lex->lemma->text;
 
         if ($lemma_text == $old_lemma_text && $new_xml == $old_xml) {
             // nothing changed
@@ -610,7 +569,7 @@ function dict_save($lemma_id, $lemma_text, $lemma_gram, $form_text, $form_gram, 
             );
         }
         $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $comment, !$do_save);
-        $updated_forms = calculate_updated_forms($old_rev_parsed, parse_dict_rev($new_xml));
+        $updated_forms = calculate_updated_forms($old_lex, new Lexeme($new_xml));
     }
     if ($do_save && sizeof($updated_forms) > 0) {
         enqueue_updated_forms($updated_forms, $rev_id);
@@ -693,11 +652,8 @@ function del_lemma($id) {
 
     //update `updated_forms`
     $res = sql_pe("SELECT rev_text FROM dict_revisions WHERE lemma_id=? ORDER BY `rev_id` DESC LIMIT 1, 1", array($id));
-    $pdr = parse_dict_rev($res[0]['rev_text']);
-    $updated_forms = array();
-    foreach ($pdr['forms'] as $form)
-        $updated_forms[] = $form['text'];
-    enqueue_updated_forms($updated_forms, $rev_id);
+    $lex = new Lexeme($res[0]['rev_text']);
+    enqueue_updated_forms($lex->get_all_forms_texts(), $rev_id);
     //delete forms from form2lemma
     sql_pe("DELETE FROM `form2lemma` WHERE lemma_id=?", array($id));
     //delete lemma
@@ -735,8 +691,8 @@ function dict_approve_edit($rev_id) {
     sql_begin();
     $lemma_id = $row['lemma_id'];
     if ($lemma_id == 0) {
-        $lemma_text = parse_dict_rev($row['rev_text'])['lemma']['text'];
-        sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?, 0)", array(mb_strtolower($lemma_text)));
+        $lex = new Lexeme($row['rev_text']);
+        sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?, 0)", array(mb_strtolower($lex->lemma->text)));
         $lemma_id = sql_insert_id();
     }
     $new_rev_id = new_dict_rev($lemma_id, $row['rev_text'], 0, "Merge edit #$rev_id", false);
