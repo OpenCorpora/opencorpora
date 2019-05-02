@@ -67,25 +67,6 @@ function get_all_forms_by_lemma_text($lemma) {
         $forms = array_merge($forms, get_all_forms_by_lemma_id($l['id']));
     return array_unique($forms);
 }
-function dict_get_grammemes_by_order() {
-    $res = sql_query("SELECT inner_id FROM gram ORDER BY orderby");
-    $out = array();
-    while ($r = sql_fetch_array($res))
-        $out[] = $r['inner_id'];
-    return $out;
-}
-function sort_grammemes(&$gram_array, $gram_order) {
-    usort($gram_array, function($a, $b) use ($gram_order) {
-        return array_search($a, $gram_order) < array_search($b, $gram_order) ? -1 : 1;
-    });
-}
-function prepare_gram_array($raw_grams, $gram_order) {
-    if (!is_array($raw_grams))
-        $raw_grams = explode(',', $raw_grams);
-    $grams = array_filter(array_map("trim", $raw_grams), "strlen");
-    sort_grammemes($grams, $gram_order);
-    return $grams;
-}
 function dict_get_select_gram() {
     $res = sql_query("SELECT `gram_id`, `inner_id` FROM `gram` ORDER by `inner_id`");
     $out = array();
@@ -477,21 +458,6 @@ function get_lemma_editor($id) {
     }
     return $out;
 }
-function prepare_paradigm(array $forms_text, array $forms_gram, array $gram_order) {
-    $paradigm = array();
-    foreach ($forms_text as $i => $text) {
-        $text = trim($text);
-        if ($text == '') {
-            //the form is to be deleted, so we do nothing
-        } elseif (strpos($text, ' ') !== false) {
-            throw new UnexpectedValueException();
-        } else {
-            //TODO: perhaps some data validity check?
-            array_push($paradigm, array($text, prepare_gram_array($forms_gram[$i], $gram_order)));
-        }
-    }
-    return $paradigm;
-}
 function calculate_updated_forms(Lexeme $old_lex, Lexeme $new_lex) {
     $upd_forms = array();
 
@@ -531,16 +497,16 @@ function dict_save($lemma_id, $lemma_text, $lemma_gram, $form_text, $form_gram, 
     $updated_forms = array();
     if (!$lemma_text)
         throw new UnexpectedValueException();
-    $gram_order = dict_get_grammemes_by_order();
-    $lemma_gram_new = prepare_gram_array($lemma_gram, $gram_order);
-    $new_paradigm = prepare_paradigm($form_text, $form_gram, $gram_order);
-    $new_xml = make_dict_xml($lemma_text, $lemma_gram_new, $new_paradigm);
+
+    $lex = new Lexeme;
+    $lex->set_lemma($lemma_text, $lemma_gram);
+    $lex->set_paradigm($form_text, $form_gram);
+    $new_xml = $lex->to_xml();
+
     sql_begin();
     //it may be a totally new lemma
     if ($lemma_id == -1) {
-        foreach ($new_paradigm as $form) {
-            $updated_forms[] = $form[0];
-        }
+        $updated_forms = $lex->get_all_forms_texts();
         if ($do_save) {
             sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?, 0)", array(mb_strtolower($lemma_text)));
             $lemma_id = sql_insert_id();
@@ -576,24 +542,6 @@ function dict_save($lemma_id, $lemma_text, $lemma_gram, $form_text, $form_gram, 
     }
     sql_commit();
     return $lemma_id;
-}
-function make_dict_xml($lemma_text, $lemma_gram, $paradigm) {
-    $new_xml = '<dr><l t="'.htmlspecialchars(mb_strtolower($lemma_text)).'">';
-    foreach ($lemma_gram as $gr) {
-        $new_xml .= '<g v="'.htmlspecialchars($gr).'"/>';
-    }
-    $new_xml .= '</l>';
-    //paradigm
-    foreach ($paradigm as $new_form) {
-        list($txt, $gram) = $new_form;
-        $new_xml .= '<f t="'.htmlspecialchars(mb_strtolower($txt)).'">';
-        foreach ($gram as $gr) {
-            $new_xml .= '<g v="'.htmlspecialchars($gr).'"/>';
-        }
-        $new_xml .= '</f>';
-    }
-    $new_xml .= '</dr>';
-    return $new_xml;
 }
 function enqueue_updated_forms($forms, $revision_id) {
     $ins = sql_prepare("INSERT INTO `updated_forms` VALUES (?, ?)");
