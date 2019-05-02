@@ -75,14 +75,21 @@ class AnnotationEditor(object):
         elif isinstance(grammemes, str):
             grammemes = grammemes,
 
+        if isinstance(lemma, str):
+            lemma = lemma,
+
+        conditions = []
+        for l in lemma:
+            conditions.append("lemma_text {1} '{0}'".format(l, ('LIKE' if lemma_is_regex else '=')))
+
         self.db_cursor.execute("""
             SELECT lemma_id AS lid, lemma_text AS ltext, rev_text
             FROM dict_lemmata
             JOIN dict_revisions USING (lemma_id)
-            WHERE lemma_text {1} '{0}'
+            WHERE ({})
             AND deleted = 0
             AND is_last = 1
-        """.format(lemma, ('LIKE' if lemma_is_regex else '=')))
+        """.format(" OR ".join(conditions)))
         rows = self.db_cursor.fetchall()
         lexemes = []
        
@@ -277,7 +284,7 @@ class Lexeme(object):
     def _parse_rev_xml(self, xml, lemma):
         lemma_info = re.findall('<l t="([^"]+)">(.+)<\/l>', xml)
         assert len(lemma_info) == 1
-        assert lemma.replace('ё', 'е') == lemma_info[0][0].replace('ё', 'е')
+        # assert lemma.replace('ё', 'е') == lemma_info[0][0].replace('ё', 'е')
         for gram in re.findall('<g v="([^"]+)"/?>', lemma_info[0][1]):
             self.lemma['gram'].append(gram)
         for form_xml in re.findall('<f .+?\/f>', xml):
