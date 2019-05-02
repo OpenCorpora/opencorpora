@@ -103,6 +103,18 @@ function get_link_types() {
     }
     return $out;
 }
+function parse_dict_rev_gram(array $src) {
+    $t = array();
+    foreach ($src as $garr) {
+        if (isset($garr['v'])) {
+            // if there is only one grammeme
+            $t[] = $garr['v'];
+            break;
+        }
+        $t[] = $garr['_a']['v'];
+    }
+    return $t;
+}
 function parse_dict_rev($text) {
     // output has the following structure:
     // lemma => array (text => lemma_text, grm => array (grm1, grm2, ...)),
@@ -114,46 +126,15 @@ function parse_dict_rev($text) {
     $arr = $arr['dr']['_c'];
     $parsed = array();
     $parsed['lemma']['text'] = $arr['l']['_a']['t'];
-    //the rest of the function should be refactored
-    $t = array();
-    foreach ($arr['l']['_c']['g'] as $garr) {
-        if (isset($garr['v'])) {
-            //if there is only one grammem
-            $t[] = $garr['v'];
-            break;
-        }
-        $t[] = $garr['_a']['v'];
-    }
-    $parsed['lemma']['grm'] = $t;
+    $parsed['lemma']['grm'] = parse_dict_rev_gram($arr['l']['_c']['g']);
     if (isset($arr['f']['_a'])) {
         //if there is only one form
         $parsed['forms'][0]['text'] = $arr['f']['_a']['t'];
-        $t = array();
-        if (isset($arr['f']['_c'])) {
-            //if there are grammems at all
-            foreach ($arr['f']['_c']['g'] as $garr) {
-                if (isset($garr['v'])) {
-                    //if there is only one grammem
-                    $t[] = $garr['v'];
-                    break;
-                }
-                $t[] = $garr['_a']['v'];
-            }
-        }
-        $parsed['forms'][0]['grm'] = $t;
+        $parsed['forms'][0]['grm'] = parse_dict_rev_gram($arr['f']['_c']['g']);
     } else {
         foreach ($arr['f'] as $k=>$farr) {
             $parsed['forms'][$k]['text'] = $farr['_a']['t'];
-            $t = array();
-            foreach ($farr['_c']['g'] as $garr) {
-                if (isset($garr['v'])) {
-                    //if there is only one grammem
-                    $t[] = $garr['v'];
-                    break;
-                }
-                $t[] = $garr['_a']['v'];
-            }
-            $parsed['forms'][$k]['grm'] = $t;
+            $parsed['forms'][$k]['grm'] = parse_dict_rev_gram($farr['_c']['g']);
         }
     }
     return $parsed;
