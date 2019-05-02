@@ -108,6 +108,18 @@ switch ($action) {
             $smarty->assign('words', get_top_absent_words());
         $smarty->display('dict/absent.tpl');
         break;
+    case 'pending_edits':
+        $smarty->assign('data', get_pending_dict_edits());
+        $smarty->display('dict/ugc.tpl');
+        break;
+    case 'ugc_approve':
+        dict_approve_edit(GET('id'));
+        header("Location:dict.php?act=pending_edits");
+        break;
+    case 'ugc_reject':
+        dict_reject_edit(GET('id'));
+        header("Location:dict.php?act=pending_edits");
+        break;
     default:
 
         $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);

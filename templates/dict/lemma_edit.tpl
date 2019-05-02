@@ -70,7 +70,13 @@
     </script>
     {/literal}
     {if isset($smarty.get.saved)}
-        <div class='info'>Изменения сохранены. <a href="?act=edit&amp;id=-1">Добавить другую лемму</a></div>
+        <div class='info'>
+        {if ($user_permission_dict)}
+            Изменения сохранены.
+        {else}
+            Ваша правка поставлена в очередь и будет записана после одобрения модератором.
+        {/if}
+        <a href="?act=edit&amp;id=-1">Добавить другую лемму</a></div>
     {/if}
     {if $editor.deleted}
     <h1 class="bgpink">Лемма &laquo;{$editor.lemma.text|htmlspecialchars}&raquo; удалена</h1>

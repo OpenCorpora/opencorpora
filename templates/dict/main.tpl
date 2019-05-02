@@ -8,7 +8,8 @@
     <input name="search_form" type="text" class="span3" id="form_search_input" placeholder="Введите слово...">
     <input type="hidden" name="act" value="lemmata" />
 </form>
-    <p><a href="/dict_history.php">Свежие правки</a></p>
+    <p><a href="/dict_history.php">Свежие правки</a><br/>
+    <a href="?act=pending_edits">Ожидающие правки</a></p>
     {if $user_permission_dict}
         <p><a href="?act=gram">Редактор граммем</a><br/>
         <a href="?act=gram_restr">Ограничения на граммемы</a></p>

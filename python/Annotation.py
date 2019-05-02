@@ -388,6 +388,6 @@ class Lexeme(object):
             UPDATE dict_revisions SET is_last=0 WHERE lemma_id = {}
         """.format(self._id))
         self._editor.sql("""
-            INSERT INTO dict_revisions VALUES(NULL, {0}, {1}, '{2}', 0, 0, 1)
+            INSERT INTO dict_revisions VALUES(NULL, {0}, {1}, '{2}', 0, 0, 1, 0)
         """.format(self._editor.get_revset_id(comment), self._id, self.to_xml()))
         self.update_forms(self._editor.get_insert_id())
