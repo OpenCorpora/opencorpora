@@ -83,6 +83,29 @@ function get_link_types() {
     }
     return $out;
 }
+function get_link_type_info($type_id) {
+    $res = sql_pe("SELECT COUNT(*) AS cnt FROM dict_links WHERE link_type = ?", array($type_id));
+    $data = array('total' => $res[0]['cnt'], 'samples' => array());
+    $res = sql_pe("SELECT link_name FROM dict_links_types WHERE link_id = ? LIMIT 1", array($type_id));
+    $data['name'] = $res[0]['link_name'];
+    $res = sql_pe("
+        SELECT lemma1_id, lemma2_id, lm1.lemma_text AS lemma1_text, lm2.lemma_text AS lemma2_text
+        FROM dict_links lk
+        LEFT JOIN dict_lemmata lm1
+            ON (lk.lemma1_id = lm1.lemma_id)
+        LEFT JOIN dict_lemmata lm2
+            ON (lk.lemma2_id = lm2.lemma_id)
+        WHERE link_type = ?
+        LIMIT 100
+    ", array($type_id));
+    foreach ($res as $row) {
+        $data['samples'][] = array(
+            'lemma1' => [$row['lemma1_id'], $row['lemma1_text']],
+            'lemma2' => [$row['lemma2_id'], $row['lemma2_text']]
+        );
+    }
+    return $data;
+}
 function get_word_paradigm($lemma) {
     $res = sql_pe("SELECT rev_text FROM dict_revisions LEFT JOIN dict_lemmata USING (lemma_id) WHERE deleted=0 AND lemma_text=? AND is_last=1 LIMIT 1", array($lemma));
     if (sizeof($res) == 0)

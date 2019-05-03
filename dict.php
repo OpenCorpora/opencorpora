@@ -120,6 +120,16 @@ switch ($action) {
         dict_reject_edit(GET('id'));
         header("Location:dict.php?act=pending_edits");
         break;
+    case 'links':
+        $type = GET('type', 0);
+        if ($type) {
+            $smarty->assign('data', get_link_type_info($type));
+            $smarty->display('dict/links_single.tpl');
+        } else {
+            $smarty->assign('data', get_link_types());
+            $smarty->display('dict/links_main.tpl');
+        }
+        break;
     default:
 
         $smarty->setCaching(Smarty::CACHING_LIFETIME_SAVED);
