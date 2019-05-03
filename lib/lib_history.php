@@ -252,7 +252,7 @@ function revert_changeset($set_id, $comment) {
     check_permission(PERM_DICT);
 
     sql_begin();
-    $new_set_id = create_revset($comment);
+    $new_set_id = current_revset($comment);
     $dict_flag = 0;
 
     $res = sql_pe("SELECT tf_id FROM tf_revisions WHERE set_id=?", array($set_id));
@@ -269,7 +269,7 @@ function revert_changeset($set_id, $comment) {
     foreach ($res as $r) {
         sql_execute($res_revtext, array($r[0], $set_id));
         $arr = sql_fetch_array($res_revtext);
-        new_dict_rev($r[0], $arr[0], $new_set_id);
+        new_dict_rev($r[0], $arr[0]);
         $dict_flag = 1;
     }
     $res_revtext->closeCursor();
@@ -285,7 +285,7 @@ function revert_token($rev_id) {
 
     $res = sql_pe("SELECT tf_id, rev_text FROM tf_revisions WHERE rev_id=? LIMIT 1", array($rev_id));
     sql_begin();
-    $new_set_id = create_revset("Отмена правки, возврат к версии t$rev_id");
+    $new_set_id = current_revset("Отмена правки, возврат к версии t$rev_id");
 
     create_tf_revision($new_set_id, $res[0]['tf_id'], $res[0]['rev_text']);
     sql_commit();
@@ -300,8 +300,8 @@ function revert_dict($rev_id) {
     $old_rev = sql_pe("SELECT rev_text FROM dict_revisions WHERE lemma_id=? and is_last=1 LIMIT 1", array($lemma_id));
 
     sql_begin();
-    $new_set_id = create_revset("Отмена правки, возврат к версии d$rev_id");
-    $new_rev_id = new_dict_rev($lemma_id, $res[0]['rev_text'], $new_set_id);
+    $new_set_id = current_revset("Отмена правки, возврат к версии d$rev_id");
+    $new_rev_id = new_dict_rev($lemma_id, $res[0]['rev_text']);
 
     // updated forms
     $old_lex = new Lexeme($old_rev[0]['rev_text']);

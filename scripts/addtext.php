@@ -35,7 +35,7 @@ function main($opts) {
             books_add_tag($book_id, $tag);
         }
         $user_id = $opts['u'];
-        $revset_id = create_revset('', $user_id);
+        $revset_id = current_revset('', $user_id);
     }
     $tokenizer = new Tokenizer(__DIR__ . '/tokenizer');
 

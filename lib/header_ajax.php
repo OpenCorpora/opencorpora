@@ -14,6 +14,8 @@ require_once('timer.php');
 $transaction_counter = 0;
 $nested_transaction_counter = 0;
 
+$current_revset_id = 0;
+
 $pdo_db = new PDO(sprintf('mysql:host=%s;dbname=%s;charset=utf8', $config['mysql']['host'], $config['mysql']['dbname']), $config['mysql']['user'], $config['mysql']['passwd']);
 $pdo_db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 $pdo_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);

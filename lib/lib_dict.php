@@ -260,9 +260,9 @@ function update_pending_tokens($rev_id, $smart=false) {
     check_permission(PERM_DISAMB);
     $res = sql_pe("SELECT token_id FROM updated_tokens WHERE dict_revision=?", array($rev_id));
     sql_begin();
-    $revset_id = create_revset("Update tokens from dictionary");
+    current_revset("Update tokens from dictionary"); // create revset
     foreach ($res as $r)
-        update_pending_token($r['token_id'], $rev_id, $revset_id, $smart);
+        update_pending_token($r['token_id'], $rev_id, $smart);
     sql_commit();
 }
 function can_smart_update($deleted_forms, $added_forms_texts) {
@@ -347,7 +347,7 @@ function smart_update_pending_token(MorphParseSet $parse_set, $rev_id) {
     $parse_set->set_lemma_text($lemma_id, $lex_new->lemma->text);
     $parse_set->replace_gram_subset($lemma_id, $lex_prev->lemma->grammemes, $lex_new->lemma->grammemes);
 }
-function update_pending_token($token_id, $rev_id, $revset_id=0, $smart=false) {
+function update_pending_token($token_id, $rev_id, $smart=false) {
     check_permission(PERM_DISAMB);
     if (!check_safe_token_update($token_id, $rev_id))
         throw new Exception("Update forbidden");
@@ -372,8 +372,7 @@ function update_pending_token($token_id, $rev_id, $revset_id=0, $smart=false) {
     }
 
     sql_begin();
-    if (!$revset_id)
-        $revset_id = create_revset("Update tokens from dictionary");
+    $revset_id = current_revset("Update tokens from dictionary");
     create_tf_revision($revset_id, $token_id, $new_rev);
     forget_pending_token($token_id, $rev_id);
     delete_samples_by_token_id($token_id);
@@ -513,7 +512,7 @@ function dict_save($lemma_id, $lemma_text, $lemma_gram, $form_text, $form_gram, 
         } else {
             $lemma_id = 0;
         }
-        $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $comment, !$do_save);
+        $rev_id = new_dict_rev($lemma_id, $new_xml, $comment, !$do_save);
     } else {
         // lemma might have been deleted, it is not editable then
         $r = sql_fetch_array(sql_query("SELECT deleted FROM dict_lemmata WHERE lemma_id = $lemma_id LIMIT 1"));
@@ -534,7 +533,7 @@ function dict_save($lemma_id, $lemma_text, $lemma_gram, $form_text, $form_gram, 
                 array($lemma_text, $lemma_id)
             );
         }
-        $rev_id = new_dict_rev($lemma_id, $new_xml, 0, $comment, !$do_save);
+        $rev_id = new_dict_rev($lemma_id, $new_xml, $comment, !$do_save);
         $updated_forms = calculate_updated_forms($old_lex, new Lexeme($new_xml));
     }
     if ($do_save && sizeof($updated_forms) > 0) {
@@ -548,7 +547,7 @@ function enqueue_updated_forms($forms, $revision_id) {
     foreach (array_unique($forms) as $upd_form)
         sql_execute($ins, array($upd_form, $revision_id));
 }
-function new_dict_rev($lemma_id, $new_xml, $revset_id = 0, $comment = '', $pending = false) {
+function new_dict_rev($lemma_id, $new_xml, $comment = '', $pending = false) {
     if (!$new_xml)
         throw new UnexpectedValueException();
     sql_begin();
@@ -562,8 +561,7 @@ function new_dict_rev($lemma_id, $new_xml, $revset_id = 0, $comment = '', $pendi
     } else {
         if (!$lemma_id)
             throw new UnexpectedValueException();
-        if (!$revset_id)
-            $revset_id = create_revset($comment);
+        $revset_id = current_revset($comment);
         sql_pe("UPDATE dict_revisions SET is_last=0 WHERE lemma_id=?", array($lemma_id));
         sql_pe("INSERT INTO `dict_revisions` VALUES(NULL, ?, ?, ?, 0, 0, 1, 0)", array($revset_id, $lemma_id, $new_xml));
         $new_id = sql_insert_id();
@@ -584,16 +582,14 @@ function paradigm_diff($array1, $array2) {
     }
     return $diff;
 }
-function del_lemma($id, $revset_id = 0) {
+function del_lemma($id) {
     check_permission(PERM_DICT);
     //delete links (but preserve history)
     $res = sql_pe("SELECT link_id FROM dict_links WHERE lemma1_id=? OR lemma2_id=?", array($id, $id));
     sql_begin();
-    if (!$revset_id) {
-        $revset_id = create_revset("Delete lemma $id");
-    }
+    $revset_id = current_revset("Delete lemma $id");
     foreach ($res as $r)
-        del_link($r['link_id'], $revset_id);
+        del_link($r['link_id']);
 
     // create empty revision
     sql_pe("UPDATE dict_revisions SET is_last=0 WHERE lemma_id=?", array($id));
@@ -645,7 +641,7 @@ function dict_approve_edit($rev_id) {
         sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?, 0)", array(mb_strtolower($lex->lemma->text)));
         $lemma_id = sql_insert_id();
     }
-    $new_rev_id = new_dict_rev($lemma_id, $row['rev_text'], 0, "Merge edit #$rev_id", false);
+    $new_rev_id = new_dict_rev($lemma_id, $row['rev_text'], "Merge edit #$rev_id", false);
     sql_pe("UPDATE dict_revisions_ugc SET status = ".DICT_UGC_APPROVED.", moder_id = ? WHERE rev_id = ? LIMIT 1", array($_SESSION['user_id'], $rev_id));
     sql_pe("UPDATE dict_revisions SET ugc_rev_id = ? WHERE rev_id = ? LIMIT 1", array($rev_id, $new_rev_id));
     sql_commit();
@@ -662,23 +658,23 @@ function dict_reject_edit($rev_id) {
         throw new Exception();
     sql_pe("UPDATE dict_revisions_ugc SET status = ".DICT_UGC_REJECTED.", moder_id = ? WHERE rev_id = ? LIMIT 1", array($_SESSION['user_id'], $rev_id));
 }
-function del_link($link_id, $revset_id=0) {
+function del_link($link_id) {
     check_permission(PERM_DICT);
     $res = sql_pe("SELECT * FROM dict_links WHERE link_id=? LIMIT 1", array($link_id));
     if (!sizeof($res))
         throw new UnexpectedValueException();
     sql_begin();
-    if (!$revset_id) $revset_id = create_revset();
+    $revset_id = current_revset();
     sql_query("INSERT INTO dict_links_revisions VALUES(NULL, '$revset_id', '".$res[0]['lemma1_id']."', '".$res[0]['lemma2_id']."', '".$res[0]['link_type']."', '0')");
     sql_pe("DELETE FROM dict_links WHERE link_id=? LIMIT 1", array($link_id));
     sql_commit();
 }
-function add_link($from_id, $to_id, $link_type, $revset_id=0) {
+function add_link($from_id, $to_id, $link_type) {
     check_permission(PERM_DICT);
     if ($from_id <= 0 || $to_id <= 0 || !$link_type)
         throw new UnexpectedValueException();
     sql_begin();
-    if (!$revset_id) $revset_id = create_revset();
+    $revset_id = current_revset();
     sql_pe("INSERT INTO dict_links VALUES(NULL, ?, ?, ?)", array($from_id, $to_id, $link_type));
     sql_pe("INSERT INTO dict_links_revisions VALUES(NULL, ?, ?, ?, ?, 1)", array($revset_id, $from_id, $to_id, $link_type));
     sql_commit();
@@ -688,10 +684,9 @@ function change_link_direction($link_id) {
     if (!$link_id)
         throw new UnexpectedValueException();
     sql_begin();
-    $revset_id = create_revset();
     $res = sql_pe("SELECT * FROM dict_links WHERE link_id=? LIMIT 1", array($link_id));
-    del_link($link_id, $revset_id);
-    add_link($res[0]['lemma2_id'], $res[0]['lemma1_id'], $res[0]['link_type'], $revset_id);
+    del_link($link_id);
+    add_link($res[0]['lemma2_id'], $res[0]['lemma1_id'], $res[0]['link_type']);
     sql_commit();
 }
 

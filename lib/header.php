@@ -32,6 +32,8 @@ $nested_transaction_counter = 0;
 $total_time = 0;
 $total_queries = 0;
 
+$current_revset_id = 0;
+
 set_exception_handler('oc_exception_handler');
 
 //cookie check

@@ -68,7 +68,7 @@ function GET($param_name, $value_if_not_set = NULL) {
 function REQUEST($param_name, $value_if_not_set = NULL) {
     return XGET($_REQUEST, $param_name, $value_if_not_set);
 }
-function create_revset($comment = '', $user_id = -1) {
+function create_revset($comment, $user_id) {
     if ($user_id == -1) {
         if (!isset($_SESSION['user_id']) || !$_SESSION['user_id'])
             throw new Exception();
@@ -96,6 +96,13 @@ function create_revset($comment = '', $user_id = -1) {
     $q = "INSERT INTO `rev_sets` VALUES(NULL, ?, ?, ?)";
     sql_pe($q, array($now, $user_id, $comment));
     return sql_insert_id();
+}
+function current_revset($comment = '', $user_id = -1) {
+    global $current_revset_id;
+    if (!$current_revset_id) {
+        $current_revset_id = create_revset($comment, $user_id);
+    }
+    return $current_revset_id;
 }
 function typo_spaces($str, $with_tags = 0) {
     if (!$with_tags) {

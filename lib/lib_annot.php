@@ -494,7 +494,7 @@ function sentence_save($sent_id, $comment, $flag, $dict) {
         }
     }
     if (count($all_changes) > 0) {
-        $revset_id = create_revset($comment);
+        $revset_id = current_revset($comment);
         foreach ($all_changes as $v)
             create_tf_revision($revset_id, $v[0], $v[1]);
     }

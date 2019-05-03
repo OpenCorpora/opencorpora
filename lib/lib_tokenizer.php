@@ -636,7 +636,7 @@ function addtext_add($text, $sentences, $book_id, $par_num) {
     if (sizeof(sql_pe("SELECT book_id FROM books WHERE parent_id=?", array($book_id))) > 0)
         throw new UnexpectedValueException("Can't add paragraphs to a text having subtexts");
     sql_begin();
-    $revset_id = create_revset();
+    $revset_id = current_revset();
     $sent_count = 0;
     $pars = split2paragraphs($text);
 

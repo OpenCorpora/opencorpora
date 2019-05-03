@@ -469,7 +469,7 @@ function save_token_text($tf_id, $tf_text) {
         throw new UnexpectedValueException();
 
     sql_begin();
-    $revset_id = create_revset("Change token #$tf_id text to <$tf_text>");
+    $revset_id = current_revset("Change token #$tf_id text to <$tf_text>");
     $token_for_form2tf = str_replace('ё', 'е', mb_strtolower($tf_text));
     sql_pe("UPDATE tokens SET tf_text = ? WHERE tf_id=? LIMIT 1", array($tf_text, $tf_id));
     sql_pe("DELETE FROM form2tf WHERE tf_id=?", array($tf_id));
@@ -543,7 +543,7 @@ function merge_tokens_ii(array $id_array) {
         delete_token($r['tf_id'], false);
     }
     //update tf_text, add new revision
-    $revset_id = create_revset("Tokens $joined merged to <$new_text>");
+    $revset_id = current_revset("Tokens $joined merged to <$new_text>");
     $token_for_form2tf = str_replace('ё', 'е', mb_strtolower($new_text));
     sql_pe("UPDATE tokens SET tf_text = ? WHERE tf_id=? LIMIT 1", array($new_text, $new_id));
     sql_pe("INSERT INTO form2tf VALUES(?, ?)", array($token_for_form2tf, $new_id));
@@ -574,7 +574,7 @@ function split_token($token_id, $num) {
     }
     sql_begin();
     //create revset
-    $revset_id = create_revset("Token $token_id (<".$r['tf_text'].">) split to <$text1> and <$text2>");
+    $revset_id = current_revset("Token $token_id (<".$r['tf_text'].">) split to <$text1> and <$text2>");
     $token_for_form2tf = str_replace('ё', 'е', mb_strtolower($text1));
     //update other tokens in the sentence
     sql_query("UPDATE tokens SET pos=pos+1 WHERE sent_id = ".$r['sent_id']." AND pos > ".$r['pos']);

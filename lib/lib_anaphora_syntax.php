@@ -340,7 +340,7 @@ function get_pronouns_by_sentence($sent_id) {
     return $token_ids;
 }
 
-function add_group($parts, $type, $revset_id=0) {
+function add_group($parts, $type) {
     check_permission(PERM_SYNTAX);
     $is_complex = false;
     $ids = array();
@@ -356,8 +356,7 @@ function add_group($parts, $type, $revset_id=0) {
         throw new Exception();
 
     sql_begin();
-    if (!$revset_id)
-        $revset_id = create_revset();
+    $revset_id = current_revset();
 
     if (!group_type_exists($type))
         throw new Exception();
@@ -368,7 +367,7 @@ function add_group($parts, $type, $revset_id=0) {
     foreach ($parts as $el) {
         $token_id = $el['id'];
         if ($is_complex && !$el['is_group'])
-            $token_id = get_dummy_group_for_token($token_id, true, $revset_id);
+            $token_id = get_dummy_group_for_token($token_id, true);
         sql_query("INSERT INTO anaphora_syntax_groups_".($is_complex ? "complex" : "simple")." VALUES ($group_id, $token_id)");
     }
     sql_commit();
@@ -382,15 +381,14 @@ function check_for_same_sentence($token_ids) {
     ");
     return (sql_num_rows($res) == 1);
 }
-function add_dummy_group($token_id, $revset_id=0) {
+function add_dummy_group($token_id) {
     sql_begin();
-    if (!$revset_id)
-        $revset_id = create_revset();
-    $gid = add_group(array(array('id' => $token_id, 'is_group' => false)), 16, $revset_id);
+    $revset_id = current_revset();
+    $gid = add_group(array(array('id' => $token_id, 'is_group' => false)), 16);
     sql_commit();
     return $gid;
 }
-function get_dummy_group_for_token($token_id, $create_if_absent=true, $revset_id=0) {
+function get_dummy_group_for_token($token_id, $create_if_absent=true) {
     $res = sql_query("SELECT group_id FROM anaphora_syntax_groups_simple WHERE group_type=16 AND token_id=$token_id");
     if (sql_num_rows($res) > 1)
         throw new Exception();
@@ -401,7 +399,7 @@ function get_dummy_group_for_token($token_id, $create_if_absent=true, $revset_id
 
     // therefore there is none
     if ($create_if_absent)
-        return add_dummy_group($token_id, $revset_id);
+        return add_dummy_group($token_id);
     else
         throw new Exception();
 }
@@ -524,14 +522,13 @@ function finish_syntax_moderation($book_id) {
     ", array($book_id));
 }
 
-function copy_group($source_group_id, $dest_user, $revset_id=0) {
+function copy_group($source_group_id, $dest_user) {
     check_permission(PERM_SYNTAX);
     if (!$source_group_id || !$dest_user)
         throw new UnexpectedValueException();
     sql_begin();
 
-    if (!$revset_id)
-        $revset_id = create_revset();
+    $revset_id = current_revset();
 
     sql_query("
         INSERT INTO anaphora_syntax_groups
@@ -559,7 +556,7 @@ function copy_group($source_group_id, $dest_user, $revset_id=0) {
     ");
 
     while ($r = sql_fetch_array($res)) {
-        $gid = copy_group($r['child_gid'], $dest_user, $revset_id);
+        $gid = copy_group($r['child_gid'], $dest_user);
         sql_query("INSERT INTO anaphora_syntax_groups_complex VALUES ($copy_id, $gid)");
         if ($r['child_gid'] == $head_id)
             $head_id = $gid;
@@ -619,7 +616,7 @@ function add_anaphora($anaphor_id, $antecedent_id) {
     // TODO check that both token and group are within one book
 
     sql_begin();
-    $revset_id = create_revset();
+    $revset_id = current_revset();
 
     sql_pe("INSERT INTO anaphora VALUES (NULL, ?, ?, ?, ?)", array($anaphor_id, $antecedent_id, $revset_id, $_SESSION['user_id']));
     $id = sql_insert_id();

@@ -8,7 +8,7 @@ try {
             forget_pending_token(POST('token_id'), POST('rev_id'));
             break;
         case 'update':
-            update_pending_token(POST('token_id'), POST('rev_id'), 0, (bool)POST('smart'));
+            update_pending_token(POST('token_id'), POST('rev_id'), (bool)POST('smart'));
             break;
         default:
             $result['error'] = 1;
