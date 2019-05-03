@@ -584,12 +584,14 @@ function paradigm_diff($array1, $array2) {
     }
     return $diff;
 }
-function del_lemma($id) {
+function del_lemma($id, $revset_id = 0) {
     check_permission(PERM_DICT);
     //delete links (but preserve history)
     $res = sql_pe("SELECT link_id FROM dict_links WHERE lemma1_id=? OR lemma2_id=?", array($id, $id));
     sql_begin();
-    $revset_id = create_revset("Delete lemma $id");
+    if (!$revset_id) {
+        $revset_id = create_revset("Delete lemma $id");
+    }
     foreach ($res as $r)
         del_link($r['link_id'], $revset_id);
 

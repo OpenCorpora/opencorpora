@@ -84,6 +84,14 @@ class Lexeme {
         return $new_xml;
     }
 
+    public function to_plain() {
+        $out = mb_strtoupper($this->lemma->text)."\t".implode(',', $this->lemma->grammemes)."\n";
+        foreach ($this->forms as $form) {
+            $out .= $form->text."\t".implode(',', $form->grammemes)."\n";
+        }
+        return $out;
+    }
+
     public function get_all_forms_texts() {
         $forms = array() ;
         foreach ($this->forms as $form) {

@@ -68,8 +68,8 @@ function GET($param_name, $value_if_not_set = NULL) {
 function REQUEST($param_name, $value_if_not_set = NULL) {
     return XGET($_REQUEST, $param_name, $value_if_not_set);
 }
-function create_revset($comment = '', $user_id=0) {
-    if (!$user_id) {
+function create_revset($comment = '', $user_id = -1) {
+    if ($user_id == -1) {
         if (!isset($_SESSION['user_id']) || !$_SESSION['user_id'])
             throw new Exception();
         $user_id = $_SESSION['user_id'];
