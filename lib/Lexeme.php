@@ -5,7 +5,7 @@ require_once('lib_xml.php');
 
 class WordForm {
     public $text;
-    public $grammemes;
+    public $grammemes = array();
 }
 
 class Lexeme {
@@ -27,13 +27,15 @@ class Lexeme {
                 // if there is only one form
                 $form = new WordForm;
                 $form->text = $arr['f']['_a']['t'];
-                $form->grammemes = self::_parse_grammemes($arr['f']['_c']['g']);
+                if (isset($arr['f']['_c']))
+                    $form->grammemes = self::_parse_grammemes($arr['f']['_c']['g']);
                 $this->forms[] = $form;
             } else {
-                foreach ($arr['f'] as $k => $farr) {
+                foreach ($arr['f'] as $farr) {
                     $form = new WordForm;
                     $form->text = $farr['_a']['t'];
-                    $form->grammemes = self::_parse_grammemes($farr['_c']['g']);
+                    if (isset($farr['_c']))
+                        $form->grammemes = self::_parse_grammemes($farr['_c']['g']);
                     $this->forms[] = $form;
                 }
             }
@@ -100,7 +102,13 @@ class Lexeme {
         return $forms;
     }
 
-    private static function _parse_grammemes(array $src) {
+    private static function _parse_grammemes($src) {
+        if ($src === NULL)
+            return [];
+
+        if (!is_array($src))
+            throw new UnexpectedValueException();
+
         $t = array();
         foreach ($src as $garr) {
             if (isset($garr['v'])) {
