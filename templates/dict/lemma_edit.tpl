@@ -121,7 +121,7 @@
             <p>
                 <input type="text" name="lemma_text" value="{$editor.lemma.text|htmlspecialchars}">
                 <select name="lemma_gram[]" id="lemma_gr" class="gram-selectpicker span5"
-                        data-live-search="true" title="граммемы" multiple {if !$user_permission_dict}disabled{/if}>
+                        data-live-search="true" title="граммемы" multiple>
                     {foreach $possible_grammems as $name}
                         <option value="{$name}" {if in_array($name, $editor.lemma.grms_raw)}selected{/if}>{$name}</option>
                     {/foreach}
@@ -148,16 +148,16 @@
             </p>
         {/if}
         </div>
-        <h4>Формы {if $user_permission_dict} <small>(оставление левого поля пустым удаляет форму)</small>{/if}</h4>
+        <h4>Формы <small>(оставление левого поля пустым удаляет форму)</small></h4>
         <table id="paradigm" cellpadding="3">
             <tbody>
             {foreach item=form from=$editor.forms name=forms}
                 <tr class="valign-top">
-                    <td><input type='text' name='form_text[]' {if !$user_permission_dict}readonly="readonly"{/if} value="{$form.text|htmlspecialchars}"/></td>
+                    <td><input type='text' name='form_text[]' value="{$form.text|htmlspecialchars}"/></td>
 
                     <td>
                      <select name="form_gram[{$smarty.foreach.forms.index}][]" class="gram-selectpicker"
-                             data-live-search="true" title="граммемы" multiple {if !$user_permission_dict}disabled{/if}>
+                             data-live-search="true" title="граммемы" multiple>
                          {foreach $possible_grammems as $name}
                              <option value="{$name}" {if in_array($name, $form.grms_raw)}selected{/if}>{$name}</option>
                          {/foreach}
@@ -165,12 +165,12 @@
                     </td>
                 </tr>
             {/foreach}
-            {if $user_permission_dict && !$editor.deleted}
+            {if !$editor.deleted}
                 <tr><td>&nbsp;<td><a id="add_form_link" class="pseudo" href="#">Добавить ещё одну форму</a></tr>
             {/if}
             </tbody>
         </table><br/>
-        {if $user_permission_dict && !$editor.deleted}
+        {if !$editor.deleted}
             Комментарий к правке:<br/>
             <input name='comment' type='text' size='60'/><br/>
             <input type="button" class='btn btn-primary' onclick="submit_with_readonly_check($(this).closest('form'))" value="Сохранить"/>&nbsp;&nbsp;

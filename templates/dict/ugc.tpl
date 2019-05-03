@@ -11,8 +11,6 @@
     });
 </script>
 <h1>Правки, ожидающие модерации</h1>
-{if $user_permission_dict}
-{/if}
 <table border='1' cellspacing='0' cellpadding='2' width='95%'>
 <tr>
     <th>id</th>
