@@ -23,6 +23,7 @@ $pdo_db = new PDO(sprintf('mysql:host=%s;dbname=%s;charset=utf8', $config['mysql
 $pdo_db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 $pdo_db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $pdo_db->query("SET NAMES utf8");
+$pdo_db->query("SET session sql_mode = ''");
 
 mb_internal_encoding('UTF-8');
 mb_regex_encoding('UTF-8');

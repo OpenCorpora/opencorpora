@@ -63,6 +63,7 @@ switch ($page = GET('page', '')) {
             $smarty->assign('ambig_chart', get_ambiguity_stats_for_chart($days));
             $smarty->assign('pools_stats', get_pools_stats());
             $smarty->assign('annot_chart', get_annot_stats_for_chart($days));
+            $smarty->assign('sentence_chart', get_sentence_stats());
         }
         $smarty->display('charts.tpl', $days);
         break;

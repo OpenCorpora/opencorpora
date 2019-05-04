@@ -26,6 +26,37 @@ function get_common_stats() {
 
     return $stats;
 }
+function get_sentence_stats() {
+    $res = sql_query("SELECT length, status, count FROM sentence_quality ORDER BY length, status");
+    $raw_data = array(
+        SENTENCE_QUALITY_NONE => array(),
+        SENTENCE_QUALITY_NO_AMBIG => array(),
+        SENTENCE_QUALITY_NO_AMBIG_OR_UNKN => array(),
+    );
+    while ($row = sql_fetch_array($res)) {
+        $raw_data[(int)$row['status']][$row['length']] = $row['count'];
+    }
+
+    for ($status = SENTENCE_QUALITY_NO_AMBIG; $status <= SENTENCE_QUALITY_MAX; ++$status) {
+        foreach ($raw_data[$status] as $length => &$count) {
+            if (isset($raw_data[$status-1][$length])) {
+                $count += $raw_data[$status-1][$length];
+            }
+        }
+    }
+
+    $data = array(
+        SENTENCE_QUALITY_NONE => "",
+        SENTENCE_QUALITY_NO_AMBIG => "",
+        SENTENCE_QUALITY_NO_AMBIG_OR_UNKN => "",
+    );
+    foreach ($raw_data as $status => $len2count) {
+        foreach ($len2count as $length => $count) {
+            $data[$status] .= sprintf("[%d, %d], ", $length, $count);
+        }
+    }
+    return $data;
+}
 function get_sentence_adders_stats($last_week=false, $team=0) {
     if ($last_week)
         $param = 7;

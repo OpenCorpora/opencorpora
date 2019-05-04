@@ -33,6 +33,19 @@ $(document).ready(function() {
         yaxes: [{}, {position: 'right', minTickSize: 0.001}],
         legend: {position: "sw"},
     };
+
+    var sentence_chart_options = {
+        series: {
+            lines: {fill: true},
+        },
+        colors: ["#85C1E9", "#F39C12", "#CB4335"],
+    };
+    var sent_ambiguous = {label: "С неоднозначностью", data:[{/literal}{$sentence_chart.{$smarty.const.SENTENCE_QUALITY_NONE}}{literal}]};
+    var sent_no_ambig = {label: "Без неоднозначных разборов", data:[{/literal}{$sentence_chart.{$smarty.const.SENTENCE_QUALITY_NO_AMBIG}}{literal}]};
+    var sent_no_ambig_no_unkn = {label: "Без неоднозначных разборов и UNKN", data:[{/literal}{$sentence_chart.{$smarty.const.SENTENCE_QUALITY_NO_AMBIG_OR_UNKN}}{literal}]};
+    var sent_all = [sent_no_ambig_no_unkn, sent_no_ambig, sent_ambiguous];
+    $.plot($("#sentence_chart"), sent_all, sentence_chart_options);
+
     var avg_parses = {label: "разборов на слово", data: [{/literal}{$ambig_chart.avg_parses}{literal}], yaxis: 2, lines: {show: true}};
     var non_ambig = {label: "% однозначных", data: [{/literal}{$ambig_chart.non_ambig}{literal}], yaxis: 2, lines: {show: true}, color: 'green'};
     var unknown = {label: "% неизвестных", data: [{/literal}{$ambig_chart.unknown}{literal}], yaxis: 2, lines: {show: true}, color: 'red'};
@@ -97,6 +110,8 @@ $(document).ready(function() {
 <div id="ambig_chart1" style="width:1000px; height: 400px"></div>
 <h3>% однозначно разобранных слов</h3>
 <div id="ambig_chart2" style="width:1000px; height: 400px"></div>
+<h3>Качество предложений по длине</h3>
+<div id="sentence_chart" style="width:1000px; height: 400px"></div>
 <h3>Однозначные разборы</h3>
 <div id="ambig_chart4" style="width:1000px; height: 400px"></div>
 <h3>% неизвестных токенов</h3>
