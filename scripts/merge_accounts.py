@@ -18,6 +18,8 @@ def merge(dbh, id1_, id2_):
         "UPDATE anaphora_syntax_annotators SET user_id = {} WHERE user_id = {}",
         "UPDATE anaphora_syntax_groups SET user_id = {} WHERE user_id = {}",
         "UPDATE dict_errata_exceptions SET author_id = {} WHERE author_id = {}",
+        "UPDATE dict_revisions_ugc SET user_id = {} WHERE user_id = {}",
+        "UPDATE dict_revisions_ugc SET moder_id = {} WHERE moder_id = {}",
         "UPDATE morph_annot_click_log SET user_id = {} WHERE user_id = {}",
         "UPDATE morph_annot_comments SET user_id = {} WHERE user_id = {}",
         "UPDATE morph_annot_instances SET user_id = {} WHERE user_id = {}",
