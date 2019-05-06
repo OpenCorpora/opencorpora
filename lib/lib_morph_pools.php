@@ -1082,7 +1082,7 @@ function get_comments_for_samples(array $sample_ids) {
     if (!$sample_ids)
         return array();
 
-    $res = sql_pe("
+    $res = sql_query("
         SELECT sample_id, comment_id, user_shown_name AS user_name, timestamp, text
         FROM morph_annot_comments
             LEFT JOIN users USING(user_id)
