@@ -142,11 +142,11 @@
 {if $is_admin}<p><a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs=1">в виде tab-separated файла</a> (<a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs=1&amp;mod_ans">с ответами модератора</a>)</p>{/if}
 {/if}
 <div class="pagination pagination-centered"><ul>
-<li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * 15}">&lt;</a></li>
+<li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * $smarty.const.MA_PAGE_SIZE_FOR_MODERATORS}">&lt;</a></li>
 {for $i=0 to $pool.pages.total - 1}
-<li {if $i == $pool.pages.active}class="active"{/if}><a href="?{$pool.pages.query}&skip={$i * 15}">{$i+1}</a></li>
+<li {if $i == $pool.pages.active}class="active"{/if}><a href="?{$pool.pages.query}&skip={$i * $smarty.const.MA_PAGE_SIZE_FOR_MODERATORS}">{$i+1}</a></li>
 {/for}
-<li {if $pool.pages.active == $pool.pages.total - 1}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active + 1) * 15}">&gt;</a></li>
+<li {if $pool.pages.active == $pool.pages.total - 1}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active + 1) * $smarty.const.MA_PAGE_SIZE_FOR_MODERATORS}">&gt;</a></li>
 </ul></div>
 <table border="1" cellspacing="0" cellpadding="3" class="small samples_tbl">
 <tr>
@@ -239,11 +239,11 @@
 {/if}
 </table>
 <div class="pagination pagination-centered"><ul>
-<li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * 15}">&lt;</a></li>
+<li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * $smarty.const.MA_PAGE_SIZE_FOR_MODERATORS}">&lt;</a></li>
 {for $i=0 to $pool.pages.total - 1}
-<li {if $i == $pool.pages.active}class="active"{/if}><a href="?{$pool.pages.query}&skip={$i * 15}">{$i+1}</a></li>
+<li {if $i == $pool.pages.active}class="active"{/if}><a href="?{$pool.pages.query}&skip={$i * $smarty.const.MA_PAGE_SIZE_FOR_MODERATORS}">{$i+1}</a></li>
 {/for}
-<li {if $pool.pages.active == $pool.pages.total - 1}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active + 1) * 15}">&gt;</a></li>
+<li {if $pool.pages.active == $pool.pages.total - 1}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active + 1) * $smarty.const.MA_PAGE_SIZE_FOR_MODERATORS}">&gt;</a></li>
 </ul></div>
 {if isset($smarty.get.ext)}
 <h2>Легенда</h2>
