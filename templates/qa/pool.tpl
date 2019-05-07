@@ -141,6 +141,7 @@
 {if $pool.filter != 'not_moderated'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter=not_moderated&amp;sortby={$sortby}">непроверенные</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}">показать все</a>{/if}</p>
 {if $is_admin}<p><a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs=1">в виде tab-separated файла</a> (<a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs=1&amp;mod_ans">с ответами модератора</a>)</p>{/if}
 {/if}
+{capture name="pagination"}
 <div class="pagination pagination-centered"><ul>
 <li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * $smarty.const.MA_PAGE_SIZE_FOR_MODERATORS}">&lt;</a></li>
 {for $i=0 to $pool.pages.total - 1}
@@ -148,6 +149,8 @@
 {/for}
 <li {if $pool.pages.active == $pool.pages.total - 1}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active + 1) * $smarty.const.MA_PAGE_SIZE_FOR_MODERATORS}">&gt;</a></li>
 </ul></div>
+{/capture}
+{$smarty.capture.pagination}
 <table border="1" cellspacing="0" cellpadding="3" class="small samples_tbl">
 <tr>
     <th>id</th>
@@ -238,13 +241,7 @@
 <i class="icon-eye-open"></i> <a class='agree_all_manual pseudo' href='#'>согласен со всеми однозначными (читал)</a></th></tr>
 {/if}
 </table>
-<div class="pagination pagination-centered"><ul>
-<li {if $pool.pages.active == 0}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active - 1) * $smarty.const.MA_PAGE_SIZE_FOR_MODERATORS}">&lt;</a></li>
-{for $i=0 to $pool.pages.total - 1}
-<li {if $i == $pool.pages.active}class="active"{/if}><a href="?{$pool.pages.query}&skip={$i * $smarty.const.MA_PAGE_SIZE_FOR_MODERATORS}">{$i+1}</a></li>
-{/for}
-<li {if $pool.pages.active == $pool.pages.total - 1}class="disabled"{/if}><a href="?{$pool.pages.query}&skip={($pool.pages.active + 1) * $smarty.const.MA_PAGE_SIZE_FOR_MODERATORS}">&gt;</a></li>
-</ul></div>
+{$smarty.capture.pagination}
 {if isset($smarty.get.ext)}
 <h2>Легенда</h2>
 <table>
