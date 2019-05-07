@@ -126,6 +126,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
                 rev_text AS current_revision,
                 ms.answer AS mod_answer,
                 ms.status AS mod_status,
+                ms.manual AS mod_is_manual,
             " : "")."
             SUM(i.answer > 0) AS answered,
             COUNT(morph_annot_comments.comment_id) AS comment_count
@@ -154,9 +155,12 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
     $num_samples = sizeof($res);
     $out['pages'] = array(
         'active' => $samples_by_page ? ($skip / $samples_by_page) : 0,
-        'query' => preg_replace('/&skip=\d+/', '', $_SERVER['QUERY_STRING']),
+        'query' => '',
         'total' => 0
     );
+    if (isset($_SERVER['QUERY_STRING'])) {
+        $out['pages']['query'] = preg_replace('/&skip=\d+/', '', $_SERVER['QUERY_STRING']);
+    }
 
     // experimental, see issue 743
     if ($extended)
@@ -212,6 +216,7 @@ function get_morph_samples_page($pool_id, $extended=false, $context_width=4, $sk
             if ($out['status'] > MA_POOLS_STATUS_ANSWERED) {
                 $t['moder_answer_num'] = $r['mod_answer'];
                 $t['moder_status_num'] = $r['mod_status'];
+                $t['moder_is_manual'] = $r['mod_is_manual'];
                 if ($r['mod_status'] != MA_SAMPLES_STATUS_OK)
                     $not_ok_flag = true;
                 if ($t['moder_answer_num'] == 0)
