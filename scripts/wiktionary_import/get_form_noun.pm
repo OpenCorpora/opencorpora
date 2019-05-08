@@ -1090,12 +1090,12 @@ sub get_adj_form_1_basic {
                         if ($1 eq "ого") {
                             print FILE_FORMS_FULL uc($basis."ого")."\t".$type." sing,masc,anim,".@cases[$x]."\n"; 
                         } elsif ($1 eq "его") {
-                            print FILE_FORMS_FULL uc($basis."его")."\t".$type." sing,neut,anim,".@cases[$x]."\n"; 
+                            print FILE_FORMS_FULL uc($basis."его")."\t".$type." sing,masc,anim,".@cases[$x]."\n"; 
                         }
 						if ($2 eq "ый" ) {
                             print FILE_FORMS_FULL uc($basis."ый")."\t".$type." sing,masc,inan,".@cases[$x]."\n"; 
                         }  elsif ($2 eq "ий") {
-                            print FILE_FORMS_FULL uc($basis."ий")."\t".$type." sing,neut,inan,".@cases[$x]."\n"; 
+                            print FILE_FORMS_FULL uc($basis."ий")."\t".$type." sing,masc,inan,".@cases[$x]."\n"; 
                         }
                     }
                 }
