@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8943150a8f6fe83e8cd54124b534c0c6",
+    "content-hash": "9827b46971d472524bc4e8e08cf269f4",
     "packages": [
         {
             "name": "components/jquery",
@@ -207,21 +207,20 @@
             "time": "2018-11-05T09:00:11+00:00"
         },
         {
-            "name": "mouse0270/bootstrap-growl",
+            "name": "mouse0270/bootstrap-notify",
             "version": "3.1.3",
             "source": {
                 "type": "git",
-                "url": "git@github.com:mouse0270/bootstrap-growl.git",
+                "url": "https://github.com/mouse0270/bootstrap-notify.git",
                 "reference": "c6a3e3acafda0815cce3703103499b6262500cd7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mouse0270/bootstrap-growl/zipball/c6a3e3acafda0815cce3703103499b6262500cd7",
+                "url": "https://api.github.com/repos/mouse0270/bootstrap-notify/zipball/c6a3e3acafda0815cce3703103499b6262500cd7",
                 "reference": "c6a3e3acafda0815cce3703103499b6262500cd7",
                 "shasum": ""
             },
             "type": "library",
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -245,6 +244,10 @@
                 "notifications",
                 "notify"
             ],
+            "support": {
+                "source": "https://github.com/mouse0270/bootstrap-notify/tree/3.1.3",
+                "issues": "https://github.com/mouse0270/bootstrap-notify/issues"
+            },
             "time": "2015-04-29T14:43:04+00:00"
         },
         {

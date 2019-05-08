@@ -11,15 +11,21 @@
 
         "components/jquery": "1.10",
         "opencorpora/bootstrap": "dev-master",
-        "mouse0270/bootstrap-growl": "3.1.3",
+        "mouse0270/bootstrap-notify": "3.1.3",
         "smarty/smarty": "3.1.24"
 
     },
 
-    "repositories": [{
-      "type": "vcs",
-      "url": "https://github.com/opencorpora/bootstrap"
-    }],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/opencorpora/bootstrap"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/mouse0270/bootstrap-notify"
+        }
+    ],
 
     "config": {
         "component-dir": "assets/vendor"
