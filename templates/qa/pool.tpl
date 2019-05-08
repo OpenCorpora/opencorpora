@@ -133,12 +133,15 @@
 {/if}
 </p>
 
+{$href = "?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}"}
+{$dft = "<a href=\"{$href}\">показать все</a>"}
 <p>
-{if $pool.filter != 'focus'}<a class="{if $pool.has_focus}bggreen{else}bgpink{/if}" href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter=focus&amp;sortby={$sortby}">список для модерации</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}">показать все</a>{/if} |
-{if $pool.filter != 'disagreed'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter=disagreed&amp;sortby={$sortby}">несогласованные ответы</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}">показать все</a>{/if} |
-{if $pool.filter != 'comments'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter=comments&amp;sortby={$sortby}">примеры с комментариями</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}">показать все</a>{/if} |
-{if $pool.filter != 'not_ok'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter=not_ok&amp;sortby={$sortby}">примеры с опечатками и т.п.</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}">показать все</a>{/if} |
-{if $pool.filter != 'not_moderated'}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;filter=not_moderated&amp;sortby={$sortby}">непроверенные</a>{else}<a href="?act=samples&amp;pool_id={$pool.id}&amp;ext=1&amp;sortby={$sortby}">показать все</a>{/if}</p>
+    {if $pool.filter != 'focus'}<a class="{if $pool.has_focus}bggreen{else}bgpink{/if}" href="{$href}&amp;filter=focus">список для модерации</a>{else}{$dft}{/if} |
+    {if $pool.filter != 'disagreed'}<a href="{$href}&amp;filter=disagreed">несогласованные ответы</a>{else}{$dft}{/if} |
+    {if $pool.filter != 'comments'}<a href="{$href}&amp;filter=comments">примеры с комментариями</a>{else}{$dft}{/if} |
+    {if $pool.filter != 'not_ok'}<a href="{$href}&amp;filter=not_ok">примеры с опечатками и т.п.</a>{else}{$dft}{/if} |
+    {if $pool.filter != 'not_moderated'}<a href="{$href}&amp;filter=not_moderated">непроверенные</a>{else}{$dft}{/if}
+</p>
 {if $is_admin}<p><a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs=1">в виде tab-separated файла</a> (<a href="?act=samples&amp;pool_id={$pool.id}&amp;tabs=1&amp;mod_ans">с ответами модератора</a>)</p>{/if}
 {/if}
 {capture name="pagination"}
