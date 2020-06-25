@@ -139,31 +139,4 @@
         </div>
     </div>
 {/if}
-<!-- VK api -->
-<script type="text/javascript" src="//vk.com/js/api/openapi.js?59"></script>
-<div id="fb-root"></div>
-<script>
-// FB init
-(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/ru_RU/all.js#xfbml=1&appId=459706510739356";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));
-
-// VK init
-VK.init({ apiId: 3183828, onlyWidgets: true });
-</script>
-<div class="social-index-block row">
-    <div class="span5">
-        <div id="vk_like"></div>
-        <script type="text/javascript">
-        VK.Widgets.Like("vk_like", { type: "full" });
-        </script>
-    </div>
-    <div class="span5">
-        <div class="fb-like" data-send="false" data-width="" data-show-faces="false"></div>
-    </div>
-</div>
 {/block}
