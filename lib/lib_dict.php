@@ -528,7 +528,6 @@ function dict_save($lemma_id, $lemma_text, $lemma_gram, $form_text, $form_gram, 
     sql_begin();
     //it may be a totally new lemma
     if ($lemma_id == -1) {
-        $updated_forms = $lex->get_all_forms_texts();
         if ($do_save) {
             sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?, 0)", array(mb_strtolower($lemma_text)));
             $lemma_id = sql_insert_id();
@@ -536,6 +535,7 @@ function dict_save($lemma_id, $lemma_text, $lemma_gram, $form_text, $form_gram, 
             $lemma_id = 0;
         }
         $rev_id = new_dict_rev($lemma_id, $new_xml, $comment, !$do_save);
+        $updated_forms = $lex->get_all_forms_texts();
     } else {
         // lemma might have been deleted, it is not editable then
         $r = sql_fetch_array(sql_query("SELECT deleted FROM dict_lemmata WHERE lemma_id = $lemma_id LIMIT 1"));
@@ -659,12 +659,21 @@ function dict_approve_edit($rev_id) {
     $row = $res[0];
     sql_begin();
     $lemma_id = $row['lemma_id'];
+    $lex = new Lexeme($row['rev_text']);
+    $updated_forms = [];
     if ($lemma_id == 0) {
-        $lex = new Lexeme($row['rev_text']);
         sql_pe("INSERT INTO dict_lemmata VALUES(NULL, ?, 0)", array(mb_strtolower($lex->lemma->text)));
         $lemma_id = sql_insert_id();
+        $updated_forms = $lex->get_all_forms_texts();
+    } else {
+        $r = sql_fetch_array(sql_query("SELECT rev_text FROM dict_revisions WHERE lemma_id=$lemma_id AND is_last=1 LIMIT 1"));
+        $old_lex = new Lexeme($r['rev_text']);
+        $updated_forms = calculate_updated_forms($old_lex, $lex);
     }
     $new_rev_id = new_dict_rev($lemma_id, $row['rev_text'], "Merge edit #$rev_id", false);
+    if (sizeof($updated_forms) > 0) {
+        enqueue_updated_forms($updated_forms, $new_rev_id);
+    }
     sql_pe("UPDATE dict_revisions_ugc SET status = ".DICT_UGC_APPROVED.", moder_id = ? WHERE rev_id = ? LIMIT 1", array($_SESSION['user_id'], $rev_id));
     sql_pe("UPDATE dict_revisions SET ugc_rev_id = ? WHERE rev_id = ? LIMIT 1", array($rev_id, $new_rev_id));
     sql_commit();
