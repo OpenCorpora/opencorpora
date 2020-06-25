@@ -73,7 +73,6 @@ if (
 }
 
 //some globals
-$smarty->assign('yandex_metrika_counter_id', $config['web']['yandex_metrika_counter_id']);
 $smarty->assign('is_admin', is_admin() ? 1 : 0);
 $smarty->assign('is_logged', is_logged() ? 1 : 0);
 if (is_logged()) {

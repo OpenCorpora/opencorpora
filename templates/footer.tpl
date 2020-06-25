@@ -10,6 +10,3 @@
         </div>
     </div>
 </div>
-{if $yandex_metrika_counter_id }
-    {include file="yandex_metrika.tpl"}
-{/if}
