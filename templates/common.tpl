@@ -18,7 +18,7 @@
         <link rel="stylesheet" type="text/css" href="/assets/css/main.css?12"/>
 
         <!-- Open Sans for headers -->
-        <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,800,700&subset=latin,cyrillic" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,800,700&subset=latin,cyrillic" rel="stylesheet" type="text/css">
 
         {block name=styles}{/block}
 
