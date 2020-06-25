@@ -1,8 +1,15 @@
 # m h  dom mon dow   command
 # less than once a day
 0 6 1 * * php /corpus/scripts/check_dog_achievement.php >> /home/madfriend/error.log 2&>1
-30 3 * * 1 /corpus/export/database/backup.sh 2>>/corpus/logs/db-backup-stderr.log
+30 3 * * 1 /corpus/export/database/backup.sh 2>>/corpus/logs/db-backup.stderr.log
+
 # once a day
+# date to logs
+0 0 * * * echo $(date +%F) >>/home/grand/error.log
+0 0 * * * echo $(date +%F) >>/corpus/logs/consistency.stderr.log
+0 0 * * * echo $(date +%F) >>/corpus/logs/db-backup.stderr.log
+
+# other
 30 2 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/run_validators.sh" 2>>/home/grand/error.log
 #0 3 * * * nice /corpus/scripts/tokenizer/collect_data.pl /corpus/config.ini --dry-run >/dev/null 2>/home/grand/tokenizer.log
 0 4 * * * /corpus/scripts/backup.sh 2>>/home/grand/error.log
@@ -12,14 +19,15 @@
 5 7 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/ma_pools/populate_pools.pl /corpus/config.ini" 2>>/home/grand/error.log
 20 7 * * * php /corpus/scripts/ma_pools/autopublish.php 2>>/home/grand/error.log
 45 7 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/train_tokenizer.sh" >/dev/null 2>/dev/null
+
 # several times a day
 2,22,42 * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/update_user_rating.py /corpus/config.ini" 2>>/home/grand/error.log
 20 * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/ma_pools/unpublish_pools.py /corpus/config.ini" 2>>/home/grand/error.log
 15 * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/tokenizer/check_sentence_split.pl /corpus/config.ini" 2>>/home/grand/error.log
 0,30 0-3,7-23 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/stats/update_annot_stats.pl /corpus/config.ini" 2>>/home/grand/error.log
 * * * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/dict_check.pl /corpus/config.ini" 2>>/home/grand/error.log
-* * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/consistency/form2lemma.pl /corpus/config.ini" 2>>/home/grand/error.log
-* * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/consistency/form2tf.pl /corpus/config.ini" 2>>/home/grand/error.log
-* * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/consistency/dict_update_forms.pl /corpus/config.ini" 2>>/home/grand/error.log
+* * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/consistency/form2lemma.pl /corpus/config.ini" 2>>/corpus/logs/consistency.stderr.log
+* * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/consistency/form2tf.pl /corpus/config.ini" 2>>/corpus/logs/consistency.stderr.log
+* * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/consistency/dict_update_forms.pl /corpus/config.ini" 2>>/corpus/logs/consistency.stderr.log
 * * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/ma_pools/merge_pools_data.py /corpus/config.ini" 2>>/home/grand/error.log
 # empty line must be here
