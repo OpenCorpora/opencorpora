@@ -48,9 +48,8 @@ class Lexeme {
     }
 
     public function set_paradigm(array $forms_text, array $forms_gram) {
-        if (sizeof($forms_text) != sizeof($forms_gram)) {
-            throw new UnexpectedValueException();
-        }
+        // empty grammeme sets produce missing $forms_gram elements
+        // however indices are still aligned
         $this->forms = array();
         foreach ($forms_text as $i => $text) {
             $text = trim($text);
@@ -62,7 +61,9 @@ class Lexeme {
                 // TODO: perhaps some data validity check?
                 $form = new WordForm;
                 $form->text = $text;
-                $form->grammemes = self::_prepare_gram_array($forms_gram[$i]);
+                if (array_key_exists($i, $forms_gram)) {
+                    $form->grammemes = self::_prepare_gram_array($forms_gram[$i]);
+                }
                 $this->forms[] = $form;
             }
         }
