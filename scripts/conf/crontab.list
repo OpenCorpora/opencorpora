@@ -5,9 +5,9 @@
 
 # once a day
 # date to logs
-0 0 * * * echo $(date +%F) >>/home/grand/error.log
-0 0 * * * echo $(date +%F) >>/corpus/logs/consistency.stderr.log
-0 0 * * * echo $(date +%F) >>/corpus/logs/db-backup.stderr.log
+0 0 * * * date +\%F >>/home/grand/error.log
+0 0 * * * date +\%F >>/corpus/logs/consistency.stderr.log
+0 0 * * * date +\%F >>/corpus/logs/db-backup.stderr.log
 
 # other
 30 2 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/run_validators.sh" 2>>/home/grand/error.log
