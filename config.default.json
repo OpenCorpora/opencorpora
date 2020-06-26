@@ -1,0 +1,84 @@
+{
+    "mysql": {
+        "host": "127.0.0.1",
+        "dbname": "corpora",
+        "user": "corpora",
+        "passwd": ""
+    },
+    "mail": {
+        "host": "smtp.gmail.com",
+        "port": 465,
+        "encrypt": "ssl",
+        "user": "",
+        "password": ""
+    },
+    "smarty": {
+        "template_dir": "/var/www/templates/",
+        "compile_dir": "/var/www/smarty_dir/templates_c/",
+        "config_dir": "/var/www/smarty_dir/configs/",
+        "cache_dir": "/var/www/smarty_dir/cache/"
+    },
+    "goals": {
+        "total_words": 1000000,
+        "wikipedia_words": 100000,
+        "chaskor_words": 250000,
+        "chaskor_news_words": 125000,
+        "wikinews_words": 125000,
+        "blogs_words": 50000,
+        "fiction_words": 100000
+    },
+    "project": {
+        "root": "/corpus",
+        "perl": "/usr/bin/perl",
+        "readonly_flag": "/corpus/readonly.tmp"
+    },
+    "ngram_suffixes": {
+        "exact": "",
+        "exact_lc": ".lc",
+        "exact_cyr": ".cyr",
+        "exact_cyrA": ".cyrA",
+        "exact_cyrB": ".cyrB",
+        "exact_cyr_lc": ".cyr.lc",
+        "exact_cyrA_lc": ".cyrA.lc",
+        "exact_cyrB_lc": ".cyrB.lc"
+    },
+    "generator": {
+        "status": "/tmp/generator.status",
+        "gen_script": "/corpus/scripts/tokenizer/gen_data_for_module.pl",
+        "test_script": "/corpus/scripts/tokenizer/calculate_metrics.pl",
+        "data_dir": "/corpus/files/export/tokenizer_data",
+        "perl_lib": "/tmp/Lingua--RU--OpenCorpora--Tokenizer/lib",
+        "tmp_dir": "/tmp/tokenizer_data_tmp",
+        "current_tag": "/tmp/generator.current",
+        "next_tag": "/tmp/generator.next"
+    },
+    "achievements": {
+        "names": [
+            "aist",
+            "fish",
+            "wantmore",
+            "bobr",
+            "chameleon",
+            "dog",
+            "ainl2015"
+        ],
+        "max_level": 20
+    },
+    "misc": {
+        "changeset_timeout": 600,
+        "mainpage_tasks_limit": 5,
+        "morph_annot_current_annotators_threshold": 300,
+        "morph_annot_moder_context_size": 4,
+        "morph_annot_timeout": 600,
+        "morph_annot_user_context_size": 4,
+        "morph_annot_rating_weights": [
+            3,
+            1,
+            2,
+            3.5,
+            4
+        ],
+        "timing_log_threshold": 2,
+        "hidden_books_start_id": 99999
+    }
+}
