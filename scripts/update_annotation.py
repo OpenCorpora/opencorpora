@@ -4,7 +4,7 @@ import sys
 sys.path.append('/corpus/python')
 from Annotation import AnnotationEditor
 
-CONFIG_PATH = "/corpus/config.ini"
+CONFIG_PATH = "/corpus/config.json"
 CHANGESET_COMMENT = "Update tokens from dictionary"
 
 DICT_REVISION = 390730

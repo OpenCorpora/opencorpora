@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 import re
 from lxml import etree
-from Annotation import AnnotationEditor
 
 class PossibleGroupFinder(object):
     
     def __init__(self, xml=None, db_config=None):
         if not xml and not db_config:
-            raise Exception("Path to neither xml dump nor config.ini provided")
+            raise Exception("Path to neither xml dump nor config.json provided")
         
         if xml:
             self._finder = XMLGroupFinder(xml)

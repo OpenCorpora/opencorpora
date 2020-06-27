@@ -2,6 +2,7 @@
 import re
 import time
 import ConfigParser
+import json
 import MySQLdb
 from MySQLdb.cursors import DictCursor 
 
@@ -9,13 +10,23 @@ from MySQLdb.cursors import DictCursor
 class AnnotationEditor(object):
     
     def __init__(self, config_path):
-        config = ConfigParser.ConfigParser()
-        config.read(config_path)
+        hostname, dbname, username, password = [None] * 4
+        # expect json config with fallback on ini config
+        try:
+            with open(config_path) as fconf:
+                config = json.load(fconf)['mysql']
+                hostname = config['host']
+                dbname = config['dbname']
+                username = config['user']
+                password = config['passwd']
+        except ValueError:
+            config = ConfigParser.ConfigParser()
+            config.read(config_path)
 
-        hostname = config.get('mysql', 'host')
-        dbname = config.get('mysql', 'dbname')
-        username = config.get('mysql', 'user')
-        password = config.get('mysql', 'passwd')
+            hostname = config.get('mysql', 'host')
+            dbname = config.get('mysql', 'dbname')
+            username = config.get('mysql', 'user')
+            password = config.get('mysql', 'passwd')
 
         self._db_connect = MySQLdb.connect(hostname, username, password, dbname, use_unicode=True, charset="utf8")
         self.db_cursor = self._db_connect.cursor(DictCursor)

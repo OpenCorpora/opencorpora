@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import sys
 import time
-import ConfigParser, MySQLdb
+import json
+import MySQLdb
 from MySQLdb.cursors import DictCursor 
 
 def update_rating(dbh, weights):
@@ -32,23 +33,22 @@ def update_rating(dbh, weights):
             dbh.execute("UPDATE users SET user_rating10 = {0} WHERE user_id = {1} LIMIT 1".format(int(user['rating']), user['user_id']))
 
 def main():
-    config = ConfigParser.ConfigParser()
-    config.read(sys.argv[1])
+    with open(sys.argv[1]) as fconf:
+        config = json.load(fconf)['mysql']
+        hostname = config['host']
+        dbname = config['dbname']
+        username = config['user']
+        password = config['passwd']
 
-    hostname = config.get('mysql', 'host')
-    dbname   = config.get('mysql', 'dbname')
-    username = config.get('mysql', 'user')
-    password = config.get('mysql', 'passwd')
+        weights = config['misc']['morph_annot_rating_weights']
+        assert len(weights) == 5
 
-    weights = map(float, config.get('misc', 'morph_annot_rating_weights').split(','))
-    assert len(weights) == 5
+        db = MySQLdb.connect(hostname, username, password, dbname, use_unicode=True, charset="utf8")
+        dbh = db.cursor(DictCursor)
+        dbh.execute('START TRANSACTION')
+        update_rating(dbh, weights)
 
-    db = MySQLdb.connect(hostname, username, password, dbname, use_unicode=True, charset="utf8")
-    dbh = db.cursor(DictCursor)
-    dbh.execute('START TRANSACTION')
-    update_rating(dbh, weights)
-
-    db.commit()
+        db.commit()
 
 if __name__ == "__main__":
     main()

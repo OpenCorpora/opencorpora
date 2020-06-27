@@ -3,7 +3,8 @@
 import sys
 import re
 import time
-import ConfigParser, MySQLdb
+import json
+import MySQLdb
 from MySQLdb.cursors import DictCursor 
 
 # definitions
@@ -175,22 +176,22 @@ def process_pool(dbh, pool_id, revision):
         update_sample(dbh, sample['sample_id'], new_xml.encode('utf-8'), changeset_id)
     set_pool_status(dbh, pool_id, POOL_STATUS_READY)
 def main():
-    config = ConfigParser.ConfigParser()
-    config.read(sys.argv[1])
+    with open(sys.argv[1]) as fconf:
+        config = json.load(fconf)['mysql']
+        hostname = config['host']
+        dbname = config['dbname']
+        username = config['user']
+        password = config['passwd']
 
-    hostname = config.get('mysql', 'host')
-    dbname   = config.get('mysql', 'dbname')
-    username = config.get('mysql', 'user')
-    password = config.get('mysql', 'passwd')
+        db = MySQLdb.connect(hostname, username, password, dbname, use_unicode=True, charset="utf8")
+        dbh = db.cursor(DictCursor)
+        dbh.execute('START TRANSACTION')
 
-    db = MySQLdb.connect(hostname, username, password, dbname, use_unicode=True, charset="utf8")
-    dbh = db.cursor(DictCursor)
-    dbh.execute('START TRANSACTION')
+        pool_id, revision = get_moderated_pool(dbh)
+        if pool_id is not None:
+            process_pool(dbh, pool_id, revision)
+        db.commit()
 
-    pool_id, revision = get_moderated_pool(dbh)
-    if pool_id is not None:
-        process_pool(dbh, pool_id, revision)
-    db.commit()
 
 if __name__ == "__main__":
     main()

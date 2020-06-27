@@ -5,7 +5,7 @@ from datetime import datetime
 sys.path.append('../python')
 from Annotation import AnnotationEditor
 
-CONFIG_PATH = "../config.ini"
+CONFIG_PATH = "../config.json"
 
 def main():
     editor = AnnotationEditor(CONFIG_PATH)

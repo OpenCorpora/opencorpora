@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 import sys
 import time
-import ConfigParser, MySQLdb
+import json
+import MySQLdb
 from MySQLdb.cursors import DictCursor 
 
 POOL_STATUS_PUBLISHED = 3
@@ -28,20 +29,19 @@ def check_pools(dbh):
 def set_pool_status(dbh, pool_id, status):
     dbh.execute("UPDATE morph_annot_pools SET status={0}, updated_ts={2} WHERE pool_id={1} LIMIT 1".format(status, pool_id, int(time.time())))
 def main():
-    config = ConfigParser.ConfigParser()
-    config.read(sys.argv[1])
+    with open(sys.argv[1]) as fconf:
+        config = json.load(fconf)['mysql']
+        hostname = config['host']
+        dbname = config['dbname']
+        username = config['user']
+        password = config['passwd']
 
-    hostname = config.get('mysql', 'host')
-    dbname   = config.get('mysql', 'dbname')
-    username = config.get('mysql', 'user')
-    password = config.get('mysql', 'passwd')
+        db = MySQLdb.connect(hostname, username, password, dbname, use_unicode=True, charset="utf8")
+        dbh = db.cursor(DictCursor)
+        dbh.execute('START TRANSACTION')
 
-    db = MySQLdb.connect(hostname, username, password, dbname, use_unicode=True, charset="utf8")
-    dbh = db.cursor(DictCursor)
-    dbh.execute('START TRANSACTION')
-
-    check_pools(dbh)
-    db.commit()
+        check_pools(dbh)
+        db.commit()
 
 if __name__ == "__main__":
     main()

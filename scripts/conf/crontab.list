@@ -21,13 +21,13 @@
 45 7 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/train_tokenizer.sh" >/dev/null 2>/dev/null
 
 # several times a day
-2,22,42 * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/update_user_rating.py /corpus/config.ini" 2>>/home/grand/error.log
-20 * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/ma_pools/unpublish_pools.py /corpus/config.ini" 2>>/home/grand/error.log
+2,22,42 * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/update_user_rating.py /corpus/config.json" 2>>/home/grand/error.log
+20 * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/ma_pools/unpublish_pools.py /corpus/config.json" 2>>/home/grand/error.log
 15 * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/tokenizer/check_sentence_split.pl /corpus/config.ini" 2>>/home/grand/error.log
 0,30 0-3,7-23 * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/stats/update_annot_stats.pl /corpus/config.ini" 2>>/home/grand/error.log
 * * * * * nice /corpus/scripts/cronrunner.pl "/corpus/scripts/dict_check.pl /corpus/config.ini" 2>>/home/grand/error.log
 * * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/consistency/form2lemma.pl /corpus/config.ini" 2>>/corpus/logs/consistency.stderr.log
 * * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/consistency/form2tf.pl /corpus/config.ini" 2>>/corpus/logs/consistency.stderr.log
 * * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/consistency/dict_update_forms.pl /corpus/config.ini" 2>>/corpus/logs/consistency.stderr.log
-* * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/ma_pools/merge_pools_data.py /corpus/config.ini" 2>>/home/grand/error.log
+* * * * * /corpus/scripts/cronrunner.pl "/corpus/scripts/ma_pools/merge_pools_data.py /corpus/config.json" 2>>/home/grand/error.log
 # empty line must be here

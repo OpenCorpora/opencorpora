@@ -150,7 +150,7 @@ def process_args():
     
     
     parser.add_argument('config_filename',
-                            help='path to the config.ini file for the database connection')
+                            help='path to the config.json file for the database connection')
     
     parser.add_argument('link_filename',
                             help='path to the file with the links')

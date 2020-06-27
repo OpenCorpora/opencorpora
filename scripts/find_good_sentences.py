@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 import sys
 import re
-import ConfigParser, MySQLdb
+import json
+import MySQLdb
 from MySQLdb.cursors import DictCursor 
 
 PACKET_SIZE = 1000
@@ -44,21 +45,20 @@ def is_homonymous(revision):
     var = re.findall('<v>', revision)
     return len(var) > 1
 def main():
-    config = ConfigParser.ConfigParser()
-    config.read(sys.argv[1])
+    with open(sys.argv[1]) as fconf:
+        config = json.load(fconf)['mysql']
+        hostname = config['host']
+        dbname = config['dbname']
+        username = config['user']
+        password = config['passwd']
 
-    hostname = config.get('mysql', 'host')
-    dbname   = config.get('mysql', 'dbname')
-    username = config.get('mysql', 'user')
-    password = config.get('mysql', 'passwd')
+        db = MySQLdb.connect(hostname, username, password, dbname, use_unicode=True, charset="utf8")
+        dbh = db.cursor(DictCursor)
+        dbh.execute('START TRANSACTION')
+        dbh.execute('TRUNCATE TABLE good_sentences')
+        find_sentences(dbh)
 
-    db = MySQLdb.connect(hostname, username, password, dbname, use_unicode=True, charset="utf8")
-    dbh = db.cursor(DictCursor)
-    dbh.execute('START TRANSACTION')
-    dbh.execute('TRUNCATE TABLE good_sentences')
-    find_sentences(dbh)
-
-    db.commit()
+        db.commit()
 
 if __name__ == "__main__":
     main()
