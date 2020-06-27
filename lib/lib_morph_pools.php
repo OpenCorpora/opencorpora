@@ -596,7 +596,7 @@ function get_available_tasks($user_id, $only_editable=false, $limit=0, $random=f
     global $config;
     $hot_types = array(0);
     if (isset($config['misc']['morph_annot_hot_pool_types']))
-        $hot_types = explode(',', $config['misc']['morph_annot_hot_pool_types']);
+        $hot_types = $config['misc']['morph_annot_hot_pool_types'];
 
     $tasks = array();
 

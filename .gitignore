@@ -2,6 +2,7 @@
 /assets/vendor
 /composer.phar
 /config.ini
+/config.json
 /doc/articles/*.pdf
 /doc/presentations/*.pdf
 /files

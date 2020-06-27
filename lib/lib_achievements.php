@@ -93,7 +93,7 @@ class AchievementsManager {
         $this->user_id = $user_id;
         $this->achievement_types = array_map(function($n) {
             return $n."achievement";
-        }, explode(',', $config['achievements']['names']));
+        }, $config['achievements']['names']);
 
         $this->init_all();
         $this->pull_all();
