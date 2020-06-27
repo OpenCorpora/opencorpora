@@ -13,6 +13,7 @@
     {/if}
 </div>
 <h3>Общая статистика:</h3>
+<p>Всего проверено: {$data.checked.sum} / {$data.total.sum} ({$data.ready|string_format:"%.2f"}%)
 <ul>
 <li>Всего: <a href="?act=merge_fails&status=0">{$data.total[0]}</a>
 <li>Опечатка: <a href="?act=merge_fails&status={$MISPRINT}">{$data.checked[$MISPRINT]}/{$data.total[$MISPRINT]}</a></li>
