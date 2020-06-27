@@ -120,12 +120,12 @@ function get_merge_fails($status=0, $show_checked=false) {
     require_once('lib_annot.php');
     // stats
     $res = sql_pe("
-        SELECT SUM(merge_status = 2) AS checked, COUNT(*) AS total
+        SELECT SUM(merge_status = ".MA_MERGE_STATUS_MANUAL_OK.") AS checked, COUNT(*) AS total
         FROM morph_annot_moderated_samples
             JOIN morph_annot_samples s USING (sample_id)
             JOIN morph_annot_pools p USING (pool_id)
         WHERE p.status = ".MA_POOLS_STATUS_ARCHIVED."
-            AND merge_status IN (0, 2)
+            AND merge_status IN (".MA_MERGE_STATUS_NOT_MERGED.", ".MA_MERGE_STATUS_MANUAL_OK.")
     ");
     $row = $res[0];
     $data = array(
@@ -135,6 +135,9 @@ function get_merge_fails($status=0, $show_checked=false) {
         'ready' => $row['checked'] * 100 / $row['total']
     );
     // main query
+    $statuses = [MA_MERGE_STATUS_NOT_MERGED];
+    if ($show_checked)
+        $statuses[] = MA_MERGE_STATUS_MANUAL_OK;
     $res = sql_query("
         SELECT sample_id, p.pool_name, p.pool_id, p.revision AS pool_revision, pt.grammemes,
             ms.status, ms.answer, s.tf_id, tokens.tf_text, c.comment, merge_status, tfr.rev_text as cur_rev
@@ -146,7 +149,7 @@ function get_merge_fails($status=0, $show_checked=false) {
         LEFT JOIN tokens USING (tf_id)
         LEFT JOIN tf_revisions tfr ON (tokens.tf_id = tfr.tf_id AND is_last = 1)
         WHERE p.status = ".MA_POOLS_STATUS_ARCHIVED."
-        AND merge_status in (0".($show_checked ? ", 2" : "").")
+        AND merge_status in (".join(',', $statuses).")
         ORDER BY merge_status, p.pool_type, status, tf_text, sample_id
     ");
             
@@ -193,7 +196,7 @@ function get_merge_fails($status=0, $show_checked=false) {
         }
         ++$data['total'][$r['status']];
         ++$data['total'][0];
-        if ($r['merge_status'])
+        if ($r['merge_status'] == MA_MERGE_STATUS_MANUAL_OK)
             ++$data['checked'][$r['status']];
     }
     return $data;
@@ -205,7 +208,7 @@ function save_merge_fail_status($sample_id, $is_checked) {
         SET merge_status = ?
         WHERE sample_id = ?
         LIMIT 1
-    ", array($is_checked ? 2 : 0, $sample_id));
+    ", array($is_checked ? MA_MERGE_STATUS_MANUAL_OK : MA_MERGE_STATUS_NOT_MERGED, $sample_id));
 }
 function save_merge_fail_comment($sample_id, $comment_text) {
     check_permission(PERM_MORPH_SUPERMODER);

@@ -4,6 +4,7 @@
 {$MISPRINT = $smarty.const.MA_SAMPLES_STATUS_MISPRINT}
 {$HOMONYMY = $smarty.const.MA_SAMPLES_STATUS_HOMONYMOUS}
 {$EDIT = $smarty.const.MA_SAMPLES_STATUS_MANUAL_EDIT}
+{$MANUAL = $smarty.const.MA_MERGE_STATUS_MANUAL_OK}
 <h1>Отмодерированные примеры, которые не изменили корпус</h1>
 <div>
     {if empty($smarty.get.show_checked)}
@@ -58,7 +59,7 @@
     </td>
     <td>{$sample.mod_answer}</td>
     <td>{$sample.prod_answer}</td>
-    <td><input type="checkbox" {if $sample.merge_status == 2}checked="checked"{/if} class="approve-sample" data-id="{$sample.id}"/></td>
+    <td><input type="checkbox" {if $sample.merge_status == $MANUAL}checked="checked"{/if} class="approve-sample" data-id="{$sample.id}"/></td>
     <td class="comment-cell" data-id="{$sample.id}" contenteditable>{$sample.comment}</td>
 </tr>
 {/foreach}

@@ -52,6 +52,11 @@ define('MA_SAMPLES_STATUS_MISPRINT', 3);
 define('MA_SAMPLES_STATUS_HOMONYMOUS', 4);
 define('MA_SAMPLES_STATUS_MANUAL_EDIT', 5);  // for non-merged samples
 
+define('MA_MERGE_STATUS_NOT_MERGED', 0);
+define('MA_MERGE_STATUS_AUTO_OK', 1);
+define('MA_MERGE_STATUS_MANUAL_OK', 2);
+define('MA_MERGE_STATUS_POST_OK', 3);
+
 define('MA_ANNOTATORS_PER_SAMPLE', 4);
 define('MA_DEFAULT_POOL_SIZE', 50);
 define('MA_ANSWER_OTHER', 99);
