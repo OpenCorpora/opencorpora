@@ -255,6 +255,8 @@ class MorphParseSet {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'PNCT')));
         } elseif (preg_match('/^\p{Nd}+[\.,]?\p{Nd}*$/u', $token)) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'NUMB')));
+        } elseif (preg_match('/^([01][0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/u', $token)) {
+            $this->parses[] = new MorphParse($token, array(array('inner' => 'TIME')));
         } elseif (preg_match('/^[\p{Latin}\.-]+$/u', $token)) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'LATN')));
         } elseif (preg_match('/^\p{S}+$/u', $token)) {
