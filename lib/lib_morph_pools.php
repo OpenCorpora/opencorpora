@@ -1129,3 +1129,44 @@ function get_pool_manual_page($type_id) {
     return $res[0]['doc_link'];
 }
 
+function post_merge_pools() {
+    // get moderated samples that failed to be merged
+    $res = sql_query("
+        SELECT tfr.rev_text, t.grammemes, sample_id, tokens.tf_id AS token_id, answer
+        FROM morph_annot_moderated_samples ms
+            LEFT JOIN morph_annot_samples s USING (sample_id)
+            LEFT JOIN morph_annot_pools p USING (pool_id)
+            LEFT JOIN morph_annot_pool_types t ON (p.pool_type = t.type_id)
+            LEFT JOIN tokens USING (tf_id)
+            LEFT JOIN tf_revisions tfr
+                ON (tokens.tf_id = tfr.tf_id AND tfr.is_last = 1)
+        WHERE p.status = ".MA_POOLS_STATUS_ARCHIVED."
+        AND ms.status IN (".join(',', [MA_SAMPLES_STATUS_OK, MA_SAMPLES_STATUS_ALMOST_OK]).")
+        AND merge_status = ".MA_MERGE_STATUS_NOT_MERGED."
+    ");
+    $upd = sql_prepare("
+        UPDATE morph_annot_moderated_samples
+        SET merge_status = ".MA_MERGE_STATUS_POST_OK."
+        WHERE sample_id = ?
+        LIMIT 1
+    ");
+    sql_begin();
+    foreach ($res as $row) {
+        // check if current parses match pool type:
+        // every parse must match exactly one gramset
+        // and every gramset must be matched by at least one parse
+        $filterset = new GramFilterSet($row['grammemes']);
+        $correct = $filterset->filters[$row['answer'] - 1];
+        $pset = new MorphParseSet($row['rev_text']);
+        if ($pset->is_unknown()) {
+            continue;
+        } else if ($pset->match($correct)) {
+            sql_execute($upd, array($row['sample_id']));
+        } else if ($pset->match_set($filterset)) {
+            $pset->filter_by_gram_set($correct);
+            create_tf_revision(current_revset("Post-merge pools data, see issue #878", 0), $row['token_id'], $pset->to_xml());
+            sql_execute($upd, array($row['sample_id']));
+        }
+    }
+    sql_commit();
+}

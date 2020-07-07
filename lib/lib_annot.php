@@ -1,6 +1,43 @@
 <?php
 require_once('lib_books.php');
 
+class GramFilterType {
+    const FLT_OR = 0;
+    const FLT_AND = 1;
+}
+class GramFilter {
+    public $match_type;
+    public $grammemes = array();
+
+    public function __construct($gram_str) {
+        if (strpos($gram_str, "|") !== false) {
+            if (strpos($gram_str, "&") !== false) {
+                throw new Exception("Gram filter must be either OR or AND");
+            } else {
+                $this->match_type = GramFilterType::FLT_OR;
+                $this->_fill_grammemes($gram_str, "|");
+            }
+        } else {
+            // either no operators (one grammeme) or AND
+            $this->match_type = GramFilterType::FLT_AND;
+            $this->_fill_grammemes($gram_str, "&");
+        }
+    }
+
+    private function _fill_grammemes($gram_str, $op) {
+        $this->grammemes = array_map("trim", explode($op, $gram_str));
+    }
+}
+class GramFilterSet {
+    public $filters;
+
+    public function __construct($at_separated_str) {
+        foreach (explode('@', $at_separated_str) as $item) {
+            $this->filters[] = new GramFilter(trim($item));
+        }
+    }
+}
+
 class MorphParse {
     public $lemma_id = 0;
     public $lemma_text;
@@ -55,6 +92,20 @@ class MorphParse {
     public function get_inner_gramlist() {
         return array_column($this->gramlist, 'inner');
     }
+
+    public function match(GramFilter $filter) {
+        $gramlist = $this->get_inner_gramlist();
+        foreach ($filter->grammemes as $gr) {
+            $has = ($gr[0] == '!' && !in_array(substr($gr, 1), $gramlist)) || ($gr[0] != '!' && in_array($gr, $gramlist));
+            if ($has && $filter->match_type == GramFilterType::FLT_OR) {
+                return true;
+            }
+            if (!$has && $filter->match_type == GramFilterType::FLT_AND) {
+                return false;
+            }
+        }
+        return $filter->match_type == GramFilterType::FLT_AND;
+    }
 }
 
 class MorphParseUnknown extends MorphParse {
@@ -93,8 +144,7 @@ class MorphParseSet {
             if (($parse->lemma_id == $lemma_id) == $allow)
                 $newparses[] = $parse;
         $this->parses = $newparses;
-        if (sizeof($this->parses) == 0)
-            $this->_from_token($this->token_text, true, false);
+        $this->_check_empty();
     }
 
     public function filter_by_parse_index($index_array) {
@@ -103,8 +153,42 @@ class MorphParseSet {
             if (in_array($i, $index_array))
                 $newparses[] = $parse;
         $this->parses = $newparses;
-        if (sizeof($this->parses) == 0)
-            $this->_from_token($this->token_text, true, false);
+        $this->_check_empty();
+    }
+
+    public function filter_by_gram_set(GramFilter $gram_filter) {
+        $newparses = array();
+        foreach ($this->parses as $parse)
+            if ($parse->match($gram_filter))
+                $newparses[] = $parse;
+        $this->parses = $newparses;
+        $this->_check_empty();
+    }
+
+    public function match(GramFilter $filter) {
+        foreach ($this->parses as $parse) {
+            if (!$parse->match($filter)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public function match_set(GramFilterSet $flt_set) {
+        $matched_filters = array();
+        foreach ($this->parses as $parse) {
+            $matched = 0;
+            foreach ($flt_set->filters as $i => $filter) {
+                if ($parse->match($filter)) {
+                    ++$matched;
+                    $matched_filters[] = $i;
+                }
+            }
+            if ($matched != 1) {
+                return false;
+            }
+        }
+        return sizeof(array_unique($matched_filters)) == sizeof($flt_set->filters);
     }
 
     public function remove_parse($lemma_id, $grams) {
@@ -114,9 +198,7 @@ class MorphParseSet {
                 $new_parses[] = $parse;
         }
         $this->parses = $new_parses;
-
-        if (sizeof($this->parses) == 0)
-            $this->parses[] = new MorphParseUnknown($this->token_text);
+        $this->_check_empty();
     }
 
     public function set_lemma_text($lemma_id, $lemma_text) {
@@ -291,6 +373,11 @@ class MorphParseSet {
             }
         }
         $this->parses = $uniq;
+    }
+
+    private function _check_empty() {
+        if (sizeof($this->parses) == 0)
+            $this->_from_token($this->token_text, true, false);
     }
 }
 
