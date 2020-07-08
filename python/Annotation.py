@@ -189,10 +189,15 @@ class ParsingVariant(object):
     def replace_gramset(self, search, replace):
         assert isinstance(search, (list, tuple))
         assert isinstance(replace, (list, tuple))
+        self._replace_sublist(self.grammemes, list(search), list(replace))
 
-        self.grammemes = (
-            [g for g in self.grammemes if g not in search] + list(replace)
-        )
+    @staticmethod
+    def _replace_sublist(seq, sublist, replacement):
+        length = len(sublist)
+        for index in range(len(seq) - length + 1):
+            if seq[index:index+length] == sublist:
+                seq[index:index+length] = replacement
+                break
 
 
 class AnnotatedToken(object):
