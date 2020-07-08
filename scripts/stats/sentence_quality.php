@@ -18,7 +18,6 @@ function update() {
             LEFT JOIN sentences USING (sent_id)
         WHERE is_last = 1
         ORDER BY sent_id
-        LIMIT 50000
     ");
     $stats = array();
     $last_sent_id = 0;
@@ -62,7 +61,7 @@ function update() {
             ++$word_count;
         } else {
             $gram = $pset->parses[0]->gramlist[0]['inner'];
-            if (!in_array($gram, array('PNCT', 'SYMB'))) {
+            if (!in_array($gram, array('PNCT', 'SYMB', 'NUMB', 'TIME', 'DATE'))) {
                 ++$word_count;
             }
         }
