@@ -82,6 +82,8 @@ function update() {
     sql_begin();
     sql_query("TRUNCATE TABLE sentence_quality");
     foreach ($stats as $len => $data) {
+        if ($len == 0)
+            continue;
         foreach ($data as $status => $count) {
             sql_pe("
                 INSERT INTO sentence_quality SET length = ?, status = ?, count = ?

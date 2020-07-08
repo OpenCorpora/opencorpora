@@ -39,6 +39,10 @@ $(document).ready(function() {
             lines: {fill: true},
         },
         colors: ["#85C1E9", "#F39C12", "#CB4335"],
+        xaxis: {
+            transform: function (v) { return Math.log(v); },
+            inverseTransform: function (v) { return Math.exp(v); }
+        },
     };
     var sent_ambiguous = {label: "С неоднозначностью", data:[{/literal}{$sentence_chart.{$smarty.const.SENTENCE_QUALITY_NONE}}{literal}]};
     var sent_no_ambig = {label: "Без неоднозначных разборов", data:[{/literal}{$sentence_chart.{$smarty.const.SENTENCE_QUALITY_NO_AMBIG}}{literal}]};
