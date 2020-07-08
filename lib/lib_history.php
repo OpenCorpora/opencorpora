@@ -257,12 +257,16 @@ function revert_changeset($set_id, $comment) {
 
     $res = sql_pe("SELECT tf_id FROM tf_revisions WHERE set_id=?", array($set_id));
     $res_revtext = sql_prepare("SELECT rev_text FROM tf_revisions WHERE tf_id=? AND set_id<? ORDER BY rev_id DESC LIMIT 1");
+    $new_revisions = [];
     foreach ($res as $r) {
         sql_execute($res_revtext, array($r[0], $set_id));
         $arr = sql_fetch_array($res_revtext);
-        create_tf_revision($new_set_id, $r[0], $arr[0]);
+        $new_revisions[] = [$r[0], $arr[0]];
     }
     $res_revtext->closeCursor();
+    foreach ($new_revisions as $rev) {
+        create_tf_revision($new_set_id, $rev[0], $rev[1]);
+    }
 
     $res = sql_pe("SELECT lemma_id FROM dict_revisions WHERE set_id=?", array($set_id));
     $res_revtext = sql_prepare("SELECT rev_text FROM dict_revisions WHERE lemma_id=? AND set_id<? ORDER BY rev_id DESC LIMIT 1");
