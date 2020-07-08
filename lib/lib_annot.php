@@ -67,7 +67,7 @@ class MorphParseSet {
     public $token_text;
     public $parses;
     private static $gram_descr = array();
-    private static $RE_CYR_TOKEN = '/^[А-Яа-яЁё][А-Яа-яЁё\-\']*$/u';
+    private static $RE_CYR_TOKEN = '/^[А-Яа-яЁё][А-Яа-яЁё\-\.\']*$/u';
     private static $RE_MIXED_TOKEN = '/^[0-9]+\-[А-Яа-яЁё]+$/u';  // like '2-ого'
 
     public function __construct($xml="", $token_text="", $force_unknown=false, $force_include_init=false, $restrict_lemma_id=0) {
