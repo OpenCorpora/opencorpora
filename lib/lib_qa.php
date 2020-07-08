@@ -119,13 +119,18 @@ function get_good_sentences($no_zero = false) {
 function get_merge_fails($status=0, $show_checked=false) {
     require_once('lib_annot.php');
     // stats
+    $stat_statuses = [
+        MA_MERGE_STATUS_NOT_MERGED,
+        MA_MERGE_STATUS_MANUAL_OK,
+        MA_MERGE_STATUS_POST_OK
+    ];
     $res = sql_pe("
-        SELECT SUM(merge_status = ".MA_MERGE_STATUS_MANUAL_OK.") AS checked, COUNT(*) AS total
+        SELECT SUM(merge_status != ".MA_MERGE_STATUS_NOT_MERGED.") AS checked, COUNT(*) AS total
         FROM morph_annot_moderated_samples
             JOIN morph_annot_samples s USING (sample_id)
             JOIN morph_annot_pools p USING (pool_id)
         WHERE p.status = ".MA_POOLS_STATUS_ARCHIVED."
-            AND merge_status IN (".MA_MERGE_STATUS_NOT_MERGED.", ".MA_MERGE_STATUS_MANUAL_OK.")
+            AND merge_status IN (".join(',', $stat_statuses).")
     ");
     $row = $res[0];
     $data = array(
@@ -137,7 +142,7 @@ function get_merge_fails($status=0, $show_checked=false) {
     // main query
     $statuses = [MA_MERGE_STATUS_NOT_MERGED];
     if ($show_checked)
-        $statuses[] = MA_MERGE_STATUS_MANUAL_OK;
+        $statuses = $stat_statuses;
     $res = sql_query("
         SELECT sample_id, p.pool_name, p.pool_id, p.revision AS pool_revision, pt.grammemes,
             ms.status, ms.answer, s.tf_id, tokens.tf_text, c.comment, merge_status, tfr.rev_text as cur_rev
@@ -196,7 +201,7 @@ function get_merge_fails($status=0, $show_checked=false) {
         }
         ++$data['total'][$r['status']];
         ++$data['total'][0];
-        if ($r['merge_status'] == MA_MERGE_STATUS_MANUAL_OK)
+        if ($r['merge_status'] != MA_MERGE_STATUS_NOT_MERGED)
             ++$data['checked'][$r['status']];
     }
     return $data;
