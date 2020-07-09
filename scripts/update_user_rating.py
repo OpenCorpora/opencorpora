@@ -34,11 +34,11 @@ def update_rating(dbh, weights):
 
 def main():
     with open(sys.argv[1]) as fconf:
-        config = json.load(fconf)['mysql']
-        hostname = config['host']
-        dbname = config['dbname']
-        username = config['user']
-        password = config['passwd']
+        config = json.load(fconf)
+        hostname = config['mysql']['host']
+        dbname = config['mysql']['dbname']
+        username = config['mysql']['user']
+        password = config['mysql']['passwd']
 
         weights = config['misc']['morph_annot_rating_weights']
         assert len(weights) == 5
