@@ -215,6 +215,7 @@ class MorphParseSet {
         foreach ($this->parses as $parse)
             if ($parse->lemma_id == $lemma_id)
                 $parse->replace_gram_subset($gram_find, $gram_replace);
+        $this->_make_parses_unique();  // non-uniqueness can occur here in smart updates
     }
 
     public function merge_from(MorphParseSet $other) {
