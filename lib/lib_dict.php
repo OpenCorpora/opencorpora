@@ -359,8 +359,10 @@ function smart_update_pending_token(MorphParseSet $parse_set, $rev_id) {
     }
 
     foreach (array_unique($added_forms_texts) as $ftext) {
-        $new_parses = new MorphParseSet(false, $ftext, false, false, $lemma_id);
-        $parse_set->merge_from($new_parses);
+        if ($ftext == $parse_set->token_text) {
+            $new_parses = new MorphParseSet(false, $ftext, false, false, $lemma_id);
+            $parse_set->merge_from($new_parses);
+        }
     }
     foreach ($deleted_forms as $df) {
         $parse_set->remove_parse($lemma_id, array_merge($lex_prev->lemma->grammemes, $df->grammemes));
