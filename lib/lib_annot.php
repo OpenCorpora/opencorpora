@@ -344,6 +344,10 @@ class MorphParseSet {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'DATE')));
         } elseif (preg_match('/^[\p{Latin}\.-]+$/u', $token)) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'LATN')));
+        } elseif (preg_match('/^[\p{Han}]+$/u', $token)) {
+            $this->parses[] = new MorphParse($token, array(array('inner' => 'HANI')));
+        } elseif (preg_match('/^[\p{Greek}]+$/u', $token)) {
+            $this->parses[] = new MorphParse($token, array(array('inner' => 'GREK')));
         } elseif (preg_match('/^\p{S}+$/u', $token)) {
             $this->parses[] = new MorphParse($token, array(array('inner' => 'SYMB')));
         }
