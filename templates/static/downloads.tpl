@@ -36,6 +36,7 @@
 <h2>Размеченные тексты</h2>
 <p>Весь корпус, XML (<i class="icon-info-sign"></i> <a href="/export/annot/annot.opcorpora.xsd">XML Schema</a>) <span class="small muted">обновлён {$dl.annot.xml.updated}</span><br/>
 <span class='small'>предложений: {$stats.dump_full_sentences.value}, токенов: {$stats.dump_full_tokens.value}, слов: {$stats.dump_full_words.value}</span></p>
+<p class='small'><sup>*</sup> Морфологическая разметка. Неоднозначность снята частично (там, где хватило данных).</p>
 <ul>
 <li>целиком: <a href="/files/export/annot/annot.opcorpora.xml.bz2">архив .bz2</a> ({$dl.annot.xml.bz2.size} Мб), <a href="/files/export/annot/annot.opcorpora.xml.zip">архив .zip</a> ({$dl.annot.xml.zip.size} Мб)</li>
 <li>один текст на файл: <a href="/files/export/annot/annot.opcorpora.xml.byfile.bz2">архив .bz2</a>, <a href="/files/export/annot/annot.opcorpora.xml.byfile.zip">архив .zip</a></li>
@@ -48,7 +49,7 @@
         <span class='small muted'>({$dl.annot.disamb_xml.zip.size} Мб)</span>
     <span class="small">обновлён {$dl.annot.disamb_xml.updated}</span><br/>
 <span class='small'>предложений: {$stats.dump_disamb_sentences.value}, токенов: {$stats.dump_disamb_tokens.value}, слов: {$stats.dump_disamb_words.value}</span></p>
-<p class='small'><sup>*</sup> В подкорпус включены целые предложения, не имеющие в своём составе ни одного неоднозначно разобранного слова &mdash; как изначально однозначные предложения, так и те, в которых неоднозначность была снята вручную.</p>
+<p class='small'><sup>*</sup> В подкорпус включены только целые предложения, не имеющие в своём составе ни одного неоднозначно разобранного слова &mdash; как изначально однозначные предложения, так и те, в которых неоднозначность была снята вручную.</p>
 
 <p><b>Подкорпус со снятой омонимией без UNKN</b>, XML
     | <a href="/files/export/annot/annot.opcorpora.no_ambig_strict.xml.bz2">.bz2</a>
