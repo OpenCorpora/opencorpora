@@ -116,9 +116,15 @@ function remember_user($user_id, $auth_token=false, $set_cookie=true) {
     return $token;
 }
 function make_new_user($login, $passwd, $email, $shown_name) {
+    sql_begin();
     sql_pe("INSERT INTO `users` VALUES(NULL, ?, ?, ?, ?, ?, 0, 1, 1, 0)",
            array($login, $passwd, $email, time(), $shown_name));
-    return sql_insert_id();
+    $user_id = sql_insert_id();
+    if (preg_match('/^http/u', $shown_name)) {
+        user_change_shown_name("user$user_id", $user_id);
+    }
+    sql_commit();
+    return $user_id;
 }
 function user_login_openid($token) {
     $ch = curl_init();
@@ -242,10 +248,12 @@ function user_change_email($email, $passwd) {
     else
         return 2;
 }
-function user_change_shown_name($new_name) {
+function user_change_shown_name($new_name, $user_id = 0) {
     if (!preg_match('/^[a-zа-я0-9ё_\-\s\.]{2,}$/ui', $new_name))
         return 2;
-    sql_pe("UPDATE users SET user_shown_name = ? WHERE user_id = ? LIMIT 1", array($new_name, $_SESSION['user_id']));
+    if (!$user_id)
+        $user_id = $_SESSION['user_id'];
+    sql_pe("UPDATE users SET user_shown_name = ? WHERE user_id = ? LIMIT 1", array($new_name, $user_id));
     $_SESSION['user_name'] = $new_name;
     return 1;
 }
