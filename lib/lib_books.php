@@ -136,6 +136,25 @@ function books_rename($book_id, $name) {
         throw new UnexpectedValueException();
     sql_pe("UPDATE `books` SET book_name=? WHERE book_id=? LIMIT 1", array($name, $book_id));
 }
+function books_delete($book_id) {
+    check_permission(PERM_ADMIN);
+    // cannot delete nonempty books
+    $res = sql_pe("SELECT COUNT(*) AS cnt FROM books WHERE parent_id = ?", array($book_id));
+    if ($res[0]['cnt'] > 0) {
+        throw new Exception("Cannot delete book with children");
+    }
+    $res = sql_pe("SELECT COUNT(*) AS cnt FROM paragraphs WHERE book_id = ?", array($book_id));
+    if ($res[0]['cnt'] > 0) {
+        throw new Exception("Cannot delete book with paragraphs");
+    }
+    $res = sql_pe("SELECT parent_id FROM books WHERE book_id = ?", array($book_id));
+    $parent_id = $res[0]['parent_id'];
+    sql_begin();
+    sql_pe("DELETE FROM book_tags WHERE book_id = ?", array($book_id));
+    sql_pe("DELETE FROM books WHERE book_id = ?", array($book_id));
+    sql_commit();
+    return $parent_id;
+}
 function get_books_for_select($parent = -1) {
     $out = array();
     $pg = $parent > -1 ? "WHERE `parent_id`=$parent" : '';

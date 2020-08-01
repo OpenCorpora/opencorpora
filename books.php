@@ -140,6 +140,11 @@ else {
             books_rename($book_id, $name);
             header("Location:books.php?book_id=$book_id");
             break;
+        case 'delete':
+            $book_id = GET('book_id');
+            $parent_id = books_delete($book_id);
+            header("Location:books.php?book_id=$parent_id");
+            break;
         case 'add_tag':
             $book_id = POST('book_id');
             $tag_name = POST('tag_name');

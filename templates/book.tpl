@@ -48,6 +48,9 @@
             $('a.delete-par').click(function(event){
                 return confirm('Удалить абзац? Это действие нельзя будет отменить.');
             });
+            $('a.btn-del-book').click(function(event){
+                return confirm('Удалить книгу?');
+            });
         
             $("#tag_name").autocomplete({
                 serviceUrl: "ajax/tag_autocomplete.php",
@@ -217,4 +220,5 @@
         <p>В тексте нет ни одного предложения.</p>
     {/if}
     {if !isset($book.children[0]) && $user_permission_adder}<p><a href="/add.php?to={$book.id}">Добавить текст в эту книгу</a></p>{/if}
+    {if !isset($book.children[0]) && !isset($book.paragraphs) && $is_admin}<p> <a class="btn btn-danger btn-del-book" href="?act=delete&amp;book_id={$book.id}">Удалить</a></p>{/if}
 {/block}
