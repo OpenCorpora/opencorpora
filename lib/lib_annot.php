@@ -326,7 +326,6 @@ class MorphParseSet {
                             $gramlist[] = array('inner' => $gr);
                             if ($gr == 'Init') {
                                 $require_uc = true;
-                                break;
                             }
                         }
                     }
