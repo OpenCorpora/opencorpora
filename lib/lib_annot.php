@@ -124,7 +124,7 @@ class MorphParseSet {
     public function __construct($xml="", $token_text="", $force_unknown=false, $force_include_init=false, $restrict_lemma_id=0) {
         if ($xml)
             $this->_from_xml($xml);
-        elseif ($token_text)
+        elseif ($token_text !== "")
             $this->_from_token($token_text, $force_unknown, $force_include_init, $restrict_lemma_id);
         else
             throw new Exception();
