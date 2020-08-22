@@ -42,6 +42,9 @@ def do_import(editor, stream):
             elif not skip:
                 new_lemma.add_form(form_text, gram_form)
 
+    if new_lemma is not None:
+        new_lemma.save()
+
 
 def main():
     editor = AnnotationEditor(CONFIG_PATH)
