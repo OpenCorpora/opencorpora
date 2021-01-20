@@ -26,7 +26,7 @@
         <script src="/assets/js/main.js?3" type="text/javascript"></script>
         <script src="/assets/js/jquery.mousewheel.js" type="text/javascript"></script>
         <script src="/assets/vendor/bootstrap/js/bootstrap.min.js"></script>
-        <script src="/assets/vendor/bootstrap-notify/js/bootstrap-notify.js"></script>
+        <script src="/assets/vendor/bootstrap-notify/js/bootstrap-notify.js?1"></script>
 
     </head>
 {block name=nojs}<noscript><meta http-equiv="refresh" content="0; URL=/no_js.php"></noscript>{/block}
