@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+
+  opencorpora_front:
+    build: .
+    container_name: opencorpora_front
+    restart: always
+    ports:
+      - 80:80
+
+  opencorpora_db:
+    image: mysql:latest
+    container_name: opencorpora_db
+    restart: always
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE
+    environment:
+      MYSQL_ROOT_PASSWORD: 'test_pass' # TODO: Change this
+    volumes:
+      - ocsqldata:/var/lib/mysql
+
+volumes:
+  ocsqldata:
+
