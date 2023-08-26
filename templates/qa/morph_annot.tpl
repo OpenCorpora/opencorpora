@@ -134,7 +134,7 @@ $(document).ready(function() {
 <br>
 <ul class="breadcrumb">
     <li><a href="/tasks.php">Разметка</a> <span class="divider">/</span></li>
-    <li class="active">{$packet.gram_descr|implode:" &mdash; "}</li>
+    <li class="active">{" &mdash; "|implode:$packet.gram_descr}</li>
 </ul>
 <div class="ma_annot_top_block clearfix">
     {if $packet.has_manual}<div class="pull-right">
