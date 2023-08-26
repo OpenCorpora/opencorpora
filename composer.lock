@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "341385f104de3f43d7a6d9de25b5c3b1",
+    "content-hash": "16ac1a2de5cb14156b17420910b49a2b",
     "packages": [
         {
             "name": "components/jquery",
@@ -486,16 +486,16 @@
         },
         {
             "name": "smarty/smarty",
-            "version": "v4.1.0",
+            "version": "v4.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/smarty-php/smarty.git",
-                "reference": "9e0536de18b53ba193364291ef0303b0ab9903e1"
+                "reference": "e28cb0915b4e3749bf57d4ebae2984e25395cfe5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/9e0536de18b53ba193364291ef0303b0ab9903e1",
-                "reference": "9e0536de18b53ba193364291ef0303b0ab9903e1",
+                "url": "https://api.github.com/repos/smarty-php/smarty/zipball/e28cb0915b4e3749bf57d4ebae2984e25395cfe5",
+                "reference": "e28cb0915b4e3749bf57d4ebae2984e25395cfe5",
                 "shasum": ""
             },
             "require": {
@@ -543,7 +543,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2022-02-06T20:34:27+00:00"
+            "time": "2023-03-28T19:47:03+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
